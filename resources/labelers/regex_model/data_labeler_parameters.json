@@ -1,0 +1,1 @@
+{"model": {"class": "RegexModel"}, "preprocessor": {"class": "DirectPassPreprocessor"}, "postprocessor": {"class": "RegexPostProcessor"}}

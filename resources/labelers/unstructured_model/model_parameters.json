@@ -1,0 +1,1 @@
+{"max_char_encoding_id": 127, "size_conv": 13, "max_length": 3400, "dim_embed": 64, "size_fc": [96, 96], "dropout": 0.073, "default_label": "BACKGROUND", "pad_label":  "PAD", "num_fil": [48, 48, 48, 48]}

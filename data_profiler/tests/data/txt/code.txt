@@ -1,0 +1,1607 @@
+#!/usr/bin/env python
+"""
+coding=utf-8
+
+Build model for a dataset by identifying type of column along with its respective parameters.
+"""
+from __future__ import print_function
+
+import dataprofiler.settings as settings
+
+import warnings
+import random
+import numpy as np
+import pandas as pd
+import datetime
+import socket
+import re
+import string
+import abc
+import ast
+from collections import OrderedDict
+import warnings
+
+
+class abstractstaticmethod(staticmethod):
+
+    __slots__ = ()
+
+    def __init__(self, function):
+        super(abstractstaticmethod, self).__init__(function)
+        function.__isabstractmethod__ = True
+
+    __isabstractmethod__ = True
+
+
+class BaseColumnProfile(object):
+    """
+    Abstract and factory class for profiling a column of data. Factory class
+    takes in a column and outputs the appropriate column profile subclass.
+    """
+    __metaclass__ = abc.ABCMeta
+    col_type = None
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of base class properties for the subclass.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        self.name = column_schema["name"]
+        self.col_index = np.nan
+        self.anonymized_name = column_schema["anonymized_name"]
+        self.sample_size = 0
+        self.count_none = 0
+        self.null_type = list()
+        self.is_list = self._does_col_contain_list(df_series_clean)
+
+    @staticmethod
+    def _get_hashed_name(size=6, prefix=None,
+                         chars=string.ascii_lowercase + string.digits):
+        """
+        Obtain a string of random character. Used for anonymizing names.
+        :param size: number of characters to generate
+        :type size: int
+        :param prefix: prefix to add to new name generated
+        :type prefix: str
+        :param chars: characters to choose from when generating new name
+        :type chars: list[str]
+        :return: random string
+        :rtype: str
+        """
+        hashed_id = ''.join(random.choice(chars) for _ in range(size))
+        if prefix is None:
+            hashed_id = prefix + "_" + hashed_id
+        return hashed_id
+
+    @property
+    def freq_none(self):
+        """
+        Instance property for the frequency of null values.
+        :return: float
+        """
+        return float(self.count_none) / self.sample_size
+
+    @staticmethod
+    def _combine_unique_sets(a, b):
+        """
+        Method to union two lists.
+        :type a: list
+        :type b: list
+        :rtype: list
+        """
+        if not a and not b:
+            return list()
+        elif not a:
+            return b
+        elif not b:
+            return a
+        return list(OrderedDict.fromkeys(a+b))
+
+    def _update_column_base_properties(self, null_params):
+        """
+        Updates the base properties with the base schema.
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+        self.sample_size += null_params["sample_size"]
+        self.count_none += null_params["count_none"]
+        self.null_type = self._combine_unique_sets(
+            self.null_type, null_params["null_type"]
+        )
+
+    @staticmethod
+    def _is_list(x):
+        """
+        determines if a given string is a list or is a string with list format. For
+        example,  '[\'hello\']' will return True.
+        :param x: the variable to be determined if is a list
+        :type x: any type
+        :return: Given variable is list or not.
+        :rtype: bool
+        """
+        if type(x) is list:
+            return True
+        try:
+            return type(ast.literal_eval(x)) is list
+        except:
+            return False
+
+    @classmethod
+    def _does_col_contain_list(cls, df_series):
+        """
+        Identify if the column contains lists
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: boolean
+        """
+        len_df_series = len(df_series)
+
+        if len_df_series == 0:
+            return False
+        num_samples_to_check = max(int(0.05 * len_df_series), 500)
+        idx_to_check = [random.randint(0, len_df_series - 1) for _ in
+                        xrange(num_samples_to_check)]
+
+        count_list_elements = 0
+        for k in idx_to_check:
+            if cls._is_list(df_series.iat[k]):
+                count_list_elements += 1
+
+        if count_list_elements >= \
+                num_samples_to_check * settings.COLUMN_MATCH_THRESHOLD:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def get_and_clean_null_params(df_series):
+        """
+        Identify null characters and return them in a dictionary as well as remove any nulls in column
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: updated column with null removed and dictionary of null parameters
+        :rtype: pd.Series, dict
+        """
+        # Pandas reads empty values in the csv files as nan
+        df_series = df_series.apply(str)
+        possible_na = [
+            "",
+            "(?i)nan",
+            "(?i)none",
+            "(?i)null",
+            "  *",
+            "--*",
+            "__*"
+        ]
+
+        model = dict()
+        len_df = len(df_series)
+
+        na_list = list()
+
+        df_series = df_series.dropna()
+        if len(df_series) < len_df:
+            na_list.append("")
+        # Check if known null types exist in column
+        for na in possible_na:
+            # Check for the regex of the na in the string.
+            reg_ex_na = "^" + na + "$"
+            matching_na_elements = df_series.str.match(reg_ex_na)
+            if any(matching_na_elements):
+                if na in ["  *", "--*", "__*"] or "(?i)" in na:
+                    # If there are white spaces, add them as unique values to
+                    # null_list
+                    na_list = na_list + df_series[
+                        matching_na_elements].unique().tolist()
+                else:
+                    na_list.append(na)
+                # Drop the values that matched regex_na
+                df_series = df_series[~matching_na_elements]
+
+        non_na = len(df_series)
+        total_na = len_df - non_na
+
+        model["sample_size"] = len_df
+        model["count_none"] = total_na
+        model["null_type"] = na_list
+
+        return df_series, model
+
+    @classmethod
+    def _generate_base_column_profile(cls, df_series):
+        """
+        Helper function for creating the initial column profile of the column.
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: profiled column properties dictionary, cleaned column dataset
+        :rtype: dict, pandas.core.series.Series
+        """
+        name = df_series.name
+        column_schema = dict(
+            name=name,
+            col_type=None,
+            anonymized_name=cls._get_hashed_name(size=4, prefix="var"),
+            sample_size=0,
+            count_none=0,
+            null_type=list(),
+            freq_none=0
+        )
+
+        df_without_null_elements, null_params = \
+            cls.get_and_clean_null_params(df_series)
+
+        column_schema["sample_size"] += len(df_series)
+        column_schema["count_none"] += null_params["count_none"]
+        column_schema["null_type"] = cls._combine_unique_sets(
+            column_schema["null_type"], null_params["null_type"]
+        )
+
+        return column_schema, df_without_null_elements
+
+    def __getitem__(self, item):
+        """
+        Override for the [] operator to allow access to class properties.
+        NOTE: Will be removed when switched over, only used as a method to
+        integrate with current setup.
+        """
+        if not hasattr(self, item):
+            raise ValueError("The property '{} does not exist.".format(item))
+        return getattr(self, item)
+
+    @staticmethod
+    def _get_subclasses():
+        """Returns all subclasses of the abstract base class."""
+        # NOTE: these profilers are ordered. Test functionality if changed.
+        return [
+            NullColumn,
+            TextColumn,
+            DateTimeColumn,
+            IpAddressColumn,
+            OrderColumn,
+            LatLongColumn,
+            IntColumn,
+            FloatColumn,
+            CategoricalColumn,
+        ]
+
+    @classmethod
+    def get_column_profile(cls, df_series):
+        """
+        Profiles the column dataframe and returns the recommended profile
+        subclass.
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: column profile subclass
+        :rtype: TypeVar('T', bound=BaseColumnProfile)
+        """
+        subclasses = cls._get_subclasses()
+
+        # convert all the values to string
+        df_series = df_series.apply(str)
+
+        column_schema, df_without_null_elements = \
+            cls._generate_base_column_profile(df_series)
+
+        for column_type in subclasses:
+            profile_matches_class, metadata = column_type.is_match(
+                df_without_null_elements
+            )
+            if profile_matches_class:
+                column_profile = column_type(
+                    column_schema, df_without_null_elements
+                )
+                column_profile.update(df_series)
+                return column_profile
+
+        # Default Column Type
+        column_profile = TextColumn(column_schema, df_without_null_elements)
+        column_profile.update(df_series)
+        return column_profile
+
+    @classmethod
+    def create_column_profile(cls, df_series, col_type, ignore_match=False):
+        """
+        Creates the specified column profile for the given dataframe
+        subclass.
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :param col_type: column type name
+        :type col_type: basestring
+        :param ignore_match: Boolean of whether to force match
+        :type ignore_match: bool
+        :return: column profile subclass
+        :rtype: TypeVar('T', bound=BaseColumnProfile)
+        """
+        subclasses = cls._get_subclasses()
+
+        # convert all the values to string
+        df_series = df_series.apply(str)
+
+        column_schema, df_without_null_elements = \
+            cls._generate_base_column_profile(df_series)
+
+        for column_type in subclasses:
+            if column_type.col_type != col_type:
+                continue
+            profile_matches_class, metadata = column_type.is_match(
+                df_without_null_elements
+            )
+            if profile_matches_class or ignore_match:
+                column_profile = column_type(
+                    column_schema, df_without_null_elements
+                )
+                column_profile.update(df_series)
+                return column_profile
+
+        cls._no_match(col_type)
+
+    @staticmethod
+    def _no_match(col_type):
+        """
+        Raises the generic error for cases when the chosen column profile
+        doesn't match the column data.
+        :param col_type: name of column type it didn't match
+        :type col_type: basestring
+        :return: raises error
+        """
+        raise ValueError(
+            'Column profile did not match the type {}.'.format(col_type)
+        )
+
+    @abstractstaticmethod
+    def is_match(df_series_clean):
+        """
+        Static abstract method for checking whether the profile matches the
+        column.
+        """
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Private abstract method for updating the profile with precleaned data.
+        """
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def update(self, df_series):
+        """
+        Private abstract method for updating the profile with uncleaned data.
+        """
+        raise NotImplementedError()
+
+    def clean_check_match_and_update(self, df_series):
+        """
+        Generic method for cleaning, verifying match of column data to profile
+        and updating the profile with the new dataset.
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = \
+            self.get_and_clean_null_params(df_series)
+        is_match, metadata = self.is_match(df_series_clean)
+
+        if not is_match:
+            self._no_match(self.col_type)
+        self._update_with_clean_data(df_series_clean, null_params)
+
+
+class NullColumn(BaseColumnProfile):
+    """
+    Null column profile subclass of BaseColumnProfile. Represents a column in
+    the dataset which is a null column.
+    """
+    col_type = "null_column"
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of column base properties and itself.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        super(NullColumn, self).__init__(column_schema, df_series_clean)
+
+    @staticmethod
+    def is_match(df_series_clean):
+        """
+        Static/Class method for checking whether the profile matches the
+        column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        metadata = dict()
+        return df_series_clean.shape[0] == 0, metadata
+
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Method for updating the column profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+        self._update_column_base_properties(null_params)
+        if not df_series_clean.shape[0] == 0:
+            raise ValueError(
+                "Improper data set passed to null column. Should be empty."
+            )
+
+    def update(self, df_series):
+        """
+        Method for updating the column profile properties with an uncleaned
+        dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        self._update_with_clean_data(df_series_clean, null_params)
+
+
+class NumericStatsMixin(object):
+    """
+    Abstract numerical column profile subclass of BaseColumnProfile. Represents
+    a column in the dataset which is a text column. Has Subclasses itself.
+    """
+    __metaclass__ = abc.ABCMeta
+    col_type = None
+
+    def __init__(self):
+        """
+        Initialization of column base properties and itself.
+        """
+        self.min = np.inf
+        self.max = -np.inf
+        self.sum = 0
+        self.variance = 0
+        self.minmax_histogram = list()
+
+    def __getattribute__(self, name):
+        if name in ["minmax_histogram"]:
+            warnings.warning(
+                "minmax_histogram is not properly updated for schemas "
+                "extracted using chunking. Use with caution as it only "
+                "utilizes the lastchunk to approximate.", RuntimeWarning)
+        return super(NumericStatsMixin, self).__getattribute__(name)
+
+    def __getitem__(self, item):
+        if item in ["minmax_histogram"]:
+            warnings.warning(
+                "minmax_histogram is not properly updated for schemas "
+                "extracted using chunking. Use with caution as it only "
+                "utilizes the lastchunk to approximate.", RuntimeWarning)
+        return super(NumericStatsMixin, self).__getitem__(item)
+
+    @property
+    def mean(self):
+        if self.sample_size == 0:
+            return 0
+        return float(self.sum) / (self.sample_size - self.count_none)
+
+    @property
+    def stddev(self):
+        if self.sample_size == 0:
+            return np.nan
+        return np.sqrt(self.variance)
+
+    def _update_variance(self, batch_mean, batch_var, batch_count):
+        """
+        Calculate the combined variance of the current values and new dataset.
+        :param batch_mean: mean of new chunk
+        :param batch_var: variance of new chunk
+        :param batch_count: number of samples in new chunk
+        :return: combined variance
+        :rtype: float
+        """
+        curr_count = self.sample_size - self.count_none
+        delta = batch_mean - self.mean
+        m_curr = self.variance * (curr_count - 1)
+        m_batch = batch_var * (batch_count - 1)
+        M2 = m_curr + m_batch + delta ** 2 * curr_count * batch_count / \
+             (curr_count + batch_count)
+        self.variance = M2 / (curr_count + batch_count - 1)
+
+    @staticmethod
+    def _get_histogram(df_series, bin_width=10):
+        """
+        Obtain the min, max values of the histogram with a fixed bin width
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :param bin_width: length of each bin in a histogram
+        :type bin_width: int
+        :return: list of min, max tuples for histogram position.
+        :rtype: list
+        """
+        df_series.sort_values(inplace=True)
+        n = len(df_series)
+        minmax_histogram = [
+            (min(df_series[i:i + bin_width]), max(df_series[i:i + bin_width]))
+            for i in xrange(0, n, bin_width)
+        ]
+
+        return minmax_histogram
+
+    def _get_numeric_params(self, df_series):
+        """
+        Add parameters for numeric col_type
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: additional parameters for model
+        :rtype: dict
+        """
+
+        model = dict()
+        df_series = df_series[df_series.apply(self.is_float)].apply(lambda x: float(x))
+        model["min"] = df_series.min()
+        model["max"] = df_series.max()
+        model["sum"] = df_series.sum()
+        model["variance"] = df_series.var()
+        model["minmax_histogram"] = self._get_histogram(df_series)
+
+        return model
+
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Method for updating the base numerical profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+
+        numeric_param = self._get_numeric_params(df_series_clean)
+        batch_count = null_params["sample_size"] - null_params["count_none"]
+        batch_mean = 0. if not batch_count else \
+            float(numeric_param['sum']) / batch_count
+        self._update_variance(
+            batch_mean=batch_mean,
+            batch_var=numeric_param["variance"],
+            batch_count=batch_count
+        )
+        self.max = max(self.max, numeric_param["max"])
+        self.min = min(self.min, numeric_param["min"])
+        self.sum += numeric_param['sum']
+        self.minmax_histogram = numeric_param['minmax_histogram']
+
+    @abc.abstractmethod
+    def update(self, df_series):
+        """
+        Abstract Method for updating the numerical profile properties with an
+        uncleaned dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        raise NotImplementedError()
+
+    @abstractstaticmethod
+    def is_match(df_series_clean):
+        """
+        Abstract Static/Class method for checking whether the profile matches
+        the column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        raise NotImplementedError()
+
+    @staticmethod
+    def is_float(x):
+        """
+        For "0.80" this function returns True
+        For "1.00" this function returns True
+        For "1" this function returns True
+        :param x: string to test
+        :type x: str
+        :return: if is float or not
+        :rtype: bool
+        """
+        try:
+            float(x)
+        except ValueError:
+            return False
+        else:
+            return True
+
+    @staticmethod
+    def is_int(x):
+        """
+        For "0.80" This function returns False
+        For "1.00" This function returns True
+        For "1" this function returns True
+        :param x: string to test
+        :type x: str
+        :return: if is integer or not
+        :rtype: bool
+        """
+        try:
+            a = float(x)
+            b = int(a)
+        except (ValueError, OverflowError):
+            return False
+        else:
+            return a == b
+
+
+class TextColumn(NumericStatsMixin, BaseColumnProfile):
+    """
+    Text column profile subclass of BaseColumnProfile. Represents a column in
+    the dataset which is a text column.
+    """
+    col_type = "text"
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of column base properties and itself.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        NumericStatsMixin.__init__(self)
+        BaseColumnProfile.__init__(self, column_schema, df_series_clean)
+        self.vocab = list()
+
+    @staticmethod
+    def _is_str_text(str_row):
+        """
+        Determines if a given string is text. It checks the length of the str,
+        if it has spaces, and what it ends with.
+        Based on that, it decides if the string is text.
+        :param str_row: string to be determined if it is text or not.
+        :type str_row: string
+        :return: return value determines if given string is text or not.
+        :rtype: boolean
+        """
+        being_text_score = 0
+
+        # A text column is usually not short.
+        if len(str_row) > 100:
+            being_text_score += 20
+
+        # Text usually contains more than 5 spaces. Less than this number might
+        # cause confusion between file ids like name, address or etc.
+        if str_row.count(' ') >= 6:
+            being_text_score += 50
+
+        if len(str_row) > 0 and str_row[-1] in ['.', '!', '?', ',']:
+            being_text_score += 20
+
+        is_text = being_text_score >= 40
+
+        return is_text
+
+    @classmethod
+    def _is_all_textual_col(cls, df_remove_null):
+        """
+        determines if the columns is a a text column.
+        :param df_remove_null: data frame after the null values are removed.
+        :type df_remove_null: data frame
+        :return: the return value means if the column is text data or not.
+        :rtype: boolean
+        """
+
+        if len(df_remove_null) == 0:
+            return False
+
+        df_is_text = df_remove_null.apply(lambda x: cls._is_str_text(x))
+
+        # If 60 percent of rows qualify as text, mark the column as text.
+        if df_is_text.sum() / float(len(df_remove_null)) > \
+                settings.COLUMN_MATCH_THRESHOLD:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def _get_single_string_params(df_remove_null):
+        """
+        It learns the characters used in the text. It learns the null values,
+        learns the percentages of the lines that are null and learns mean and
+        std dev of the length of the strings.
+        :param df_remove_null: data frame containing full data set
+        :param df_remove_null: data frame containing data set without null elements
+        :return: dictionary containing string parameters such as vocab, null params,
+        mean of length of lines, stddev of length of lines.
+        :rtype: dictionary
+        """
+        model = {}
+
+        # find the unique vocabulary used in the text column.
+        vocab = set([])
+        for row in df_remove_null:
+            vocab = vocab.union(set(row))
+        model['vocab'] = list(vocab)
+
+        return model
+
+    @classmethod
+    def is_match(cls, df_series_clean):
+        """
+        Static/Class method for checking whether the profile matches the
+        column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        metadata = dict()
+        return cls._is_all_textual_col(df_series_clean), metadata
+
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Method for updating the column profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+        text_params = self._get_single_string_params(df_series_clean)
+        text_lengths = df_series_clean.str.len()
+        NumericStatsMixin._update_with_clean_data(
+            self, text_lengths, null_params
+        )
+        self._update_column_base_properties(null_params)
+        self.vocab = self._combine_unique_sets(self.vocab, text_params['vocab'])
+
+    def update(self, df_series):
+        """
+        Method for updating the column profile properties with an uncleaned
+        dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        self._update_with_clean_data(df_series_clean, null_params)
+
+
+class DateTimeColumn(BaseColumnProfile):
+    """
+    Datetime column profile subclass of BaseColumnProfile. Represents a column
+    int the dataset which is a datetime column.
+    """
+
+    col_type = "datetime"
+
+    _date_formats = [
+        "%Y-%m-%d %H:%M:%S",  # 2013-03-5 15:43:30
+        "%Y-%m-%dT%H:%M:%S",  # 2013-03-6T15:43:30
+        "%Y-%m-%dT%H:%M:%S.%fZ",  # 2013-03-6T15:43:30.123456Z
+        "%Y-%m-%dt%H:%M:%S.%fz",  # 2013-03-6t15:43:30.123456z
+        "%m/%d/%y %H:%M",  # 03/10/13 15:43
+        "%m/%d/%Y %H:%M",  # 3/8/2013 15:43
+        "%Y%m%dT%H%M%S",  # 2013036T154330
+        "%Y-%m-%d",  # 2013-03-7
+        "%m/%d/%Y",  # 3/8/2013
+        "%m/%d/%y",  # 03/10/13
+        "%B %d, %Y",  # March 9, 2013
+        "%b %d, %Y",  # Mar 11, 2013
+        "%d%b%y",  # 12Mar13
+        "%b-%d-%y",  # Mar-13-13
+        "%m%d%Y",  # 03142013
+        "%H:%M:%S.%f"  # 05:46:30.258509
+    ]
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of column base properties and itself.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        super(DateTimeColumn, self).__init__(column_schema, df_series_clean)
+        self.date_format = None
+        self.min = pd.datetime.max
+        self.max = pd.datetime.min
+
+    @staticmethod
+    def _validate_datetime(date, date_format):
+        """
+        Check to see if a string contains a certain date format
+        :param date: a string that is possibly a date
+        :type date: str
+        :param date_format: a date regex that will be checked against date
+        :type date_format: str
+        :return: either the str converted into a date format, or Nan
+        """
+        try:
+            converted_date = datetime.datetime.strptime(date, date_format)
+        except:
+            converted_date = np.nan
+
+        return converted_date
+
+    @classmethod
+    def _get_datetime_params(cls, df_series):
+        """
+        Identifies if a column contains purely datetime observations and if so, obtains the datetime parameters
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: parameters for datetime columns
+        :rtype: dict
+        """
+
+        model = dict()
+        activated_date_formats = list()
+        len_df = len(df_series)
+
+        min_value = pd.datetime.max
+        max_value = pd.datetime.min
+        for date_format in cls._date_formats:
+            tmp_series = df_series.apply(
+                lambda x: cls._validate_datetime(x, date_format))
+            df_dates = tmp_series[tmp_series.isnull() == False]
+
+            if len(df_dates) > 0:
+                tmp_min_value = df_dates.min()
+                tmp_max_value = df_dates.max()
+                if tmp_min_value < min_value:
+                    min_value = tmp_min_value
+                if tmp_max_value > max_value:
+                    max_value = tmp_max_value
+
+            df_series = df_series[tmp_series.isnull() == True]
+
+            # Get a list of all datetime format identified in column
+            new_len = len(df_series)
+            if new_len < len_df:
+                activated_date_formats.append(date_format)
+                len_df = new_len
+                if "y" in date_format:
+                    warnings.warning(
+                        "Years provided were in two digit format. As a result, "
+                        "datetime assumes dates < 69 are for 200s and above "
+                        "are for the 1990s. "
+                        "https://stackoverflow.com/questions/37766353/pandas-to-datetime-parsing-wrong-year",
+                        RuntimeWarning
+                    )
+
+        model["date_format"] = activated_date_formats
+        model["min"] = min_value.to_datetime() if hasattr(min_value, 'to_datetime') else min_value
+        model["max"] = max_value.to_datetime() if hasattr(max_value, 'to_datetime') else max_value
+
+        return model
+
+    @classmethod
+    def _is_all_datetime_col(cls, df_series):
+        """
+        Identifies if a column contains purely datetime observations
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: is it a a column contains purely datetime observations
+        :rtype: bool
+        """
+
+        if len(df_series) == 0:
+            return False
+
+        # choose subset of df_series to test
+        len_df_series = len(df_series)
+        num_samples_to_check = min(max(int(0.2 * len_df_series), 500),
+                                   len_df_series)
+        rows_to_test = random.sample(range(len_df_series), num_samples_to_check)
+        df_series = df_series.reset_index(drop=True)
+        df_series = df_series[rows_to_test]
+
+        running_is_valid_datetime = np.full((1,len(df_series)), False)
+        for date_format in cls._date_formats:
+            valid_dates = df_series.apply(
+                lambda x: cls._validate_datetime(x, date_format)
+            )
+
+            # keep running total of all valid findings, even if array has
+            # multiple types, should accept as datetime
+            running_is_valid_datetime = \
+                np.array(~valid_dates.isnull()) | running_is_valid_datetime
+            if float(running_is_valid_datetime.sum()) / num_samples_to_check > \
+                    settings.COLUMN_MATCH_THRESHOLD:
+                return True
+
+        return False
+
+    @classmethod
+    def is_match(cls, df_series_clean):
+        """
+        Static/Class method for checking whether the profile matches the
+        column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        metadata = dict()
+        return cls._is_all_datetime_col(df_series_clean), metadata
+
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Method for updating the column profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+        self._update_column_base_properties(null_params)
+        datetime_params = self._get_datetime_params(df_series_clean)
+        date_format = datetime_params.get("date_format", None)
+        if date_format:
+            self.date_format = self._combine_unique_sets(
+                self.date_format, date_format
+            )
+        self.min = min(self.min, datetime_params["min"])
+        self.max = max(self.max, datetime_params["max"])
+
+    def update(self, df_series):
+        """
+        Method for updating the column profile properties with an uncleaned
+        dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        self._update_with_clean_data(df_series_clean, null_params)
+
+
+class IpAddressColumn(BaseColumnProfile):
+    """
+    IP address column profile subclass of BaseColumnProfile. Represents a column
+    in the dataset which is anip address column.
+    """
+
+    col_type = "ip_address"
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of column base properties and itself.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        super(IpAddressColumn, self).__init__(column_schema, df_series_clean)
+
+    @staticmethod
+    def _is_ip(x):
+        """
+        Check whether the input is of the ip address format
+        :param x: input string
+        :type x: str
+        :return: result
+        :rtype: bool
+        """
+        try:
+            socket.inet_aton(x)
+            res = True if x.count('.') == 3 else False
+        except:
+            res = False
+        return res
+
+    @classmethod
+    def _is_all_ip_col(cls, df_series):
+        """
+        Identifies if a column contains purely observations that match ip pattern
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: column contains purely observations that match ip pattern
+        :rtype: bool
+        """
+        all_values_are_ip = False
+        if len(df_series) == 0:
+            all_values_are_ip = False
+        elif sum(cls._is_ip(x) for x in df_series) / float(len(df_series)) >= \
+                settings.COLUMN_MATCH_THRESHOLD:
+            all_values_are_ip = True
+
+        return all_values_are_ip
+
+    @classmethod
+    def is_match(cls, df_series_clean):
+        """
+        Static/Class method for checking whether the profile matches the
+        column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        metadata = dict()
+        return cls._is_all_ip_col(df_series_clean), metadata
+
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Method for updating the column profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+        self._update_column_base_properties(null_params)
+
+    def update(self, df_series):
+        """
+        Method for updating the column profile properties with an uncleaned
+        dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        self._update_with_clean_data(df_series_clean, null_params)
+
+
+class OrderColumn(BaseColumnProfile):
+    """
+    INdex column profile subclass of BaseColumnProfile. Represents a column in
+    the dataset which is an index column.
+    """
+    col_type = "index"
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of column base properties and itself.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        super(OrderColumn, self).__init__(column_schema, df_series_clean)
+
+    @staticmethod
+    def _is_index_col(df_series):
+        """
+        Checks if the given data column is index. And index column must have
+        consequent integers. Randomly checks at least 500 samples rows or 5
+        percent of the rows in the column to see if they are consequent. If more
+        than 90 percent of the samples are consequent, then column is identified
+        as index column.
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return:
+        """
+        first_row_index = df_series.index[0]
+        if not NumericStatsMixin.is_int(df_series[first_row_index]):
+            return False
+
+        len_df_series = len(df_series)
+        num_samples_to_check = max(int(0.05 * len_df_series), 500)
+        count_consecutive_samples = 0
+        value_first_row = int(float(df_series[first_row_index]))
+
+        if len_df_series < 5:
+            return False
+        for i in range(num_samples_to_check):
+            random_row = random.choice(df_series.index)
+            try:
+                value_row = int(float(df_series[random_row]))
+            except:
+                continue
+            if value_row == value_first_row + random_row - first_row_index:
+                # in this case, the distance of the current value and the value in
+                # the first row is equal to the row index, which implies the
+                # validity of the index value
+                count_consecutive_samples += 1
+
+        if float(count_consecutive_samples) / num_samples_to_check > \
+                settings.INDEX_COLUMN_MATCH_THRESHOLD:
+            return True
+        else:
+            return False
+
+    @classmethod
+    def is_match(cls, df_series_clean):
+        """
+        Static/Class method for checking whether the profile matches the
+        column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        metadata = dict()
+        return cls._is_index_col(df_series_clean), metadata
+
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Method for updating the column profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+        self._update_column_base_properties(null_params)
+
+    def update(self, df_series):
+        """
+        Method for updating the column profile properties with an uncleaned
+        dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        self._update_with_clean_data(df_series_clean, null_params)
+
+
+class LatLongColumn(BaseColumnProfile):
+    """
+    Lat/Long column profile subclass of BaseColumnProfile. Represents a column
+    in the dataset which is a lat/long column.
+    """
+
+    col_type = "latitude_longitude"
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of column base properties and itself.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        super(LatLongColumn, self).__init__(column_schema, df_series_clean)
+
+    @staticmethod
+    def _is_latitude_longitude_col(df_series):
+        """
+        Check whether the input string is of the lattitude,longitude format:
+        '47.000160,100.009590', '47.000160,-100.009590', '-47.000160,100.009590',
+        '-47.000160,-100.009590'
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return:
+        :rtype: bool
+        """
+        re_exp = re.compile(
+            "^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?),\s*[-+]?(180(\.0+)?|((1[0-7]\d)"
+            "|([1-9]?\d))(\.\d+)?)$"
+        )
+
+        is_latitude_longitude = False
+        if len(df_series) == 0:
+            is_latitude_longitude = False
+        elif sum(df_series.str.match(re_exp)) / float(len(df_series)) >= \
+                settings.COLUMN_MATCH_THRESHOLD:
+            is_latitude_longitude = True
+        return is_latitude_longitude
+
+    @classmethod
+    def is_match(cls, df_series_clean):
+        """
+        Static/Class method for checking whether the profile matches the
+        column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        metadata = dict()
+        return cls._is_latitude_longitude_col(df_series_clean), metadata
+
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Method for updating the column profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+        self._update_column_base_properties(null_params)
+
+    def update(self, df_series):
+        """
+        Method for updating the column profile properties with an uncleaned
+        dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        self._update_with_clean_data(df_series_clean, null_params)
+
+
+class IntColumn(NumericStatsMixin, BaseColumnProfile):
+    """
+    Integer column profile mixin with of numerical stats. Represents a column in
+    the dataset which is an integer column.
+    """
+
+    col_type = "int"
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of column base properties and itself.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        NumericStatsMixin.__init__(self)
+        BaseColumnProfile.__init__(self, column_schema, df_series_clean)
+
+    @classmethod
+    def _is_all_int_col(cls, df_series):
+        """
+        if given is numerical and int values
+        e.g.
+        For column [1 1 1] returns True
+        For column [1.0 1.0 1.0] returns True
+        For column [1.0 1.0 1.1] returns False
+        For column [1.1 1.1 1.1] returns False
+        :param df_series: series of values to evaluate
+        :type df_series: pandas.core.series.Series
+        :return: is_int_col
+        :rtype: bool
+        """
+        is_int_col = False
+        if len(df_series) == 0:
+            is_int_col = False
+        elif sum(NumericStatsMixin.is_int(x) for x in df_series) / \
+                float(len(df_series)) >= settings.COLUMN_MATCH_THRESHOLD:
+            is_int_col = True
+
+        return is_int_col
+
+    @classmethod
+    def is_match(cls, df_series_clean):
+        """
+        Static/Class method for checking whether the profile matches the
+        column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        metadata = dict()
+        return cls._is_all_int_col(df_series_clean), metadata
+
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Method for updating the column profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+        NumericStatsMixin._update_with_clean_data(
+            self, df_series_clean, null_params
+        )
+        self._update_column_base_properties(null_params)
+
+    def update(self, df_series):
+        """
+        Method for updating the column profile properties with an uncleaned
+        dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        self._update_with_clean_data(df_series_clean, null_params)
+
+
+class FloatColumn(NumericStatsMixin, BaseColumnProfile):
+    """
+    Float column profile mixin with of numerical stats. Represents a column in
+    the dataset which is a float column.
+    """
+
+    col_type = "float"
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of column base properties and itself.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        NumericStatsMixin.__init__(self)
+        BaseColumnProfile.__init__(self, column_schema, df_series_clean)
+        self.precision = 0
+
+    @staticmethod
+    def _get_float_precision(df_series):
+        """
+        Determines the precision of the numeric value
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: string representing its precision print format
+        :rtype: int
+        """
+        data_sampling_size = min(100, len(df_series) - 1)
+
+        data_sampling = df_series.iloc[
+            random.sample(range(1, len(df_series.apply(NumericStatsMixin.is_float))),
+                          data_sampling_size)
+        ]
+
+        # find last position of '.' in each string
+        sampling_float_loc = data_sampling.str.rfind('.')
+
+        # integers will not have a '.'
+        is_integer = data_sampling.str.rfind('.').eq(-1)
+        if is_integer.all():
+            return 0
+
+        # since has a '.', subtract the str len from the position,
+        # since indexes start at 0: len - pos - 1
+        sampling_precision = data_sampling[~is_integer].str.len() - \
+                             sampling_float_loc[~is_integer] - 1
+
+        return sampling_precision.max()
+
+    @classmethod
+    def _is_all_float_col(cls, df_series):
+        """
+        if given is numerical and column has float values in it
+        e.g.
+        For column [1 1 1] returns false
+        For column [1.0 1.0 1.0] returns false
+        For column [1.0 1.0 1.1] returns True
+        For column [1.1 1.1 1.1] returns True
+        :param df_series: series of values to evaluate
+        :type df_series: pandas.core.series.Series
+        :return: is_float_col
+        :rtype: bool
+        """
+        is_float_col = False
+        if len(df_series) == 0:
+            is_float_col = False
+        elif sum(NumericStatsMixin.is_float(x) for x in df_series) / \
+                float(len(df_series)) >= settings.COLUMN_MATCH_THRESHOLD:
+            is_float_col = True
+
+        return is_float_col
+
+    @classmethod
+    def is_match(cls, df_series_clean):
+        """
+        Static/Class method for checking whether the profile matches the
+        column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        metadata = dict()
+        return cls._is_all_float_col(df_series_clean), metadata
+
+    def _update_with_clean_data(self, df_series_clean, null_params):
+        """
+        Method for updating the column profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :param null_params: base properties schema
+        :type df_series: dict
+        :return: None
+        """
+        super(FloatColumn, self)._update_with_clean_data(df_series_clean, null_params)
+        self.precision = max(
+            self.precision, self._get_float_precision(df_series_clean)
+        )
+        self._update_column_base_properties(null_params)
+
+    def update(self, df_series):
+        """
+        Method for updating the column profile properties with an uncleaned
+        dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        self._update_with_clean_data(df_series_clean, null_params)
+
+
+class CategoricalColumn(BaseColumnProfile):
+    """
+    Categorical column profile subclass of BaseColumnProfile. Represents a
+    column int the dataset which is a categorical column.
+    """
+
+    col_type = "category"
+
+    def __init__(self, column_schema, df_series_clean):
+        """
+        Initialization of column base properties and itself.
+        :param column_schema: base class properties to be stored
+        :type column_schema: dict
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        """
+        super(CategoricalColumn, self).__init__(column_schema, df_series_clean)
+        self._categories = list()
+
+    @property
+    def categories(self):
+        """
+        Property for categories, always returns null elements at the end.
+        :return:
+        """
+        return self._categories + self.null_type
+
+    @staticmethod
+    def _check_and_get_category_params(df_series):
+        """
+        Check whether column corresponds to category type and adds category
+        parameters if it is.
+        :param df_series: a given column
+        :type df_series: pandas.core.series.Series
+        :return: is_categorical_column and updated parameters for model if category
+        type
+        :rtype: (bool, dict)
+        """
+
+        is_categorical_column = False
+
+        df_len = float(len(df_series))
+        unique_elements = df_series.unique()
+        num_unique = len(unique_elements)
+
+        model = dict()
+
+        # # TODO: Is this necessary if after FloatColumn check?
+        # # Will cause error if trying to set categorical and is int index type
+        #         # if FloatColumn._is_all_float_col(df_series):
+        #         #     is_categorical_column = False
+
+        if num_unique <= settings.MAXIMUM_UNIQUE_VALUES_TO_CLASSIFY_AS_CATEGORICAL:
+            # If there are less than 20 unique values in total, detect that
+            # column as categorical
+            # NOTE: If sorted, can go before int columns
+            model["categories"] = df_series.unique().tolist()
+            is_categorical_column = True
+
+        elif df_len and num_unique / df_len <= settings.CATEGORICAL_THRESHOLD_DEFAULT:
+            # NOTE: If sorted, can go before int columns
+            model["categories"] = df_series.unique().tolist()
+            is_categorical_column = True
+
+        return is_categorical_column, model
+
+    def _update_with_clean_data(self, metadata, null_params):
+        """
+        Method for updating the column profile properties with a cleaned
+        dataset and the known null parameters of the dataset.
+        :param metadata: dictionary of information about categorical data
+        :type metadata: dict
+        :param null_params: base properties schema
+        :type null_params: dict
+        :return: None
+        """
+        self._update_column_base_properties(null_params)
+        self._categories = self._combine_unique_sets(
+            self._categories, metadata["categories"]
+        )
+
+    @property
+    def category_mappings(self):
+        """
+        Returns the mapping for categories
+        :return:
+        """
+        num_categories = len(self._categories)
+        category_mappings = OrderedDict(
+            zip(self._categories, range(0, num_categories))
+        )
+        category_mappings.update(
+            OrderedDict(
+                zip(self.null_type, [num_categories] * len(self.null_type))
+            )
+        )
+        return category_mappings
+
+    @property
+    def inverse_category_mappings(self):
+        """
+        Returns the mapping of integers to categories
+        :return:
+        """
+        num_categories = len(self._categories)
+        category_mappings = OrderedDict(
+            zip(range(0, num_categories), self._categories)
+        )
+        if self.null_type:
+            category_mappings.update(dict([[num_categories, self.null_type]]))
+        return category_mappings
+
+    @classmethod
+    def is_match(cls, df_series_clean):
+        """
+        Static/Class method for checking whether the profile matches the
+        column dataset.
+        :param df_series_clean: df series with nulls removed
+        :type df_series_clean: pandas.core.series.Series
+        :return: tuple of is_match boolean and any metadata created during validation
+        :rtype: (boolean, dict)
+        """
+        return cls._check_and_get_category_params(df_series_clean)
+
+    def update(self, df_series):
+        """
+        Method for updating the column profile properties with an uncleaned
+        dataset.
+        :param df_series: df series with nulls removed
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        _, metadata = self._check_and_get_category_params(df_series_clean)
+        self._update_with_clean_data(metadata, null_params)
+
+    def clean_check_match_and_update(self, df_series):
+
+        df_series_clean, null_params = self.get_and_clean_null_params(df_series)
+        is_match, metadata = self.is_match(df_series_clean)
+
+        if not is_match:
+            self._no_match(self.col_type)
+
+        self._update_with_clean_data(metadata, null_params)
+
+
+def extract_schema(df, data_schema=None):
+    """
+    Iterate over the columns of a dataset and identify its parameters.
+    :param df: a dataset
+    :type df: pandas.DataFrame
+    :param th_cat: threshold to determine if a column is of categorical type
+    :type th_cat: float
+    :return: the trained model
+    :rtype: dict(dict())
+    """
+
+    return extract_and_update_schema_from_chunk(df, data_schema)
+
+
+def extract_and_update_schema_from_chunk(df, data_schema=None):
+    """
+    Iterate over the columns of a dataset and identify its parameters.
+    :param df: a dataset
+    :type df: pandas.DataFrame
+    :param data_schema: list of profiled columns [BaseColumnProfile subclasses]
+    :type data_schema: list
+    :return: list of column profile base subclasses
+    :rtype: list(BaseColumnProfile)
+    """
+
+    if not data_schema:
+        data_schema = list()
+        for i, col in enumerate(df.columns):
+            data_schema.append(BaseColumnProfile.get_column_profile(df[col]))
+            data_schema[-1].col_index = i
+    else:
+        for i, col in enumerate(df.columns):
+            column_profile = data_schema[i]
+            column_profile.clean_check_match_and_update(df[col])
+
+    return data_schema

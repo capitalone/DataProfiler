@@ -1,0 +1,1 @@
+{"flatten_separator": " ", "default_label": "BACKGROUND", "pad_label":  "PAD", "use_word_level_argmax": false, "output_format": "character_argmax", "separators": [" ", ",", ";", "'", "\"", ":", "\n", "\t", "."], "word_level_min_percent": 0.75}

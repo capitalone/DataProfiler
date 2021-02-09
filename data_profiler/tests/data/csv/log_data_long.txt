@@ -1,0 +1,753 @@
+1807, middle hayz, 172.10.7.119
+1367, middle hayz storm , 222.78.227.203
+1756, middle gail hayz, 169.175.9.22
+1316, middle hayz, 216.174.30.24
+1008, middle hayz gail , 220.119.243.239
+1697, middle hayz gail , 30.37.208.42
+1721, middle hayz, 235.213.40.59
+1018, middle dark hayz, 128.90.66.166
+1517, middle hayz storm , 150.171.99.45
+1824, pm cloudy, 5.5.70.128
+1991, pm dark cloudy, 249.65.75.13
+1716, pm cloudy gail , 31.8.6.128
+1875, first part cloudy, 53.54.104.114
+1217, first part cloudy dark , 108.89.60.149
+1495, first part cloudy gail , 6.203.226.104
+1446, first part cloudy, 157.123.36.67
+1615, first part cloudy dark , 78.129.241.73
+1584, first part cloudy storm , 33.136.89.162
+1965, first part cloudy, 118.42.25.2
+1289, first storm part cloudy, 135.37.182.124
+1922, first part cloudy dark , 163.91.189.4
+1670, hazy, 75.82.34.57
+1607, hazy storm, 26.53.242.152
+1185, gail hazy, 177.111.215.182
+1722, hazy, 123.160.230.162
+1850, storm hazy, 169.137.181.11
+1466, hazy dark, 154.4.133.23
+1837, hazy till am then clear, 201.31.8.237
+1801, hazy storm till am then clear, 76.174.32.132
+1613, hazy till am dark then clear, 92.233.83.240
+1296, hazy till am then clear, 101.93.78.40
+1792, hazy gail till am then clear, 37.46.139.95
+1313, hazy till am then storm clear, 192.246.61.117
+1997, dark gloomy weather, 18.172.246.206
+1684, dark storm gloomy weather, 207.21.43.192
+1054, dark gloomy dark weather, 213.42.15.190
+1678, dark gloomy weather, 122.171.160.197
+1504, dark gloomy weather gail , 178.181.61.203
+1532, dark gail gloomy weather, 2.94.9.75
+1892, times thick hazy, 31.166.222.82
+1215, times thick gail hazy, 4.243.168.127
+1314, times dark thick hazy, 192.109.159.245
+1377, times thick hazy, 43.115.21.89
+1489, times gail thick hazy, 56.48.146.118
+1963, times storm thick hazy, 205.34.232.28
+1312, times thick hazy, 231.40.61.217
+1152, times thick gail hazy, 78.213.60.236
+1862, times dark thick hazy, 68.168.179.167
+1057, very thick hazy, 88.109.79.4
+1569, very thick hazy storm , 53.195.56.88
+1342, very storm thick hazy, 52.51.239.147
+1549, very thick hazy, 148.246.19.190
+1073, very thick dark hazy, 242.49.137.115
+1120, very thick dark hazy, 58.56.129.208
+1927, clear, 15.41.122.132
+1376, clear dark, 248.70.34.156
+1964, clear dark, 250.169.208.231
+1102, cloudy, 251.161.73.21
+1788, cloudy dark, 196.116.132.222
+1561, gail cloudy, 220.20.201.236
+1094, hazy, 166.212.88.100
+1095, storm hazy, 251.199.7.33
+1207, hazy dark, 76.93.51.121
+1321, thick hazy weather, 251.226.76.198
+1871, thick hazy weather dark , 5.93.207.10
+1483, thick hazy weather gail , 246.185.71.86
+1220, thick hazy weather, 169.150.93.67
+1632, thick hazy storm weather, 129.76.157.75
+1614, thick hazy storm weather, 115.225.120.195
+1857, pm clear fair, 74.142.79.14
+1292, pm clear fair storm , 168.13.153.60
+1274, pm clear storm fair, 14.160.65.97
+1418, pm clear fair, 25.143.157.125
+1784, pm storm clear fair, 43.224.128.33
+1628, pm gail clear fair, 134.3.155.158
+1633, towards noon tolerable clear, 97.246.64.4
+1068, towards noon dark tolerable clear, 232.16.187.9
+1728, towards dark noon tolerable clear, 241.49.19.236
+1418, hazy, 23.113.157.185
+1246, dark hazy, 165.13.180.103
+1792, dark hazy, 56.87.228.104
+1883, hazy, 38.46.109.1
+1642, hazy dark, 237.62.8.69
+1832, storm hazy, 98.231.225.250
+1118, clear, 174.41.20.71
+1010, dark clear, 200.35.236.48
+1529, dark clear, 187.59.158.4
+1185, cloudy hazy, 48.172.67.120
+1779, cloudy hazy gail , 209.96.35.40
+1935, cloudy gail hazy, 117.76.42.138
+1267, cloudy hazy, 22.40.98.39
+1769, cloudy storm hazy, 143.252.71.197
+1372, cloudy gail hazy, 76.225.3.26
+1412, cloudy, 149.224.88.136
+1913, gail cloudy, 204.68.167.210
+1848, cloudy storm, 96.159.54.234
+1094, latter clear, 168.221.113.206
+1228, latter clear storm , 86.47.105.116
+1878, latter clear dark , 88.52.242.219
+1880, hazy, 26.197.102.40
+1574, hazy dark, 52.52.145.239
+1159, hazy gail, 201.29.164.32
+1412, at intervals fair clear, 5.43.50.63
+1780, at intervals fair clear storm , 95.61.16.67
+1631, at gail intervals fair clear, 130.25.251.33
+1125, at intervals fair clear, 55.3.223.253
+1968, at dark intervals fair clear, 29.119.253.177
+1817, at intervals fair dark clear, 86.96.73.25
+1366, hazy, 134.140.69.98
+1237, gail hazy, 61.245.0.124
+1499, gail hazy, 27.204.236.113
+1788, pm cloudy hazy, 108.127.28.130
+1677, pm dark cloudy hazy, 40.114.84.240
+1553, pm cloudy dark hazy, 119.46.229.226
+1738, pm cloudy hazy, 60.76.182.43
+1700, pm cloudy storm hazy, 101.116.184.205
+1619, pm cloudy gail hazy, 178.234.197.21
+1423, hazy cloudy weather, 86.33.200.171
+1503, hazy cloudy weather gail , 86.95.137.37
+1944, hazy cloudy storm weather, 32.184.232.214
+1862, hazy cloudy weather, 79.29.198.214
+1260, hazy cloudy gail weather, 103.155.204.114
+1641, hazy cloudy dark weather, 141.116.137.158
+1321, cloudy, 248.172.9.105
+1006, dark cloudy, 138.84.207.252
+1866, gail cloudy, 71.66.36.2
+1644, dark cloudy weather, 53.242.80.27
+1180, dark cloudy gail weather, 152.11.127.77
+1429, dark cloudy weather dark , 97.176.11.53
+1794, dark cloudy weather, 154.59.84.126
+1170, dark cloudy gail weather, 15.209.16.168
+1698, dark dark cloudy weather, 234.17.67.124
+1948, thick hazy weather  night dark stormy, 24.230.110.58
+1238, thick hazy weather night dark storm stormy, 5.115.52.60
+1808, thick hazy weather gail night dark stormy, 247.82.137.245
+1621, thick hazy weather  night dark stormy, 164.68.117.122
+1617, thick hazy gail weather night dark stormy, 96.85.193.253
+1379, thick hazy weather storm night dark stormy, 240.70.21.239
+1832, thick hazy weather  night dark stormy, 126.174.43.216
+1919, thick gail hazy weather night dark stormy, 54.185.1.74
+1340, thick hazy weather night dark stormy gail , 134.172.5.235
+1561, hazy, 138.103.234.40
+1262, hazy storm, 110.50.116.94
+1808, hazy gail, 30.42.50.132
+1551, hazy, 126.89.113.124
+1369, storm hazy, 47.20.39.226
+1174, dark hazy, 159.207.238.30
+1588, hazy till evening then fair clear, 26.80.159.243
+1673, hazy till evening gail then fair clear, 56.253.91.108
+1040, hazy storm till evening then fair clear, 212.241.36.149
+1744, hazy till evening then fair clear, 5.210.125.170
+1085, hazy storm till evening then fair clear, 10.251.9.64
+1556, hazy dark till evening then fair clear, 87.204.173.120
+1285, hazy till evening then fair clear, 14.145.15.229
+1560, hazy till evening then storm fair clear, 249.50.193.11
+1910, hazy till evening then gail fair clear, 150.3.113.112
+1916, first part fair, 67.81.148.229
+1477, first storm part fair, 50.134.162.104
+1656, first gail part fair, 45.199.136.46
+1549, first part fair, 199.213.27.109
+1519, first part fair dark , 221.79.195.252
+1894, first part fair gail , 47.31.135.223
+1352, first part fair, 135.242.201.7
+1141, first part fair storm , 229.126.8.159
+1234, first part fair storm , 21.117.198.199
+1266, hazy, 132.13.213.204
+1459, hazy storm, 204.201.188.97
+1644, gail hazy, 134.188.48.155
+1311, cloudy, 127.214.80.183
+1563, cloudy gail, 245.247.6.254
+1927, storm cloudy, 237.212.37.110
+1523, fair, 54.20.230.102
+1543, fair dark, 27.78.227.62
+1484, storm fair, 138.224.149.117
+1453, cloudy, 54.31.59.171
+1303, storm cloudy, 107.20.43.79
+1260, cloudy dark, 6.79.229.121
+1376, dark gloomy weather, 223.123.24.227
+1651, dark gloomy gail weather, 96.158.144.170
+1213, dark gloomy weather storm , 29.130.107.4
+1585, dark gloomy weather, 161.78.241.248
+1535, dark gloomy storm weather, 75.207.17.93
+1308, dark gloomy dark weather, 168.172.189.206
+1829, dark gloomy weather, 172.109.215.6
+1536, dark storm gloomy weather, 15.220.227.129
+1642, dark gloomy storm weather, 176.41.120.149
+1757, dark gloomy weather, 23.192.30.9
+1412, dark gloomy storm weather, 231.131.228.242
+1444, dark gloomy gail weather, 168.190.175.175
+1131, first part cloudy, 162.201.236.143
+1930, first part storm cloudy, 223.121.96.233
+1009, first storm part cloudy, 181.88.124.40
+1797, first part cloudy, 8.176.171.73
+1729, first part cloudy storm , 253.102.109.164
+1903, first part cloudy dark , 119.102.41.188
+1235, fair, 166.193.80.71
+1732, fair gail, 14.206.17.115
+1743, storm fair, 46.192.89.67
+1856, fair, 255.160.180.57
+1116, fair gail, 198.22.135.37
+1329, dark fair, 227.148.77.38
+1750, fair, 126.18.191.80
+1226, fair dark, 179.25.142.158
+1116, gail fair, 50.3.123.64
+1948, fair, 209.182.208.249
+1652, gail fair, 194.191.192.209
+1519, gail fair, 21.197.218.135
+1574, fair, 81.178.113.58
+1019, storm fair, 107.196.152.120
+1462, gail fair, 92.8.114.89
+1628, thick hazy weather till evening then clear, 98.242.190.228
+1423, thick dark hazy weather till evening then clear, 66.207.90.138
+1124, thick hazy gail weather till evening then clear, 55.0.32.149
+1724, thick hazy weather till evening then clear, 62.226.158.151
+1016, thick hazy weather till evening then clear storm , 30.173.123.31
+1078, thick hazy storm weather till evening then clear, 224.14.71.251
+1638, thick hazy weather till evening then clear, 223.121.70.157
+1204, thick hazy weather till gail evening then clear, 252.126.247.45
+1510, thick hazy weather till dark evening then clear, 115.202.179.50
+1472, fair, 45.225.233.197
+1536, fair storm, 51.169.119.133
+1771, dark fair, 74.239.65.103
+1697, hazy cloudy, 182.93.160.197
+1384, hazy cloudy storm , 22.239.67.37
+1772, hazy cloudy gail , 106.230.204.49
+1451, hazy cloudy, 197.40.82.167
+1384, hazy cloudy dark , 220.131.237.119
+1877, hazy cloudy storm , 182.125.209.118
+1377, hazy cloudy, 85.66.222.115
+1610, hazy storm cloudy, 46.116.255.94
+1660, hazy dark cloudy, 3.135.98.248
+1141, hazy cloudy, 37.226.246.50
+1309, hazy storm cloudy, 18.192.37.129
+1547, hazy cloudy dark , 201.138.74.206
+1263, cloudy, 191.214.166.217
+1992, cloudy gail, 222.238.21.70
+1530, gail cloudy, 67.230.149.3
+1145, cloudy sometimes thick hazy weather, 24.79.171.56
+1675, cloudy sometimes thick hazy storm weather, 99.231.187.138
+1130, cloudy sometimes thick hazy weather storm , 163.120.249.18
+1861, cloudy sometimes thick hazy weather, 22.124.147.109
+1257, cloudy storm sometimes thick hazy weather, 242.155.130.61
+1044, cloudy sometimes storm thick hazy weather, 162.236.75.238
+1957, cloudy sometimes thick hazy weather, 132.86.237.194
+1522, cloudy sometimes thick hazy storm weather, 28.13.204.32
+1433, cloudy sometimes storm thick hazy weather, 103.126.215.80
+1013, cloudy, 230.138.28.203
+1141, storm cloudy, 38.155.119.228
+1580, cloudy storm, 232.87.123.243
+1015, remainder fair, 5.223.133.84
+1294, remainder gail fair, 182.181.168.2
+1694, remainder gail fair, 49.250.171.119
+1237, pm cloudy, 209.134.46.232
+1901, pm cloudy dark , 37.97.41.97
+1248, pm storm cloudy, 132.23.47.35
+1843, pm cloudy, 242.40.72.28
+1173, pm storm cloudy, 103.157.47.86
+1018, pm storm cloudy, 144.214.79.20
+1112, fair, 127.6.164.160
+1114, storm fair, 83.237.201.41
+1459, fair storm, 144.161.140.253
+1250, hazy, 247.133.11.218
+1275, hazy dark, 177.94.180.63
+1061, dark hazy, 225.25.104.189
+1930, am fair, 30.135.195.13
+1312, am storm fair, 215.244.249.104
+1925, am dark fair, 80.68.191.22
+1676, thick hazy weather, 245.172.249.154
+1405, thick hazy weather gail , 130.131.148.4
+1932, thick dark hazy weather, 233.124.106.50
+1075, thick hazy weather, 87.50.236.162
+1453, thick hazy weather dark , 14.176.233.145
+1022, thick hazy weather dark , 26.37.200.76
+1691, cloudy, 247.98.118.12
+1929, cloudy gail, 172.152.60.35
+1447, cloudy gail, 131.10.81.5
+1307, hazy, 126.14.143.28
+1501, hazy dark, 151.137.95.172
+1303, dark hazy, 175.145.111.194
+1080, most part fair, 68.98.111.142
+1554, most part dark fair, 82.221.185.93
+1113, most part fair dark , 142.171.25.27
+1449, cloudy, 118.101.246.94
+1241, dark cloudy, 48.21.73.11
+1102, dark cloudy, 74.204.244.238
+1426, fair, 147.28.36.226
+1303, dark fair, 91.246.247.32
+1381, storm fair, 129.70.220.213
+1747, am clear, 237.235.21.16
+1328, am dark clear, 181.213.55.105
+1901, am clear dark , 39.67.64.37
+1308, towards noon fair clear, 51.48.154.214
+1456, towards noon fair clear gail , 214.214.79.236
+1300, towards noon gail fair clear, 24.2.242.164
+1195, towards noon fair clear, 5.232.70.232
+1212, towards noon fair dark clear, 204.97.214.131
+1207, towards noon fair clear storm , 251.9.5.7
+1914, pm fair, 44.81.214.72
+1869, pm fair storm , 163.190.169.138
+1670, pm gail fair, 137.229.131.47
+1369, pm fair, 90.173.90.132
+1942, pm fair dark , 216.2.202.188
+1455, pm fair gail , 223.210.74.162
+1171, thick hazy weather, 185.25.63.66
+1950, thick hazy storm weather, 114.255.88.150
+1274, thick storm hazy weather, 75.123.140.253
+1943, thick hazy weather, 53.95.219.210
+1856, thick gail hazy weather, 60.181.135.203
+1304, thick hazy weather dark , 63.79.193.85
+1372, clear pleasant weather, 47.124.230.110
+1668, clear pleasant storm weather, 22.125.64.200
+1530, clear pleasant weather storm , 170.43.55.190
+1140, clear pleasant weather, 37.224.68.171
+1595, clear pleasant weather gail , 208.145.187.20
+1255, clear pleasant weather dark , 63.72.137.89
+1149, am cloudy, 161.165.8.32
+1034, am gail cloudy, 105.134.41.52
+1430, am storm cloudy, 27.190.50.21
+1474, pm hazy, 178.44.179.159
+1886, pm hazy gail , 60.249.61.175
+1762, pm hazy storm , 18.190.43.255
+1459, pm hazy, 205.68.3.26
+1606, pm hazy dark , 84.50.156.241
+1598, pm hazy gail , 179.199.74.242
+1844, fair, 150.82.155.164
+1949, fair dark, 172.95.135.163
+1151, gail fair, 101.144.81.29
+1964, pm clear, 119.152.26.29
+1435, pm clear dark , 31.58.43.74
+1645, pm gail clear, 61.79.117.89
+1580, pm hazy, 173.197.27.56
+1286, pm hazy dark , 12.148.114.26
+1272, pm hazy storm , 93.30.33.156
+1698, pm hazy, 45.74.241.221
+1173, pm hazy gail , 173.21.50.75
+1240, pm hazy dark , 82.69.32.138
+1075, am fair but hazy, 54.233.182.40
+1169, am fair but storm hazy, 70.58.189.219
+1418, am fair dark but hazy, 65.70.211.134
+1158, am fair but hazy, 104.93.104.113
+1245, am fair but hazy gail , 24.144.99.180
+1498, am storm fair but hazy, 49.95.193.170
+1118, fair, 12.82.182.19
+1812, fair storm, 166.79.26.45
+1044, fair gail, 203.210.64.94
+1028, clear, 229.53.6.52
+1593, clear gail, 65.214.215.191
+1042, dark clear, 53.211.118.101
+1365, fine pleasant weather, 186.168.200.240
+1974, fine dark pleasant weather, 17.184.99.151
+1762, fine pleasant weather dark , 14.75.30.32
+1227, fine pleasant weather, 110.216.48.158
+1292, fine pleasant weather storm , 219.254.193.154
+1264, fine pleasant weather dark , 122.254.194.184
+1346, fine pleasant weather, 83.93.83.146
+1481, fine pleasant gail weather, 75.27.117.98
+1419, fine pleasant dark weather, 137.158.196.112
+1401, fine pleasant weather, 217.17.38.201
+1362, fine pleasant weather dark , 49.147.185.37
+1312, fine pleasant storm weather, 9.1.126.13
+1704, hazy, 214.157.239.121
+1935, hazy gail, 75.196.188.37
+1288, hazy dark, 7.70.149.177
+1775, cloudy, 210.78.125.28
+1766, gail cloudy, 94.68.146.56
+1622, cloudy storm, 225.185.74.162
+1386, fair cloudy, 55.219.78.37
+1630, fair cloudy gail , 117.145.161.181
+1919, fair gail cloudy, 237.70.213.78
+1831, fair cloudy, 226.103.75.57
+1124, fair storm cloudy, 242.204.192.23
+1600, fair cloudy dark , 46.110.46.82
+1967, pretty clear, 73.147.97.75
+1144, pretty clear storm , 24.105.37.8
+1922, pretty clear storm , 56.6.36.79
+1486, cloudy, 149.41.165.75
+1473, cloudy storm, 140.29.224.195
+1959, storm cloudy, 255.214.227.48
+1496, hazy, 116.113.194.26
+1379, hazy storm, 25.249.49.79
+1876, dark hazy, 20.25.83.228
+1948, hazy, 248.139.78.238
+1334, hazy gail, 253.48.136.84
+1819, storm hazy, 20.54.180.128
+1419, cloudy, 140.37.41.122
+1133, cloudy dark, 50.181.40.49
+1715, cloudy dark, 10.153.103.161
+1770, cloudy, 236.32.63.212
+1335, cloudy dark, 219.87.112.237
+1545, gail cloudy, 164.53.142.159
+1410, am mostly fair with little cloud, 69.139.155.36
+1717, am mostly storm fair with little cloud, 214.146.141.249
+1687, am mostly fair with little dark cloud, 235.71.15.158
+1621, fair clear, 164.99.113.253
+1807, fair clear dark , 76.22.19.181
+1591, fair clear dark , 181.166.50.93
+1534, fair clear, 228.21.9.67
+1273, fair dark clear, 238.177.32.51
+1232, fair storm clear, 249.32.252.138
+1948, cloudy, 157.93.184.242
+1743, cloudy gail, 217.180.223.85
+1710, gail cloudy, 34.79.71.163
+1370, remainder mostly fair but very dark gloomy, 149.1.28.228
+1281, remainder mostly fair but dark very dark gloomy, 41.61.81.88
+1346, remainder mostly fair but storm very dark gloomy, 184.222.50.22
+1664, remainder mostly fair but very dark gloomy, 57.24.16.65
+1511, remainder dark mostly fair but very dark gloomy, 12.244.156.22
+1586, remainder storm mostly fair but very dark gloomy, 248.193.82.69
+1362, remainder mostly fair but very dark gloomy, 184.196.28.151
+1870, remainder mostly fair but very dark gloomy dark , 190.39.140.9
+1557, remainder dark mostly fair but very dark gloomy, 29.22.200.13
+1086, am intermittently fair, 120.70.141.244
+1546, am intermittently fair storm , 165.134.166.185
+1279, am intermittently fair storm , 52.176.100.63
+1340, am clear, 85.92.155.222
+1133, am clear storm , 44.142.178.210
+1614, am dark clear, 24.48.138.118
+1617, fair, 143.227.186.68
+1088, dark fair, 8.223.240.24
+1954, gail fair, 106.50.13.26
+1186, pm cloudy, 94.157.177.28
+1210, pm cloudy storm , 206.219.190.179
+1705, pm gail cloudy, 124.10.58.92
+1506, pm cloudy, 100.33.205.164
+1091, pm cloudy gail , 147.30.193.34
+1211, pm gail cloudy, 183.79.95.102
+1333, am fair, 19.39.179.3
+1060, am fair dark , 247.98.72.42
+1987, am storm fair, 72.91.238.207
+1656, am clear, 87.169.98.212
+1100, am dark clear, 215.221.231.244
+1987, am storm clear, 144.107.142.215
+1600, cloudy, 11.218.203.16
+1088, cloudy storm, 112.220.83.163
+1079, cloudy gail, 217.104.230.133
+1928, first part hazy, 76.122.108.30
+1380, first storm part hazy, 115.166.179.61
+1209, first part hazy dark , 205.39.34.45
+1824, am fair, 73.250.5.134
+1108, am fair gail , 109.219.88.51
+1779, am fair dark , 66.163.112.46
+1268, fine pleasant weather, 189.93.186.60
+1874, fine pleasant weather storm , 38.60.30.184
+1594, fine pleasant weather gail , 133.35.28.160
+1034, fine pleasant weather, 236.14.248.91
+1533, fine pleasant dark weather, 170.84.3.78
+1476, fine dark pleasant weather, 214.119.177.72
+1055, fair, 159.153.6.214
+1125, fair storm, 127.169.79.79
+1506, gail fair, 116.63.28.105
+1976, fair, 151.107.199.34
+1104, gail fair, 162.134.179.61
+1193, gail fair, 120.244.146.103
+1100, fair, 59.8.115.65
+1374, fair storm, 64.135.95.101
+1685, dark fair, 191.234.41.198
+1617, fair, 26.142.161.101
+1404, fair dark, 220.57.190.248
+1074, fair storm, 34.18.202.39
+1026, hazy, 24.97.253.13
+1733, hazy gail, 51.78.98.202
+1303, gail hazy, 18.39.69.133
+1631, hazy, 91.251.213.52
+1888, storm hazy, 236.186.81.219
+1205, storm hazy, 135.202.58.246
+1932, cloudy, 99.17.179.201
+1989, storm cloudy, 185.253.35.0
+1791, cloudy dark, 49.53.249.73
+1622, cloudy, 226.55.61.153
+1883, cloudy storm, 239.165.78.187
+1072, gail cloudy, 108.122.53.7
+1370, cloudy, 5.128.128.63
+1725, dark cloudy, 222.35.140.15
+1172, cloudy dark, 43.224.242.134
+1512, cloudy, 234.138.172.23
+1343, cloudy dark, 152.26.27.62
+1096, cloudy dark, 180.64.54.134
+1000, cloudy, 4.125.252.56
+1560, storm cloudy, 141.21.46.227
+1844, dark cloudy, 18.232.206.119
+1247, cloudy, 46.210.47.122
+1803, gail cloudy, 107.21.20.242
+1995, cloudy storm, 111.201.124.247
+1030, cloudy, 134.181.183.245
+1061, storm cloudy, 36.90.210.107
+1209, dark cloudy, 50.10.31.252
+1033, hazy, 182.231.171.214
+1409, hazy dark, 236.146.126.25
+1114, gail hazy, 182.86.92.76
+1074, hazy, 124.216.73.206
+1136, hazy storm, 50.124.253.23
+1678, storm hazy, 47.16.114.167
+1978, evening thick, 210.119.225.117
+1054, evening thick dark , 139.47.59.81
+1319, evening thick storm , 135.166.247.68
+1229, hazy, 105.125.84.202
+1731, dark hazy, 129.251.19.65
+1382, dark hazy, 123.212.121.60
+1888, hazy cloudy, 111.29.97.144
+1397, hazy gail cloudy, 38.42.69.110
+1685, hazy cloudy dark , 222.243.128.104
+1254, hazy cloudy, 154.49.204.182
+1358, hazy cloudy storm , 96.20.33.191
+1455, hazy cloudy dark , 59.56.50.105
+1276, hazy till   pm, 118.128.79.242
+1988, hazy gail till pm, 61.150.255.185
+1841, hazy till pm dark , 119.96.100.239
+1753, am fair settled, 124.254.217.113
+1163, am fair settled dark , 197.77.173.205
+1927, am fair settled storm , 164.190.186.244
+1977, am fair settled, 81.145.123.83
+1150, am fair dark settled, 141.89.12.214
+1671, am gail fair settled, 64.74.29.179
+1380, dark cloudy weather, 24.19.238.95
+1116, dark cloudy dark weather, 252.252.7.227
+1018, dark cloudy weather dark , 179.75.236.227
+1284, dark cloudy weather, 181.205.95.11
+1001, dark cloudy weather dark , 34.113.55.174
+1791, dark cloudy weather storm , 91.56.242.162
+1843, remainder clear, 190.72.145.118
+1897, remainder dark clear, 75.147.234.27
+1667, remainder clear gail , 250.5.233.94
+1485, hazy am, 109.121.199.119
+1251, hazy am storm , 229.84.131.123
+1562, hazy gail am, 106.150.175.28
+1887, hazy, 219.178.137.82
+1519, gail hazy, 123.185.76.155
+1076, storm hazy, 40.75.11.187
+1262, hazy, 133.114.52.3
+1205, hazy storm, 219.225.215.15
+1550, gail hazy, 131.21.175.39
+1794, first part fair cloudy, 10.71.85.226
+1904, first part fair dark cloudy, 60.182.38.17
+1716, first part fair gail cloudy, 209.1.95.89
+1994, first part fair cloudy, 169.31.234.13
+1802, first storm part fair cloudy, 132.181.39.24
+1946, first part dark fair cloudy, 111.212.187.195
+1821, first part fair cloudy, 233.154.235.154
+1549, first part fair storm cloudy, 248.15.33.217
+1550, first dark part fair cloudy, 221.255.128.44
+1038, cloudy, 121.193.226.194
+1273, storm cloudy, 75.58.84.147
+1941, storm cloudy, 251.202.10.175
+1564, cloudy, 148.223.48.64
+1579, dark cloudy, 123.60.1.150
+1346, cloudy storm, 4.24.182.144
+1482, tolerable clear serene, 213.156.183.157
+1373, tolerable clear dark serene, 111.255.198.201
+1430, tolerable clear gail serene, 126.168.31.133
+1354, tolerable clear serene, 100.165.14.232
+1710, tolerable dark clear serene, 158.129.196.102
+1213, tolerable clear serene dark , 102.126.231.248
+1902, pm fair, 110.31.29.172
+1881, pm dark fair, 26.39.121.50
+1239, pm storm fair, 148.88.53.39
+1660, pm fair, 12.10.217.42
+1406, pm dark fair, 59.0.207.232
+1521, pm fair gail , 58.94.240.10
+1531, hazy, 28.113.247.95
+1419, storm hazy, 134.23.77.156
+1643, hazy gail, 119.95.177.146
+1884, hazy, 6.199.18.85
+1410, dark hazy, 154.190.33.192
+1587, hazy storm, 182.154.107.14
+1087, hazy, 94.201.36.102
+1393, storm hazy, 237.241.245.80
+1869, hazy gail, 187.225.22.103
+1911, cloudy, 37.123.126.116
+1287, storm cloudy, 199.168.204.139
+1025, cloudy dark, 52.103.14.171
+1603, hazy  am fair, 106.198.195.176
+1691, hazy storm am fair, 162.147.101.66
+1539, hazy am fair storm , 57.21.1.120
+1110, hazy  am fair, 167.112.101.196
+1819, hazy gail am fair, 160.234.212.64
+1303, hazy am fair storm , 124.124.193.23
+1798, pretty clear, 121.134.127.187
+1648, pretty dark clear, 246.145.139.8
+1402, pretty clear storm , 73.22.35.125
+1609, hazy, 107.105.21.136
+1427, hazy storm, 64.178.208.245
+1734, storm hazy, 221.175.145.151
+1480, pm fair, 223.27.142.28
+1711, pm gail fair, 183.209.33.46
+1732, pm gail fair, 87.49.57.7
+1271, pm fair, 11.146.195.198
+1747, pm fair storm , 53.165.215.60
+1464, pm gail fair, 46.219.227.220
+1972, fair, 195.68.103.90
+1644, fair storm, 63.127.251.171
+1265, fair storm, 246.119.152.164
+1334, first part fair, 18.244.212.91
+1323, first part fair gail , 72.149.204.98
+1771, first dark part fair, 50.21.18.77
+1666, first part fair, 93.29.181.198
+1541, first part fair storm , 35.142.50.166
+1095, first gail part fair, 188.99.109.137
+1719, fair, 9.74.60.192
+1505, storm fair, 143.8.102.230
+1872, gail fair, 36.224.233.160
+1353, cloudy, 126.246.127.236
+1512, cloudy gail, 9.115.89.119
+1579, cloudy gail, 62.192.206.247
+1255, fair but cloudy, 242.230.61.166
+1010, fair but dark cloudy, 188.31.225.237
+1844, fair gail but cloudy, 69.188.107.125
+1274, fair but cloudy, 198.192.231.97
+1864, fair storm but cloudy, 240.158.84.148
+1733, fair but cloudy dark , 21.101.156.225
+1224, fair, 227.226.46.43
+1849, fair gail, 71.49.120.2
+1102, storm fair, 125.191.1.158
+1815, fair, 137.125.53.40
+1075, dark fair, 153.82.221.193
+1256, fair storm, 123.157.134.240
+1240, clear pleasant weather, 162.121.166.29
+1483, clear storm pleasant weather, 142.33.30.249
+1187, clear gail pleasant weather, 182.230.181.41
+1717, clear pleasant weather, 103.69.188.198
+1992, clear pleasant weather storm , 165.75.8.98
+1979, clear pleasant gail weather, 234.100.67.152
+1255, clear pleasant weather, 220.55.31.25
+1373, clear pleasant weather storm , 97.147.216.144
+1179, clear dark pleasant weather, 235.127.31.213
+1065, clear pleasant weather, 18.244.46.64
+1800, clear pleasant weather dark , 135.236.206.39
+1884, clear pleasant weather gail , 224.80.119.83
+1829, pm clear, 17.214.96.226
+1909, pm gail clear, 166.99.126.136
+1222, pm clear storm , 61.97.13.101
+1387, pm clear, 241.189.234.30
+1672, pm storm clear, 211.53.240.2
+1779, pm clear storm , 173.81.220.83
+1238, thick hazy weather, 167.56.33.197
+1124, thick hazy dark weather, 250.209.55.242
+1778, thick storm hazy weather, 115.179.75.66
+1519, thick hazy weather, 86.60.127.44
+1706, thick hazy dark weather, 155.92.4.42
+1801, thick hazy weather storm , 162.17.51.153
+1471, fine, 131.107.222.181
+1875, dark fine, 237.200.7.91
+1739, fine gail, 198.217.184.194
+1170, fair, 38.79.216.220
+1138, fair storm, 93.193.237.249
+1398, gail fair, 70.248.156.39
+1599, clear, 251.102.220.53
+1220, gail clear, 60.76.17.222
+1669, gail clear, 251.110.223.133
+1510, clear, 25.183.8.242
+1751, storm clear, 220.100.69.217
+1899, storm clear, 213.116.223.167
+1828, clear, 99.90.40.173
+1381, clear gail, 72.222.203.16
+1861, storm clear, 121.189.20.70
+1610, pm intervals of clear weather, 20.144.23.216
+1390, pm intervals storm of clear weather, 253.127.124.101
+1857, pm intervals of clear weather gail , 54.35.78.221
+1695, clear till am, 49.157.63.149
+1303, clear till am storm , 74.126.219.218
+1060, clear till dark am, 105.0.64.20
+1796, hazy, 101.90.191.57
+1797, gail hazy, 240.172.76.194
+1948, hazy dark, 103.90.171.119
+1647, hazy, 236.175.87.16
+1617, hazy gail, 91.67.110.27
+1708, hazy dark, 50.193.206.71
+1034, cloudy, 196.249.195.151
+1871, cloudy storm, 196.126.18.212
+1784, dark cloudy, 120.129.68.110
+1078, clear, 47.38.89.34
+1766, clear storm, 234.254.230.21
+1887, clear gail, 50.117.183.79
+1528, gloomy cloudy, 43.203.176.154
+1412, gloomy dark cloudy, 193.91.255.145
+1619, gloomy cloudy dark , 245.227.58.17
+1692, gloomy cloudy, 58.232.94.236
+1651, gloomy cloudy dark , 86.201.220.186
+1670, gloomy cloudy dark , 183.14.95.210
+1883, dark gloomy weather, 60.42.208.158
+1677, dark gloomy gail weather, 40.216.233.214
+1743, dark gloomy weather dark , 97.194.142.219
+1741, dark gloomy weather, 231.183.236.203
+1010, dark gloomy dark weather, 23.231.196.236
+1588, dark gloomy dark weather, 237.175.166.0
+1176, thick hazy weather, 126.150.210.186
+1572, thick hazy weather gail , 168.154.190.12
+1978, thick hazy dark weather, 136.94.150.255
+1910, thick hazy weather, 47.240.40.65
+1923, thick hazy weather gail , 112.180.183.208
+1607, thick hazy weather dark , 230.32.36.225
+1019, very thick hazy weather, 101.170.102.232
+1920, very thick hazy gail weather, 148.237.33.12
+1813, very thick hazy weather storm , 121.143.112.221
+1690, very thick hazy weather, 142.65.19.141
+1297, very thick hazy gail weather, 146.103.54.157
+1259, very thick hazy weather dark , 30.115.113.200
+1716, first part thick hazy weather, 32.218.144.13
+1997, first part thick hazy weather gail , 75.212.255.80
+1167, first part thick hazy dark weather, 213.252.226.226
+1665, first part thick hazy weather, 52.73.188.14
+1797, first part thick dark hazy weather, 87.142.92.114
+1048, first part thick storm hazy weather, 52.225.93.49
+1080, first part thick hazy weather, 128.159.176.227
+1759, first part thick gail hazy weather, 50.127.218.94
+1399, first part thick dark hazy weather, 139.212.121.185
+1610, hazy, 75.88.209.81
+1473, hazy storm, 173.92.250.78
+1436, hazy storm, 22.54.68.93
+1378, cloudy, 2.50.136.94
+1500, dark cloudy, 101.44.158.185
+1581, cloudy dark, 19.32.156.20
+1470, cloudy, 191.217.130.17
+1045, cloudy storm, 102.135.121.64
+1638, cloudy storm, 197.224.37.189
+1077, cloudy, 179.243.81.126
+1111, storm cloudy, 27.2.56.252
+1204, storm cloudy, 114.69.61.165
+1273, fair cloudy, 240.4.99.247
+1898, fair dark cloudy, 241.174.224.65
+1627, fair dark cloudy, 135.163.50.164
+1961, fair cloudy, 213.245.45.25
+1623, fair cloudy gail , 92.97.30.243
+1137, fair storm cloudy, 51.231.129.76
+1056, hazy, 121.12.118.81
+1303, storm hazy, 233.63.158.39
+1266, storm hazy, 206.125.18.47
+1761, cloudy, 152.85.240.123
+1037, cloudy gail, 50.192.102.119
+1382, gail cloudy, 83.95.120.106
+1185, cloudy, 118.98.221.59
+1045, cloudy gail, 52.104.91.103
+1747, dark cloudy, 113.30.67.69
+1101, pm clear, 224.218.12.148
+1327, pm clear gail , 135.24.253.53
+1495, pm storm clear, 2.147.254.238
+1103, pm clear, 192.14.46.206
+1667, pm dark clear, 251.165.139.14
+1344, pm dark clear, 237.171.252.103
+1522, cloudy, 48.180.192.239
+1844, dark cloudy, 18.224.108.69
+1589, gail cloudy, 50.146.236.26
+1304, hazy until am then clear, 100.167.188.183
+1392, hazy gail until am then clear, 205.202.140.190
+1171, hazy until dark am then clear, 128.97.117.162
+1792, hazy until am then clear, 5.83.150.200
+1873, hazy until am storm then clear, 173.115.165.206
+1146, hazy until am then clear dark , 79.25.128.217
+1121, cloudy, 128.184.136.54
+1953, storm cloudy, 109.47.111.99
+1517, dark cloudy, 156.104.220.73
+1752, pm fair, 92.238.144.114
+1466, pm gail fair, 156.125.182.239
+1665, pm fair gail , 157.171.12.238

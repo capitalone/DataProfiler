@@ -1,0 +1,3408 @@
+edited 9 hours ago
+6. Do not duplicate code.
+
+Just want to caution against following this too rigidly.
+
+Sometimes two pieces of code can have similar behavior, but represent two totally different business rules in your application.
+
+When you try to DRY them up into a single generic abstraction, you have inadvertently coupled those two business rules together.
+
+If one business rule needs to change, you have to modify the shared function. This has the potential for breaking the other business rule, and thus an unrelated part of the application, or it can lead to special case creep whereby you modify the function to handle the new requirements of one of the business rules.
+
+Removing duplication when you need a single source of truth is almost always a win.
+
+Removing duplication that repeats the handling of the exact same business rule is also usually a win.
+
+Removing duplication by trying to fit a generic abstraction on top of similar code that handles different business rules, is not.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+luckygerbils
+110 points
+·
+9 hours ago
+"Duplication is far cheaper than the wrong abstraction"
+
+I've run into a lot of unreadable code with this problem and I think that article does a great job explaining it as well as the best way to fix it.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+phpdevster
+33 points
+·
+9 hours ago
+Yeah that's a great article. What I find most interesting is this piece:
+
+If you find yourself in this situation, resist being driven by sunk costs. When dealing with the wrong abstraction, the fastest way forward is back. Do the following:
+
+Re-introduce duplication by inlining the abstracted code back into every caller.
+
+Within each caller, use the parameters being passed to determine the subset of the inlined code that this specific caller executes.
+
+Delete the bits that aren't needed for this particular caller.
+
+This removes both the abstraction and the conditionals, and reduces each caller to only the code it needs. When you rewind decisions in this way, it's common to find that although each caller ostensibly invoked a shared abstraction, the code they were running was fairly unique. Once you completely remove the old abstraction you can start anew, re-isolating duplication and re-extracting abstractions.
+
+This is a great example of what has led me to believe that abstraction is a paradox and why it is such a fundamentally fragile and challenging part of all software development.
+
+A key purpose of abstraction is to save time by writing reusable code. But you cannot know what abstraction you really need until after you've already duplicated yourself enough to find the common underlying pieces that can be reused. But then if you've duplicated yourself, you've already lost the opportunity to save time by reusing your abstraction.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+NotSoButFarOtherwise
+17 points
+·
+6 hours ago
+The problem with de-abstracting code is that it can be hard to know that the abstraction itself is the problem. IDEs make it easier to fix once you find it, but looking at something and saying "This is handling two divergent use cases" rather than "This is handling one use case that happens to be very complex" is a very subtle skill, especially when it's code someone else wrote.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+salbris
+4 points
+·
+3 hours ago
+I wouldn't say abstraction is a paradox, it's simply a difficult thing to get right. I think it's okay to build complicated things as long as they are isolated to one concept and the complexity is better than the alternative.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+aseigo
+3 points
+·
+1 hour ago
+I would not say that a key reason is to save time. It can even take longer to find the right absyractions within a given application.
+
+What it can do, and IME the real bounty of decent abstractions, is that (1) it limits the locality of current and future bugs making it not only easier to fix a class of defects in one go but also increasing the odds the bug is found due to the number of code paths tracking through it (contributing to reliability), (2) it makes it much more achievable to change trivial and fundamental parts of a program alike quickly and with predictable results (contributing to maintainability), (3) it collects common concepts behind consistebt interfaces, making it a lot easier for another developer (aka you in 12 months) to come along and reason about the code and become familiar with the code base as a whole due to repetition (also maintainability).
+
+Done well, the right abstractions are game changers. I have worked on products which handled breaking changes is system components without sacrificing compatibility and with desperately little effort, while competing products crumbled in the same situation.
+
+But, abstraction costs, at least in the short term; in time and expertise, primarily. Knowing when, where and how is key. So (again, IME) it does not save appreciable time in the immediate except for the most trivial of situations. It pays off over time, and yes, possibly due to reuse ... but that reuse is only really leveragable if you are writing libraries which are already intrinsically an abstraction, so ...
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+senikaya
+3 points
+·
+5 hours ago
+the moment when I realize I need to reuse code and abstract stuff, is usually when that code part is done and I decided to refactor it (the usual I write genius code until I read it for the second time thing, then it's a retarded piece of crap)
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+luckygerbils
+2 points
+·
+53 minutes ago
+A key purpose of abstraction is to save time by writing reusable code. But you cannot know what abstraction you really need until after you've already duplicated yourself enough to find the common underlying pieces that can be reused. But then if you've duplicated yourself, you've already lost the opportunity to save time by reusing your abstraction.
+
+For me, I don't spend most of my time writing code. I spend most of my day trying to understand other people's code (and sometimes my own code from several months ago, which might as well be someone else's code). It's more important for me to have code that's easy to understand than it is to have code that's fast to write.
+
+Abstractions always make the code slower to read if I don't fully understand the abstraction yet. It's one more method or constant declaration or class impl I need to go find in another file, read, then try to find where I was before to keep going. IDEs help with this but I'd so much rather have everything in one place unless the abstractions are good ones that I can trust are doing their job without weird side effects or subtle distinctions.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+usualshoes
+1 point
+·
+4 hours ago
+That's because people cram too much shit into one function. An ideal function size is only a few lines long. If you keep them short you can't help but have nicely decoupled functions.
+
+Reply
+Share
+Report
+Save
+Give gold
+1 more reply
+
+
+
+level 2
+NotMyRealNameObv
+104 points
+·
+9 hours ago
+This especially applies to tests.
+
+We have a big test framework. Everyone else seems obsessed with minimizing the amount of code that is needed to write the tests, and so it is littered with helper functions.
+
+The problem is that now, when we decide to change the behaviour in some part of the application, tests break. So I go to update the test, and see that all it does is this:
+
+setupTest();
+doMagic();
+teardownTest();
+Where "doMagic()" is a huge, complicated mess. And trying to make the tests pass usually break more tests than you fix, tests that shouldn't break.
+
+So my personal opinion is more and more leaning towards writing smart code and stupid indepentent tests.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+phpdevster
+74 points
+·
+9 hours ago
+So I go to update the test, and see that all it does is this:
+
+Yeah this is a really good point. Tests need to be as transparent and isolated as possible. If you feel like your tests themselves need tests, something is wrong.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+forsakenharmony
+8 points
+·
+4 hours ago
+You can only prove the presence of bugs, not the absence
+
+So in theory tests need tests
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+parabol443
+13 points
+·
+2 hours ago
+That's sort of what mutation testing does. In mutation tests, you flip one statement in your source code to something else and therefore the test should fail, otherwise it wasn't written correctly. I.e. replacing if (a == b) with if false should fail the test case. It's an "easy" way to test that tests are actually testing something instead of just looking nice in terms of code coverage.
+
+Reply
+Share
+Report
+Save
+Give gold
+2 more replies
+
+
+
+level 3
+elperroborrachotoo
+24 points
+·
+8 hours ago
+Unit Tests - solving the problems that arise with too much code by writing a lot of really, really bad code.
+
+But it almost works.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+NotMyRealNameObv
+14 points
+·
+7 hours ago
+At least it works better than no tests.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+tayo42
+2 points
+·
+33 minutes ago
+Bad tests or unclear tests can give you a false sense of security. So it could possibly the same situation as no tests.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+irbilldozer
+13 points
+·
+4 hours ago
+Uhhh don't forget about all those pretty green check marks. Who cares what the test does or if it actually tests anything dude, the pass rate is 100% so this shit is ready to ship!
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+elperroborrachotoo
+3 points
+·
+2 hours ago
+Mhhh! Checkmarks! Green means they are good for the environment, right?
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+9034725985
+2 points
+·
+1 hour ago
+the pass rate is 100% so this shit is ready to ship!
+
+I've seen tests which have everything in it turned into a comment. There is nothing in that test. Git blame says it has been that way for a year when I saw it. Yes, that test still runs with all the other tests in bamboo. There is no other test for that method. ASP.NET MVC in .NET 4 ... I have no idea why.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 7
+elperroborrachotoo
+1 point
+·
+1 hour ago
+Things stop happening you don't continuously verify they do.
+
+...
+
+That is what happens if you verify only easy-to-fake side effects.
+
+So yeah, that is an organizational problem, rather than a problem with testing. But if that helps: it seems not that uncommon...
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 7
+TheGRS
+1 point
+·
+6 minutes ago
+We have some devs that were very consistently commenting out entire tests. It took me some months, but I kept saying "don't comment, just ignore" until they started doing that instead. If you skip/ignore the test then the framework will mark it as such and you can at least be alerted to go back and fix it later. Totally a band-aid, but its better than having tons of commented out tests.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+HardLiquorSoftDrinks
+1 point
+·
+52 minutes ago
+This cracked me up. I’m a front end guy and our engineers pushed a new variable that rendered a price for us to use. Well when it rendered it produced four units behind the decimal ($195.0000) and our QA team passed that.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+Drainedsoul
+8 points
+·
+3 hours ago
+I forget where I read it, but I once read that writing tests is the one place where DRY does not apply. You should be copy/pasting code, because tests need to be as isolated and transparent as possible.
+
+If you're using helper functions all over the place to implement/write your tests, then at some point you get into the position where your test code itself needs tests, and you've entered the first step of infinite regress.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+Luolong
+5 points
+·
+1 hour ago
+I guess it depends very heavily on the helper functions.
+
+Like with all things, the helper function must exhibit very good separation of concerns - meaning that they should be doing one thing and one thing only. And it should be possible to compose a test scenario simply by copy-pasting lines of helper functions one after the other. Ideally the end result would read almost like a ordered list of high level instructions to the human tester.
+
+In short - treat your test code with the same respect as you do for production code and you should be fine.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+ForeverAlot
+3 points
+·
+1 hour ago
+There is nothing inherently wrong with helper functions in test code. The key is keeping tests isolated; and if you rely purely on helper functions preparing the same data your tests effectively are not isolated.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+Calsem
+1 point
+·
+2 hours ago
+If you use testinitialize and test cleanup before and after each tests then tests are isolated. Having huge blocks of code in your tests makes them opaque and hard to read.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+ForeverAlot
+1 point
+·
+1 hour ago
+I encourage colleagues not to use the typical setup/tear-down test framework hooks (@Before/@After in JUnit 4, and their ilk). Those hooks frequently are not meaningfully isolated between individual tests: sharing test data is fragile, and sharing common initialization can be factored into a pure one-liner either in a field declaration (in which case you have even less code) or each test.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+crunk
+5 points
+·
+7 hours ago
+I recently experienced a set of tests that all used helper functions to setup their data.
+
+
+
+When I wanted to make a small change to change the data used in one place in the code it broke hundreds of tests :(
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+KaltherX
+5 points
+·
+6 hours ago
+If it's just one place, why not make a change after data is generated?
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+crunk
+1 point
+·
+4 hours ago
+I was changing the structure in code from start, end to have 3 data points. Pretty much all the tests were used the helper code with this start, end and broke.
+
+
+
+Anyway, we're replacing that programme with something else now.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+shaege
+5 points
+·
+1 hour ago
+So much loathing.
+
+The purpose of the unit test is not just to verify behavior: it's also crucial to demonstrate the complexity required to even get to the point where you can verify behavior!
+
+If your SUT requires eight other classes, a singleton derived context, and ten variables before you can call the single method you care about... well, ffs, don't HIDE that by "DRY"ing it out! The test is giving you strong hints that you need to refactor your code to reduce dependencies!
+
+Take the fucking hint.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+Stop_Sign
+1 point
+·
+3 hours ago
+This is one of the biggest complaints I have against page object model in testing
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+mentalfingertrap
+1 point
+·
+3 hours ago
+Inline setup, inline test, inline teardown. The only way.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+TheGRS
+1 point
+·
+10 minutes ago
+It makes sense that people want to clean this code up, but as a general rule, resist the temptation. Copy/paste shit all day long in your unit tests. They should be very independent of each other. Yes there will be times when a dozen similar tests break and you need to fix each one, but its worth it to actually be able to read what the hell its doing.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+robotreader
+21 points
+·
+8 hours ago
+I can't remember where I found it, but I've been following a "three times" rule of thumb. If the same code is repeated in three different places, and needs to be changed in each place each time, it's time to extract it.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+mhink
+19 points
+·
+7 hours ago
+You gotta stress the “actually writing it three times” thing, though. I’ve caught myself saying “oh, well I’ll eventually need to share this” and then never using the abstraction.
+
+It’s such an easy trap to fall into, because it feels right... but the tough part is stopping oneself, heh.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+csjerk
+10 points
+·
+6 hours ago
+That's not necessarily a problem. If the abstraction separates some complexity into an expressive concept that lets you write some other piece of logic which depends on it in a more clean or descriptive fashion (which is what all abstractions should do, beyond just de-duping code, right?) then it can be a win even if only one spot actually uses it.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+robotreader
+6 points
+·
+6 hours ago
+I just don't worry about until I catch myself going "ugh I have to update this, it's so tedious".
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+phpdevster
+2 points
+·
+3 hours ago
+This is about where I've settled as my trigger point as well. My personal philosophy has become "don't write abstractions until they are demonstrably needed".
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+pydry
+1 point
+·
+3 hours ago
+oh, well I’ll eventually need to share this
+
+In my experience any time I or anybody else has ever thought this while writing code they've either made a mess or wasted their time. If it's not 100% it's damn near close to it.
+
+Never pre-emptively designing anything is a rule I think it actually does pay to be a bit fundamentalist about.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+reddit_prog
+5 points
+·
+7 hours ago
+By the second time I already ask the question. By the 3rd time it's refactor time.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+campbellm
+1 point
+·
+2 hours ago
+Yeah, same here. Write once, copy twice, THINK ABOUT refactoring the third time.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+irbilldozer
+4 points
+·
+4 hours ago
+·
+edited 4 hours ago
+I've burned myself too many times trying to make things more consolidated and generic, telling myself "oooh snap look at how flexible you made this thingy". Eventually you come to realize just how inflexible it is when it comes to changing it later on and now you've got 5 very different callers consuming it.
+
+Honestly I think duplication with stuff like magic strings will burn you more than a duplicated method. Magic strings and numbers are the absolute worst.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+NAN001
+3 points
+·
+7 hours ago
+I just moderately duplicate code on non obvious cases and and then later find out where are the parts that need to be factored when I need to make multiple identical edits at different places.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+shaege
+3 points
+·
+1 hour ago
+Let the pattern express itself.
+
+Count like a caveman: one, two, many.
+
+Semantics matter as much as implementation: Correlation is not intent.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+TheAwdacityOfSoap
+3 points
+·
+1 hour ago
+I agree with the sentiment. In some cases, though, while the entirety of the similar code may not be related, they may share some duplicate logic that really is duplicate code and really will change together. The trick is deduplicating at the right level of abstraction.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+mardiros
+2 points
+·
+9 hours ago
+I am really happy that someone write this before me. I would give you many upvote if i could :)
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+OneWingedShark
+2 points
+·
+36 minutes ago
+6. Do not duplicate code. Just want to caution against following this too rigidly. Sometimes two pieces of code can have similar behavior, but represent two totally different business rules in your application.
+
+When you try to DRY them up into a single generic abstraction, you have inadvertently coupled those two business rules together.
+
+Well, to be fair, a lot of this can be severely mitigated with a good generic-system. Ada, for example, allows you to have generics which take values, subprograms, and/or generic-packages as parameters in addition to types. -- This allows for decomposition for a wide range of things which have similar behavior.
+
+A very simple, trivial example is sort:
+
+Generic
+    Type Element is (<>);
+    Type Index   is (<>);
+    Type Array_Vector is Array(Index range <>) of Element;
+    with Procedure Exchange( A, B  : in out Element );
+    with Function  "<"(Left, Right : Element) return Boolean is <>;
+Procedure Generic_Sort( Input : in out Array_Vector );
+In the actual instantiation we can associate function ">"(Left, Right : Element) return Boolean with parameter "<" to reverse the sort-direction. -- This trivial example scales to whole [sub-]systems.
+
+Removing duplication when you need a single source of truth is almost always a win. Removing duplication that repeats the handling of the exact same business rule is also usually a win. Removing duplication by trying to fit a generic abstraction on top of similar code that handles different business rules, is not.
+
+True; sometimes it's rather difficult to "see the lines" though.
+
+Reply
+Share
+Report
+Save
+Give gold
+28 more replies
+
+
+
+level 1
+wthidden
+83 points
+·
+7 hours ago
+23 guidelines is way way way too many. Here is the simplified guidelines:
+
+Keep it simple. Functions do only one thing.
+
+Names are important. So plan on spending a lot of time on naming things.
+
+Comment sparingly. It is better to not comment than to have an incorrect comment
+
+Avoid hidden state whenever, wherever possible. Not doing this will make rule #7 almost impossible and will lead to increased technical debit.
+
+Code review. This is more about explaining your thoughts and being consistent amongst developers than finding all the bugs in a your code/system.
+
+Avoid using frameworks. Adapting frameworks to your problem almost always introduces unneeded complexity further down the software lifecycle. You maybe saving code/time now but not so much later in the life cycle. Better to use libraries that address a problem domain.
+
+Be the maintainer of the code. How well does the code handle changes to business rules, etc.
+
+Be aware of technical debit. Shiny new things today often are rusted, leaky things tomorrow.
+
+
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+LesSablesMouvants
+24 points
+·
+6 hours ago
+Is it strange that in college we are thought to use as many comments possible even when it's no necessary :/ Not even docs just comments after every line. :(
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+iampx
+20 points
+·
+5 hours ago
+That's stupid. I like to comment codeblocks, which are hard to understand or lines which are important or need to be changed to achieve a different behaivour. If you're good at naming, than everything else is overkill and can even make it harder to understand IMO
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+cynicaloctopus
+2 points
+·
+58 minutes ago
+If you have to write a comment explaining what a code block does, then the code block needs to be extracted into a method with a meaningful name.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+Captain___Obvious
+2 points
+·
+53 minutes ago
+Someone smarter than me said:
+
+There are only two hard things in Computer Science: cache invalidation and naming things.
+
+-- Phil Karlton
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+TimeRemove
+19 points
+·
+3 hours ago
+Just remember the golden rule of comments: "Explaining WHY something was done is a million times more useful than HOW it was done." The how is contained within the code if you look hard enough, the why is lost forever if it isn't written down.
+
+e.g.
+
+ // We loop over the employees         
+ for(var n = employee.Count; n > 0; n--)  { ... }        
+Vs.
+
+ // Inverted because list comes down in reverse-alphabetical from employees view
+ for(var n = employee.Count; n > 0; n--)  { ... }    
+One of these is useful insight, the other is obvious.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+dpash
+6 points
+·
+4 hours ago
+·
+edited 4 hours ago
+Yeah, it's one of the signs of a developer fresh out of university. A good rule of thumb is to have a function short enough that it all fits on the screen at once, and then include a comment above the function describing what it does (if the function name is not obviously clear; no need to document a simple getter) what it's inputs are, what its outputs are, the side effects, if there's any exceptions to be aware of and any other gotchas you might not expect. Documentation systems like javadoc/phpdoc/jsdoc make it easy to include the right information.
+
+The only reason to document an individual line is if it's doing something clever or weird that's not obvious from looking at it. Mostly as a warning to the next person that comes along and thinks "That's weird; we should change it".
+
+Some types of comments belong in the commit logs and not the source code. Particularly "why" comments.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+folkrav
+7 points
+·
+2 hours ago
+Having a background in didactics/teaching, I understand the rationale behind making you put a lot of comments explaining your intentions in code assignments. It lets the teacher better understand the thought process behind what you did, (partially) prevents you from just copy-pasting code you don't understand and saying it works without knowing why, and forces you to think about your code as you have to explain and justify what you did.
+
+However, to be effective as a teaching tool, it should be made clear that it's not something required (or desirable) in a real-life situation.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+vine-el
+2 points
+·
+3 hours ago
+Your professors have to tell you to write comments because much of the code students turn in is unreadable.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+campbellm
+4 points
+·
+2 hours ago
+much of the code students turn in is unreadable.
+
+Yes, and even when it's not, in school writing comments is often helpful as a form of "rubber ducky" debugging; it forces the student to write in another form what they mean to do, often leading to ah-hah moments and/or obvious flaws that just slapping the code down wouldn't necessarily show.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+working-hard-or
+2 points
+·
+2 hours ago
+When I was starting out in uni, we would often write out the functionality in comments first, then implement that. That way I'd end up with a lot of comments. At the time, the 'what' was actually not obvious to me, so it was still useful.
+
+Nowadays, the majority of the comments come from GhostDoc that generates it based on the names of the methods to appease the style cop.
+
+Only in the rare cases where something is not obvious through naming do I still write comments. This is usually determined by having to debug through said code and not finding it obvious at that time. During development it is all very clear of course what I am doing :P
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+tcpukl
+22 points
+·
+4 hours ago
+Comments should explain why not how anyway. The code already says what it does.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+dont_judge_me_monkey
+13 points
+·
+3 hours ago
+//open file  
+File.Open(filename);
+jfc
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+Jeffy29
+10 points
+·
+3 hours ago
+//open file  
+x3.Open(name_variable);
+#CollegeCode
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+jrop
+4 points
+·
+2 hours ago
+I once inherited a C# project where virtually every operation looked like this:
+
+Console.WriteLine("About to instansiate HelperClass");
+using (var writer = acquireFileWriterBySomeMeans()) {
+  writer.WriteLine("About to instansiate HelperCLass");
+}
+// create an instance of HelperClass and store it in helperClass variable
+var helperClass = new HelperClass();
+Console.WriteLine("Created instance of HelperClass");
+using (var writer = acquireFileWriterBySomeMeans()) {
+  writer.WriteLine("Created instance of HelperCLass");
+}
+// ...
+The code was buried in so much noise. All of the logging was the first to get refactored: NLog in this case. Then after we understood what it was doing, we ported it over to some much less verbose scripts.
+
+I even posted one of the snippets from the program up on /r/ProgrammingHorror.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+fragglerock
+3 points
+·
+1 hour ago
+acquireFileWriterBySomeMeans()
+
+i hope that is a real method name! I love it :D
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+TomLikesGuitar
+7 points
+·
+2 hours ago
+I feel like this is too broad a statement. In a super complex codebase, you want to be able to get a general gist of what is happening in the code. The examples here of opening files and looping are one thing, but when you're dealing with a text processor it's kind of important that you explain what some things are doing.
+
+A comment like this is immensely helpful, but it doesn't explain why at all. The "why" is implied by the context of the code.
+
+// Get the amount of glyph advance for the next character
+end_bytes = Types::UTF8::NextUnsafe( c, 0, glyphVal );
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+doublehyphen
+3 points
+·
+57 minutes ago
+Your specific example could probably be solved by using a small function with a good name, but I agree with the general principle. Sometimes the what can be really hard to understand. The readability of PostgreSQL's code base for example is helped by comments like below.
+
+	if (write(fd, shared->page_buffer[slotno], BLCKSZ) != BLCKSZ)
+	{
+		pgstat_report_wait_end();
+		/* if write didn't set errno, assume problem is no disk space */
+		if (errno == 0)
+			errno = ENOSPC;
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+TomLikesGuitar
+1 point
+·
+44 minutes ago
+Your specific example could probably be solved by using a small function with a good name.
+
+That's a good point and I was thinking that, but really what's the difference?
+
+If the code isn't being reused then it seems like a stylistic choice kinda.
+
+But yeah, your example is also good. I think a lot of the time when a comment is explaining "what" it's in the sake of keeping the code brief and simple.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+inmatarian
+5 points
+·
+3 hours ago
+I would change #6 to Reduce dependencies.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+riskable
+5 points
+·
+2 hours ago
+No, dependencies aren't bad. They're time savers and a form of standardization.
+
+If tons of the code at your work uses the same dependencies then any developer can have a look at it and know what to expect. They also won't have to look at six bizarre/different implementations of a simple sorting function.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+Habadasher
+2 points
+·
+5 hours ago
+·
+edited 2 hours ago
+Totally agree on number 3. I've far more often seen incorrect comments than seen a piece of code and wished for a comment.
+
+Write simple code. If you really need a comment to explain what you're doing, maybe think about why that is and simplify your code. If you absolutely need to add a comment go for it but now this comment has to be maintained alongside the (probably overly complicated) code.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+combinatorylogic
+4 points
+·
+4 hours ago
+Comments explain "why", not "what" and "how". Comments and code are orthogonal. And this "why" part must be bigger than the "what" part anyway, so you must write more comments than code.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+Habadasher
+2 points
+·
+4 hours ago
+Method names explain the what. Your code explains the how. It's usage explains the why. None of this necessitates comments. Your code is not to be read by non-programmers, you don't need to explain every little thing.
+
+I can see the need for some comments but "more comments than code" sounds like utter lunacy. Your code would become unreadable just based on how spread out it is between comments.
+
+And then someone needs to update your essay of comments for a minimal code change. But bad comments don't cause compiler errors/crash the app so they are significantly harder to catch than bad code and now your essay is distracting, and incorrect.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+combinatorylogic
+1 point
+·
+4 hours ago
+It's usage explains the why.
+
+No. Never. Unless you code some CRUD crap, the "why" part of the story is the most complicated one.
+
+It might involve explaining the mathematics before it became code - with all the intermediate steps. It might involve referring to a number of papers. It might involve citing specification paragraphs you're implementing.
+
+Also, there are always some implicit constraints that you cannot infer from the code, and yet you assume them when you write it - you must document them explicitly.
+
+but "more comments than code" sounds like utter lunacy.
+
+Sure, go and tell Donald Knuth he's a lunatic, and you know better because you can code hipstor webapps.
+
+Your code would become unreadable just based on how spread out it is between comments.
+
+If code is only a small part of the story - yes, it must be thinly spread inside the comments, where its contribution to the story makes sense.
+
+What is more readable? TeX, or anything you ever wrote? Can you ever achieve the same quality? Are you willing to write cheques to anyone who discover a bug in your code?
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+Habadasher
+6 points
+·
+4 hours ago
+It might involve referring to a number of papers. It might involve citing specification paragraphs you're implementing
+
+That's a single comment.
+
+I never said all comments must go, this is an obvious case where a comment is useful.
+
+Sure, go and tell Donald Knuth he's a lunatic, and you know better because you can code hipstor webapps.
+
+Lot of assumptions here, plus a strange idolisation of Knuth. The man is not infallible and programming has come a long way since Knuth (also, can you point to where he actually said that comments should outnumber lines of code?).
+
+What is more readable? TeX, or anything you ever wrote? Can you ever achieve the same quality? Are you willing to write cheques to anyone who discover a bug in your code?
+
+Again, you have a bizarre idolisation of this guy and I fail to see how writing lots of comments equates to bug-free code.
+
+Reply
+Share
+Report
+Save
+Give gold
+6 more replies
+
+
+
+level 5
+sammymammy2
+1 point
+·
+54 minutes ago
+More comments than code isn't too weird, a lot of code needs you to read a paper before you understand the why of the code. If there is no paper then you'll have long comments (so you'll have a literal program)
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+aedrin
+3 points
+·
+2 hours ago
+If a chunk of code does something unusual, often it means it belongs elsewhere in a function. And then the function name becomes the comment.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+campbellm
+3 points
+·
+2 hours ago
+When the code and the comments disagree, both are probably wrong.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+KlausKoe
+2 points
+·
+3 hours ago
+3 Comment sparingly. It is better to not comment than to have an incorrect comment
+
+Since when are incorrect comments a thing? Not sure if I ever ran into one.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+bburc
+8 points
+·
+3 hours ago
+When a dev changes code functionality that has a comment and doesn't update the comment. I've personally done this on accident in my early days and have seen many other cases.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+MagicMurderBagYT
+1 point
+·
+6 hours ago
+3: comment often and correct
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+Goto80
+10 points
+·
+5 hours ago
+3.5: Update all the comments after changing code.
+
+Hence: Comment sparingly
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+emorrp1
+6 points
+·
+4 hours ago
+See rule number 2. The best place for a comment is at the head of a meaningful chunk of code (conventionally separated by blank lines). However, nearly every time I've needed that, I can reword the comment into a function name and move the chunk of code into that function - even if that is not duplicated code!
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+o11c
+1 point
+·
+4 minutes ago
+6
+
+"Framework" is just a name for a libraries that does not play nice with other libraries.
+
+Reply
+Share
+Report
+Save
+Give gold
+13 more replies
+
+
+
+level 1
+int2d
+64 points
+·
+8 hours ago
+IMO the most important of these rules is simplicity. I regularly see both junior and senior developers writing needlessly complex code.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+get_salled
+30 points
+·
+3 hours ago
+Simple is difficult to write; complex is easy to write. Simple requires multiple revisions; complex does not. Simple requires deep understanding of the problem; complex does not. Simple takes a lot of time; complex is quick.
+
+To make matters worse, simplicity is in the eyes of the beholder. My simple is not your simple. Maybe I hide the complex bits in a class to simplify all the dependent classes whereas you need those bits leaked in your version. Maybe your simple is Haskell and mine is python. Maybe your simple is object-oriented and mine is functional.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+tayo42
+1 point
+·
+26 minutes ago
+Simple is difficult to write; complex is easy to write. Simple requires multiple revisions; complex does not. Simple requires deep understanding of the problem; complex does not. Simple takes a lot of time; complex is quick.
+
+I was thinking about this the other day. I think avoiding complexity also requires self awareness.
+
+It also needs encouragement. I think people start to think they're smart when they have a complex solution to something, but like you said, actually being smart/clever is coming up with a simple solution. Simple doesn't seem to always get recognition.
+
+But in general, I wish this was more of a common way of thinking, it doesn't feel that way to me from my experience.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+Shookfr
+8 points
+·
+7 hours ago
+This ! If it took you days to come up with a solution, imagine what it will take for the next person to wrap their head around your code.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+phySi0
+4 points
+·
+2 hours ago
+Simpler code is not easier code (to think up). It can take longer to come up with the simple solution than it does the complex solution.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+OneWingedShark
+1 point
+·
+2 minutes ago
+Not necessarily; the solution could be abstracted away. Consider:
+
+Package DB is
+    -- A value of type Query can ONLY be created through a function;
+    -- therefore as Get_Name is the only function returning Query, we
+    -- can be assured that no variable has an invalid Query.
+    Type Query(<>) is private;
+    Type Table is (User, Administrator, Company); -- Each has a name col.
+    
+    Function Get_Name( Name : String; From : Table ) return Query;
+Private
+    Type DB_Input_String  is new String;
+    Type DB_Output_String is new String;
+    Type Query is null record; -- A stub for the example.
+    
+    Function Do_SQL   ( Name  : DB_Input_String;
+                        From  : Table  ) return DB_Output_String;
+    Function Sanitize ( Input : String ) return DB_Input_String;
+    Function Parse    ( Input : DB_Output_String ) return Query;
+    Function Get_Name ( Name  : String; From : Table ) return Query is
+        (Parse( Do_SQL( Name => Sanitize(Name), From => From ) ));
+End DB;
+All the dirty work of sanitizing the inputs is in Sanitize, all the dirty work of connecting to the DB is in Do_SQL, and all the dirty work of making sense of the resultant reply is in Parse; yet the only things presented to the users of this package publicly are: the Query type, the Table type, and the Get_Name function.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+DoTheElectricEel
+3 points
+·
+1 hour ago
+The best sign you've done things right is when someone looks at your code and thinks it's "obvious", like they could have just done it themselves.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+shaege
+5 points
+·
+1 hour ago
+The best compliment I've ever gotten was after "refactoring" (redesigning and rewriting) huge portions of a gigantic, complicated codebase that nobody wanted to touch, and suddenly everyone came out of the woodwork with "why does it do this?", and "this is stupid", and "couldn't this be simpler?"... yeah, you can all see that NOW, where were you before?!?
+
+Wasn't so obvious before, was it, Frank?
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+franzwong
+2 points
+·
+4 hours ago
+I sometimes want to “improve” the code and make it more complicated. I always need to control myself not to do it.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+cjh79
+2 points
+·
+1 hour ago
+Somebody wise (I wish I could remember who) said that debugging is twice as hard as writing code. Therefore, if you've written code at the edge of your ability to understand it, debugging it later on will be beyond your ability.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+working-hard-or
+1 point
+·
+2 hours ago
+It is so hard to resist, because it is so much more fun to think up the complex code. (At least if I'm thinking about the same sort of complex code you are)
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+AegisToast
+1 point
+·
+2 hours ago
+I once heard a professor say that you should write out the code to solve a problem as quickly as you can. Then, once it works, solve it again using what you learned the first time. Then solve it a third time. Then use your second solution because your third is way over-engineered.
+
+Reply
+Share
+Report
+Save
+Give gold
+4 more replies
+
+
+
+level 1
+Kinglink
+54 points
+·
+6 hours ago
+Type your variables if you can, even if you don’t have to.
+
+So I work in C++ mostly... I still get mad about an ex-coworker (my leaving, sadly) who would pass potentially null values by reference. He would say "but it's not null when I use it", yet it would constantly break when you did anything on shutting down or switching game modes.
+
+He also said "well you should check the reference for null". I'm surprised I didn't hit him on that one, and the tech lead asked "What's wrong with doing that?"
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+MarkIsntWorkingNow
+34 points
+·
+5 hours ago
+I like the codebase I have right now where almost everything looks like this
+
+void* some_function(void* x, void* y) {...}
+This person is out there somewhere probably writing more C++. The thought of that makes me sick.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+MrRogers4Life2
+15 points
+·
+4 hours ago
+Types are for the weak don't ya' know
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+MarkIsntWorkingNow
+8 points
+·
+3 hours ago
+How one man learned to write C++ like python! Experienced engineers HATE him!!!
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+Klathmon
+4 points
+·
+3 hours ago
+There's a weak typing joke in there somewhere but i'm not smart enough to figure it out
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+ElBroet
+1 point
+·
+1 hour ago
+Types are for the weak, so I only use C++ weakly typed I'm tryin'
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+atrich
+15 points
+·
+4 hours ago
+"My C++ is so good it all compiles with the C compiler."
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+OneWingedShark
+2 points
+·
+24 minutes ago
+There's an argument for using Ada right there.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+BobSacamano47
+27 points
+·
+6 hours ago
+Didn't read them all, but this stood out
+
+14. Split your classes to data holders and data manipulators.
+
+Not only is that bad advice on it's own, the explanation doesn't even seem related.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+IceSentry
+3 points
+·
+2 hours ago
+Please explain why this is bad advice? I always prefered this. I don't like big classes that hold data and manipulates it. I like being able to pass around data only.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+geft
+1 point
+·
+1 hour ago
+That's no OOP. Your Dog class is supposed to play(ball) instead of a manipulator class doing play(getDog(), getBall()).
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+0987654231
+1 point
+·
+1 hour ago
+Why do you think that's bad advice? It's essentially separating records from logic.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+sushibowl
+6 points
+·
+54 minutes ago
+If you're using classes, you're probably doing some form of OOP. The whole point of OOP is to keep data grouped together with the code that acts on that data. Splitting your classes into data holders and manipulators runs completely contrary to that principle.
+
+If we're splitting our application up in this way, many of the benefits that classes provide are gone. We might as well just use data structures and plain functions then, no?
+
+Reply
+Share
+Report
+Save
+Give gold
+2 more replies
+
+
+
+level 3
+geft
+4 points
+·
+1 hour ago
+You essentially have the anemic domain model anti-pattern.
+
+Reply
+Share
+Report
+Save
+Give gold
+3 more replies
+
+
+
+level 1
+redditthinks
+18 points
+·
+8 hours ago
+In one guideline:
+
+Write code that's easy to read
+
+For real, the two guidelines that are most effective, IMO:
+
+Use early return, continue, break, etc.
+
+80 characters per line (unless it's C# or something)
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+ZorbaTHut
+54 points
+·
+7 hours ago
+80 characters per line (unless it's C# or something)
+
+I've got that at my current job.
+
+It's a great theory. Short lines are easier to read, correct? And hey, you can combine that with other guidelines. Like descriptive function names, and descriptive variable names, and descriptive class names.
+
+And now you've got 30-character long tokens and you can fit only two tokens on a line, so anything more than the simplest possible expression spills over onto half a dozen lines.
+
+It's the least readable codebase I've ever used.
+
+Given a choice between sacrificing 80-character lines and sacrificing descriptive tokens, I'll kill the 80-character line any day. Get a bigger monitor, they're cheap.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+YM_Industries
+16 points
+·
+7 hours ago
+I agree with you, but I don't think abolishing the character limit is the answer. We increased our character limit to 140, and added to our coding standards documents guidelines for how to split code into multiple lines in a way that's easily readable.
+
+Getting rid of 200 character plus lines has been a big improvement.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+Double_A_92
+8 points
+·
+7 hours ago
+It should be the developers choice. Nobody is going to print the code anyway.
+
+If you got a long line then it's just that long. Breaking it onto multiple lines doesn't change that (potentially bad) code, it just makes it even more ugly to look at.
+
+If the line is really too long, it's better to refactor that function with 20 parameters.
+
+For me personally 120 is the hard lower limit. It's almost impossible to stay below that if you want decent variable and function names.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+YM_Industries
+7 points
+·
+5 hours ago
+I think if developers have to scroll horizontally, that's far worse for readability than it being split over multiple lines. We chose 140 characters because it fits on a 1080p screen (which is what most devs at my company have) at a zoom level that's comfortable for all team members. Additionally, for team members who like their font a little smaller, it means we have plenty of room leftover for our IDE's minimap.
+
+On top of that I should mention that our limit is far from a hard limit, it's a guideline. If a developer feels that the code would be more readable by breaking that limit, they are free to do so. But we really try to avoid it, because it does have an impact on the next person to read it.
+
+Maybe your team is comprised of perfect developers, but in my team if we had no "limit"/guideline then some of our devs would happily write one-liners which are 300-400 characters long. This is PHP if that helps to set the scene.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+Double_A_92
+5 points
+·
+4 hours ago
+We have a formatter that must be run before committing into git. Unfortunately it has 120 as hard limit and formats all modified files.
+
+That sometimes leads to "jagged" code, e.g. some parameters of a function are alone on the next line. That makes it visually much uglier for me than having to occasionally scroll horizontally.
+
+But yeah, something around 140 is a good guideline. I'm not trying to encourage people to write long lines :D
+
+
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+tonyarkles
+3 points
+·
+3 hours ago
+Nobody is going to print the code anyway.
+
+When there is a particularly nasty bug, that is exactly what I do. I print out the code in question and work through it with a pen. If there’s 4 different pieces of code involved, having 4 pieces of paper side by side can help you see things you wouldn’t otherwise see.
+
+That being said, when I was learning to program, I lived at my mom’s house and the computer was at my dad’s. I spent a lot of time writing code on paper and then typing it in and correcting it later. But old habits die hard, and I don’t yet have a 34” wide (8.5”x4) monitor that I can easily draw on with a pen :)
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+alaskanarcher
+2 points
+·
+6 hours ago
+"it should be the developers choice"
+
+Which developer? More than one developer is going to have to work with the codebase. Hence the point of an agreed upon standard
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+dominikdsgnr
+3 points
+·
+5 hours ago
+I think he means to not set hard limit on the characters length, but to just allow for developer to soft wrap it a his own desired length.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 7
+alaskanarcher
+1 point
+·
+3 hours ago
+I don't like having to deal with softwrap. So not in my codebase.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+Double_A_92
+1 point
+·
+4 hours ago
+The original author and reviewers. The standard should be that there is no strict length limit.
+
+"One statement per line" is enough of a rule. And maybe some Hint if there are really long lines in your open files ( > 200-300).
+
+Long lines are not a formatting issue, they are a "clean code" issue. I wouldn't really wan't to rely on formatting rules to enforce clean code.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+petosorus
+3 points
+·
+3 hours ago
+140-160 lines are my prefered compromise. Not too long while leaving space.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+muntoo
+9 points
+·
+7 hours ago
+·
+edited 7 hours ago
+30-character long tokens
+
+dafaq
+
+i_hate_readability_a_whole_lot = this_was_a_terrible_idea_but_yolo + simple_exprs_are_incomprehensible * i_hate_readability_a_whole_lot
+Other than certain applications, I cannot imagine any sane reason for this. Even a mathematician's version of the code is more readable:
+
+x = w + b * x
+Character limits encourage succinct, well chosen, accurate names. They encourage line breaking. They encourage method extraction and abstracted designs. The 80 character soft-limit is a great guideline. 100 characters should be a "pls stop"-limit. 120 characters should be a "I hope you have a good reason for this"-limit.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+ZorbaTHut
+12 points
+·
+7 hours ago
+It doesn't take much to end up with reasonably long tokens.
+
+bool convert_zapruder_to_shazbot(const ZapruderCondensed *input_zapruder_data, const string &output_shazbot_filename);
+And it can be nice sometimes when doing complicated calculations; for example:
+
+weapon_translation_worldspace = character_translation_worldspace + weapon_translation_characterspace.TransformedBy(characterspace_to_worldspace)
+I mean, sure, you can do stuff like weapWorld = charWorld + weapChar.TransformedBy(charToWorld), but this can quickly get confusing if you have anything else that could reasonably be described as "weapWorld" or "charWorld".
+
+If there's one thing I've come to believe when it comes to style guides, it's that nearly everything is justifiable in some context.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+muntoo
+5 points
+·
+6 hours ago
+·
+edited 6 hours ago
+bool convert_zapruder_to_shazbot(const ZapruderCondensed *input_zapruder_data, const string &output_shazbot_filename);
+This could have been written with shorter names without losing any context. The method name provides the context.
+
+bool convert_zapruder_to_shazbot(const ZapruderCondensed *data, const string &out_filename);
+By breaking things apart into methods, you can keep the names short since their context is limited.
+
+data cannot possibly be talking about user_input_data_history, so we can just call it data.
+
+out_filename cannot possibly be talking about a filename related to output_jose_capablanca_filename so we can give it the shorter name out_filename.
+
+Highly abstract functions do not require descriptive names. See functional programs. They frequently use x as argument names...! Not necessarily a good practice, but quite telling nonetheless. The following is pulled from aura:
+
+-- | Print some message in green with Aura flair.
+notify :: Settings -> Doc AnsiStyle -> IO ()
+notify ss = putStrLnA ss . green
+
+-- | Like `liftEitherM`, but for `Maybe`.
+liftMaybeM :: (Member (Error a) r, Member m r) => a -> m (Maybe b) -> Eff r b
+liftMaybeM a m = send m >>= liftMaybe a
+
+-- Slightly more extreme examples...
+partitionPkgs :: NonEmpty (NonEmptySet Package) -> ([Prebuilt], [NonEmptySet Buildable])
+partitionPkgs = bimap fold f . unzip . map g . toList
+  where g = fmapEither toEither . toList
+        f = mapMaybe (fmap NES.fromNonEmpty . NEL.nonEmpty)
+        toEither (FromAUR b)  = Right b
+toEither (FromRepo b) = Left b
+Notice the arguments don't even require names! Short, composable functions often don't due to their high abstraction.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+ZorbaTHut
+2 points
+·
+6 hours ago
+Sure, and now inside the function you have "data". Which data is it? Pre-converted data? Post-converted data? Intermediate data? What if your conversion process requires writing intermediate files? Now out_filename is ambiguous as well.
+
+Some languages let you decouple the exposed function parameter names from the internal function parameter names, but that's ugly in its own right, and not all languages allow this.
+
+I've dealt with all of these issues in the past; hell, I'm dealing with one of those literally right now.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 7
+muntoo
+4 points
+·
+6 hours ago
+I don't understand the ambiguity. You have multiple clues:
+
+convert_: tells us there is an input and an output
+
+zapruder: input
+
+to_shazbot: output
+
+And even types give some information: ZapruderCondensed
+
+If you want the method to act on "post-converted data":
+
+convert_zapruder_to_shazbot(post_converted_data, shaz_filename)
+If you want the method to work exclusively on "post-converted data" (whatever that means), you name it thus:
+
+convert_post_converted_zapruder_to_shazbot
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 8
+ZorbaTHut
+2 points
+·
+5 hours ago
+bool convert_zapruder_to_shazbot(const ZapruderCondensed *data, const string &out_filename) {
+  string in_filename = generateTempFilename("in");
+  string another_out_filename = generateTempFilename("out_another");
+  data->Write(in_filename);
+  call(CLI_UTILITY, in_filename, another_out_filename);
+  PreShazbot preshazbot = PreShazbot::readFromDisk(another_out_filename);
+  auto intermediate_data = preshazbot.GenerateIntermediateData();
+  auto temporary_data = intermediate_data.module();
+  RecalculateModule(&intermediate_data);
+  intermediate_data.module().flags = shazbotUtil::RebuildFlags(temporary_data);
+  auto result = generateShazbot(intermediate_data, preshazbot);
+  result.write_to_disk(out_filename);
+}
+I ain't claiming this is the cleanest code, but it's easily the kind of thing that can accumulate with a long-lasting codebase with a lot of third-party libraries, and it certainly wouldn't be hurt by having more descriptive parameter names.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+evaned
+2 points
+·
+1 hour ago
+This could have been written with shorter names without losing any context. The method name provides the context.
+
+bool convert_zapruder_to_shazbot(const ZapruderCondensed *data, const string &out_filename);
+I agree with what you say, but note that in the context of the larger argument that this is still a 92 character line, and that's even assuming it can and does start in column 1.
+
+Or as another measure:
+
+partitionPkgs :: NonEmpty (NonEmptySet Package) -> ([Prebuilt], [NonEmptySet Buildable])
+88 characters.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+phySi0
+1 point
+·
+1 hour ago
+bool zapruder_to_shazbot(const ZapruderCondensed *zapruder, const string &out_filename);
+You can do even better with a language that doesn't encourage long lines in the first place (obviously, a reasonable limit will differ per language):
+
+zapruder_to_shazbot :: ZapruderCondensed -> IO (Maybe Handle)
+zapruder_to_shazbot zapruder out_filename =
+  -- code here
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+warxion
+3 points
+·
+6 hours ago
+Yeah, now tell me what x, w, b, and x means a few dozens of lines later.
+
+That code literally means nothing from the outside. Long names can be telling, just don't write stupid stuff like in your first example.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+quintus_horatius
+3 points
+·
+6 hours ago
+In general, your functions should be short enough that you dont need to remember what those variables mean, and you don't need to look back "a few dozen lines".
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+combinatorylogic
+3 points
+·
+4 hours ago
+a few dozens of lines later
+
+Such variables should not have such a long scope.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+wewbull
+1 point
+·
+1 hour ago
+I think this is a fundamental issue that C++/Java OO has resurrected. Classes are scopes, but modern classes are often huge, and hence the scope of member variables is huge. Honestly, it's sometimes like we've gone back to having global variables everywhere.
+
+Of course people want long identifiers.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 7
+combinatorylogic
+1 point
+·
+1 hour ago
+Well, it's perfectly reasonable to have longer names for longer scopes.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+alaskanarcher
+2 points
+·
+6 hours ago
+There can be such a thing as a name that is too descriptive. Ideally you use a variable within a context that is well scoped enough to allow some obvious assumptions to be made about the variable. I'm not a fan of embedding type into a name for example.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+dpash
+2 points
+·
+4 hours ago
+Given a choice between sacrificing 80-character lines and sacrificing descriptive tokens, I'll kill the 80-character line any day. Get a bigger monitor, they're cheap
+
+Yep, I have a 120 character "guideline" for my Java projects (I also have lines at 80 and 100 in my IDE (IntelliJ) too). Vertical space is more important than horizontal. Limiting function size is more important to me than line length.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+NotSoButFarOtherwise
+1 point
+·
+6 hours ago
+What makes shorter lines a game changer is having more files open at once, or even (depending on IDE) the same file open at two different spots. That said, I am a heathen and just turn on word wrap instead of having a hard cutoff.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+ZorbaTHut
+3 points
+·
+6 hours ago
+I used to use an editor that did autoindented word wrap; whenever it needed to wrap something, it'd wrap it an extra two tabs indented from whatever the original line was.
+
+I don't understand how this sort of thing isn't standard in all code editors today. I swear even modern IDEs are straight out of the stone age.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+NotSoButFarOtherwise
+2 points
+·
+6 hours ago
+VS, VS Code, and IntelliJ all do it. They usually have word wrap turned off by default, and you may have to enable a separate setting for auto-indenting wrapped lines as well.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+ZorbaTHut
+1 point
+·
+6 hours ago
+Hmm, I'm totally going to look into that - last I checked VS didn't do a good job, but that was, like, a decade ago. Thanks for the suggestion!
+
+edit: groovy
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+curious_s
+4 points
+·
+8 hours ago
+I assume when you say C# you mean Java.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+redditthinks
+26 points
+·
+8 hours ago
+My problem with C# is this:
+
+namespace Namespace
+{
+    class Class
+    {
+        void Method()
+        {
+            // Code
+You're already 3 indents in without writing anything. Java has one less indent but thankfully makes up for it with more verbose code.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+curious_s
+4 points
+·
+7 hours ago
+Hmm, that is true! I guess I've never really noticed but it's going to annoy me from now on haha
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+muntoo
+1 point
+·
+7 hours ago
+What annoys the hell out of me are the verbosity and amount of space getters and setters take. C# takes up waaay too much vertical space.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+Otis_Inf
+10 points
+·
+7 hours ago
+public string Foo {get;set;}
+1 line, not sure what's 'waaay too much vertical space' about that?
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 7
+muntoo
+4 points
+·
+6 hours ago
+That's a property which isn't doing anything special. But throw in a bit more functionality...
+
+// 13 lines!
+private string _foo;
+
+public string Foo
+{
+    get
+    {
+        return _foo;
+    }
+    set
+    {
+        _foo = "Prefix " + value;
+    }
+}
+Sure, one could format it as follows:
+
+// 5 lines
+private string _foo;
+public string Foo {
+    get { return _foo; }
+    set { _foo = "Prefix " + value; }
+}
+which isn't too bad... but most code seems to look like the former.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 8
+whocouldwinaportal
+8 points
+·
+6 hours ago
+It's mostly pre-C#6 code that looks like that. One liner properties should now get away with using expression bodied methods.
+
+private string _foo;
+public string Foo 
+{
+    get => _foo;
+    set => _foo = "Prefix " + value;
+}
+Though of course if the property is anything more complex than adding "Prefix" you'll have to go back to the big get { } and/or set { } blocks which are pretty verbose.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 8
+Otis_Inf
+1 point
+·
+6 hours ago
+Sure, but what's the alternative? E.g. java with its get_* methods? Those are just as verbose.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 9
+dpash
+2 points
+·
+4 hours ago
+More verbose. We're asking for C# style properties to reduce boilerplate with getters and setters. We probably won't get them, but we will probably get data classes which solve a similar problem in most situations.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 8
+Matty_mathy
+1 point
+·
+5 hours ago
+private string _foo;
+
+public string Foo
+{
+    get => _foo;
+    set => _foo = "Prefix " + value;
+}
+This is ok IMO.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+jcelerier
+1 point
+·
+6 hours ago
+why would you use this indent style ? I use this one (in c++ but that's the same)
+
+namespace NS
+{
+class Foo
+{
+public:
+  void method() 
+  {
+     // sweet 2-space indents of love
+     if(foo) 
+     {
+       do_bar();
+       do_baz();
+     }
+  }
+};
+}
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+dragonstorm97
+1 point
+·
+6 hours ago
++1 for { } placement, -1 for 2 spaces, +1 for c++.... I need my 4 spaces dagnabbit!
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 6
+jcelerier
+3 points
+·
+5 hours ago
+I was once an ardent defender of 4 spaces, then I made a patch to a software made with 2 spaces and I never looked back since then. in practice it's really as readable.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 7
+emorrp1
+4 points
+·
+4 hours ago
+If only there was some character we could use to mean "indent" level and everyone could configure it locally to look readable to them.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 8
+jcelerier
+2 points
+·
+4 hours ago
+nah, tabs are the worst. I've used tabs for a few years before migrating to spaces. The amount of pain that tab induces when you want to align is incredible. And don't tell me "tabs for indentation, spaces for alignment", only a few text editors allow this.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+ShinyHappyREM
+1 point
+·
+5 hours ago
+namespace NS  {
+
+
+class Foo  {
+        public:
+        void method()  {
+                // sweet 8-space indents of love
+                if (foo)  {
+                        do_bar();
+                        do_baz();
+                }
+        }
+};
+
+
+}
+ftfy
+
+Reply
+Share
+Report
+Save
+Give gold
+2 more replies
+
+
+
+level 2
+dpash
+2 points
+·
+4 hours ago
+Early returns make code so much nicer to read. No more code nested so far that it disappears off the right hand side of the screen.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+bless-you-mlud
+1 point
+·
+2 hours ago
+Also, +1 for long if/else if chains instead of deeply nested ifs.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+0987654231
+1 point
+·
+1 hour ago
+I mean i'd argue that not needing continue or break would be even simpler.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+jjolla888
+23 points
+·
+7 hours ago
+as many as 23 'guidelines' ?? this breaks its own rule#3:
+
+Simplicity is king.
+
+Reply
+Share
+Report
+Save
+Give gold
+1 more reply
+
+
+
+level 1
+Necromunger
+8 points
+·
+6 hours ago
+Read and enjoyed everything but one point.
+
+If you don't have to, don't allow nulls either. Null is an abomination. It has to be explicitly checked for existence to avoid fatal errors which require unnecessary code.
+
+I don't understand this outlook and disagree with it. Null is as important construct as conditions in programming.
+
+Why say it's an abomination? just don't overuse it like everything else.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+atilaneves
+3 points
+·
+5 hours ago
+It's an abomination because it breaks the type system. Null is this weird special value that can be assigned to a variable of any (reference/pointer) type.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+eyal0
+5 points
+·
+4 hours ago
+A few problems with null:
+
+What does null mean? For example: Does that mean that the code forgot to initialize it? Or that there was a failure?
+
+Also, null breaks a contract: if the variable is called "width", the callee expects a number. Giving a null is not supplying a number.
+
+If you need a case where something is missing, use an "optional" class, which many languages provide. The semantics are clearer and you usually get a bunch of useful functions for free, such as filtering a list of optionals into a list of just the not optional values.
+
+I've yet to see a use of null that couldn't be converted to optional.
+
+After you convert all the usages of null to optional your code is now in the state that you can treat all nulls as errors. This is much easier than having to guess for each null if it was accidental or on purpose.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+Necromunger
+1 point
+·
+4 hours ago
+I can only respond in terms of my own context for null and an actual example.
+
+Does that mean that the code forgot to initialize it?
+
+No, it means in the current state of a program the variable has not valid meaning yet.
+
+A variable representing optional hardware or something that may be relevant to a program but not always is the Null limbo.
+
+Or that there was a failure?
+
+No, it means the same thing as N/A, not available.
+
+I use it in the practical sense of an object which has members that are not all required.
+
+For example if you have someone register for a website and they do not wish to give you their phone number it is NULL.
+
+The use of null for exception handling i would agree is incorrect because it gives no meaning or context as to what went wrong.
+
+With or without "optional" class you can use NULL in the same functional way.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+eyal0
+4 points
+·
+4 hours ago
+Better to use optional for the phone number. Then your code will be self documenting about which fields are optional and which aren't. Maybe "username" is not allowed to be optional but both phone number and username are type string so how are you to know that by looking?
+
+Edit: for not yet initialized, simply don't initialize it. That's better than null because a compiler can warn you about forgetting to initialize.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+MagicMurderBagYT
+3 points
+·
+6 hours ago
+If null seems like the solution, there is always a better solution.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+KaltherX
+1 point
+·
+6 hours ago
+You are right. If possible, just mark variables that you allow to be null in your code and don't allow nulls when you don't need them. It makes it much easier to understand and expect a certain outcome out of your code.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+eyal0
+6 points
+·
+4 hours ago
+I disagree. Better to use an "optional". Then you'll be able to declare that all nulls in your code are errors.
+
+Without that, you'll never be sure when you see a null if it's on that way to a null-accepting function or not. Essentially, you can never know if width=null is valid without looking at all the code in all future paths. A function can't know if it's legal to return null and can't know if it needs to be accepting of null.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+dpash
+2 points
+·
+4 hours ago
+·
+edited 2 hours ago
+For a concrete example, in Java you can annotate your return types and parameters with @NotNull/@Nullable (or variants) and IDEs and code checkers can warn you of possible null dereferencing problems. (Having nullable types with non-nullable types by default would have been better, but it's too late for that now; the best we can hope for is nullable by default).
+
+Additionally, returning Optional<> is often a better choice than returning null, if only because it forces callers to handle "null" values themselves, even if they just call ".orElse(null)". Never ever ever return a null Optional, or I will hunt you down and make you copy out, by hand, all the stack traces you caused.
+
+Edit: Oh, and return an empty collection rather than a null collection. Java has Collections.emptyList() and friends to save you from having to waste memory on an empty list.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+Calcd_Uncertainty
+6 points
+·
+5 hours ago
+Number 1 should be human code reviews. The best way to write readable code is to have other people read it.
+Number 2 should be to write tests. The best way to understand complicated code is to run it.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+get_salled
+2 points
+·
+3 hours ago
+Number 1 should be read other people's code. It's rare, if not impossible, to be a great writer having never read a book.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+Calcd_Uncertainty
+1 point
+·
+3 hours ago
+That is true.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+combinatorylogic
+6 points
+·
+5 hours ago
+Mostly reasonable, with few issues:
+
+Number 6 is questionalble - if generalisation can obscure the meaning way too much, duplication is better. Also, duplication can reinforce the narrative - Cicero knew what he was talking about. And your code is telling a story - so the same rhetoric rules should be applied to the code too.
+
+Number 13 is potentially dangerous - the very presence of design patterns is an indication of working on a wrong level of abstraction (or your language being at the wrong level of abstraction).
+
+Number 16 - confusing abstraction with generalisation. Abstractions are specific.
+
+Number 17 - that's exactly why you should not touch any OOP crap at all most of the time. Your code must reflect the real world as closely as possible, but instead you're busy inventing crutches required to sledgehammer the real world complexity into the utterly unfitting object-oriented paradigm, to an extend that 99% of your code is solving this slegehammering problem instead of solving the actual real world problems.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+dpash
+3 points
+·
+4 hours ago
+I think you (and most people) misunderstand design patterns as written by GoF. They're not something you decide to use for the sake of using them, but a common, shared, vocabulary to describe how code works to make it easier to communicate that design to someone else. GoF didn't invent them; they just gave existing designs a name.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+combinatorylogic
+2 points
+·
+4 hours ago
+but a common, shared, vocabulary to describe how code works
+
+Your choice of words is misleading. Vocabulary implies that it deals with atomic, one-word entities, while design patterns are complex idioms, that should be recognised as atomic entities. And this is exactly what's wrong with them. If you meet some idiom frequently, make it atomic. Otherwise you're evidently operating on a wrong level of abstraction.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+emorrp1
+2 points
+·
+4 hours ago
+the very presence of design patterns is an indication of working on a wrong level of abstraction (or your language being at the wrong level of abstraction).
+
+YES! It's like templated code, just replace all that with library code supporting convention over configuration. And as you say, sometimes your language is not flexible enough to handle that, so you have to find something else.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+SchrodingerSemicolon
+3 points
+·
+4 hours ago
+4: Split your code into functions that each does one thing.
+
+This reminds me of the most nightmarish project I had to support. This advice was taken a little too literally, there were dozens of functions with half-a-dozen lines each that'd call the next one. I'd end up several layers into a call chain trying to figure out anything relevant, and trying to remember how I even got there was a challenge by itself.
+
+But technically speaking, each of those did their own thing.
+
+It goes hand in hand with advice #12: it's ok to have a semi-monolithic function for the sake of readability, and if those code fragments that'd be made their own functions aren't going to be reusable anyway.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+finallytrycatch
+3 points
+·
+3 hours ago
+Comments should not be used across the software only when needed. https://blog.cleancoder.com/uncle-bob/2017/02/23/NecessaryComments.html
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+Connect_Entrance
+1 point
+·
+11 hours ago
+Thank you!
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+zhujik
+1 point
+·
+9 hours ago
+Good guideline! Not just a copy of the religiously followed clean code.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+yojimbo_beta
+1 point
+·
+4 hours ago
+I don't quite understand #14 -
+
+> 14. Split your classes to data holders and data manipulators.
+
+What does this mean in practice? I come from a front end background and so am not very au-fait with questions about POJOs vs Domain Classes vs Value Objects (etc.).
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+KaltherX
+1 point
+·
+4 hours ago
+A data holder would be a data pulled from API packed into an object. For example, you pull data about the user in json: {"name": "Brian", "role": "admin"}. You assign it to a javascript object. This object would have no internal functions to manipulate its data, it would be a data holder - simply keeps 2 string properties.
+
+Now if you want to display the name of the user, you would create a class (I'm assuming ES6 javascript) that would do what it needs to, to render the name of the user where it needs it to. So essentially we have 2 objects. One is just keeping the data and another one access it and does something with it. This separation can help in defining the purpose of the class.
+
+Now let's say you need to display the name in a modal in some special case. You just make another class for modal and access the same data holder to process it differently (display it in a different place, maybe add something to the name).
+
+Both cases do not matter when you just want to see what kind of information you can access about the user in the data holder, so they don't need to be connected to the same object.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+yojimbo_beta
+1 point
+·
+4 hours ago
+Thank you, this is very helpful. I can see why the principle might be helpful: I'd rather have multiple classes / functions for formatting my data in different contexts than a single class that has know about all the contexts. I also think I'd rather write tests for the former design.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+mcarabolante
+1 point
+·
+1 hour ago
+That is a bad advice, Classes should have functions based on their domains, if you have a User class with multiple roles and want to know if its a admin its much easier to call a user.isAdmin() and centralize it on the class than to have a UserService/RoleService to do so.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+MostLikelyIrrelevant
+1 point
+·
+3 hours ago
+Nice
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+OneWingedShark
+1 point
+·
+51 minutes ago
+24) Use Ada.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+SuperMancho
+1 point
+·
+10 minutes ago
+Commented code is confusing
+
+No, it's not. It does nothing, unless you want to dig into a problem later. That's the only reason anyone goes in to read random comments in code.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+Neelsl
+1 point
+·
+4 minutes ago
+They basically just copy Clean Code by "uncle Bob"
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 1
+robotreader
+-1 points
+·
+8 hours ago
+Number 11(avoid nesting code) is absolutely true, but I disagree with his solution. Guard clauses are the right solution if you're just wrapping the whole function in an if, but aren't a good idea for more complex cases. It's better in general to have just one point of return. If you find yourself nesting three or four deep with a bunch of else's, it's time to rethink your function.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 2
+pato_p
+16 points
+·
+8 hours ago
+·
+edited 8 hours ago
+It's better in general to have just one point of return.
+
+No, it is not. If you accept that a method can have multiple points of return, you realize that the structure of method always looks same regardless of whether it under some conditions throws an exception, returns null, returns some error code, or logs something, or does nothing, or just returns early. This improves readability and reduces maintenance costs.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 3
+ZorbaTHut
+8 points
+·
+7 hours ago
+Yeah, I've had great success with code that looks kind of like:
+
+if things_are_broken():
+  print_error()
+  return None
+
+if input_is_invalid():
+  print_error()
+  return None
+
+if easy_common_solution():
+  return simple_answer()
+
+intermediate = do_some_prep()
+if prep_failed(intermediate):
+  print_error()
+  return None
+
+if less_easy_solution(intermediate):
+  return less_simple_answer(intermediate)
+
+if weird_special_case(intermediate):
+  return "cows"
+
+perflog_event(FULL_ANSWER_REQUIRED)
+
+more_intermediate = lots_more_prep(intermediate)
+if invalid_state(more_intermediate):
+  print_error()
+  return None
+
+if degenerate_result(more_intermediate):
+  return 0
+
+return complicated_answer(more_intermediate)
+If it fits your need, it really works well; I challenge someone to readably write the above function with a single point of exit.
+
+(obviously this function returns the standard integer-or-a-string-containing-cows data type)
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+keyboardhack
+2 points
+·
+5 hours ago
+·
+edited 4 hours ago
+Here is the other way to write the code just to put it in contrast.
+
+if !things_are_broken() && !input_is_invalid():
+    if easy_common_solution():
+        return simple_answer()
+        
+    intermediate = do_some_prep()
+    if !prep_failed(intermediate):
+        if less_easy_solution(intermediate):
+            return less_simple_answer(intermediate)
+        
+        if weird_special_case(intermediate):
+            return "cows"
+        
+        perflog_event(FULL_ANSWER_REQUIRED)
+        
+        more_intermediate = lots_more_prep(intermediate)
+        if !invalid_state(more_intermediate) && degenerate_result(more_intermediate):
+            return 0
+print_error()
+return None
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 5
+ZorbaTHut
+2 points
+·
+5 hours ago
+Keep in mind that's not a single point of exit, that's five points of exit.
+
+Reply
+Share
+Report
+Save
+Give gold
+5 more replies
+
+
+
+level 3
+robotreader
+2 points
+·
+7 hours ago
+I don't really understand what you're saying - do you mean that if I understand the abstract concept of a method well enough, it doesn't matter what it actually looks like?
+
+Having a single point of return constrains the program flow, which makes it easier to understand.
+
+Reply
+Share
+Report
+Save
+Give gold
+
+
+level 4
+pato_p
+3 points
+·
+6 hours ago
+No, that's not what I said. Look at u/ZorbaTHut's example. It is a complex method, but its readability is great. If there should be a single point of return, the method would be a mess.
+
+And from the maintenance point: Imagine (as an example) that client wants to change the behavior in case of invalid input. Instead of printing error, they want to automatically fix the input using some rules. With code written like this, you can do such changes without impact on the rest of the method.
+
+Reply
+Share
+Report
+Save
+Give gold

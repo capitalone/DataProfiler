@@ -1,12 +1,13 @@
 from __future__ import print_function
 
-from dask import dataframe as dd
-from data_profiler.data_readers.data import Data
-from data_profiler.validators.base_validators import Validator
-from .. import test_utils
-
 import unittest
 import os
+
+from dask import dataframe as dd
+
+from data_profiler.data_readers.data import Data
+from data_profiler.validators.base_validators import Validator
+
 
 # go up one folder
 MODULE_PATH = os.path.join(os.path.dirname(

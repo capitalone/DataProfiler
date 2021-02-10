@@ -1,9 +1,8 @@
+from future.utils import with_metaclass
 import abc
 from collections import OrderedDict
 
 import pandas as pd
-
-from future.utils import with_metaclass
 
 from . import DateTimeColumn, IntColumn, FloatColumn, TextColumn
 from . import OrderColumn, CategoricalColumn

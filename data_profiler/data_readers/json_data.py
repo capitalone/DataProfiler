@@ -1,12 +1,11 @@
-import shutil
 from collections import OrderedDict
 import json
+
 import numpy as np
 
-
+from . import data_utils
 from .base_data import BaseData
 from .structured_mixins import SpreadSheetDataMixin
-from . import data_utils
 
 
 class JSONData(SpreadSheetDataMixin, BaseData):

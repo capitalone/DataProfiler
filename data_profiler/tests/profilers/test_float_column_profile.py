@@ -1,12 +1,14 @@
 import unittest
 import os
+from collections import defaultdict
+from unittest import mock
+
 import pandas as pd
 import numpy as np
-from collections import defaultdict
-from unittest.mock import patch, MagicMock
 
 from data_profiler.profilers import FloatColumn
 from data_profiler.profilers.profiler_options import FloatOptions
+
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -542,7 +544,7 @@ class TestFloatColumn(unittest.TestCase):
             precision=1.0
         )
         time_array = [float(i) for i in range(100, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
@@ -582,7 +584,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler = FloatColumn(df.name, options=options)
 
         time_array = [float(i) for i in range(100, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)

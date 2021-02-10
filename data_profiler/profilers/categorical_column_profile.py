@@ -1,5 +1,4 @@
 from . import BaseColumnProfiler
-import numpy as np
 
 
 class CategoricalColumn(BaseColumnProfiler):

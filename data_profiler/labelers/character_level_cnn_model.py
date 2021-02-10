@@ -16,7 +16,6 @@ from .base_model import BaseModel, BaseTrainableModel
 from .base_model import AutoSubRegistrationMeta
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(_file_dir)
 
 
 def build_embd_dictionary(filename):

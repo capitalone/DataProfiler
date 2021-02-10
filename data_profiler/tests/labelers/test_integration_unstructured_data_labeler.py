@@ -1,8 +1,9 @@
 import unittest
-import data_profiler as dp
 
 import numpy as np
 import pandas as pd
+
+import data_profiler as dp
 
 
 class TestUnstructuredDataLabeler(unittest.TestCase):

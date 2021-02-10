@@ -1,11 +1,11 @@
 from __future__ import print_function
 
-from data_profiler.profilers import column_profile_compilers as \
-    col_pro_compilers
-
 import six
 import unittest
 from unittest import mock
+
+from data_profiler.profilers import column_profile_compilers as \
+    col_pro_compilers
 
 
 class TestBaseColumnProfileCompilerClass(unittest.TestCase):

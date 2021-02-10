@@ -1,11 +1,11 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import unittest
 import os
+import unittest
 
-from ...data_readers.data import Data
-from ...data_readers import json_data
+from data_profiler.data_readers.data import Data
+from data_profiler.data_readers import json_data
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

@@ -1,9 +1,10 @@
-import unittest
-import data_profiler as dp
 import os
+import unittest
 
 import numpy as np
 import pandas as pd
+
+import data_profiler as dp
 
 
 class TestV2StructuredDataLabeler(unittest.TestCase):

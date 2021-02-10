@@ -3,9 +3,8 @@ import pkg_resources
 
 import pandas as pd
 
-from data_profiler import data_readers
-from data_profiler.labelers.base_data_labeler import BaseDataLabeler, \
-    TrainableDataLabeler
+from .. import data_readers
+from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler
 
 default_labeler_dir = pkg_resources.resource_filename(
     'resources', 'labelers'

@@ -1,13 +1,11 @@
 import os
-from data_profiler import Data, ProfilerOptions, Profiler
-from data_profiler.profilers.profiler_options import IntOptions, FloatOptions
 import unittest
 from unittest import mock
 
 import pandas as pd
 
-MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
-project_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+from data_profiler import Data, ProfilerOptions, Profiler
+from data_profiler.profilers.profiler_options import IntOptions, FloatOptions
 
 
 @mock.patch('data_profiler.profilers.data_labeler_column_profile.'

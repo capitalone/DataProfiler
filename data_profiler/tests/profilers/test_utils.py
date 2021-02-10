@@ -1,7 +1,6 @@
 import unittest
 
 from data_profiler.profilers import utils
-from data_profiler.tests.test_utils import patched_assert_warns
 
 
 class TestShuffleInChunks(unittest.TestCase):

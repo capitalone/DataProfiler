@@ -1,12 +1,8 @@
 import unittest
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 
 import pandas as pd
 
-from ...data_readers.data import Data
+from data_profiler.data_readers.data import Data
 
 
 class TestDataReadingWriting(unittest.TestCase):

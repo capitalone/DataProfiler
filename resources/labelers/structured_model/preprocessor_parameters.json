@@ -1,1 +1,1 @@
-{"max_length": 3400, "default_label": "BACKGROUND", "pad_label":  "PAD", "flatten_separator": "\u0001\u0001\u0001\u0001\u0001", "is_separate_at_max_len": true}
+{"max_length": 3400, "default_label": "BACKGROUND", "pad_label":  "PAD", "flatten_separator": "     ", "is_separate_at_max_len": true}

@@ -10,9 +10,7 @@ from data_profiler.validators.base_validators import Validator
 
 
 # go up one folder
-MODULE_PATH = os.path.join(os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))))
-project_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+MODULE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class TestDataValidator(unittest.TestCase):

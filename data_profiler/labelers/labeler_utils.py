@@ -10,12 +10,6 @@ from .classification_report_utils import classification_report
 warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
 
 
-# in case of data profiler in own repo
-_file_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(_file_dir, 'data_conversion'))  # executed from base repo
-sys.path.append(os.path.join(_file_dir, '../data_conversion'))  # executed in folder
-
-
 def f1_report_dict_to_str(f1_report, label_names):
     """
     Returns the report string from the f1_report dict.

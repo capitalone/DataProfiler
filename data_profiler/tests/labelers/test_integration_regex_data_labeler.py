@@ -1,10 +1,11 @@
-import unittest
 import os
+import unittest
 import pkg_resources
 
 import numpy as np
 
 from data_profiler.labelers.data_labelers import BaseDataLabeler
+
 
 default_labeler_dir = pkg_resources.resource_filename(
     'resources', 'labelers'

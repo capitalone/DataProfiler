@@ -1,9 +1,8 @@
 import fastavro
 
-
+from . import data_utils
 from .base_data import BaseData
 from .json_data import JSONData
-from . import data_utils
 
 
 class AVROData(JSONData, BaseData):

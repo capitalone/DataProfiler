@@ -8,6 +8,7 @@ respective parameters.
 from __future__ import print_function
 from __future__ import division
 
+
 def is_in_range(x, config):
     """
     Checks to see x is in the range of the config.

@@ -1,4 +1,5 @@
 import unittest
+
 import numpy as np
 
 from data_profiler.labelers import classification_report_utils

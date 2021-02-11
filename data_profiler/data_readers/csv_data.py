@@ -1,16 +1,16 @@
 import re
 import csv
-import numpy as np
 from itertools import islice
 from six import StringIO
 
-from .base_data import BaseData
-from . import data_utils
+import numpy as np
 
-from .structured_mixins import SpreadSheetDataMixin
+from . import data_utils
+from .base_data import BaseData
 from .json_data import JSONData
 from .parquet_data import ParquetData
 from .avro_data import AVROData
+from .structured_mixins import SpreadSheetDataMixin
 
 
 class CSVData(SpreadSheetDataMixin, BaseData):

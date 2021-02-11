@@ -31,6 +31,8 @@ reStructuredText Docstring Format is the standard. Here is an example:
                 Type example code here
         """
 
+Install from pypi: `pip3 install DataProfiler`
+
 For API documentation, visit the [documentation page](https://capitalone.github.io/data-profiler/).
 
 If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/data-profiler/issues/new/choose).

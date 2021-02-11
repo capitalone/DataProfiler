@@ -7,17 +7,17 @@ respective parameters.
 from __future__ import print_function
 from __future__ import division
 
+from future.utils import with_metaclass
 import copy
-
-import numpy as np
 import time
 import abc
 import warnings
-from .profiler_options import NumericalOptions
-from future.utils import with_metaclass
-from . import BaseColumnProfiler
+
+import numpy as np
 
 from . import histogram_utils
+from .base_column_profilers import BaseColumnProfiler
+from .profiler_options import NumericalOptions
 
 
 class abstractstaticmethod(staticmethod):

@@ -1,18 +1,18 @@
+import os
+import unittest
+from unittest import mock
+import random
+import pkg_resources
+import json
+from io import StringIO
+
+import numpy as np
+
 from data_profiler.labelers.data_processing import \
     BaseDataProcessor, CharPreprocessor, CharPostprocessor, \
     StructCharPreprocessor, StructCharPostprocessor, \
     DirectPassPreprocessor, RegexPostProcessor
 
-import numpy as np
-import random
-
-import pkg_resources
-import os
-import json
-from io import StringIO
-
-import unittest
-from unittest import mock
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

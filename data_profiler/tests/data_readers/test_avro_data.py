@@ -4,8 +4,9 @@ from __future__ import absolute_import
 import os
 import unittest
 
-from ...data_readers.data import Data
+from data_profiler.data_readers.data import Data
 from data_profiler.data_readers.avro_data import AVROData
+
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

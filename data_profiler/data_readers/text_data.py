@@ -1,14 +1,9 @@
 from __future__ import unicode_literals    # at top of module
 from __future__ import print_function
 from past.builtins import basestring
-from builtins import bytes
 
-import shutil
-from io import open
-from collections import OrderedDict
-
-from .base_data import BaseData
 from . import data_utils
+from .base_data import BaseData
 
 
 class TextData(BaseData):

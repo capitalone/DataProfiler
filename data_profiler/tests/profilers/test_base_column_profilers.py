@@ -1,16 +1,16 @@
 from __future__ import print_function
 
 import os
-
-from data_profiler.tests.profilers import utils as test_utils
-from ...profilers.base_column_profilers import BaseColumnPrimitiveTypeProfiler
-from ...profilers.base_column_profilers import BaseColumnProfiler
-
-import pandas as pd
-import numpy as np
 import six
 import unittest
 from unittest.mock import patch, MagicMock
+
+import pandas as pd
+import numpy as np
+
+from data_profiler.tests.profilers import utils as test_utils
+from data_profiler.profilers.base_column_profilers import BaseColumnProfiler, \
+    BaseColumnPrimitiveTypeProfiler
 
 
 class TestBaseColumnProfileClass(unittest.TestCase):

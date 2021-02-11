@@ -1,7 +1,7 @@
-import unittest
 import os
+import unittest
 
-from ...data_readers.data import Data
+from data_profiler.data_readers.data import Data
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

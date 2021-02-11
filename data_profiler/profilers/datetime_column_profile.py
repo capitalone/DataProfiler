@@ -1,10 +1,11 @@
-from .base_column_profilers import BaseColumnPrimitiveTypeProfiler
-from . import BaseColumnProfiler
-
 import datetime
+import warnings
+
 import numpy as np
 import pandas as pd
-import warnings
+
+from .base_column_profilers import BaseColumnProfiler, \
+    BaseColumnPrimitiveTypeProfiler
 
 
 class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):

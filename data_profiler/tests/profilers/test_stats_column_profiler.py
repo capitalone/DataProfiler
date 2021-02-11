@@ -1,15 +1,17 @@
 from __future__ import print_function
 
-from data_profiler.profilers.column_profile_compilers import \
-    ColumnStatsProfileCompiler
-from data_profiler.tests.profilers.test_base_column_profilers import \
-    AbstractTestColumnProfiler
-
 import os
 import unittest
 
+from data_profiler.tests.profilers.test_base_column_profilers import \
+    AbstractTestColumnProfiler
+
+from data_profiler.profilers.column_profile_compilers import \
+    ColumnStatsProfileCompiler
+
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
 
 class TestColumnStatsProfiler(AbstractTestColumnProfiler, unittest.TestCase):
 

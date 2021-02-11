@@ -11,12 +11,9 @@ include your comments in between triple quotations.
 In any class file, include overall class comments at the top of the file
 in between triple quotes and/or in the init function.
 
-#### Functions  
-reStructuredText Docstring Format is the standard. Here is an example:
+data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, DataFrame
 
-    def format_data(self, predictions, verbose=False):
-        """
-        Formats word level labeling of the Unstructured Data Labeler as you want
+profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 
         :param predictions: A 2D list of word level predictions/labeling
         :type predictions: Dict
@@ -25,11 +22,10 @@ reStructuredText Docstring Format is the standard. Here is an example:
         :return: JSON structure containing specified formatted output
         :rtype: JSON
 
-        :Example:
-            Look at this test. Don't forget the double colons to make a code block::
-                This is a codeblock
-                Type example code here
-        """
+print(json.dumps(human_readable_report, indent=4)) # Print Report
+
+print(data.data.head(5)) # Access data directly from a compatable Pandas DataFrame
+```
 
 Install from pypi: `pip3 install DataProfiler`
 

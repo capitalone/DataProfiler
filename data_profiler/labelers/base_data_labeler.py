@@ -1,16 +1,15 @@
-from data_profiler import data_readers
-from data_profiler.labelers import data_processing
-from data_profiler.labelers.base_model import BaseModel
-
 import sys
 import os
 import warnings
 import json
+import pkg_resources
+
 import numpy as np
 import pandas as pd
 
-
-import pkg_resources
+from .. import data_readers
+from . import data_processing
+from .base_model import BaseModel
 
 default_labeler_dir = pkg_resources.resource_filename(
     'resources', 'labelers'

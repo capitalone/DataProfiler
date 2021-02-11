@@ -1,11 +1,13 @@
-import unittest
 import os
+import unittest
+from unittest import mock
+from collections import defaultdict
+
 import pandas as pd
 import numpy as np
 
 from data_profiler.profilers import NumericStatsMixin
-from collections import defaultdict
-from unittest.mock import patch, MagicMock
+
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -181,7 +183,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         other1.histogram_selection = 'auto'
 
         time_array = [float(i) for i in range(2, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), num_profiler.times)
 
@@ -204,7 +206,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         subset_properties = {"min": 0, "match_count": 0}
 
         time_array = [float(i) for i in range(24, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
 
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), num_profiler.times)

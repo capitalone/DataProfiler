@@ -1,13 +1,14 @@
-import unittest
 import os
+import unittest
+from unittest import mock
+from collections import defaultdict
+
 import pandas as pd
 import numpy as np
 
 from data_profiler.profilers import IntColumn
 from data_profiler.profilers.profiler_options import IntOptions
 
-from collections import defaultdict
-from unittest.mock import patch, MagicMock
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -281,12 +282,13 @@ class TestIntColumn(unittest.TestCase):
                 1: 8.0/3.0,
                 2: 4.0
             },
-            times=defaultdict(float, {'histogram_and_quantiles': 15.0, \
-                                            'max': 1.0, 'min': 1.0, 'sum': 1.0, 'variance': 1.0})
+            times=defaultdict(
+                float, {'histogram_and_quantiles': 15.0, 'max': 1.0, 'min': 1.0,
+                        'sum': 1.0, 'variance': 1.0})
             
         )
         time_array = [float(i) for i in range(100, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
@@ -333,7 +335,7 @@ class TestIntColumn(unittest.TestCase):
         profiler = IntColumn(df.name, options=options)
 
         time_array = [float(i) for i in range(100, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)

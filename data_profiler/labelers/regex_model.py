@@ -6,11 +6,8 @@ import copy
 
 import numpy as np
 
-from data_profiler.labelers.base_model import BaseModel
-from data_profiler.labelers.base_model import AutoSubRegistrationMeta
-
-_file_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(_file_dir)
+from .base_model import BaseModel
+from .base_model import AutoSubRegistrationMeta
 
 
 class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):

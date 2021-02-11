@@ -1,9 +1,8 @@
 from collections import defaultdict
 
+from .base_column_profilers import BaseColumnProfiler
 from ..labelers.data_labelers import DataLabeler
 from ..labelers.data_processing import CharPostprocessor
-from . import BaseColumnProfiler
-import time
 
 
 class UnstructuredDataLabelerProfile(object):

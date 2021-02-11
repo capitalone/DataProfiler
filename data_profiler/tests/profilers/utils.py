@@ -1,7 +1,7 @@
 import os
 import shutil
 import random
-import time
+
 import numpy as np
 
 
@@ -88,6 +88,7 @@ def generate_random_date_sample(start_date,
     ptime = start_date + t * (end_date - start_date)
 
     return ptime.strftime(random_format)
+
 
 def get_depth(od):
     """Function to determine the depth of a nested dictionary.

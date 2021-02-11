@@ -1,17 +1,19 @@
 from __future__ import print_function
 
-from data_profiler.profilers import DateTimeColumn
-from . import utils
-from . import test_utils
-from unittest.mock import patch, MagicMock
-from collections import defaultdict
-
 import unittest
-import pandas as pd
-import numpy as np
+from unittest import mock
 import datetime
 import six
 import warnings
+from collections import defaultdict
+
+import pandas as pd
+import numpy as np
+
+from . import utils
+from .. import test_utils
+
+from data_profiler.profilers import DateTimeColumn
 
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
@@ -250,7 +252,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             times=defaultdict(float, {'datetime': 1.0})
         )
         time_array = [float(i) for i in range(4, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), profiler.profile['times'])
 

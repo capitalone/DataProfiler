@@ -11,7 +11,9 @@ include your comments in between triple quotations.
 In any class file, include overall class comments at the top of the file
 in between triple quotes and/or in the init function.
 
-data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, DataFrame
+data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, Text
+
+print(data.data.head(5)) # Access data directly via a compatable Pandas DataFrame
 
 profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 
@@ -22,9 +24,7 @@ profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
         :return: JSON structure containing specified formatted output
         :rtype: JSON
 
-print(json.dumps(human_readable_report, indent=4)) # Print Report
-
-print(data.data.head(5)) # Access data directly from a compatable Pandas DataFrame
+print(json.dumps(human_readable_report, indent=4))
 ```
 
 Install from pypi: `pip3 install DataProfiler`

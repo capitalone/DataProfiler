@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dataprofiler.labelers.labeler_utils module &mdash; Data Profiler 21.01.20 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="dataprofiler.labelers.regex_model module" href="dataprofiler.labelers.regex_model.html" />
+    <link rel="prev" title="dataprofiler.labelers.data_processing module" href="dataprofiler.labelers.data_processing.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Data Profiler
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.profilers.html">dataprofiler.profilers package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="dataprofiler.labelers.html">dataprofiler.labelers package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dataprofiler.labelers.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">dataprofiler.labelers.base_data_labeler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">dataprofiler.labelers.base_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">dataprofiler.labelers.character_level_cnn_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">dataprofiler.labelers.classification_report_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">dataprofiler.labelers.data_labelers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">dataprofiler.labelers.data_processing module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dataprofiler.labelers.labeler_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">dataprofiler.labelers.regex_model module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dataprofiler.labelers.html#module-dataprofiler.labelers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.data_readers.html">dataprofiler.data_readers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.validators.html">dataprofiler.validators package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Profiler</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="dataprofiler.labelers.html">dataprofiler.labelers package</a> &raquo;</li>
+        
+      <li>dataprofiler.labelers.labeler_utils module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/dataprofiler.labelers.labeler_utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dataprofiler.labelers.labeler_utils">
+<span id="dataprofiler-labelers-labeler-utils-module"></span><h1>dataprofiler.labelers.labeler_utils module<a class="headerlink" href="#module-dataprofiler.labelers.labeler_utils" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="dataprofiler.labelers.labeler_utils.f1_report_dict_to_str">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.labeler_utils.</span></code><code class="sig-name descname"><span class="pre">f1_report_dict_to_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f1_report</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.f1_report_dict_to_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the report string from the f1_report dict.</p>
+<dl>
+<dt>Example Output:</dt><dd><blockquote>
+<div><blockquote>
+<div><p>precision    recall  f1-score   support</p>
+</div></blockquote>
+<p>class 0       0.00      0.00      0.00         1
+class 1       1.00      0.67      0.80         3</p>
+</div></blockquote>
+<p>micro avg       0.67      0.50      0.57         4
+macro avg       0.50      0.33      0.40         4</p>
+</dd>
+</dl>
+<p>weighted avg       0.75      0.50      0.60         4</p>
+<p>Note: this is generally taken from the <cite>classification_report</cite> function
+inside sklearn.
+:param f1_report: f1 report dictionary from sklearn
+:type f1_report: dict
+:param label_names: names of labels included in the report
+:type label_names: list(str)
+:return: string representing f1_report printout
+:rtype: str</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dataprofiler.labelers.labeler_utils.evaluate_accuracy">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.labeler_utils.</span></code><code class="sig-name descname"><span class="pre">evaluate_accuracy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicted_entities_in_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_entities_in_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_rev_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omitted_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('PAD',</span> <span class="pre">'BACKGROUND')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confusion_matrix_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.evaluate_accuracy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the accuracy from comparing the predicted labels with true labels</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predicted_entities_in_index</strong> (<em>list</em><em>(</em><em>array</em><em>(</em><em>int</em><em>)</em><em>)</em>) – predicted encoded labels for input
+sentences</p></li>
+<li><p><strong>true_entities_in_index</strong> (<em>list</em><em>(</em><em>array</em><em>(</em><em>int</em><em>)</em><em>)</em>) – true encoded labels for input sentences</p></li>
+<li><p><strong>entity_rev_dict</strong> (<em>dict</em><em>(</em><em>[</em><em>index</em><em>, </em><em>entity</em><em>]</em><em>)</em>) – dictionary to convert indices to entities</p></li>
+<li><p><strong>verbose</strong> (<em>boolean</em>) – print additional information for debugging</p></li>
+<li><p><strong>omitted_labels</strong> (<em>list</em><em>(</em><em>) </em><em>of text labels</em>) – labels to omit from the accuracy evaluation</p></li>
+<li><p><strong>confusion_matrix_file</strong> (<em>str</em>) – File name (and dir) for confusion matrix</p></li>
+</ul>
+</dd>
+</dl>
+<p>:return : f1-score
+:rtype: float</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="dataprofiler.labelers.regex_model.html" class="btn btn-neutral float-right" title="dataprofiler.labelers.regex_model module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dataprofiler.labelers.data_processing.html" class="btn btn-neutral float-left" title="dataprofiler.labelers.data_processing module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, and Grant Eden.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

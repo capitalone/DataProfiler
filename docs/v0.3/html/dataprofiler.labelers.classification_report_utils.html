@@ -1,0 +1,395 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dataprofiler.labelers.classification_report_utils module &mdash; Data Profiler 21.01.20 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="dataprofiler.labelers.data_labelers module" href="dataprofiler.labelers.data_labelers.html" />
+    <link rel="prev" title="dataprofiler.labelers.character_level_cnn_model module" href="dataprofiler.labelers.character_level_cnn_model.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Data Profiler
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.profilers.html">dataprofiler.profilers package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="dataprofiler.labelers.html">dataprofiler.labelers package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dataprofiler.labelers.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">dataprofiler.labelers.base_data_labeler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">dataprofiler.labelers.base_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">dataprofiler.labelers.character_level_cnn_model module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dataprofiler.labelers.classification_report_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">dataprofiler.labelers.data_labelers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">dataprofiler.labelers.data_processing module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">dataprofiler.labelers.labeler_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">dataprofiler.labelers.regex_model module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dataprofiler.labelers.html#module-dataprofiler.labelers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.data_readers.html">dataprofiler.data_readers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.validators.html">dataprofiler.validators package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Profiler</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="dataprofiler.labelers.html">dataprofiler.labelers package</a> &raquo;</li>
+        
+      <li>dataprofiler.labelers.classification_report_utils module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/dataprofiler.labelers.classification_report_utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dataprofiler.labelers.classification_report_utils">
+<span id="dataprofiler-labelers-classification-report-utils-module"></span><h1>dataprofiler.labelers.classification_report_utils module<a class="headerlink" href="#module-dataprofiler.labelers.classification_report_utils" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="dataprofiler.labelers.classification_report_utils.convert_confusion_matrix_to_MCM">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></code><code class="sig-name descname"><span class="pre">convert_confusion_matrix_to_MCM</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.convert_confusion_matrix_to_MCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a confusion matrix into the MCM format for precision/recall/fscore/
+support computation by sklearn. The format is as specified by sklearn below:
+In multilabel confusion matrix <span class="math notranslate nohighlight">\(MCM\)</span>, the count of true negatives
+is <span class="math notranslate nohighlight">\(MCM_{:,0,0}\)</span>, false negatives is <span class="math notranslate nohighlight">\(MCM_{:,1,0}\)</span>,
+true positives is <span class="math notranslate nohighlight">\(MCM_{:,1,1}\)</span> and false positives is
+<span class="math notranslate nohighlight">\(MCM_{:,0,1}\)</span>.
+Note: this utilizes code/ideology from sklearn.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>conf_matrix</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>np.ndarray</em><em>]</em>) – confusion matrix, which is a square matrix describing
+false positives and false negatives, true positives and true negatives
+for classification</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MCM format for readability by sklearn confusion reports.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></code><code class="sig-name descname"><span class="pre">precision_recall_fscore_support</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MCM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('precision',</span> <span class="pre">'recall',</span> <span class="pre">'f-score')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy of the precision_recall_fscore_support function from sklearn.metrics
+with the update to receiving the MCM instead of calculating each time it is
+called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>MCM</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_outputs</em><em>, </em><em>2</em><em>, </em><em>2</em><em>)</em>) – Multi-classification confusion matrix as referenced by the sklearn
+metrics module. A 2x2 confusion matrix corresponding to each output in
+the input. In multilabel confusion matrix <span class="math notranslate nohighlight">\(MCM\)</span>, the count of
+true negatives is <span class="math notranslate nohighlight">\(MCM_{:,0,0}\)</span>, false negatives is
+<span class="math notranslate nohighlight">\(MCM_{:,1,0}\)</span>, true positives is <span class="math notranslate nohighlight">\(MCM_{:,1,1}\)</span> and false
+positives is <span class="math notranslate nohighlight">\(MCM_{:,0,1}\)</span>.</p></li>
+<li><p><strong>beta</strong> (<em>float</em><em>, </em><em>1.0 by default</em>) – The strength of recall versus precision in the F-score.</p></li>
+<li><p><strong>labels</strong> (<em>list</em><em>, </em><em>optional</em>) – The set of labels to include when <code class="docutils literal notranslate"><span class="pre">average</span> <span class="pre">!=</span> <span class="pre">'binary'</span></code>, and their
+order if <code class="docutils literal notranslate"><span class="pre">average</span> <span class="pre">is</span> <span class="pre">None</span></code>. Labels present in the data can be
+excluded, for example to calculate a multiclass average ignoring a
+majority negative class, while labels not present in the data will
+result in 0 components in a macro average. For multilabel targets,
+labels are column indices. By default, all labels in <code class="docutils literal notranslate"><span class="pre">y_true</span></code> and
+<code class="docutils literal notranslate"><span class="pre">y_pred</span></code> are used in sorted order.</p></li>
+<li><p><strong>pos_label</strong> (<em>str</em><em> or </em><em>int</em><em>, </em><em>1 by default</em>) – The class to report if <code class="docutils literal notranslate"><span class="pre">average='binary'</span></code> and the data is binary.
+If the data are multiclass or multilabel, this will be ignored;
+setting <code class="docutils literal notranslate"><span class="pre">labels=[pos_label]</span></code> and <code class="docutils literal notranslate"><span class="pre">average</span> <span class="pre">!=</span> <span class="pre">'binary'</span></code> will report
+scores for that label only.</p></li>
+<li><p><strong>average</strong> (<em>string</em><em>, </em><em>[</em><em>None</em><em> (</em><em>default</em><em>)</em><em>, </em><em>'binary'</em><em>, </em><em>'micro'</em><em>, </em><em>'macro'</em><em>, </em><em>'weighted'</em><em>]</em>) – <p>If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the scores for each class are returned. Otherwise, this
+determines the type of averaging performed on the data:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'binary'</span></code>:</dt><dd><p>Only report results for the class specified by <code class="docutils literal notranslate"><span class="pre">pos_label</span></code>.
+This is applicable only if targets (<code class="docutils literal notranslate"><span class="pre">y_{true,pred}</span></code>) are binary.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'micro'</span></code>:</dt><dd><p>Calculate metrics globally by counting the total true positives,
+false negatives and false positives.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'macro'</span></code>:</dt><dd><p>Calculate metrics for each label, and find their unweighted
+mean.  This does not take label imbalance into account.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'weighted'</span></code>:</dt><dd><p>Calculate metrics for each label, and find their average weighted
+by support (the number of true instances for each label). This
+alters ‘macro’ to account for label imbalance; it can result in an
+F-score that is not between precision and recall.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>warn_for</strong> (<em>tuple</em><em> or </em><em>set</em><em>, </em><em>for internal use</em>) – This determines which warnings will be made in the case that this
+function is being used to return only one of its metrics.</p></li>
+<li><p><strong>sample_weight</strong> (<em>array-like of shape =</em><em> [</em><em>n_samples</em><em>]</em><em>, </em><em>optional</em>) – Sample weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>precision</strong> (<em>float (if average is not None) or array of float, shape =        [n_unique_labels]</em>)</p></li>
+<li><p><strong>recall</strong> (<em>float (if average is not None) or array of float, , shape =        [n_unique_labels]</em>)</p></li>
+<li><p><strong>fbeta_score</strong> (<em>float (if average is not None) or array of float, shape =        [n_unique_labels]</em>)</p></li>
+<li><p><strong>support</strong> (<em>int (if average is not None) or array of int, shape =        [n_unique_labels]</em>) – The number of occurrences of each label in <code class="docutils literal notranslate"><span class="pre">y_true</span></code>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Precision_and_recall">Wikipedia entry for the Precision and recall</a></p>
+</dd>
+<dt class="label" id="id2"><span class="brackets">2</span></dt>
+<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/F1_score">Wikipedia entry for the F1-score</a></p>
+</dd>
+<dt class="label" id="id3"><span class="brackets">3</span></dt>
+<dd><p><a class="reference external" href="http://www.godbole.net/shantanu/pubs/multilabelsvm-pakdd04.pdf">Discriminative Methods for Multi-labeled Classification Advances
+in Knowledge Discovery and Data Mining (2004), pp. 22-30 by Shantanu
+Godbole, Sunita Sarawagi</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">true</span> <span class="pre">positive</span> <span class="pre">+</span> <span class="pre">false</span> <span class="pre">positive</span> <span class="pre">==</span> <span class="pre">0</span></code>, precision is undefined;
+When <code class="docutils literal notranslate"><span class="pre">true</span> <span class="pre">positive</span> <span class="pre">+</span> <span class="pre">false</span> <span class="pre">negative</span> <span class="pre">==</span> <span class="pre">0</span></code>, recall is undefined.
+In such cases, the metric will be set to 0, as will f-score, and
+<code class="docutils literal notranslate"><span class="pre">UndefinedMetricWarning</span></code> will be raised.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dataprofiler.labelers.classification_report_utils.classification_report">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></code><code class="sig-name descname"><span class="pre">classification_report</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.classification_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy of the classification_report function from sklearn.metrics
+with the update to receiving the conf_matrix instead of calculating each
+time it is called.</p>
+<p>Build a text report showing the main classification metrics</p>
+<p>Read more in the <span class="xref std std-ref">User Guide</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conf_matrix</strong> (<em>array</em><em>, </em><em>shape =</em><em> [</em><em>n_labels</em><em>, </em><em>n_labels</em><em>]</em>) – confusion matrix, which is a square matrix describing
+false positives and false negatives, true positives and true negatives
+for classification.</p></li>
+<li><p><strong>labels</strong> (<em>array</em><em>, </em><em>shape =</em><em> [</em><em>n_labels</em><em>]</em>) – Optional list of label indices to include in the report.</p></li>
+<li><p><strong>target_names</strong> (<em>list of strings</em>) – Optional display names matching the labels (same order).</p></li>
+<li><p><strong>sample_weight</strong> (<em>array-like of shape =</em><em> [</em><em>n_samples</em><em>]</em><em>, </em><em>optional</em>) – Sample weights.</p></li>
+<li><p><strong>digits</strong> (<em>int</em>) – Number of digits for formatting output floating point values.
+When <code class="docutils literal notranslate"><span class="pre">output_dict</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, this will be ignored and the
+returned values will not be rounded.</p></li>
+<li><p><strong>output_dict</strong> (<em>bool</em><em> (</em><em>default = False</em><em>)</em>) – If True, return output as dict</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>report</strong> – Text summary of the precision, recall, F1 score for each class.
+Dictionary returned if output_dict is True. Dictionary has the
+following structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;label 1&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;precision&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+             <span class="s1">&#39;recall&#39;</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span>
+             <span class="s1">&#39;f1-score&#39;</span><span class="p">:</span><span class="mf">0.67</span><span class="p">,</span>
+             <span class="s1">&#39;support&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span>
+ <span class="s1">&#39;label 2&#39;</span><span class="p">:</span> <span class="p">{</span> <span class="o">...</span> <span class="p">},</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The reported averages include macro average (averaging the unweighted
+mean per label), weighted average (averaging the support-weighted mean
+per label), sample average (only for multilabel classification) and
+micro average (averaging the total true positives, false negatives and
+false positives) it is only shown for multi-label or multi-class
+with a subset of classes because it is accuracy otherwise.
+See also:func:<cite>precision_recall_fscore_support</cite> for more details
+on averages.</p>
+<p>Note that in binary classification, recall of the positive class
+is also known as “sensitivity”; recall of the negative class is
+“specificity”.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string / dict</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support" title="dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precision_recall_fscore_support</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">confusion_matrix</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">multilabel_confusion_matrix</span></code></p>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="dataprofiler.labelers.data_labelers.html" class="btn btn-neutral float-right" title="dataprofiler.labelers.data_labelers module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dataprofiler.labelers.character_level_cnn_model.html" class="btn btn-neutral float-left" title="dataprofiler.labelers.character_level_cnn_model module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, and Grant Eden.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

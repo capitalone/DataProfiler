@@ -17,9 +17,9 @@ human_readable_report = profile.report(report_options={"output_format":"pretty"}
 print(json.dumps(human_readable_report, indent=4))
 ```
 
-For API documentation, visit our documentation page.
+For API documentation, visit the [documentation page](https://capitalone.github.io/data-profiler/).
 
-For issues, please open an issue on the github repository.
+If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/data-profiler/issues/new/choose).
 
 # Table of Contents
 

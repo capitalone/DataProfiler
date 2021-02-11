@@ -1,7 +1,7 @@
-from data_profiler.labelers import base_model
-
 import unittest
 from unittest import mock
+
+from data_profiler.labelers import base_model
 
 
 class TestBaseModel(unittest.TestCase):

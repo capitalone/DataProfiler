@@ -1,8 +1,10 @@
+import operator
+
+import numpy as np
+
 from . import BaseColumnProfiler
 from ..labelers.data_labelers import DataLabeler
 from .profiler_options import DataLabelerOptions
-import operator
-import numpy as np
 
 
 class DataLabelerColumn(BaseColumnProfiler):

@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from __future__ import division
+import logging
 
 from .csv_data import CSVData
 from .json_data import JSONData
@@ -7,8 +8,8 @@ from .text_data import TextData
 from .parquet_data import ParquetData
 from .avro_data import AVROData
 
-import logging
 logger = logging.getLogger('DataProfiler.data')
+
 
 class Data(object):
 

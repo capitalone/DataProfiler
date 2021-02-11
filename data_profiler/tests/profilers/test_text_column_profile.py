@@ -1,14 +1,15 @@
-import unittest
 import os
+import unittest
+from unittest import mock
+import six
+from collections import defaultdict
+
 import pandas as pd
 import numpy as np
-import six
 
 from data_profiler.tests.profilers import utils as test_utils
 from data_profiler.profilers import TextColumn
 from data_profiler.profilers.profiler_options import TextOptions
-from unittest.mock import patch, MagicMock
-from collections import defaultdict
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -199,7 +200,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                                       'variance': 1.0})
         )
         time_array = [float(x) for x in range(30, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             profiler.update(df)
             profile = profiler.profile
             expected_histogram = expected_profile.pop('histogram')
@@ -228,7 +229,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         profiler = TextColumn(df.name, options=options)
 
         time_array = [float(i) for i in range(100, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
@@ -291,7 +292,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         profiler2.times = dict(vocab=3.0)
 
         time_array = [float(i) for i in range(2, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             profiler3 = profiler1 + profiler2
 
             # __add__() call adds 1 so expected is 6

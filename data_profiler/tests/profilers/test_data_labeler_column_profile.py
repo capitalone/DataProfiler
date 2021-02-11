@@ -1,15 +1,15 @@
 from __future__ import print_function
 
-from data_profiler.profilers.data_labeler_column_profile import DataLabelerColumn
-
 import unittest
 from unittest import mock
-import pandas as pd
-import numpy as np
+from collections import defaultdict
 import six
 
-from unittest.mock import patch, MagicMock
-from collections import defaultdict
+import pandas as pd
+import numpy as np
+
+from data_profiler.profilers.data_labeler_column_profile import \
+    DataLabelerColumn
 
 
 @mock.patch('data_profiler.profilers.data_labeler_column_profile.DataLabeler')
@@ -39,7 +39,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         profiler = DataLabelerColumn(data.name)
 
         time_array = [float(i) for i in range(4, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             profiler.update(data)
 
             self.assertEqual(0, profiler.sample_size)
@@ -124,7 +124,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         }
 
         time_array = [float(i) for i in range(4, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(data)
@@ -174,7 +174,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         expected_rank_distribution = {'a': 6, 'b': 5}
 
         time_array = [float(i) for i in range(4, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             profiler = DataLabelerColumn(data.name)
             profiler.update(data)
 

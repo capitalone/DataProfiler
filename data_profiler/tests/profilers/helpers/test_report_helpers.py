@@ -1,7 +1,10 @@
 import unittest
-from data_profiler.profilers.helpers.report_helpers import _prepare_report
+
 import numpy as np
 import json
+
+from data_profiler.profilers.helpers.report_helpers import _prepare_report
+
 
 class TestReportHelperClass(unittest.TestCase):
     def test_serializable_report(self):

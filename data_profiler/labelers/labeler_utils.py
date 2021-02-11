@@ -1,19 +1,13 @@
+import os
+import warnings
+
 import scipy
 import numpy as np
-import os
-import sys
-
-from data_profiler.labelers.classification_report_utils import classification_report
-
-import warnings
 from sklearn.exceptions import UndefinedMetricWarning
+
+from .classification_report_utils import classification_report
+
 warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
-
-
-# in case of data profiler in own repo
-_file_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(_file_dir, 'data_conversion'))  # executed from base repo
-sys.path.append(os.path.join(_file_dir, '../data_conversion'))  # executed in folder
 
 
 def f1_report_dict_to_str(f1_report, label_names):

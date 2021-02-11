@@ -1,7 +1,7 @@
-from . import NumericStatsMixin
-from .base_column_profilers import BaseColumnPrimitiveTypeProfiler
+from .numerical_column_stats import NumericStatsMixin
+from .base_column_profilers import BaseColumnProfiler, \
+    BaseColumnPrimitiveTypeProfiler
 from .profiler_options import TextOptions
-from . import BaseColumnProfiler
 
 
 class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):

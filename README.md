@@ -8,15 +8,15 @@ The best part? It only takes a few lines of code:
 import json
 from data_profiler import Data, Profiler
 
-data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, DataFrame
+data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, Text
+
+print(data.data.head(5)) # Access data directly via a compatable Pandas DataFrame
 
 profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 
 human_readable_report = profile.report(report_options={"output_format":"pretty"})
 
-print(json.dumps(human_readable_report, indent=4)) # Print Report
-
-print(data.data.head(5)) # Access data directly from a compatable Pandas DataFrame
+print(json.dumps(human_readable_report, indent=4))
 ```
 
 Install from pypi: `pip3 install DataProfiler`

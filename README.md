@@ -17,6 +17,8 @@ human_readable_report = profile.report(report_options={"output_format":"pretty"}
 print(json.dumps(human_readable_report, indent=4))
 ```
 
+Install from pypi: `pip3 install DataProfiler`
+
 For API documentation, visit the [documentation page](https://capitalone.github.io/data-profiler/).
 
 If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/data-profiler/issues/new/choose).

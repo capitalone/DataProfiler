@@ -13,13 +13,10 @@ from setuptools import setup, find_packages
 
 here = path.abspath(path.dirname(__file__))
 
-
-
 MAJOR               = 0
 MINOR               = 2
 MICRO               = 3
 ISRELEASED          = True
-
 
 VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 

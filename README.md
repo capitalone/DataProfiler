@@ -13,7 +13,7 @@ in between triple quotes and/or in the init function.
 
 data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, Text
 
-print(data.data.head(5)) # Access data directly via a compatable Pandas DataFrame
+print(data.data.head(5)) # Access data directly via a compatible Pandas DataFrame
 
 profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 

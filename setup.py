@@ -13,20 +13,17 @@ from setuptools import setup, find_packages
 
 here = path.abspath(path.dirname(__file__))
 
-
-
 MAJOR               = 0
-MINOR               = 2
-MICRO               = 3
+MINOR               = 3
+MICRO               = 0
 ISRELEASED          = True
-
 
 VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+    LONG_DESCRIPTION = f.read()
 
 # Get the install_requirements from requirements.txt
 with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
@@ -54,18 +51,13 @@ default_labeler_files = [(d, [os.path.join(d, f) for f in files])
                          for d, folders, files in os.walk(resource_dir)]
 
 
+DESCRIPTION = "What is in your data? Detect schema, statistics and entities in almost any file."
+
 setup(
-    name='data-profiler',
-
-    # Versions should comply with PEP440.  For a discussion on single-sourcing
-    # the version across setup.py and the project code, see
-    # https://packaging.python.org/en/latest/single_source_version.html
+    name='DataProfiler',
     version=VERSION,
-
-    description='Data Profiler - What is in your data? ' 
-                'Detect statistics, schema, and '
-                'data specific information',
-    long_description=long_description,
+    description=DESCRIPTION,
+    # long_description=LONG_DESCRIPTION,
 
     # The project's main homepage.
     url='https://github.com/capitalone/data-profiler',
@@ -82,15 +74,23 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 4 - Beta/MVP',
+        'Development Status :: 5 - Production/Stable',
 
         # Indicate who your project is intended for
-        'Intended Audience :: Developers, Test Engineer, College Students, '
-        'Model Developers',
+        'Intended Audience :: Developers',
+        'Intended Audience :: Education',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: System Administrators',
+
+        'Topic :: Education',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Information Analysis',
+        'Topic :: Security',
         'Topic :: Software Development :: Build Tools',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: Apache License, Version 2.0',
+        'License :: OSI Approved :: Apache Software License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 3 or both.

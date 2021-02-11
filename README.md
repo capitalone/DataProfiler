@@ -35,6 +35,7 @@ If you have suggestions or find a bug, [please open an issue](https://github.com
     * [Data Profiler Installation](#data-profiler-installation)
     * [Testing](#testing)
 * [Get Started](#get-started)
+    * [Load a File](#load-a-file)
     * [Profile a File](#profile-a-file)
     * [Updating Profiles](#updating-profiles)
     * [Merging Profiles](#merging-profiles)
@@ -240,6 +241,8 @@ python3 -m unittest data_profiler.tests.profilers.test_profile_builder.TestProfi
 
 # Get Started
 
+### Load a File
+
 The Data Profiler can profile the following data/file types:
 
 * CSV file (or any delimited file)
@@ -248,7 +251,26 @@ The Data Profiler can profile the following data/file types:
 * Parquet file
 * Pandas DataFrame
 
-The profiler should automatically identify the file type and provide results.
+The profiler should automatically identify the file type and load the data into a `Data Class`.
+
+Along with other attributtes the `Data class` enables data to be accessed via a valid Pandas DataFrame.
+
+```python
+# Load a csv file, return a CSVData object
+csv_data = Data('your_file.csv') 
+
+# Print the first 10 rows of the csv file
+print(csv_data.data.head(10))
+
+# Load a parquet file, return a ParquetData object
+parquet_data = Data('your_file.parquet')
+
+# Sort the data by the name column
+parquet_data.data.sort_values(by='name', inplace=True)
+
+# Print the sorted first 10 rows of the parquet data
+print(parquet_data.data.head(10))
+```
 
 If the file type is not automatically identified (rare), you can specify them 
 specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-filetype-or-delimiter).

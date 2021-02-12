@@ -271,7 +271,8 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         custom_objects = {
             "F1Score": tfa.metrics.F1Score(
                 num_classes=max(label_mapping.values()) + 1,
-                average='micro')
+                average='micro'),
+            "CharacterLevelCnnModel": cls,
         }
         with tf.keras.utils.custom_object_scope(custom_objects):
             tf_model = tf.keras.models.load_model(dirpath)

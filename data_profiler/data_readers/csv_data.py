@@ -208,8 +208,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     # This can cause errors, if you could have a sparse end column
                     count = 0
                     for loc in delimiter_locs:
-                        # Reason: len(line) - 2; -1 to start count 0 & -1 for last loc
-                        if loc != len(line)-2:
+                        if loc != len(line):
                             count += 1
                 else:
                     # If no delimiter, see if spaces are regular intervals
@@ -228,6 +227,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         
         delimiter_count_values = np.array(list(delimiter_count.values()))
         count_percent = delimiter_count_values / np.sum(delimiter_count_values)
+        
         if not count_percent.size:
             return False
         
@@ -237,7 +237,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         
         # Infered the file was a CSV
         if ((max_count_value > 0 or delimiter is None) \
-            and max_count_percent >= 0.8):
+            and max_count_percent >= 0.85):
             options.update(delimiter=delimiter)
             return True
         

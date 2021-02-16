@@ -1,3 +1,3 @@
 This is a sentence.
-I wish I could say more.
-But this is the test.
+I wish I could say more!
+Perhaps this isn't a good test?

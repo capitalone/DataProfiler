@@ -21,7 +21,7 @@ class TestTextDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'txt/sentence.txt'), count=1),
             dict(path=os.path.join(test_dir, 'txt/sentence-3x.txt'), count=3),
             dict(path=os.path.join(test_dir, 'txt/sentence-10x.txt'), count=10),
-            dict(path=os.path.join(test_dir, 'txt/incorrect-csv.txt'), count=8),
+            dict(path=os.path.join(test_dir, 'txt/quote-test-incorrect-csv.txt'), count=8),
         ]
         cls.output_file_path = None
 

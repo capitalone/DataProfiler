@@ -188,8 +188,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 options.update(header=cls._determine_has_header(data_as_str))
         
         max_line_count = 1000
-        min_line_count = 2
+        min_line_count = 3
         line_count = 0
+        empty_line_count = 0
         delimiter_count = dict()
 
         # ignore delimiters inside of quotes
@@ -199,46 +200,60 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # Count the possible delimiters
         with open(file_path, encoding=file_encoding) as f:
             for line in f:
+                
                 line_count += 1
-                count = 0
+                
+                # Must have content in line, >1 due to the \n character
+                if len(line) <= 1:
+                    empty_line_count += 1
+                    continue                    
                 
                 # Find the location(s) where each delimiter was detected
                 delimiter_locs = [i.start() for i in re.finditer(delimiter_regex, line)]
                 if delimiter:
-                    # Count all locations that aren't the last entry
-                    # This can cause errors, if you could have a sparse end column
-                    for loc in delimiter_locs:
-                        count += 1
+                    count = len(delimiter_locs)
                 else:
                     # If no delimiter, see if spaces are regular intervals
                     count = line.count(" ")
 
-                # Must have content in line, >1 due to the \n character
-                if len(line) > 1:
-                    if count in delimiter_count:
-                        delimiter_count[count] = delimiter_count[count] + 1
-                    else:
-                        delimiter_count[count] = 1
+                # Track the dilimiter count per file
+                if count not in delimiter_count:
+                    delimiter_count[count] = 0
+                delimiter_count[count] += 1
 
                 if line_count >= max_line_count:
                     break
             
         if line_count <= min_line_count:
             return False
+
+        # ================================================================
+        # Section calculates the most common number of delimiters per line
+        # The delimiters per line must be fairly consistent to be a CSV
+        # ================================================================
+
+
+        # Min percentage of consistent delimtier counts per line, per file
+        # Dynamically determined and the percentage increases with file length
+        # 4 lines need 3 to be consistent, 1000 lines need 992 to be consistent
+        max_deviation_count = 2**(len(str(line_count))-1)
+        active_line_count = line_count - empty_line_count
+        min_consistency_percent = \
+            (active_line_count - max_deviation_count) / active_line_count
         
         delimiter_count_values = np.array(list(delimiter_count.values()))
         count_percent = delimiter_count_values / np.sum(delimiter_count_values)
         
         if not count_percent.size:
             return False
-        
+
         max_count_index = count_percent.argmax()
         max_count_value = list(delimiter_count.keys())[max_count_index]
         max_count_percent = count_percent[max_count_index]
         
         # Infered the file was a CSV
         if (max_count_value > 0 or delimiter is None) \
-            and (max_count_percent >= 0.80):
+           and (max_count_percent >= min_consistency_percent):
             options.update(delimiter=delimiter)
             return True
         

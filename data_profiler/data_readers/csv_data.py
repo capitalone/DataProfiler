@@ -196,32 +196,33 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         base_regex = "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"        
         delimiter_regex = re.compile(re.escape(str(delimiter)) + base_regex)
         
-        # Count the possible delimiters 
+        # Count the possible delimiters
         with open(file_path, encoding=file_encoding) as f:
             for line in f:
                 line_count += 1
+                count = 0
                 
                 # Find the location(s) where each delimiter was detected
                 delimiter_locs = [i.start() for i in re.finditer(delimiter_regex, line)]
                 if delimiter:
                     # Count all locations that aren't the last entry
                     # This can cause errors, if you could have a sparse end column
-                    count = 0
                     for loc in delimiter_locs:
-                        if loc != len(line):
-                            count += 1
+                        count += 1
                 else:
                     # If no delimiter, see if spaces are regular intervals
                     count = line.count(" ")
-                    
-                if count in delimiter_count:
-                    delimiter_count[count] = delimiter_count[count] + 1
-                else:
-                    delimiter_count[count] = 1
+
+                # Must have content in line, >1 due to the \n character
+                if len(line) > 1:
+                    if count in delimiter_count:
+                        delimiter_count[count] = delimiter_count[count] + 1
+                    else:
+                        delimiter_count[count] = 1
 
                 if line_count >= max_line_count:
                     break
-                    
+            
         if line_count <= min_line_count:
             return False
         
@@ -236,8 +237,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         max_count_percent = count_percent[max_count_index]
         
         # Infered the file was a CSV
-        if ((max_count_value > 0 or delimiter is None) \
-            and max_count_percent >= 0.85):
+        if (max_count_value > 0 or delimiter is None) \
+            and (max_count_percent >= 0.80):
             options.update(delimiter=delimiter)
             return True
         

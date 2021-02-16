@@ -1,21 +1,24 @@
 from __future__ import print_function
 
-import data_profiler as dp
-from data_profiler.profilers.profile_builder import StructuredDataProfile
-from data_profiler.profilers.profiler_options import \
-    ProfilerOptions, StructuredOptions
-from data_profiler.profilers.column_profile_compilers import \
-    ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler
-from . import utils as test_utils
 
-import random
 import unittest
 from unittest import mock
-import numpy as np
-import pandas as pd
+import random
 import six
 import os
 import re
+
+import numpy as np
+import pandas as pd
+
+from . import utils as test_utils
+
+import data_profiler as dp
+from data_profiler.profilers.profile_builder import StructuredDataProfile
+from data_profiler.profilers.profiler_options import ProfilerOptions, \
+    StructuredOptions
+from data_profiler.profilers.column_profile_compilers import \
+    ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

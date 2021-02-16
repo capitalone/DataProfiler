@@ -1,11 +1,12 @@
 from __future__ import print_function
 
-from .. import Data, Profiler
-from . import test_utils
-
+import os
 import unittest
 from unittest import mock
-import os
+
+from . import test_utils
+
+from data_profiler import Data, Profiler
 
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files

@@ -8,21 +8,20 @@ respective parameters.
 from __future__ import print_function
 from __future__ import division
 
-from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler
-from .column_profile_compilers import ColumnStatsProfileCompiler
-from .column_profile_compilers import ColumnDataLabelerCompiler
-
-from .helpers.report_helpers import calculate_quantiles, _prepare_report
-from .profiler_options import ProfilerOptions, StructuredOptions
-
 import copy
 import random
-import pandas as pd
 import re
 import hashlib
 from collections import OrderedDict
-from .. import data_readers
+
+import pandas as pd
+
 from . import utils
+from .. import data_readers
+from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
+    ColumnStatsProfileCompiler, ColumnDataLabelerCompiler
+from .helpers.report_helpers import calculate_quantiles, _prepare_report
+from .profiler_options import ProfilerOptions, StructuredOptions
 
 
 class StructuredDataProfile(object):

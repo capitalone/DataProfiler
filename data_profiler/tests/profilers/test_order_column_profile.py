@@ -1,10 +1,12 @@
 import unittest
+from unittest import mock
+from collections import defaultdict
+
 import pandas as pd
 
+from .. import test_utils
+
 from data_profiler.profilers import OrderColumn
-from . import test_utils
-from unittest.mock import patch, MagicMock
-from collections import defaultdict
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
 # undo when cpython#4800 is merged.
@@ -101,7 +103,7 @@ class TestOrderColumn(unittest.TestCase):
             times={'order' : 2.0}
         )
         time_array = [float(x) for x in range(4, 0, -1)]
-        with patch('time.time', side_effect = lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect = lambda: time_array.pop()):
             profiler.update(df)
             profile = profiler.profile
 
@@ -295,14 +297,14 @@ class TestOrderColumn(unittest.TestCase):
         profiler2.times = dict(order=3.0)
 
         time_array = [float(i) for i in range(2, 0, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             profiler3 = profiler1 + profiler2
 
             # __add__() call adds 1 so expected is 6
             expected_times = defaultdict(float, {'order': 6.0})
             self.assertDictEqual(expected_times, profiler3.profile['times'])
 
-    @patch('data_profiler.profilers.OrderColumn._get_data_order')
+    @mock.patch('data_profiler.profilers.OrderColumn._get_data_order')
     def test_random_order_prevents_update_from_occuring(self,
                                                         mock_get_data_order):
         mock_get_data_order.return_value = ["random", 1, 2]

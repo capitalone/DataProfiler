@@ -40,6 +40,8 @@ class TestCSVDataClass(unittest.TestCase):
                  count=5, delimiter=None, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/names-col.txt'),
                  count=5, delimiter=None, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/names-col-empty.txt'),
+                 count=5, delimiter=None, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/log_data_long.txt'),
                  count=753, delimiter=',', encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/sparse-last-column.txt'),
@@ -54,6 +56,10 @@ class TestCSVDataClass(unittest.TestCase):
                  count=20, delimiter=',', encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/sparse-columns-test.csv'), 
                  count=20, delimiter=',', encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/sentence-4x.txt'), 
+                 count=4, delimiter='.', encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/quote-test.txt'), 
+                 count=10, delimiter=' ', encoding='utf-8'),
         ]
         cls.output_file_path = None
 

@@ -200,14 +200,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # Count the possible delimiters
         with open(file_path, encoding=file_encoding) as f:
             for line in f:
-                
+
+                count = 0
                 line_count += 1
                 
                 # Must have content in line, >1 due to the \n character
                 if len(line) <= 1:
                     empty_line_count += 1
                     continue                    
-                
+
                 # Find the location(s) where each delimiter was detected
                 delimiter_locs = [i.start() for i in re.finditer(delimiter_regex, line)]
                 if delimiter:
@@ -216,14 +217,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     # If no delimiter, see if spaces are regular intervals
                     count = line.count(" ")
 
-                # Track the dilimiter count per file
+                # Track the delimiter count per file
                 if count not in delimiter_count:
                     delimiter_count[count] = 0
-                delimiter_count[count] += 1
+                delimiter_count[count] += 1                
 
                 if line_count >= max_line_count:
                     break
-            
+                
         if line_count <= min_line_count:
             return False
 
@@ -231,7 +232,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # Section calculates the most common number of delimiters per line
         # The delimiters per line must be fairly consistent to be a CSV
         # ================================================================
-
 
         # Min percentage of consistent delimtier counts per line, per file
         # Dynamically determined and the percentage increases with file length

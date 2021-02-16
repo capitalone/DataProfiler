@@ -238,8 +238,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # 4 lines need 3 to be consistent, 1000 lines need 992 to be consistent
         max_deviation_count = 2**(len(str(line_count))-1)
         active_line_count = line_count - empty_line_count
-        min_consistency_percent = \
+        min_consistency_percent = (
             (active_line_count - max_deviation_count) / active_line_count
+        )
         
         delimiter_count_values = np.array(list(delimiter_count.values()))
         count_percent = delimiter_count_values / np.sum(delimiter_count_values)
@@ -252,8 +253,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         max_count_percent = count_percent[max_count_index]
         
         # Infered the file was a CSV
-        if (max_count_value > 0 or delimiter is None) \
-           and (max_count_percent >= min_consistency_percent):
+        if ((max_count_value > 0 or delimiter is None)
+            and (max_count_percent >= min_consistency_percent)):            
             options.update(delimiter=delimiter)
             return True
         

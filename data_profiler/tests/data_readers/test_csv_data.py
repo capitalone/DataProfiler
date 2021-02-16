@@ -38,6 +38,8 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/log_data_sparse.txt'), count=20, delimiter=',', encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/log_data_super_sparse.txt'), 
                  count=20, delimiter=',', encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-columns-test.csv'), 
+                 count=20, delimiter=',', encoding='utf-8'),
         ]
         cls.output_file_path = None
 

@@ -1,15 +1,16 @@
-import unittest
 import os
 import six
+from collections import defaultdict
+import unittest
+from unittest.mock import patch
+
 import pandas as pd
 import numpy as np
 
-from data_profiler.profilers import CategoricalColumn, BaseColumnProfiler
-from data_profiler.profilers.profile_builder import StructuredDataProfile
-from collections import defaultdict
-
 from . import utils as test_utils
-from unittest.mock import patch, MagicMock
+
+from data_profiler.profilers import CategoricalColumn
+from data_profiler.profilers.profile_builder import StructuredDataProfile
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

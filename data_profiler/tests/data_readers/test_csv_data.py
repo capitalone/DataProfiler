@@ -1,8 +1,10 @@
-import unittest
 import os
+import unittest
+
 import pandas as pd
 
-from ...data_readers.data import Data, CSVData
+from data_profiler.data_readers.data import Data, CSVData
+
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

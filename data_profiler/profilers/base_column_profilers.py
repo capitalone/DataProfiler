@@ -9,12 +9,12 @@ from __future__ import print_function
 from __future__ import division
 
 import abc
-import numpy as np
 import time
-
 from collections import OrderedDict, defaultdict
 from future.utils import with_metaclass
 import functools
+
+import numpy as np
 
 
 class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):

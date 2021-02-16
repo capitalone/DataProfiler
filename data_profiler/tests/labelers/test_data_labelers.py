@@ -1,3 +1,12 @@
+import os
+import unittest
+from unittest import mock
+import json
+from io import StringIO
+
+import pandas as pd
+import numpy as np
+
 import data_profiler as dp
 from data_profiler.data_readers.csv_data import CSVData
 from data_profiler.data_readers.csv_data import JSONData
@@ -5,20 +14,11 @@ from data_profiler.data_readers.csv_data import ParquetData
 from data_profiler.data_readers.csv_data import AVROData
 
 from data_profiler.labelers.data_labelers import BaseDataLabeler, \
-                                                 TrainableDataLabeler
+    TrainableDataLabeler
 from data_profiler.labelers import data_processing
 from data_profiler.labelers import StructCharPreprocessor
 from data_profiler.labelers.base_model import BaseModel, BaseTrainableModel
 
-import os
-from collections import defaultdict
-import json
-from io import StringIO
-import pandas as pd
-import numpy as np
-
-import unittest
-from unittest import mock
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

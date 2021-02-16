@@ -1,9 +1,9 @@
-from . import NumericStatsMixin
-from .base_column_profilers import BaseColumnPrimitiveTypeProfiler
-from .profiler_options import FloatOptions
-from . import BaseColumnProfiler
-
 import numpy as np
+
+from .numerical_column_stats import NumericStatsMixin
+from .base_column_profilers import BaseColumnProfiler, \
+    BaseColumnPrimitiveTypeProfiler
+from .profiler_options import FloatOptions
 
 
 class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):

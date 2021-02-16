@@ -1,8 +1,8 @@
 import pyarrow.parquet as pq
 
+from . import data_utils
 from .base_data import BaseData
 from .structured_mixins import SpreadSheetDataMixin
-from . import data_utils
 
 
 class ParquetData(SpreadSheetDataMixin, BaseData):

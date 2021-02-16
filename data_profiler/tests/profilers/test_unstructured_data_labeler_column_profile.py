@@ -1,9 +1,11 @@
 import unittest
 from unittest import mock
 from collections import defaultdict
+
 import pandas as pd
 
-from data_profiler.profilers.unstructured_data_labeler_column_profile import UnstructuredDataLabelerProfile	
+from data_profiler.profilers.unstructured_data_labeler_column_profile import \
+    UnstructuredDataLabelerProfile
 
 
 class TestUnstructuredDataLabelerProfile(unittest.TestCase):

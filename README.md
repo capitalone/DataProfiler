@@ -8,18 +8,22 @@ The best part? It only takes a few lines of code:
 import json
 from data_profiler import Data, Profiler
 
-data = Data("your_file.csv") # CSV, AVRO, Parquet, JSON, DataFrame
+data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, Text
 
-profile = Profiler(data) # Calculate Statistics, Entity Recognition
+print(data.data.head(5)) # Access data directly via a compatible Pandas DataFrame
+
+profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 
 human_readable_report = profile.report(report_options={"output_format":"pretty"})
 
 print(json.dumps(human_readable_report, indent=4))
 ```
 
-For API documentation, visit our documentation page.
+Install from pypi: `pip3 install DataProfiler`
 
-For issues, please open an issue on the github repository.
+For API documentation, visit the [documentation page](https://capitalone.github.io/data-profiler/).
+
+If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/data-profiler/issues/new/choose).
 
 # Table of Contents
 
@@ -33,6 +37,7 @@ For issues, please open an issue on the github repository.
     * [Data Profiler Installation](#data-profiler-installation)
     * [Testing](#testing)
 * [Get Started](#get-started)
+    * [Load a File](#load-a-file)
     * [Profile a File](#profile-a-file)
     * [Updating Profiles](#updating-profiles)
     * [Merging Profiles](#merging-profiles)
@@ -239,6 +244,8 @@ python3 -m unittest data_profiler.tests.profilers.test_profile_builder.TestProfi
 
 # Get Started
 
+### Load a File
+
 The Data Profiler can profile the following data/file types:
 
 * CSV file (or any delimited file)
@@ -247,7 +254,26 @@ The Data Profiler can profile the following data/file types:
 * Parquet file
 * Pandas DataFrame
 
-The profiler should automatically identify the file type and provide results.
+The profiler should automatically identify the file type and load the data into a `Data Class`.
+
+Along with other attributtes the `Data class` enables data to be accessed via a valid Pandas DataFrame.
+
+```python
+# Load a csv file, return a CSVData object
+csv_data = Data('your_file.csv') 
+
+# Print the first 10 rows of the csv file
+print(csv_data.data.head(10))
+
+# Load a parquet file, return a ParquetData object
+parquet_data = Data('your_file.parquet')
+
+# Sort the data by the name column
+parquet_data.data.sort_values(by='name', inplace=True)
+
+# Print the sorted first 10 rows of the parquet data
+print(parquet_data.data.head(10))
+```
 
 If the file type is not automatically identified (rare), you can specify them 
 specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-filetype-or-delimiter).

@@ -9,15 +9,13 @@ from collections import defaultdict
 import tensorflow as tf
 import tensorflow_addons as tfa
 import numpy as np
-
 from sklearn import decomposition
 
-from data_profiler.labelers import labeler_utils
-from data_profiler.labelers.base_model import BaseModel, BaseTrainableModel
-from data_profiler.labelers.base_model import AutoSubRegistrationMeta
+from . import labeler_utils
+from .base_model import BaseModel, BaseTrainableModel
+from .base_model import AutoSubRegistrationMeta
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(_file_dir)
 
 
 def build_embd_dictionary(filename):
@@ -273,7 +271,8 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         custom_objects = {
             "F1Score": tfa.metrics.F1Score(
                 num_classes=max(label_mapping.values()) + 1,
-                average='micro')
+                average='micro'),
+            "CharacterLevelCnnModel": cls,
         }
         with tf.keras.utils.custom_object_scope(custom_objects):
             tf_model = tf.keras.models.load_model(dirpath)

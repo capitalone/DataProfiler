@@ -1,22 +1,24 @@
+import os
+import unittest
+from unittest import mock
+import re
+import warnings
+import json
+from io import StringIO
+
+import pandas as pd
+import numpy as np
+
 from data_profiler.data_readers.csv_data import CSVData
 from data_profiler.data_readers.csv_data import JSONData
 from data_profiler.data_readers.csv_data import ParquetData
 from data_profiler.data_readers.csv_data import AVROData
 
-from data_profiler.labelers import DataLabeler, UnstructuredDataLabeler
-from data_profiler.labelers.character_level_cnn_model import CharacterLevelCnnModel
-from data_profiler.labelers import data_processing
+from data_profiler.labelers import data_processing, DataLabeler, \
+    UnstructuredDataLabeler
+from data_profiler.labelers.character_level_cnn_model import \
+    CharacterLevelCnnModel
 
-import os
-import re
-import warnings
-import json
-from io import StringIO
-import pandas as pd
-import numpy as np
-
-import unittest
-from unittest import mock
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

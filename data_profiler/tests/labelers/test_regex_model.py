@@ -1,12 +1,14 @@
-import unittest
 import os
+import unittest
 from unittest import mock
 import json
 from io import StringIO
-import numpy as np
 import pkg_resources
 
+import numpy as np
+
 from data_profiler.labelers.regex_model import RegexModel
+
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 _resource_labeler_dir = pkg_resources.resource_filename('resources', 'labelers')

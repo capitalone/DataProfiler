@@ -6,9 +6,9 @@ import copy
 import json
 import inspect
 from collections import Counter
-
 import random
 import math
+
 import numpy as np
 import tensorflow as tf
 

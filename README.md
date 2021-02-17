@@ -237,6 +237,11 @@ To run file of unit tests, use form:
 python3 -m unittest discover -p test_profile_builder.py
 ```
 
+To run a file with Pytest use:
+```
+pytest data_profiler/tests/data_readers/test_csv_data.py -v
+```
+
 To run individual of unit test, use form:
 ```
 python3 -m unittest data_profiler.tests.profilers.test_profile_builder.TestProfiler

@@ -53,7 +53,7 @@ If you have suggestions or find a bug, [please open an issue](https://github.com
     * [Extending a Data Labeler with Transfer Learning](#extending-a-data-labeler-with-transfer-learning)
 * [Build Your Own Data Labeler](#build-your-own-data-labeler)
 * [Updating Documentation](#updating-documentation)
-* [References](#reference)
+* [References](#references)
 * [Contributors](#contributors)
 
 ------------------

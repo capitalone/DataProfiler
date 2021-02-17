@@ -862,18 +862,10 @@ python update_documentation.py [version]
 ```
 
 # References
-Anh Truong, Austin Walters, Jeremy Goodsitt, "Sensitive Data Detection with High-Throughput Neural Network Models for Financial Institutions", The AAAI-21 Workshop on Knowledge Discovery from Unstructured Data in Financial Services, 2021. (https://arxiv.org/abs/2012.09597)
-
-Biblatex entry:
-```
-@inproceedings{truong2020sensitive,
-      title={Sensitive Data Detection with High-Throughput Neural Network Models for Financial Institutions}, 
-      author={Anh Truong and Austin Walters and Jeremy Goodsitt},
-      year={2020},
-      eprint={2012.09597},
-      archivePrefix={arXiv}
-}
-```
+Sensitive Data Detection with High-Throughput Neural Network Models for Financial Institutions
+Authors: Anh Truong, Austin Walters, Jeremy Goodsitt
+2020 https://arxiv.org/abs/2012.09597
+The AAAI-21 Workshop on Knowledge Discovery from Unstructured Data in Financial Services
 
 # Contributors
 

@@ -37,7 +37,7 @@ print(type(data))
 # <class 'dataprofiler.data_readers.csv_data.CSVData'>
 ```
 
-We provide an interface which all data classes must match, with a template provided in the `base_data class` ([data_readers/base_data.py](/data_profiler/data_readers/base_data.py)). What that means is that the end user doesn't have to worry about functions for the specific class, as the template provides a set of required functions. For general purposes, the various the various data classes can be treated the exact same. However, a given class can be checked and special functions added (if desired), making it more extensible. 
+We provide an interface which all data classes must match, with a template provided in the `base_data class` ([data_readers/base_data.py](/data_profiler/data_readers/base_data.py)). What that means is that the end user doesn't have to worry about functions for the specific class, as the template provides a set of required functions. For general purposes, the various data classes can be treated the exact same - i.e. they have the same functions. However, a given class can be checked and special functions can be added (if desired), making it more extensible. 
 
 The current classes are:
 
@@ -182,7 +182,24 @@ Possible `options`:
 * samples_per_line - chunks by which to read in the specified dataset
 
 **Example**:
-```python
+test.txt:
+```
+This is a test.
+This is a test.
+```
+Code:
+``python
 from dataprofiler.data_readers.text_data import TextData
-data = TextData("your_file.txt")
+
+# Loads the file in a single element of an array
+data = TextData("test.txt")
+
+print(data.data)
+# ['This is a test\nthis is a test\n']
+
+# Flatten the data as it loads and generates samples based on the character count
+data = TextData("test.txt", options={"samples_per_line": 10})
+
+print(data.data)
+# ['This is a ', 'test\nthis ', 'is a test\n']
 ```

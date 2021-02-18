@@ -58,7 +58,7 @@ data = dp.Data(data=pd.DataFrame([1, 2]), data_type='csv')
 
 *Note: This override can still if fail, if the `data_reader` cannot load the file.*
 
-It is important to note that by default the `Data class` does not utilize file extensions to identify *file type*. Instead, it inspects the file itself to determine which `data_reader` it should use. See [data_readers/csv_data.py](/data_profiler/data_readers/csv_data.py) as an example. The `is_match` function is utilized by the `CSVData` class to determine if it can be used to load the given file.
+It is important to note that by default the `Data class` does not utilize file extensions to identify *file type*. Instead, the data classes inspect the file utilizing the `is_match` function, to determine which `data_reader` it should use. See [data_readers/csv_data.py](/data_profiler/data_readers/csv_data.py) as an example.
 
 Finally, if a `data_reader` is missing please feel free to contribute one back to the project.
 

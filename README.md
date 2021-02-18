@@ -21,9 +21,9 @@ print(json.dumps(human_readable_report, indent=4))
 
 Install from pypi: `pip3 install DataProfiler`
 
-For API documentation, visit the [documentation page](https://capitalone.github.io/data-profiler/).
+For API documentation, visit the [documentation page](https://capitalone.github.io/dataprofiler/).
 
-If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/data-profiler/issues/new/choose).
+If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/dataprofiler/issues/new/choose).
 
 # Table of Contents
 
@@ -206,7 +206,7 @@ pip3 install dist/data_profiler*-py3-none-any.whl
 
 If you see:
 ```
- ERROR: Double requirement given:data-profiler==X.Y.Z from data-profiler/dist/data_profiler-X.Y.Z-py3-none-any.whl (already in data-profiler==X2.Y2.Z2 from data-profiler/dist/data_profiler-X2.Y2.Z2-py3-none-any.whl, name='data-profiler')
+ ERROR: Double requirement given:dataprofiler==X.Y.Z from dataprofiler/dist/data_profiler-X.Y.Z-py3-none-any.whl (already in dataprofiler==X2.Y2.Z2 from dataprofiler/dist/data_profiler-X2.Y2.Z2-py3-none-any.whl, name='dataprofiler')
  ```
 This means that you have an multiple versions of the DataProfiler distribution 
 in the dist folder.
@@ -215,7 +215,7 @@ To resolve, either remove the older one or delete the folder and rerun the steps
 
 Install via github:
 ```
-pip3 install git+https://github.com/capitalone/data-profiler.git#egg=data_profiler
+pip3 install git+https://github.com/capitalone/dataprofiler.git#egg=data_profiler
 ```
 
 

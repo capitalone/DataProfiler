@@ -6,7 +6,7 @@ The best part? It only takes a few lines of code:
 
 ```python
 import json
-from data_profiler import Data, Profiler
+from dataprofiler import Data, Profiler
 
 data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, Text
 
@@ -289,7 +289,7 @@ Example uses a CSV file for example, but CSV, JSON, Avro or Parquet should also 
 
 ```python
 import json
-from data_profiler import Data, Profiler
+from dataprofiler import Data, Profiler
 
 # Load file (CSV should be automatically identified)
 data = Data("your_file.csv") 
@@ -310,7 +310,7 @@ Currently, the data profiler is equipped to update its profile in batches.
 
 ```python
 import json
-from data_profiler import Data, Profiler
+from dataprofiler import Data, Profiler
 
 # Load and profile a CSV file
 data = Data("your_file.csv")
@@ -333,7 +333,7 @@ This also enables profiles to be determined in a distributed manner.
 
 ```python
 import json
-from data_profiler import Data, Profiler
+from dataprofiler import Data, Profiler
 
 # Load a CSV file with a schema
 data1 = Data("file_a.csv")
@@ -353,7 +353,7 @@ print(json.dumps(report, indent=4))
 ### Profile a Pandas DataFrame
 ```python
 import pandas as pd
-import data_profiler as dp
+import dataprofiler as dp
 import json
 
 
@@ -376,8 +376,8 @@ In addition, it utilizes only the first 10,000 rows.
 ```python
 import json
 import os
-from data_profiler import Data, Profiler
-from data_profiler.data_readers.csv_data import CSVData
+from dataprofiler import Data, Profiler
+from dataprofiler.data_readers.csv_data import CSVData
 
 # Load a CSV file, with "," as the delimiter
 data = CSVData("your_file.csv", options={"delimiter": ","})
@@ -407,7 +407,7 @@ toggled on.
 
 ```python
 import json
-from data_profiler import Data, Profiler, ProfilerOptions
+from dataprofiler import Data, Profiler, ProfilerOptions
 
 # Load and profile a CSV file
 data = Data("your_file.csv")
@@ -490,7 +490,7 @@ report  = profile.report(report_options={"output_format": "flat"})
 The `Data` class itself will identify then output one of the following `Data` class types. It's also possible to specifically call one of these data classes such as the following command:
 
 ```python
-from data_profiler.data_readers.csv_data import CSVData
+from dataprofiler.data_readers.csv_data import CSVData
 data = CSVData("your_file.csv", options={"delimiter": ","})
 ```
 
@@ -579,7 +579,7 @@ as well.
 Makes predictions and identifying labels:
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 # load data and data labeler
 data = dp.Data("your_data.csv")
@@ -594,7 +594,7 @@ predictions = data_labeler.predict(data)
 Predict which class characters belong to in unstructured text:
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 data_labeler = dp.DataLabeler(labeler_type='unstructured')
 
@@ -614,7 +614,7 @@ final_confidences = model_predictions["conf"]
 It's also possible to change output formats, output similar to a **SpaCy** format:
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 data_labeler = dp.DataLabeler(labeler_type='unstructured', trainable=True)
 
@@ -638,7 +638,7 @@ Mechanism for training your own data labeler on their own set of structured data
  (tabular):
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 data = dp.Data("your_file.csv")
 data_labeler = dp.train_structured_labeler(
@@ -654,7 +654,7 @@ data_labeler.save("my/save/path") # Saves the data labeler for reuse
 Mechanism for loading an existing data_labeler:
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 data_labeler = dp.DataLabeler(
     labeler_type='structured', dirpath="/path/to/my/labeler")
@@ -670,7 +670,7 @@ Note: By default, **a labeler loaded will not be trainable**. In order to load a
 trainable DataLabeler, the user must set `trainable=True` or load a labeler 
 using the `TrainableDataLabeler` class.
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 labels = ['label1', 'label2', ...]  # new label set can also be an encoding dict
 data = dp.Data("your_file.csv")  # contains data with new labels
@@ -696,7 +696,7 @@ final_confidences = model_results["conf"]
 
 Changing pipeline parameters:
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 # load default Data Labeler
 data_labeler = dp.DataLabeler(labeler_type='structured')
@@ -722,10 +722,10 @@ existing component can be reused.
 Given a set of the 3 components, you can construct your own DataLabeler:
 
 ```python
-from data_profiler.labelers.base_data_labeler import BaseDataLabeler, \
+from dataprofiler.labelers.base_data_labeler import BaseDataLabeler, \
                                                      TrainableDataLabeler
-from data_profiler.labelers.character_level_cnn_model import CharacterLevelCnnModel
-from data_profiler.labelers.data_processing import \
+from dataprofiler.labelers.character_level_cnn_model import CharacterLevelCnnModel
+from dataprofiler.labelers.data_processing import \
     StructCharPreprocessor, StructCharPostprocessor
 
 # load a non-trainable data labeler
@@ -750,10 +750,10 @@ data_labeler.check_pipeline()
 
 Option for swapping out specific components of an existing labeler.
 ```python
-import data_profiler as dp
-from data_profiler.labelers.character_level_cnn_model import \
+import dataprofiler as dp
+from dataprofiler.labelers.character_level_cnn_model import \
     CharacterLevelCnnModel
-from data_profiler.labelers.data_processing import \
+from dataprofiler.labelers.data_processing import \
     StructCharPreprocessor, StructCharPostprocessor
 
 model = CharacterLevelCnnModel(...)

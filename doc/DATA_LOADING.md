@@ -1,4 +1,4 @@
-Data Profiler | Loading Data
+Data Profiler | Data Loading
 ############################
 
 Our object with the data profiler library is a "one function" load of any file. The file should be correctly loaded into a standardized format capable of being profiled by the `Profiler class`. In practice, this means identifying the correct file format, encoding, and then loading the data into a pandas DataFrame (internally). 

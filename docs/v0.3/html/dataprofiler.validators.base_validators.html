@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dataprofiler.validators.base_validators module &mdash; Data Profiler 21.01.20 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="dataprofiler.validators package" href="dataprofiler.validators.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Data Profiler
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.profilers.html">dataprofiler.profilers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.labelers.html">dataprofiler.labelers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.data_readers.html">dataprofiler.data_readers package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="dataprofiler.validators.html">dataprofiler.validators package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dataprofiler.validators.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dataprofiler.validators.base_validators module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dataprofiler.validators.html#module-dataprofiler.validators">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Profiler</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="dataprofiler.validators.html">dataprofiler.validators package</a> &raquo;</li>
+        
+      <li>dataprofiler.validators.base_validators module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/dataprofiler.validators.base_validators.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dataprofiler.validators.base_validators">
+<span id="dataprofiler-validators-base-validators-module"></span><h1>dataprofiler.validators.base_validators module<a class="headerlink" href="#module-dataprofiler.validators.base_validators" title="Permalink to this headline">¶</a></h1>
+<p>coding=utf-8</p>
+<p>Build model for a dataset by identifying type of column along with its
+respective parameters.</p>
+<dl class="py function">
+<dt id="dataprofiler.validators.base_validators.is_in_range">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.validators.base_validators.</span></code><code class="sig-name descname"><span class="pre">is_in_range</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.is_in_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks to see x is in the range of the config.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int/float</em>) – number</p></li>
+<li><p><strong>config</strong> (<em>dict</em>) – configuration</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="dataprofiler.validators.base_validators.is_in_list">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.validators.base_validators.</span></code><code class="sig-name descname"><span class="pre">is_in_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.is_in_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks to see x is in the config list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>string</em>) – item</p></li>
+<li><p><strong>config</strong> (<em>dict</em>) – configuration</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="dataprofiler.validators.base_validators.Validator">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.validators.base_validators.</span></code><code class="sig-name descname"><span class="pre">Validator</span></code><a class="headerlink" href="#dataprofiler.validators.base_validators.Validator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="dataprofiler.validators.base_validators.Validator.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.Validator.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate a data set. No option for validating a partial data set.</p>
+<p>Set configuration on run not on instantiation of the class such that
+you have the option to run multiple times with different configurations
+without having to also reinstantiate the class.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>DataFrame Dask/Pandas</em>) – The data to be processed by the validator. Processing occurs in a column-wise fashion.</p></li>
+<li><p><strong>config</strong> (<em>dict</em>) – configuration for how the validator should
+run across the given data. Validator will only run over columns
+specified in the configuration.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Example</dt>
+<dd class="field-even"><p>This is an example of the config:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">&lt;</span><span class="n">column_name</span><span class="o">&gt;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nb">range</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                    <span class="s1">&#39;end&#39;</span><span class="p">:</span><span class="mi">2</span>
+                <span class="p">},</span>
+                <span class="nb">list</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.validators.base_validators.Validator.get">
+<code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.Validator.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the results of the validation run.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="dataprofiler.validators.html" class="btn btn-neutral float-left" title="dataprofiler.validators package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, and Grant Eden.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

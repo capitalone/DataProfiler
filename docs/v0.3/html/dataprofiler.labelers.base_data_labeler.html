@@ -1,0 +1,831 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dataprofiler.labelers.base_data_labeler module &mdash; Data Profiler 21.01.20 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="dataprofiler.labelers.base_model module" href="dataprofiler.labelers.base_model.html" />
+    <link rel="prev" title="dataprofiler.labelers package" href="dataprofiler.labelers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Data Profiler
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.profilers.html">dataprofiler.profilers package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="dataprofiler.labelers.html">dataprofiler.labelers package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dataprofiler.labelers.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dataprofiler.labelers.base_data_labeler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">dataprofiler.labelers.base_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">dataprofiler.labelers.character_level_cnn_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">dataprofiler.labelers.classification_report_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">dataprofiler.labelers.data_labelers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">dataprofiler.labelers.data_processing module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">dataprofiler.labelers.labeler_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">dataprofiler.labelers.regex_model module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dataprofiler.labelers.html#module-dataprofiler.labelers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.data_readers.html">dataprofiler.data_readers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.validators.html">dataprofiler.validators package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Profiler</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="dataprofiler.labelers.html">dataprofiler.labelers package</a> &raquo;</li>
+        
+      <li>dataprofiler.labelers.base_data_labeler module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/dataprofiler.labelers.base_data_labeler.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dataprofiler.labelers.base_data_labeler">
+<span id="dataprofiler-labelers-base-data-labeler-module"></span><h1>dataprofiler.labelers.base_data_labeler module<a class="headerlink" href="#module-dataprofiler.labelers.base_data_labeler" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.base_data_labeler.</span></code><code class="sig-name descname"><span class="pre">BaseDataLabeler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Initialize DataLabeler class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dirpath</strong> – path to data labeler</p></li>
+<li><p><strong>load_options</strong> – optional arguments to include for load i.e. class
+for model or processors</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.help">
+<code class="sig-name descname"><span class="pre">help</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Help function describing alterable parameters, input data formats
+for preprocessors, and output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the label encodings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary for associating labels to indexes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.reverse_label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reverse_label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the index to label encoding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary for associating indexes to labels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the label</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of labels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.preprocessor">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">preprocessor</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.preprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the data preprocessor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>returns the preprocessor instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.model">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the data labeler model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>returns the model instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.postprocessor">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">postprocessor</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.postprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the data postprocessor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>returns the postprocessor instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_params">
+<code class="sig-name descname"><span class="pre">set_params</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows user to set parameters of pipeline components in the following
+format:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>params = dict(</dt><dd><p>preprocessor=dict(…),
+model=dict(…),
+postprocessor=dict(…)</p>
+</dd>
+</dl>
+<p>)</p>
+</div></blockquote>
+<p>where the key,values pairs for each pipeline component must match
+parameters that exist in their components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – <p>dictionary containing a key for a given pipeline
+component and its associated value of parameters as such:</p>
+<blockquote>
+<div><p>dict(preprocessor=dict(…), model=dict(…),
+postprocessor=dict(…))</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_labels">
+<code class="sig-name descname"><span class="pre">set_labels</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the labels for the data labeler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>labels</strong> (<em>list</em><em> or </em><em>dict</em>) – new labels in either encoding list or dict</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.predict">
+<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_on_mismatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts labels of input data based with the data labeler model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – data to be predicted upon</p></li>
+<li><p><strong>batch_size</strong> – batch size of prediction</p></li>
+<li><p><strong>predict_options</strong> – optional parameters to allow for predict as a
+dict, i.e.  dict(show_confidences=True)</p></li>
+<li><p><strong>error_on_mismatch</strong> – if true, errors instead of warns on parameter
+mismatches in pipeline</p></li>
+<li><p><strong>verbose</strong> – Flag to determine whether to print status or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>predictions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_preprocessor">
+<code class="sig-name descname"><span class="pre">set_preprocessor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_processor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_preprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the data preprocessor for the data labeler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_processor</strong> (<a class="reference internal" href="dataprofiler.labelers.data_processing.html#dataprofiler.labelers.data_processing.BaseDataPreprocessor" title="dataprofiler.labelers.data_processing.BaseDataPreprocessor"><em>data_processing.BaseDataPreprocessor</em></a>) – processor to set as the preprocessor</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_model">
+<code class="sig-name descname"><span class="pre">set_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the model for the data labeler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="dataprofiler.labelers.base_model.html#dataprofiler.labelers.base_model.BaseModel" title="dataprofiler.labelers.base_model.BaseModel"><em>base_model.BaseModel</em></a>) – model to use within the data labeler</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_postprocessor">
+<code class="sig-name descname"><span class="pre">set_postprocessor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_processor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.set_postprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the data postprocessor for the data labeler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_processor</strong> (<a class="reference internal" href="dataprofiler.labelers.data_processing.html#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="dataprofiler.labelers.data_processing.BaseDataPostprocessor"><em>data_processing.BaseDataPostprocessor</em></a>) – processor to set as the postprocessor</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.check_pipeline">
+<code class="sig-name descname"><span class="pre">check_pipeline</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skip_postprocessor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_on_mismatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.check_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether the processors and models connect together without error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>skip_postprocessor</strong> (<em>bool</em>) – skip checking postprocessor is valid in
+pipeline</p></li>
+<li><p><strong>error_on_mismatch</strong> (<em>bool</em>) – if true, errors instead of warns on parameter
+mismatches in pipeline</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool indicating valid pipeline</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_from_library</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the data labeler from the data labeler zoo in the library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – name of the data labeler.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataLabeler class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_from_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the data labeler from a saved location on disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dirpath</strong> (<em>str</em>) – path to data labeler files.</p></li>
+<li><p><strong>load_options</strong> (<em>dict</em>) – optional arguments to include for load i.e. class
+for model or processors</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataLabeler class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.load_with_components">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_with_components</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocessor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.load_with_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the data labeler from a its set  of components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>preprocessor</strong> (<a class="reference internal" href="dataprofiler.labelers.data_processing.html#dataprofiler.labelers.data_processing.BaseDataPreprocessor" title="dataprofiler.labelers.data_processing.BaseDataPreprocessor"><em>data_processing.BaseDataPreprocessor</em></a>) – processor to set as the preprocessor</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="dataprofiler.labelers.base_model.html#dataprofiler.labelers.base_model.BaseModel" title="dataprofiler.labelers.base_model.BaseModel"><em>base_model.BaseModel</em></a>) – model to use within the data labeler</p></li>
+<li><p><strong>postprocessor</strong> (<a class="reference internal" href="dataprofiler.labelers.data_processing.html#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="dataprofiler.labelers.data_processing.BaseDataPostprocessor"><em>data_processing.BaseDataPostprocessor</em></a>) – processor to set as the postprocessor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.BaseDataLabeler.save_to_disk">
+<code class="sig-name descname"><span class="pre">save_to_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the data labeler to the specified location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dirpath</strong> (<em>str</em>) – location to save the data labeler.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.base_data_labeler.</span></code><code class="sig-name descname"><span class="pre">TrainableDataLabeler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.base_data_labeler.BaseDataLabeler" title="dataprofiler.labelers.base_data_labeler.BaseDataLabeler"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.base_data_labeler.BaseDataLabeler</span></code></a></p>
+<p>Initialize DataLabeler class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dirpath</strong> – path to data labeler</p></li>
+<li><p><strong>load_options</strong> – optional arguments to include for load i.e. class
+for model or processors</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_on_mismatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits the data labeler model for the dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>Union</em><em>[</em><em>pd.DataFrame</em><em>, </em><em>pd.Series</em><em>, </em><em>np.ndarray</em><em>]</em>) – samples to fit model</p></li>
+<li><p><strong>y</strong> (<em>Union</em><em>[</em><em>pd.DataFrame</em><em>, </em><em>pd.Series</em><em>, </em><em>np.ndarray</em><em>]</em>) – labels associated with the samples to fit model</p></li>
+<li><p><strong>validation_split</strong> (<em>float</em>) – split of the data to have as cross-validation
+data</p></li>
+<li><p><strong>labels</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>dict</em><em>]</em>) – Encoding or number of labels if refit is needed to new
+labels</p></li>
+<li><p><strong>reset_weights</strong> (<em>bool</em>) – Flag to determine whether or not to reset the
+weights</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – Size of each batch sent to data labeler model</p></li>
+<li><p><strong>epochs</strong> (<em>int</em>) – number of epochs to iterate over the dataset and send to
+the model</p></li>
+<li><p><strong>error_on_mismatch</strong> (<em>bool</em>) – if true, errors instead of warns on parameter
+mismatches in pipeline</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>model output</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_model">
+<code class="sig-name descname"><span class="pre">set_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the model for a trainable data labeler. Model must have a train
+function to be able to be set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> (<a class="reference internal" href="dataprofiler.labelers.base_model.html#dataprofiler.labelers.base_model.BaseModel" title="dataprofiler.labelers.base_model.BaseModel"><em>base_model.BaseModel</em></a>) – model to use within the data labeler</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.load_with_components">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_with_components</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocessor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.load_with_components" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the data labeler from a its set  of components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>preprocessor</strong> (<a class="reference internal" href="dataprofiler.labelers.data_processing.html#dataprofiler.labelers.data_processing.BaseDataPreprocessor" title="dataprofiler.labelers.data_processing.BaseDataPreprocessor"><em>data_processing.BaseDataPreprocessor</em></a>) – processor to set as the preprocessor</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="dataprofiler.labelers.base_model.html#dataprofiler.labelers.base_model.BaseModel" title="dataprofiler.labelers.base_model.BaseModel"><em>base_model.BaseModel</em></a>) – model to use within the data labeler</p></li>
+<li><p><strong>postprocessor</strong> (<a class="reference internal" href="dataprofiler.labelers.data_processing.html#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="dataprofiler.labelers.data_processing.BaseDataPostprocessor"><em>data_processing.BaseDataPostprocessor</em></a>) – processor to set as the postprocessor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.check_pipeline">
+<code class="sig-name descname"><span class="pre">check_pipeline</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skip_postprocessor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_on_mismatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.check_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks whether the processors and models connect together without error.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>skip_postprocessor</strong> (<em>bool</em>) – skip checking postprocessor is valid in
+pipeline</p></li>
+<li><p><strong>error_on_mismatch</strong> (<em>bool</em>) – if true, errors instead of warns on parameter
+mismatches in pipeline</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>bool indicating valid pipeline</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.help">
+<code class="sig-name descname"><span class="pre">help</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Help function describing alterable parameters, input data formats
+for preprocessors, and output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the label encodings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary for associating labels to indexes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the label</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of labels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_from_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the data labeler from a saved location on disk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dirpath</strong> (<em>str</em>) – path to data labeler files.</p></li>
+<li><p><strong>load_options</strong> (<em>dict</em>) – optional arguments to include for load i.e. class
+for model or processors</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataLabeler class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_from_library</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the data labeler from the data labeler zoo in the library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – name of the data labeler.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>DataLabeler class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.model">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the data labeler model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>returns the model instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.postprocessor">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">postprocessor</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.postprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the data postprocessor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>returns the postprocessor instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.predict">
+<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_on_mismatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts labels of input data based with the data labeler model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – data to be predicted upon</p></li>
+<li><p><strong>batch_size</strong> – batch size of prediction</p></li>
+<li><p><strong>predict_options</strong> – optional parameters to allow for predict as a
+dict, i.e.  dict(show_confidences=True)</p></li>
+<li><p><strong>error_on_mismatch</strong> – if true, errors instead of warns on parameter
+mismatches in pipeline</p></li>
+<li><p><strong>verbose</strong> – Flag to determine whether to print status or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>predictions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.preprocessor">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">preprocessor</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.preprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the data preprocessor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>returns the preprocessor instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.reverse_label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reverse_label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the index to label encoding</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary for associating indexes to labels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.save_to_disk">
+<code class="sig-name descname"><span class="pre">save_to_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the data labeler to the specified location</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dirpath</strong> (<em>str</em>) – location to save the data labeler.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_labels">
+<code class="sig-name descname"><span class="pre">set_labels</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the labels for the data labeler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>labels</strong> (<em>list</em><em> or </em><em>dict</em>) – new labels in either encoding list or dict</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_params">
+<code class="sig-name descname"><span class="pre">set_params</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows user to set parameters of pipeline components in the following
+format:</p>
+<blockquote>
+<div><dl class="simple">
+<dt>params = dict(</dt><dd><p>preprocessor=dict(…),
+model=dict(…),
+postprocessor=dict(…)</p>
+</dd>
+</dl>
+<p>)</p>
+</div></blockquote>
+<p>where the key,values pairs for each pipeline component must match
+parameters that exist in their components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – <p>dictionary containing a key for a given pipeline
+component and its associated value of parameters as such:</p>
+<blockquote>
+<div><p>dict(preprocessor=dict(…), model=dict(…),
+postprocessor=dict(…))</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_postprocessor">
+<code class="sig-name descname"><span class="pre">set_postprocessor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_processor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_postprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the data postprocessor for the data labeler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_processor</strong> (<a class="reference internal" href="dataprofiler.labelers.data_processing.html#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="dataprofiler.labelers.data_processing.BaseDataPostprocessor"><em>data_processing.BaseDataPostprocessor</em></a>) – processor to set as the postprocessor</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_preprocessor">
+<code class="sig-name descname"><span class="pre">set_preprocessor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_processor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_data_labeler.TrainableDataLabeler.set_preprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the data preprocessor for the data labeler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_processor</strong> (<a class="reference internal" href="dataprofiler.labelers.data_processing.html#dataprofiler.labelers.data_processing.BaseDataPreprocessor" title="dataprofiler.labelers.data_processing.BaseDataPreprocessor"><em>data_processing.BaseDataPreprocessor</em></a>) – processor to set as the preprocessor</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="dataprofiler.labelers.base_model.html" class="btn btn-neutral float-right" title="dataprofiler.labelers.base_model module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dataprofiler.labelers.html" class="btn btn-neutral float-left" title="dataprofiler.labelers package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, and Grant Eden.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

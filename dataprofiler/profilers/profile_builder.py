@@ -486,6 +486,7 @@ class Profiler(object):
             self._update_row_statistics(data.data)
             self.encoding = data.file_encoding
             self.file_type = data.data_type
+            
         elif isinstance(data, pd.DataFrame):
             self._profile = self._update_profile_from_chunk(
                 data, self._profile, sample_size, min_true_samples, self.options)

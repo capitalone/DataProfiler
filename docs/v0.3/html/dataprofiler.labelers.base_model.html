@@ -1,0 +1,564 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dataprofiler.labelers.base_model module &mdash; Data Profiler 21.01.20 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="dataprofiler.labelers.character_level_cnn_model module" href="dataprofiler.labelers.character_level_cnn_model.html" />
+    <link rel="prev" title="dataprofiler.labelers.base_data_labeler module" href="dataprofiler.labelers.base_data_labeler.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Data Profiler
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.profilers.html">dataprofiler.profilers package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="dataprofiler.labelers.html">dataprofiler.labelers package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dataprofiler.labelers.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">dataprofiler.labelers.base_data_labeler module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dataprofiler.labelers.base_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">dataprofiler.labelers.character_level_cnn_model module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">dataprofiler.labelers.classification_report_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">dataprofiler.labelers.data_labelers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">dataprofiler.labelers.data_processing module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">dataprofiler.labelers.labeler_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">dataprofiler.labelers.regex_model module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dataprofiler.labelers.html#module-dataprofiler.labelers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.data_readers.html">dataprofiler.data_readers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.validators.html">dataprofiler.validators package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Profiler</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="dataprofiler.labelers.html">dataprofiler.labelers package</a> &raquo;</li>
+        
+      <li>dataprofiler.labelers.base_model module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/dataprofiler.labelers.base_model.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dataprofiler.labelers.base_model">
+<span id="dataprofiler-labelers-base-model-module"></span><h1>dataprofiler.labelers.base_model module<a class="headerlink" href="#module-dataprofiler.labelers.base_model" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="dataprofiler.labelers.base_model.AutoSubRegistrationMeta">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.base_model.</span></code><code class="sig-name descname"><span class="pre">AutoSubRegistrationMeta</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clsname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.AutoSubRegistrationMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABCMeta</span></code></p>
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.AutoSubRegistrationMeta.mro">
+<code class="sig-name descname"><span class="pre">mro</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.AutoSubRegistrationMeta.mro" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a type’s method resolution order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.AutoSubRegistrationMeta.register">
+<code class="sig-name descname"><span class="pre">register</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subclass</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.AutoSubRegistrationMeta.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a virtual subclass of an ABC.</p>
+<p>Returns the subclass, to allow usage as a class decorator.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dataprofiler.labelers.base_model.BaseModel">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.base_model.</span></code><code class="sig-name descname"><span class="pre">BaseModel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base Model Initializer. Only model and model parameters are stored here
+:param parameters: Contains all the appropriate parameters for the model.</p>
+<blockquote>
+<div><p>Must contain num_labels.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="dataprofiler.labelers.base_model.BaseModel.requires_zero_mapping">
+<code class="sig-name descname"><span class="pre">requires_zero_mapping</span></code><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.requires_zero_mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>mapping of labels to their encoded values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.reverse_label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reverse_label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reversed order of current labels, useful for when needed to
+extract Labels via indices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the label
+:return: list of labels</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.num_labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_labels</span></code><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.num_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.get_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.get_parameters">
+<code class="sig-name descname"><span class="pre">get_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict of parameters from the model given a list.
+:param param_list: list of parameters to retrieve from the model.
+:type param_list: list
+:return: dict of parameters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.set_params">
+<code class="sig-name descname"><span class="pre">set_params</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given kwargs, set the parameters if they exist.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.set_label_mapping">
+<code class="sig-name descname"><span class="pre">set_label_mapping</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.set_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the labels for the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>label_mapping</strong> (<em>dict</em>) – label mapping of the model</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.help">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">help</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Help function describing alterable parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.reset_weights">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">reset_weights</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.reset_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the weights of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.predict">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_confidences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict the data with the current model
+:param data: model input data to predict on
+:type data: iterator of data to process
+:param batch_size: number of samples in the batch of data
+:type batch_size: int
+:param show_confidences: whether user wants prediction confidences
+:type show_confidences: bool
+:param verbose: Flag to determine whether to print status or not
+:type verbose: bool
+:return: char level predictions and confidences
+:rtype: dict</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.load_from_disk">
+<em class="property"><span class="pre">abstract</span> <span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_from_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads whole model from disk with weights
+:param dirpath: directory path where you want to load the model from
+:type dirpath: str
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseModel.save_to_disk">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">save_to_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseModel.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves whole model to disk with weights
+:param dirpath: directory path where you want to save the model to
+:type dirpath: str
+:return: None</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.base_model.</span></code><code class="sig-name descname"><span class="pre">BaseTrainableModel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.base_model.BaseModel" title="dataprofiler.labelers.base_model.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.base_model.BaseModel</span></code></a></p>
+<p>Base Model Initializer. Only model and model parameters are stored here
+:param parameters: Contains all the appropriate parameters for the model.</p>
+<blockquote>
+<div><p>Must contain num_labels.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.fit">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train the current model with the training data and validation data
+:param train_data: Training data used to train model
+:type train_data: Union[pd.DataFrame, pd.Series, np.ndarray]
+:param val_data: Validation data used to validate the training
+:type val_data: Union[pd.DataFrame, pd.Series, np.ndarray]
+:param batch_size: Used to determine number of samples in each batch
+:type batch_size: int
+:param epochs: Used to determine how many epochs to run
+:type epochs: int
+:param label_mapping: Mapping of the labels
+:type label_mapping: dict
+:param reset_weights: Flag to determine whether or not to reset the</p>
+<blockquote>
+<div><p>model’s weights</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.get_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.get_parameters">
+<code class="sig-name descname"><span class="pre">get_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dict of parameters from the model given a list.
+:param param_list: list of parameters to retrieve from the model.
+:type param_list: list
+:return: dict of parameters</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.help">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">help</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Help function describing alterable parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>mapping of labels to their encoded values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the label
+:return: list of labels</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.load_from_disk">
+<em class="property"><span class="pre">abstract</span> <span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_from_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads whole model from disk with weights
+:param dirpath: directory path where you want to load the model from
+:type dirpath: str
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.num_labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_labels</span></code><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.num_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.predict">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_confidences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict the data with the current model
+:param data: model input data to predict on
+:type data: iterator of data to process
+:param batch_size: number of samples in the batch of data
+:type batch_size: int
+:param show_confidences: whether user wants prediction confidences
+:type show_confidences: bool
+:param verbose: Flag to determine whether to print status or not
+:type verbose: bool
+:return: char level predictions and confidences
+:rtype: dict</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.requires_zero_mapping">
+<code class="sig-name descname"><span class="pre">requires_zero_mapping</span></code><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.requires_zero_mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.reset_weights">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">reset_weights</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.reset_weights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset the weights of the model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.reverse_label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reverse_label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reversed order of current labels, useful for when needed to
+extract Labels via indices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.save_to_disk">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">save_to_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves whole model to disk with weights
+:param dirpath: directory path where you want to save the model to
+:type dirpath: str
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.set_label_mapping">
+<code class="sig-name descname"><span class="pre">set_label_mapping</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.set_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the labels for the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>label_mapping</strong> (<em>dict</em>) – label mapping of the model</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.labelers.base_model.BaseTrainableModel.set_params">
+<code class="sig-name descname"><span class="pre">set_params</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.base_model.BaseTrainableModel.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given kwargs, set the parameters if they exist.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="dataprofiler.labelers.character_level_cnn_model.html" class="btn btn-neutral float-right" title="dataprofiler.labelers.character_level_cnn_model module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dataprofiler.labelers.base_data_labeler.html" class="btn btn-neutral float-left" title="dataprofiler.labelers.base_data_labeler module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, and Grant Eden.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+dataprofiler package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   dataprofiler.data_readers
+   dataprofiler.labelers
+   dataprofiler.profilers
+   dataprofiler.validators
+
+Module contents
+---------------
+
+.. automodule:: dataprofiler
+   :members:
+   :undoc-members:
+   :show-inheritance:

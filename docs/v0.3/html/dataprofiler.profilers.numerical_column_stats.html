@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>dataprofiler.profilers.numerical_column_stats module &mdash; Data Profiler 21.01.20 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="dataprofiler.profilers.order_column_profile module" href="dataprofiler.profilers.order_column_profile.html" />
+    <link rel="prev" title="dataprofiler.profilers.int_column_profile module" href="dataprofiler.profilers.int_column_profile.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Data Profiler
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="dataprofiler.profilers.html">dataprofiler.profilers package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dataprofiler.profilers.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="dataprofiler.profilers.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">dataprofiler.profilers.base_column_profilers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">dataprofiler.profilers.categorical_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">dataprofiler.profilers.column_profile_compilers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">dataprofiler.profilers.data_labeler_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">dataprofiler.profilers.datetime_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">dataprofiler.profilers.float_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">dataprofiler.profilers.histogram_utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">dataprofiler.profilers.int_column_profile module</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">dataprofiler.profilers.numerical_column_stats module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">dataprofiler.profilers.order_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">dataprofiler.profilers.profile_builder module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">dataprofiler.profilers.profiler_options module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">dataprofiler.profilers.text_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_data_labeler_column_profile.html">dataprofiler.profilers.unstructured_data_labeler_column_profile module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">dataprofiler.profilers.utils module</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dataprofiler.profilers.html#module-dataprofiler.profilers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.labelers.html">dataprofiler.labelers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.data_readers.html">dataprofiler.data_readers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.validators.html">dataprofiler.validators package</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Data Profiler</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="dataprofiler.profilers.html">dataprofiler.profilers package</a> &raquo;</li>
+        
+      <li>dataprofiler.profilers.numerical_column_stats module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/dataprofiler.profilers.numerical_column_stats.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dataprofiler.profilers.numerical_column_stats">
+<span id="dataprofiler-profilers-numerical-column-stats-module"></span><h1>dataprofiler.profilers.numerical_column_stats module<a class="headerlink" href="#module-dataprofiler.profilers.numerical_column_stats" title="Permalink to this headline">¶</a></h1>
+<p>coding=utf-8
+Build model for a dataset by identifying type of column along with its
+respective parameters.</p>
+<dl class="py class">
+<dt id="dataprofiler.profilers.numerical_column_stats.abstractstaticmethod">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.numerical_column_stats.</span></code><code class="sig-name descname"><span class="pre">abstractstaticmethod</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.abstractstaticmethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">staticmethod</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.numerical_column_stats.</span></code><code class="sig-name descname"><span class="pre">NumericStatsMixin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract numerical column profile subclass of BaseColumnProfiler. Represents
+a column in the dataset which is a text column. Has Subclasses itself.</p>
+<p>Initialization of column base properties and itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<a class="reference internal" href="dataprofiler.profilers.profiler_options.html#dataprofiler.profilers.profiler_options.NumericalOptions" title="dataprofiler.profilers.profiler_options.NumericalOptions"><em>NumericalOptions</em></a>) – Options for the numerical stats.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.col_type">
+<code class="sig-name descname"><span class="pre">col_type</span></code><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.col_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.mean">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mean</span></code><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.mean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.stddev">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">stddev</span></code><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.stddev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.update">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Method for updating the numerical profile properties with an
+uncleaned dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df_series</strong> (<em>pandas.core.series.Series</em>) – df series with nulls removed</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_float">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">is_float</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_float" title="Permalink to this definition">¶</a></dt>
+<dd><p>For “0.80” this function returns True
+For “1.00” this function returns True
+For “1” this function returns True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>str</em>) – string to test</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>if is float or not</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_int">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">is_int</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>For “0.80” This function returns False
+For “1.00” This function returns True
+For “1” this function returns True</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>str</em>) – string to test</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>if is integer or not</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="dataprofiler.profilers.order_column_profile.html" class="btn btn-neutral float-right" title="dataprofiler.profilers.order_column_profile module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="dataprofiler.profilers.int_column_profile.html" class="btn btn-neutral float-left" title="dataprofiler.profilers.int_column_profile module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, and Grant Eden.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

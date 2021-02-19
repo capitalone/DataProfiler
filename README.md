@@ -21,7 +21,7 @@ print(json.dumps(human_readable_report, indent=4))
 
 Install from pypi: `pip3 install DataProfiler`
 
-For API documentation, visit the [documentation page](https://capitalone.github.io/dataprofiler/).
+For API documentation, visit the [documentation page](https://capitalone.github.io/DataProfiler/).
 
 If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/dataprofiler/issues/new/choose).
 

@@ -342,7 +342,7 @@ class Profiler(object):
         self._profile = dict()
 
         if isinstance(data, data_readers.text_data.TextData):
-            raise TypeError("Cannot provide text data to Profiler")
+            raise TypeError("Cannot provide TextData object to Profiler")
 
         self.update_profile(data)
 

@@ -252,8 +252,8 @@ class TestProfiler(unittest.TestCase):
         text_file_path = os.path.join(
             test_root_path, 'data', 'txt/sentence-10x.txt'
         )
-        with self.assertRaisesRegex(TypeError, 'Cannot provide text data to '
-                                               'Profiler'):
+        with self.assertRaisesRegex(TypeError, 'Cannot provide TextData object'
+                                               ' to Profiler'):
             profile = dp.Profiler(dp.Data(text_file_path))
 
 

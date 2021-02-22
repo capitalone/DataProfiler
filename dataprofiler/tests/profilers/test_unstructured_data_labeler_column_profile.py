@@ -18,7 +18,6 @@ class TestUnstructuredDataLabelerProfile(unittest.TestCase):
 
         # running update
         default.update(sample)
-        print(default.profile["entity_counts"]["true_char_level"])
         # now getting entity_counts to check for existence
         self.assertIsNotNone(default.profile["entity_counts"]
                              ["true_char_level"])

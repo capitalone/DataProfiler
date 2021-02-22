@@ -23,21 +23,22 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
                  (4, 5, 'INTEGER_BIG'),
                  (6, 8, 'INTEGER_BIG')]}]
         ]
+        new_labels = ["BACKGROUND", "ADDRESS", "INTEGER_BIG"]
         data = pd.DataFrame(data * 50)
 
         # constructing default UnstructuredDataLabeler()
         default = dp.DataLabeler(labeler_type='unstructured', trainable=True)
 
         # get char-level predictions on default model
-        model_predictions = default.fit(x=data[0], y=data[1])
+        model_predictions = default.fit(x=data[0], y=data[1], labels=new_labels)
         self.assertEqual(1, len(model_predictions))
         self.assertEqual(3, len(model_predictions[0]))
         self.assertIsInstance(model_predictions[0][0], dict)
         self.assertIsInstance(model_predictions[0][1], float)
         self.assertIsInstance(model_predictions[0][2], dict)
 
-        # no bg, pad, but includes micro,macro, weighted
-        self.assertEqual(21, len(model_predictions[0][2].keys()))
+        # no bg, pad, but includes micro, macro, weighted
+        self.assertEqual(len(default.labels)+1, len(model_predictions[0][2].keys()))
 
         # test default no validation
         model_predictions = default.fit(

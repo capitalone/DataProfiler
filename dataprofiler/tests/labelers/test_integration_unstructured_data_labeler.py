@@ -1,0 +1,258 @@
+import unittest
+
+import numpy as np
+import pandas as pd
+
+import dataprofiler as dp
+
+
+class TestUnstructuredDataLabeler(unittest.TestCase):
+
+    # simple test for new default TF model + predict()
+    def test_fit_with_default_model(self):
+        data = [
+            ['this is my test sentence.',
+             {'entities': [
+                 (5 ,  7, 'ADDRESS'),
+                 (11, 20, 'INTEGER_BIG'),
+                 (20, 22, 'ADDRESS'),
+                 (22, 24, 'INTEGER_BIG')]}],
+            ['How nice.',
+                {'entities': [
+                 (0, 2, 'ADDRESS'),
+                 (4, 5, 'INTEGER_BIG'),
+                 (6, 8, 'INTEGER_BIG')]}]
+        ]
+        new_labels = ["BACKGROUND", "ADDRESS", "INTEGER_BIG"]
+        data = pd.DataFrame(data * 50)
+
+        # constructing default UnstructuredDataLabeler()
+        default = dp.DataLabeler(labeler_type='unstructured', trainable=True)
+
+        # get char-level predictions on default model
+        model_predictions = default.fit(x=data[0], y=data[1], labels=new_labels)
+        self.assertEqual(1, len(model_predictions))
+        self.assertEqual(3, len(model_predictions[0]))
+        self.assertIsInstance(model_predictions[0][0], dict)
+        self.assertIsInstance(model_predictions[0][1], float)
+        self.assertIsInstance(model_predictions[0][2], dict)
+
+        # no bg, pad, but includes micro, macro, weighted
+        self.assertEqual(len(default.labels)+1, len(model_predictions[0][2].keys()))
+
+        # test default no validation
+        model_predictions = default.fit(
+            x=data[0], y=data[1], validation_split=0)
+        self.assertEqual(1, len(model_predictions))
+        self.assertEqual(3, len(model_predictions[0]))
+        self.assertIsInstance(model_predictions[0][0], dict)
+        self.assertIsNone(model_predictions[0][1])  # no f1 since no validation
+        self.assertListEqual(model_predictions[0][2], [])
+
+        # validate epoch id
+        self.assertEqual(2, default.model._epoch_id)
+
+    def test_data_labeler_change_labels(self):
+        data = [
+            ['this is my test sentence.',
+             {'entities': [
+                 (5, 7, 'ADDRESS'),
+                 (11, 20, 'INTEGER_BIG'),
+                 (20, 22, 'ADDRESS'),
+                 (22, 24, 'INTEGER_BIG')]}],
+            ['How nice.',
+             {'entities': [
+                 (0, 2, 'ADDRESS'),
+                 (4, 5, 'INTEGER_BIG'),
+                 (6, 8, 'INTEGER_BIG')]}]
+        ]
+        data = pd.DataFrame(data * 50)
+
+        # constructing default UnstructuredDataLabeler()
+        default = dp.DataLabeler(labeler_type='unstructured', trainable=True)
+
+        # get char-level predictions on default model
+        model_predictions = default.fit(
+            x=data[0], y=data[1],
+            labels=['BACKGROUND', 'INTEGER_BIG', 'ADDRESS'])
+        self.assertEqual(1, len(model_predictions))
+        self.assertEqual(3, len(model_predictions[0]))
+        self.assertIsInstance(model_predictions[0][0], dict)
+        self.assertIsInstance(model_predictions[0][1], float)
+        self.assertIsInstance(model_predictions[0][2], dict)
+
+        # no bg, pad, but includes micro,macro, weighted
+        self.assertEqual(5, len(model_predictions[0][2].keys()))
+
+    def test_default_tf_model(self):
+        """simple test for new default TF model + predict()"""
+        sample = [
+            "Help\tJohn Macklemore\tneeds\tfood.\tPlease\tCall\t555-301-1234.\t"
+            "His\tssn\tis\tnot\t334-97-1234. I'm a BAN: 000043219499392912.\n",
+            "Hi my name is joe, \t SSN: 123456789 r@nd0m numb3rz!\n"]
+
+        # constructing default UnstructuredDataLabeler()
+        default = dp.UnstructuredDataLabeler()
+
+        # get char-level predictions on default model
+        model_predictions = default.predict(sample)
+        final_results = model_predictions["pred"]
+        print(final_results)
+
+        # for now just checking that it's not empty, previous line prints out
+        # results
+        self.assertIsNotNone(final_results)
+
+    def test_default_confidences(self):
+        """tests confidence scores output"""
+        sample = [
+            "Help\tJohn Macklemore\tneeds\tfood.\tPlease\tCall\t555-301-1234.\t"
+            "His\tssn\tis\tnot\t334-97-1234. I'm a BAN: 000043219499392912.\n",
+            "Hi my name is joe, \t SSN: 123456789 r@nd0m numb3rz!\n"]
+
+        # constructing default UnstructuredDataLabeler()
+        default = dp.UnstructuredDataLabeler()
+
+        # get char-level predictions/confidence scores on default model
+        results = default.predict(sample,
+                                  predict_options=dict(show_confidences=True))
+        model_predictions_char_level, model_confidences_char_level = \
+            results["pred"], results["conf"]
+
+        # for now just checking that it's not empty
+        self.assertIsNotNone(model_confidences_char_level)
+
+    def test_default_edge_cases(self):
+        """more complicated test for edge cases for the default model"""
+        sample = [
+            "1234567890", "!@#$%&^*$)*#%)#*%-=+~.,/?{}[]|`", "\n \n \n \t \t"]
+
+        # constructing default UnstructuredDataLabeler()
+        default = dp.UnstructuredDataLabeler()
+
+        # get char-level predictions on default model
+        model_predictions = default.predict(sample)
+        final_results = model_predictions["pred"]
+
+        # for now just checking that it's not empty
+        self.assertIsNotNone(final_results)
+
+    def test_default_special_cases(self):
+        """
+        tests for empty string (returns none) and mixed samples cases
+        (throws error) w/ default labeler
+        """
+        # first test multiple empty strings in sample:
+        sample1 = ["", "", ""]
+
+        # constructing default UnstructuredDataLabeler()
+        default = dp.UnstructuredDataLabeler()
+
+        # get char-level predictions on default model
+        output_results = default.predict(
+            sample1, predict_options=dict(show_confidences=True))
+
+        # test that we get empty list for predictions/confidences:
+        expected_result = {
+            'pred': [np.array([]), np.array([]), np.array([])],
+            'conf': [np.array([]), np.array([]), np.array([])],
+        }
+        for expected, output in zip(expected_result['pred'],
+                                    output_results['pred']):
+            self.assertTrue((expected == output).all())
+        for expected, output in zip(expected_result['conf'],
+                                    output_results['conf']):
+            self.assertTrue((expected == output).all())
+
+        # Now we test mixed samples case:
+        sample2 = ["", "abc", "\t", ""]
+
+        expected_output = {'pred': [
+            np.array([]),
+            np.array([1.0, 1.0, 1.0]),
+            np.array([1.0]),
+            np.array([])]
+        }
+        output_result = default.predict(sample2)
+        for expected, output in zip(expected_output['pred'],
+                                    output_result['pred']):
+            self.assertTrue((expected == output).all())
+
+    def test_set_pipeline_params(self):
+
+        def does_dict_contains_subset(subset_dict, full_dict):
+            return dict(full_dict, **subset_dict) == full_dict
+
+        data_labeler = dp.UnstructuredDataLabeler()
+
+        # validate preset values are not to be set values
+        self.assertNotEqual(
+            'a', data_labeler.preprocessor._parameters['default_label'])
+        self.assertNotEqual(
+            'b', data_labeler.model._parameters['default_label'])
+        self.assertNotEqual(
+            'c', data_labeler.postprocessor._parameters['pad_label'])
+
+        # set parameters of pipeline components
+        data_labeler.set_params({
+            'preprocessor': {
+                'default_label': 'a'
+            },
+            'model': {
+                'default_label': 'b'
+            },
+            'postprocessor': {
+                'pad_label': 'c'
+            }
+        })
+
+        # preprocessor
+        self.assertTrue(does_dict_contains_subset(
+            {'default_label': 'a'}, data_labeler.preprocessor._parameters))
+
+        # model
+        self.assertTrue(does_dict_contains_subset(
+            {'default_label': 'b'}, data_labeler.model._parameters))
+
+        # postprocessor
+        self.assertTrue(does_dict_contains_subset(
+            {'pad_label': 'c'}, data_labeler.postprocessor._parameters))
+
+    def test_check_pipeline_overlap_mismatch(self):
+
+        data_labeler = dp.UnstructuredDataLabeler()
+
+        # check preprocessor model mismatch
+        data_labeler.set_params({
+            'preprocessor': {
+                'default_label': 'a'
+            },
+            'model': {
+                'default_label': 'b'
+            }
+        })
+        with self.assertRaisesRegex(RuntimeError,
+                                    'Model and preprocessor value for '
+                                    '`default_label` do not match. b != a'):
+            data_labeler.check_pipeline(skip_postprocessor=True,
+                                        error_on_mismatch=True)
+
+        # make preprocess and model the same, but different from postprocessor
+        data_labeler.set_params({
+            'model': {
+                'default_label': 'a'
+            },
+            'postprocessor': {
+                'default_label': 'b'
+            },
+        })
+        with self.assertRaisesRegex(RuntimeError,
+                                    'Model and postprocessor value for '
+                                    '`default_label` do not match. '
+                                    'a != b'):
+            data_labeler.check_pipeline(skip_postprocessor=False,
+                                        error_on_mismatch=True)
+
+
+if __name__ == '__main__':
+    unittest.main()

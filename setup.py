@@ -10,7 +10,9 @@ from datetime import datetime
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
-from dataprofiler._version import __version__
+
+# Load package version
+from dataprofiler.version import __version__
 
 here = path.abspath(path.dirname(__file__))
 

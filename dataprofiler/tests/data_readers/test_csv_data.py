@@ -31,58 +31,58 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/iris-utf-16.csv'),
                  count=150, delimiter=',', has_header=0,
                  num_columns=6, encoding='utf-16'),
-            dict(path=os.path.join(test_dir, 'csv/iris_intentionally_mislabled_file.parquet'), 
+            dict(path=os.path.join(test_dir, 'csv/iris_intentionally_mislabled_file.parquet'),
                  count=150, delimiter=',', has_header=0,
                  num_columns=6, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/iris_intentionally_mislabled_file.txt'), 
+            dict(path=os.path.join(test_dir, 'csv/iris_intentionally_mislabled_file.txt'),
                  count=150, delimiter=',', has_header=0,
                  num_columns=6, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/iris_intentionally_mislabled_file.json'), 
+            dict(path=os.path.join(test_dir, 'csv/iris_intentionally_mislabled_file.json'),
                  count=150, delimiter=',', has_header=0,
                  num_columns=6, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/guns.csv'),
                  count=1316, delimiter=',', has_header=0,
                  num_columns=10, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/wisconsin_cancer_train.csv'), 
+            dict(path=os.path.join(test_dir, 'csv/wisconsin_cancer_train.csv'),
                  count=25, delimiter=',', has_header=0,
                  num_columns=10, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/aws_honeypot_marx_geo.csv'), 
+            dict(path=os.path.join(test_dir, 'csv/aws_honeypot_marx_geo.csv'),
                  count=25, delimiter=',', has_header=0,
                  num_columns=16, encoding='utf-8'),
-            # dict(path=os.path.join(test_dir, 'csv/small-num.csv'),
-            #      count=5, delimiter=None, has_header=0,
-            #      num_columns=1, encoding='utf-8'),
-            # dict(path=os.path.join(test_dir, 'csv/names-col.txt'),
-            #      count=5, delimiter=None, has_header=0,
-            #      num_columns=1, encoding='utf-8'),
-            # dict(path=os.path.join(test_dir, 'csv/names-col-empty.txt'),
-            #      count=5, delimiter=None, has_header=0,
-            #      num_columns=1, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/small-num.csv'),
+                 count=5, delimiter=None, has_header=0,
+                 num_columns=1, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/names-col.txt'),
+                 count=5, delimiter=None, has_header=0,
+                 num_columns=1, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/names-col-empty.txt'),
+                 count=5, delimiter=None, has_header=0,
+                 num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/log_data_long.txt'),
                  count=753, delimiter=',', has_header=None,
                  num_columns=3, encoding='utf-8'),
-            # dict(path=os.path.join(test_dir, 'csv/sparse-last-column.txt'),
-            #      count=5, delimiter=',', has_header=0,
-            #      num_columns=2, encoding='utf-8'),
-            # dict(path=os.path.join(test_dir, 'csv/sparse-first-column.txt'),
-            #      count=5, delimiter=',', has_header=0,
-            #      num_columns=2, encoding='utf-8'),
-            # dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column.txt'),
-            #      count=5, delimiter=',', has_header=0,
-            #      num_columns=3, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-last-column.txt'),
+                 count=5, delimiter=',', has_header=0,
+                 num_columns=2, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-column.txt'),
+                 count=5, delimiter=',', has_header=0,
+                 num_columns=2, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column.txt'),
+                 count=5, delimiter=',', has_header=0,
+                 num_columns=3, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/log_data_sparse.txt'),
                  count=20, delimiter=',', has_header=None,
                  num_columns=3, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/log_data_super_sparse.txt'), 
+            dict(path=os.path.join(test_dir, 'csv/log_data_super_sparse.txt'),
                  count=20, delimiter=',', has_header=None,
                  num_columns=6, encoding='utf-8'),
-            # dict(path=os.path.join(test_dir, 'csv/sparse-columns-test.csv'),
-            #      count=20, delimiter=',', has_header=0,
-            #      num_columns=36, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-columns-test.csv'),
+                 count=20, delimiter=',', has_header=0,
+                 num_columns=36, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/sentence-4x.txt'),
                  count=4, delimiter='.', has_header=None,
                  num_columns=1, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/quote-test.txt'), 
+            dict(path=os.path.join(test_dir, 'csv/quote-test.txt'),
                  count=10, delimiter=' ', has_header=None,
                  num_columns=3, encoding='utf-8'),
         ]
@@ -93,6 +93,7 @@ class TestCSVDataClass(unittest.TestCase):
         Determine if the csv file can be automatically identified
         """
         for input_file in self.input_file_names:
+            print(input_file['path'])
             input_data_obj = Data(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'csv')
             self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
@@ -158,24 +159,19 @@ class TestCSVDataClass(unittest.TestCase):
         """
         Determine if files with no header are properly determined.
         """
-        # test_dir = os.path.join(test_root_path, 'data')
-        #
-        # # File w/o header, set to None
-        # path = os.path.join(test_dir, 'csv/iris_no_header.csv')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertIsNone(options.get("header"))
-        #
-        # # File with header, set to 0 for auto determine
-        # path = os.path.join(test_dir, 'csv/iris.csv')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertEqual(0, options.get("header"))
+        test_dir = os.path.join(test_root_path, 'data')
 
-        for input_file in self.input_file_names:
-            options = dict()
-            CSVData.is_match(input_file['path'], options)
-            self.assertEqual(input_file['has_header'], options.get("header"))
+        # File w/o header, set to None
+        path = os.path.join(test_dir, 'csv/iris_no_header.csv')
+        options = dict()
+        CSVData.is_match(path, options)
+        self.assertIsNone(options.get("header"))
+
+        # File with header, set to 0 for auto determine
+        path = os.path.join(test_dir, 'csv/iris.csv')
+        options = dict()
+        CSVData.is_match(path, options)
+        self.assertEqual(0, options.get("header"))
 
 if __name__ == '__main__':
     unittest.main()

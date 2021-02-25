@@ -375,9 +375,6 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         :return batch_data: A dict containing  samples of size batch_size
         :rtype batch_data: dicts
         """
-        # ensure data is str
-        data = data.astype(str)
-
         # get processor parameters
         flatten_separator = self._parameters['flatten_separator']
         flatten_split = self._parameters['flatten_split']
@@ -411,7 +408,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
         # loop through each sample
         for sample_buffer, label_set in zip(data, labels):
-
+            # ensure data is str
+            sample_buffer = str(sample_buffer)
             # buffer is empty, add sample to the buffer.
             sample_len = len(sample_buffer)
 
@@ -924,9 +922,6 @@ class CharPostprocessor(BaseDataPostprocessor,
         :type flatten_separator: str
         :return: dict(pred=...) or dict(pred=..., conf=...)
         """
-        # ensure input data is str
-        data = data.astype(str)
-
         pred_buffer = []
         conf_buffer = []
         result_ind = 0
@@ -943,7 +938,8 @@ class CharPostprocessor(BaseDataPostprocessor,
             results['conf'] = [np.array([])] * len(data)
 
         # move out of loop bc faster
-        data_lens = list(map(len, data))
+        data_lens = list(map(lambda x: len(str(x)), data))
+
 
         for data_ind in range(len(data)):
 
@@ -1306,9 +1302,6 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :type flatten_separator: str
         :return: dict(pred=...) or dict(pred=..., conf=...)
         """
-        # ensure input data is str
-        data = data.astype(str)
-
         pred_buffer = []
         conf_buffer = []
         result_ind = 0
@@ -1325,7 +1318,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
             results['conf'] = [np.array([])] * len(data)
 
         # move out of loop bc faster
-        data_lens = list(map(len, data))
+        data_lens = list(map(lambda x: len(str(x)), data))
 
         for data_ind in range(len(data)):
 

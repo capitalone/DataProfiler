@@ -6,6 +6,7 @@ from .labelers.data_labelers import train_structured_labeler, DataLabeler, \
                                     UnstructuredDataLabeler
 from .labelers import CharacterLevelCnnModel, RegexModel
 from .validators.base_validators import Validator
+from .version import __version__
 
 try:
     import snappy

@@ -48,8 +48,8 @@ class TestV2StructuredDataLabeler(unittest.TestCase):
         self.assertEqual(1, default.model._epoch_id)
 
         # no bg, pad, but includes micro, macro, weighted
-        # 18 labels + micro, macro, weighted (only 18 bc no bg/pad)
-        self.assertEqual(21, len(model_predictions[0][2].keys()))
+        # default labels + micro, macro, weighted - bg, pad
+        self.assertEqual(len(default.labels)+1, len(model_predictions[0][2].keys()))
 
         # test default no validation
         model_predictions = default.fit(

@@ -93,7 +93,6 @@ class TestCSVDataClass(unittest.TestCase):
         Determine if the csv file can be automatically identified
         """
         for input_file in self.input_file_names:
-            print(input_file['path'])
             input_data_obj = Data(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'csv')
             self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])

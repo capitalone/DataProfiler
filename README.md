@@ -147,7 +147,7 @@ The format for a profile is below:
 * BAN (bank account number, 10-18 digits)
 * CREDIT_CARD
 * EMAIL_ADDRESS
-* UUIC
+* UUID 
 * HASH_OR_KEY (md5, sha1, sha256, random hash, etc.)
 * IPV4
 * IPV6

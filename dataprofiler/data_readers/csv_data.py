@@ -138,12 +138,17 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 self._header = self._determine_has_header(data_as_str)
                 self._checked_header = True
 
-        # if there is only one column, set delimiter to None
+        # if the delimiter is always at the end of each row,
+        # without any subsequent pattern, set delimiter to None
         if self._delimiter:
             with open(input_file_path, encoding=self.file_encoding) as csvfile:
-                num_lines = 5
-                data_as_str = ''.join(islice(csvfile, 1, num_lines))
-                if data_as_str.count(self._delimiter) <= num_lines:
+                num_lines, num_lines_read = 5, 0
+                count_delimiter_last = 0
+                for line in islice(csvfile, 1, num_lines):
+                    if line.strip()[-1] == self._delimiter:
+                        count_delimiter_last += 1
+                    num_lines_read += 1
+                if count_delimiter_last == num_lines_read:
                     self._delimiter = None
 
         return data_utils.read_csv_df(

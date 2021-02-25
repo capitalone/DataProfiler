@@ -131,21 +131,23 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if not self._delimiter or not self._checked_header:
             with open(input_file_path, encoding=self.file_encoding) as csvfile:
                 num_lines = 5
-                data_as_str = ''.join(islice(csvfile, num_lines))
+                check_lines = list(islice(csvfile, num_lines))
+                data_as_str = ''.join(check_lines)
             if not self._delimiter:
                 self._delimiter = self._determine_delimiter_of_str(data_as_str)
             if not self._header:
                 self._header = self._determine_has_header(data_as_str)
                 self._checked_header = True
 
-        # if the delimiter is always at the end of each row,
-        # without any subsequent pattern, set delimiter to None
+        # if there is only one delimiter at the end of each row,
+        # set delimiter to None
         if self._delimiter:
             with open(input_file_path, encoding=self.file_encoding) as csvfile:
                 num_lines, num_lines_read = 5, 0
                 count_delimiter_last = 0
                 for line in islice(csvfile, 1, num_lines):
-                    if line.strip()[-1] == self._delimiter:
+                    if line.strip()[-1] == self._delimiter and \
+                            line.count(self._delimiter) == 1:
                         count_delimiter_last += 1
                     num_lines_read += 1
                 if count_delimiter_last == num_lines_read:

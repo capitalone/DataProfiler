@@ -141,8 +141,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # if there is only one column, set delimiter to None
         if self._delimiter:
             with open(input_file_path, encoding=self.file_encoding) as csvfile:
-                num_lines = 2
-                data_as_str = ''.join(islice(csvfile, num_lines))
+                num_lines = 5
+                data_as_str = ''.join(islice(csvfile, 1, num_lines))
                 if data_as_str.count(self._delimiter) <= num_lines:
                     self._delimiter = None
 

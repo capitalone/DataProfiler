@@ -85,6 +85,9 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/quote-test.txt'),
                  count=10, delimiter=' ', has_header=None,
                  num_columns=3, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/multiple-col-delimiter-last.txt'),
+                 count=6, delimiter=',', has_header=0,
+                 num_columns=4, encoding='utf-8'),
         ]
         cls.output_file_path = None
 

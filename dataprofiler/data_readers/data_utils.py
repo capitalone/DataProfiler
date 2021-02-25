@@ -198,7 +198,7 @@ def read_csv_df(file_path, delimiter, header, selected_columns=[],
     :rtype: pd.DataFrame
     """
     args = {
-        'sep': delimiter,
+        'delimiter': delimiter,
         'header': header,
         'iterator': True,
         'dtype': 'object',

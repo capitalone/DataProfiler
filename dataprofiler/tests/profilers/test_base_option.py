@@ -11,7 +11,7 @@ from dataprofiler.profilers.profiler_options import BaseOption
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
             'DataLabelerColumn.update', return_value=None)
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
-class TestBaseOptions(unittest.TestCase):
+class TestBaseOption(unittest.TestCase):
 	
 	@classmethod
 	def setUpClass(cls):

@@ -34,7 +34,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def __add__(self, other):
         """
         Merges the properties of two IntColumn profiles
-        
+
         :param self: first profile
         :param other: second profile
         :type self: IntColumn
@@ -45,8 +45,14 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             raise TypeError("Unsupported operand type(s) for +: "
                             "'IntColumn' and '{}'".format(other.__class__.__name__))
 
+        if self.__calculations != other.__calculations or \
+            self._NumericStatsMixin__calculations != \
+            other._NumericStatsMixin__calculations:
+            raise AttributeError("Cannot merge Int Column. The Int options are "
+                                 "not the same for both column profiles.")
+
         merged_profile = IntColumn(None)
-        BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile,self,other)
+        BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
         NumericStatsMixin._add_helper(merged_profile, self, other)
         return merged_profile
 

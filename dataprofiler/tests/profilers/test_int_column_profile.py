@@ -460,3 +460,27 @@ class TestIntColumn(unittest.TestCase):
                                     'Profiles have no overlapping bin methods '
                                     'and therefore cannot be added together.'):
             profiler1 + profiler2
+            
+    def test_profile_merge_with_different_options(self):
+        # Creating first profiler with default options
+        data = [2, 4, 6, 8]
+        df = pd.Series(data).apply(str)
+        profiler1 = IntColumn("Int")
+        profiler1.update(df)
+        profiler1.match_count = 0
+
+        # Creating second profiler with separate options
+        options = IntOptions()
+        options.max.is_enabled = False
+        data2 = [10, 15]
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = IntColumn("Int", options=options)
+        profiler2.update(df2)
+        
+        # Asserting error when adding 2 profilers with different options
+        with self.assertRaisesRegex(AttributeError,
+                                    "Cannot merge Int Column. The Int options "
+                                    "are not the same for both column "
+                                    "profiles."):
+            profiler3 = profiler1 + profiler2
+        

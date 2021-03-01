@@ -20,6 +20,7 @@ class TestBooleanOption(TestBaseOption):
 	
 	def sanity(self, *mocks):
 		option = BooleanOption()
+		self.assertTrue("is_enabled" in option.properties)
 	
 	def test_set_helper(self, *mocks):
 		super().test_set_helper(*mocks)

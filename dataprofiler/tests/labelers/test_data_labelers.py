@@ -114,8 +114,8 @@ class TestDataLabeler(unittest.TestCase):
         data = pd.DataFrame(["123 Fake st", "1/1/2021", "blah", "333-44-2341"])
         labels = pd.DataFrame(["ADDRESS", "DATETIME", "BACKGROUND", "SSN"])
         for dt in ["csv", "json", "parquet"]:
-            data_obj = dp.Data(data, data_type=dt)
-            label_obj = dp.Data(labels, data_type=dt)
+            data_obj = dp.Data(data=data, data_type=dt)
+            label_obj = dp.Data(data=labels, data_type=dt)
             labeler = dp.DataLabeler(labeler_type="structured", trainable=True)
             self.assertIsNotNone(labeler.fit(data_obj, label_obj))
             self.assertIsNotNone(labeler.predict(data_obj, label_obj))

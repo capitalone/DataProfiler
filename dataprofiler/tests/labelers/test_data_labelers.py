@@ -110,6 +110,21 @@ class TestDataLabeler(unittest.TestCase):
         data_labeler = dp.DataLabeler(labeler_type='unstructured')
         self.assertIsInstance(data_labeler, BaseDataLabeler)
 
+    def test_structured_data_labeler_fit_predict_take_Data_obj(self):
+        data = pd.DataFrame(["123 Fake st", "1/1/2021", "blah", "333-44-2341"])
+        labels = pd.DataFrame(["ADDRESS", "DATETIME", "BACKGROUND", "SSN"])
+        for dt in ["csv", "json", "parquet"]:
+            data_obj = dp.Data(data, data_type=dt)
+            label_obj = dp.Data(labels, data_type=dt)
+            labeler = dp.DataLabeler(labeler_type="structured", trainable=True)
+            self.assertIsNotNone(labeler.fit(data_obj, label_obj))
+            self.assertIsNotNone(labeler.predict(data_obj, label_obj))
+
+    def test_unstructured_data_labeler_fit_predict_take_Data_obj(self):
+        # Need to find data for this
+        # Data needs to be in string form
+        pass
+
 
 label_encoding = {
   "encoder": {

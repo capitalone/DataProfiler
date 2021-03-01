@@ -25,19 +25,31 @@ class TestBooleanOption(TestBaseOption):
 	def test_set_helper(self, *mocks):
 		super().test_set_helper(*mocks)
 		
+		#Enable and Disable Option
 		option = BooleanOption(is_enabled=False)
 		self.assertEqual(option.properties['is_enabled'], False)		
 		option._set_helper({'is_enabled':True}, '') 
 		self.assertEqual(option.properties['is_enabled'], True)		
 
+		#Treat is_enabled as a BooleanOption
+		expected_error = "type object 'is_enabled' has no attribute 'error'"
+		with self.assertRaisesRegex(AttributeError, expected_error):
+			option._set_helper({'is_enabled.error': True}, '')	
+		
 	def test_set(self, *mocks):
 		super().test_set(*mocks)
-		
+
+		#Enable and Disable Options		
 		option = BooleanOption(is_enabled=False)
 		self.assertEqual(option.properties['is_enabled'], False)		
 		option.set({'is_enabled':True}) 
 		self.assertEqual(option.properties['is_enabled'], True)		
 	
+		#Treat is_enabled as a BooleanOption
+		expected_error = "type object 'is_enabled' has no attribute 'error'"
+		with self.assertRaisesRegex(AttributeError, expected_error):
+			option.set({'is_enabled.error': True})	
+
 	def test_validate_helper(self, *mocks):
 		option = BooleanOption(is_enabled=True)
 		self.assertEqual(option._validate_helper(), [])

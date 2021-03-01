@@ -248,6 +248,14 @@ class TestProfiler(unittest.TestCase):
                                     ' names.'):
             profile = dp.Profiler(invalid_data)
 
+    def test_text_data_raises_error(self):
+        text_file_path = os.path.join(
+            test_root_path, 'data', 'txt/sentence-10x.txt'
+        )
+        with self.assertRaisesRegex(TypeError, 'Cannot provide TextData object'
+                                               ' to Profiler'):
+            profile = dp.Profiler(dp.Data(text_file_path))
+
 
 class TestStructuredDataProfileClass(unittest.TestCase):
 
@@ -432,6 +440,7 @@ class TestProfilerNullValues(unittest.TestCase):
         }
         test_dataset = pd.DataFrame(data=test_dict)
         cls.trained_schema = dp.Profiler(test_dataset, len(test_dataset))
+
     def test_correct_rows_ingested(self):
         self.assertEqual(['', 'nan', 'None', 'null'],
                          self.trained_schema.profile['1'].null_types)

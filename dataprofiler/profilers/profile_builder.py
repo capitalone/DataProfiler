@@ -340,7 +340,10 @@ class Profiler(object):
         self._samples_per_update = samples_per_update
         self._min_true_samples = min_true_samples
         self._profile = dict()
-            
+
+        if isinstance(data, data_readers.text_data.TextData):
+            raise TypeError("Cannot provide TextData object to Profiler")
+
         self.update_profile(data)
 
     def __add__(self, other):

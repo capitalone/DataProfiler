@@ -117,8 +117,8 @@ class TestDataLabeler(unittest.TestCase):
             data_obj = dp.Data(data=data, data_type=dt)
             label_obj = dp.Data(data=labels, data_type=dt)
             labeler = dp.DataLabeler(labeler_type="structured", trainable=True)
-            self.assertIsNotNone(labeler.fit(data_obj, label_obj))
-            self.assertIsNotNone(labeler.predict(data_obj, label_obj))
+            self.assertIsNotNone(labeler.fit(x=data_obj, y=label_obj))
+            self.assertIsNotNone(labeler.predict(data=data_obj))
 
     def test_unstructured_data_labeler_fit_predict_take_Data_obj(self):
         # Need to find data for this

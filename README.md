@@ -641,13 +641,15 @@ Mechanism for training your own data labeler on their own set of structured data
 ```python
 import dataprofiler as dp
 
-# Will need a default label of BACKGROUND
+# Will need one column with a default label of BACKGROUND
 data = dp.Data("your_file.csv")
+
 data_labeler = dp.train_structured_labeler(
     data=data,
     save_dirpath="/path/to/save/labeler",
     epochs=2
 )
+
 data_labeler.save_to_disk("my/save/path") # Saves the data labeler for reuse
 ```
 

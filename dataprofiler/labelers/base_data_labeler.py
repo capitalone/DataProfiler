@@ -152,12 +152,11 @@ class BaseDataLabeler(object):
         """
         if fit_or_predict not in ['fit', 'predict']:
             raise ValueError('`fit_or_predict` must equal `fit` or `predict`')
+
         if isinstance(data, data_readers.base_data.BaseData):
-            if fit_or_predict == 'fit':
-                data = data.data
-            else:
-                data = np.reshape(data.data.values, -1)
-        elif isinstance(data, np.ndarray) or isinstance(data, list):
+            data = data.data
+
+        if isinstance(data, np.ndarray) or isinstance(data, list):
             if fit_or_predict == 'fit':
                 data = pd.DataFrame(data, columns=None)
             elif isinstance(data, list):
@@ -170,6 +169,7 @@ class BaseDataLabeler(object):
                 "Data must either be imported using the data_readers or "
                 "pd.DataFrame."
             )
+
         return data
 
     @staticmethod

@@ -21,6 +21,7 @@ print(json.dumps(human_readable_report, indent=4))
 
 Install from pypi: `pip3 install DataProfiler`
 
+
 For API documentation, visit the [documentation page](https://capitalone.github.io/DataProfiler/).
 
 If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/dataprofiler/issues/new/choose).
@@ -640,13 +641,14 @@ Mechanism for training your own data labeler on their own set of structured data
 ```python
 import dataprofiler as dp
 
+# Will need a default label of BACKGROUND
 data = dp.Data("your_file.csv")
 data_labeler = dp.train_structured_labeler(
     data=data,
     save_dirpath="/path/to/save/labeler",
     epochs=2
 )
-data_labeler.save("my/save/path") # Saves the data labeler for reuse
+data_labeler.save_to_disk("my/save/path") # Saves the data labeler for reuse
 ```
 
 ## Load an Existing Data Labeler

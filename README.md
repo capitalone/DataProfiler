@@ -6,7 +6,7 @@ The best part? It only takes a few lines of code:
 
 ```python
 import json
-from data_profiler import Data, Profiler
+from dataprofiler import Data, Profiler
 
 data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, Text
 
@@ -21,9 +21,10 @@ print(json.dumps(human_readable_report, indent=4))
 
 Install from pypi: `pip3 install DataProfiler`
 
-For API documentation, visit the [documentation page](https://capitalone.github.io/data-profiler/).
 
-If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/data-profiler/issues/new/choose).
+For API documentation, visit the [documentation page](https://capitalone.github.io/DataProfiler/).
+
+If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/dataprofiler/issues/new/choose).
 
 # Table of Contents
 
@@ -53,6 +54,7 @@ If you have suggestions or find a bug, [please open an issue](https://github.com
     * [Extending a Data Labeler with Transfer Learning](#extending-a-data-labeler-with-transfer-learning)
 * [Build Your Own Data Labeler](#build-your-own-data-labeler)
 * [Updating Documentation](#updating-documentation)
+* [References](#references)
 * [Contributors](#contributors)
 
 ------------------
@@ -146,7 +148,7 @@ The format for a profile is below:
 * BAN (bank account number, 10-18 digits)
 * CREDIT_CARD
 * EMAIL_ADDRESS
-* UUIC
+* UUID 
 * HASH_OR_KEY (md5, sha1, sha256, random hash, etc.)
 * IPV4
 * IPV6
@@ -200,12 +202,12 @@ pip3 install -r requirements.txt
 Install via the repo -- Build setup.py and install locally:
 ```
 python3 setup.py sdist bdist bdist_wheel
-pip3 install dist/data_profiler*-py3-none-any.whl
+pip3 install dist/DataProfiler*-py3-none-any.whl
 ```
 
 If you see:
 ```
- ERROR: Double requirement given:data-profiler==X.Y.Z from data-profiler/dist/data_profiler-X.Y.Z-py3-none-any.whl (already in data-profiler==X2.Y2.Z2 from data-profiler/dist/data_profiler-X2.Y2.Z2-py3-none-any.whl, name='data-profiler')
+ ERROR: Double requirement given:dataprofiler==X.Y.Z from dataprofiler/dist/DataProfiler-X.Y.Z-py3-none-any.whl (already in dataprofiler==X2.Y2.Z2 from dataprofiler/dist/DataProfiler-X2.Y2.Z2-py3-none-any.whl, name='dataprofiler')
  ```
 This means that you have an multiple versions of the DataProfiler distribution 
 in the dist folder.
@@ -214,7 +216,7 @@ To resolve, either remove the older one or delete the folder and rerun the steps
 
 Install via github:
 ```
-pip3 install git+https://github.com/capitalone/data-profiler.git#egg=data_profiler
+pip3 install git+https://github.com/capitalone/dataprofiler.git#egg=dataprofiler
 ```
 
 
@@ -236,9 +238,14 @@ To run file of unit tests, use form:
 python3 -m unittest discover -p test_profile_builder.py
 ```
 
+To run a file with Pytest use:
+```
+pytest DataProfiler/tests/data_readers/test_csv_data.py -v
+```
+
 To run individual of unit test, use form:
 ```
-python3 -m unittest data_profiler.tests.profilers.test_profile_builder.TestProfiler
+python3 -m unittest dataprofiler.tests.profilers.test_profile_builder.TestProfiler
 ```
 
 # Get Started
@@ -283,7 +290,7 @@ Example uses a CSV file for example, but CSV, JSON, Avro or Parquet should also 
 
 ```python
 import json
-from data_profiler import Data, Profiler
+from dataprofiler import Data, Profiler
 
 # Load file (CSV should be automatically identified)
 data = Data("your_file.csv") 
@@ -304,7 +311,7 @@ Currently, the data profiler is equipped to update its profile in batches.
 
 ```python
 import json
-from data_profiler import Data, Profiler
+from dataprofiler import Data, Profiler
 
 # Load and profile a CSV file
 data = Data("your_file.csv")
@@ -327,7 +334,7 @@ This also enables profiles to be determined in a distributed manner.
 
 ```python
 import json
-from data_profiler import Data, Profiler
+from dataprofiler import Data, Profiler
 
 # Load a CSV file with a schema
 data1 = Data("file_a.csv")
@@ -347,7 +354,7 @@ print(json.dumps(report, indent=4))
 ### Profile a Pandas DataFrame
 ```python
 import pandas as pd
-import data_profiler as dp
+import dataprofiler as dp
 import json
 
 
@@ -370,8 +377,8 @@ In addition, it utilizes only the first 10,000 rows.
 ```python
 import json
 import os
-from data_profiler import Data, Profiler
-from data_profiler.data_readers.csv_data import CSVData
+from dataprofiler import Data, Profiler
+from dataprofiler.data_readers.csv_data import CSVData
 
 # Load a CSV file, with "," as the delimiter
 data = CSVData("your_file.csv", options={"delimiter": ","})
@@ -401,7 +408,7 @@ toggled on.
 
 ```python
 import json
-from data_profiler import Data, Profiler, ProfilerOptions
+from dataprofiler import Data, Profiler, ProfilerOptions
 
 # Load and profile a CSV file
 data = Data("your_file.csv")
@@ -484,7 +491,7 @@ report  = profile.report(report_options={"output_format": "flat"})
 The `Data` class itself will identify then output one of the following `Data` class types. It's also possible to specifically call one of these data classes such as the following command:
 
 ```python
-from data_profiler.data_readers.csv_data import CSVData
+from dataprofiler.data_readers.csv_data import CSVData
 data = CSVData("your_file.csv", options={"delimiter": ","})
 ```
 
@@ -573,7 +580,7 @@ as well.
 Makes predictions and identifying labels:
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 # load data and data labeler
 data = dp.Data("your_data.csv")
@@ -588,7 +595,7 @@ predictions = data_labeler.predict(data)
 Predict which class characters belong to in unstructured text:
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 data_labeler = dp.DataLabeler(labeler_type='unstructured')
 
@@ -608,7 +615,7 @@ final_confidences = model_predictions["conf"]
 It's also possible to change output formats, output similar to a **SpaCy** format:
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 data_labeler = dp.DataLabeler(labeler_type='unstructured', trainable=True)
 
@@ -632,15 +639,18 @@ Mechanism for training your own data labeler on their own set of structured data
  (tabular):
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
+# Will need one column with a default label of BACKGROUND
 data = dp.Data("your_file.csv")
+
 data_labeler = dp.train_structured_labeler(
     data=data,
     save_dirpath="/path/to/save/labeler",
     epochs=2
 )
-data_labeler.save("my/save/path") # Saves the data labeler for reuse
+
+data_labeler.save_to_disk("my/save/path") # Saves the data labeler for reuse
 ```
 
 ## Load an Existing Data Labeler
@@ -648,7 +658,7 @@ data_labeler.save("my/save/path") # Saves the data labeler for reuse
 Mechanism for loading an existing data_labeler:
 
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 data_labeler = dp.DataLabeler(
     labeler_type='structured', dirpath="/path/to/my/labeler")
@@ -664,7 +674,7 @@ Note: By default, **a labeler loaded will not be trainable**. In order to load a
 trainable DataLabeler, the user must set `trainable=True` or load a labeler 
 using the `TrainableDataLabeler` class.
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 labels = ['label1', 'label2', ...]  # new label set can also be an encoding dict
 data = dp.Data("your_file.csv")  # contains data with new labels
@@ -690,7 +700,7 @@ final_confidences = model_results["conf"]
 
 Changing pipeline parameters:
 ```python
-import data_profiler as dp
+import dataprofiler as dp
 
 # load default Data Labeler
 data_labeler = dp.DataLabeler(labeler_type='structured')
@@ -716,10 +726,10 @@ existing component can be reused.
 Given a set of the 3 components, you can construct your own DataLabeler:
 
 ```python
-from data_profiler.labelers.base_data_labeler import BaseDataLabeler, \
+from dataprofiler.labelers.base_data_labeler import BaseDataLabeler, \
                                                      TrainableDataLabeler
-from data_profiler.labelers.character_level_cnn_model import CharacterLevelCnnModel
-from data_profiler.labelers.data_processing import \
+from dataprofiler.labelers.character_level_cnn_model import CharacterLevelCnnModel
+from dataprofiler.labelers.data_processing import \
     StructCharPreprocessor, StructCharPostprocessor
 
 # load a non-trainable data labeler
@@ -744,10 +754,10 @@ data_labeler.check_pipeline()
 
 Option for swapping out specific components of an existing labeler.
 ```python
-import data_profiler as dp
-from data_profiler.labelers.character_level_cnn_model import \
+import dataprofiler as dp
+from dataprofiler.labelers.character_level_cnn_model import \
     CharacterLevelCnnModel
-from data_profiler.labelers.data_processing import \
+from dataprofiler.labelers.data_processing import \
     StructCharPreprocessor, StructCharPostprocessor
 
 model = CharacterLevelCnnModel(...)
@@ -766,11 +776,11 @@ data_labeler.check_pipeline()
 
 ### Model Component
 In order to create your own model component for data labeling, you can utilize 
-the `BaseModel` class from `data_profiler.labelers.base_model` and
+the `BaseModel` class from `dataprofiler.labelers.base_model` and
 overriding the abstract class methods.
 
 Reviewing `CharacterLevelCnnModel` from 
-`data_profiler.labelers.character_level_cnn_model` illustrates the functions 
+`dataprofiler.labelers.character_level_cnn_model` illustrates the functions 
 which need an override. 
   1. `__init__`: specifying default parameters and calling base `__init__`
   1. `_validate_parameters`: validating parameters given by user during setting
@@ -789,11 +799,11 @@ which need an override.
 ### Preprocessor Component
 In order to create your own preprocessor component for data labeling, you can 
 utilize the `BaseDataPreprocessor` class 
-from `data_profiler.labelers.data_processing` and override the abstract class 
+from `dataprofiler.labelers.data_processing` and override the abstract class 
 methods.
 
 Reviewing `StructCharPreprocessor` from 
-`data_profiler.labelers.data_processing` illustrates the functions which 
+`dataprofiler.labelers.data_processing` illustrates the functions which 
 need an override.
   1. `__init__`: passing parameters to the base class and executing any 
   extraneous calculations to be saved as parameters
@@ -813,11 +823,11 @@ need an override.
 The postprocessor is nearly identical to the preprocessor except it handles 
 the output of the model for processing. In order to create your own 
 postprocessor component for data  labeling, you can utilize the 
-`BaseDataPostprocessor` class from  `data_profiler.labelers.data_processing` 
+`BaseDataPostprocessor` class from  `dataprofiler.labelers.data_processing` 
 and override the abstract class methods.
 
 Reviewing `StructCharPostprocessor` from 
-`data_profiler.labelers.data_processing` illustrates the functions which 
+`dataprofiler.labelers.data_processing` illustrates the functions which 
 need an override.
   1. `__init__`: passing parameters to the base class and executing any 
   extraneous calculations to be saved as parameters
@@ -836,7 +846,7 @@ need an override.
 
 # Updating Documentation  
 To update the docs branch, checkout the gh-pages branch. Make sure it is up to
-date, then copy the data_profile folder from the feature branch you want to 
+date, then copy the dataprofiler folder from the feature branch you want to 
 update the documentation with (probably master).
 
 In /docs run:
@@ -860,7 +870,13 @@ and run:
 python update_documentation.py [version]
 ```
 
-
+# References
+```
+Sensitive Data Detection with High-Throughput Neural Network Models for Financial Institutions
+Authors: Anh Truong, Austin Walters, Jeremy Goodsitt
+2020 https://arxiv.org/abs/2012.09597
+The AAAI-21 Workshop on Knowledge Discovery from Unstructured Data in Financial Services
+```
 # Contributors
 
 <table>

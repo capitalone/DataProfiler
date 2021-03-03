@@ -55,7 +55,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 if options and options.properties[col_profile_type.col_type]:
                     col_profile_options = options.properties[col_profile_type.col_type]
 
-                warning_flag = False
                 try:
                     self._profiles[col_profile_type.col_type] = \
                         col_profile_type(df_series.name, options=col_profile_options)

@@ -329,6 +329,20 @@ class Profiler(object):
         elif not isinstance(profiler_options, ProfilerOptions):
             raise ValueError("The profile options must be passed as a "
                              "ProfileOptions object.")
+
+        try:
+            import tensorflow
+            import tensorflow_addons
+        except Exception:
+            import warnings
+            warnings.warn(
+                '\n\nTensorFlow and/or TensorFlow Addons are not installed.\n\n'
+                'Unfortunately, this means the library cannot label the data\n\n'
+                'To label the data, install tensorflow & tensorflow-addons\n\n'
+                '    $ pip install tensorflow tesnorflow-addons --user\n\n'
+                , Warning)
+            profiler_options.structured_options.data_labeler.is_enabled = False
+        
         profiler_options.validate()
         self.options = profiler_options
             

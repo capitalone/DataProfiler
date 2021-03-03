@@ -695,7 +695,7 @@ data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
 #       data to be ingested with two columns [X, y] where X is the samples and 
 #       y is the labels.
 model_results = data_labeler.fit(x=data['samples'], y=data['labels'], 
-    validation_split=0.2, epochs=1, labels=labels)
+    validation_split=0.2, epochs=2, labels=labels)
 
 # final_results, final_confidences are a list of results for each epoch
 epoch_id = 0

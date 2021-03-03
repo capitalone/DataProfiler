@@ -6,14 +6,13 @@ import time
 import logging
 from collections import defaultdict
 
+import tensorflow as tf
 import numpy as np
 from sklearn import decomposition
 
 from . import labeler_utils
 from .base_model import BaseModel, BaseTrainableModel
 from .base_model import AutoSubRegistrationMeta
-
-import tensorflow as tf
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 

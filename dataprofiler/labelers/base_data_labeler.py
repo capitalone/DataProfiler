@@ -477,7 +477,7 @@ class BaseDataLabeler(object):
         :param dirpath: directory where the saved DataLabeler model exists.
         :type dirpath: str
         :return: None
-        """        
+        """
         if isinstance(model_class, str):
             model_class = BaseModel.get_class(model_class)
         if not model_class:

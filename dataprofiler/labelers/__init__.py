@@ -33,8 +33,8 @@ from .base_data_labeler import BaseDataLabeler
 
 # import data processors
 from .data_processing import CharPreprocessor, CharPostprocessor, \
-    StructCharPreprocessor, StructCharPostprocessor, \
-    DirectPassPreprocessor, RegexPostProcessor
+                             StructCharPreprocessor, StructCharPostprocessor, \
+                             DirectPassPreprocessor, RegexPostProcessor
 
 # import data labelers
 from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler

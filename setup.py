@@ -11,15 +11,10 @@ from datetime import datetime
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 
+# Load package version
+from dataprofiler.version import __version__
+
 here = path.abspath(path.dirname(__file__))
-
-MAJOR               = 0
-MINOR               = 3
-MICRO               = 0
-ISRELEASED          = True
-
-VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
-
 
 # Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
@@ -28,23 +23,6 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 # Get the install_requirements from requirements.txt
 with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     required_packages = f.read().splitlines()
-
-nightly_schema = "%y%m%d"
-try:
-    # Obtain version number, based on git commit
-    os.system('git log -1 --format=%cd > tmp')
-    last_commit = open('tmp', 'r').read()
-    os.remove('tmp')
-    last_commit = ' '.join(last_commit.split(' ')[:-1])
-    NIGHTLY = datetime.strptime(last_commit, '%a %b %d %H:%M:%S %Y').strftime(nightly_schema)
-except:
-    # If fail, use current time
-    NIGHTLY = datetime.now().strftime(nightly_schema)
-
-
-if not ISRELEASED: 
-    VERSION += '.dev+' + NIGHTLY
-    
     
 resource_dir = 'resources/'
 default_labeler_files = [(d, [os.path.join(d, f) for f in files])
@@ -55,7 +33,7 @@ DESCRIPTION = "What is in your data? Detect schema, statistics and entities in a
 
 setup(
     name='DataProfiler',
-    version=VERSION,
+    version=__version__,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',

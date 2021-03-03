@@ -96,6 +96,11 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     @classmethod
     def get_class(cls, class_name):
+
+        # Import possible internal models         
+        from .regex_model import RegexModel
+        from .character_level_cnn_model import CharacterLevelCnnModel
+        
         return cls._BaseModel__subclasses.get(class_name.lower(), None)
 
     def get_parameters(self, param_list=None):

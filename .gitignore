@@ -3,6 +3,7 @@
 DataProfiler\.egg-info/
 DataProfiler.egg-info/*
 data_profiler/labelers/embeddings/glove-reduced-64D.txt
+dataprofiler/labelers/embeddings/glove-reduced-64D.txt
 *.xml
 *.orig
 

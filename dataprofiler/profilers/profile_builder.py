@@ -335,12 +335,15 @@ class Profiler(object):
             import tensorflow_addons
         except Exception:
             import warnings
-            warnings.warn(
-                '\n\nTensorFlow and/or TensorFlow Addons are not installed.\n\n'
-                'Unfortunately, this means the library cannot label the data\n\n'
-                'To label the data, install tensorflow & tensorflow-addons\n\n'
-                '    $ pip install tensorflow tesnorflow-addons --user\n\n'
-                , Warning)
+            warning_msg = "\n\nTensorFlow and/or TensorFlow Addons"
+            warning_msg += "are not installed.\n\nUnfortunately, this "
+            warning_msg += "means the library cannot label the data\n\n"
+            warning_msg += "To label the data, install tensorflow & "
+            warning_msg += "tensorflow-addons\n\n"
+            warning_msg += "    $ pip install tensorflow "
+            warning_msg += "tesnorflow-addons --user\n\n"
+            warnings.warn(warning_msg, Warning, stacklevel=2)
+            
             profiler_options.structured_options.data_labeler.is_enabled = False
         
         profiler_options.validate()

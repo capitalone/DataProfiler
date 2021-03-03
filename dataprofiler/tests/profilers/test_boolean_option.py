@@ -52,14 +52,23 @@ class TestBooleanOption(TestBaseOption):
 
 	def test_validate_helper(self, *mocks):
 		option = BooleanOption(is_enabled=True)
+
+		#Default Configuration Is Valid
 		self.assertEqual(option._validate_helper(), [])
 		
+		#Variable Path Is Not A String
+		expected_error = "The variable path must be a string."
+		with self.assertRaisesRegex(ValueError, expected_error):
+			option._validate_helper(1)
+
 		option = BooleanOption(is_enabled="Hello World")
 		expected_error = ["BooleanOption.is_enabled must be a Boolean."]
 		self.assertEqual(option._validate_helper(), expected_error)
 	
 	def test_validate(self, *mocks):
 		option = BooleanOption(is_enabled=True)
+
+		#Default Configuration Is Valid
 		self.assertEqual(option.validate(), [])
 		
 		option = BooleanOption(is_enabled="Hello World")

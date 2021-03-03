@@ -79,6 +79,48 @@ class TestDataProfiler(unittest.TestCase):
             '\tsudo apt-get -y install libsnappy-dev`\n',
         )
 
+    def test_no_tensorflow(self):
+        import sys
+        import importlib
+        import types
+        orig_import = __import__
+        # necessary for any wrapper around the library to test if snappy caught
+        # as an issue
+
+        def reload_data_profiler():
+            """Recursively reload modules."""
+            sys_modules = sys.modules.copy()
+            for module_name, module in sys_modules.items():
+                # Only reload top level of the data_profiler
+                if ('dataprofiler' in module_name and
+                        len(module_name.split('.')) < 3):
+                    if isinstance(module, types.ModuleType):
+                        importlib.reload(module)
+
+        def import_mock(name, *args):
+            if name == 'tensorflow':
+                raise ImportError('test')
+            return orig_import(name, *args)
+
+        with mock.patch('builtins.__import__', side_effect=import_mock):
+            with self.assertWarns(Warning) as w:
+                import dataprofiler
+                reload_data_profiler()
+                
+                test_file = 'dataprofiler/tests/data/csv/iris.csv'
+                data = Data(test_file)
+                profile = Profiler(data)
+
+        warning_msg = "\n\nTensorFlow and/or TensorFlow Addons"
+        warning_msg += "are not installed.\n\nUnfortunately, this "
+        warning_msg += "means the library cannot label the data\n\n"
+        warning_msg += "To label the data, install tensorflow & "
+        warning_msg += "tensorflow-addons\n\n"
+        warning_msg += "    $ pip install tensorflow "
+        warning_msg += "tesnorflow-addons --user\n\n"
+
+        self.assertEqual(str(w.warning), warning_msg)
+
 
 if __name__ == '__main__':
     unittest.main()

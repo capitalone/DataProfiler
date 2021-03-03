@@ -110,7 +110,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         try:
             has_header = sniffer.has_header(data_as_str)
         except csv.Error:
-            has_header = 0
+            has_header = 1
         return 0 if has_header else None
 
     def _load_data_from_str(self, data_as_str):

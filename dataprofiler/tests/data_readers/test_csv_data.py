@@ -175,5 +175,12 @@ class TestCSVDataClass(unittest.TestCase):
         CSVData.is_match(path, options)
         self.assertEqual(0, options.get("header"))
 
+        # File with header, but the csv sniffer fails to detect
+        # set to 0 for auto determine
+        path = os.path.join(test_dir, 'csv/small-num.csv')
+        options = dict()
+        CSVData.is_match(path, options)
+        self.assertEqual(0, options.get("header"))
+
 if __name__ == '__main__':
     unittest.main()

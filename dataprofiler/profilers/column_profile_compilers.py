@@ -43,27 +43,27 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         # convert all the values to string
         df_series = df_series.apply(str)
         
-        selected_profiles = None
+        selected_col_profiles = None
         if options and isinstance(options, StructuredOptions):
-            selected_profiles = options.enabled_columns
+            selected_col_profiles = options.enabled_columns
 
-        for profile_type in self._profilers:
+        for col_profile_type in self._profilers:
             # Create profile if options allow for it or if there are no options
-            if selected_profiles is None or \
-                    profile_type.col_type in selected_profiles:
-                profile_options = None
-                if options and options.properties[profile_type.col_type]:
-                    profile_options = options.properties[profile_type.col_type]
+            if selected_col_profiles is None or \
+                    col_profile_type.col_type in selected_col_profiles:
+                col_profile_options = None
+                if options and options.properties[col_profile_type.col_type]:
+                    col_profile_options = options.properties[col_profile_type.col_type]
 
                 warning_flag = False
                 try:
-                    self._profiles[profile_type.col_type] = \
-                        profile_type(df_series.name, options=profile_options)
-                    self._profiles[profile_type.col_type].update(df_series)
+                    self._profiles[col_profile_type.col_type] = \
+                        col_profile_type(df_series.name, options=col_profile_options)
+                    self._profiles[col_profile_type.col_type].update(df_series)
                 except Exception as e:
                     import warnings
                     warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
-                    warning_msg += "Profiling Type: {}".format(profile_type.col_type)
+                    warning_msg += "Profiling Type: {}".format(col_profile_type.col_type)
                     warning_msg += "\nException: {}".format(type(e).__name__)
                     warning_msg += "\nMessage: {}".format(e)
 

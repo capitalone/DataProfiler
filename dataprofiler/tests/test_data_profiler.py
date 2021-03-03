@@ -83,6 +83,7 @@ class TestDataProfiler(unittest.TestCase):
         import sys
         import importlib
         import types
+        import pandas
         orig_import = __import__
         # necessary for any wrapper around the library to test if snappy caught
         # as an issue
@@ -96,9 +97,8 @@ class TestDataProfiler(unittest.TestCase):
 
             with self.assertWarns(RuntimeWarning) as w:
                 import dataprofiler
-                test_file = 'dataprofiler/tests/data/csv/iris.csv'
-                data = dataprofiler.Data(test_file)
-                profile = dataprofiler.Profiler(data)
+                df = pandas.DataFrame([[1, 2.0],[1, 2.2],[-1, 3]])
+                profile = dataprofiler.Profiler(df)
         
         warning_msg = "Partial Profiler Failure"
         self.assertIn(warning_msg, str(w.warning))

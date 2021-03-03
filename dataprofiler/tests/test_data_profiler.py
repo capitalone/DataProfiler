@@ -117,7 +117,7 @@ class TestDataProfiler(unittest.TestCase):
         warning_msg += "To label the data, install tensorflow & "
         warning_msg += "tensorflow-addons\n\n"
         warning_msg += "    $ pip install tensorflow "
-        warning_msg += "tesnorflow-addons --user\n\n"
+        warning_msg += "tensorflow-addons --user\n\n"
 
         self.assertEqual(str(w.warning), warning_msg)
 

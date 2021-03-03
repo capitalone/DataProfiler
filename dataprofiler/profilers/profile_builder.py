@@ -341,7 +341,7 @@ class Profiler(object):
             warning_msg += "To label the data, install tensorflow & "
             warning_msg += "tensorflow-addons\n\n"
             warning_msg += "    $ pip install tensorflow "
-            warning_msg += "tesnorflow-addons --user\n\n"
+            warning_msg += "tensorflow-addons --user\n\n"
             warnings.warn(warning_msg, Warning, stacklevel=2)
             
             profiler_options.structured_options.data_labeler.is_enabled = False

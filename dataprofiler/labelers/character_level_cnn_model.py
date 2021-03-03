@@ -7,7 +7,6 @@ import logging
 from collections import defaultdict
 
 import tensorflow as tf
-import tensorflow_addons as tfa
 import numpy as np
 from sklearn import decomposition
 
@@ -16,6 +15,16 @@ from .base_model import BaseModel, BaseTrainableModel
 from .base_model import AutoSubRegistrationMeta
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
+
+class NoV1ResourceMessageFilter(logging.Filter):
+    """Removes TF2 warning for using TF1 model which has resources."""
+    def filter(self, record):
+        msg = 'is a problem, consider rebuilding the SavedModel after ' + \
+            'running tf.compat.v1.enable_resource_variables()'
+        return msg not in record.getMessage()
+
+tf_logger = logging.getLogger('tensorflow')
+tf_logger.addFilter(NoV1ResourceMessageFilter())
 
 
 def build_embd_dictionary(filename):
@@ -64,19 +73,6 @@ def create_glove_char(n_dims, source_file=None):
     with open(embd_file_name, 'w') as file:
         for word, embd in zip(embd_words, reduced_embds):
             file.write(word + " " + ' '.join(str(num) for num in embd) + "\n")
-
-
-class NoV1ResourceMessageFilter(logging.Filter):
-    """Removes TF2 warning for using TF1 model which has resources."""
-    def filter(self, record):
-        msg = 'is a problem, consider rebuilding the SavedModel after ' + \
-            'running tf.compat.v1.enable_resource_variables()'
-        return msg not in record.getMessage()
-
-
-tf_logger = logging.getLogger('tensorflow')
-tf_logger.addFilter(NoV1ResourceMessageFilter())
-
 
 class CharacterLevelCnnModel(BaseTrainableModel,
                              metaclass=AutoSubRegistrationMeta):
@@ -257,6 +253,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         :type dirpath: str
         :return: None
         """
+
         # load parameters
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
         with open(model_param_dirpath, 'r') as fp:
@@ -268,6 +265,8 @@ class CharacterLevelCnnModel(BaseTrainableModel,
             label_mapping = json.load(fp)
 
         # load tf model
+        # Use TFA to add f1 score to output
+        import tensorflow_addons as tfa
         custom_objects = {
             "F1Score": tfa.metrics.F1Score(
                 num_classes=max(label_mapping.values()) + 1,
@@ -314,6 +313,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         :return : tensor containing encoded list of input sentences
         :rtype: tf.Tensor
         """
+
         # convert characters to indices
         input_str_flatten = tf.reshape(input_str_tensor, [-1])
         sentences_encode = tf.strings.unicode_decode(input_str_flatten,
@@ -399,7 +399,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         num_labels = self.num_labels
         default_ind = self.label_mapping[self._parameters['default_label']]
 
-        #Reset model
+        # Reset model
         tf.keras.backend.clear_session()
 
         # generate glove embedding
@@ -487,8 +487,10 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         softmax_output_layer_name = self._model.outputs[0].name.split('/')[0]
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
-        f1_score_training = tfa.metrics.F1Score(num_classes=num_labels,
-                                                average='micro')
+        # Use TFA to add f1 score to output
+        import tensorflow_addons as tfa
+        f1_score_training = tfa.metrics.F1Score(
+            num_classes=num_labels, average='micro')
         metrics = {softmax_output_layer_name: ['acc', f1_score_training]}
 
         self._model.compile(loss=losses,
@@ -515,6 +517,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         :return: None
         """
 
+        # Reset model
         tf.keras.backend.clear_session()
 
         num_labels = self.num_labels
@@ -547,6 +550,8 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         softmax_output_layer_name = self._model.outputs[0].name.split('/')[0]
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
+        # Use TFA to add f1 score to output
+        import tensorflow_addons as tfa
         f1_score_training = tfa.metrics.F1Score(
             num_classes=num_labels, average='micro')
         metrics = {softmax_output_layer_name: ['acc', f1_score_training]}

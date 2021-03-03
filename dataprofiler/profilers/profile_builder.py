@@ -329,6 +329,7 @@ class Profiler(object):
         elif not isinstance(profiler_options, ProfilerOptions):
             raise ValueError("The profile options must be passed as a "
                              "ProfileOptions object.")
+        
         profiler_options.validate()
         self.options = profiler_options
             

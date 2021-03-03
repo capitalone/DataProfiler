@@ -126,6 +126,9 @@ class BooleanOption(BaseOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
         errors = []
         if not isinstance(self.is_enabled, bool):
             errors = ["{}.is_enabled must be a Boolean.".format(variable_path)]

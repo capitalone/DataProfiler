@@ -111,8 +111,10 @@ class TestDataLabeler(unittest.TestCase):
         self.assertIsInstance(data_labeler, BaseDataLabeler)
 
     def test_structured_data_labeler_fit_predict_take_Data_obj(self):
-        data = pd.DataFrame(["123 Fake st", "1/1/2021", "blah", "333-44-2341"])
-        labels = pd.DataFrame(["ADDRESS", "DATETIME", "BACKGROUND", "SSN"])
+        data = pd.DataFrame(["123 Fake st", "1/1/2021", "blah", "333-44-2341",
+                             "foobar@gmail.com", "John Doe", "123-4567"])
+        labels = pd.DataFrame(["ADDRESS", "DATETIME", "BACKGROUND", "SSN",
+                               "EMAIL_ADDRESS", "PERSON", "PHONE_NUMBER"])
         for dt in ["csv", "json", "parquet"]:
             data_obj = dp.Data(data=data, data_type=dt)
             label_obj = dp.Data(data=labels, data_type=dt)

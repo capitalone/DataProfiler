@@ -10,6 +10,7 @@ import random
 import math
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 
 default_labeler_dir = pkg_resources.resource_filename(
@@ -1145,6 +1146,17 @@ class StructCharPreprocessor(CharPreprocessor,
         :return batch_data: A dict containing  samples of size batch_size
         :rtype batch_data: dict
         """
+
+        # Flatten DataFrames and Arrays into 1 dimensional lists
+        if isinstance(data, pd.DataFrame):
+            data = data.values.reshape(-1)
+        elif isinstance(data, np.ndarray):
+            data = data.reshape(-1)
+        if isinstance(labels, pd.DataFrame):
+            labels = labels.values.reshape(-1)
+        elif isinstance(labels, np.ndarray):
+            labels = labels.reshape(-1)
+
         if labels is not None and not label_mapping:
             raise ValueError('If `labels` are specified, `label_mapping` must '
                              'also be specified.')

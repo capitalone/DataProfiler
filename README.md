@@ -2,6 +2,8 @@
 
 The Data Profiler provides insights on the schema and statistics of any file or dataset it profiles.
 
+Further, the Data Profiler has pre-built deep learning models to identify **sensitive data** and other entities in datasets.
+
 The best part? It only takes a few lines of code:
 
 ```python
@@ -19,7 +21,11 @@ human_readable_report = profile.report(report_options={"output_format":"pretty"}
 print(json.dumps(human_readable_report, indent=4))
 ```
 
-Install from pypi: `pip3 install DataProfiler`
+To install the full package from pypi: `pip install DataProfiler[ml]`
+
+If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package which disables the default sensitive data detection / entity recognition (labler)
+
+Install from pypi: `pip install DataProfiler`
 
 
 For API documentation, visit the [documentation page](https://capitalone.github.io/DataProfiler/).

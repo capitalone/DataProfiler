@@ -97,7 +97,7 @@ setup(
 
     # List of run-time dependencies for the labeler. These will be installed
     # by pip when someone installs the project[<label>].
-    extras_require={ 'labeler': ml_packages },
+    extras_require={ 'ml': ml_packages },
 
     # # If there are data files included in your packages that need to be
     # # installed, specify them here.  If using Python 2.6 or less, then these

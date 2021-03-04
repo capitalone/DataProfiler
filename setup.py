@@ -23,6 +23,10 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 # Get the install_requirements from requirements.txt
 with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     required_packages = f.read().splitlines()
+
+# Get the install_requirements from requirements.txt
+with open(path.join(here, 'requirements-ml.txt'), encoding='utf-8') as f:
+    ml_packages = f.read().splitlines()
     
 resource_dir = 'resources/'
 default_labeler_files = [(d, [os.path.join(d, f) for f in files])
@@ -89,6 +93,11 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=required_packages,
+
+
+    # List of run-time dependencies for the labeler. These will be installed
+    # by pip when someone installs the project[<label>].
+    extras_require={ 'ml': ml_packages },
 
     # # If there are data files included in your packages that need to be
     # # installed, specify them here.  If using Python 2.6 or less, then these

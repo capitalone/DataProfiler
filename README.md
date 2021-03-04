@@ -199,6 +199,11 @@ Install requirements:
 pip3 install -r requirements.txt
 ```
 
+Install labeler dependencies:
+```
+pip3 install -r requirements-ml.txt
+```
+
 Install via the repo -- Build setup.py and install locally:
 ```
 python3 setup.py sdist bdist bdist_wheel

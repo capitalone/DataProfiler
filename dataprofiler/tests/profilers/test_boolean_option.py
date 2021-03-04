@@ -18,15 +18,24 @@ class TestBooleanOption(TestBaseOption):
 	def setUpClass(cls):
 		cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
 	
+	@override
+	@classmethod
+	def getOptions(self, **params):
+		return BooleanOption(**params)
+	
+	@classmethod
+	def getOptionsPath(self, **params):
+		return "BooleanOption"
+		
 	def sanity(self, *mocks):
-		option = BooleanOption()
+		option = self.getOptions()
 		self.assertTrue("is_enabled" in option.properties)
 	
 	def test_set_helper(self, *mocks):
 		super().test_set_helper(*mocks)
 		
 		#Enable and Disable Option
-		option = BooleanOption(is_enabled=False)
+		option = self.getOptions(is_enabled=False)
 		self.assertEqual(option.properties['is_enabled'], False)		
 		option._set_helper({'is_enabled':True}, '') 
 		self.assertEqual(option.properties['is_enabled'], True)		
@@ -40,7 +49,7 @@ class TestBooleanOption(TestBaseOption):
 		super().test_set(*mocks)
 
 		#Enable and Disable Options		
-		option = BooleanOption(is_enabled=False)
+		option = self.getOptions(is_enabled=False)
 		self.assertEqual(option.properties['is_enabled'], False)		
 		option.set({'is_enabled':True}) 
 		self.assertEqual(option.properties['is_enabled'], True)		
@@ -51,7 +60,8 @@ class TestBooleanOption(TestBaseOption):
 			option.set({'is_enabled.error': True})	
 
 	def test_validate_helper(self, *mocks):
-		option = BooleanOption(is_enabled=True)
+		option = self.getOptions(is_enabled=True)
+		optpth = self.getOptionsPath()
 
 		#Default Configuration Is Valid
 		self.assertEqual(option._validate_helper(), [])
@@ -61,18 +71,19 @@ class TestBooleanOption(TestBaseOption):
 		with self.assertRaisesRegex(ValueError, expected_error):
 			option._validate_helper(1)
 
-		option = BooleanOption(is_enabled="Hello World")
-		expected_error = ["BooleanOption.is_enabled must be a Boolean."]
-		self.assertEqual(option._validate_helper(), expected_error)
+		option = self.getOptions(is_enabled="Hello World")
+		expected_error = "{}.is_enabled must be a Boolean.".format(optpth)
+		self.assertEqual(option._validate_helper(), [expected_error])
 	
 	def test_validate(self, *mocks):
-		option = BooleanOption(is_enabled=True)
-
+		option = self.getOptions(is_enabled=True)
+		optpth = self.getOptionsPath()
+	
 		#Default Configuration Is Valid
 		self.assertEqual(option.validate(), [])
 		
-		option = BooleanOption(is_enabled="Hello World")
-		expected_error = "BooleanOption.is_enabled must be a Boolean."
+		option = self.getOptions(is_enabled="Hello World")
+		expected_error = "{}.is_enabled must be a Boolean.".format(optpth)
 		with self.assertRaisesRegex(ValueError, expected_error):
 			option.validate(raise_error=True)
 		self.assertEqual(option.validate(raise_error=False), [expected_error])

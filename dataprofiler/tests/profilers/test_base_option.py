@@ -17,11 +17,19 @@ class TestBaseOption(unittest.TestCase):
 	def setUpClass(cls):
 		cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
 	
+	@classmethod
+	def getOptions(self, **params):
+		return BaseOption(**params)
+	
+	@classmethod
+	def getOptionsPath(self):
+		return "BaseOption"
+	
 	def sanity(self, *mocks):
-		options = BaseOption()
+		options = self.getOptions()
 	
 	def test_set_helper(self, *mocks):
-		options = BaseOption()
+		options = self.getOptions()
 
 		#Options Is Not A Dictionary
 		expected_error = "The options must be a dictionary."
@@ -38,7 +46,7 @@ class TestBaseOption(unittest.TestCase):
 			options._set_helper({}, 1)
 
 	def test_set(self, *mocks):
-		options = BaseOption()
+		options = self.getOptions()
 
 		#Options Is Not A Dictionary
 		expected_error = "The options must be a dictionary."

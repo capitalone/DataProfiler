@@ -122,11 +122,6 @@ class TestDataLabeler(unittest.TestCase):
             self.assertIsNotNone(labeler.fit(x=data_obj, y=label_obj))
             self.assertIsNotNone(labeler.predict(data=data_obj))
 
-    def test_unstructured_data_labeler_fit_predict_take_Data_obj(self):
-        # Need to find data for this
-        # Data needs to be in string form
-        pass
-
 
 label_encoding = {
   "encoder": {

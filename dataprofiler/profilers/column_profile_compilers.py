@@ -71,9 +71,8 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                         raise ValueError(e)
                     
                     warning_msg += "\n\nFor labeler errors, try installing "
-                    warning_msg += "tensorflow and tensorflow-addons; command:\n"
-                    warning_msg += "  $ pip install tensorflow "
-                    warning_msg += "tensorflow-addons --user\n"
+                    warning_msg += "the extra ml requirements via:\n\n"
+                    warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
 
                     warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
             

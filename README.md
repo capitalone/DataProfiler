@@ -1,8 +1,6 @@
 # Data Profiler | What's in your data?
 
-The Data Profiler provides insights on the schema and statistics of any file or dataset it profiles.
-
-Further, the Data Profiler has pre-built deep learning models to identify **sensitive data** and other entities in datasets.
+The Data Profiler provides insights on the schema and statistics of any file or dataset it profiles. Further, the Data Profiler has pre-built deep learning models to identify **sensitive data** and other entities.
 
 The best part? It only takes a few lines of code:
 

@@ -71,9 +71,8 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                         raise ValueError(e)
                     
                     warning_msg += "\n\nFor labeler errors, try installing "
-                    warning_msg += "the ml extra; command:\n\n"
-                    warning_msg += "  $ pip install dataprofiler[ml]"
-                    warning_msg += " --user\n\n"
+                    warning_msg += "the extra ml requirements via:\n\n"
+                    warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
 
                     warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
             

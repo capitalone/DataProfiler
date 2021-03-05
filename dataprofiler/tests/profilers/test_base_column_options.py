@@ -47,10 +47,12 @@ class TestBaseColumnOptions(TestBooleanOption):
 		options = self.getOptions()
 		optpth = self.getOptionsPath()
 
+		# Check is prop enabled for valid property
 		self.assertTrue(options.is_prop_enabled("is_enabled"))
 		options.set({"is_enabled": False})
 		self.assertFalse(options.is_prop_enabled("is_enabled"))
-		
+	
+		# Check is prop enabled for invalid property	
 		expected_error = 'Property "Hello World" does not exist in {}.'.format(optpth)
 		with self.assertRaisesRegex(AttributeError, expected_error):
 			options.is_prop_enabled("Hello World")

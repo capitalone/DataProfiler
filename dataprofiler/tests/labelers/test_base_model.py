@@ -149,21 +149,46 @@ class TestBaseModel(unittest.TestCase):
 
         # setup mock
         mock_model = mock.Mock(spec=base_model.BaseModel)
+        mock_model._convert_labels_to_label_mapping.side_effect = \
+            base_model.BaseModel._convert_labels_to_label_mapping
 
         # base case
-        with self.assertRaisesRegex(ValueError,
-                                    "`label_mapping` must be a dict which maps "
-                                    "labels to index encodings."):
+        with self.assertRaisesRegex(TypeError,
+                                    "Labels must either be an encoding dict "
+                                    "which maps labels to index encodings or a "
+                                    "list."):
+            base_model.BaseModel.set_label_mapping(mock_model, label_mapping=None)
+
+        # base case
+        with self.assertRaisesRegex(TypeError,
+                                    "Labels must either be an encoding dict "
+                                    "which maps labels to index encodings or a "
+                                    "list."):
             base_model.BaseModel.set_label_mapping(
                 mock_model, label_mapping=None)
 
         # assert error for empty label_mapping dict
-        with self.assertRaisesRegex(ValueError,
-                                    "`label_mapping` must be a dict which maps "
-                                    "labels to index encodings."):
+        with self.assertRaisesRegex(TypeError,
+                                    "Labels must either be an encoding dict "
+                                    "which maps labels to index encodings or a "
+                                    "list."):
             base_model.BaseModel.set_label_mapping(mock_model, label_mapping={})
 
         # assert label_map set
         base_model.BaseModel.set_label_mapping(
             mock_model, label_mapping={'test': 'test'})
         self.assertDictEqual({'test': 'test'}, mock_model._label_mapping)
+
+    def test_convert_labels_to_encodings(self, *mocks):
+
+        # test label list to label_mapping
+        labels = ['a', 'b', 'd', 'c']
+        label_mapping = base_model.BaseModel._convert_labels_to_label_mapping(
+            labels, requires_zero_mapping=True)
+        self.assertDictEqual(dict(a=0, b=1, d=2, c=3), label_mapping)
+
+        # test label dict to label_mapping
+        labels = dict(a=1, b=2, d=3, c=4)
+        label_mapping = base_model.BaseModel._convert_labels_to_label_mapping(
+            labels, requires_zero_mapping=True)
+        self.assertDictEqual(dict(a=1, b=2, d=3, c=4), label_mapping)

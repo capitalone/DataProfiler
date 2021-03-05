@@ -105,6 +105,45 @@ class TestV2StructuredDataLabeler(unittest.TestCase):
                 x=self.df[0], y=self.df[1],
                 labels=['BACKGROUND', 'ADDRESS', 'DATETIME'])
 
+    def test_data_labeler_extend_labels(self):
+        """test extending labels of data labeler with fitting data"""
+        # constructing default StructuredDataLabeler()
+        dirpath = os.path.join(
+            dp.labelers.base_data_labeler.default_labeler_dir,
+            dp.labelers.StructuredDataLabeler._default_model_loc)
+        data_labeler = dp.labelers.TrainableDataLabeler(dirpath=dirpath)
+
+        data_labeler.add_label('NEW_LABEL')
+
+        # validate raises error if not trained before fit
+        with self.assertRaisesRegex(RuntimeError,
+                                    "The model label mapping definitions have "
+                                    "been altered without additional training. "
+                                    "Please train the model or reset the "
+                                    "label mapping to predict."):
+            model_predictions = data_labeler.predict(data=self.df[0])
+
+
+        # get char-level predictions on default model
+        expected_label_mapping = {
+            "PAD": 0, "CITY": 1, "BACKGROUND": 1, "ADDRESS": 2, "BAN": 3,
+            "CREDIT_CARD": 4, "EMAIL_ADDRESS": 5, "UUID": 6, "HASH_OR_KEY": 7,
+            "IPV4": 8, "IPV6": 9, "MAC_ADDRESS": 10, "NAME": 11, "PERSON": 11,
+            "PHONE_NUMBER": 12, "SSN": 13, "URL": 14, "DATETIME": 15,
+            "INTEGER_BIG": 16, "INTEGER": 16, "FLOAT": 17, "QUANTITY": 18,
+            "ORDINAL": 19, "NEW_LABEL": 20}
+        model_predictions = data_labeler.fit(x=self.df[0], y=self.df[1])
+
+        self.assertEqual(1, len(model_predictions))
+        self.assertEqual(3, len(model_predictions[0]))  # history, f1, f1_report
+        self.assertIsInstance(model_predictions[0][0], dict)  # history
+        self.assertIsInstance(model_predictions[0][1], float)  # f1
+        self.assertIsInstance(model_predictions[0][2], dict)  # f1_report
+        self.assertDictEqual(expected_label_mapping, data_labeler.label_mapping)
+
+        # no bg, pad, but includes micro, macro, weighted
+        self.assertEqual(22, len(model_predictions[0][2].keys()))
+
     def test_default_tf_model(self):
         """simple test for new default TF model + predict()"""
 

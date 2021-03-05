@@ -1,6 +1,7 @@
 import abc
 import copy
 import inspect
+import warnings
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
@@ -71,7 +72,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         """
         :return: mapping of labels to their encoded values
         """
-        return self._label_mapping
+        return copy.deepcopy(self._label_mapping)
 
     @property
     def reverse_label_mapping(self):
@@ -89,6 +90,26 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         """
         return [v for k, v in sorted(self.reverse_label_mapping.items(),
                                      key=lambda item: item[0])]
+
+    @staticmethod
+    def _convert_labels_to_label_mapping(labels, requires_zero_mapping):
+        """
+        Converts the new labels set to be in an encoding dict if not already.
+
+        :param labels: Labels to convert to an encoding dict
+        :type labels: Union[list, dict]
+        :param requires_zero_mapping: boolean if the label mapping requires the
+            mapping for index 0 reserved.
+        :type requires_zero_mapping: bool
+        :return: label encoding dict
+        """
+        if isinstance(labels, dict):
+            return labels
+
+        # if list
+        start_index = 0 if requires_zero_mapping else 1
+        return dict(zip(labels, list(
+            range(start_index, start_index + len(labels)))))
 
     @property
     def num_labels(self):
@@ -169,13 +190,16 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         """
         Sets the labels for the model
 
-        :param label_mapping: label mapping of the model
-        :type label_mapping: dict
+        :param label_mapping: label mapping of the model or list of labels to be
+            converted into the label mapping
+        :type label_mapping: Union[list, dict]
         :return: None
         """
-        if not label_mapping or not isinstance(label_mapping, dict):
-            raise ValueError("`label_mapping` must be a dict which maps labels "
-                             "to index encodings.")
+        if not isinstance(label_mapping, (list, dict)) or not label_mapping:
+            raise TypeError("Labels must either be an encoding dict which maps "
+                            "labels to index encodings or a list.")
+        label_mapping = self._convert_labels_to_label_mapping(
+            label_mapping, self.requires_zero_mapping)
         self._label_mapping = copy.deepcopy(label_mapping)
 
     @abc.abstractmethod

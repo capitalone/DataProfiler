@@ -198,17 +198,23 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         :type label_mapping: dict
         :return: None
         """
+        if not isinstance(label_mapping, (list, dict)):
+            raise TypeError("Labels must either be an encoding dict which maps "
+                            "labels to index encodings or a list.")
+
         label_mapping = copy.deepcopy(label_mapping)
-        if not isinstance(label_mapping, dict):
-            raise TypeError("`label_mapping` must be a dict which maps labels "
-                            "to index encodings.")
-        if 'PAD' not in label_mapping and 0 not in label_mapping.values():
-            label_mapping.update({'PAD': 0})
-        if label_mapping.get('PAD', None) != 0:
+        if 'PAD' not in label_mapping:
+            if isinstance(label_mapping, list):  # if list missing PAD
+                label_mapping = ['PAD'] + label_mapping
+            elif 0 not in label_mapping.values():  # if dict missing PAD and 0
+                label_mapping.update({'PAD': 0})
+        if (isinstance(label_mapping, dict)
+                and label_mapping.get('PAD', None) != 0):  # dict with bad PAD
             raise ValueError("`PAD` must map to index zero.")
         if self._parameters['default_label'] not in label_mapping:
             raise ValueError("The `default_label` of {} must exist in the "
-                             "label mapping.".format(self._parameters['default_label']))
+                             "label mapping.".format(
+                                self._parameters['default_label']))
         super().set_label_mapping(label_mapping)
 
     def _need_to_reconstruct_model(self):
@@ -709,7 +715,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
             raise ValueError("You are trying to predict without a model. "
                              "Construct/Load a model before predicting.")
         elif self._need_to_reconstruct_model():
-            raise RuntimeError("The model label mapping definitions have been"
+            raise RuntimeError("The model label mapping definitions have been "
                                "altered without additional training. Please "
                                "train the model or reset the label mapping to "
                                "predict.")

@@ -172,27 +172,6 @@ class BaseDataLabeler(object):
             )
         return data
 
-    @staticmethod
-    def _convert_labels_to_encodings(new_labels, requires_zero_mapping):
-        """
-        Converts the new labels set to be in an encoding dict if not already.
-
-        :param new_labels: Labels to convert to an encoding dict
-        :type new_labels: list or dict
-        :param requires_zero_mapping: boolean if the label mapping requires the
-            mapping for index 0 reserved.
-        :type requires_zero_mapping: bool
-        :return: label encoding dict
-        """
-        if isinstance(new_labels, dict):
-            return new_labels
-        elif isinstance(new_labels, list):
-            return dict(zip(new_labels, list(
-                range(requires_zero_mapping,
-                      requires_zero_mapping + len(new_labels)))))
-        else:
-            raise TypeError("Labels must be an encoding dict or a list.")
-
     def set_params(self, params):
         """
         Allows user to set parameters of pipeline components in the following
@@ -266,10 +245,7 @@ class BaseDataLabeler(object):
         :return: None
         """
         # convert to valid format
-        self._model.set_label_mapping(
-            label_mapping=self._convert_labels_to_encodings(
-                labels, self._model.requires_zero_mapping)
-        )
+        self._model.set_label_mapping(label_mapping=labels)
 
     def predict(self, data, batch_size=32, predict_options=None,
                 error_on_mismatch=False, verbose=1):

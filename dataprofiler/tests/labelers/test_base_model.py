@@ -103,8 +103,6 @@ class TestBaseModel(unittest.TestCase):
         mock_model._convert_labels_to_label_mapping.side_effect = \
             base_model.BaseModel._convert_labels_to_label_mapping
         mock_model._label_mapping = {}
-        type(mock_model).num_labels = mock.PropertyMock(
-            side_effect=lambda: max(mock_model._label_mapping.values()) + 1)
 
         # assert bad label inputs
         with self.assertRaisesRegex(TypeError, '`label` must be a str.'):

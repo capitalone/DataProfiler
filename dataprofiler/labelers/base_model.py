@@ -183,8 +183,9 @@ class BaseModel(object, metaclass=abc.ABCMeta):
                              'label_mapping.'.format(same_as))
 
         # add label to label_mapping
+        max_label_ind = max(self._label_mapping.values())
         self._label_mapping[label] = self._label_mapping.get(same_as,
-                                                             self.num_labels)
+                                                             max_label_ind + 1)
 
     def set_label_mapping(self, label_mapping):
         """

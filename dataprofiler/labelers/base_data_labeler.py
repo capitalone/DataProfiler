@@ -244,6 +244,19 @@ class BaseDataLabeler(object):
         self.check_pipeline(skip_postprocessor=self._postprocessor is None,
                             error_on_mismatch=False)
 
+    def add_label(self, label, same_as=None):
+        """
+        Adds a label to the data labeler.
+
+        :param label: new label being added to the data labeler
+        :type label: str
+        :param same_as: label to have the same encoding index as for multi-label
+            to single encoding index.
+        :type same_as: str
+        :return: None
+        """
+        self._model.add_label(label, same_as)
+
     def set_labels(self, labels):
         """
         Sets the labels for the data labeler.

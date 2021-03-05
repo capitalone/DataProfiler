@@ -135,6 +135,36 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         for param in kwargs:
             self._parameters[param] = kwargs[param]
 
+    def add_label(self, label, same_as=None):
+        """
+        Adds a label to the data labeler.
+
+        :param label: new label being added to the data labeler
+        :type label: str
+        :param same_as: label to have the same encoding index as for multi-label
+            to single encoding index.
+        :type same_as: str
+        :return: None
+        """
+        # validate label
+        if not label or not isinstance(label, str):
+            raise TypeError('`label` must be a str.')
+        elif label in self._label_mapping:
+            warnings.warn('The label, `{}`, already exists in the label '
+                          'mapping.'.format(label))
+            return
+
+        # validate same_as
+        if same_as and not isinstance(same_as, str):
+            raise TypeError('`same_as` must be a str.')
+        elif same_as and same_as not in self._label_mapping:
+            raise ValueError('`same_as` value: {}, did not exist in the '
+                             'label_mapping.'.format(same_as))
+
+        # add label to label_mapping
+        self._label_mapping[label] = self._label_mapping.get(same_as,
+                                                             self.num_labels)
+
     def set_label_mapping(self, label_mapping):
         """
         Sets the labels for the model

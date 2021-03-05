@@ -19,7 +19,7 @@ class TestBaseOption(unittest.TestCase):
 	
 	def test_init(self, *mocks):
 		options = BaseOption()
-		self.assertEqual(options.properties, {}) 
+		self.assertDictEqual({}, options.properties) 
 
 	def test_set_helper(self, *mocks):
 		options = BaseOption()

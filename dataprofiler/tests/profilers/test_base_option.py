@@ -17,20 +17,29 @@ class TestBaseOption(unittest.TestCase):
 	def setUpClass(cls):
 		cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
 	
-	def sanity(self, *mocks):
-		options = BaseOption()
+	@classmethod
+	def getOptions(self, **params):
+		return BaseOption(**params)
 	
-	def test_set_helper(self, *mocks):
+	@classmethod
+	def getOptionsPath(self):
+		return "BaseOption"
+	
+	def test_init(self, *mocks):
 		options = BaseOption()
+		self.assertDictEqual({}, options.properties) 
 
-		#Options Is Not A Dictionary
+	def test_set_helper(self, *mocks):
+		options = self.getOptions()
+
+		# Options Is Not A Dictionary
 		expected_error = "The options must be a dictionary."
 		with self.assertRaisesRegex(ValueError, expected_error):
 			options._set_helper("notadictionary", "")
 		with self.assertRaisesRegex(ValueError, expected_error):
 			options._set_helper(["not", "a", "dictionary"], "")
 
-		#Variable Path Is Not A String
+		# Variable Path Is Not A String
 		expected_error = "The variable path must be a string."
 		with self.assertRaisesRegex(ValueError, expected_error):
 			options._set_helper({"hello": "world"}, 1)
@@ -38,9 +47,9 @@ class TestBaseOption(unittest.TestCase):
 			options._set_helper({}, 1)
 
 	def test_set(self, *mocks):
-		options = BaseOption()
+		options = self.getOptions()
 
-		#Options Is Not A Dictionary
+		# Options Is Not A Dictionary
 		expected_error = "The options must be a dictionary."
 		with self.assertRaisesRegex(ValueError, expected_error):
 			options.set("notadictionary")
@@ -48,7 +57,13 @@ class TestBaseOption(unittest.TestCase):
 			options.set(["not", "a", "dictionary"])
 	
 	def test_validate_helper(self, *mocks):
-		pass
+		options = BaseOption()
+
+		with self.assertRaises(NotImplementedError):
+			options._validate_helper()
 	
 	def test_validate(self, *mocks):
-		pass
+		options = BaseOption()
+
+		with self.assertRaises(NotImplementedError):
+			options.validate()

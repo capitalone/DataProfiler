@@ -20,8 +20,10 @@ class TestBaseColumnOptions(TestBooleanOption):
 
 	@classmethod
 	def getOptions(self, **params):
-		return BaseColumnOptions()
-	
+		options = BaseColumnOptions()
+		options.set(params)
+		return options
+			
 	@classmethod
 	def getOptionsPath(self, **params):
 		return "BaseColumnOptions"

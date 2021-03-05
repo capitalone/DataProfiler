@@ -104,16 +104,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         return dialect.delimiter
 
     @staticmethod
-    def _determine_has_header(data_as_str):
+    def _determine_has_header(data_as_str, suggested_delim=None):
         """Automatically checks if the string has a header."""
         if not data_as_str:
             return None
         sniffer = csv.Sniffer()
-        try:
-            has_header = sniffer.has_header(data_as_str)
-        except csv.Error:
-            sniffer._guess_delimiter = lambda *args, **kwargs: (' ', 0)
-            has_header = sniffer.has_header(data_as_str)
+        if not suggested_delim:
+            suggested_delim = ' '
+        sniffer._guess_delimiter = lambda *args, **kwargs: (suggested_delim, 0)
+        has_header = sniffer.has_header(data_as_str)
         return 0 if has_header else None
 
     def _load_data_from_str(self, data_as_str):
@@ -121,7 +120,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if not self._delimiter:
             self._delimiter = self._determine_delimiter_of_str(data_as_str)
         data_buffered = StringIO(data_as_str)
-        self._determine_has_header(data_as_str)
+        self._determine_has_header(data_as_str, suggested_delim=self._delimiter)
         return data_utils.read_csv_df(
             data_buffered,
             self.delimiter, self.header, self.selected_columns,
@@ -139,7 +138,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             if not self._delimiter:
                 self._delimiter = self._determine_delimiter_of_str(data_as_str)
             if not self._header:
-                self._header = self._determine_has_header(data_as_str)
+                self._header = self._determine_has_header(data_as_str, self._delimiter)
                 self._checked_header = True
 
         # if there is only one delimiter at the end of each row,
@@ -203,7 +202,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 delimiter = cls._determine_delimiter_of_str(data_as_str)
 
             if header is None:
-                options.update(header=cls._determine_has_header(data_as_str))
+                options.update(header=cls._determine_has_header(data_as_str, delimiter))
 
         max_line_count = 1000
         min_line_count = 3

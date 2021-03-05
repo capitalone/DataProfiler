@@ -24,14 +24,14 @@ class TestBaseOption(unittest.TestCase):
 	def test_set_helper(self, *mocks):
 		options = BaseOption()
 
-		#Options Is Not A Dictionary
+		# Options Is Not A Dictionary
 		expected_error = "The options must be a dictionary."
 		with self.assertRaisesRegex(ValueError, expected_error):
 			options._set_helper("notadictionary", "")
 		with self.assertRaisesRegex(ValueError, expected_error):
 			options._set_helper(["not", "a", "dictionary"], "")
 
-		#Variable Path Is Not A String
+		# Variable Path Is Not A String
 		expected_error = "The variable path must be a string."
 		with self.assertRaisesRegex(ValueError, expected_error):
 			options._set_helper({"hello": "world"}, 1)
@@ -41,7 +41,7 @@ class TestBaseOption(unittest.TestCase):
 	def test_set(self, *mocks):
 		options = BaseOption()
 
-		#Options Is Not A Dictionary
+		# Options Is Not A Dictionary
 		expected_error = "The options must be a dictionary."
 		with self.assertRaisesRegex(ValueError, expected_error):
 			options.set("notadictionary")

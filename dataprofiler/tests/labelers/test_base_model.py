@@ -152,20 +152,21 @@ class TestBaseModel(unittest.TestCase):
         mock_model._convert_labels_to_label_mapping.side_effect = \
             base_model.BaseModel._convert_labels_to_label_mapping
 
-        # base case
-        with self.assertRaisesRegex(TypeError,
-                                    "Labels must either be an encoding dict "
-                                    "which maps labels to index encodings or a "
-                                    "list."):
-            base_model.BaseModel.set_label_mapping(mock_model, label_mapping=None)
-
-        # base case
+        # assert non value is not accepted.
         with self.assertRaisesRegex(TypeError,
                                     "Labels must either be an encoding dict "
                                     "which maps labels to index encodings or a "
                                     "list."):
             base_model.BaseModel.set_label_mapping(
                 mock_model, label_mapping=None)
+
+        # non-acceptable value case
+        with self.assertRaisesRegex(TypeError,
+                                    "Labels must either be an encoding dict "
+                                    "which maps labels to index encodings or a "
+                                    "list."):
+            base_model.BaseModel.set_label_mapping(
+                mock_model, label_mapping=1)
 
         # assert error for empty label_mapping dict
         with self.assertRaisesRegex(TypeError,

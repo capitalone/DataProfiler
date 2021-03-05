@@ -106,6 +106,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     @staticmethod
     def _determine_has_header(data_as_str):
         """Automatically checks if the string has a header."""
+        if not data_as_str:
+            return None
         sniffer = csv.Sniffer()
         try:
             has_header = sniffer.has_header(data_as_str)

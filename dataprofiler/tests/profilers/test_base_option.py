@@ -17,11 +17,20 @@ class TestBaseOption(unittest.TestCase):
 	def setUpClass(cls):
 		cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
 	
-	def sanity(self, *mocks):
-		options = BaseOption()
+	@classmethod
+	def getOptions(self, **params):
+		return BaseOption(**params)
 	
-	def test_set_helper(self, *mocks):
+	@classmethod
+	def getOptionsPath(self):
+		return "BaseOption"
+	
+	def test_init(self, *mocks):
 		options = BaseOption()
+		self.assertEqual(options.properties, {}) 
+
+	def test_set_helper(self, *mocks):
+		options = self.getOptions()
 
 		#Options Is Not A Dictionary
 		expected_error = "The options must be a dictionary."
@@ -38,7 +47,7 @@ class TestBaseOption(unittest.TestCase):
 			options._set_helper({}, 1)
 
 	def test_set(self, *mocks):
-		options = BaseOption()
+		options = self.getOptions()
 
 		#Options Is Not A Dictionary
 		expected_error = "The options must be a dictionary."
@@ -48,7 +57,13 @@ class TestBaseOption(unittest.TestCase):
 			options.set(["not", "a", "dictionary"])
 	
 	def test_validate_helper(self, *mocks):
-		pass
+		options = BaseOption()
+
+		with self.assertRaises(NotImplementedError):
+			options._validate_helper()
 	
 	def test_validate(self, *mocks):
-		pass
+		options = BaseOption()
+
+		with self.assertRaises(NotImplementedError):
+			options.validate()

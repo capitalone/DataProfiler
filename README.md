@@ -147,7 +147,7 @@ The format for a profile is below:
 * BAN (bank account number, 10-18 digits)
 * CREDIT_CARD
 * EMAIL_ADDRESS
-* UUIC
+* UUID 
 * HASH_OR_KEY (md5, sha1, sha256, random hash, etc.)
 * IPV4
 * IPV6
@@ -201,12 +201,12 @@ pip3 install -r requirements.txt
 Install via the repo -- Build setup.py and install locally:
 ```
 python3 setup.py sdist bdist bdist_wheel
-pip3 install dist/data_profiler*-py3-none-any.whl
+pip3 install dist/DataProfiler*-py3-none-any.whl
 ```
 
 If you see:
 ```
- ERROR: Double requirement given:dataprofiler==X.Y.Z from dataprofiler/dist/data_profiler-X.Y.Z-py3-none-any.whl (already in dataprofiler==X2.Y2.Z2 from dataprofiler/dist/data_profiler-X2.Y2.Z2-py3-none-any.whl, name='dataprofiler')
+ ERROR: Double requirement given:dataprofiler==X.Y.Z from dataprofiler/dist/DataProfiler-X.Y.Z-py3-none-any.whl (already in dataprofiler==X2.Y2.Z2 from dataprofiler/dist/DataProfiler-X2.Y2.Z2-py3-none-any.whl, name='dataprofiler')
  ```
 This means that you have an multiple versions of the DataProfiler distribution 
 in the dist folder.
@@ -215,7 +215,7 @@ To resolve, either remove the older one or delete the folder and rerun the steps
 
 Install via github:
 ```
-pip3 install git+https://github.com/capitalone/dataprofiler.git#egg=data_profiler
+pip3 install git+https://github.com/capitalone/dataprofiler.git#egg=dataprofiler
 ```
 
 
@@ -239,12 +239,12 @@ python3 -m unittest discover -p test_profile_builder.py
 
 To run a file with Pytest use:
 ```
-pytest data_profiler/tests/data_readers/test_csv_data.py -v
+pytest DataProfiler/tests/data_readers/test_csv_data.py -v
 ```
 
 To run individual of unit test, use form:
 ```
-python3 -m unittest data_profiler.tests.profilers.test_profile_builder.TestProfiler
+python3 -m unittest dataprofiler.tests.profilers.test_profile_builder.TestProfiler
 ```
 
 # Get Started
@@ -772,11 +772,11 @@ data_labeler.check_pipeline()
 
 ### Model Component
 In order to create your own model component for data labeling, you can utilize 
-the `BaseModel` class from `data_profiler.labelers.base_model` and
+the `BaseModel` class from `dataprofiler.labelers.base_model` and
 overriding the abstract class methods.
 
 Reviewing `CharacterLevelCnnModel` from 
-`data_profiler.labelers.character_level_cnn_model` illustrates the functions 
+`dataprofiler.labelers.character_level_cnn_model` illustrates the functions 
 which need an override. 
   1. `__init__`: specifying default parameters and calling base `__init__`
   1. `_validate_parameters`: validating parameters given by user during setting
@@ -795,11 +795,11 @@ which need an override.
 ### Preprocessor Component
 In order to create your own preprocessor component for data labeling, you can 
 utilize the `BaseDataPreprocessor` class 
-from `data_profiler.labelers.data_processing` and override the abstract class 
+from `dataprofiler.labelers.data_processing` and override the abstract class 
 methods.
 
 Reviewing `StructCharPreprocessor` from 
-`data_profiler.labelers.data_processing` illustrates the functions which 
+`dataprofiler.labelers.data_processing` illustrates the functions which 
 need an override.
   1. `__init__`: passing parameters to the base class and executing any 
   extraneous calculations to be saved as parameters
@@ -819,11 +819,11 @@ need an override.
 The postprocessor is nearly identical to the preprocessor except it handles 
 the output of the model for processing. In order to create your own 
 postprocessor component for data  labeling, you can utilize the 
-`BaseDataPostprocessor` class from  `data_profiler.labelers.data_processing` 
+`BaseDataPostprocessor` class from  `dataprofiler.labelers.data_processing` 
 and override the abstract class methods.
 
 Reviewing `StructCharPostprocessor` from 
-`data_profiler.labelers.data_processing` illustrates the functions which 
+`dataprofiler.labelers.data_processing` illustrates the functions which 
 need an override.
   1. `__init__`: passing parameters to the base class and executing any 
   extraneous calculations to be saved as parameters
@@ -842,7 +842,7 @@ need an override.
 
 # Updating Documentation  
 To update the docs branch, checkout the gh-pages branch. Make sure it is up to
-date, then copy the data_profile folder from the feature branch you want to 
+date, then copy the dataprofiler folder from the feature branch you want to 
 update the documentation with (probably master).
 
 In /docs run:

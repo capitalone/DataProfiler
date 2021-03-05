@@ -17,10 +17,17 @@ class TestBaseColumnOptions(TestBooleanOption):
 	@classmethod
 	def setUpClass(cls):
 		cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
+
+	@classmethod
+	def getOptions(self, **params):
+		return BaseColumnOptions()
 	
-	def sanity(self, *mocks):
-		option = BaseColumnOption()
-		self.assertTrue("is_enabled" in option.properties)
+	@classmethod
+	def getOptionsPath(self, **params):
+		return "BaseColumnOptions"
+		
+	def test_init(self, *mocks):
+		super().test_init(*mocks)
 	
 	def test_set_helper(self, *mocks):
 		super().test_set_helper(*mocks)
@@ -35,13 +42,14 @@ class TestBaseColumnOptions(TestBooleanOption):
 		super().test_validate(*mocks)
 
 	def test_is_prop_enabled(self, *mocks):
-		options = BaseColumnOptions()
+		options = self.getOptions()
+		optpth = self.getOptionsPath()
 
 		self.assertTrue(options.is_prop_enabled("is_enabled"))
 		options.set({"is_enabled": False})
 		self.assertFalse(options.is_prop_enabled("is_enabled"))
 		
-		expected_error = 'Property "Hello World" does not exist in BaseColumnOptions.'
+		expected_error = 'Property "Hello World" does not exist in {}.'.format(optpth)
 		with self.assertRaisesRegex(AttributeError, expected_error):
 			options.is_prop_enabled("Hello World")
 

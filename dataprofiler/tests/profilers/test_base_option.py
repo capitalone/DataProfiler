@@ -25,9 +25,10 @@ class TestBaseOption(unittest.TestCase):
 	def getOptionsPath(self):
 		return "BaseOption"
 	
-	def sanity(self, *mocks):
-		options = self.getOptions()
-	
+	def test_init(self, *mocks):
+		options = BaseOption()
+		self.assertEqual(options.properties, {}) 
+
 	def test_set_helper(self, *mocks):
 		options = self.getOptions()
 
@@ -56,7 +57,13 @@ class TestBaseOption(unittest.TestCase):
 			options.set(["not", "a", "dictionary"])
 	
 	def test_validate_helper(self, *mocks):
-		pass
+		options = BaseOption()
+
+		with self.assertRaises(NotImplementedError):
+			options._validate_helper()
 	
 	def test_validate(self, *mocks):
-		pass
+		options = BaseOption()
+
+		with self.assertRaises(NotImplementedError):
+			options.validate()

@@ -18,7 +18,6 @@ class TestBooleanOption(TestBaseOption):
 	def setUpClass(cls):
 		cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
 	
-	@override
 	@classmethod
 	def getOptions(self, **params):
 		return BooleanOption(**params)
@@ -27,9 +26,9 @@ class TestBooleanOption(TestBaseOption):
 	def getOptionsPath(self, **params):
 		return "BooleanOption"
 		
-	def sanity(self, *mocks):
+	def test_init(self, *mocks):
 		option = self.getOptions()
-		self.assertTrue("is_enabled" in option.properties)
+		self.assertEqual(option.properties, {"is_enabled": True})
 	
 	def test_set_helper(self, *mocks):
 		super().test_set_helper(*mocks)
@@ -70,7 +69,8 @@ class TestBooleanOption(TestBaseOption):
 		expected_error = "The variable path must be a string."
 		with self.assertRaisesRegex(ValueError, expected_error):
 			option._validate_helper(1)
-
+		
+		#Option is_enabled is not a boolean
 		option = self.getOptions(is_enabled="Hello World")
 		expected_error = "{}.is_enabled must be a Boolean.".format(optpth)
 		self.assertEqual(option._validate_helper(), [expected_error])
@@ -82,6 +82,7 @@ class TestBooleanOption(TestBaseOption):
 		#Default Configuration Is Valid
 		self.assertEqual(option.validate(), [])
 		
+		#Option is_enabled is not a boolean
 		option = self.getOptions(is_enabled="Hello World")
 		expected_error = "{}.is_enabled must be a Boolean.".format(optpth)
 		with self.assertRaisesRegex(ValueError, expected_error):

@@ -18,93 +18,105 @@ class TestNumericalOptions(TestBaseColumnOptions):
 	def setUpClass(cls):
 		cls.keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]
 	
-	def sanity(self, *mocks):
+	@classmethod
+	def getOptions(self, **params):
 		options = NumericalOptions()
-		for key in keys + ['is_numeric_stats_enabled']:
+		options.set(params)
+		return options
+			
+	@classmethod
+	def getOptionsPath(self, **params):
+		return "NumericalOptions"
+		
+	def test_init(self, *mocks):
+		options = self.getOptions()
+		for key in self.keys + ['is_numeric_stats_enabled', 'is_enabled']:
 			self.assertTrue(key in options.properties)
 	
 	def test_set_helper(self, *mocks):
 		super().test_set_helper(*mocks)
+		options = self.getOptions()
 
-		#Enable and Disable Options
-		options = NumericalOptions()
+		# Enable and Disable Options
 		for key in self.keys:
 			skey = '{}.is_enabled'.format(key)
 			for enabled in [True, False]:
 				options._set_helper({skey:enabled}, '') 
-				self.assertEqual(options.properties[key].is_enabled, enabled)		
+				self.assertEqual(enabled, options.properties[key].is_enabled)		
 
 	def test_set(self, *mocks):
 		super().test_set(*mocks)
+		options = self.getOptions()
 		
-		#Enable and Disable Options
-		options = NumericalOptions()
+		# Enable and Disable Options
 		for key in self.keys:
 			skey = '{}.is_enabled'.format(key)
 			for enabled in [True, False]:
 				options.set({skey:enabled}) 
-				self.assertEqual(options.properties[key].is_enabled, enabled)		
+				self.assertEqual(enabled, options.properties[key].is_enabled)		
 	
 	def test_validate_helper(self, *mocks):
 		super().test_validate_helper(*mocks)
+		options = self.getOptions()
+		optpth = self.getOptionsPath()
 	
-		#Set BooleanOptions' is_enabled to a non-boolean value
-		options = NumericalOptions()
+		# Set BooleanOptions' is_enabled to a non-boolean value
 		for key in self.keys:
 			skey = '{}.is_enabled'.format(key)
-			expected_error = "NumericalOptions.{}.is_enabled must be a Boolean.".format(key)
+			expected_error = "{}.{}.is_enabled must be a boolean.".format(optpth, key)
 			
 			options.set({skey: "Hello World"})
-			self.assertEqual(options._validate_helper(), [expected_error])
+			self.assertEqual([expected_error], options._validate_helper())
 			options.set({skey: True})
 
-		#Disable Sum and Enable Variance
+		# Disable Sum and Enable Variance
 		options.set({"sum.is_enabled": False, "variance.is_enabled": True})
-		expected_error = "NumericalOptions: The numeric stats must toggle on the sum if the variance is toggled on."
-		self.assertEqual(options._validate_helper(), [expected_error]) 
+		expected_error = "{}: The numeric stats must toggle on the sum if the variance is toggled on.".format(optpth)
+		self.assertEqual([expected_error], options._validate_helper()) 
 	
 	def test_validate(self, *mocks):
 		super().test_validate(*mocks)
-
-		#Set BooleanOptions' is_enabled to a non-boolean value
-		options = NumericalOptions()
+		options = self.getOptions()
+		optpth = self.getOptionsPath()
+		
+		# Set BooleanOptions' is_enabled to a non-boolean value
 		for key in self.keys:
 			skey = '{}.is_enabled'.format(key)
-			expected_error = "NumericalOptions.{}.is_enabled must be a Boolean.".format(key)
+			expected_error = "{}.{}.is_enabled must be a boolean.".format(optpth, key)
 			
 			options.set({skey: "Hello World"})
 			with self.assertRaisesRegex(ValueError, expected_error):
 				options.validate(raise_error=True)	
-			self.assertEqual(options.validate(raise_error=False), [expected_error])
+			self.assertEqual([expected_error], options.validate(raise_error=False))
 			options.set({skey: True})
 
-		#Disable Sum and Enable Variance
+		# Disable Sum and Enable Variance
 		options.set({"sum.is_enabled": False, "variance.is_enabled": True})
-		expected_error = "NumericalOptions: The numeric stats must toggle on the sum if the variance is toggled on."
+		expected_error = "{}: The numeric stats must toggle on the sum if the variance is toggled on.".format(optpth)
 		with self.assertRaisesRegex(ValueError, expected_error):
 			options.validate(raise_error=True)	
-		self.assertEqual(options.validate(raise_error=False), [expected_error]) 
+		self.assertEqual([expected_error], options.validate(raise_error=False)) 
 	
 	def test_is_numeric_stats_enabled(self, *mocks):
-		options = NumericalOptions()
+		options = self.getOptions()
 		
-		#Disable All Numeric Stats
+		# Disable All Numeric Stats
 		options.set({'{}.is_enabled'.format(key):False for key in self.keys})
 		self.assertFalse(options.is_numeric_stats_enabled)
 		
-		#Enable Only One Numeric Stat
+		# Enable Only One Numeric Stat
 		for key in self.keys:
 			skey = '{}.is_enabled'.format(key)
 			options.set({skey: True})
 			self.assertTrue(options.is_numeric_stats_enabled)
 			options.set({skey: False})
 
-		#Enable All Numeric Stats
+		# Enable All Numeric Stats
 		options.is_numeric_stats_enabled = True
 		for key in self.keys:			
 			self.assertTrue(options.is_numeric_stats_enabled)
 
-		#Disable All Numeric Stats
+		# Disable All Numeric Stats
 		options.is_numeric_stats_enabled = False
 		for key in self.keys:			
 			self.assertFalse(options.is_numeric_stats_enabled)

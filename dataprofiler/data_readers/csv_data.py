@@ -90,13 +90,13 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         """
         Automatically checks for what delimiter exists in a text document.
 
-        :param data_as_str: Single string containing rows (lines seperated by "\n")
+        :param data_as_str: Single string containing rows (lines separated by "\n")
         :type data_as_str: str
         :return: Delimiter, if none can be found None is returned
         :rtype: str or None
         """
         sniffer = csv.Sniffer()
-        sniffer.preferred = [',', '\t', ';']  # removes ' ', ';' from preferred
+        sniffer.preferred = [',', '\t', ';']  # removes ' ', ':' from preferred
         try:
             dialect = sniffer.sniff(data_as_str)
         except csv.Error as exc:

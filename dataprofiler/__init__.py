@@ -4,7 +4,6 @@ from .profilers.profiler_options import ProfilerOptions
 from .labelers.data_labelers import train_structured_labeler, DataLabeler, \
                                     StructuredDataLabeler, \
                                     UnstructuredDataLabeler
-from .labelers import CharacterLevelCnnModel, RegexModel
 from .validators.base_validators import Validator
 from .version import __version__
 

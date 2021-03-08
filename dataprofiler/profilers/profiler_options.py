@@ -373,7 +373,7 @@ class FloatOptions(NumericalOptions):
         if not isinstance(self.precision, BooleanOption):
             errors.append("{}.precision must be a BooleanOption."
                           .format(variable_path))
-        errors += self.precision._validate_helper(variable_path)
+        errors += self.precision._validate_helper(variable_path + '.precision')
         return errors
 
 

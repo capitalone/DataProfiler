@@ -481,8 +481,11 @@ class TestIntColumn(unittest.TestCase):
         profiler2 = IntColumn("Int", options=options)
         profiler2.update(df2)
 
-        # Asserting error when adding 2 profilers with different options
-        profiler3 = profiler1 + profiler2
+        # Asserting warning when adding 2 profilers with different options
+        with self.assertWarnsRegex(RuntimeWarning,
+                                   "max is disabled because it is not enabled in"
+                                   " both profiles."):
+            profiler3 = profiler1 + profiler2
         
         # Assert that these features are still merged
         self.assertIsNotNone(profiler3.histogram_selection)

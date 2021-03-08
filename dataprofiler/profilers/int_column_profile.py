@@ -46,15 +46,11 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                             "'IntColumn' and '{}'".format(other.__class__.__name__))
 
         merged_profile = IntColumn(None)
-        self._merge_calculations(merged_profile.__calculations, 
-                                 self.__calculations, 
-                                 other.__calculations)
-        self._merge_calculations(merged_profile._NumericStatsMixin__calculations,
-                                 self._NumericStatsMixin__calculations, 
-                                 other._NumericStatsMixin__calculations)
-        
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
         NumericStatsMixin._add_helper(merged_profile, self, other)
+        self._merge_calculations(merged_profile.__calculations,
+                                 self.__calculations,
+                                 other.__calculations)
         return merged_profile
 
     @property

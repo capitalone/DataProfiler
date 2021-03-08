@@ -130,13 +130,19 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :param other2: profile2 being added to self
         :return: None
         """
+
+        BaseColumnProfiler._merge_calculations(
+            self._NumericStatsMixin__calculations,
+            other1._NumericStatsMixin__calculations,
+            other2._NumericStatsMixin__calculations)
+
         # Merge variance, histogram, min, max, and sum
         if "variance" in self.__calculations.keys():
             self.variance = self._merge_variance(
                 other1.match_count, other1.variance, other1.mean,
                 other2.match_count, other2.variance, other2.mean)
         if "histogram_and_quantiles" in self.__calculations.keys():
-            if other1.histogram_selection is None and \
+            if other1.histogram_selection is not None and \
                     other2.histogram_selection is not None:
                 self._add_helper_merge_profile_histograms(other1, other2)
             elif other2.histogram_selection is None:

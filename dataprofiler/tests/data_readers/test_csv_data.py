@@ -176,13 +176,17 @@ class TestCSVDataClass(unittest.TestCase):
         # add one more file to the list
         # this file has the first line which is not the header
         test_dir = os.path.join(test_root_path, 'data')
-        file_with_header_and_author = dict(
-            path=os.path.join(test_dir, 'csv/header-and-author.txt'),
-            count=6, delimiter=',', has_header=[1],
-            num_columns=3, encoding='utf-8')
+        file_with_header_and_authors = [
+            dict(path=os.path.join(test_dir, 'csv/header-and-author.txt'),
+                 count=6, delimiter=',', has_header=[1],
+                 num_columns=3, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/header-and-author-description.txt'),
+                 count=6, delimiter=',', has_header=[3],
+                 num_columns=3, encoding='utf-8'),
+            ]
 
         input_file_names = self.input_file_names[:]
-        input_file_names.append(file_with_header_and_author)
+        input_file_names += file_with_header_and_authors
         for input_file in input_file_names:
             options = dict()
             CSVData.is_match(input_file['path'], options)

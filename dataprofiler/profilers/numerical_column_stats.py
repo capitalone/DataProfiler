@@ -136,36 +136,31 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 other1.match_count, other1.variance, other1.mean,
                 other2.match_count, other2.variance, other2.mean)
         if "histogram_and_quantiles" in self.__calculations.keys():
-            if other1.histogram_selection != None and \
-                    other2.histogram_selection != None:
+            if other1.histogram_selection is None and \
+                    other2.histogram_selection is not None:
                 self._add_helper_merge_profile_histograms(other1, other2)
-            elif other2.histogram_selection == None:
+            elif other2.histogram_selection is None:
                 self.histogram_methods = other1.histogram_methods
                 self.quantiles = other1.quantiles
             else:
                 self.histogram_methods = other2.histogram_methods
                 self.quantiles = other2.quantiles
         if "min" in self.__calculations.keys():
-            if other1.min != None and other2.min != None:
+            if other1.min is not None and other2.min is not None:
                 self.min = min(other1.min, other2.min)
-            elif other2.min == None:
+            elif other2.min is None:
                 self.min = other1.min
             else:
                 self.min = other2.min
         if "max" in self.__calculations.keys():
-            if other1.max != None and other2.max != None:
+            if other1.max is not None and other2.max is not None:
                 self.max = max(other1.max, other2.max)
-            elif other2.max == None:
+            elif other2.max is None:
                 self.max = other1.max
             else:
                 self.max = other2.max
         if "sum" in self.__calculations.keys():
-            if other1.sum != 0 and other2.sum != 0:
-                self.sum = other1.sum + other2.sum
-            elif other2.sum == 0:
-                self.sum = other1.sum
-            else:
-                self.sum = other2.sum
+            self.sum = other1.sum + other2.sum
 
     @property
     def mean(self):

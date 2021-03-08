@@ -110,7 +110,7 @@ class TestDataLabeler(unittest.TestCase):
         data_labeler = dp.DataLabeler(labeler_type='unstructured')
         self.assertIsInstance(data_labeler, BaseDataLabeler)
 
-    def test_structured_data_labeler_fit_predict_take_Data_obj(self):
+    def test_structured_data_labeler_fit_predict_take_data_obj(self):
         data = pd.DataFrame(["123 Fake st", "1/1/2021", "blah", "333-44-2341",
                              "foobar@gmail.com", "John Doe", "123-4567"])
         labels = pd.DataFrame(["ADDRESS", "DATETIME", "BACKGROUND", "SSN",
@@ -121,6 +121,9 @@ class TestDataLabeler(unittest.TestCase):
             labeler = dp.DataLabeler(labeler_type="structured", trainable=True)
             self.assertIsNotNone(labeler.fit(x=data_obj, y=label_obj))
             self.assertIsNotNone(labeler.predict(data=data_obj))
+
+    def test_unstructured_data_labeler_fit_predict_take_data_obj(self):
+        pass
 
 
 label_encoding = {

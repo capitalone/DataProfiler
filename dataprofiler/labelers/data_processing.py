@@ -1146,20 +1146,24 @@ class StructCharPreprocessor(CharPreprocessor,
         :return batch_data: A dict containing  samples of size batch_size
         :rtype batch_data: dict
         """
+        if labels is not None and not label_mapping:
+            raise ValueError('If `labels` are specified, `label_mapping` must '
+                             'also be specified.')
 
-        # Flatten DataFrames and Arrays into 1 dimensional lists
+        # Flatten DataFrames and Arrays into 1 dimensional np arrays
+        # Place lists into np arrays so they can use .astype(str)
         if isinstance(data, pd.DataFrame):
             data = data.values.reshape(-1)
         elif isinstance(data, np.ndarray):
             data = data.reshape(-1)
+        elif isinstance(data, list):
+            data = np.array(data)
         if isinstance(labels, pd.DataFrame):
             labels = labels.values.reshape(-1)
         elif isinstance(labels, np.ndarray):
             labels = labels.reshape(-1)
-
-        if labels is not None and not label_mapping:
-            raise ValueError('If `labels` are specified, `label_mapping` must '
-                             'also be specified.')
+        elif isinstance(labels, list):
+            labels = np.array(labels)
 
         # convert structured to unstructured format
         unstructured_data = [[]] * len(data)

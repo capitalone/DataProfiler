@@ -26,7 +26,7 @@ class TestBaseOption(unittest.TestCase):
 		return "BaseOption"
 	
 	def test_init(self, *mocks):
-		options = BaseOption()
+		options = self.getOptions()
 		self.assertDictEqual({}, options.properties) 
 
 	def test_set_helper(self, *mocks):
@@ -57,13 +57,13 @@ class TestBaseOption(unittest.TestCase):
 			options.set(["not", "a", "dictionary"])
 	
 	def test_validate_helper(self, *mocks):
-		options = BaseOption()
+		options = self.getOptions()
 
 		with self.assertRaises(NotImplementedError):
 			options._validate_helper()
 	
 	def test_validate(self, *mocks):
-		options = BaseOption()
+		options = self.getOptions()
 
 		with self.assertRaises(NotImplementedError):
 			options.validate()

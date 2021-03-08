@@ -459,6 +459,19 @@ class OrderOptions(BaseColumnOptions):
         """
         BaseColumnOptions.__init__(self)
 
+    def _validate_helper(self, variable_path='OrderOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
+        return super()._validate_helper(variable_path) 
 
 class CategoricalOptions(BaseColumnOptions):
     def __init__(self):
@@ -470,6 +483,19 @@ class CategoricalOptions(BaseColumnOptions):
         """
         BaseColumnOptions.__init__(self)
 
+    def _validate_helper(self, variable_path='CategoricalOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
+        return super()._validate_helper(variable_path) 
 
 class DataLabelerOptions(BaseColumnOptions):
     def __init__(self):

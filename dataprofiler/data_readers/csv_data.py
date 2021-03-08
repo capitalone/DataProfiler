@@ -135,12 +135,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 cell = row_list[i].strip()
                 cell_type = 'str'
                 try:
-                    float(cell)
-                    cell_type = 'numeric'
+                    float_cell = float(cell)
+                    if int(float_cell) == float_cell:
+                        cell_type = 'int'
+                    else:
+                        cell_type = 'float'
                 except ValueError:
                     pass
 
-                if cell_type != 'numeric':
+                if cell_type not in ['float', 'int']:
                     if len(cell) == 0:
                         cell_type = 'none'
                     elif cell.isupper():

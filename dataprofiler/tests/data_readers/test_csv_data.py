@@ -100,9 +100,6 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/sparse-interchange-none.txt'),
                  count=6, delimiter=',', has_header=[0],
                  num_columns=3, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/header-and-author.txt'),
-                 count=6, delimiter=',', has_header=[1],
-                 num_columns=3, encoding='utf-8'),
         ]
         cls.output_file_path = None
 
@@ -176,7 +173,17 @@ class TestCSVDataClass(unittest.TestCase):
         """
         Determine if files with no header are properly determined.
         """
-        for input_file in self.input_file_names:
+        # add one more file to the list
+        # this file has the first line which is not the header
+        test_dir = os.path.join(test_root_path, 'data')
+        file_with_header_and_author = dict(
+            path=os.path.join(test_dir, 'csv/header-and-author.txt'),
+            count=6, delimiter=',', has_header=[1],
+            num_columns=3, encoding='utf-8')
+
+        input_file_names = self.input_file_names[:]
+        input_file_names.append(file_with_header_and_author)
+        for input_file in input_file_names:
             options = dict()
             CSVData.is_match(input_file['path'], options)
             self.assertIn(options.get("header"), input_file['has_header'])

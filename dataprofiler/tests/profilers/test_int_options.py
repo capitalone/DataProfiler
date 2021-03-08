@@ -12,7 +12,7 @@ from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOpt
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
             'DataLabelerColumn.update', return_value=None)
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
-class TestNumericalOptions(TestNumericalOptions):
+class TestIntOptions(TestNumericalOptions):
 	
 	@classmethod
 	def setUpClass(cls):

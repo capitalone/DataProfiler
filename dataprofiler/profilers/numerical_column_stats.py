@@ -130,39 +130,42 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :param other2: profile2 being added to self
         :return: None
         """
-        # Merge Variance
-        self.variance = self._merge_variance(
-            other1.match_count, other1.variance, other1.mean,
-            other2.match_count, other2.variance, other2.mean)
-
-        # Merge min, max, sum and histograms
-        if other1.min is not None and other2.min is not None:
-            # update histogram
-            self._add_helper_merge_profile_histograms(other1, other2)
-
-            # update min, max, sum
-            self.min = min(other1.min, other2.min)
-            self.max = max(other1.max, other2.max)
-            self.sum = other1.sum + other2.sum
-
-        elif other2.min is None:
-            # update histogram
-            self.histogram_methods = other1.histogram_methods
-            self.quantiles = other1.quantiles
-
-            # update min, max, sum
-            self.min = other1.min
-            self.max = other1.max
-            self.sum = other1.sum
-        else:
-            # update histogram
-            self.histogram_methods = other2.histogram_methods
-            self.quantiles = other2.quantiles
-
-            # update min, max, sum
-            self.min = other2.min
-            self.max = other2.max
-            self.sum = other2.sum
+        # Merge variance, histogram, min, max, and sum
+        if "variance" in self.__calculations.keys():
+            self.variance = self._merge_variance(
+                other1.match_count, other1.variance, other1.mean,
+                other2.match_count, other2.variance, other2.mean)
+        if "histogram_and_quantiles" in self.__calculations.keys():
+            if other1.histogram_selection != None and \
+                    other2.histogram_selection != None:
+                self._add_helper_merge_profile_histograms(other1, other2)
+            elif other2.histogram_selection == None:
+                self.histogram_methods = other1.histogram_methods
+                self.quantiles = other1.quantiles
+            else:
+                self.histogram_methods = other2.histogram_methods
+                self.quantiles = other2.quantiles
+        if "min" in self.__calculations.keys():
+            if other1.min != None and other2.min != None:
+                self.min = min(other1.min, other2.min)
+            elif other2.min == None:
+                self.min = other1.min
+            else:
+                self.min = other2.min
+        if "max" in self.__calculations.keys():
+            if other1.max != None and other2.max != None:
+                self.max = max(other1.max, other2.max)
+            elif other2.max == None:
+                self.max = other1.max
+            else:
+                self.max = other2.max
+        if "sum" in self.__calculations.keys():
+            if other1.sum != 0 and other2.sum != 0:
+                self.sum = other1.sum + other2.sum
+            elif other2.sum == 0:
+                self.sum = other1.sum
+            else:
+                self.sum = other2.sum
 
     @property
     def mean(self):

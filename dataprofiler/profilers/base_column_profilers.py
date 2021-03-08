@@ -13,6 +13,7 @@ import time
 from collections import OrderedDict, defaultdict
 from future.utils import with_metaclass
 import functools
+import warnings
 
 import numpy as np
 
@@ -128,6 +129,15 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
                                    df_series,
                                    prev_dependent_properties,
                                    subset_properties)
+
+    @staticmethod
+    def _merge_calculations(merged_profile_calcs, profile1_calcs, profile2_calcs):
+        calcs = list(merged_profile_calcs.keys())
+        for calc in calcs:
+            if calc not in profile1_calcs or calc not in profile2_calcs:
+                del merged_profile_calcs[calc]
+                if calc in profile1_calcs or calc in profile2_calcs:
+                    warnings.warn("{} is disabled because it is not enabled in both profiles.".format(calc))
 
     def _add_helper(self, other1, other2):
         """

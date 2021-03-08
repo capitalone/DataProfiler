@@ -708,6 +708,7 @@ epoch_id = 0
 final_results = model_results[epoch_id]["pred"]
 final_confidences = model_results[epoch_id]["conf"]
 ```
+
 The following illustrates how to extend the labels:
 ```python
 import dataprofiler as dp

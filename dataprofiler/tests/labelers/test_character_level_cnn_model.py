@@ -141,8 +141,8 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         # test not dict
         label_mapping = None
         with self.assertRaisesRegex(
-                TypeError, "Labels must either be an encoding dict which maps "
-                           "labels to index encodings or a list."):
+                TypeError, "Labels must either be a non-empty encoding dict "
+                           "which maps labels to index encodings or a list."):
             cnn_model.set_label_mapping(label_mapping)
 
         # test raise error for setting non PAD to 0

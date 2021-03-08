@@ -199,8 +199,8 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         :return: None
         """
         if not isinstance(label_mapping, (list, dict)):
-            raise TypeError("Labels must either be an encoding dict which maps "
-                            "labels to index encodings or a list.")
+            raise TypeError("Labels must either be a non-empty encoding dict "
+                            "which maps labels to index encodings or a list.")
 
         label_mapping = copy.deepcopy(label_mapping)
         if 'PAD' not in label_mapping:

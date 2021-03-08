@@ -103,8 +103,8 @@ class TestRegexModel(unittest.TestCase):
         # test not dict
         label_mapping = None
         with self.assertRaisesRegex(
-                TypeError, "Labels must either be an encoding dict which maps "
-                           "labels to index encodings or a list."):
+                TypeError, "Labels must either be a non-empty encoding dict "
+                           "which maps labels to index encodings or a list."):
             model.set_label_mapping(label_mapping)
 
         # test label_mapping

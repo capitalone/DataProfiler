@@ -197,8 +197,8 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         :return: None
         """
         if not isinstance(label_mapping, (list, dict)) or not label_mapping:
-            raise TypeError("Labels must either be an encoding dict which maps "
-                            "labels to index encodings or a list.")
+            raise TypeError("Labels must either be a non-empty encoding dict "
+                            "which maps labels to index encodings or a list.")
         label_mapping = self._convert_labels_to_label_mapping(
             label_mapping, self.requires_zero_mapping)
         self._label_mapping = copy.deepcopy(label_mapping)

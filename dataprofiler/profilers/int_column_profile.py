@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 from .numerical_column_stats import NumericStatsMixin
 from .base_column_profilers import BaseColumnProfiler, \
@@ -45,13 +46,14 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             raise TypeError("Unsupported operand type(s) for +: "
                             "'IntColumn' and '{}'".format(other.__class__.__name__))
 
-        if self.__calculations != other.__calculations or \
-            self._NumericStatsMixin__calculations != \
-            other._NumericStatsMixin__calculations:
-            raise AttributeError("Cannot merge Int Column. The Int options are "
-                                 "not the same for both column profiles.")
-
         merged_profile = IntColumn(None)
+        self._merge_calculations(merged_profile.__calculations, 
+                                 self.__calculations, 
+                                 other.__calculations)
+        self._merge_calculations(merged_profile._NumericStatsMixin__calculations,
+                                 self._NumericStatsMixin__calculations, 
+                                 other._NumericStatsMixin__calculations)
+        
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
         NumericStatsMixin._add_helper(merged_profile, self, other)
         return merged_profile

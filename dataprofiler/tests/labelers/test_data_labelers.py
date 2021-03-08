@@ -123,7 +123,25 @@ class TestDataLabeler(unittest.TestCase):
             self.assertIsNotNone(labeler.predict(data=data_obj))
 
     def test_unstructured_data_labeler_fit_predict_take_data_obj(self):
-        pass
+        data_cells = ["123 Fake st", "1/1/2021", "blah", "333-44-2341",
+                      "foobar@gmail.com", "John Doe", "123-4567"]
+        label_cells = ["ADDRESS", "DATETIME", "BACKGROUND", "SSN",
+                       "EMAIL_ADDRESS", "PERSON", "PHONE_NUMBER"]
+
+        def data_ind(i):
+            # Take off 1 in base case so we don't include trailing comma
+            if i == -1:
+                return -1
+            # Determine string index
+            # Add 1 with every pass to account for commas
+            return len(data_cells[i]) + 1 + data_ind(i - 1)
+
+        # Test with one large string of data
+        data_str = ",".join(data_cells)
+        entity_list = [(0, len(data_cells[0]), "ADDRESS")] + \
+                      [(data_ind(i - 1) + 1, data_ind(i), label_cells[i])
+                       for i in range(1, len(data_cells))]
+        label_str = {"entities": entity_list}
 
 
 label_encoding = {

@@ -94,7 +94,7 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/names-col-without-space.txt'),
                  count=6, delimiter=None, has_header=[0],
                  num_columns=1, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/two-header.txt'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-two-header.txt'),
                  count=6, delimiter=',', has_header=[1],
                  num_columns=3, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/sparse-interchange-none.txt'),

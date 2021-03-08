@@ -209,18 +209,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             row_classic_header_ends = None
         return row_classic_header_ends
 
-    # @staticmethod
-    # def _determine_has_header(data_as_str, suggested_delim=None):
-    #     """Automatically checks if the string has a header."""
-    #     if not data_as_str:
-    #         return None
-    #     sniffer = csv.Sniffer()
-    #     if not suggested_delim:
-    #         suggested_delim = ' '
-    #     sniffer._guess_delimiter = lambda *args, **kwargs: (suggested_delim, 0)
-    #     has_header = sniffer.has_header(data_as_str)
-    #     return 0 if has_header else None
-
     def _load_data_from_str(self, data_as_str):
         """Loads the data into memory from the str."""
         if not self._delimiter:

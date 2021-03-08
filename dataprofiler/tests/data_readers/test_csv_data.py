@@ -173,62 +173,6 @@ class TestCSVDataClass(unittest.TestCase):
         """
         Determine if files with no header are properly determined.
         """
-        # test_dir = os.path.join(test_root_path, 'data')
-        #
-        # # File w/o header, set to None
-        # path = os.path.join(test_dir, 'csv/iris_no_header.csv')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertIsNone(options.get("header"))
-        #
-        # # File with header, set to 0 for auto determine
-        # path = os.path.join(test_dir, 'csv/iris.csv')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertEqual(0, options.get("header"))
-        #
-        # # File with header, but the csv sniffer fails to detect
-        # # set to 0 for auto determine
-        # path = os.path.join(test_dir, 'csv/small-num.csv')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertEqual(0, options.get("header"))
-        #
-        # # File with header, but the csv sniffer fails to detect
-        # # set to 0 for auto determine
-        # path = os.path.join(test_dir, 'csv/names-col.txt')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertEqual(0, options.get("header"))
-        #
-        # # File with header, but the csv sniffer fails to detect
-        # # set to 0 for auto determine
-        # path = os.path.join(test_dir, 'csv/names-col-empty.txt')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertEqual(0, options.get("header"))
-        #
-        # # File with header, but the csv sniffer fails to detect
-        # # set to 0 for auto determine
-        # path = os.path.join(test_dir, 'csv/names-col-without-space.txt')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertEqual(0, options.get("header"))
-        #
-        # # File with header, but the csv sniffer fails to detect
-        # # set to 0 for auto determine
-        # path = os.path.join(test_dir, 'csv/two-header.txt')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertEqual(1, options.get("header"))
-        #
-        # # File with header, but the csv sniffer fails to detect
-        # # set to 0 for auto determine
-        # path = os.path.join(test_dir, 'csv/sparse-interchange-none.txt')
-        # options = dict()
-        # CSVData.is_match(path, options)
-        # self.assertEqual(0, options.get("header"))
-
         for input_file in self.input_file_names:
             options = dict()
             CSVData.is_match(input_file['path'], options)

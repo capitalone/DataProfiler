@@ -28,8 +28,6 @@ Data Labelers:
 """
 # import models
 from .base_data_labeler import BaseDataLabeler
-from .character_level_cnn_model import CharacterLevelCnnModel
-from .regex_model import RegexModel
 
 # import data processors
 from .data_processing import CharPreprocessor, CharPostprocessor, \

@@ -70,6 +70,9 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column.txt'),
                  count=5, delimiter=',', has_header=[0],
                  num_columns=3, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-no-header.txt'),
+                 count=5, delimiter=',', has_header=[None],
+                 num_columns=3, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/log_data_sparse.txt'),
                  count=20, delimiter=',', has_header=[None],
                  num_columns=3, encoding='utf-8'),
@@ -97,9 +100,9 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/sparse-interchange-none.txt'),
                  count=6, delimiter=',', has_header=[0],
                  num_columns=3, encoding='utf-8'),
-            # dict(path=os.path.join(test_dir, 'csv/header-and-author.txt'),
-            #      count=6, delimiter=',', has_header=[1],
-            #      num_columns=3, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/header-and-author.txt'),
+                 count=6, delimiter=',', has_header=[1],
+                 num_columns=3, encoding='utf-8'),
         ]
         cls.output_file_path = None
 

@@ -522,13 +522,19 @@ class DataLabelerOptions(BaseColumnOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
         errors = super()._validate_helper(variable_path=variable_path)
-        if self.data_labeler_dirpath and \
+        if self.data_labeler_dirpath != None and \
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
-        if self.max_sample_size and not isinstance(self.max_sample_size, int):
-            errors.append("{}.max_sample_size must be a string."
+        if self.max_sample_size != None and not isinstance(self.max_sample_size, int):
+            errors.append("{}.max_sample_size must be an integer."
+                          .format(variable_path))
+        elif self.max_sample_size != None and self.max_sample_size <= 0:
+            errors.append("{}.max_sample_size must be greater than 0."
                           .format(variable_path))
         return errors
 

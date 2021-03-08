@@ -221,13 +221,6 @@ class TestCSVDataClass(unittest.TestCase):
 
         # File with header, but the csv sniffer fails to detect
         # set to 0 for auto determine
-        path = os.path.join(test_dir, 'csv/header-and-author.txt')
-        options = dict()
-        CSVData.is_match(path, options)
-        self.assertEqual(1, options.get("header"))
-
-        # File with header, but the csv sniffer fails to detect
-        # set to 0 for auto determine
         path = os.path.join(test_dir, 'csv/sparse-interchange-none.txt')
         options = dict()
         CSVData.is_match(path, options)

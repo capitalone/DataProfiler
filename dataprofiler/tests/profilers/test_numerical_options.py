@@ -16,7 +16,8 @@ class TestNumericalOptions(TestBaseColumnOptions):
 	
 	@classmethod
 	def setUpClass(cls):
-		cls.keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]
+		super().setUpClass()
+		cls.keys += ["min", "max", "sum", "variance", "histogram_and_quantiles"]
 	
 	@classmethod
 	def getOptions(self, **params):
@@ -63,7 +64,7 @@ class TestNumericalOptions(TestBaseColumnOptions):
 		# Set BooleanOptions' is_enabled to a non-boolean value
 		for key in self.keys:
 			skey = '{}.is_enabled'.format(key)
-			expected_error = "{}.{}.is_enabled must be a boolean.".format(optpth, key)
+			expected_error = "{}.{}.is_enabled must be a Boolean.".format(optpth, key)
 			
 			options.set({skey: "Hello World"})
 			self.assertEqual([expected_error], options._validate_helper())
@@ -82,7 +83,7 @@ class TestNumericalOptions(TestBaseColumnOptions):
 		# Set BooleanOptions' is_enabled to a non-boolean value
 		for key in self.keys:
 			skey = '{}.is_enabled'.format(key)
-			expected_error = "{}.{}.is_enabled must be a boolean.".format(optpth, key)
+			expected_error = "{}.{}.is_enabled must be a Boolean.".format(optpth, key)
 			
 			options.set({skey: "Hello World"})
 			with self.assertRaisesRegex(ValueError, expected_error):

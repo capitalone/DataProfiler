@@ -16,8 +16,8 @@ class TestBaseColumnOptions(TestBooleanOption):
 	
 	@classmethod
 	def setUpClass(cls):
-		cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
-
+		super().setUpClass()
+		
 	@classmethod
 	def getOptions(self, **params):
 		options = BaseColumnOptions()

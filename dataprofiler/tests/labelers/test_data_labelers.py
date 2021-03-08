@@ -138,10 +138,17 @@ class TestDataLabeler(unittest.TestCase):
 
         # Test with one large string of data
         data_str = ",".join(data_cells)
-        entity_list = [(0, len(data_cells[0]), "ADDRESS")] + \
+        entity_list = [(0, len(data_cells[0]), label_cells[0])] + \
                       [(data_ind(i - 1) + 1, data_ind(i), label_cells[i])
                        for i in range(1, len(data_cells))]
         label_str = {"entities": entity_list}
+        for dt in ["csv", "json", "parquet"]:
+            data_obj = dp.Data(data=pd.DataFrame([data_str]), data_type=dt)
+            label_str_ser = pd.Series([label_str])
+            labeler = dp.DataLabeler(labeler_type="unstructured",
+                                     trainable=True)
+            self.assertIsNotNone(labeler.fit(x=data_obj, y=label_str_ser))
+            self.assertIsNotNone(labeler.predict(data=data_obj))
 
 
 label_encoding = {

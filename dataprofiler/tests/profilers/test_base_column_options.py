@@ -48,6 +48,7 @@ class TestBaseColumnOptions(TestBooleanOption):
 		optpth = self.getOptionsPath()
 
 		# Check is prop enabled for valid property
+		options.set({"is_enabled": True})
 		self.assertTrue(options.is_prop_enabled("is_enabled"))
 		options.set({"is_enabled": False})
 		self.assertFalse(options.is_prop_enabled("is_enabled"))

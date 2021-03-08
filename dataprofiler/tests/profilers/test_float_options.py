@@ -6,13 +6,13 @@ import pandas as pd
 
 from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import FloatOptions
-from dataprofiler.tests.profilers.test_int_options import TestIntOptions
+from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOptions
 
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
             'DataLabelerColumn.update', return_value=None)
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
-class TestFloatOptions(TestIntOptions):
+class TestFloatOptions(TestNumericalOptions):
 	
 	@classmethod
 	def setUpClass(cls):

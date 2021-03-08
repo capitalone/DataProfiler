@@ -272,6 +272,7 @@ class BaseDataLabeler(object):
         :param verbose: Flag to determine whether to print status or not
         :return: predictions
         """
+
         if predict_options is None:
             predict_options = {}
         data = self._check_and_return_valid_data_format(
@@ -422,6 +423,7 @@ class BaseDataLabeler(object):
 
         with open(os.path.join(dirpath, 'data_labeler_parameters.json')) as fp:
             params = json.load(fp)
+            
         if 'model_class' in load_options:
             model_class = load_options.get('model_class')
             if not isinstance(model_class, BaseModel):

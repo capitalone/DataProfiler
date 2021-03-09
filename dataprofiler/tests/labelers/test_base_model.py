@@ -101,45 +101,44 @@ class TestBaseModel(unittest.TestCase):
                          _validate_parameters=mock.MagicMock(return_value=None))
     def test_add_labels(self, *args):
 
-        # setup mock
+        # setup model with mocked abstract methods
         mock_model = base_model.BaseModel(
-            label_mapping={'test': 1}, parameters={})
+            label_mapping={'NEW_LABEL': 1}, parameters={})
 
         # assert bad label inputs
         with self.assertRaisesRegex(TypeError, '`label` must be a str.'):
-            base_model.BaseModel.add_label(mock_model, label=None)
+            mock_model.add_label(label=None)
 
         with self.assertRaisesRegex(TypeError, '`label` must be a str.'):
-            base_model.BaseModel.add_label(mock_model, label=1)
+            mock_model.add_label(label=1)
 
         # assert existing label
         label = 'NEW_LABEL'
-        mock_model._label_mapping = {'NEW_LABEL': 1}
         with self.assertWarnsRegex(UserWarning,
                                    'The label, `{}`, already exists in the '
                                    'label mapping.'.format(label)):
-            base_model.BaseModel.add_label(mock_model, label)
+            mock_model.add_label(label)
 
         # assert bad same_as input
         with self.assertRaisesRegex(TypeError, '`same_as` must be a str.'):
-            base_model.BaseModel.add_label(mock_model, label='test', same_as=1)
+            mock_model.add_label(label='test', same_as=1)
 
         label = 'NEW_LABEL_2'
         same_as = 'DOES_NOT_EXIST'
         with self.assertRaisesRegex(ValueError,
                                     '`same_as` value: {}, did not exist in the '
                                     'label_mapping.'.format(same_as)):
-            base_model.BaseModel.add_label(mock_model, label, same_as)
+            mock_model.add_label(label, same_as)
 
         # assert successful add
         label = 'NEW_LABEL_2'
-        base_model.BaseModel.add_label(mock_model, label)
+        mock_model.add_label(label)
         self.assertDictEqual(
             {'NEW_LABEL': 1, 'NEW_LABEL_2': 2}, mock_model._label_mapping)
 
         # assert successful add w/ same_as
         label = 'NEW_LABEL_3'
-        base_model.BaseModel.add_label(mock_model, label, same_as='NEW_LABEL')
+        mock_model.add_label(label, same_as='NEW_LABEL')
         self.assertDictEqual(
             {'NEW_LABEL': 1, 'NEW_LABEL_2': 2, 'NEW_LABEL_3': 1},
             mock_model._label_mapping)

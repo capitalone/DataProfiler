@@ -1,0 +1,10 @@
+CONTAR, EL NOMBRE, EL NUMERO
+1,, 1
+2, Thomas Jefferson,
+, Thomas Jefferson, 
+4,, 13
+, James Monroe, 
+, John Adams,
+7, Andrew Jackson,
+, Martin Van Buren, 83
+, William Henry Harrison,

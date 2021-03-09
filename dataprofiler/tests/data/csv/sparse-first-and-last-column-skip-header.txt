@@ -1,0 +1,11 @@
+Author: Austin Walters
+CONTAR, EL NOMBRE, EL NUMERO
+1, George Washington, 1
+2, John Adams, 12
+, Thomas Jefferson, 
+, James Madison, 13
+, James Monroe, 
+, John Adams,
+7, Andrew Jackson,
+, Martin Van Buren, 83
+, William Henry Harrison,

@@ -614,6 +614,23 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             raise ValueError('If `labels` are specified, `label_mapping` must '
                              'also be specified.')
 
+        # Flatten DataFrames and Arrays into 1 dimensional np arrays
+        # Place lists into np arrays so they can use .astype(str)
+        if isinstance(data, pd.DataFrame):
+            data = data.values.reshape(-1)
+        elif isinstance(data, np.ndarray):
+            data = data.reshape(-1)
+        elif isinstance(data, list):
+            data = np.array(data)
+        data = data.astype(str)
+
+        if isinstance(labels, pd.DataFrame):
+            labels = labels.values.reshape(-1)
+        elif isinstance(labels, np.ndarray):
+            labels = labels.reshape(-1)
+        elif isinstance(labels, list):
+            labels = np.array(labels)
+
         # get parameters
         max_length = self._parameters['max_length']
         default_label = self._parameters['default_label']
@@ -1158,6 +1175,7 @@ class StructCharPreprocessor(CharPreprocessor,
             data = data.reshape(-1)
         elif isinstance(data, list):
             data = np.array(data)
+
         if isinstance(labels, pd.DataFrame):
             labels = labels.values.reshape(-1)
         elif isinstance(labels, np.ndarray):

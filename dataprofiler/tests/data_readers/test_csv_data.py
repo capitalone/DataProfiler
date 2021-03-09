@@ -103,76 +103,79 @@ class TestCSVDataClass(unittest.TestCase):
         ]
         cls.output_file_path = None
 
-    def test_auto_file_identification(self):
-        """
-        Determine if the csv file can be automatically identified
-        """
-        for input_file in self.input_file_names:
-            input_data_obj = Data(input_file['path'])
-            self.assertEqual(input_data_obj.data_type, 'csv')
-            self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
-            self.assertEqual(len(input_data_obj.data.columns),
-                             input_file['num_columns'])
-
-    def test_specifying_data_type(self):
-        """
-        Determine if the csv file can be loaded with manual data_type setting
-        """
-        for input_file in self.input_file_names:
-            input_data_obj = Data(input_file["path"], data_type='csv')
-            self.assertEqual(input_data_obj.data_type, 'csv')
-            self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
-
-    def test_data_formats(self):
-        """
-        Test the data format options.
-        """
-        for input_file in self.input_file_names:
-            input_data_obj = Data(input_file['path'])
-            self.assertIsInstance(input_data_obj.data, pd.DataFrame)
-
-            input_data_obj.data_format = "records"
-            self.assertIsInstance(input_data_obj.data, list)
-
-            with self.assertRaises(ValueError) as exc:
-                input_data_obj.data_format = "NON_EXISTENT"
-            self.assertEqual(
-                str(exc.exception),
-                "The data format must be one of the following: " +
-                "['dataframe', 'records']"
-            )
-
-    def test_reload_data(self):
-        """
-        Determine if the csv file can be reloaded
-        """
-        for input_file in self.input_file_names:
-            input_data_obj = Data(input_file['path'])
-            input_data_obj.reload(input_file['path'])
-            self.assertEqual(input_data_obj.data_type, 'csv')
-            self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
-
-    def test_data_formats(self):
-        """
-        Determine if the csv file data_formats can be used
-        """
-        for input_file in self.input_file_names:
-            input_data_obj = Data(input_file['path'])
-            for data_format in list(input_data_obj._data_formats.keys()):
-                input_data_obj.data_format = data_format
-                self.assertEqual(input_data_obj.data_format, data_format)
-                data = input_data_obj.data
-                if data_format == "dataframe":
-                    import pandas as pd
-                    self.assertIsInstance(data, pd.DataFrame)
-                elif data_format in ["records", "json"]:
-                    self.assertIsInstance(data, list)
-                    self.assertIsInstance(data[0], str)
+    # def test_auto_file_identification(self):
+    #     """
+    #     Determine if the csv file can be automatically identified
+    #     """
+    #     for input_file in self.input_file_names:
+    #         input_data_obj = Data(input_file['path'])
+    #         self.assertEqual(input_data_obj.data_type, 'csv')
+    #         self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
+    #         self.assertEqual(len(input_data_obj.data.columns),
+    #                          input_file['num_columns'])
+    #
+    # def test_specifying_data_type(self):
+    #     """
+    #     Determine if the csv file can be loaded with manual data_type setting
+    #     """
+    #     for input_file in self.input_file_names:
+    #         input_data_obj = Data(input_file["path"], data_type='csv')
+    #         self.assertEqual(input_data_obj.data_type, 'csv')
+    #         self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
+    #
+    # def test_data_formats(self):
+    #     """
+    #     Test the data format options.
+    #     """
+    #     for input_file in self.input_file_names:
+    #         input_data_obj = Data(input_file['path'])
+    #         self.assertIsInstance(input_data_obj.data, pd.DataFrame)
+    #
+    #         input_data_obj.data_format = "records"
+    #         self.assertIsInstance(input_data_obj.data, list)
+    #
+    #         with self.assertRaises(ValueError) as exc:
+    #             input_data_obj.data_format = "NON_EXISTENT"
+    #         self.assertEqual(
+    #             str(exc.exception),
+    #             "The data format must be one of the following: " +
+    #             "['dataframe', 'records']"
+    #         )
+    #
+    # def test_reload_data(self):
+    #     """
+    #     Determine if the csv file can be reloaded
+    #     """
+    #     for input_file in self.input_file_names:
+    #         input_data_obj = Data(input_file['path'])
+    #         input_data_obj.reload(input_file['path'])
+    #         self.assertEqual(input_data_obj.data_type, 'csv')
+    #         self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
+    #
+    # def test_data_formats(self):
+    #     """
+    #     Determine if the csv file data_formats can be used
+    #     """
+    #     for input_file in self.input_file_names:
+    #         input_data_obj = Data(input_file['path'])
+    #         for data_format in list(input_data_obj._data_formats.keys()):
+    #             input_data_obj.data_format = data_format
+    #             self.assertEqual(input_data_obj.data_format, data_format)
+    #             data = input_data_obj.data
+    #             if data_format == "dataframe":
+    #                 import pandas as pd
+    #                 self.assertIsInstance(data, pd.DataFrame)
+    #             elif data_format in ["records", "json"]:
+    #                 self.assertIsInstance(data, list)
+    #                 self.assertIsInstance(data[0], str)
 
     def test_header_check_files(self):
         """
         Determine if files with no header are properly determined.
         """
+        from itertools import islice
+        from dataprofiler.data_readers import data_utils
+
         # add some more files to the list to test the header detection
         # these files have some first lines which are not the header
         test_dir = os.path.join(test_root_path, 'data')
@@ -191,9 +194,11 @@ class TestCSVDataClass(unittest.TestCase):
         input_file_names = self.input_file_names[:]
         input_file_names += file_with_header_and_authors
         for input_file in input_file_names:
-            options = dict()
-            CSVData.is_match(input_file['path'], options)
-            self.assertIn(options.get("header"), input_file['has_header'])
+            file_encoding = data_utils.detect_file_encoding(input_file['path'])
+            with open(input_file['path'], encoding=file_encoding) as csvfile:
+                data_as_str = ''.join(list(islice(csvfile, 5)))
+            header_line = CSVData._guess_header_row(data_as_str, input_file['delimiter'])
+            self.assertIn(header_line, input_file['has_header'])
 
 if __name__ == '__main__':
     unittest.main()

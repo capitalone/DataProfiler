@@ -128,24 +128,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if not data_as_str or len(data_as_str) == 0:
             return None
     
-        # Ensure no "None" delimiter
+        # Ensure no "None" delimiter, delimiter is required for evaluating single columns
         delimiter = suggested_delimiter
         if not delimiter:
-            delimiter = ','
-    
-        # Ensure no empty last col with only 2 cols
-        # CSV Sniffer regularly will identify '.' or '\r' as a separator
-        # If there's a list of sentences, this will create a scenario where
-        # there's two columns, but one is empty (seperated by '.')..
-        # This check switches the delimiter to ensure a "hanging col" is not
-        # generated due to an incorrect separator identification
-        empty_last_col_flag = True
-        for row in data_as_str.split('\n'):
-            last_cell = row.split(delimiter)[-1]
-            if len(row) == 2 and last_cell != None \
-            and len(last_cell) > 0:
-                empty_last_col_flag = False
-        if empty_last_col_flag:
             delimiter = ','
         
         # Determine type for every cell
@@ -192,7 +177,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             else:
                 for j in range(len(header_check_list[i])):
                     diff_flag = False
-                    if header_check_list[i][j] != potential_header[j]:
+                    if j >= len(potential_header) or \
+                            header_check_list[i][j] != potential_header[j]:
                         diff_flag = True
                     differences[i].append(diff_flag)
         

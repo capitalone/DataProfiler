@@ -104,21 +104,117 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         return dialect.delimiter
 
     @staticmethod
-    def _determine_has_header(data_as_str):
-        """Automatically checks if the string has a header."""
-        sniffer = csv.Sniffer()
-        try:
-            has_header = sniffer.has_header(data_as_str)
-        except csv.Error:
-            has_header = 0
-        return 0 if has_header else None
+    def _determine_has_header(data_as_str, suggested_delim=None,
+                              diff_thresh=0.0, none_thresh=0.5, str_thresh=0.9):
+        """
+        This function attempts to select the best row for which a header would be valid.
+        :param data_as_str: Single string containing rows (lines seperated by "\n")
+        :type data_as_str: str
+        :param suggested_delim: The detected delimiter which helps detect the header
+        :type suggested_delim: str
+        :param diff_thresh: Max percent difference in cell types between rows allowed
+        :type diff_thresh: float
+        :param none_thresh: Max percent difference number of none values allowed
+        :type none_thresh: float
+        :param str_thresh: Min percent of strings (omitting none) in row to be a header
+        :type str_thresh: float
+        :return: index for row estimated to be the last valid header
+        :type: int
+        """
+        if not data_as_str:
+            return None
+
+        # Ensure no "None" delimiter
+        delimiter = suggested_delim
+        if not delimiter:
+            delimiter = ','
+
+        # Ensure no empty last col
+        empty_last_col_flag = True
+        for row in data_as_str.split('\n'):
+            last_cell = row.split(delimiter)[-1]
+            if last_cell != None and len(last_cell) > 0:
+                empty_last_col_flag = False
+        if empty_last_col_flag:
+            delimiter = ','
+
+        # Determine type for every cell
+        header_check_list = []
+        for row in data_as_str.split('\n'):
+            row_list = row.split(delimiter)
+            header_check_list.append([])
+            for i in range(len(row_list)):
+                cell = row_list[i].strip()
+                cell_type = 'str'
+                if len(cell) == 0:
+                    cell_type = 'none'
+                else:
+                    if cell.isdigit():
+                        cell_type = 'int'
+                    try:
+                        float(cell)
+                        cell_type = 'float'
+                    except ValueError:
+                        pass
+                    if cell.isupper():
+                        cell_type = 'upstr'
+                header_check_list[-1].append(cell_type)
+
+        # Flags differences in types between each row (true/false)
+        potential_header = header_check_list[0]
+        differences = []
+        skip_rows = []
+        for i in range(0, len(header_check_list)):
+            differences.append([])
+            # check to see if row should be skiped due to error
+            if len(header_check_list[i]) > len(potential_header):
+                skip_rows.append(i - 1)
+                differences[i] = [False] * len(header_check_list[i])
+            else:
+                for j in range(len(header_check_list[i])):
+                    diff_flag = False
+                    if header_check_list[i][j] != potential_header[j]:
+                        diff_flag = True
+                    differences[i].append(diff_flag)
+            potential_header = header_check_list[i]
+
+        # Predicts the last row that could be the header, given the criteria
+        prior_len = 0
+        row_classic_header_ends = None
+        no_change_flag = True
+        for i in range(0, len(differences)):
+            # Determine ratio of none in row, must be BELOW threshold
+            none = float(header_check_list[i].count("none")) / float(len(header_check_list[i]))
+            # Determine percent of differences between prior row, must be BELOW threshold
+            diff = float(differences[i].count(True)) / float(len(differences[i]))
+            # Determine percent of string, uppercase string or none in row, must be ABOVE threshold
+            rstr = float((header_check_list[i].count("str")
+                          + header_check_list[i].count("upstr")
+                          + header_check_list[i].count("none"))) / float(len(header_check_list[i]))
+            # Determines if the elements in the row is increasing or decreasing
+            len_increase = False
+            len_not_none = len(header_check_list[i]) - header_check_list[i].count("none")
+            if len_not_none >= prior_len:
+                prior_len = len_not_none
+                len_increase = True
+
+            # Returns the last row that could reasonably be the header
+            if (rstr > str_thresh and none <= none_thresh and diff <= diff_thresh):
+                if len_increase and i not in skip_rows and no_change_flag:
+                    row_classic_header_ends = i
+            if diff > 0 and len_not_none > 0:
+                no_change_flag = False
+
+        if no_change_flag:
+            row_classic_header_ends = None
+        return row_classic_header_ends
 
     def _load_data_from_str(self, data_as_str):
         """Loads the data into memory from the str."""
         if not self._delimiter:
             self._delimiter = self._determine_delimiter_of_str(data_as_str)
         data_buffered = StringIO(data_as_str)
-        self._determine_has_header(data_as_str)
+        self._determine_has_header(data_as_str, suggested_delim=self._delimiter)
         return data_utils.read_csv_df(
             data_buffered,
             self.delimiter, self.header, self.selected_columns,
@@ -136,7 +232,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             if not self._delimiter:
                 self._delimiter = self._determine_delimiter_of_str(data_as_str)
             if not self._header:
-                self._header = self._determine_has_header(data_as_str)
+                self._header = self._determine_has_header(data_as_str, self._delimiter)
                 self._checked_header = True
 
         # if there is only one delimiter at the end of each row,
@@ -200,7 +296,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 delimiter = cls._determine_delimiter_of_str(data_as_str)
 
             if header is None:
-                options.update(header=cls._determine_has_header(data_as_str))
+                options.update(header=cls._determine_has_header(data_as_str, delimiter))
 
         max_line_count = 1000
         min_line_count = 3

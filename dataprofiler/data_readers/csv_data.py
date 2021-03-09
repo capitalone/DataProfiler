@@ -179,9 +179,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         
             # Identify if the row has any data
             len_not_none = len(header_check_list[i]) - header_check_list[i].count("none")
+            len_pot_head = len(potential_header) - potential_header.count("none")
         
             # If row has more elements or has no data, mark as "skip", no difference
-            if len(header_check_list[i]) > len(potential_header) or len_not_none == 0:
+            if len_not_none > len_pot_head or len_not_none == 0:
                 differences[i] = [False] * len(header_check_list[i])
             else:
                 for j in range(len(header_check_list[i])):
@@ -189,7 +190,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     if header_check_list[i][j] != potential_header[j]:
                         diff_flag = True
                     differences[i].append(diff_flag)
-                
+        
             # If there is data in the row, set new max potential header to current row
             if len_not_none > 0:
                 potential_header = header_check_list[i]

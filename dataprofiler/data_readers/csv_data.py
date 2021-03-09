@@ -133,7 +133,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if not delimiter:
             delimiter = ','
     
-        # Ensure no empty last col and only 2 cols
+        # Ensure no empty last col with only 2 cols
+        # CSV Sniffer regularly will identify '.' or '\r' as a separator
+        # If there's a list of sentences, this will create a scenario where
+        # there's two columns, but one is empty (seperated by '.')..
+        # This check switches the delimiter to ensure a "hanging col" is not
+        # generated due to an incorrect separator identification
         empty_last_col_flag = True
         for row in data_as_str.split('\n'):
             last_cell = row.split(delimiter)[-1]
@@ -212,7 +217,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                           + header_check_list[i].count("upstr")
                           + header_check_list[i].count("none"))) / float(len(header_check_list[i]))
             
-            # Determines if the elements in the row is increasing or decreasing
+            # Determines if the number of elements in the row is increasing or decreasing
             len_increase = False
             len_not_none = len(header_check_list[i]) - header_check_list[i].count("none")
             if len_not_none >= prior_len and len_not_none > 0:

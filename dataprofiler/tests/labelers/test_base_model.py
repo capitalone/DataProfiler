@@ -96,13 +96,14 @@ class TestBaseModel(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'test'):
             base_model.BaseModel.set_params(mock_model, **params)
 
-    def test_add_labels(self):
+    @mock.patch.multiple('dataprofiler.labelers.base_model.BaseModel',
+                         __abstractmethods__=set(),
+                         _validate_parameters=mock.MagicMock(return_value=None))
+    def test_add_labels(self, *args):
 
         # setup mock
-        mock_model = mock.Mock(spec=base_model.BaseModel)
-        mock_model._convert_labels_to_label_mapping.side_effect = \
-            base_model.BaseModel._convert_labels_to_label_mapping
-        mock_model._label_mapping = {}
+        mock_model = base_model.BaseModel(
+            label_mapping={'test': 1}, parameters={})
 
         # assert bad label inputs
         with self.assertRaisesRegex(TypeError, '`label` must be a str.'):

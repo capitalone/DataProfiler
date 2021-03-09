@@ -90,7 +90,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         """
         Automatically checks for what delimiter exists in a text document.
 
-        :param data_as_str: Single string containing rows (lines seperated by "\n")
+        :param data_as_str: Single string containing rows (lines separated by "\n")
         :type data_as_str: str
         :return: Delimiter, if none can be found None is returned
         :rtype: str or None

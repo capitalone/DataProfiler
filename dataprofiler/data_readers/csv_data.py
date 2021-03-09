@@ -189,7 +189,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # Predicts the last row that could be the header, given the criteria
         prior_len = 0
         row_classic_header_ends = None
-        change_flag = True
+        change_flag = False
         for i in range(0, len(differences)):
         
             # Determine ratio of none in row, must be BELOW threshold
@@ -212,15 +212,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 
             # Returns the last row that could reasonably be the header
             if (rstr > str_thresh and none <= none_thresh and diff <= diff_thresh):
-                if len_increase and change_flag:
+                if len_increase and not change_flag:
                     row_classic_header_ends = i
 
             # If difference occurs & data in row, mark as change
             if diff > 0 and len_not_none > 0:
-                change_flag = False
+                change_flag = True
                 
         # If change in statistics never occurs, return no header
-        if change_flag:
+        if not change_flag:
             row_classic_header_ends = None
                     
         return row_classic_header_ends

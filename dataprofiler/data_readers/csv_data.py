@@ -141,7 +141,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # Determine type for every cell
         header_check_list = []
         for row in data_as_str.split('\n'):
+            print(row)
             row_list = row.split(delimiter)
+            print(row_list)
+            print('delimiter: ', delimiter)
             header_check_list.append([])
             for i in range(len(row_list)):
                 cell = row_list[i].strip()
@@ -158,6 +161,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                         pass
                     if cell.isupper():
                         cell_type = 'upstr'
+                print(cell, cell_type)
                 header_check_list[-1].append(cell_type)
 
         # Flags differences in types between each row (true/false)
@@ -182,6 +186,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         prior_len = 0
         row_classic_header_ends = None
         no_change_flag = True
+        print('header_check_list: ', header_check_list)
+        print('differences: ', differences)
         for i in range(0, len(differences)):
             # Determine ratio of none in row, must be BELOW threshold
             none = float(header_check_list[i].count("none")) / float(len(header_check_list[i]))
@@ -197,7 +203,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             if len_not_none >= prior_len:
                 prior_len = len_not_none
                 len_increase = True
-
+            print(rstr, none, diff, len_increase, no_change_flag)
             # Returns the last row that could reasonably be the header
             if (rstr > str_thresh and none <= none_thresh and diff <= diff_thresh):
                 if len_increase and i not in skip_rows and no_change_flag:

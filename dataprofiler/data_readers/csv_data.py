@@ -90,7 +90,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         """
         Automatically checks for what delimiter exists in a text document.
 
-        :param data_as_str: Single string containing rows (lines seperated by "\n")
+        :param data_as_str: Single string containing rows (lines separated by "\n")
         :type data_as_str: str
         :return: Delimiter, if none can be found None is returned
         :rtype: str or None
@@ -133,7 +133,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if not delimiter:
             delimiter = ','
     
-        # Ensure no empty last col and only 2 cols
+        # Ensure no empty last col with only 2 cols
+        # CSV Sniffer regularly will identify '.' or '\r' as a separator
+        # If there's a list of sentences, this will create a scenario where
+        # there's two columns, but one is empty (seperated by '.')..
+        # This check switches the delimiter to ensure a "hanging col" is not
+        # generated due to an incorrect separator identification
         empty_last_col_flag = True
         for row in data_as_str.split('\n'):
             last_cell = row.split(delimiter)[-1]
@@ -179,9 +184,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         
             # Identify if the row has any data
             len_not_none = len(header_check_list[i]) - header_check_list[i].count("none")
+            len_pot_head = len(potential_header) - potential_header.count("none")
         
             # If row has more elements or has no data, mark as "skip", no difference
-            if len(header_check_list[i]) > len(potential_header) or len_not_none == 0:
+            if len_not_none > len_pot_head or len_not_none == 0:
                 differences[i] = [False] * len(header_check_list[i])
             else:
                 for j in range(len(header_check_list[i])):
@@ -189,7 +195,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     if header_check_list[i][j] != potential_header[j]:
                         diff_flag = True
                     differences[i].append(diff_flag)
-                
+        
             # If there is data in the row, set new max potential header to current row
             if len_not_none > 0:
                 potential_header = header_check_list[i]
@@ -211,7 +217,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                           + header_check_list[i].count("upstr")
                           + header_check_list[i].count("none"))) / float(len(header_check_list[i]))
             
-            # Determines if the elements in the row is increasing or decreasing
+            # Determines if the number of elements in the row is increasing or decreasing
             len_increase = False
             len_not_none = len(header_check_list[i]) - header_check_list[i].count("none")
             if len_not_none >= prior_len and len_not_none > 0:

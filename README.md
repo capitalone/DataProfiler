@@ -723,6 +723,10 @@ data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
 # labels
 for label in new_labels:
     data_labeler.add_label(label)
+    
+# NOTE: a user can also add a label which maps to the same index as an existing 
+# label
+# data_labeler.add_label(label, same_as='<label_name>')
 
 # For a trainable model, the user must then train the model to be able to 
 # continue using the labeler since the model's graph has likely changed

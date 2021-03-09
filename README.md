@@ -682,19 +682,16 @@ Extending or changing labels of a data labeler w/ transfer learning:
 Note: By default, **a labeler loaded will not be trainable**. In order to load a 
 trainable DataLabeler, the user must set `trainable=True` or load a labeler 
 using the `TrainableDataLabeler` class.
+
+The following illustrates how to change the labels:
 ```python
 import dataprofiler as dp
 
 labels = ['label1', 'label2', ...]  # new label set can also be an encoding dict
 data = dp.Data("your_file.csv")  # contains data with new labels
 
-
 # load default structured Data Labeler w/ trainable set to True
 data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
-
-# NOTE: if you want to extend the data labels as oppose to replace with your own,
-#       you will need to extend the labels list passed into the fit function:
-#       e.g. labels = data_labeler.labels + ['new_label_1', 'new_label_2', ...]
 
 # this will use transfer learning to retrain the data labeler on your new 
 # dataset and labels.
@@ -704,7 +701,7 @@ data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
 #       data to be ingested with two columns [X, y] where X is the samples and 
 #       y is the labels.
 model_results = data_labeler.fit(x=data['samples'], y=data['labels'], 
-    validation_split=0.2, epochs=2, labels=labels)
+                                 validation_split=0.2, epochs=2, labels=labels)
 
 # final_results, final_confidences are a list of results for each epoch
 epoch_id = 0
@@ -712,6 +709,40 @@ final_results = model_results[epoch_id]["pred"]
 final_confidences = model_results[epoch_id]["conf"]
 ```
 
+The following illustrates how to extend the labels:
+```python
+import dataprofiler as dp
+
+new_labels = ['label1', 'label2', ...]
+data = dp.Data("your_file.csv")  # contains data with new labels
+
+# load default structured Data Labeler w/ trainable set to True
+data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
+
+# this will maintain current labels and model weights, but extend the model's 
+# labels
+for label in new_labels:
+    data_labeler.add_label(label)
+    
+# NOTE: a user can also add a label which maps to the same index as an existing 
+# label
+# data_labeler.add_label(label, same_as='<label_name>')
+
+# For a trainable model, the user must then train the model to be able to 
+# continue using the labeler since the model's graph has likely changed
+# NOTE: data must be in an acceptable format for the preprocessor to interpret.
+#       please refer to the preprocessor/model for the expected data format.
+#       Currently, the DataLabeler cannot take in Tabular data, but requires 
+#       data to be ingested with two columns [X, y] where X is the samples and 
+#       y is the labels.
+model_results = data_labeler.fit(x=data['samples'], y=data['labels'], 
+                                 validation_split=0.2, epochs=2)
+
+# final_results, final_confidences are a list of results for each epoch
+epoch_id = 0
+final_results = model_results[epoch_id]["pred"]
+final_confidences = model_results[epoch_id]["conf"]
+```
 
 Changing pipeline parameters:
 ```python

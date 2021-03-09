@@ -170,6 +170,10 @@ class TestDataLabeler(unittest.TestCase):
             self.assertIsNotNone(labeler.predict(data=data_obj))
 
         # Test with text data object
+        text_obj = dp.Data(data=data_str, data_type="text")
+        labeler = dp.DataLabeler(labeler_type="unstructured", trainable=True)
+        self.assertIsNotNone(labeler.fit(x=text_obj, y=pd.Series([label_str])))
+        self.assertIsNotNone(labeler.predict(data=text_obj))
 
 
 label_encoding = {

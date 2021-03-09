@@ -24,7 +24,7 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=6, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/iris_no_header.csv'),
                  count=150, delimiter=',', has_header=[None],
-                 num_columns=6, encoding='utf-8'),
+                 num_columns=6, encoding='utf-8'),            
             dict(path=os.path.join(test_dir, 'csv/iris-utf-8.csv'),
                  count=150, delimiter=',', has_header=[0],
                  num_columns=6, encoding='utf-8'),
@@ -94,7 +94,7 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/names-col-without-space.txt'),
                  count=6, delimiter=None, has_header=[0],
                  num_columns=1, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-two-header.txt'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-two-headers.txt'),
                  count=6, delimiter=',', has_header=[1],
                  num_columns=3, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/sparse-interchange-none.txt'),
@@ -183,7 +183,13 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/header-and-author-description.txt'),
                  count=6, delimiter=',', has_header=[3],
                  num_columns=3, encoding='utf-8'),
-            ]
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-empty-first-row.txt'),
+                 count=11, delimiter=',', has_header=[1],
+                 num_columns=3, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-skip-header.txt'),
+                 count=11, delimiter=',', has_header=[1],
+                 num_columns=3, encoding='utf-8'),            
+        ]
 
         input_file_names = self.input_file_names[:]
         input_file_names += file_with_header_and_authors

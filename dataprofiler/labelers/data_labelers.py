@@ -64,7 +64,7 @@ class StructuredDataLabeler(BaseDataLabeler):
 
 
 class DataLabeler(object):
-
+    
     labeler_classes = dict(
         structured=StructuredDataLabeler,
         unstructured=UnstructuredDataLabeler,

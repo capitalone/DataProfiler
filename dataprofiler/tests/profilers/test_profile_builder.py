@@ -420,6 +420,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     def test_null_count(self):
         column = pd.Series([1, float('nan')] * 10)
 
+        print(column)
+        
         # test null_count when subset of full sample size
         random.seed(0)
         profile = StructuredDataProfile(column, sample_size=10)

@@ -1,8 +1,12 @@
 # Data Profiler | What's in your data?
 
-The Data Profiler provides insights on the schema and statistics of any file or dataset it profiles. Further, the Data Profiler has pre-built deep learning models to identify **sensitive data** and other entities.
+The DataProfiler is a Python library designed to make data analysis, monitoring and **sensitive data detection** easy.
 
-The best part? It only takes a few lines of code:
+Loading **Data** with a single command, the library automatically formats & loads files into a DataFrame. **Profiling** the Data, the library identifies the schema, statistics, entities and more. Data Profiles can then be used in downstream applications or reports.
+
+The Data Profiler comes with a cutting edge pre-trained deep learning model, used to efficiently identify **sensitive data** (or **PII**). If customization is needed, it's easy to add new entities to the existing pre-trained model or insert a new pipeline for entity recognition.
+
+The best part? Getting started only takes a few lines of code ([example csv](https://raw.githubusercontent.com/capitalone/DataProfiler/main/dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv)):
 
 ```python
 import json
@@ -21,7 +25,7 @@ print(json.dumps(human_readable_report, indent=4))
 
 To install the full package from pypi: `pip install DataProfiler[ml]`
 
-If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package which disables the default sensitive data detection / entity recognition (labler)
+If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package. The slimmer package disables the default sensitive data detection / entity recognition (labler)
 
 Install from pypi: `pip install DataProfiler`
 

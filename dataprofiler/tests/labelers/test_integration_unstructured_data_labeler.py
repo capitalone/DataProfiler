@@ -12,16 +12,14 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
     def test_fit_with_default_model(self):
         data = [
             ['this is my test sentence.',
-             {'entities': [
-                 (5 ,  7, 'ADDRESS'),
-                 (11, 20, 'INTEGER_BIG'),
-                 (20, 22, 'ADDRESS'),
-                 (22, 24, 'INTEGER_BIG')]}],
+             [(5,  7, 'ADDRESS'),
+              (11, 20, 'INTEGER_BIG'),
+              (20, 22, 'ADDRESS'),
+              (22, 24, 'INTEGER_BIG')]],
             ['How nice.',
-                {'entities': [
-                 (0, 2, 'ADDRESS'),
-                 (4, 5, 'INTEGER_BIG'),
-                 (6, 8, 'INTEGER_BIG')]}]
+             [(0, 2, 'ADDRESS'),
+              (4, 5, 'INTEGER_BIG'),
+              (6, 8, 'INTEGER_BIG')]]
         ]
         new_labels = ["BACKGROUND", "ADDRESS", "INTEGER_BIG"]
         data = pd.DataFrame(data * 50)
@@ -55,16 +53,14 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
     def test_data_labeler_change_labels(self):
         data = [
             ['this is my test sentence.',
-             {'entities': [
-                 (5, 7, 'ADDRESS'),
-                 (11, 20, 'INTEGER_BIG'),
-                 (20, 22, 'ADDRESS'),
-                 (22, 24, 'INTEGER_BIG')]}],
+             [(5, 7, 'ADDRESS'),
+              (11, 20, 'INTEGER_BIG'),
+              (20, 22, 'ADDRESS'),
+              (22, 24, 'INTEGER_BIG')]],
             ['How nice.',
-             {'entities': [
-                 (0, 2, 'ADDRESS'),
-                 (4, 5, 'INTEGER_BIG'),
-                 (6, 8, 'INTEGER_BIG')]}]
+             [(0, 2, 'ADDRESS'),
+              (4, 5, 'INTEGER_BIG'),
+              (6, 8, 'INTEGER_BIG')]]
         ]
         data = pd.DataFrame(data * 50)
 

@@ -420,7 +420,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                     sample_len, label_mapping[default_label])
 
                 # Map the entity to the corresponding character
-                for start, end, label in label_set['entities']:
+                for start, end, label in label_set:
                     label_index = label_mapping[label]
                     label_buffer[start:end] = label_index
                 label_buffer = label_buffer.tolist()
@@ -1145,7 +1145,7 @@ class StructCharPreprocessor(CharPreprocessor,
             if start < text_len:
                 entities.append((start - separator_length, start, 'PAD'))
 
-        return text, dict(entities=entities)
+        return text, entities
 
     def process(self, data, labels=None, label_mapping=None, batch_size=32):
         """

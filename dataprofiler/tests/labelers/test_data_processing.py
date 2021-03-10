@@ -519,12 +519,12 @@ class TestCharPreprocessor(unittest.TestCase):
         # test a single sentence
         test_sentences = np.array(['this is my test sentence. How nice.'])
         labels = [
-            dict(entities=[
+            [
                 [5, 7, 'TEST1'],
                 [11, 24, 'TEST2'],
                 [26, 29, 'TEST1'],
                 [30, 34, 'TEST2']
-            ])
+            ]
         ]
         expected_output = [
             dict(samples=['this', ' is'],
@@ -550,8 +550,8 @@ class TestCharPreprocessor(unittest.TestCase):
         # ' How'  -> 'How'
         test_sentences = np.array(['this is my test sentence.', 'How nice.'])
         labels = [
-            dict(entities=[[5, 7, 'TEST1'], [11, 24, 'TEST2']]),
-            dict(entities=[[0, 3, 'TEST1'], [4, 8, 'TEST2']])
+            [[5, 7, 'TEST1'], [11, 24, 'TEST2']],
+            [[0, 3, 'TEST1'], [4, 8, 'TEST2']]
         ]
         expected_output = [
             dict(samples=['this', ' is'],
@@ -626,12 +626,12 @@ class TestCharPreprocessor(unittest.TestCase):
         # with labels process
         test_sentences = np.array(['this is my'])
         labels = [
-            dict(entities=[
+            [
                 [5, 7, 'TEST1'],
                 [11, 24, 'TEST2'],
                 [26, 29, 'TEST1'],
                 [30, 34, 'TEST2']
-            ])
+            ]
         ]
         expected_sentence_output = [
             [['this'], [' is']],
@@ -1482,7 +1482,7 @@ class TestStructCharPreprocessor(unittest.TestCase):
         test_array = np.array(['this', ' is', 'my test sentence.', ' How ',
                                'nice.'])
         labels = ['TEST1', 'TEST2', 'BACKGROUND', 'TEST2', 'TEST1']
-        expected_labels = dict(entities=[
+        expected_labels = [
             (0, 4, 'TEST1'),
             (4, 9, 'PAD'),
             (9, 12, 'TEST2'),
@@ -1491,7 +1491,7 @@ class TestStructCharPreprocessor(unittest.TestCase):
             (39, 44, 'TEST2'),
             (44, 49, 'PAD'),
             (49, 54, 'TEST1'),
-        ])
+        ]
 
         output_text, output_labels = \
             preprocessor.convert_to_unstructured_format(

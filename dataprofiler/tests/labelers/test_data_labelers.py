@@ -132,9 +132,9 @@ class TestDataLabeler(unittest.TestCase):
             return len(data[i]) + 1 + data_ind(i - 1, data)
 
         def entities(data, labels):
-            return {'entities': [(0, len(data[0]), labels[0])] + \
-                    [(data_ind(i - 1, data) + 1, data_ind(i, data), labels[i])
-                     for i in range(1, len(data))]}
+            return [(0, len(data[0]), labels[0])] + \
+                   [(data_ind(i - 1, data) + 1, data_ind(i, data), labels[i])
+                    for i in range(1, len(data))]
 
         data_cells = ["123 Fake st", "1/1/2021", "blah", "333-44-2341",
                       "foobar@gmail.com", "John Doe", "123-4567"]

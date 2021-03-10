@@ -2,7 +2,7 @@
 
 The DataProfiler is a Python library designed to make data exploration, analysis, monitoring and **sensitive data detection** easy.
 
-Load **Data** with a single command, the library automatically identifies, formats and loads files into a DataFrame. Then **Profile** the Data, identifying the schema, statistics, entities and more. 
+Load **Data** with a single command, the library automatically identifies, formats and loads files into a DataFrame. Then **Profile** the Data, identifying the schema, statistics, entities and more. From there, interact with Profiles or generate reports.
 
 The Data Profiler comes with a cutting edge pre-trained deep learning model, used to efficiently identify **sensitive data** (or **PII**). Have entities the library doesn't cover? It's easy to add new entities to the existing pre-trained model or insert a new pipeline for entity recognition.
 

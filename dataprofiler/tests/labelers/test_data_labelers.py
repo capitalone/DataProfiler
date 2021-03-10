@@ -132,7 +132,7 @@ class TestDataLabeler(unittest.TestCase):
             return len(data[i]) + 1 + data_ind(i - 1, data)
 
         def entities(data, labels):
-            return {"entities": [(0, len(data[0]), labels[0])] + \
+            return {'entities': [(0, len(data[0]), labels[0])] + \
                     [(data_ind(i - 1, data) + 1, data_ind(i, data), labels[i])
                      for i in range(1, len(data))]}
 
@@ -151,7 +151,6 @@ class TestDataLabeler(unittest.TestCase):
                                      trainable=True)
             self.assertIsNotNone(labeler.fit(x=data_obj, y=label_str_ser))
             self.assertIsNotNone(labeler.predict(data=data_obj))
-
         # Test with the string broken up into different df entries
         data_1 = data_cells[:3]
         data_2 = data_cells[3:5]
@@ -168,7 +167,6 @@ class TestDataLabeler(unittest.TestCase):
                                      trainable=True)
             self.assertIsNotNone(labeler.fit(x=data_obj, y=label_ser))
             self.assertIsNotNone(labeler.predict(data=data_obj))
-
         # Test with text data object
         text_obj = dp.Data(data=data_str, data_type="text")
         labeler = dp.DataLabeler(labeler_type="unstructured", trainable=True)

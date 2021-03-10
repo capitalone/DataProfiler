@@ -422,6 +422,7 @@ class TestIntColumn(unittest.TestCase):
         profiler = profiler1 + profiler2
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
+        self.assertIsNone(profiler.histogram_selection)
 
         df3 = pd.Series([2, 3]).apply(str)
         profiler3 = IntColumn("Int")

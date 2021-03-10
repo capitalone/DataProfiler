@@ -17,6 +17,7 @@ class TestBaseOption(unittest.TestCase):
 	def setUpClass(cls):
 		cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
 	
+
 	@classmethod
 	def getOptions(self, **params):
 		return BaseOption(**params)

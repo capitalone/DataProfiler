@@ -176,6 +176,8 @@ class TestNumericStatsMixin(unittest.TestCase):
         other2.min, other2.max, other2.variance, other2.sum = 1, 1, 1, 1
 
         # set auto as only histogram to merge
+        other1.histogram_selection = "auto"
+        other2.histogram_selection = "auto"
         other1.histogram_bin_method_names = ['auto']
         other2.histogram_bin_method_names = ['auto']
         other1.histogram_methods['auto']['histogram'] = mock_histogram

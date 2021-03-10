@@ -1,10 +1,10 @@
 # Data Profiler | What's in your data?
 
-The Data Profiler is a Python library designed for data exploration, analysis and **sensative data detection**.
+The Data Profiler is a Python library designed for data exploration, analysis and **sensitive data detection**.
 
-Loading **Data** is simple and only requires a single command, the library automatically identifies, formats and loads files. **Profiling** the Data is equally simple. With a single command the library can identify the schema, statistics, entities, distributions and more.
+Loading **Data** is a single command, the library automatically identifies, formats and loads files into a DataFrame. **Profiling** the *Data* is equally simple, with a single command identify the schema, statistics, entities, distributions and more.
 
-Further, Data Profiler comes with a cutting edge pre-built deep learning model, used to identify **sensitive data** (or **PII**) and other entities. It's even possible to extend the existing model and add new entities of interest or build new pipelines for entity recognition entirely.
+Further, Data Profiler comes with a cutting edge pre-built deep learning model, used to efficiently identify **sensitive data** (or **PII**) and other entities. It's even easy to add new entities to the existing model or insert a brand new pipeline for entity recognition.
 
 The best part? Getting started only takes a few lines of code:
 

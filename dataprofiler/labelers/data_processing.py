@@ -621,7 +621,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         elif isinstance(data, np.ndarray):
             data = data.reshape(-1)
         elif isinstance(data, list):
-            data = np.array(data)
+            data = np.array(data, dtype="object")
         data = data.astype(str)
 
         if isinstance(labels, pd.DataFrame):
@@ -629,7 +629,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         elif isinstance(labels, np.ndarray):
             labels = labels.reshape(-1)
         elif isinstance(labels, list):
-            labels = np.array(labels)
+            labels = np.array(labels, dtype="object")
 
         # get parameters
         max_length = self._parameters['max_length']
@@ -1174,14 +1174,14 @@ class StructCharPreprocessor(CharPreprocessor,
         elif isinstance(data, np.ndarray):
             data = data.reshape(-1)
         elif isinstance(data, list):
-            data = np.array(data)
+            data = np.array(data, dtype="object")
 
         if isinstance(labels, pd.DataFrame):
             labels = labels.values.reshape(-1)
         elif isinstance(labels, np.ndarray):
             labels = labels.reshape(-1)
         elif isinstance(labels, list):
-            labels = np.array(labels)
+            labels = np.array(labels, dtype="object")
 
         # convert structured to unstructured format
         unstructured_data = [[]] * len(data)

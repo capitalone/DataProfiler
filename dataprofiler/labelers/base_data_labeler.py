@@ -3,6 +3,7 @@ import os
 import warnings
 import json
 import pkg_resources
+import copy
 
 import numpy as np
 import pandas as pd
@@ -145,7 +146,7 @@ class BaseDataLabeler(object):
         Checks incoming data to match the specified fit or predict format.
 
         :param data: data to check
-        :type data: pandas.DataFrame
+        :type data: Union[pandas.DataFrame, pandas.Series, numpy.array, list]
         :param fit_or_predict: if the data needs to be in fit or predict format
         :type fit_or_predict: str
         :return: validated and formatted data
@@ -156,21 +157,20 @@ class BaseDataLabeler(object):
         if isinstance(data, data_readers.base_data.BaseData):
             data = data.data
 
-        if isinstance(data, np.ndarray) or isinstance(data, list):
-            if fit_or_predict == 'fit':
-                data = pd.DataFrame(data, columns=None)
-            elif isinstance(data, list):
-                data = np.array(data)
-        elif isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
-            if fit_or_predict == 'predict':
-                data = np.reshape(data.values, -1)
-        else:
+        if isinstance(data, list):
+            data = np.array(data, dtype="object")
+        elif isinstance(data, pd.Series) or isinstance(data, pd.DataFrame):
+            data = data.values
+        elif not isinstance(data, np.ndarray):
             raise TypeError(
                 "Data must either be imported using the data_readers or "
                 "pd.DataFrame."
             )
 
-        return data
+        if fit_or_predict == "fit":
+            return data
+        else:
+            return np.reshape(data, -1)
 
     @staticmethod
     def _convert_labels_to_encodings(new_labels, requires_zero_mapping):
@@ -725,13 +725,9 @@ class TrainableDataLabeler(BaseDataLabeler):
         if reset_weights:
             self._model.reset_weights()
 
-        # shuffle input data, these are pandas.DataFrame or pandas.Series
-        shuffle_inds = np.random.permutation(num_samples)
-        x = x.loc[shuffle_inds].reset_index(drop=True)
-        y = y.loc[shuffle_inds].reset_index(drop=True)
-
-        # free memory
-        del shuffle_inds
+        # shuffle input data
+        np.random.shuffle(x)
+        np.random.shuffle(y)
 
         # preprocess data
         cv_split_index = max(1, int(num_samples * (1 - validation_split)))
@@ -747,14 +743,11 @@ class TrainableDataLabeler(BaseDataLabeler):
         for i in range(epochs):
             results.append(self._model.fit(train_data, cv_data))
             if i < epochs - 1:
-                # shuffle input data, these are pandas.DataFrame or
-                # pandas.Series
-                shuffle_inds = np.random.permutation(cv_split_index)
-                train_data_x = x.loc[shuffle_inds].reset_index(drop=True)
-                train_data_y = y.loc[shuffle_inds].reset_index(drop=True)
-
-                # free memory
-                del shuffle_inds
+                # shuffle input data
+                train_data_x = copy.deepcopy(x)
+                train_data_y = copy.deepcopy(y)
+                np.random.shuffle(train_data_x)
+                np.random.shuffle(train_data_y)
 
                 train_data = self._preprocessor.process(
                     train_data_x, labels=train_data_y,

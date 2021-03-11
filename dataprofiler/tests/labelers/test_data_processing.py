@@ -1498,7 +1498,7 @@ class TestStructCharPreprocessor(unittest.TestCase):
                 test_array, labels=labels)
 
         self.assertEqual(expected_text, output_text)
-        self.assertDictEqual(expected_labels, output_labels)
+        self.assertEqual(expected_labels, output_labels)
 
     def test_process(self):
         preprocessor = StructCharPreprocessor(

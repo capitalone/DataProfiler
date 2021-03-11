@@ -315,7 +315,7 @@ class TestDataLabeler(unittest.TestCase):
         print("\nValid Data Fit Checks:")
         for data in valid_data:
             data = _valid_check(data)
-            self.assertIsInstance(data, pd.DataFrame)
+            self.assertIsInstance(data, np.ndarray)
 
     def test_valid_predict_data_formats(self, *mocks):
 

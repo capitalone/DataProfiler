@@ -113,6 +113,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
             dp.labelers.StructuredDataLabeler._default_model_loc)
         data_labeler = dp.labelers.TrainableDataLabeler(dirpath=dirpath)
 
+        original_label_mapping = data_labeler.label_mapping
         original_max_label = data_labeler.label_mapping[
             max(data_labeler.label_mapping, key=data_labeler.label_mapping.get)]
         
@@ -121,6 +122,9 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
         new_max_label = data_labeler.label_mapping[
             max(data_labeler.label_mapping, key=data_labeler.label_mapping.get)]
+
+        expected_label_mapping = original_label_mapping
+        expected_label_mapping[new_label] = new_max_label
         
         new_label_count = len(data_labeler.label_mapping)
         
@@ -141,6 +145,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
         self.assertIsInstance(model_predictions[0][2], dict)  # f1_report
         self.assertIn(new_label, data_labeler.label_mapping) # Ensure new label added
         self.assertEqual(original_max_label+1, new_max_label) # Ensure new label iterated
+        self.assertDictEqual(expected_label_mapping, data_labeler.label_mapping) 
 
         # no bg, pad, but includes micro, macro, weighted
         self.assertEqual(new_label_count+1, len(model_predictions[0][2].keys()))

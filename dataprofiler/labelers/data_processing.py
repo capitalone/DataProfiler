@@ -322,7 +322,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             + param_docs[param_start_ind:param_end_ind]
             + "\nProcess Input Format:\n"
             "    data = List of strings ['1st string', 'second string', ...]\n"
-            "    labels = [(<INT>, <INT>, \"<LABEL>\"), ...(num_samples in data)]")
+            "    labels = [[(<INT>, <INT>, \"<LABEL>\"), "
+            "...(num_samples in string)], ...(num strings in data)]")
         print(help_str)
 
     @staticmethod
@@ -600,9 +601,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         Flatten batches of data
 
         :param data: List of strings to create embeddings for
-        :type data: list() of strings
+        :type data: numpy.ndarray
         :param labels: labels for each input character
-        :type labels: list of labels for each character in data
+        :type labels: numpy.ndarray
         :param label_mapping: maps labels to their encoded integers
         :type label_mapping: Union[None, dict]
         :param batch_size: Number of samples in the batch of data
@@ -1140,7 +1141,7 @@ class StructCharPreprocessor(CharPreprocessor,
         CharacterLevelCnnModel.
 
         :param data: List of strings to create embeddings for
-        :type data: Union[numpy.ndarray, pandas.DataFrame]
+        :type data: numpy.ndarray
         :param labels: labels for each input character
         :type labels: numpy.ndarray
         :param label_mapping: maps labels to their encoded integers

@@ -113,13 +113,17 @@ class TestStructuredDataLabeler(unittest.TestCase):
             dp.labelers.StructuredDataLabeler._default_model_loc)
         data_labeler = dp.labelers.TrainableDataLabeler(dirpath=dirpath)
 
-        original_label_count = len(data_labeler.label_mapping)
+        original_max_label = data_labeler.label_mapping[
+            max(data_labeler.label_mapping, key=data_labeler.label_mapping.get)]
         
         new_label = 'NEW_LABEL'
         data_labeler.add_label(new_label)
 
+        new_max_label = data_labeler.label_mapping[
+            max(data_labeler.label_mapping, key=data_labeler.label_mapping.get)]
+        
         new_label_count = len(data_labeler.label_mapping)
-
+        
         # validate raises error if not trained before fit
         with self.assertRaisesRegex(RuntimeError,
                                     "The model label mapping definitions have "
@@ -135,8 +139,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
         self.assertIsInstance(model_predictions[0][0], dict)  # history
         self.assertIsInstance(model_predictions[0][1], float)  # f1
         self.assertIsInstance(model_predictions[0][2], dict)  # f1_report
-        self.assertTrue(new_label in data_labeler.label_mapping) # Ensure new label added
-        self.assertEqual(original_label_count+1, new_label_count)# Ensure new label added
+        self.assertIn(new_label, data_labeler.label_mapping) # Ensure new label added
+        self.assertEqual(original_max_label+1, new_max_label) # Ensure new label iterated
 
         # no bg, pad, but includes micro, macro, weighted
         self.assertEqual(new_label_count+1, len(model_predictions[0][2].keys()))

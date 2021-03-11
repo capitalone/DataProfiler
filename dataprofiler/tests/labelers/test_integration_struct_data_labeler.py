@@ -113,7 +113,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
             dp.labelers.StructuredDataLabeler._default_model_loc)
         data_labeler = dp.labelers.TrainableDataLabeler(dirpath=dirpath)
 
-        original_label_mapping = data_labeler.label_mapping
+        original_label_mapping = data_labeler.label_mapping.copy()
         original_max_label = data_labeler.label_mapping[
             max(data_labeler.label_mapping, key=data_labeler.label_mapping.get)]
         

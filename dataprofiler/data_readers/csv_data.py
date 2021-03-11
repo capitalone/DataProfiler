@@ -2,6 +2,7 @@ import re
 import csv
 from itertools import islice
 from six import StringIO
+import dateutil
 
 import numpy as np
 
@@ -154,6 +155,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                         float(cell)
                         cell_type = 'float'
                     except ValueError:
+                        pass
+
+                    try: 
+                        if dateutil.parser.parse(cell):
+                            cell_type = 'date'
+                    except ValueError:
+                        pass
+                    except OverflowError:
                         pass
                     
                     if cell.isupper():

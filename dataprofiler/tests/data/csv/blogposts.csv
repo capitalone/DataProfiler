@@ -1,0 +1,26 @@
+Blog Post,Date,Subject,Field
+Abstract Libraries in Go,3/7/2014,Programming,Computer Science
+Virtual Memory and You,3/9/2013,Systems,Computer Science
+Mutex - Process Synchronization,3/14/2014,Programming,Computer Science
+Newtons Method and Fractals,3/16/2014,Programming,Mathematics
+Saint Patrick,3/16/2014,World,History
+Cache Optimizing,3/24/2014,Systems,Computer Science
+The Cache and Multithreading,3/24/2014,Systems,Computer Science
+Counting Sort in C,3/25/2014,Programming,Computer Science
+Bilingualism and Pattern Recognition,3/28/2014,Learning,Life
+Quadrature - Numerical Integration Comparison,4/1/2014,Algorithms,Mathematics
+Basic Book Reader,4/9/2014,Programming,Computer Science
+C++ Inheritance - Virtual Functions,4/10/2014,Programming,Computer Science
+"Monty Hall, meet Game Theory",4/13/2014,Statistics,Mathematics
+Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
+Introduction to Markov Processes,4/20/2014,Statistics,Mathematics
+Theoretically Determing the Man Made in C++,4/26/2014,Programming,Computer Science
+Introduction to Monte Carlo Methods,4/30/2014,Statistics,Mathematics
+"Are Decisions Governed by ""Free Will"" or Algorithms",5/1/2014,Learning,Life
+"CT-Afferents, Emotions, and Autism",5/3/2014,Learning,Life
+Multithreading: Semaphores,5/4/2014,Systems,Computer Science
+Multithreading: Producer-Consumer Problem,5/4/2014,Systems,Computer Science
+Multithreading: Dining Philosophers Problem,5/4/2014,Systems,Computer Science
+Multithreading: Common Pitfalls,5/5/2014,Systems,Computer Science
+Generating Graph Images in Golang,5/6/2014,Programming,Computer Science
+Intro to IPC | Interprocess Communication,5/8/2014,Systems,Computer Science

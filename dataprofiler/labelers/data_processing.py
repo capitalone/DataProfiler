@@ -1085,7 +1085,7 @@ class StructCharPreprocessor(CharPreprocessor,
             + param_docs[param_start_ind:param_end_ind]
             + "\nProcess Input Format:\n"
             "    data = List of strings ['1st string', 'second string', ...]\n"
-            "    labels = [<INT>, <INT>, ...(num_samples in data)]")
+            "    labels = [\"<LABEL>\", \"<LABEL>\", ...(num_samples in data)]")
         print(help_str)
 
     def get_parameters(self, param_list=None):
@@ -1106,12 +1106,12 @@ class StructCharPreprocessor(CharPreprocessor,
         required input data format.
 
         :param data: list of strings
-        :type data: Union[numpy.ndarray, pandas.DataFrame]
+        :type data: numpy.ndarray
         :param labels: labels for each input character
         :type labels: list
         :return: data in the following format
-                 [ dict(text="<SAMPLE><SEPARATOR><SAMPLE>...",
-                        entities=[dict(start=<INT>, end=<INT>, label="<LABEL>"),
+                 text="<SAMPLE><SEPARATOR><SAMPLE>...",
+                 entities=[(start=<INT>, end=<INT>, label="<LABEL>"),
                                   ...(num_samples in data)])
         """
         separator = self._parameters['flatten_separator']
@@ -1295,7 +1295,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
               "    Each sample receives a label.\n"
               "    Original data - ['My', 'String', ...]\n"
               "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
-              "..(num samples)]")
+              "..(num_samples)]")
         print(help_str)
 
     @staticmethod

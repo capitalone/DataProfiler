@@ -1528,7 +1528,8 @@ class TestStructCharPreprocessor(unittest.TestCase):
                                     'If `labels` are specified, `label_mapping`'
                                     ' must also be specified'):
             process_generator = preprocessor.process(
-                ['test'], labels=['test'], label_mapping=None, batch_size=2)
+                np.array(['test']), labels=np.array(['test']),
+                label_mapping=None, batch_size=2)
             next(process_generator)
 
         # test a single sentence
@@ -1551,7 +1552,7 @@ class TestStructCharPreprocessor(unittest.TestCase):
 
         # with labels process
         test_array = np.array(['this', ' is', 'my test.'])
-        labels = ['TEST1', 'TEST2', 'BACKGROUND']
+        labels = np.array(['TEST1', 'TEST2', 'BACKGROUND'])
         expected_sentence_output = [
             np.array([['this'], [' is' + separator + 'my']]),
             np.array([[' test.']]),

@@ -146,11 +146,11 @@ class TestDataLabeler(unittest.TestCase):
         label_str = entities(data_cells, label_cells)
         for dt in ["csv", "json", "parquet"]:
             data_obj = dp.Data(data=pd.DataFrame([data_str]), data_type=dt)
-            label_str_ser = pd.Series([label_str])
             labeler = dp.DataLabeler(labeler_type="unstructured",
                                      trainable=True)
-            self.assertIsNotNone(labeler.fit(x=data_obj, y=label_str_ser))
+            self.assertIsNotNone(labeler.fit(x=data_obj, y=[label_str]))
             self.assertIsNotNone(labeler.predict(data=data_obj))
+
         # Test with the string broken up into different df entries
         data_1 = data_cells[:3]
         data_2 = data_cells[3:5]
@@ -162,15 +162,15 @@ class TestDataLabeler(unittest.TestCase):
         three_labels = [entities(d, l) for (d, l) in zipped]
         for dt in ["csv", "json", "parquet"]:
             data_obj = dp.Data(data=data_df, data_type=dt)
-            label_ser = pd.Series(three_labels)
             labeler = dp.DataLabeler(labeler_type="unstructured",
                                      trainable=True)
-            self.assertIsNotNone(labeler.fit(x=data_obj, y=label_ser))
+            self.assertIsNotNone(labeler.fit(x=data_obj, y=three_labels))
             self.assertIsNotNone(labeler.predict(data=data_obj))
+
         # Test with text data object
         text_obj = dp.Data(data=data_str, data_type="text")
         labeler = dp.DataLabeler(labeler_type="unstructured", trainable=True)
-        self.assertIsNotNone(labeler.fit(x=text_obj, y=pd.Series([label_str])))
+        self.assertIsNotNone(labeler.fit(x=text_obj, y=[label_str]))
         self.assertIsNotNone(labeler.predict(data=text_obj))
 
 

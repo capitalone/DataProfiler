@@ -614,22 +614,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             raise ValueError('If `labels` are specified, `label_mapping` must '
                              'also be specified.')
 
-        # Flatten DataFrames and Arrays into 1 dimensional np arrays
-        # Place lists into np arrays so they can use .astype(str)
-        if isinstance(data, pd.DataFrame):
-            data = data.values.reshape(-1)
-        elif isinstance(data, np.ndarray):
+        if data.ndim > 1:
             data = data.reshape(-1)
-        elif isinstance(data, list):
-            data = np.array(data, dtype="object")
         data = data.astype(str)
-
-        if isinstance(labels, pd.DataFrame):
-            labels = labels.values.reshape(-1)
-        elif isinstance(labels, np.ndarray):
-            labels = labels.reshape(-1)
-        elif isinstance(labels, list):
-            labels = np.array(labels, dtype="object")
 
         # get parameters
         max_length = self._parameters['max_length']
@@ -1155,7 +1142,7 @@ class StructCharPreprocessor(CharPreprocessor,
         :param data: List of strings to create embeddings for
         :type data: Union[numpy.ndarray, pandas.DataFrame]
         :param labels: labels for each input character
-        :type labels: list
+        :type labels: numpy.ndarray
         :param label_mapping: maps labels to their encoded integers
         :type label_mapping: Union[dict, None]
         :param batch_size: Number of samples in the batch of data
@@ -1167,21 +1154,10 @@ class StructCharPreprocessor(CharPreprocessor,
             raise ValueError('If `labels` are specified, `label_mapping` must '
                              'also be specified.')
 
-        # Flatten DataFrames and Arrays into 1 dimensional np arrays
-        # Place lists into np arrays so they can use .astype(str)
-        if isinstance(data, pd.DataFrame):
-            data = data.values.reshape(-1)
-        elif isinstance(data, np.ndarray):
+        if data.ndim > 1:
             data = data.reshape(-1)
-        elif isinstance(data, list):
-            data = np.array(data, dtype="object")
-
-        if isinstance(labels, pd.DataFrame):
-            labels = labels.values.reshape(-1)
-        elif isinstance(labels, np.ndarray):
+        if labels is not None and labels.ndim > 1:
             labels = labels.reshape(-1)
-        elif isinstance(labels, list):
-            labels = np.array(labels, dtype="object")
 
         # convert structured to unstructured format
         unstructured_data = [[]] * len(data)

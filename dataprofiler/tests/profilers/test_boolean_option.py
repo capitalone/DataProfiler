@@ -17,6 +17,8 @@ class TestBooleanOption(TestBaseOption):
     def test_init(self, *mocks):
         option = self.get_options()
         self.assertDictEqual({"is_enabled": True}, option.properties)
+        option = self.get_options(is_enabled=False)
+        self.assertDictEqual({"is_enabled": False}, option.properties)
     
     def test_set_helper(self, *mocks):
         super().test_set_helper(*mocks)
@@ -35,11 +37,11 @@ class TestBooleanOption(TestBaseOption):
     def test_set(self, *mocks):
         super().test_set(*mocks)
 
-        # Enable and Disable Options        
-        option = self.get_options(is_enabled=False)
-        self.assertFalse(option.properties['is_enabled'])        
-        option.set({'is_enabled':True}) 
-        self.assertTrue(option.properties['is_enabled'])        
+        # Enable and Disable Options       
+        for is_enabled in [True, False]:
+            option = self.get_options(is_enabled=not is_enabled)
+            option.set({'is_enabled':is_enabled}) 
+            self.assertEqual(is_enabled, option.properties['is_enabled'])        
     
         # Treat is_enabled as a BooleanOption
         expected_error = "type object 'is_enabled' has no attribute 'error'"

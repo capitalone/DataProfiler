@@ -163,8 +163,8 @@ class BaseDataLabeler(object):
             data = data.values
         elif not isinstance(data, np.ndarray):
             raise TypeError(
-                "Data must either be imported using the data_readers or "
-                "pd.DataFrame."
+                "Data must be imported using the data_readers, "
+                "pd.DataFrames, np.ndarrays, or lists."
             )
 
         if fit_or_predict == "fit":

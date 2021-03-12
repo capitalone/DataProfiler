@@ -274,8 +274,9 @@ class TestDataLabeler(unittest.TestCase):
 
         def _invalid_check(data):
             with self.assertRaisesRegex(TypeError,
-                                        "Data must either be imported using "
-                                        "the data_readers or pd.DataFrame."):
+                                        "Data must be imported using the "
+                                        "data_readers, pd.DataFrames, "
+                                        "np.ndarrays, or lists."):
                 UnstructuredDataLabeler._check_and_return_valid_data_format(
                     data)
 

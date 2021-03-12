@@ -26,7 +26,7 @@ class TestBooleanOption(TestBaseOption):
         # Enable and Disable Option
         for is_enabled in [True, False]:
             option = self.get_options(is_enabled=not is_enabled)
-            option.set({'is_enabled':is_enabled}) 
+            option._set_helper({'is_enabled':is_enabled}, '') 
             self.assertEqual(is_enabled, option.properties['is_enabled'])        
 
         # Treat is_enabled as a BooleanOption

@@ -165,6 +165,10 @@ The format for a profile is below:
 * PHONE_NUMBER
 * SSN
 * URL
+* US_STATE
+* DRIVERS_LICENSE
+* DATE
+* TIME
 * DATETIME
 * INTEGER
 * FLOAT

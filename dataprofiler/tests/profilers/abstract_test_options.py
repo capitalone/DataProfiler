@@ -24,3 +24,18 @@ class AbstractTestOptions():
     def get_options_path(self, *args, **kwargs): 
         self.validate_option_class()
         return self.option_class.__name__
+
+    def test_init(self, *mocks):
+        raise NotImplementedError
+ 
+    def test_set_helper(self, *mocks):
+        raise NotImplementedError
+ 
+    def test_set(self, *mocks):
+        raise NotImplementedError
+ 
+    def test_validate_helper(self, *mocks):
+        raise NotImplementedError
+ 
+    def test_validate(self, *mocks):
+        raise NotImplementedError

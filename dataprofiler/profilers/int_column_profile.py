@@ -34,7 +34,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def __add__(self, other):
         """
         Merges the properties of two IntColumn profiles
-        
+
         :param self: first profile
         :param other: second profile
         :type self: IntColumn
@@ -46,8 +46,11 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                             "'IntColumn' and '{}'".format(other.__class__.__name__))
 
         merged_profile = IntColumn(None)
-        BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile,self,other)
+        BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
         NumericStatsMixin._add_helper(merged_profile, self, other)
+        self._merge_calculations(merged_profile.__calculations,
+                                 self.__calculations,
+                                 other.__calculations)
         return merged_profile
 
     @property

@@ -43,20 +43,39 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         # convert all the values to string
         df_series = df_series.apply(str)
         
-        selected_columns = None
+        selected_col_profiles = None
         if options and isinstance(options, StructuredOptions):
-            selected_columns = options.enabled_columns
+            selected_col_profiles = options.enabled_columns
 
-        for column_type in self._profilers:
+        for col_profile_type in self._profilers:
             # Create profile if options allow for it or if there are no options
-            if selected_columns is None or \
-                    column_type.col_type in selected_columns:
-                column_options = None
-                if options and options.properties[column_type.col_type]:
-                    column_options = options.properties[column_type.col_type]
-                self._profiles[column_type.col_type] = \
-                    column_type(df_series.name, options=column_options)
-                self._profiles[column_type.col_type].update(df_series)
+            if selected_col_profiles is None or \
+                    col_profile_type.col_type in selected_col_profiles:
+                col_profile_options = None
+                if options and options.properties[col_profile_type.col_type]:
+                    col_profile_options = options.properties[col_profile_type.col_type]
+
+                try:
+                    self._profiles[col_profile_type.col_type] = \
+                        col_profile_type(df_series.name, options=col_profile_options)
+                    self._profiles[col_profile_type.col_type].update(df_series)
+                except Exception as e:
+                    import warnings
+                    warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
+                    warning_msg += "Profiling Type: {}".format(col_profile_type.col_type)
+                    warning_msg += "\nException: {}".format(type(e).__name__)
+                    warning_msg += "\nMessage: {}".format(e)
+
+                    # This is considered a major error
+                    if type(e).__name__ == "ValueError":
+                        raise ValueError(e)
+                    
+                    warning_msg += "\n\nFor labeler errors, try installing "
+                    warning_msg += "the extra ml requirements via:\n\n"
+                    warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+
+                    warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
+            
 
     def __add__(self, other):
         """

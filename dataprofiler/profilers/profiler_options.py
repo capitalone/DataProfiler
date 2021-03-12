@@ -35,6 +35,9 @@ class BaseOption(object):
         if not isinstance(options, dict):
             raise ValueError("The options must be a dictionary.")
 
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
         for option in options:
             option_list = option.split(".", 1)
             option_name = option_list[0]

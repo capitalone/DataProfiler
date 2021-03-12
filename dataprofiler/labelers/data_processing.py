@@ -10,8 +10,6 @@ import random
 import math
 
 import numpy as np
-import pandas as pd
-import tensorflow as tf
 
 default_labeler_dir = pkg_resources.resource_filename(
     'resources', 'labelers'
@@ -615,6 +613,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             raise ValueError('If `labels` are specified, `label_mapping` must '
                              'also be specified.')
 
+        # Import tensorflow
+        import tensorflow as tf
+
         if data.ndim > 1:
             data = data.reshape(-1)
         data = data.astype(str)
@@ -632,9 +633,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             # Convert to necessary training data format.
             X_train = np.array(
                 [[sentence] for sentence in batch_data['samples']])
-
             if labels is not None:
                 num_classes = max(label_mapping.values()) + 1
+                
                 Y_train = tf.keras.utils.to_categorical(
                     batch_data['labels'], num_classes)
                 yield X_train, Y_train

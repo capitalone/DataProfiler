@@ -52,7 +52,7 @@ class TestDataProfiler(unittest.TestCase):
             """Recursively reload modules."""
             sys_modules = sys.modules.copy()
             for module_name, module in sys_modules.items():
-                # Only reload top level of the data_profiler
+                # Only reload top level of the dataprofiler
                 if ('dataprofiler' in module_name and
                         len(module_name.split('.')) < 3):
                     if isinstance(module, types.ModuleType):
@@ -79,6 +79,29 @@ class TestDataProfiler(unittest.TestCase):
             '\tsudo apt-get -y install libsnappy-dev`\n',
         )
 
+    def test_no_tensorflow(self):
+        import sys
+        import importlib
+        import types
+        import pandas
+        orig_import = __import__
+        # necessary for any wrapper around the library to test if snappy caught
+        # as an issue
+
+        def import_mock(name, *args):
+            if name == 'tensorflow':
+                raise ImportError('test')
+            return orig_import(name, *args)
+                        
+        with mock.patch('builtins.__import__', side_effect=import_mock):
+
+            with self.assertWarns(RuntimeWarning) as w:
+                import dataprofiler
+                df = pandas.DataFrame([[1, 2.0],[1, 2.2],[-1, 3]])
+                profile = dataprofiler.Profiler(df)
+        
+        warning_msg = "Partial Profiler Failure"
+        self.assertIn(warning_msg, str(w.warning))
 
 if __name__ == '__main__':
     unittest.main()

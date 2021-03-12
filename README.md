@@ -1,8 +1,12 @@
 # Data Profiler | What's in your data?
 
-The Data Profiler provides insights on the schema and statistics of any file or dataset it profiles.
+The DataProfiler is a Python library designed to make data analysis, monitoring and **sensitive data detection** easy.
 
-The best part? It only takes a few lines of code:
+Loading **Data** with a single command, the library automatically formats & loads files into a DataFrame. **Profiling** the Data, the library identifies the schema, statistics, entities and more. Data Profiles can then be used in downstream applications or reports.
+
+The Data Profiler comes with a cutting edge pre-trained deep learning model, used to efficiently identify **sensitive data** (or **PII**). If customization is needed, it's easy to add new entities to the existing pre-trained model or insert a new pipeline for entity recognition.
+
+The best part? Getting started only takes a few lines of code ([example csv](https://raw.githubusercontent.com/capitalone/DataProfiler/main/dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv)):
 
 ```python
 import json
@@ -19,7 +23,12 @@ human_readable_report = profile.report(report_options={"output_format":"pretty"}
 print(json.dumps(human_readable_report, indent=4))
 ```
 
-Install from pypi: `pip3 install DataProfiler`
+To install the full package from pypi: `pip install DataProfiler[ml]`
+
+If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package. The slimmer package disables the default sensitive data detection / entity recognition (labler)
+
+Install from pypi: `pip install DataProfiler`
+
 
 For API documentation, visit the [documentation page](https://capitalone.github.io/DataProfiler/).
 
@@ -196,6 +205,11 @@ source venv3/bin/activate
 Install requirements:
 ```
 pip3 install -r requirements.txt
+```
+
+Install labeler dependencies:
+```
+pip3 install -r requirements-ml.txt
 ```
 
 Install via the repo -- Build setup.py and install locally:
@@ -640,13 +654,16 @@ Mechanism for training your own data labeler on their own set of structured data
 ```python
 import dataprofiler as dp
 
+# Will need one column with a default label of BACKGROUND
 data = dp.Data("your_file.csv")
+
 data_labeler = dp.train_structured_labeler(
     data=data,
     save_dirpath="/path/to/save/labeler",
     epochs=2
 )
-data_labeler.save("my/save/path") # Saves the data labeler for reuse
+
+data_labeler.save_to_disk("my/save/path") # Saves the data labeler for reuse
 ```
 
 ## Load an Existing Data Labeler
@@ -669,12 +686,13 @@ Extending or changing labels of a data labeler w/ transfer learning:
 Note: By default, **a labeler loaded will not be trainable**. In order to load a 
 trainable DataLabeler, the user must set `trainable=True` or load a labeler 
 using the `TrainableDataLabeler` class.
+
+The following illustrates how to change the labels:
 ```python
 import dataprofiler as dp
 
 labels = ['label1', 'label2', ...]  # new label set can also be an encoding dict
 data = dp.Data("your_file.csv")  # contains data with new labels
-
 
 # load default structured Data Labeler w/ trainable set to True
 data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
@@ -687,12 +705,48 @@ data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
 #       data to be ingested with two columns [X, y] where X is the samples and 
 #       y is the labels.
 model_results = data_labeler.fit(x=data['samples'], y=data['labels'], 
-    validation_split=0.2, labels=labels)
+                                 validation_split=0.2, epochs=2, labels=labels)
 
-final_results = model_results["pred"]
-final_confidences = model_results["conf"]
+# final_results, final_confidences are a list of results for each epoch
+epoch_id = 0
+final_results = model_results[epoch_id]["pred"]
+final_confidences = model_results[epoch_id]["conf"]
 ```
 
+The following illustrates how to extend the labels:
+```python
+import dataprofiler as dp
+
+new_labels = ['label1', 'label2', ...]
+data = dp.Data("your_file.csv")  # contains data with new labels
+
+# load default structured Data Labeler w/ trainable set to True
+data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
+
+# this will maintain current labels and model weights, but extend the model's 
+# labels
+for label in new_labels:
+    data_labeler.add_label(label)
+    
+# NOTE: a user can also add a label which maps to the same index as an existing 
+# label
+# data_labeler.add_label(label, same_as='<label_name>')
+
+# For a trainable model, the user must then train the model to be able to 
+# continue using the labeler since the model's graph has likely changed
+# NOTE: data must be in an acceptable format for the preprocessor to interpret.
+#       please refer to the preprocessor/model for the expected data format.
+#       Currently, the DataLabeler cannot take in Tabular data, but requires 
+#       data to be ingested with two columns [X, y] where X is the samples and 
+#       y is the labels.
+model_results = data_labeler.fit(x=data['samples'], y=data['labels'], 
+                                 validation_split=0.2, epochs=2)
+
+# final_results, final_confidences are a list of results for each epoch
+epoch_id = 0
+final_results = model_results[epoch_id]["pred"]
+final_confidences = model_results[epoch_id]["conf"]
+```
 
 Changing pipeline parameters:
 ```python

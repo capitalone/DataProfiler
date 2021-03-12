@@ -11,9 +11,13 @@ class AbstractTestOptions():
             raise ValueError("option_class class variable cannot be set to 'None'")
 
         # Check option_class is correct type
+        if not isinstance(self.option_class, type):
+            raise ValueError("option_class class variable must be of type 'type'")
+
+        # Check option_class() is correct type
         options = self.option_class(*args, **kwargs)
         if not isinstance(options, BaseOption):
-            raise ValueError("option_class class variable must be of type BaseOption")
+            raise ValueError("option_class class variable must create object of type 'BaseOption'")
         
     @classmethod
     def get_options(self, *args, **kwargs):

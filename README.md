@@ -166,6 +166,7 @@ The format for a profile is below:
 * SSN
 * URL
 * US_STATE
+* DRIVERS_LICENSE
 * DATE
 * TIME
 * DATETIME

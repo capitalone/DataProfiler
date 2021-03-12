@@ -23,9 +23,9 @@ class TestBooleanOption(TestBaseOption):
         
         # Enable and Disable Option
         option = self.get_options(is_enabled=False)
-        self.assertEqual(False, option.properties['is_enabled'])        
+        self.assertFalse(option.properties['is_enabled'])        
         option._set_helper({'is_enabled':True}, '') 
-        self.assertEqual(True, option.properties['is_enabled'])        
+        self.assertTrue(option.properties['is_enabled'])        
 
         # Treat is_enabled as a BooleanOption
         expected_error = "type object 'is_enabled' has no attribute 'is_enabled'"

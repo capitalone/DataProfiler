@@ -26,7 +26,7 @@ class AbstractTestOptions():
 
     @classmethod
     def get_options_path(self, *args, **kwargs): 
-        self.validate_option_class()
+        self.validate_option_class(*args, **kwargs)
         return self.option_class.__name__
 
     def test_init(self, *mocks):

@@ -9,9 +9,6 @@ from dataprofiler.profilers.profiler_options import BaseColumnOptions
 from dataprofiler.tests.profilers.test_boolean_option import TestBooleanOption
 
 
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
-            'DataLabelerColumn.update', return_value=None)
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
 class TestBaseColumnOptions(TestBooleanOption):
     
     @classmethod
@@ -20,7 +17,7 @@ class TestBaseColumnOptions(TestBooleanOption):
 
     @classmethod
     def get_options(self, *args, **params):
-        options = self.validate_option_class()
+        self.validate_option_class()
         options = self.option_class()
         options.set(params)
         return options

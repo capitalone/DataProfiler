@@ -8,10 +8,6 @@ from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import BooleanOption
 from dataprofiler.tests.profilers.test_base_option import TestBaseOption
 
-
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
-            'DataLabelerColumn.update', return_value=None)
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
 class TestBooleanOption(TestBaseOption):
     
     @classmethod

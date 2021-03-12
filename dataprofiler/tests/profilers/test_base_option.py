@@ -8,9 +8,6 @@ from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import BaseOption
 from dataprofiler.tests.profilers.abstract_test_options import AbstractTestOptions
 
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
-            'DataLabelerColumn.update', return_value=None)
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
 class TestBaseOption(AbstractTestOptions, unittest.TestCase):
     
     @classmethod

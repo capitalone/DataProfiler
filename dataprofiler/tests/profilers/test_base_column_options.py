@@ -20,8 +20,7 @@ class TestBaseColumnOptions(TestBooleanOption):
 
     @classmethod
     def get_options(self, *args, **params):
-        if self.option_class == None:    
-            raise ValueError("option_class class variable cannot be set to 'None'")
+        options = self.validate_option_class()
         options = self.option_class()
         options.set(params)
         return options

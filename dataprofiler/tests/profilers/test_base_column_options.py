@@ -16,18 +16,16 @@ class TestBaseColumnOptions(TestBooleanOption):
 	
 	@classmethod
 	def setUpClass(cls):
-		cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
+		cls.option_class = BaseColumnOptions
 
 	@classmethod
-	def getOptions(self, **params):
-		options = BaseColumnOptions()
+	def get_options(self, *args, **params):
+		if self.option_class == None:	
+			raise ValueError("option_class class variable cannot be set to 'None'")
+		options = self.option_class()
 		options.set(params)
 		return options
 			
-	@classmethod
-	def getOptionsPath(self, **params):
-		return "BaseColumnOptions"
-		
 	def test_init(self, *mocks):
 		super().test_init(*mocks)
 	
@@ -44,8 +42,8 @@ class TestBaseColumnOptions(TestBooleanOption):
 		super().test_validate(*mocks)
 
 	def test_is_prop_enabled(self, *mocks):
-		options = self.getOptions()
-		optpth = self.getOptionsPath()
+		options = self.get_options()
+		optpth = self.get_options_path()
 
 		# Check is prop enabled for valid property
 		options.set({"is_enabled": True})

@@ -7,7 +7,7 @@ import pandas as pd
 import dataprofiler as dp
 
 
-class TestV2StructuredDataLabeler(unittest.TestCase):
+class TestStructuredDataLabeler(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -113,8 +113,21 @@ class TestV2StructuredDataLabeler(unittest.TestCase):
             dp.labelers.StructuredDataLabeler._default_model_loc)
         data_labeler = dp.labelers.TrainableDataLabeler(dirpath=dirpath)
 
-        data_labeler.add_label('NEW_LABEL')
+        original_label_mapping = data_labeler.label_mapping.copy()
+        original_max_label = data_labeler.label_mapping[
+            max(data_labeler.label_mapping, key=data_labeler.label_mapping.get)]
+        
+        new_label = 'NEW_LABEL'
+        data_labeler.add_label(new_label)
 
+        new_max_label = data_labeler.label_mapping[
+            max(data_labeler.label_mapping, key=data_labeler.label_mapping.get)]
+
+        expected_label_mapping = original_label_mapping
+        expected_label_mapping[new_label] = new_max_label
+        
+        new_label_count = len(data_labeler.label_mapping)
+        
         # validate raises error if not trained before fit
         with self.assertRaisesRegex(RuntimeError,
                                     "The model label mapping definitions have "
@@ -123,15 +136,6 @@ class TestV2StructuredDataLabeler(unittest.TestCase):
                                     "label mapping to predict."):
             model_predictions = data_labeler.predict(data=self.df[0])
 
-
-        # get char-level predictions on default model
-        expected_label_mapping = {
-            "PAD": 0, "CITY": 1, "BACKGROUND": 1, "ADDRESS": 2, "BAN": 3,
-            "CREDIT_CARD": 4, "EMAIL_ADDRESS": 5, "UUID": 6, "HASH_OR_KEY": 7,
-            "IPV4": 8, "IPV6": 9, "MAC_ADDRESS": 10, "NAME": 11, "PERSON": 11,
-            "PHONE_NUMBER": 12, "SSN": 13, "URL": 14, "DATETIME": 15,
-            "INTEGER_BIG": 16, "INTEGER": 16, "FLOAT": 17, "QUANTITY": 18,
-            "ORDINAL": 19, "NEW_LABEL": 20}
         model_predictions = data_labeler.fit(x=self.df[0], y=self.df[1])
 
         self.assertEqual(1, len(model_predictions))
@@ -139,10 +143,12 @@ class TestV2StructuredDataLabeler(unittest.TestCase):
         self.assertIsInstance(model_predictions[0][0], dict)  # history
         self.assertIsInstance(model_predictions[0][1], float)  # f1
         self.assertIsInstance(model_predictions[0][2], dict)  # f1_report
-        self.assertDictEqual(expected_label_mapping, data_labeler.label_mapping)
+        self.assertIn(new_label, data_labeler.label_mapping) # Ensure new label added
+        self.assertEqual(original_max_label+1, new_max_label) # Ensure new label iterated
+        self.assertDictEqual(expected_label_mapping, data_labeler.label_mapping) 
 
         # no bg, pad, but includes micro, macro, weighted
-        self.assertEqual(22, len(model_predictions[0][2].keys()))
+        self.assertEqual(new_label_count+1, len(model_predictions[0][2].keys()))
 
     def test_default_tf_model(self):
         """simple test for new default TF model + predict()"""

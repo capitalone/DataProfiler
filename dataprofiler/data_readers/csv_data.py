@@ -271,7 +271,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
                     # First index with value
                     if 'first_index_with_value' not in col_stats[j] and word_count > 0:
-                        col_stats[j]['first_index_with_value'] = (i, word_count) 
+                        col_stats[j]['first_index_with_value'] = i
 
             # Identify columns with variance
             variance = [False] * len(col_stats.keys())
@@ -286,10 +286,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
                 # First last row, keeps a count of new col first in row
                 if 'first_index_with_value' in col:
-                    if col['first_index_with_value'][0] > last_row_with_first_col_value:
-                        last_row_with_first_col_value = col['first_index_with_value'][0]
+                    if col['first_index_with_value'] > last_row_with_first_col_value:
+                        last_row_with_first_col_value = col['first_index_with_value']
                         last_row_with_first_col_value_count = 1
-                    elif col['first_index_with_value'][0] == last_row_with_first_col_value:
+                    elif col['first_index_with_value'] == last_row_with_first_col_value:
                         last_row_with_first_col_value_count += 1
 
             # Ensures there is at least some variance

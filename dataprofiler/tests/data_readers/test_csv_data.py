@@ -155,7 +155,7 @@ class TestCSVDataClass(unittest.TestCase):
             self.assertEqual(input_data_obj.data_type, 'csv')
             self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
 
-    def test_data_formats(self):
+    def test_allowed_data_formats(self):
         """
         Determine if the csv file data_formats can be used
         """

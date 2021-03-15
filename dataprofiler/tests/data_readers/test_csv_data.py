@@ -122,7 +122,7 @@ class TestCSVDataClass(unittest.TestCase):
                 count=7, delimiter=',', has_header=[1],
                  num_columns=4, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/all-strings-skip-partial-header.csv'),
-                 count=7, delimiter=',', has_header=[None],
+                 count=7, delimiter=',', has_header=[None, 1],
                  num_columns=4, encoding='utf-8'),
         ]
         cls.output_file_path = None

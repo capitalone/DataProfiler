@@ -201,16 +201,20 @@ class TestCSVDataClass(unittest.TestCase):
         # set bad header setting
         options = dict(header=-2)
         with self.assertRaisesRegex(ValueError,
-                                    '`header` must either be \'auto\' or an '
-                                    'integer > -1'):
+                                    '`header` must be one of following: auto, '
+                                    'none for no header, or a non-negative '
+                                    'integer for the row that represents the '
+                                    'header \(0 based index\)'):
             csv_data = CSVData(filename, options=options)
             first_value = csv_data.data.loc[0][0]
 
         # set bad header setting
         options = dict(header='abcdef')
         with self.assertRaisesRegex(ValueError,
-                                    '`header` must either be \'auto\' or an '
-                                    'integer > -1'):
+                                    '`header` must be one of following: auto, '
+                                    'none for no header, or a non-negative '
+                                    'integer for the row that represents the '
+                                    'header \(0 based index\)'):
             csv_data = CSVData(filename, options=options)
             first_value = csv_data.data.loc[0][0]
 

@@ -98,8 +98,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         for key, value in options.items():
             if key == 'header' and value != 'auto' and value is not None \
                     and not (isinstance(value, int) and value > -1):
-                raise ValueError('`header` must either be \'auto\' or an '
-                                 'integer > -1')
+                raise ValueError('`header` must be one of following: auto, '
+                                 'none for no header, or a non-negative '
+                                 'integer for the row that represents the '
+                                 'header (0 based index)')
         return options
 
     @staticmethod

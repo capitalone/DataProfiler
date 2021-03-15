@@ -527,7 +527,10 @@ Possible `options`:
 * delimiter - Must be a string, for example `"delimiter": ","`
 * data_format - must be a string, possible choices: "dataframe", "records"
 * selected_columns - columns being selected from the entire dataset, must be a list `["column 1", "ssn"]`
-* header - Define the header, similar to pandas
+* header - Define the header, for example
+    - `"header": 'auto'` for auto detection
+    - `"header": None` for no header
+    - `"header": <INT>>` to specify the header row (0 based index)
 
 ##### JSONData
 

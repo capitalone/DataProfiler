@@ -138,7 +138,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         header_check_list = []
         only_string_flag = True # Requires additional checks
         for row in data_as_str.split('\n'):
-            row_list = row.split(delimiter)
+            row_list = list(csv.reader([row],
+                                       delimiter=delimiter,
+                                       quotechar='"'))[0]
             header_check_list.append([])
 
             for i in range(len(row_list)):
@@ -202,7 +204,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         row_classic_header_ends = None
         change_flag = False
         for i in range(0, len(differences)):
-        
+
+            # Skip if there's nothing in the given row
+            if len(header_check_list[i]) == 0:
+                continue
+            
             # Determine ratio of none in row, must be BELOW threshold
             none = float(header_check_list[i].count("none")) / float(len(header_check_list[i]))
         

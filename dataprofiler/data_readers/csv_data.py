@@ -242,7 +242,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             col_stats = {}
             rows = data_as_str.split('\n')
             for i in range(0, len(rows)):
-                cells = rows[i].split(delimiter)
+                cells = list(csv.reader([rows[i]],
+                                        delimiter=delimiter,
+                                        quotechar='"'))[0]
                 for j in range(0, len(cells)):
 
                     # Determine number of words in cell
@@ -262,12 +264,13 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                         col_stats[j]['min'] = word_count
 
                     # First index with value
-                    if 'first' not in col_stats[j] and word_count > 0:
-                        col_stats[j]['first'] = (i, word_count) 
+                    if 'first_index_with_value' not in col_stats[j] and word_count > 0:
+                        col_stats[j]['first_index_with_value'] = (i, word_count) 
 
             # Identify columns with variance
             variance = [False] * len(col_stats.keys())
-            last_first, last_first_count = 0, 0
+            last_row_with_first_col_value = 0
+            last_row_with_first_col_value_count = 0
             for i in col_stats.keys():
                 col = col_stats[i]
                 
@@ -276,19 +279,19 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     variance[i] = True
 
                 # First last row, keeps a count of new col first in row
-                if 'first' in col:
-                    if col['first'][0] > last_first:
-                        last_first = col['first'][0]
-                        last_first_count = 1
-                    elif col['first'][0] == last_first:
-                        last_first_count += 1
+                if 'first_index_with_value' in col:
+                    if col['first_index_with_value'][0] > last_row_with_first_col_value:
+                        last_row_with_first_col_value = col['first_index_with_value'][0]
+                        last_row_with_first_col_value_count = 1
+                    elif col['first_index_with_value'][0] == last_row_with_first_col_value:
+                        last_row_with_first_col_value_count += 1
 
             # Ensures there is at least some variance
             if variance.count(True) > 0: 
                 
                 # Ensures most first lines are the same row
-                if last_first_count > (len(variance) // 2):
-                    row_classic_header_ends = last_first
+                if last_row_with_first_col_value_count > (len(variance) // 2):
+                    row_classic_header_ends = last_row_with_first_col_value
 
         return row_classic_header_ends
 

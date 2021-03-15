@@ -530,7 +530,7 @@ Possible `options`:
 * header - Define the header, for example
     - `"header": 'auto'` for auto detection
     - `"header": None` for no header
-    - `"header": <INT>>` to specify the header row (0 based index)
+    - `"header": <INT>` to specify the header row (0 based index)
 
 ##### JSONData
 

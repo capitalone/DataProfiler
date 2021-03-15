@@ -165,6 +165,10 @@ The format for a profile is below:
 * PHONE_NUMBER
 * SSN
 * URL
+* US_STATE
+* DRIVERS_LICENSE
+* DATE
+* TIME
 * DATETIME
 * INTEGER
 * FLOAT
@@ -253,7 +257,7 @@ python3 -m unittest discover -p test_profile_builder.py
 
 To run a file with Pytest use:
 ```
-pytest DataProfiler/tests/data_readers/test_csv_data.py -v
+pytest dataprofiler/tests/data_readers/test_csv_data.py -v
 ```
 
 To run individual of unit test, use form:

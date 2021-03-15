@@ -408,7 +408,7 @@ class TestIntColumn(unittest.TestCase):
         profiler2.update(df2)
 
         profiler3 = profiler1 + profiler2
-        self.assertEqual(profiler3.stddev,profiler2.stddev)
+        self.assertEqual(profiler3.stddev, profiler2.stddev)
 
         # test merge with empty data
         df1 = pd.Series([], dtype=object)
@@ -422,6 +422,7 @@ class TestIntColumn(unittest.TestCase):
         profiler = profiler1 + profiler2
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
+        self.assertIsNone(profiler.histogram_selection)
 
         df3 = pd.Series([2, 3]).apply(str)
         profiler3 = IntColumn("Int")
@@ -460,3 +461,38 @@ class TestIntColumn(unittest.TestCase):
                                     'Profiles have no overlapping bin methods '
                                     'and therefore cannot be added together.'):
             profiler1 + profiler2
+            
+    def test_profile_merge_with_different_options(self):
+        # Creating first profiler with default options
+        options = IntOptions()
+        options.max.is_enabled = False
+        options.min.is_enabled = False
+
+        data = [2, 4, 6, 8]
+        df = pd.Series(data).apply(str)
+        profiler1 = IntColumn("Int", options=options)
+        profiler1.update(df)
+        profiler1.match_count = 0
+
+        # Creating second profiler with separate options
+        options = IntOptions()
+        options.min.is_enabled = False
+        data2 = [10, 15]
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = IntColumn("Int", options=options)
+        profiler2.update(df2)
+
+        # Asserting warning when adding 2 profilers with different options
+        with self.assertWarnsRegex(RuntimeWarning,
+                                   "max is disabled because it is not enabled in"
+                                   " both profiles."):
+            profiler3 = profiler1 + profiler2
+        
+        # Assert that these features are still merged
+        self.assertIsNotNone(profiler3.histogram_selection)
+        self.assertIsNotNone(profiler3.variance)
+        self.assertIsNotNone(profiler3.sum)
+        
+        # Assert that these features are not calculated
+        self.assertIsNone(profiler3.max)
+        self.assertIsNone(profiler3.min)

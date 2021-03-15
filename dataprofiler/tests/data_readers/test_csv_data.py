@@ -13,7 +13,7 @@ class TestCSVDataClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-
+        
         test_dir = os.path.join(test_root_path, 'data')
         cls.input_file_names = [
             dict(path=os.path.join(test_dir, 'csv/diamonds.csv'),
@@ -51,6 +51,9 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=16, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/small-num.csv'),
                  count=5, delimiter=None, has_header=[0],
+                 num_columns=1, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/small-num-negative.csv'),
+                 count=5, delimiter=None, has_header=[None],
                  num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/names-col.txt'),
                  count=5, delimiter=None, has_header=[0],
@@ -100,6 +103,27 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/sparse-interchange-none.txt'),
                  count=6, delimiter=',', has_header=[0],
                  num_columns=3, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/blogposts.csv'),
+                 count=25, delimiter=',', has_header=[0],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/all-strings-standard-header.csv'),
+                 count=11, delimiter=',', has_header=[0],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/all-strings-standard-header-quotes.csv'),
+                 count=11, delimiter=',', has_header=[0],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/all-strings-standard-header-data-quotes.csv'),
+                 count=11, delimiter=',', has_header=[0],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/all-strings-skip-header.csv'),
+                 count=11, delimiter=',', has_header=[1],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/all-strings-skip-header-author.csv'),
+                count=7, delimiter=',', has_header=[1],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/all-strings-skip-partial-header.csv'),
+                 count=7, delimiter=',', has_header=[None, 1],
+                 num_columns=4, encoding='utf-8'),
         ]
         cls.output_file_path = None
 

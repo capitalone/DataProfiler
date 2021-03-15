@@ -246,9 +246,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 for j in range(0, len(cells)):
 
                     # Determine number of words in cell
-                    words = cells[j].split(' ')
-                    word_count = len(words)
-                    if len(words[0])==0: word_count = 0
+                    word_count = 0
+                    if len(cells[j]) > 0:
+                        words = cells[j].split(' ')
+                        word_count = len(words)
                     
                     # First row, set base
                     if j not in col_stats:

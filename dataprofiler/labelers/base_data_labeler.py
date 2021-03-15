@@ -717,8 +717,12 @@ class TrainableDataLabeler(BaseDataLabeler):
             self._model.reset_weights()
 
         # shuffle input data
-        np.random.shuffle(x)
-        np.random.shuffle(y)
+        shuffle_inds = np.random.permutation(num_samples)
+        x = x[shuffle_inds]
+        y = y[shuffle_inds]
+
+        # free memory
+        del shuffle_inds
 
         # preprocess data
         cv_split_index = max(1, int(num_samples * (1 - validation_split)))
@@ -735,10 +739,12 @@ class TrainableDataLabeler(BaseDataLabeler):
             results.append(self._model.fit(train_data, cv_data))
             if i < epochs - 1:
                 # shuffle input data
-                train_data_x = copy.deepcopy(x)
-                train_data_y = copy.deepcopy(y)
-                np.random.shuffle(train_data_x)
-                np.random.shuffle(train_data_y)
+                shuffle_inds = np.random.permutation(cv_split_index)
+                train_data_x = x[shuffle_inds]
+                train_data_y = y[shuffle_inds]
+
+                # free memory
+                del shuffle_inds
 
                 train_data = self._preprocessor.process(
                     train_data_x, labels=train_data_y,

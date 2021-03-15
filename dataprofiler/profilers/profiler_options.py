@@ -106,7 +106,8 @@ class BaseOption(object):
         errors = self._validate_helper()
         if raise_error and errors:
             raise ValueError('\n'.join(errors))
-        return errors
+        elif errors: 
+            return errors
 
 
 class BooleanOption(BaseOption):
@@ -129,6 +130,9 @@ class BooleanOption(BaseOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
         errors = []
         if not isinstance(self.is_enabled, bool):
             errors = ["{}.is_enabled must be a Boolean.".format(variable_path)]
@@ -144,6 +148,17 @@ class BaseColumnOptions(BooleanOption):
         :vartype is_enabled: bool
         """
         super().__init__(is_enabled=True)
+
+    def _validate_helper(self, variable_path='BaseColumnOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path) 
 
     def is_prop_enabled(self, prop):
         """

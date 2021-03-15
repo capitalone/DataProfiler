@@ -158,13 +158,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                         pass
 
                     try:
-                        float(cell)
+                        f_cell = float(cell)
                         cell_type = 'float'
+                        if f_cell.is_integer():
+                            cell_type = 'int'
                     except ValueError:
                         pass
-
-                    if cell.isdigit():
-                        cell_type = 'int'
                     
                     if cell.isupper():
                         cell_type = 'upstr'

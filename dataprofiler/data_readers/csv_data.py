@@ -247,7 +247,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
                     # Determine number of words in cell
                     word_count = 0
-                    if len(cells[j]) > 0:
+                    if len(cells[j].strip()) > 0:
                         words = cells[j].strip().split(' ')
                         word_count = len(words)
                     

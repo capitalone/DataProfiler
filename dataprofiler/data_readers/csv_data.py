@@ -284,11 +284,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     elif col['first'][0] == last_first:
                         last_first_count += 1
 
-            # Ensures there is a minimum amount of variance
-            if variance.count(True) > (len(variance) * diff_thresh):
+            # Ensures there is at least some variance
+            if variance.count(True) > 0: 
                 
                 # Ensures most first lines are the same row
-                if last_first_count > (len(variance) * none_thresh):
+                if last_first_count > (len(variance) // 2):
                     row_classic_header_ends = last_first
 
         return row_classic_header_ends

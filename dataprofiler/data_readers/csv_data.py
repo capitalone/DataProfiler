@@ -171,7 +171,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 if cell_type not in ['str', 'none']:
                     only_string_flag = False
                 header_check_list[-1].append(cell_type)
-            
+                
         # Flags differences in types between each row (true/false)
         potential_header = header_check_list[0]
         differences = []

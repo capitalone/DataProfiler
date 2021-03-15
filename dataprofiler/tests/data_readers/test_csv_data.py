@@ -13,7 +13,7 @@ class TestCSVDataClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-
+        
         test_dir = os.path.join(test_root_path, 'data')
         cls.input_file_names = [
             dict(path=os.path.join(test_dir, 'csv/diamonds.csv'),
@@ -51,6 +51,9 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=16, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/small-num.csv'),
                  count=5, delimiter=None, has_header=[0],
+                 num_columns=1, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/small-num-negative.csv'),
+                 count=5, delimiter=None, has_header=[None],
                  num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/names-col.txt'),
                  count=5, delimiter=None, has_header=[0],

@@ -70,7 +70,7 @@ class TestBooleanOption(TestBaseOption):
         optpth = self.get_options_path()
     
         # Default Configuration Is Valid
-        self.assertEqual([], option.validate())
+        self.assertEqual(None, option.validate())
         
         # Option is_enabled is not a boolean
         option = self.get_options(is_enabled="Hello World")

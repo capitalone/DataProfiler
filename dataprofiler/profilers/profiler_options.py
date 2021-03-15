@@ -106,7 +106,7 @@ class BaseOption(object):
         errors = self._validate_helper()
         if raise_error and errors:
             raise ValueError('\n'.join(errors))
-        return errors
+            return errors
 
 
 class BooleanOption(BaseOption):

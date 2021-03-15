@@ -248,7 +248,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     # Determine number of words in cell
                     word_count = 0
                     if len(cells[j]) > 0:
-                        words = cells[j].split(' ')
+                        words = cells[j].strip().split(' ')
                         word_count = len(words)
                     
                     # First row, set base
@@ -268,12 +268,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             # Identify columns with variance
             variance = [False] * len(col_stats.keys())
             last_first, last_first_count = 0, 0
-            max_allowed_var = 0
             for i in col_stats.keys():
                 col = col_stats[i]
                 
                 # Determines if there's variance in the column
-                if (col['max'] - col['min']) > max_allowed_var:
+                if (col['max'] - col['min']) > 1:
                     variance[i] = True
 
                 # First last row, keeps a count of new col first in row

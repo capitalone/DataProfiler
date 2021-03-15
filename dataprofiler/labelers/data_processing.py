@@ -618,7 +618,6 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
         if data.ndim > 1:
             data = data.reshape(-1)
-        data = data.astype(str)
 
         # get parameters
         max_length = self._parameters['max_length']

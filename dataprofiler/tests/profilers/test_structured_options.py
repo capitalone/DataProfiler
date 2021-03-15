@@ -87,7 +87,27 @@ class TestStructuredOptions(TestBaseOption):
 			for key in self.keys]
 		expected_error = set(expected_error)
 		self.assertSetEqual(expected_error, expected_error.intersection(set(option._validate_helper())))
-	
+
+		# Wrong Class Type
+		option = self.getOptions()
+		option.int = StructuredOptions()
+		option.float = StructuredOptions()
+		option.datetime = StructuredOptions()
+		option.text = StructuredOptions()
+		option.order = StructuredOptions()
+		option.category = StructuredOptions()
+		option.data_labeler = StructuredOptions()
+
+		expected_error = set()
+		for key in self.keys:
+			ckey = key.capitalize()
+			if key == "data_labeler": ckey = "DataLabeler"
+			elif key == "category": ckey = "Categorical"
+			elif key == "datetime": ckey = "DateTime"
+			expected_error.add('{}.{} must be a {}Options.'.format(optpth, key, ckey))
+		expected_error = set(expected_error)
+		self.assertSetEqual(expected_error, set(option._validate_helper()))
+			
 	def test_validate(self, *mocks):
 		option = self.getOptions()
 		optpth = self.getOptionsPath()
@@ -102,8 +122,28 @@ class TestStructuredOptions(TestBaseOption):
 		expected_error = ["{}.{}.is_enabled must be a Boolean.".format(optpth, key) 
 			for key in self.keys]
 		expected_error = set(expected_error)
-		self.assertSetEqual(expected_error, expected_error.intersection(set(option._validate_helper())))
+		self.assertSetEqual(expected_error, expected_error.intersection(set(option.validate(raise_error=False))))
 
+		# Wrong Class Type
+		option = self.getOptions()
+		option.int = StructuredOptions()
+		option.float = StructuredOptions()
+		option.datetime = StructuredOptions()
+		option.text = StructuredOptions()
+		option.order = StructuredOptions()
+		option.category = StructuredOptions()
+		option.data_labeler = StructuredOptions()
+
+		expected_error = set()
+		for key in self.keys:
+			ckey = key.capitalize()
+			if key == "data_labeler": ckey = "DataLabeler"
+			elif key == "category": ckey = "Categorical"
+			elif key == "datetime": ckey = "DateTime"
+			expected_error.add('{}.{} must be a {}Options.'.format(optpth, key, ckey))
+		expected_error = set(expected_error)
+		self.assertSetEqual(expected_error, set(option.validate(raise_error=False)))
+			
 	def test_enabled_columns(self, *mocks):
 		options = self.getOptions()
 		

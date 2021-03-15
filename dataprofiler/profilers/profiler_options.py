@@ -590,6 +590,21 @@ class StructuredOptions(BaseOption):
             raise ValueError("The variable path must be a string.")
 
         errors = []
+        if not isinstance(self.int, IntOptions):
+            errors.append("{}.int must be a IntOptions.".format(variable_path))	
+        if not isinstance(self.float, FloatOptions):
+            errors.append("{}.float must be a FloatOptions.".format(variable_path))	
+        if not isinstance(self.datetime, DateTimeOptions):
+            errors.append("{}.datetime must be a DateTimeOptions.".format(variable_path))	
+        if not isinstance(self.text, TextOptions):
+            errors.append("{}.text must be a TextOptions.".format(variable_path))	
+        if not isinstance(self.order, OrderOptions):
+            errors.append("{}.order must be a OrderOptions.".format(variable_path))
+        if not isinstance(self.category, CategoricalOptions):
+            errors.append("{}.category must be a CategoricalOptions.".format(variable_path))
+        if not isinstance(self.data_labeler, DataLabelerOptions):
+            errors.append("{}.data_labeler must be a DataLabelerOptions.".format(variable_path))
+
         for column in self.properties:
             errors += self.properties[column]._validate_helper(
                 variable_path=(variable_path + '.' + column

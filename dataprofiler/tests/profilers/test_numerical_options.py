@@ -8,10 +8,6 @@ from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import BooleanOption, NumericalOptions
 from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
 
-
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
-            'DataLabelerColumn.update', return_value=None)
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
 class TestNumericalOptions(TestBaseColumnOptions):
     
     @classmethod
@@ -82,35 +78,35 @@ class TestNumericalOptions(TestBaseColumnOptions):
             self.assertEqual([expected_error], options.validate(raise_error=False))
             options.set({skey: True})
 
-		# Disable Sum and Enable Variance
-		options.set({"sum.is_enabled": False, "variance.is_enabled": True})
-		expected_error = "{}: The numeric stats must toggle on the sum if the variance is toggled on.".format(optpth)
-		with self.assertRaisesRegex(ValueError, expected_error):
-			options.validate(raise_error=True)	
-		self.assertEqual([expected_error], options.validate(raise_error=False)) 
-	
-	def test_is_numeric_stats_enabled(self, *mocks):
-		options = self.getOptions()
-		numeric_keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]	
+        # Disable Sum and Enable Variance
+        options.set({"sum.is_enabled": False, "variance.is_enabled": True})
+        expected_error = "{}: The numeric stats must toggle on the sum if the variance is toggled on.".format(optpth)
+        with self.assertRaisesRegex(ValueError, expected_error):
+            options.validate(raise_error=True)    
+        self.assertEqual([expected_error], options.validate(raise_error=False)) 
+    
+    def test_is_numeric_stats_enabled(self, *mocks):
+        options = self.get_options()
+        numeric_keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]    
 
-		# Disable All Numeric Stats
-		options.set({'{}.is_enabled'.format(key):False for key in numeric_keys})
-		self.assertFalse(options.is_numeric_stats_enabled)
-		
-		# Enable Only One Numeric Stat
-		for key in numeric_keys:
-			skey = '{}.is_enabled'.format(key)
-			options.set({skey: True})
-			self.assertTrue(options.is_numeric_stats_enabled)
-			options.set({skey: False})
+        # Disable All Numeric Stats
+        options.set({'{}.is_enabled'.format(key):False for key in numeric_keys})
+        self.assertFalse(options.is_numeric_stats_enabled)
+        
+        # Enable Only One Numeric Stat
+        for key in numeric_keys:
+            skey = '{}.is_enabled'.format(key)
+            options.set({skey: True})
+            self.assertTrue(options.is_numeric_stats_enabled)
+            options.set({skey: False})
 
-		# Enable All Numeric Stats
-		options.is_numeric_stats_enabled = True
-		for key in numeric_keys:			
-			self.assertTrue(options.is_numeric_stats_enabled)
+        # Enable All Numeric Stats
+        options.is_numeric_stats_enabled = True
+        for key in numeric_keys:            
+            self.assertTrue(options.is_numeric_stats_enabled)
 
-		# Disable All Numeric Stats
-		options.is_numeric_stats_enabled = False
-		for key in numeric_keys:			
-			self.assertFalse(options.is_numeric_stats_enabled)
+        # Disable All Numeric Stats
+        options.is_numeric_stats_enabled = False
+        for key in numeric_keys:            
+            self.assertFalse(options.is_numeric_stats_enabled)
 

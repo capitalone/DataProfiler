@@ -5,6 +5,7 @@ from unittest import mock
 
 import pandas as pd
 import numpy as np
+import warnings
 
 from dataprofiler.profilers import FloatColumn
 from dataprofiler.profilers.profiler_options import FloatOptions
@@ -722,7 +723,6 @@ class TestFloatColumn(unittest.TestCase):
         # Creating second profiler with separate options
         options = FloatOptions()
         options.min.is_enabled = False
-        options.max.is_enabled = False
         options.precision.is_enabled = False
         data2 = [10, 15]
         df2 = pd.Series(data2).apply(str)
@@ -730,10 +730,18 @@ class TestFloatColumn(unittest.TestCase):
         profiler2.update(df2)
 
         # Asserting warning when adding 2 profilers with different options
-        with self.assertWarnsRegex(RuntimeWarning,
-                                   "precision is disabled because it is not "
-                                   "enabled in both profiles."):
+        with warnings.catch_warnings(record=True) as w:
             profiler3 = profiler1 + profiler2
+
+            message = str(w.pop().message)
+            self.assertEqual("precision is disabled because it "
+                             "is not enabled in both profiles.",
+                             message)
+
+            message = str(w.pop().message)
+            self.assertEqual("max is disabled because it is not enabled in both"
+                             " profiles.",
+                             message)
 
         # Assert that these features are still merged
         self.assertEqual("rice", profiler3.histogram_selection)

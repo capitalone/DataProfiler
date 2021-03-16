@@ -446,24 +446,20 @@ class Profiler(object):
         :param data: a dataset
         :type data: pandas.DataFrame
         """
-        for index, row in data.iterrows():
 
-            # Hash the row and stores it in the dict, count keys for unique rows
-            hashed_row = hashlib.sha256(
-                row.to_string().strip().encode()).hexdigest()
-            self.hashed_row_dict[hashed_row] = True
+        hashed_rows = pd.util.hash_pandas_object(data, index=False).values
+        idx = 0
+        while idx < len(hashed_rows):
+            
+            self.hashed_row_dict[hashed_rows[idx]] = True
 
             # check if null in row, if any add count
-            if row.isnull().any():
+            if data.iloc[idx].isnull().any():
                 self.null_in_row_count += 1
 
             # Used for ratios, total ingested rows
             self.rows_ingested += 1
-
-        # Determines null count, transposes column major to row major
-        # Any major returns true if null and sums total count of trues
-        # This is done quickly and with minimal transform(s)
-        # self.null_in_row_count = df.isnull().T.any().sum()
+            idx += 1
 
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """

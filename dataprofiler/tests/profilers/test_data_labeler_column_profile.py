@@ -248,9 +248,10 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
                                    "options must be of type DataLabelerOptions."):
             profiler = DataLabelerColumn("Data_Labeler", options="wrong_data_type")
 
-    def test_profile_merge_with_different_options(self, mock_instance):
+    def test_profile_merge_with_different_options(self, mock_instance):  
         self._setup_data_labeler_mock(mock_instance)
 
+        # Different max_sample_size values
         data = pd.Series(['1', '2', '3', '11'])
         data2 = pd.Series(['4', '5', '6', '7', '9', '10', '12'])
         options = DataLabelerOptions()
@@ -267,4 +268,16 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
                                "Cannot merge. The data labeler and/or the max "
                                "sample size are not the same for both column "
                                "profiles."):
+            profiler3 = profiler + profiler2
+
+
+        # Different labelers
+        profiler = DataLabelerColumn(data.name)
+        profiler.data_labeler = mock.MagicMock()
+        profiler2 = DataLabelerColumn(data2.name)
+
+        with self.assertRaisesRegex(AttributeError,
+                                    "Cannot merge. The data labeler and/or the max "
+                                    "sample size are not the same for both column "
+                                    "profiles."):
             profiler3 = profiler + profiler2

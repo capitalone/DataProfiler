@@ -601,7 +601,8 @@ class TestCharPreprocessor(unittest.TestCase):
                                     'If `labels` are specified, `label_mapping`'
                                     ' must also be specified'):
             process_generator = preprocessor.process(
-                ['test'], labels=['test'], label_mapping=None, batch_size=2)
+                np.array(['test']), labels=['test'], label_mapping=None,
+                batch_size=2)
             next(process_generator)
 
         # test a single sentence

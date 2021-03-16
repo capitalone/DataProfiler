@@ -8,6 +8,7 @@ import inspect
 from collections import Counter
 import random
 import math
+import warnings
 
 import numpy as np
 
@@ -609,15 +610,27 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         :return batch_data: A dict containing  samples of size batch_size
         :rtype batch_data: dicts
         """
-        if labels is not None and not label_mapping:
-            raise ValueError('If `labels` are specified, `label_mapping` must '
-                             'also be specified.')
+        if len(data.shape) > 1:
+            # Ignore case of 1 col DataFrame
+            if not (len(data.shape) == 2 and data.shape[1] == 1):
+                raise ValueError("Multidimensional data given to "
+                                 "CharPreprocessor")
+            # Flatten 1 col DataFrame
+            data = data.reshape(-1)
+
+        if labels is not None:
+            if not label_mapping:
+                raise ValueError('If `labels` are specified, `label_mapping` '
+                                 'must also be specified.')
+            # Need to cast if input is coming from structured process
+            if isinstance(labels, list):
+                labels = np.array(labels, dtype="object")
+            if len(data) != len(labels):
+                raise ValueError("Data and labels given to "
+                                 "CharPreprocessor have different shapes")
 
         # Import tensorflow
         import tensorflow as tf
-
-        if data.ndim > 1:
-            data = data.reshape(-1)
 
         # get parameters
         max_length = self._parameters['max_length']
@@ -1151,14 +1164,22 @@ class StructCharPreprocessor(CharPreprocessor,
         :return batch_data: A dict containing  samples of size batch_size
         :rtype batch_data: dict
         """
-        if labels is not None and not label_mapping:
-            raise ValueError('If `labels` are specified, `label_mapping` must '
-                             'also be specified.')
+        if labels is not None:
+            if not label_mapping:
+                raise ValueError('If `labels` are specified, `label_mapping` '
+                                 'must also be specified.')
+            if data.shape != labels.shape:
+                raise ValueError("Data and labels given to "
+                                 "StructCharPreprocessor have different shapes")
 
-        if data.ndim > 1:
+        if len(data.shape) > 1:
+            if not (len(data.shape) == 2 and data.shape[1] == 1):
+                warnings.warn("Data given to StructCharPreprocessor was "
+                              "multidimensional, it will be flattened")
+            # Flatted data and labels, confirmed to be same shape
             data = data.reshape(-1)
-        if labels is not None and labels.ndim > 1:
-            labels = labels.reshape(-1)
+            if labels is not None:
+                labels = labels.reshape(-1)
 
         # convert structured to unstructured format
         unstructured_data = [[]] * len(data)

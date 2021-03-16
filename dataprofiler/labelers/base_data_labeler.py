@@ -153,6 +153,7 @@ class BaseDataLabeler(object):
         if fit_or_predict not in ['fit', 'predict']:
             raise ValueError('`fit_or_predict` must equal `fit` or `predict`')
 
+        # Pull dataframe out of data reader object
         if isinstance(data, data_readers.base_data.BaseData):
             data = data.data
 

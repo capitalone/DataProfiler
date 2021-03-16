@@ -136,7 +136,7 @@ class TestDataLabeler(unittest.TestCase):
                    [(data_ind(i - 1, data) + 1, data_ind(i, data), labels[i])
                     for i in range(1, len(data))]
 
-        data_cells = ["123 Fake st", "1/1/2021", "blah", "333-44-2341",
+        data_cells = ["123 Fake st", "1/1/2021", "blah", "555-55-5555",
                       "foobar@gmail.com", "John Doe", "123-4567"]
         label_cells = ["ADDRESS", "DATETIME", "BACKGROUND", "SSN",
                        "EMAIL_ADDRESS", "PERSON", "PHONE_NUMBER"]

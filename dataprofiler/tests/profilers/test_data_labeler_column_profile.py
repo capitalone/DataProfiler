@@ -248,7 +248,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
                                    "options must be of type DataLabelerOptions."):
             profiler = DataLabelerColumn("Data_Labeler", options="wrong_data_type")
 
-    def test_profile_merge(self, mock_instance):
+    def test_profile_merge_with_different_options(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
 
         data = pd.Series(['1', '2', '3', '11'])

@@ -449,7 +449,7 @@ class Profiler(object):
         
         self.rows_ingested = len(data)
         self.hashed_row_dict = dict.fromkeys(
-            pd.util.hash_pandas_object(data, index=False).drop_duplicates(), True
+            pd.util.hash_pandas_object(data, index=False), True
         )
         self.null_in_row_count = data.isnull().any(axis=1).sum()
         

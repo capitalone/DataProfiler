@@ -10,6 +10,7 @@ from dataprofiler.tests.profilers.test_boolean_option import TestBooleanOption
 
 
 class TestBaseColumnOptions(TestBooleanOption):
+<<<<<<< HEAD
     
     @classmethod
     def setUpClass(cls):

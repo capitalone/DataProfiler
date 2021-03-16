@@ -10,11 +10,12 @@ from dataprofiler.tests.profilers.test_boolean_option import TestBooleanOption
 
 
 class TestBaseColumnOptions(TestBooleanOption):
-<<<<<<< HEAD
     
     @classmethod
     def setUpClass(cls):
+        super().setUpClass()
         cls.option_class = BaseColumnOptions
+        cls.keys = []
 
     @classmethod
     def get_options(self, *args, **params):

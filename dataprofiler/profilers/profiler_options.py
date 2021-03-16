@@ -364,11 +364,14 @@ class FloatOptions(NumericalOptions):
         :return: list of errors (if raise_error is false)
         :rtype: List of strings
         """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.precision, BooleanOption):
             errors.append("{}.precision must be a BooleanOption."
                           .format(variable_path))
-        errors += self.precision._validate_helper(variable_path)
+        errors += self.precision._validate_helper(variable_path + '.precision')
         return errors
 
 

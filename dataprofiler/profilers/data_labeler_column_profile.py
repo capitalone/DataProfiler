@@ -57,9 +57,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         self._top_k_labels = 3
         self._min_top_label_prob = 0.35
 
-        self.__calculations = {
-            'is_enabled': DataLabelerColumn._update_predictions
-        }
+        self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
 
     @staticmethod
@@ -115,7 +113,13 @@ class DataLabelerColumn(BaseColumnProfiler):
             raise TypeError("Unsupported operand type(s) for +: "
                             "'DataLabelerColumn' and '{}'".format(
                                 other.__class__.__name__))
-
+        
+        if self.data_labeler != other.data_labeler \
+                or self._max_sample_size != other._max_sample_size:
+            raise AttributeError("Cannot merge. The data labeler and/or the max "
+                                 "sample size are not the same for both column "
+                                 "profiles.")
+        
         self.assert_equal_conditions(self, other)
         merged_profile = DataLabelerColumn(None)
         BaseColumnProfiler._add_helper(merged_profile, self, other)
@@ -138,7 +142,10 @@ class DataLabelerColumn(BaseColumnProfiler):
 
         #Combine Sum Predictions
         merged_profile._sum_predictions = self._sum_predictions + other._sum_predictions
-
+        
+        self._merge_calculations(merged_profile.__calculations,
+                                 self.__calculations,
+                                 other.__calculations)
         return merged_profile
 
     @property
@@ -269,6 +276,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         df_series = df_series.sample(sample_size)
 
         profile = dict(sample_size=sample_size)
+        self._update_predictions(df_series, {}, profile)
         BaseColumnProfiler._perform_property_calcs(
             self, self.__calculations, df_series=df_series,
             prev_dependent_properties={}, subset_properties=profile)

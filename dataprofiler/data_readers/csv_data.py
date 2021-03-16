@@ -65,7 +65,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         self._selected_data_format = options.get("data_format", "dataframe")
         self._delimiter = options.get("delimiter", None)
         self._selected_columns = options.get("selected_columns", list())
-        self._header = options.get("header", 0)  # 0 for pandas to auto get
+        self._header = options.get("header", 'auto')
         self._checked_header = "header" in options
         self._default_delimiter = ','
 
@@ -85,6 +85,24 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     @property
     def header(self):
         return self._header
+
+    def _check_and_return_options(self, options):
+        """
+        Ensures options are valid inputs to the data reader.
+
+        :param options: dictionary of options for the csv reader to validate
+        :type options: dict
+        :return: None
+        """
+        options = super()._check_and_return_options(options)
+        for key, value in options.items():
+            if key == 'header' and value != 'auto' and value is not None \
+                    and not (isinstance(value, int) and value > -1):
+                raise ValueError('`header` must be one of following: auto, '
+                                 'none for no header, or a non-negative '
+                                 'integer for the row that represents the '
+                                 'header (0 based index)')
+        return options
 
     @staticmethod
     def _determine_delimiter_of_str(data_as_str):
@@ -301,13 +319,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
         return row_classic_header_ends
 
-
     def _load_data_from_str(self, data_as_str):
         """Loads the data into memory from the str."""
         if not self._delimiter:
             self._delimiter = self._determine_delimiter_of_str(data_as_str)
         data_buffered = StringIO(data_as_str)
-        self._guess_header_row(data_as_str, suggested_delim=self._delimiter)
+        if self._header == 'auto':
+            self._header = self._guess_header_row(
+                data_as_str, suggested_delim=self._delimiter)
         return data_utils.read_csv_df(
             data_buffered,
             self.delimiter, self.header, self.selected_columns,
@@ -324,7 +343,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 data_as_str = ''.join(check_lines)
             if not self._delimiter:
                 self._delimiter = self._determine_delimiter_of_str(data_as_str)            
-            if not self._header:
+            if self._header == 'auto':
                 self._header = self._guess_header_row(data_as_str, self._delimiter)
                 self._checked_header = True
 
@@ -376,8 +395,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         delimiter = options.get("delimiter", None)
 
-        header = options.get("header", None)
-        if not delimiter or not header:
+        header = options.get("header", 'auto')
+        if not delimiter or header == 'auto':
 
             data_as_str = None
             with open(file_path, encoding=file_encoding) as csvfile:
@@ -388,8 +407,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             if not delimiter:
                 delimiter = cls._determine_delimiter_of_str(data_as_str)
 
-            if header is None:
-                options.update(header=cls._guess_header_row(data_as_str, delimiter))
+            if header == 'auto':
+                options.update(header=cls._guess_header_row(data_as_str,
+                                                            delimiter))
 
         max_line_count = 1000
         min_line_count = 3

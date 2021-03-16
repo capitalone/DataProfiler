@@ -446,10 +446,8 @@ class Profiler(object):
         :param data: a dataset
         :type data: pandas.DataFrame
         """
-
         hashed_rows = pd.util.hash_pandas_object(data, index=False).values
-        idx = 0
-        while idx < len(hashed_rows):
+        for idx in range(len(hashed_rows)):
             
             self.hashed_row_dict[hashed_rows[idx]] = True
 
@@ -459,7 +457,6 @@ class Profiler(object):
 
             # Used for ratios, total ingested rows
             self.rows_ingested += 1
-            idx += 1
 
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """

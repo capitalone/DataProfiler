@@ -103,9 +103,9 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :param options: Contains all the options.
         :type options: BaseColumnOptions
         """
-        for property in list(calculations):
-            if options and not options.is_prop_enabled(property):
-                del calculations[property]
+        for prop in list(calculations):
+            if options and not options.is_prop_enabled(prop):
+                del calculations[prop]
 
     def _perform_property_calcs(self, calculations, df_series,
                                 prev_dependent_properties, subset_properties):

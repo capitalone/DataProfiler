@@ -711,3 +711,46 @@ class TestFloatColumn(unittest.TestCase):
                                     'Profiles have no overlapping bin methods '
                                     'and therefore cannot be added together.'):
             profiler1 + profiler2
+
+    def test_profile_merge_with_different_options(self):
+        # Creating first profiler with default options
+        options = FloatOptions()
+        options.max.is_enabled = False
+        options.min.is_enabled = False
+
+        data = [2, 4, 6, 8]
+        df = pd.Series(data).apply(str)
+        profiler1 = FloatColumn("Float", options=options)
+        profiler1.update(df)
+        profiler1.match_count = 0
+
+        # Creating second profiler with separate options
+        options = FloatOptions()
+        options.min.is_enabled = False
+        options.max.is_enabled = False
+        options.precision.is_enabled = False
+        data2 = [10, 15]
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = FloatColumn("Float", options=options)
+        profiler2.update(df2)
+
+        # Asserting warning when adding 2 profilers with different options
+        with self.assertWarnsRegex(RuntimeWarning,
+                                   "precision is disabled because it is not "
+                                   "enabled in both profiles."):
+            profiler3 = profiler1 + profiler2
+
+        # Assert that these features are still merged
+        self.assertIsNotNone(profiler3.histogram_selection)
+        self.assertIsNotNone(profiler3.variance)
+        self.assertIsNotNone(profiler3.sum)
+
+        # Assert that these features are not calculated
+        self.assertIsNone(profiler3.max)
+        self.assertIsNone(profiler3.min)
+        self.assertEqual(0, profiler3.precision)
+
+    def test_float_column_with_wrong_options(self):
+        with self.assertRaisesRegex(ValueError,
+                                   "options must be of type FloatOptions."):
+            profiler = FloatColumn("Float", options="wrong_data_type") 

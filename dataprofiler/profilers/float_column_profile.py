@@ -22,9 +22,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :param options: Options for the float column
         :type options: FloatOptions
         """
-        if options:
-            if not isinstance(options, FloatOptions):
-                raise ValueError("options must be of type FloatOptions.")
+        if options and not isinstance(options, FloatOptions):
+            raise ValueError("options must be of type FloatOptions.")
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.precision = 0
@@ -50,6 +49,14 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         merged_profile = FloatColumn(None)
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
         NumericStatsMixin._add_helper(merged_profile, self, other)
+        
+        self._merge_calculations(merged_profile.__calculations,
+                                 self.__calculations,
+                                 other.__calculations)
+
+        if "precision" in merged_profile.__calculations:
+            merged_profile.precision = max(self.precision, other.precision)
+            
         return merged_profile
 
     @property

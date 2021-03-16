@@ -496,3 +496,8 @@ class TestIntColumn(unittest.TestCase):
         # Assert that these features are not calculated
         self.assertIsNone(profiler3.max)
         self.assertIsNone(profiler3.min)
+
+    def test_int_column_with_wrong_options(self):
+        with self.assertRaisesRegex(ValueError,
+                                   "options must be of type IntOptions."):
+            profiler = IntColumn("Int", options="wrong_data_type")

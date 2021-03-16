@@ -439,25 +439,20 @@ class Profiler(object):
     def _update_row_statistics(self, data):
         """
         Iterate over the provided dataset row by row and calculate
-        the row statistics. Specificaly, number of unique rows,
+        the row statistics. Specifically, number of unique rows,
         rows containing null values, and total rows reviewed. This
         function is safe to use in batches.
 
         :param data: a dataset
         :type data: pandas.DataFrame
         """
-        hashed_rows = pd.util.hash_pandas_object(data, index=False).values
-        for idx in range(len(hashed_rows)):
-            
-            self.hashed_row_dict[hashed_rows[idx]] = True
-
-            # check if null in row, if any add count
-            if data.iloc[idx].isnull().any():
-                self.null_in_row_count += 1
-
-            # Used for ratios, total ingested rows
-            self.rows_ingested += 1
-
+        
+        self.rows_ingested = len(data)
+        self.hashed_row_dict = dict.fromkeys(
+            pd.util.hash_pandas_object(data, index=False).drop_duplicates(), True
+        )
+        self.null_in_row_count = data.isnull().any(axis=1).sum()
+        
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """
         Update the profile for data provided. User can specify the sample

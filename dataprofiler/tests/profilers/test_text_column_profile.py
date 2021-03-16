@@ -331,9 +331,9 @@ class TestTextColumnProfiler(unittest.TestCase):
             profiler3 = profiler1 + profiler2
 
         # Assert that these features are still merged
-        self.assertIsNotNone(profiler3.histogram_selection)
-        self.assertIsNotNone(profiler3.variance)
-        self.assertIsNotNone(profiler3.sum)
+        self.assertEqual("doane", profiler3.histogram_selection)
+        self.assertAlmostEqual(2.1944444444, profiler3.variance)
+        self.assertEqual(62.0, profiler3.sum)
 
         # Assert that these features are not calculated
         self.assertIsNone(profiler3.max)

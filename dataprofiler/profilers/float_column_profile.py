@@ -55,7 +55,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                                  other.__calculations)
 
         if "precision" in merged_profile.__calculations:
-            merged_profile.precision = max(self.precision, other.precision)
+            merged_profile.precision = min(self.precision, other.precision)
             
         return merged_profile
 
@@ -98,13 +98,14 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def _get_float_precision(cls, df_series):
         """
         Determines the precision of the numeric value
+        
         :param df_series: a given column
         :type df_series: pandas.core.series.Series
         :return: string representing its precision print format
         :rtype: int
         """
         integer_decimal_loc = -1
-        float_precision = 0
+        float_precision = None
         for value in df_series:
             decimal_loc = value.rfind('.')
 
@@ -117,7 +118,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             value_len = len(value)
             value_precision = value_len - decimal_loc - 1
 
-            if float_precision < value_precision:
+            if float_precision is None or float_precision > value_precision:
                 float_precision = value_precision
         return float_precision
 
@@ -157,9 +158,11 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        self.precision = max(
-            self.precision, self._get_float_precision(df_series)
-        )
+        subset_precision = self._get_float_precision(df_series)
+        if self.precision and subset_precision:
+            self.precision = min(self.precision, subset_precision)
+        elif subset_precision:
+            self.precision = subset_precision
 
     def _update_helper(self, df_series_clean, profile):
         """

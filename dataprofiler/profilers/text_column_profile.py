@@ -51,7 +51,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                                  other.__calculations)
         if "vocab" in merged_profile.__calculations:
             merged_profile.vocab = self.vocab.copy()
-            merged_profile._update_vocab([other.vocab])
+            merged_profile._update_vocab(other.vocab)
         return merged_profile
 
     @property

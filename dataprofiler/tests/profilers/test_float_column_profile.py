@@ -54,25 +54,20 @@ class TestFloatColumn(unittest.TestCase):
         df_3 = pd.Series([4.114, 3.161, 2.512, 2.131]).apply(str)
         df_mix = pd.Series([4.1, 3., 2.52, 2.13143]).apply(str)
 
-        float_profiler = FloatColumn(df_1.name)
-        float_profiler.update(df_1)
-        self.assertEqual(1, float_profiler.precision)
-
-        float_profiler.update(df_2)
-        self.assertEqual(2, float_profiler.precision)
-
+        float_profiler = FloatColumn("Name")
         float_profiler.update(df_3)
         self.assertEqual(3, float_profiler.precision)
 
         float_profiler.update(df_2)
-        self.assertEqual(3, float_profiler.precision)
+        self.assertEqual(2, float_profiler.precision)
 
-        float_profiler.update(df_mix)
-        self.assertEqual(5, float_profiler.precision)
+        float_profiler.update(df_1)
+        self.assertEqual(1, float_profiler.precision)
 
-        float_profiler = FloatColumn(df_mix.name)
+        float_profiler = FloatColumn("Name")
         float_profiler.update(df_mix)
-        self.assertEqual(5, float_profiler.precision)
+        self.assertEqual(1, float_profiler.precision)
+
 
     def test_profiled_min(self):
         # test with multiple values
@@ -741,9 +736,9 @@ class TestFloatColumn(unittest.TestCase):
             profiler3 = profiler1 + profiler2
 
         # Assert that these features are still merged
-        self.assertIsNotNone(profiler3.histogram_selection)
-        self.assertIsNotNone(profiler3.variance)
-        self.assertIsNotNone(profiler3.sum)
+        self.assertEqual("rice", profiler3.histogram_selection)
+        self.assertEqual(12.5, profiler3.variance)
+        self.assertEqual(45.0, profiler3.sum)
 
         # Assert that these features are not calculated
         self.assertIsNone(profiler3.max)

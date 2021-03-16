@@ -77,4 +77,7 @@ class TestBooleanOption(TestBaseOption):
         expected_error = "{}.is_enabled must be a Boolean.".format(optpth)
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate(raise_error=True)
-        self.assertEqual([expected_error], option.validate(raise_error=False))
+		expected_error = [expected_error]
+		expected_error += ["{}.{}.is_enabled must be a Boolean.".format(optpth, key) 
+			for key in self.keys]
+		self.assertSetEqual(set(expected_error), set(option.validate(raise_error=False)))

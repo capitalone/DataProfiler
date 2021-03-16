@@ -632,5 +632,14 @@ class ProfilerOptions(BaseOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return self.structured_options._validate_helper(
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
+        errors = []
+        if not isinstance(self.structured_options, StructuredOptions):
+            errors.append("{}.structured_options must be a StructuredOptions.".format(variable_path))	
+
+        errors += self.structured_options._validate_helper(
             variable_path=variable_path + '.structured_options')
+
+        return errors

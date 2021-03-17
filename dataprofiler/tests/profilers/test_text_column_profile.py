@@ -307,9 +307,9 @@ class TestTextColumnProfiler(unittest.TestCase):
 
         df = pd.Series(
             ["pancake", "banana", "lighthouse", "aa", "b", "4", "3", "2", "dfd", "2"]
-        ).apply(str)
+        )
 
-        profiler1 = TextColumn("Float", options=options)
+        profiler1 = TextColumn("Text", options=options)
         profiler1.update(df)
 
         # Creating second profiler with separate options
@@ -319,8 +319,8 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.vocab.is_enabled = False
         df2 = pd.Series(
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
-        ).apply(str)
-        profiler2 = TextColumn("Float", options=options)
+        )
+        profiler2 = TextColumn("Text", options=options)
         profiler2.update(df2)
 
         # Asserting warning when adding 2 profilers with different options

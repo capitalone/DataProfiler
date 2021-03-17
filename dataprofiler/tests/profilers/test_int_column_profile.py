@@ -499,5 +499,6 @@ class TestIntColumn(unittest.TestCase):
 
     def test_int_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
-                                   "options must be of type IntOptions."):
+                                   "IntColumn parameter 'options' must be of"
+                                   " type IntOptions."):
             profiler = IntColumn("Int", options="wrong_data_type")

@@ -21,7 +21,8 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type options: TextOptions
         """
         if options and not isinstance(options, TextOptions):
-            raise ValueError("options must be of type TextOptions.")
+            raise ValueError("TextColumn parameter 'options' must be of type"
+                             " TextOptions.")
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.vocab = list()

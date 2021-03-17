@@ -23,7 +23,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type options: FloatOptions
         """
         if options and not isinstance(options, FloatOptions):
-            raise ValueError("options must be of type FloatOptions.")
+            raise ValueError("FloatColumn parameter 'options' must be of type"
+                             " FloatOptions.")
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.precision = 0

@@ -341,5 +341,6 @@ class TestTextColumnProfiler(unittest.TestCase):
 
     def test_text_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
-                                    "options must be of type TextOptions."):
+                                    "TextColumn parameter 'options' must be of"
+                                    " type TextOptions."):
             profiler = TextColumn("Text", options="wrong_data_type")

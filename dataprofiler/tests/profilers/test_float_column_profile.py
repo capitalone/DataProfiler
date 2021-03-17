@@ -754,5 +754,6 @@ class TestFloatColumn(unittest.TestCase):
 
     def test_float_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
-                                   "options must be of type FloatOptions."):
+                                   "FloatColumn parameter 'options' must be of"
+                                   " type FloatOptions."):
             profiler = FloatColumn("Float", options="wrong_data_type") 

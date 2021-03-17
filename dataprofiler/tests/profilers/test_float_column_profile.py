@@ -718,7 +718,6 @@ class TestFloatColumn(unittest.TestCase):
         df = pd.Series(data).apply(str)
         profiler1 = FloatColumn("Float", options=options)
         profiler1.update(df)
-        profiler1.match_count = 0
 
         # Creating second profiler with separate options
         options = FloatOptions()
@@ -745,7 +744,7 @@ class TestFloatColumn(unittest.TestCase):
 
         # Assert that these features are still merged
         self.assertEqual("rice", profiler3.histogram_selection)
-        self.assertEqual(12.5, profiler3.variance)
+        self.assertEqual(21.5, profiler3.variance)
         self.assertEqual(45.0, profiler3.sum)
 
         # Assert that these features are not calculated

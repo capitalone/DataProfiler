@@ -311,7 +311,6 @@ class TestTextColumnProfiler(unittest.TestCase):
 
         profiler1 = TextColumn("Float", options=options)
         profiler1.update(df)
-        profiler1.match_count = 0
 
         # Creating second profiler with separate options
         options = TextOptions()
@@ -332,7 +331,7 @@ class TestTextColumnProfiler(unittest.TestCase):
 
         # Assert that these features are still merged
         self.assertEqual("doane", profiler3.histogram_selection)
-        self.assertAlmostEqual(2.1944444444, profiler3.variance)
+        self.assertAlmostEqual(6.20467836, profiler3.variance)
         self.assertEqual(62.0, profiler3.sum)
 
         # Assert that these features are not calculated

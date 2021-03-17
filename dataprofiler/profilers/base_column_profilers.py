@@ -245,7 +245,9 @@ class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta,
         :type name: String
         """
         BaseColumnProfiler.__init__(self, name)
-        self.match_count = 0
+        # Number of values the match the column type. eg. how many floats match
+        # in the float column
+        self.match_count = 0 
 
     def _update_column_base_properties(self, profile):
         """

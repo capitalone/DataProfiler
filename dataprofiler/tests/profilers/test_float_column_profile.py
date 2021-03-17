@@ -734,13 +734,13 @@ class TestFloatColumn(unittest.TestCase):
             list_of_warning_messages = []
             for warning in w:
                 list_of_warning_messages.append(str(warning.message))
-            
+
             warning1 = "precision is disabled because it is not enabled in both" \
                        " profiles."
             warning2 = "max is disabled because it is not enabled in both " \
                        "profiles."
-            self.assertTrue(warning1 in list_of_warning_messages)
-            self.assertTrue(warning2 in list_of_warning_messages)
+            self.assertIn(warning1, list_of_warning_messages)
+            self.assertIn(warning2, list_of_warning_messages)
 
         # Assert that these features are still merged
         self.assertEqual("rice", profiler3.histogram_selection)

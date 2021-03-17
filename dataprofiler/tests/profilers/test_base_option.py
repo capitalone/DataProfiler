@@ -1,18 +1,12 @@
-import os
 import unittest
-from unittest import mock
 
-import pandas as pd
-
-from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import BaseOption
 from dataprofiler.tests.profilers.abstract_test_options import AbstractTestOptions
 
+
 class TestBaseOption(AbstractTestOptions, unittest.TestCase):
     
-    @classmethod
-    def setUpClass(cls):
-        cls.option_class = BaseOption
+    option_class = BaseOption
 
     def test_init(self, *mocks):
         options = self.get_options()

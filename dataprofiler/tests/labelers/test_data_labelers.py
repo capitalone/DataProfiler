@@ -16,7 +16,6 @@ from dataprofiler.data_readers.csv_data import AVROData
 from dataprofiler.labelers.data_labelers import BaseDataLabeler, \
     TrainableDataLabeler
 from dataprofiler.labelers import data_processing
-from dataprofiler.labelers import StructCharPreprocessor
 from dataprofiler.labelers.base_model import BaseModel, BaseTrainableModel
 
 
@@ -110,68 +109,8 @@ class TestDataLabeler(unittest.TestCase):
         data_labeler = dp.DataLabeler(labeler_type='unstructured')
         self.assertIsInstance(data_labeler, BaseDataLabeler)
 
-    def test_structured_data_labeler_fit_predict_take_data_obj(self):
-        data = pd.DataFrame(["123 Fake st", "1/1/2021", "blah", "333-44-2341",
-                             "foobar@gmail.com", "John Doe", "123-4567"])
-        labels = pd.DataFrame(["ADDRESS", "DATETIME", "BACKGROUND", "SSN",
-                               "EMAIL_ADDRESS", "PERSON", "PHONE_NUMBER"])
-        for dt in ["csv", "json", "parquet"]:
-            data_obj = dp.Data(data=data, data_type=dt)
-            label_obj = dp.Data(data=labels, data_type=dt)
-            labeler = dp.DataLabeler(labeler_type="structured", trainable=True)
-            self.assertIsNotNone(labeler.fit(x=data_obj, y=label_obj))
-            self.assertIsNotNone(labeler.predict(data=data_obj))
-
-    def test_unstructured_data_labeler_fit_predict_take_data_obj(self):
-        def data_ind(i, data):
-            # Take off 1 in base case so we don't include trailing comma
-            if i == -1:
-                return -1
-            # Determine string index
-            # Add 1 with every pass to account for commas
-            return len(data[i]) + 1 + data_ind(i - 1, data)
-
-        def entities(data, labels):
-            return [(0, len(data[0]), labels[0])] + \
-                   [(data_ind(i - 1, data) + 1, data_ind(i, data), labels[i])
-                    for i in range(1, len(data))]
-
-        data_cells = ["123 Fake st", "1/1/2021", "blah", "555-55-5555",
-                      "foobar@gmail.com", "John Doe", "123-4567"]
-        label_cells = ["ADDRESS", "DATETIME", "BACKGROUND", "SSN",
-                       "EMAIL_ADDRESS", "PERSON", "PHONE_NUMBER"]
-
-        # Test with one large string of data
-        data_str = ",".join(data_cells)
-        label_str = entities(data_cells, label_cells)
-        for dt in ["csv", "json", "parquet"]:
-            data_obj = dp.Data(data=pd.DataFrame([data_str]), data_type=dt)
-            labeler = dp.DataLabeler(labeler_type="unstructured",
-                                     trainable=True)
-            self.assertIsNotNone(labeler.fit(x=data_obj, y=[label_str]))
-            self.assertIsNotNone(labeler.predict(data=data_obj))
-
-        # Test with the string broken up into different df entries
-        data_1 = data_cells[:3]
-        data_2 = data_cells[3:5]
-        data_3 = data_cells[5:]
-        data_df = pd.DataFrame([",".join(data_1), ",".join(data_2),
-                                ",".join(data_3)])
-        zipped = [(data_1, label_cells[:3]), (data_2, label_cells[3:5]),
-                  (data_3, label_cells[5:])]
-        three_labels = [entities(d, l) for (d, l) in zipped]
-        for dt in ["csv", "json", "parquet"]:
-            data_obj = dp.Data(data=data_df, data_type=dt)
-            labeler = dp.DataLabeler(labeler_type="unstructured",
-                                     trainable=True)
-            self.assertIsNotNone(labeler.fit(x=data_obj, y=three_labels))
-            self.assertIsNotNone(labeler.predict(data=data_obj))
-
-        # Test with text data object
-        text_obj = dp.Data(data=data_str, data_type="text")
-        labeler = dp.DataLabeler(labeler_type="unstructured", trainable=True)
-        self.assertIsNotNone(labeler.fit(x=text_obj, y=[label_str]))
-        self.assertIsNotNone(labeler.predict(data=text_obj))
+    def test_check_and_return_valid_data_format(self):
+        pass
 
 
 label_encoding = {

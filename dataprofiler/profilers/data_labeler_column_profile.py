@@ -276,7 +276,9 @@ class DataLabelerColumn(BaseColumnProfiler):
         df_series = df_series.sample(sample_size)
 
         profile = dict(sample_size=sample_size)
-        self._update_predictions(df_series, {}, profile)
+        self._update_predictions(df_series=df_series,
+                                 prev_dependent_properties={},
+                                 subset_properties=profile)
         BaseColumnProfiler._perform_property_calcs(
             self, self.__calculations, df_series=df_series,
             prev_dependent_properties={}, subset_properties=profile)

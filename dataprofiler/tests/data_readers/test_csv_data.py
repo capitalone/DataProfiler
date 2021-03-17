@@ -176,7 +176,7 @@ class TestCSVDataClass(unittest.TestCase):
             self.assertEqual(input_data_obj.data_type, 'csv')
             self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
 
-    def test_data_formats(self):
+    def test_allowed_data_formats(self):
         """
         Determine if the csv file data_formats can be used
         """
@@ -192,6 +192,59 @@ class TestCSVDataClass(unittest.TestCase):
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)
                     self.assertIsInstance(data[0], str)
+
+    def test_set_header(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        filename = 'csv/sparse-first-and-last-column-two-headers.txt'
+        filename = os.path.join(test_dir, filename)
+
+        # set bad header setting
+        options = dict(header=-2)
+        with self.assertRaisesRegex(ValueError,
+                                    '`header` must be one of following: auto, '
+                                    'none for no header, or a non-negative '
+                                    'integer for the row that represents the '
+                                    'header \(0 based index\)'):
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+
+        # set bad header setting
+        options = dict(header='abcdef')
+        with self.assertRaisesRegex(ValueError,
+                                    '`header` must be one of following: auto, '
+                                    'none for no header, or a non-negative '
+                                    'integer for the row that represents the '
+                                    'header \(0 based index\)'):
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+
+        # set header auto
+        options = dict(header='auto')
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertEqual(1, csv_data.header)
+        self.assertEqual('1', first_value)
+
+        # set header None (no header)
+        options = dict(header=None)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertIsNone(csv_data.header)  # should be None
+        self.assertEqual('COUNT', first_value)
+
+        # set header 0
+        options = dict(header=0)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertEqual(0, csv_data.header)
+        self.assertEqual('CONTAR', first_value)
+
+        # set header 1
+        options = dict(header=1)
+        csv_data = CSVData(filename, options=options)
+        first_value = csv_data.data.loc[0][0]
+        self.assertEqual(1, csv_data.header)
+        self.assertEqual('1', first_value)
 
     def test_header_check_files(self):
         """
@@ -223,6 +276,7 @@ class TestCSVDataClass(unittest.TestCase):
                 data_as_str = ''.join(list(islice(csvfile, 5)))
             header_line = CSVData._guess_header_row(data_as_str, input_file['delimiter'])
             self.assertIn(header_line, input_file['has_header'])
+
 
 if __name__ == '__main__':
     unittest.main()

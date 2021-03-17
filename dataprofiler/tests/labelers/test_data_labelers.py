@@ -18,7 +18,6 @@ from dataprofiler.labelers.data_labelers import BaseDataLabeler, \
 from dataprofiler.labelers import data_processing
 from dataprofiler.labelers.base_model import BaseModel, BaseTrainableModel
 
-
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
@@ -87,7 +86,6 @@ class TestDataLabeler(unittest.TestCase):
     @mock.patch("dataprofiler.labelers.data_labelers."
                 "BaseDataLabeler._load_data_labeler")
     def test_load_data_labeler(self, *mocks):
-
         # error if no labeler specified
         with self.assertRaisesRegex(TypeError,
                                     r'__new__\(\) missing 1 required positional'
@@ -110,26 +108,113 @@ class TestDataLabeler(unittest.TestCase):
         self.assertIsInstance(data_labeler, BaseDataLabeler)
 
     def test_check_and_return_valid_data_format(self):
-        pass
+        # test incorrect fit_or_predict value
+        with self.assertRaisesRegex(ValueError, '`fit_or_predict` must equal '
+                                                '`fit` or `predict`'):
+            BaseDataLabeler._check_and_return_valid_data_format([], 'oops')
+
+        # test incorrect data type
+        with self.assertRaisesRegex(TypeError, "Data must be imported using the"
+                                               " data_readers, pd.DataFrames, "
+                                               "np.ndarrays, or lists."):
+            BaseDataLabeler._check_and_return_valid_data_format('oops')
+
+        # test proper conversion of 2 dimensional structured data
+        two_dim = [["this", "is"], ["two", "dimensions"]]
+        two_dim_pred = np.array(["this", "is", "two", "dimensions"])
+        # for fit
+        self.assertTrue(
+            np.array_equal(np.array(two_dim),
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           two_dim, fit_or_predict='fit')))
+        self.assertTrue(
+            np.array_equal(np.array(two_dim),
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           pd.DataFrame(two_dim), fit_or_predict='fit')))
+        self.assertTrue(
+            np.array_equal(np.array(two_dim),
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           np.array(two_dim), fit_or_predict='fit')))
+        # for predict
+        self.assertTrue(
+            np.array_equal(two_dim_pred,
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           two_dim, fit_or_predict='predict')))
+        self.assertTrue(
+            np.array_equal(two_dim_pred,
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           pd.DataFrame(two_dim), fit_or_predict='predict')))
+        self.assertTrue(
+            np.array_equal(two_dim_pred,
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           np.array(two_dim), fit_or_predict='predict')))
+
+        # test proper conversion of 1 dimensional data
+        one_dim = ["this", "is", "one", "dimension"]
+        one_dim_pred = np.array(one_dim)
+        # for fit
+        self.assertTrue(
+            np.array_equal(np.array(one_dim),
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           one_dim, fit_or_predict='fit')))
+        self.assertTrue(
+            np.array_equal(np.array(one_dim),
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           pd.Series(one_dim), fit_or_predict='fit')))
+        self.assertTrue(
+            np.array_equal(np.array(one_dim),
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           np.array(one_dim), fit_or_predict='fit')))
+        # for predict
+        self.assertTrue(
+            np.array_equal(one_dim_pred,
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           one_dim, fit_or_predict='predict')))
+        self.assertTrue(
+            np.array_equal(one_dim_pred,
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           pd.DataFrame(one_dim), fit_or_predict='predict')))
+        self.assertTrue(
+            np.array_equal(one_dim_pred,
+                           BaseDataLabeler._check_and_return_valid_data_format(
+                           np.array(one_dim), fit_or_predict='predict')))
+
+        # test proper conversion of unstructured labels
+        labels = [[(0, 4, "BACKGROUND"), (4, 10, "ADDRESS")],
+                  [(0, 5, "SSN"), (5, 8, "BACKGROUND")]]
+        validated_labels = \
+            BaseDataLabeler._check_and_return_valid_data_format(labels)
+        self.assertIsInstance(validated_labels, np.ndarray)
+        self.assertEqual(len(validated_labels), 2)
+        self.assertEqual(len(validated_labels[0]), 2)
+        self.assertEqual(len(validated_labels[0][0]), 3)
+        self.assertEqual(validated_labels[0][0][0], 0)
+        self.assertEqual(validated_labels[0][1][1], 10)
+        self.assertEqual(validated_labels[1][0][2], "SSN")
+
+        # test proper conversion of data reader objects
+        for dt in ["csv", "json", "parquet"]:
+            data_obj = dp.Data(data=pd.DataFrame(two_dim), data_type=dt)
+            val = BaseDataLabeler._check_and_return_valid_data_format(data_obj)
+            self.assertTrue(np.array_equal(np.array(two_dim), val))
 
 
 label_encoding = {
-  "encoder": {
-    'PAD': 0,
-    'CITY': 1,  # SAME AS BACKGROUND
-    'BACKGROUND': 1,
-    'ADDRESS': 2,
-    'PERSON': 3,
-  },
-  "decoder": {
-    0: "PAD",
-    1: "BACKGROUND",
-    2: "ADDRESS",
-    3: "PERSON"
-  },
-  "count": 4
+    "encoder": {
+        'PAD': 0,
+        'CITY': 1,  # SAME AS BACKGROUND
+        'BACKGROUND': 1,
+        'ADDRESS': 2,
+        'PERSON': 3,
+    },
+    "decoder": {
+        0: "PAD",
+        1: "BACKGROUND",
+        2: "ADDRESS",
+        3: "PERSON"
+    },
+    "count": 4
 }
-
 
 unstruct_data_labeler_parameters = {
     'model': {
@@ -150,7 +235,6 @@ unstruct_data_labeler_parameters = {
         'class': 'CharPostprocessor'
     },
 }
-
 
 struct_data_labeler_parameters = {
     'model': {
@@ -463,7 +547,6 @@ class TestTrainDataLabeler(unittest.TestCase):
             self.assertTrue(hasattr(TrainableDataLabeler, func))
 
     def test_non_trainable_model_error(self):
-
         mock_model = mock.Mock(spec=BaseModel)
         data_labeler = TrainableDataLabeler()
 
@@ -472,7 +555,6 @@ class TestTrainDataLabeler(unittest.TestCase):
             data_labeler.set_model(mock_model)
 
     def test_load_with_components(self):
-
         mock_preprocessor = mock.Mock(spec=data_processing.BaseDataPreprocessor)
         mock_preprocessor._parameters = {"test": 1}
         mock_postprocessor = mock.Mock(

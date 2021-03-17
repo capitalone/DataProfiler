@@ -336,3 +336,9 @@ class TestCategoricalSentence(unittest.TestCase):
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
         self.assertEqual(True, cat_profiler.is_match)
         self.assertEqual(len_unique, len(cat_profiler.categories))
+
+    def test_categorical_column_with_wrong_options(self):
+        with self.assertRaisesRegex(ValueError,
+                                   "CategoricalColumn parameter 'options' must"
+                                   " be of type CategoricalOptions."):
+            profiler = CategoricalColumn("Categorical", options="wrong_data_type")

@@ -731,16 +731,16 @@ class TestFloatColumn(unittest.TestCase):
         # Asserting warning when adding 2 profilers with different options
         with warnings.catch_warnings(record=True) as w:
             profiler3 = profiler1 + profiler2
-
-            message = str(w.pop().message)
-            self.assertEqual("precision is disabled because it "
-                             "is not enabled in both profiles.",
-                             message)
-
-            message = str(w.pop().message)
-            self.assertEqual("max is disabled because it is not enabled in both"
-                             " profiles.",
-                             message)
+            list_of_warning_messages = []
+            for warning in w:
+                list_of_warning_messages.append(str(warning.message))
+            
+            warning1 = "precision is disabled because it is not enabled in both" \
+                       " profiles."
+            warning2 = "max is disabled because it is not enabled in both " \
+                       "profiles."
+            self.assertTrue(warning1 in list_of_warning_messages)
+            self.assertTrue(warning2 in list_of_warning_messages)
 
         # Assert that these features are still merged
         self.assertEqual("rice", profiler3.histogram_selection)

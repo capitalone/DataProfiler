@@ -302,7 +302,8 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
         options.structured_options.float = IntOptions()
         with self.assertRaisesRegex(
-                ValueError, "options must be of type FloatOptions."):
+                ValueError, "FloatColumn parameter 'options' must be of type "
+                            "FloatOptions."):
             profile = Profiler(self.data, profiler_options=options)
 
     @mock.patch('dataprofiler.profilers.float_column_profile.FloatColumn.'

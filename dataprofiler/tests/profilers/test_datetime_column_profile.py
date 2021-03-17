@@ -346,5 +346,6 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
     def test_datetime_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
-                                   "options must be of type DateTimeOptions."):
+                                   "DateTimeColumn parameter 'options' must be"
+                                   " of type DateTimeOptions."):
             profiler = DateTimeColumn("Datetime", options="wrong_data_type")

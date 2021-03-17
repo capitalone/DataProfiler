@@ -46,7 +46,8 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :type options: DateTimeOptions
         """
         if options and not isinstance(options, DateTimeOptions):
-            raise ValueError("options must be of type DateTimeOptions.")
+            raise ValueError("DateTimeColumn parameter 'options' must be of "
+                             "type DateTimeOptions.")
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.date_formats = []
         self.min = None

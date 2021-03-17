@@ -24,7 +24,8 @@ class CategoricalColumn(BaseColumnProfiler):
         :type name: String
         """
         if options and not isinstance(options, CategoricalOptions):
-            raise ValueError("options must be of type CategoricalOptions.")
+            raise ValueError("CategoricalColumn parameter 'options' must be of"
+                             " type CategoricalOptions.")
         super(CategoricalColumn, self).__init__(name)
         self._categories = list()
         self.__calculations = {}

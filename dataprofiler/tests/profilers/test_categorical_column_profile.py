@@ -339,5 +339,6 @@ class TestCategoricalSentence(unittest.TestCase):
 
     def test_categorical_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
-                                   "options must be of type CategoricalOptions."):
+                                   "CategoricalColumn parameter 'options' must"
+                                   " be of type CategoricalOptions."):
             profiler = CategoricalColumn("Categorical", options="wrong_data_type")

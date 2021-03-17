@@ -25,7 +25,8 @@ class DataLabelerColumn(BaseColumnProfiler):
         self._max_sample_size = 1000
         if options:
             if not isinstance(options, DataLabelerOptions):
-                raise ValueError("options must be of type DataLabelerOptions.")
+                raise ValueError("DataLabelerColumn parameter 'options' must be"
+                                 " of type DataLabelerOptions.")
             if options.data_labeler_dirpath:
                 data_labeler_dirpath = options.data_labeler_dirpath
             if options.max_sample_size:

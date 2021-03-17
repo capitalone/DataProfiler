@@ -322,5 +322,6 @@ class TestOrderColumn(unittest.TestCase):
         
     def test_order_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
-                                   "options must be of type OrderOptions."):
+                                   "OrderColumn parameter 'options' must be of"
+                                   " type OrderOptions."):
             profiler = OrderColumn("Order", options="wrong_data_type")

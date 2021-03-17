@@ -245,7 +245,8 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             
     def test_data_labeler_column_with_wrong_options(self, *mocks):
         with self.assertRaisesRegex(ValueError,
-                                   "options must be of type DataLabelerOptions."):
+                                   "DataLabelerColumn parameter 'options' must "
+                                   "be of type DataLabelerOptions."):
             profiler = DataLabelerColumn("Data_Labeler", options="wrong_data_type")
 
     def test_profile_merge_with_different_options(self, mock_instance):  

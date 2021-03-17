@@ -19,7 +19,8 @@ class OrderColumn(BaseColumnProfiler):
         :type options: OrderOptions
         """
         if options and not isinstance(options, OrderOptions):
-            raise ValueError("options must be of type OrderOptions.")
+            raise ValueError("OrderColumn parameter 'options' must be of type"
+                             " OrderOptions.")
         self.order = None
         self._last_value = None
         self._first_value = None

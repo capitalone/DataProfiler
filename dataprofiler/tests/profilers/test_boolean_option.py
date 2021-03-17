@@ -1,18 +1,10 @@
-import os
-import unittest
-from unittest import mock
-
-import pandas as pd
-
-from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import BooleanOption
 from dataprofiler.tests.profilers.test_base_option import TestBaseOption
 
+
 class TestBooleanOption(TestBaseOption):
-    
-    @classmethod
-    def setUpClass(cls):
-        cls.option_class = BooleanOption    
+
+    option_class = BooleanOption
         
     def test_init(self, *mocks):
         option = self.get_options()

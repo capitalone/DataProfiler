@@ -2,10 +2,10 @@ import unittest
 import os
 from collections import defaultdict
 from unittest import mock
+import warnings
 
 import pandas as pd
 import numpy as np
-import warnings
 
 from dataprofiler.profilers import FloatColumn
 from dataprofiler.profilers.profiler_options import FloatOptions

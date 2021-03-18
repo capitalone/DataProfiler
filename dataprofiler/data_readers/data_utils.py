@@ -306,6 +306,13 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
 
 
 def detect_cell_type(cell):
+    """
+    Detects the cell type (int, float, etc)
+
+    :param cell: String designated for data type detection
+    :type cell: str
+    """
+    
     cell_type = 'str'
     if len(cell) == 0:
         cell_type = 'none'

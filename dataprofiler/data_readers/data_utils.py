@@ -2,6 +2,7 @@ from builtins import next
 import json
 from io import open
 from collections import OrderedDict
+import dateutil
 
 import pandas as pd
 import pyarrow.parquet as pq
@@ -302,3 +303,34 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     if not encoding or encoding == 'ascii':
         encoding = 'utf-8'
     return encoding.lower()
+
+
+def detect_cell_type(cell):
+    cell_type = 'str'
+    if len(cell) == 0:
+        cell_type = 'none'
+    else:
+
+        try:
+            if dateutil.parser.parse(cell, fuzzy=False):
+                cell_type = 'date'
+                
+        except ValueError:
+            pass
+        except OverflowError:
+            pass
+        except TypeError:
+            pass
+
+        try:
+            f_cell = float(cell)
+            cell_type = 'float'
+            if f_cell.is_integer():
+                cell_type = 'int'
+        except ValueError:
+            pass
+
+        if cell.isupper():
+            cell_type = 'upstr'
+            
+    return cell_type

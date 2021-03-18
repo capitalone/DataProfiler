@@ -124,6 +124,18 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/all-strings-skip-partial-header.csv'),
                  count=7, delimiter=',', has_header=[None, 1],
                  num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/num-negative-title.csv'),
+                 count=5, delimiter=None, has_header=[None],
+                 num_columns=1, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/num-negative-title-large.csv'),
+                 count=5, delimiter=None, has_header=[None],
+                 num_columns=1, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/daily-activity-sheet-@.csv'),
+                 count=31, delimiter='@', has_header=[1],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/daily-activity-sheet-tab.csv'),
+                 count=31, delimiter='\t', has_header=[0],
+                 num_columns=4, encoding='utf-8'),
         ]
         cls.output_file_path = None
 

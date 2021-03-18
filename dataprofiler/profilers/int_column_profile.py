@@ -23,9 +23,9 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :param options: Options for the integer column
         :type options: IntOptions
         """
-        self.options = None
-        if options and isinstance(options, IntOptions):
-            self.options = options
+        if options and not isinstance(options, IntOptions):
+            raise ValueError("IntColumn parameter 'options' must be of type"
+                             " IntOptions.")
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.__calculations = {}

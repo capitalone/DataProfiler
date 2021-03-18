@@ -103,9 +103,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                                  'integer for the row that represents the '
                                  'header (0 based index)')
         return options
+
     
     @staticmethod
-    def _guess_delimiter(data_as_str, preferred=[',', '\t'], omitted=['"', "'"]):
+    def _guess_delimiter(data_as_str, preferred=[',', '\t'],
+                         omitted=['"', "'"], quotechar=None):
         """
         Automatically checks for what delimiter exists in a text document.
 
@@ -115,6 +117,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :type preferred: list
         :param omitted: Delimiters that will be omitted from selection
         :type omitted: list
+        :param quotechar: Character used for quotes
+        :type quotechar: str
         :return: Delimiter, if none can be found None is returned
         :rtype: str or None
         """
@@ -131,12 +135,22 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             if char in vocab:
                 vocab.pop(char)
 
+                
         # Sort vocabulary by count
         ordered_vocab = []
         sorted_keys = sorted(vocab, key=vocab.get)
         sorted_keys.reverse()
         for c in sorted_keys:
             ordered_vocab.append(c)
+
+        if not quotechar:
+            sniffer = csv.Sniffer()
+            sniffer.preferred = preferred
+            try:
+                dialect = sniffer.sniff(data_as_str)
+                quotechar = dialect.quotechar
+            except csv.Error as exc:
+                quotechar = '"'
 
         # Evaluate vocab, reviewing rows and columns
         delimiter = None
@@ -145,7 +159,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             proposed_dataset = []
             for row in data_as_str.split('\n'):
                 proposed_cells = list(csv.reader(
-                    [row], delimiter=proposed_delim, quotechar='"'))[0]
+                    [row], delimiter=proposed_delim, quotechar=quotechar))[0]
                 
                 proposed_row = []
                 for i in range(len(proposed_cells)):
@@ -181,6 +195,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 # Ensure's it's not a description row, then ensures cells consistent
                 if len(proposed_row) != prior_col_count and len(proposed_row) > 1:
                     incorrect_delimiter_flag = True
+                    break
 
 
                 # Evalutes each column for potential issues

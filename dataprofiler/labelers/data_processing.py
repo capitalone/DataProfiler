@@ -1177,10 +1177,10 @@ class StructCharPreprocessor(CharPreprocessor,
                           "multidimensional, it will be flattened for model"
                           "processing. Results may be inaccurate, consider"
                           "reformatting data or changing preprocessor.")
-            # Flatted data and labels, confirmed to be same shape
-            data = data.reshape(-1)
-            if labels is not None:
-                labels = labels.reshape(-1)
+        # Flatted data and labels, confirmed to be same shape
+        data = data.reshape(-1)
+        if labels is not None:
+            labels = labels.reshape(-1)
 
         # convert structured to unstructured format
         unstructured_data = [[]] * len(data)
@@ -1196,10 +1196,13 @@ class StructCharPreprocessor(CharPreprocessor,
             if labels is not None:
                 unstructured_labels[ind] = unstructured_label_set
 
-        return super().process(
-            np.array(unstructured_data),
-            np.array(unstructured_labels, dtype="object"),
-            label_mapping, batch_size)
+        if labels is not None:
+            np_unstruct_labels = np.array(unstructured_labels, dtype="object")
+        else:
+            np_unstruct_labels = None
+
+        return super().process(np.array(unstructured_data), np_unstruct_labels,
+                               label_mapping, batch_size)
 
 
 class StructCharPostprocessor(BaseDataPostprocessor,

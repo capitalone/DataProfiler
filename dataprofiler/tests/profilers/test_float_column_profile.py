@@ -71,9 +71,9 @@ class TestFloatColumn(unittest.TestCase):
 
         # edge cases #
         # integer with 0s on right and left side
-        df_scientific = pd.Series(['0013245678', '123456700', '0012345600'])
+        df_ints = pd.Series(['0013245678', '123456700', '0012345600'])
         float_profiler = FloatColumn("Name")
-        float_profiler.update(df_scientific)
+        float_profiler.update(df_ints)
         self.assertEqual(6, float_profiler.precision)
 
         # scientific
@@ -83,21 +83,21 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(3, float_profiler.precision)
 
         # plus
-        df_scientific = pd.Series(['+1.3e-3', '+2.244', '+1.3324e4'])
+        df_plus = pd.Series(['+1.3e-3', '+2.244', '+1.3324e4'])
         float_profiler = FloatColumn("Name")
-        float_profiler.update(df_scientific)
+        float_profiler.update(df_plus)
         self.assertEqual(2, float_profiler.precision)
 
         # minus
-        df_scientific = pd.Series(['-1.3234e-3', '-0.244', '-1.3324e4'])
+        df_minus = pd.Series(['-1.3234e-3', '-0.244', '-1.3324e4'])
         float_profiler = FloatColumn("Name")
-        float_profiler.update(df_scientific)
+        float_profiler.update(df_minus)
         self.assertEqual(3, float_profiler.precision)
 
         # spaces around values
-        df_scientific = pd.Series(['  -1.3234e-3  ', '  -0.244  '])
+        df_spaces = pd.Series(['  -1.3234e-3  ', '  -0.244  '])
         float_profiler = FloatColumn("Name")
-        float_profiler.update(df_scientific)
+        float_profiler.update(df_spaces)
         self.assertEqual(3, float_profiler.precision)
 
     def test_profiled_min(self):

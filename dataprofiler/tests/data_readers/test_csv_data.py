@@ -157,7 +157,6 @@ class TestCSVDataClass(unittest.TestCase):
                 self.assertEqual(len(input_data_obj.data.columns),
                                  input_file['num_columns'])
             except AttributeError as e:
-                print(input_file['path'])
                 raise AttributeError(repr(e)+': '+input_file['path'].split("/")[-1])
 
     def test_specifying_data_type(self):

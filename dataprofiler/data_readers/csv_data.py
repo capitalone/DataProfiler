@@ -2,6 +2,7 @@ import re
 import csv
 from itertools import islice
 from six import StringIO
+import random
 import dateutil
 
 import numpy as np

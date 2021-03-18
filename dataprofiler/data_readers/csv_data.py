@@ -143,7 +143,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         validated_proposed_delimiters = {}
         for proposed_delim in ordered_vocab[0:12]:
             proposed_dataset = []
-            for row in data_as_str.split('\n')[:-1]:
+            for row in data_as_str.split('\n'):
                 proposed_cells = list(csv.reader(
                     [row], delimiter=proposed_delim, quotechar='"'))[0]
                 

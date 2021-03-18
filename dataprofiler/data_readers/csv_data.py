@@ -129,12 +129,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             c = data_as_str[i]
             if c not in vocab:
                 vocab[c] = 0
-            vocab[c] += 1            
-        if '\n' in vocab: vocab.pop('\n')  
-        for char in omitted:
+            vocab[c] += 1
+        if '\n' in vocab: vocab.pop('\n')
+        for char in omitted+[quotechar]:
             if char in vocab:
                 vocab.pop(char)
-
                 
         # Sort vocabulary by count
         ordered_vocab = []
@@ -147,119 +146,98 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             sniffer = csv.Sniffer()
             sniffer.preferred = preferred
             try:
-                dialect = sniffer.sniff(data_as_str)
-                quotechar = dialect.quotechar
+                quotechar = sniffer._guess_quote_and_delimiter(
+                    data_as_str, ordered_vocab[:20])[0]
             except csv.Error as exc:
+                quotechar = None
+            if not quotechar or len(quotechar) == 0:
                 quotechar = '"'
-
+                
         # Evaluate vocab, reviewing rows and columns
         delimiter = None
         validated_proposed_delimiters = {}
-        for proposed_delim in ordered_vocab[0:12]:
-            proposed_dataset = []
-            for row in data_as_str.split('\n'):
-                proposed_cells = list(csv.reader(
-                    [row], delimiter=proposed_delim, quotechar=quotechar))[0]
-                
-                proposed_row = []
-                for i in range(len(proposed_cells)):
-                    proposed_cell = proposed_cells[i]
-                    size_of_cell = len(proposed_cell)
-                    cell_type = data_utils.detect_cell_type(proposed_cell)
-            
-                    proposed_row.append({
-                        "cell": proposed_cells[i],
-                        "type": cell_type,
-                        "size": size_of_cell
-                    })
-                proposed_dataset.append(proposed_row)
+        for proposed_delim in ordered_vocab[:20]:
 
-            col_types = {}            
+            col_types = {}
             prior_col_count = None
             incorrect_delimiter_flag = False
             cell_type_safe_flag = True
             row_end_safe_flag = False
             row_start_safe_flag = False
-
             proposed_delim_type = data_utils.detect_cell_type(proposed_delim)
         
+            # If large dataset, select first 25 rows then random sampling
+            proposed_dataset = data_as_str.split('\n')
+            if len(proposed_dataset) > 25:
+                sample_count = min(int(0.1*(len(proposed_dataset)-25)), 1000)
+                proposed_dataset = proposed_dataset[:25] \
+                    + random.choices(proposed_dataset[:25], k=sample_count)
+
             # Reverse to start at bottom
             # Fewer columns are okay, as long as earlier in file
-            proposed_dataset.reverse()
-            for proposed_row in proposed_dataset:
+            proposed_dataset.reverse()            
+            for row in proposed_dataset:
+                
+                proposed_cells = list(csv.reader(
+                    [row], delimiter=proposed_delim, quotechar=quotechar))[0]
 
-                # Ensure there's a prior_col_count
+                # Ensure equal number of cells 
                 if not prior_col_count:
-                    prior_col_count = len(proposed_row)
+                    prior_col_count = len(proposed_cells)
 
-                # Ensure's it's not a description row, then ensures cells consistent
-                if len(proposed_row) != prior_col_count and len(proposed_row) > 1:
+                # Ensure rows have same number of cols, if more than one col
+                if len(proposed_cells) != prior_col_count and len(proposed_cells) > 1:
                     incorrect_delimiter_flag = True
-                    break
 
-
-                # Evalutes each column for potential issues
-                # e.g. '3' being a seperator, while a single row of integers
-                cell_content = []
-                cell_types = []
-                prior_cell_type = None
-                for col_id in range(len(proposed_row)):
-                    proposed_cell = proposed_row[col_id]
-
-                    col_types[col_id] = proposed_cell['type']
+                prior_cell_type = None # Checks for int/alpha values and delims     
+                for col_id in range(len(proposed_cells)):
+                    
+                    proposed_cell = proposed_cells[col_id]
+                    cell_type = data_utils.detect_cell_type(proposed_cell)
+                    col_types[col_id] = cell_type
 
                     # Handle if alpha character are seperator                     
                     # NOTE: delimiter needs two ajoining cells to flag
-                    if proposed_cell['type'] in ['str', 'none'] \
+                    if cell_type in ['str', 'none'] \
                        and prior_cell_type in ['str', 'none']:
                         if proposed_delim.isalpha():
+                            cell_type_safe_flag = False                            
+                        if proposed_delim == ' ' and 2 >= len(proposed_cells):
                             cell_type_safe_flag = False
                             
-                        # Ensures when spaces occur, there are 3 or more cols
-                        if proposed_delim == ' ' and 2 >= len(proposed_row):
-                            cell_type_safe_flag = False
-
                     # Handle if integer characters are seperators
                     # NOTE: delimiter need one adjoining cell to flag
-                    if proposed_delim_type == 'int' and proposed_cell['type']=='int':
+                    if proposed_delim_type == 'int' and cell_type=='int':
                         cell_type_safe_flag = False
 
                     # Handle if start or end is always none
-                    if proposed_cell['type']!='none':
-                        if col_id == len(proposed_row)-1:
+                    if cell_type != 'none':
+                        if col_id == len(proposed_cells)-1:
                             row_end_safe_flag = True
                         if col_id == 0:
                             row_start_safe_flag = True
+                            
+                    prior_cell_type = cell_type
                     
-                    prior_cell_type = proposed_cell['type']
-
             edge_safe_flag = row_end_safe_flag or row_start_safe_flag
-
-            # Add a delimiter candidate safe to do so
+            
             if not incorrect_delimiter_flag and cell_type_safe_flag and edge_safe_flag:
                 validated_proposed_delimiters[proposed_delim] = prior_col_count
-                
-                # Find one with most columns 
-                if not delimiter:
-                    delimiter = proposed_delim
                 if prior_col_count \
-                   and prior_col_count > validated_proposed_delimiters[delimiter]:
+                   and prior_col_count > validated_proposed_delimiters[proposed_delim]:
                     delimiter = proposed_delim
-
 
         # Use preferred delimiters with highest count, if possible
         largest_delim_count = 0
         for proposed_delim in validated_proposed_delimiters.keys():
             weighted_delim_count = validated_proposed_delimiters[proposed_delim]
             if proposed_delim in preferred:
-                weighted_delim_count = 100 * validated_proposed_delimiters[proposed_delim]
+                weighted_delim_count = 5 * validated_proposed_delimiters[proposed_delim]
             if weighted_delim_count > largest_delim_count:
                 delimiter = proposed_delim
                 largest_delim_count = weighted_delim_count
-                
+        
         return delimiter
-
-
             
 
     @staticmethod

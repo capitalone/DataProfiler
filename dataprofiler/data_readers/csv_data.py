@@ -141,8 +141,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 
         # Sort vocabulary by count
         ordered_vocab = []
-        sorted_keys = sorted(vocab, key=vocab.get)
-        sorted_keys.reverse()
+        sorted_keys = sorted(vocab, key=vocab.get, reverse=True)
         for c in sorted_keys:
             ordered_vocab.append(c)
 
@@ -177,11 +176,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 proposed_dataset = proposed_dataset[:25] \
                     + random.choices(proposed_dataset[:25], k=sample_count)
 
-            # Reverse to start at bottom
+            # Reverse to start at bottom where likely the most columns
             # Fewer columns are okay, as long as earlier in file
-            proposed_dataset.reverse()            
-            for row in proposed_dataset:
-                
+            for row_idx in range(len(proposed_dataset)-1, -1, -1):
+                row = proposed_dataset[row_idx]
                 proposed_cells = list(csv.reader(
                     [row], delimiter=proposed_delim, quotechar=quotechar))[0]
 

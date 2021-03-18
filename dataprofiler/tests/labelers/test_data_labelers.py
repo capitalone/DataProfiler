@@ -18,6 +18,7 @@ from dataprofiler.labelers.data_labelers import BaseDataLabeler, \
 from dataprofiler.labelers import data_processing
 from dataprofiler.labelers.base_model import BaseModel, BaseTrainableModel
 
+
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
@@ -216,6 +217,7 @@ label_encoding = {
     "count": 4
 }
 
+
 unstruct_data_labeler_parameters = {
     'model': {
         'class': 'CharacterLevelCnnModel',
@@ -235,6 +237,7 @@ unstruct_data_labeler_parameters = {
         'class': 'CharPostprocessor'
     },
 }
+
 
 struct_data_labeler_parameters = {
     'model': {

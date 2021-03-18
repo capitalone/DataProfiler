@@ -164,8 +164,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             prior_col_count = None
             incorrect_delimiter_flag = False
             cell_type_safe_flag = True
-            cell_end_safe_flag = False
-            cell_start_safe_flag = False
+            row_end_safe_flag = False
+            row_start_safe_flag = False
 
             proposed_delim_type = data_utils.detect_cell_type(proposed_delim)
         
@@ -212,15 +212,13 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     # Handle if start or end is always none
                     if proposed_cell['type']!='none':
                         if col_id == len(proposed_row)-1:
-                            cell_end_safe_flag = True
+                            row_end_safe_flag = True
                         if col_id == 0:
-                            cell_start_safe_flag = True
+                            row_start_safe_flag = True
                     
                     prior_cell_type = proposed_cell['type']
 
-            edge_safe_flag = False
-            if cell_end_safe_flag or cell_start_safe_flag:
-                edge_safe_flag = True
+            edge_safe_flag = row_end_safe_flag or row_start_safe_flag
 
             # Add a delimiter candidate safe to do so
             if not incorrect_delimiter_flag and cell_type_safe_flag and edge_safe_flag:

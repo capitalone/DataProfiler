@@ -65,6 +65,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         self._data_formats["records"] = self._get_data_as_records
         self._selected_data_format = options.get("data_format", "dataframe")
         self._delimiter = options.get("delimiter", None)
+        self._quotechar = options.get("quotechar", None)
         self._selected_columns = options.get("selected_columns", list())
         self._header = options.get("header", 'auto')
         self._checked_header = "header" in options
@@ -107,8 +108,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     
     @staticmethod
-    def _guess_delimiter(data_as_str, preferred=[',', '\t'],
-                         omitted=['"', "'"], quotechar=None):
+    def _guess_delimiter_and_quotechar(data_as_str, quotechar=None,
+                                       preferred=[',', '\t'], omitted=['"', "'"]):
         """
         Automatically checks for what delimiter exists in a text document.
 
@@ -120,7 +121,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :type omitted: list
         :param quotechar: Character used for quotes
         :type quotechar: str
-        :return: Delimiter, if none can be found None is returned
+        :return: delimiter, if none can be found None is returned
+        :rtype: str or None
+        :return: quotechar, if none can be found None is returned
         :rtype: str or None
         """
 
@@ -238,11 +241,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 delimiter = proposed_delim
                 largest_delim_count = weighted_delim_count
         
-        return delimiter
+        return delimiter, quotechar
             
 
     @staticmethod
-    def _guess_header_row(data_as_str, suggested_delimiter=None,
+    def _guess_header_row(data_as_str,
+                          suggested_delimiter=None, suggested_quotechar=None,
                           diff_thresh=0.1, none_thresh=0.5, str_thresh=0.9):
         """
         This function attempts to select the best row for which a header would be valid.
@@ -250,6 +254,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :param data_as_str: Single string containing rows (lines seperated by "\n")
         :type data_as_str: str
         :param suggested_delimiter: Delimiter suggested to use when trying to find the header
+        :type suggested_delimiter: str
+        :param suggested_delimiter: quotechar suggested to use when trying to find the header
         :type suggested_delimiter: str
         :param diff_threshold: Max percent difference in cell types between rows allowed 
         :type diff_threshold: float    
@@ -270,14 +276,16 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         delimiter = suggested_delimiter
         if not delimiter:
             delimiter = ','
-        
+        quotechar = suggested_quotechar
+        if not quotechar or len(quotechar) == 0:
+            quotechar = '"'
+            
         # Determine type for every cell
         header_check_list = []
         only_string_flag = True # Requires additional checks
         for row in data_as_str.split('\n'):
-            row_list = list(csv.reader([row],
-                                       delimiter=delimiter,
-                                       quotechar='"'))[0]
+            row_list = list(csv.reader(
+                [row], delimiter=delimiter, quotechar=quotechar))[0]
             header_check_list.append([])
 
             for i in range(len(row_list)):
@@ -362,9 +370,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             col_stats = {}
             rows = data_as_str.split('\n')
             for i in range(0, len(rows)):
-                cells = list(csv.reader([rows[i]],
-                                        delimiter=delimiter,
-                                        quotechar='"'))[0]
+                cells = list(csv.reader(
+                    [rows[i]], delimiter=delimiter, quotechar=quotechar))[0]
                 for j in range(0, len(cells)):
 
                     # Determine number of words in cell
@@ -417,12 +424,16 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     def _load_data_from_str(self, data_as_str):
         """Loads the data into memory from the str."""
+        quotechar = None
         if not self._delimiter:
-            self._delimiter = self._guess_delimiter(data_as_str)
+            self._delimiter, quotechar = self._guess_delimiter_and_quotechar(
+                data_as_str)
+        if not self._quotechar:
+            self._quotechar = quotechar
         data_buffered = StringIO(data_as_str)
         if self._header == 'auto':
             self._header = self._guess_header_row(
-                data_as_str, suggested_delim=self._delimiter)
+                data_as_str, self._delimiter, self._quotechar)
         return data_utils.read_csv_df(
             data_buffered,
             self.delimiter, self.header, self.selected_columns,
@@ -437,10 +448,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 num_lines = 5
                 check_lines = list(islice(csvfile, num_lines))
                 data_as_str = ''.join(check_lines)
+            quotechar = None
             if not self._delimiter:
-                self._delimiter = self._guess_delimiter(data_as_str)            
+                self._delimiter, quotechar = self._guess_delimiter_and_quotechar(
+                    data_as_str)
+            if not self._quotechar:
+               self._quotechar = quotechar
             if self._header == 'auto':
-                self._header = self._guess_header_row(data_as_str, self._delimiter)
+                self._header = self._guess_header_row(
+                    data_as_str, self._delimiter, self._quotechar)
                 self._checked_header = True
 
         # if there is only one delimiter at the end of each row,
@@ -490,6 +506,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         delimiter = options.get("delimiter", None)
+        quotechar = options.get("quotechar", None)
 
         header = options.get("header", 'auto')
         if not delimiter or header == 'auto':
@@ -500,12 +517,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 data_as_str = ''.join(islice(csvfile, num_lines))
 
             # Checks if delimiter is a space; If so, returns false
+            quotetmp = None
             if not delimiter:
-                delimiter = cls._guess_delimiter(data_as_str)
-
+                delimiter, quotetmp = cls._guess_delimiter_and_quotechar(data_as_str)
+            if not quotetmp:
+                quotechar = quotetmp
+            
             if header == 'auto':
-                options.update(header=cls._guess_header_row(data_as_str,
-                                                            delimiter))
+                options.update(header=cls._guess_header_row(
+                    data_as_str, delimiter, quotechar))
 
         max_line_count = 1000
         min_line_count = 3
@@ -529,7 +549,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     empty_line_count += 1
                     continue
 
-                    # Find the location(s) where each delimiter was detected
+                # Find the location(s) where each delimiter was detected
                 delimiter_locs = [i.start() for i in re.finditer(delimiter_regex, line)]
                 if delimiter:
                     count = len(delimiter_locs)

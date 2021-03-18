@@ -103,9 +103,9 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :param options: Contains all the options.
         :type options: BaseColumnOptions
         """
-        for property in list(calculations):
-            if options and not options.is_prop_enabled(property):
-                del calculations[property]
+        for prop in list(calculations):
+            if options and not options.is_prop_enabled(prop):
+                del calculations[prop]
 
     def _perform_property_calcs(self, calculations, df_series,
                                 prev_dependent_properties, subset_properties):
@@ -124,11 +124,11 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return: None
         """
-        for property in calculations:
-            calculations[property](self,
-                                   df_series,
-                                   prev_dependent_properties,
-                                   subset_properties)
+        for prop in calculations:
+            calculations[prop](self,
+                               df_series,
+                               prev_dependent_properties,
+                               subset_properties)
 
     @staticmethod
     def _merge_calculations(merged_profile_calcs, profile1_calcs, profile2_calcs):
@@ -245,7 +245,9 @@ class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta,
         :type name: String
         """
         BaseColumnProfiler.__init__(self, name)
-        self.match_count = 0
+        # Number of values that match the column type. eg. how many floats match
+        # in the float column
+        self.match_count = 0 
 
     def _update_column_base_properties(self, profile):
         """

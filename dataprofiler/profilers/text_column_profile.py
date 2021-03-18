@@ -20,9 +20,9 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :param options: Options for the Text column
         :type options: TextOptions
         """
-        self.options = None
-        if options and isinstance(options, TextOptions):
-            self.options = options
+        if options and not isinstance(options, TextOptions):
+            raise ValueError("TextColumn parameter 'options' must be of type"
+                             " TextOptions.")
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.vocab = list()
@@ -45,10 +45,14 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             raise TypeError("Unsupported operand type(s) for +: "
                             "'TextColumn' and '{}'".format(other.__class__.__name__))
         merged_profile = TextColumn(None)
-        merged_profile.vocab = self.vocab.copy()
-        merged_profile._update_vocab([other.vocab])
         NumericStatsMixin._add_helper(merged_profile, self, other)
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
+        self._merge_calculations(merged_profile.__calculations,
+                                 self.__calculations,
+                                 other.__calculations)
+        if "vocab" in merged_profile.__calculations:
+            merged_profile.vocab = self.vocab.copy()
+            merged_profile._update_vocab(other.vocab)
         return merged_profile
 
     @property

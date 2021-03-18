@@ -136,6 +136,9 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/daily-activity-sheet-tab.csv'),
                  count=31, delimiter='\t', has_header=[0],
                  num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/preferred-check-small-num.csv'),
+                 count=5, delimiter=',', has_header=[None],
+                 num_columns=2, encoding='utf-8'),
         ]
         cls.output_file_path = None
 

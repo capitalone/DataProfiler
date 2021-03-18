@@ -126,7 +126,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             if c not in vocab:
                 vocab[c] = 0
             vocab[c] += 1            
-        if '\n' in vocab: vocab.pop('\n')        
+        if '\n' in vocab: vocab.pop('\n')  
         for char in omitted:
             if char in vocab:
                 vocab.pop(char)
@@ -235,13 +235,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # Use preferred delimiters with highest count, if possible
         largest_delim_count = 0
         for proposed_delim in validated_proposed_delimiters.keys():
-            weighted_delim_count = validated_proposed_delimiters[delimiter]
+            weighted_delim_count = validated_proposed_delimiters[proposed_delim]
             if proposed_delim in preferred:
-                weighted_delim_count = 100 * validated_proposed_delimiters[delimiter]
+                weighted_delim_count = 100 * validated_proposed_delimiters[proposed_delim]
             if weighted_delim_count > largest_delim_count:
                 delimiter = proposed_delim
                 largest_delim_count = weighted_delim_count
-
                 
         return delimiter
 

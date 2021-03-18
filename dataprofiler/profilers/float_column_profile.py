@@ -105,23 +105,39 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: string representing its precision print format
         :rtype: int
         """
-        integer_decimal_loc = -1
-        float_precision = None
+        if df_series.empty:
+            return 0
+
+        # set it to first value length, at very least will be smaller since min.
+        precision = len(df_series.iloc[0])
         for value in df_series:
-            decimal_loc = value.rfind('.')
 
-            # integers will not have a '.'
-            if decimal_loc == integer_decimal_loc:
-                continue
+            # remove all spaces around value
+            value = value.strip()
 
-            # since has a '.', subtract the str len from the position,
-            # since indexes start at 0: len - pos - 1
-            value_len = len(value)
-            value_precision = value_len - decimal_loc - 1
+            # if scientific notation, remove e and everything after
+            e_ind = value.find('e')
+            if e_ind > -1:
+                value = value[:e_ind]
 
-            if float_precision is None or float_precision > value_precision:
-                float_precision = value_precision
-        return float_precision
+            # remove negative of positive characters
+            if value[0] in ['+', '-']:
+                value = value[1:]
+
+            # if int: remove 0s on right, otherwise if float remove the decimal.
+            if '.' not in value:
+                value = value.rstrip('0')
+            else:
+                value = value.replace('.', '')
+
+            # strip all zeros on left
+            value = value.lstrip('0')
+            temp_precision = len(value)
+
+            # take the minimum precision
+            if temp_precision < precision:
+                precision = temp_precision
+        return precision
 
     @classmethod
     def _is_each_row_float(cls, df_series):

@@ -53,11 +53,11 @@ class TestFloatColumn(unittest.TestCase):
         df_1 = pd.Series([0.4, 0.3, 0.1, 0.1, 0.1]).apply(str)
         df_2 = pd.Series([0.11, 0.11, 0.12, 2.11]).apply(str)
         df_3 = pd.Series([4.114, 3.161, 2.512, 2.131]).apply(str)
-        df_mix = pd.Series([4.1, 3., 2.52, 2.13143]).apply(str)
+        df_mix = pd.Series([4.1, '3.', 2.52, 2.13143]).apply(str)
 
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_3)
-        self.assertEqual(3, float_profiler.precision)
+        self.assertEqual(4, float_profiler.precision)
 
         float_profiler.update(df_2)
         self.assertEqual(2, float_profiler.precision)
@@ -69,6 +69,36 @@ class TestFloatColumn(unittest.TestCase):
         float_profiler.update(df_mix)
         self.assertEqual(1, float_profiler.precision)
 
+        # edge cases #
+        # integer with 0s on right and left side
+        df_scientific = pd.Series(['0013245678', '123456700', '0012345600'])
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(df_scientific)
+        self.assertEqual(6, float_profiler.precision)
+
+        # scientific
+        df_scientific = pd.Series(['1.23e-3', '2.2344', '1.244e4'])
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(df_scientific)
+        self.assertEqual(3, float_profiler.precision)
+
+        # plus
+        df_scientific = pd.Series(['+1.3e-3', '+2.244', '+1.3324e4'])
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(df_scientific)
+        self.assertEqual(2, float_profiler.precision)
+
+        # minus
+        df_scientific = pd.Series(['-1.3234e-3', '-0.244', '-1.3324e4'])
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(df_scientific)
+        self.assertEqual(3, float_profiler.precision)
+
+        # spaces around values
+        df_scientific = pd.Series(['  -1.3234e-3  ', '  -0.244  '])
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(df_scientific)
+        self.assertEqual(3, float_profiler.precision)
 
     def test_profiled_min(self):
         # test with multiple values

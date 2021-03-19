@@ -13,6 +13,7 @@ import time
 from collections import OrderedDict, defaultdict
 from future.utils import with_metaclass
 import functools
+import warnings
 
 import numpy as np
 
@@ -102,9 +103,9 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :param options: Contains all the options.
         :type options: BaseColumnOptions
         """
-        for property in list(calculations):
-            if options and not options.is_prop_enabled(property):
-                del calculations[property]
+        for prop in list(calculations):
+            if options and not options.is_prop_enabled(prop):
+                del calculations[prop]
 
     def _perform_property_calcs(self, calculations, df_series,
                                 prev_dependent_properties, subset_properties):
@@ -123,11 +124,33 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return: None
         """
-        for property in calculations:
-            calculations[property](self,
-                                   df_series,
-                                   prev_dependent_properties,
-                                   subset_properties)
+        for prop in calculations:
+            calculations[prop](self,
+                               df_series,
+                               prev_dependent_properties,
+                               subset_properties)
+
+    @staticmethod
+    def _merge_calculations(merged_profile_calcs, profile1_calcs, profile2_calcs):
+        """
+        Merges the calculations of two profiles to the lowest common
+        denominator.
+
+        :param merged_profile_calcs: default calculations of the merged profile
+        :type merged_profile_calcs: dict
+        :param profile1_calcs: calculations of profile1
+        :type profile1_calcs: dict
+        :param profile2_calcs: calculations of profile2
+        :type profile2_calcs: dict
+        :return: None
+        """
+        calcs = list(merged_profile_calcs.keys())
+        for calc in calcs:
+            if calc not in profile1_calcs or calc not in profile2_calcs:
+                del merged_profile_calcs[calc]
+                if calc in profile1_calcs or calc in profile2_calcs:
+                    warnings.warn("{} is disabled because it is not enabled in "
+                                  "both profiles.".format(calc), RuntimeWarning)
 
     def _add_helper(self, other1, other2):
         """
@@ -222,7 +245,9 @@ class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta,
         :type name: String
         """
         BaseColumnProfiler.__init__(self, name)
-        self.match_count = 0
+        # Number of values that match the column type. eg. how many floats match
+        # in the float column
+        self.match_count = 0 
 
     def _update_column_base_properties(self, profile):
         """

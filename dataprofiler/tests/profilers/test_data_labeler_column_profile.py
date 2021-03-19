@@ -10,6 +10,7 @@ import numpy as np
 
 from dataprofiler.profilers.data_labeler_column_profile import \
     DataLabelerColumn
+from dataprofiler.profilers.profiler_options import DataLabelerOptions
 
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
@@ -241,3 +242,43 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         with self.assertRaises(ValueError):
             profiler._top_k_voting = 13
             test = profiler + profiler2
+            
+    def test_data_labeler_column_with_wrong_options(self, *mocks):
+        with self.assertRaisesRegex(ValueError,
+                                   "DataLabelerColumn parameter 'options' must "
+                                   "be of type DataLabelerOptions."):
+            profiler = DataLabelerColumn("Data_Labeler", options="wrong_data_type")
+
+    def test_profile_merge_with_different_options(self, mock_instance):  
+        self._setup_data_labeler_mock(mock_instance)
+
+        # Different max_sample_size values
+        data = pd.Series(['1', '2', '3', '11'])
+        data2 = pd.Series(['4', '5', '6', '7', '9', '10', '12'])
+        options = DataLabelerOptions()
+        options.max_sample_size = 20
+        profiler = DataLabelerColumn(data.name, options=options)
+        profiler.update(data)
+
+        options2 = DataLabelerOptions()
+        options2.max_sample_size = 15
+        profiler2 = DataLabelerColumn(data2.name, options=options2)
+        profiler2.update(data2)
+        
+        with self.assertRaisesRegex(AttributeError,
+                               "Cannot merge. The data labeler and/or the max "
+                               "sample size are not the same for both column "
+                               "profiles."):
+            profiler3 = profiler + profiler2
+
+
+        # Different labelers
+        profiler = DataLabelerColumn(data.name)
+        profiler.data_labeler = mock.MagicMock()
+        profiler2 = DataLabelerColumn(data2.name)
+
+        with self.assertRaisesRegex(AttributeError,
+                                    "Cannot merge. The data labeler and/or the max "
+                                    "sample size are not the same for both column "
+                                    "profiles."):
+            profiler3 = profiler + profiler2

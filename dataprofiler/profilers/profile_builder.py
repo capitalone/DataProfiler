@@ -68,6 +68,7 @@ class StructuredDataProfile(object):
             use_data_labeler = options.data_labeler.is_enabled
 
         if use_data_labeler:
+            config.data_labeler_called_from_profile = True
             self.profiles.update(
                 {'data_label_profile':
                      ColumnDataLabelerCompiler(clean_sampled_df, self.options)})
@@ -490,6 +491,10 @@ class Profiler(object):
                 "pd.DataFrame."
             )
 
+        config.data_labeler_loaded = False
+        config.existing_data_labeler = None
+        config.data_labeler_called_from_profile = False
+
     @staticmethod
     def _update_profile_from_chunk(df, profile=None, sample_size=None,
                                    min_true_samples=None, options=None):
@@ -537,12 +542,12 @@ class Profiler(object):
 
         return profile
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-
-    def __enter__(self):
-        return self
-
-    def close(self):
-        config.data_labeler_loaded = False
-        config.existing_data_labeler = None
+    # def __exit__(self, exc_type, exc_val, exc_tb):
+    #     self.close()
+    #
+    # def __enter__(self):
+    #     return self
+    #
+    # def close(self):
+    #     config.data_labeler_loaded = False
+    #     config.existing_data_labeler = None

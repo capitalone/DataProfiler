@@ -33,11 +33,13 @@ class DataLabelerColumn(BaseColumnProfiler):
             if options.max_sample_size:
                 self._max_sample_size = options.max_sample_size
 
-        if not config.data_labeler_loaded:
+        if not config.data_labeler_loaded or \
+                not config.data_labeler_called_from_profile:
             self.data_labeler = DataLabeler(
                 labeler_type='structured',
                 dirpath=data_labeler_dirpath,
                 load_options=None)
+            print('labeler being loaded...-------------------------')
             config.data_labeler_loaded = True
             config.existing_data_labeler = self.data_labeler
         else:

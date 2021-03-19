@@ -1,0 +1,3 @@
+global data_labeler_loaded, existing_data_labeler
+data_labeler_loaded = False
+existing_data_labeler = None

@@ -5,7 +5,7 @@ import numpy as np
 from . import BaseColumnProfiler
 from ..labelers.data_labelers import DataLabeler
 from .profiler_options import DataLabelerOptions
-
+from .. import config
 
 class DataLabelerColumn(BaseColumnProfiler):
     
@@ -30,11 +30,16 @@ class DataLabelerColumn(BaseColumnProfiler):
                 data_labeler_dirpath = options.data_labeler_dirpath
             if options.max_sample_size:
                 self._max_sample_size = options.max_sample_size
-
-        self.data_labeler = DataLabeler(
-            labeler_type='structured',
-            dirpath=data_labeler_dirpath,
-            load_options=None)
+        if not config.data_labeler_loaded:
+            print('data labeler initializing...')
+            self.data_labeler = DataLabeler(
+                labeler_type='structured',
+                dirpath=data_labeler_dirpath,
+                load_options=None)
+            config.data_labeler_loaded = True
+            config.existing_data_labeler = self.data_labeler
+        else:
+            self.data_labeler = config.existing_data_labeler
 
         reverse_label_mapping = self.data_labeler.reverse_label_mapping
         num_labels = self.data_labeler.model.num_labels

@@ -1,1 +1,1 @@
-{"model": {"class": "CharacterLevelCnnModel", "parameters": {}}, "preprocessor": {"class": "CharPreprocessor"}, "postprocessor": {"class": "CharPostprocessor"}}
+{"model": {"class": "CharacterLevelCnnModel"}, "preprocessor": {"class": "CharPreprocessor"}, "postprocessor": {"class": "CharPostprocessor"}}

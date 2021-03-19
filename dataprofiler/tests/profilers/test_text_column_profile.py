@@ -299,3 +299,48 @@ class TestTextColumnProfiler(unittest.TestCase):
             expected_times = defaultdict(float, {'vocab': 6.0})
             self.assertDictEqual(expected_times, profiler3.profile['times'])
 
+    def test_profile_merge_with_different_options(self):
+        # Creating first profiler with default options
+        options = TextOptions()
+        options.max.is_enabled = False
+        options.min.is_enabled = False
+
+        df = pd.Series(
+            ["pancake", "banana", "lighthouse", "aa", "b", "4", "3", "2", "dfd", "2"]
+        )
+
+        profiler1 = TextColumn("Text", options=options)
+        profiler1.update(df)
+
+        # Creating second profiler with separate options
+        options = TextOptions()
+        options.min.is_enabled = False
+        options.max.is_enabled = False
+        options.vocab.is_enabled = False
+        df2 = pd.Series(
+            ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
+        )
+        profiler2 = TextColumn("Text", options=options)
+        profiler2.update(df2)
+
+        # Asserting warning when adding 2 profilers with different options
+        with self.assertWarnsRegex(RuntimeWarning,
+                                   "vocab is disabled because it is not "
+                                   "enabled in both profiles."):
+            profiler3 = profiler1 + profiler2
+
+        # Assert that these features are still merged
+        self.assertEqual("doane", profiler3.histogram_selection)
+        self.assertAlmostEqual(6.20467836, profiler3.variance)
+        self.assertEqual(62.0, profiler3.sum)
+
+        # Assert that these features are not calculated
+        self.assertIsNone(profiler3.max)
+        self.assertIsNone(profiler3.min)
+        self.assertListEqual([], profiler3.vocab)
+
+    def test_text_column_with_wrong_options(self):
+        with self.assertRaisesRegex(ValueError,
+                                    "TextColumn parameter 'options' must be of"
+                                    " type TextOptions."):
+            profiler = TextColumn("Text", options="wrong_data_type")

@@ -22,6 +22,7 @@ from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
     ColumnStatsProfileCompiler, ColumnDataLabelerCompiler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions
+from .. import config
 
 
 class StructuredDataProfile(object):
@@ -535,3 +536,13 @@ class Profiler(object):
                 )
 
         return profile
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def __enter__(self):
+        return self
+
+    def close(self):
+        config.data_labeler_loaded = False
+        config.existing_data_labeler = None

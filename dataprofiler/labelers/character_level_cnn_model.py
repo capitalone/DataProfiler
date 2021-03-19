@@ -272,6 +272,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
 
         # load tf model
         # Use TFA to add f1 score to output
+        tf.keras.backend.clear_session()
         import tensorflow_addons as tfa
         custom_objects = {
             "F1Score": tfa.metrics.F1Score(

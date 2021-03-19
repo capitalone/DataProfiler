@@ -31,7 +31,6 @@ class DataLabelerColumn(BaseColumnProfiler):
             if options.max_sample_size:
                 self._max_sample_size = options.max_sample_size
         if not config.data_labeler_loaded:
-            print('data labeler initializing...')
             self.data_labeler = DataLabeler(
                 labeler_type='structured',
                 dirpath=data_labeler_dirpath,

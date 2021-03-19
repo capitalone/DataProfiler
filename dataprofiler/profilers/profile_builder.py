@@ -514,7 +514,7 @@ class Profiler(object):
         if len(df.columns) != len(df.columns.unique()):
             raise ValueError('`Profiler` does not currently support data which '
                              'contains columns with duplicate names.')
-        
+
         for col in df.columns:
             if col in profile:
                 column_profile = profile[col]

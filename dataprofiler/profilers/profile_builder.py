@@ -546,3 +546,4 @@ class Profiler(object):
     def close(self):
         config.data_labeler_loaded = False
         config.existing_data_labeler = None
+        

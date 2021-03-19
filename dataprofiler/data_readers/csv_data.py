@@ -248,7 +248,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         for proposed_delim in validated_proposed_delimiters.keys():
             weighted_delim_count = validated_proposed_delimiters[proposed_delim]
             if proposed_delim in preferred:
-                weighted_delim_count = 2*validated_proposed_delimiters[proposed_delim]
+                weighted_delim_count = 5*validated_proposed_delimiters[proposed_delim]
             if weighted_delim_count > largest_delim_count:
                 delimiter = proposed_delim
                 largest_delim_count = weighted_delim_count

@@ -322,12 +322,7 @@ def detect_cell_type(cell):
         try:
             if dateutil.parser.parse(cell, fuzzy=False):
                 cell_type = 'date'
-                
-        except ValueError:
-            pass
-        except OverflowError:
-            pass
-        except TypeError:
+        except (ValueError, OverflowError, TypeError):
             pass
 
         try:

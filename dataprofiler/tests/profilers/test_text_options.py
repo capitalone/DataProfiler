@@ -1,10 +1,3 @@
-import os
-import unittest
-from unittest import mock
-
-import pandas as pd
-
-from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import TextOptions
 from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOptions
 

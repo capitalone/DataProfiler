@@ -7,7 +7,6 @@ class TestBaseColumnOptions(TestBooleanOption):
     def setUpClass(cls):
         super().setUpClass()
         cls.option_class = BaseColumnOptions
-        cls.keys = []
 
     @classmethod
     def get_options(cls, *args, **params):

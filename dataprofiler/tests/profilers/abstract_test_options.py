@@ -5,7 +5,6 @@ class AbstractTestOptions():
     option_class = None
 
     @classmethod
-
     def validate_option_class(cls, *args, **kwargs):
         # Check option_class was set
         if cls.option_class is None:

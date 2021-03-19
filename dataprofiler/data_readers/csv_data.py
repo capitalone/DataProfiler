@@ -102,6 +102,17 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                                  'none for no header, or a non-negative '
                                  'integer for the row that represents the '
                                  'header (0 based index)')
+            if key == "delimiter" and not isinstance(value, str):
+                raise ValueError("'delimiter' must be a string")
+            if key == "data_format" and value not in ["data_frame", "records"]:
+                raise ValueError("'data_format' must be one of the following: "
+                                 "'dataframe' or 'records' ") 
+            if key == "selected_columns":
+                if not isinstance(value, list):
+                    raise ValueError("'selected_columns' must be a list")
+                for sc in value:
+                    if not isinstance(sc, str):
+                        raise ValueError("'selected_columns' must be a list of strings")
         return options
 
     @staticmethod

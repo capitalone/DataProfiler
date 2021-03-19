@@ -141,7 +141,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         ordered_vocab = []
         sorted_keys = sorted(vocab, key=vocab.get, reverse=True)
         for c in sorted_keys:
-            ordered_vocab.append(c)
+            if c not in preferred:
+                ordered_vocab.append(c)
 
         # Attempt to identify the quote character
         if not quotechar:            
@@ -248,7 +249,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         for proposed_delim in validated_proposed_delimiters.keys():
             weighted_delim_count = validated_proposed_delimiters[proposed_delim]
             if proposed_delim in preferred:
-                weighted_delim_count = 5*validated_proposed_delimiters[proposed_delim]
+                weighted_delim_count = 3*validated_proposed_delimiters[proposed_delim]
             if weighted_delim_count > largest_delim_count:
                 delimiter = proposed_delim
                 largest_delim_count = weighted_delim_count

@@ -1,9 +1,12 @@
 import re
 import csv
+import re
 from itertools import islice
 from six import StringIO
+
 import random
 import dateutil
+from collections import Counter
 
 import numpy as np
 
@@ -128,12 +131,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         """
 
         # Detect vocabulary (and count)
-        vocab = {}
-        for i in range(len(data_as_str)):
-            c = data_as_str[i]
-            if c not in vocab:
-                vocab[c] = 0
-            vocab[c] += 1
+        vocab = Counter(data_as_str)
         if '\n' in vocab: vocab.pop('\n')
         for char in omitted+[quotechar]:
             if char in vocab:
@@ -145,28 +143,37 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         for c in sorted_keys:
             ordered_vocab.append(c)
 
-        if not quotechar:
+        # Attempt to identify the quote character
+        if not quotechar:            
             sniffer = csv.Sniffer()
             sniffer.preferred = preferred
             try:
+                # NOTE: Pull the first element, the quote character
                 quotechar = sniffer._guess_quote_and_delimiter(
                     data_as_str, ordered_vocab[:20])[0]
             except csv.Error as exc:
                 quotechar = None
             if not quotechar or len(quotechar) == 0:
                 quotechar = '"'
+
+        # Regex used to remove sections within quotes
+        quotechar_regex = "["+re.escape(quotechar)+"].*["+re.escape(quotechar)+"]"
                 
         # Evaluate vocab, reviewing rows and columns
         delimiter = None
         validated_proposed_delimiters = {}
-        for proposed_delim in ordered_vocab[:20]:
+        for proposed_delim in preferred+ordered_vocab[:20]:
 
             col_types = {}
+            max_col_count = 0
             prior_col_count = None
+
+            valid_delim_flag = False
             incorrect_delimiter_flag = False
             cell_type_safe_flag = True
             row_end_safe_flag = False
             row_start_safe_flag = False
+            
             proposed_delim_type = data_utils.detect_cell_type(proposed_delim)
         
             # If large dataset, select first 25 rows then random sampling
@@ -179,17 +186,29 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             # Reverse to start at bottom where likely the most columns
             # Fewer columns are okay, as long as earlier in file
             for row_idx in range(len(proposed_dataset)-1, -1, -1):
-                row = proposed_dataset[row_idx]
-                proposed_cells = list(csv.reader(
-                    [row], delimiter=proposed_delim, quotechar=quotechar))[0]
 
-                # Ensure equal number of cells 
-                if not prior_col_count:
+                proposed_cells = list(csv.reader(
+                    [re.sub(quotechar_regex, "", proposed_dataset[row_idx])],
+                    delimiter=proposed_delim, quotechar=quotechar))[0]
+
+                # Skip - extra split from "\n" with no data 
+                if len(proposed_cells)==0 and row_idx==len(proposed_dataset)-1:
+                    continue
+
+                # Keep track of largest number of col's
+                if not max_col_count:
+                    max_col_count = len(proposed_cells)
                     prior_col_count = len(proposed_cells)
 
                 # Ensure rows have same number of cols, if more than one col
                 if len(proposed_cells) != prior_col_count and len(proposed_cells) > 1:
                     incorrect_delimiter_flag = True
+
+                # Ensure there's more than one cell, if there's a delim
+                if len(proposed_cells) > 1:
+                    valid_delim_flag = True
+
+                prior_col_count = len(proposed_cells)
 
                 prior_cell_type = None # Checks for int/alpha values and delims     
                 for col_id in range(len(proposed_cells)):
@@ -212,21 +231,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     if proposed_delim_type == 'int' and cell_type=='int':
                         cell_type_safe_flag = False
 
-                    # Handle if start or end is always none
-                    if cell_type != 'none':
-                        if col_id == len(proposed_cells)-1:
-                            row_end_safe_flag = True
-                        if col_id == 0:
-                            row_start_safe_flag = True
-                            
                     prior_cell_type = cell_type
                     
-            edge_safe_flag = row_end_safe_flag or row_start_safe_flag
-            
-            if not incorrect_delimiter_flag and cell_type_safe_flag and edge_safe_flag:
-                validated_proposed_delimiters[proposed_delim] = prior_col_count
-                if prior_col_count \
-                   and prior_col_count > validated_proposed_delimiters[proposed_delim]:
+            if not incorrect_delimiter_flag and cell_type_safe_flag and valid_delim_flag:
+                validated_proposed_delimiters[proposed_delim] = max_col_count
+                if max_col_count \
+                   and max_col_count > validated_proposed_delimiters[proposed_delim]:
                     delimiter = proposed_delim
 
         # Use preferred delimiters with highest count, if possible
@@ -234,7 +244,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         for proposed_delim in validated_proposed_delimiters.keys():
             weighted_delim_count = validated_proposed_delimiters[proposed_delim]
             if proposed_delim in preferred:
-                weighted_delim_count = 5 * validated_proposed_delimiters[proposed_delim]
+                weighted_delim_count = 2*validated_proposed_delimiters[proposed_delim]
             if weighted_delim_count > largest_delim_count:
                 delimiter = proposed_delim
                 largest_delim_count = weighted_delim_count

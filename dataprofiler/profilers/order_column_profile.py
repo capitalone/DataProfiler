@@ -1,4 +1,5 @@
 from . import BaseColumnProfiler
+from .profiler_options import OrderOptions
 
 
 class OrderColumn(BaseColumnProfiler):
@@ -17,13 +18,14 @@ class OrderColumn(BaseColumnProfiler):
         :param options: Options for the Order column
         :type options: OrderOptions
         """
+        if options and not isinstance(options, OrderOptions):
+            raise ValueError("OrderColumn parameter 'options' must be of type"
+                             " OrderOptions.")
         self.order = None
         self._last_value = None
         self._first_value = None
         self._piecewise = False
-        self.__calculations = {
-            "is_enabled": OrderColumn._update_order
-        }
+        self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
         super(OrderColumn, self).__init__(name)
 
@@ -221,6 +223,9 @@ class OrderColumn(BaseColumnProfiler):
         merged_profile._piecewise = piecewise
 
         BaseColumnProfiler._add_helper(merged_profile, self, other)
+        self._merge_calculations(merged_profile.__calculations,
+                                 self.__calculations,
+                                 other.__calculations)
         return merged_profile
 
     @property
@@ -325,6 +330,7 @@ class OrderColumn(BaseColumnProfiler):
             return
 
         profile = dict(sample_size=len(df_series))
+        OrderColumn._update_order(self, df_series=df_series)
         BaseColumnProfiler._perform_property_calcs(
             self, self.__calculations, df_series=df_series,
             prev_dependent_properties={}, subset_properties=profile)

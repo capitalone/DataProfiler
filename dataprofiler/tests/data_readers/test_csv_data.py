@@ -201,9 +201,7 @@ class TestCSVDataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             input_data_obj = Data(input_file['path'])
-            print(input_data_obj.data_type, input_data_obj.delimiter, input_file['path'])
             input_data_obj.reload(input_file['path'])
-            print(input_data_obj.data_type, input_data_obj.delimiter, input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
             self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
                              input_file['path'])

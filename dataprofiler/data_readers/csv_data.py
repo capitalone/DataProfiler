@@ -77,10 +77,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
         if data is not None:
             self._load_data(data)
-            if self._delimiter is None:
+            if not self._delimiter:
                 self._delimiter = self._default_delimiter
-            if self._quotechar is None:
-                self._delimiter = self._default_quotechar
+            if not self._quotechar:
+                self._quotechar = self._default_quotechar
 
     @property
     def selected_columns(self):
@@ -443,13 +443,13 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     def _load_data_from_str(self, data_as_str):
         """Loads the data into memory from the str."""
         delimiter, quotechar = None, None
-        if self._delimiter is None or self._quotechar is None:
+        if not self._delimiter or not self._quotechar:
             delimiter, quotechar = self._guess_delimiter_and_quotechar(data_as_str)
-        if self._delimiter is None:
+        if not self._delimiter:
             self._delimiter = delimiter
-        if self._quotechar is None:
+        if not self._quotechar:
             self._quotechar = quotechar
-        
+
         data_buffered = StringIO(data_as_str)
         if self._header == 'auto':
             self._header = self._guess_header_row(
@@ -470,13 +470,13 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 data_as_str = ''.join(check_lines)
                 
             delimiter, quotechar = None, None
-            if self._delimiter is None or self._quotechar is None:
+            if not self._delimiter or not self._quotechar:
                 delimiter, quotechar = self._guess_delimiter_and_quotechar(data_as_str)
-            if self._delimiter is None:
+            if not self._delimiter:
                 self._delimiter = delimiter
-            if self._quotechar is None:
+            if not self._quotechar:
                 self._quotechar = quotechar
-                    
+                
             if self._header == 'auto':
                 self._header = self._guess_header_row(
                     data_as_str, self._delimiter, self._quotechar)
@@ -616,7 +616,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # Infered the file was a CSV
         if ((max_count_value > 0 or delimiter is None)
                 and (max_count_percent >= min_consistency_percent)):
-            options.update(delimiter=delimiter)
+            options.update(delimiter=delimiter, quotechar=quotechar)
             return True
 
         # Assume not a CSV
@@ -640,7 +640,5 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         options.update(
             header=self.header, delimiter=self.delimiter, quotechar=self.quotechar
         )
-        print(options)
-        print(self.options)
         super(CSVData, self).reload(input_file_path, data, options)
         self.__init__(input_file_path, data, options)

@@ -443,7 +443,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     def _load_data_from_str(self, data_as_str):
         """Loads the data into memory from the str."""
         delimiter, quotechar = None, None
-        if not self._delimiter or self._quotechar:
+        if self._delimiter is None or self._quotechar is None:
             delimiter, quotechar = self._guess_delimiter_and_quotechar(data_as_str)
         if self._delimiter is None:
             self._delimiter = delimiter
@@ -470,12 +470,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 data_as_str = ''.join(check_lines)
                 
             delimiter, quotechar = None, None
-            if not self._delimiter or self._quotechar:
+            if self._delimiter is None or self._quotechar is None:
                 delimiter, quotechar = self._guess_delimiter_and_quotechar(data_as_str)
-                if self._delimiter is None:
-                    self._delimiter = delimiter
-                if self._quotechar is None:
-                    self._quotechar = quotechar
+            if self._delimiter is None:
+                self._delimiter = delimiter
+            if self._quotechar is None:
+                self._quotechar = quotechar
                     
             if self._header == 'auto':
                 self._header = self._guess_header_row(

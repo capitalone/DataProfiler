@@ -1,6 +1,7 @@
 from dataprofiler.profilers.profiler_options import BaseColumnOptions
 from dataprofiler.tests.profilers.test_boolean_option import TestBooleanOption
 
+
 class TestBaseColumnOptions(TestBooleanOption):
     
     option_class = BaseColumnOptions

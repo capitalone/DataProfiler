@@ -1,6 +1,7 @@
 from dataprofiler.profilers.profiler_options import FloatOptions
 from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOptions
 
+
 class TestFloatOptions(TestNumericalOptions):
     
     option_class = FloatOptions    

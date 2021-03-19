@@ -1,5 +1,6 @@
 from dataprofiler.profilers.profiler_options import BaseOption
 
+
 class AbstractTestOptions():
     
     option_class = None

@@ -1,6 +1,7 @@
 from dataprofiler.profilers.profiler_options import TextOptions
 from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOptions
 
+
 class TestTextOptions(TestNumericalOptions):
     
     option_class = TextOptions

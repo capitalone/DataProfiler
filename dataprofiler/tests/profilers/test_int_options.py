@@ -1,6 +1,7 @@
 from dataprofiler.profilers.profiler_options import IntOptions
 from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOptions
 
+
 class TestIntOptions(TestNumericalOptions):
     
     option_class = IntOptions

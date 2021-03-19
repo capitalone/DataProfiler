@@ -3,11 +3,12 @@ from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOpt
 
 class TestTextOptions(TestNumericalOptions):
     
+    option_class = TextOptions
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.keys += ["vocab"]
-        cls.option_class = TextOptions
 
     def test_init(self, *mocks):
         super().test_init(*mocks)

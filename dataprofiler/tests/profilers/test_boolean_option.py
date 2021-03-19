@@ -3,9 +3,10 @@ from dataprofiler.tests.profilers.test_base_option import TestBaseOption
 
 class TestBooleanOption(TestBaseOption):
     
+    option_class = BooleanOption
+    
     @classmethod
     def setUpClass(cls):
-        cls.option_class = BooleanOption    
         cls.keys = []        
 
     def test_init(self, *mocks):

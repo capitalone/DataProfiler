@@ -3,11 +3,8 @@ from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOpt
 
 class TestIntOptions(TestNumericalOptions):
     
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.option_class = IntOptions
-    
+    option_class = IntOptions
+
     def test_init(self, *mocks):
         super().test_init(*mocks)
     

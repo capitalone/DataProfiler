@@ -3,11 +3,12 @@ from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumn
 
 class TestNumericalOptions(TestBaseColumnOptions):
     
+    option_class = NumericalOptions
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.keys += ["min", "max", "sum", "variance", "histogram_and_quantiles"]
-        cls.option_class = NumericalOptions
     
     def test_init(self, *mocks):
         options = self.get_options()

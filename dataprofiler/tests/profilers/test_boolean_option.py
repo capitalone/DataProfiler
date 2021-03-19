@@ -1,10 +1,3 @@
-import os
-import unittest
-from unittest import mock
-
-import pandas as pd
-
-from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import BooleanOption
 from dataprofiler.tests.profilers.test_base_option import TestBaseOption
 
@@ -80,6 +73,7 @@ class TestBooleanOption(TestBaseOption):
         expected_error = "{}.is_enabled must be a Boolean.".format(optpth)
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate(raise_error=True)
+
         expected_error = [expected_error]
         expected_error += ["{}.{}.is_enabled must be a Boolean.".format(optpth, key) 
             for key in self.keys]

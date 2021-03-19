@@ -1,10 +1,3 @@
-import os
-import unittest
-from unittest import mock
-
-import pandas as pd
-
-from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import BaseColumnOptions
 from dataprofiler.tests.profilers.test_boolean_option import TestBooleanOption
 
@@ -17,9 +10,9 @@ class TestBaseColumnOptions(TestBooleanOption):
         cls.keys = []
 
     @classmethod
-    def get_options(self, *args, **params):
-        self.validate_option_class()
-        options = self.option_class()
+    def get_options(cls, *args, **params):
+        cls.validate_option_class()
+        options = cls.option_class()
         options.set(params)
         return options
             

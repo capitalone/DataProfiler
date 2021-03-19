@@ -4,12 +4,8 @@ from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumn
 class TestNumericalOptions(TestBaseColumnOptions):
     
     option_class = NumericalOptions
+    keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.keys += ["min", "max", "sum", "variance", "histogram_and_quantiles"]
-    
     def test_init(self, *mocks):
         options = self.get_options()
         for key in self.keys + ['is_numeric_stats_enabled', 'is_enabled']:

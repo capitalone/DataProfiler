@@ -4,11 +4,8 @@ from dataprofiler.tests.profilers.test_base_option import TestBaseOption
 class TestBooleanOption(TestBaseOption):
     
     option_class = BooleanOption
+    keys = []
     
-    @classmethod
-    def setUpClass(cls):
-        cls.keys = []        
-
     def test_init(self, *mocks):
         option = self.get_options()
         self.assertDictEqual({"is_enabled": True}, option.properties)

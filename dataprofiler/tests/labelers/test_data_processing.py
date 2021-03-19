@@ -5,6 +5,7 @@ import random
 import pkg_resources
 import json
 from io import StringIO
+import warnings
 
 import numpy as np
 
@@ -671,6 +672,22 @@ class TestCharPreprocessor(unittest.TestCase):
             self.assertIsInstance(output, tuple)
             self.assertTrue((expected[0] == output[0]).all())
             self.assertTrue((expected[1] == output[1]).all())
+
+    def test_process_input_checks(self):
+        prep = CharPreprocessor()
+        prep.process(np.array([1, 2, 3]))
+        with self.assertRaisesRegex(ValueError, "Multidimensional data given to"
+                                                " CharPreprocessor. Consider "
+                                                "using a different preprocessor"
+                                                " or flattening data "
+                                                "(and labels)"):
+            prep.process(np.array([["this", "is"], ["two", "dimensions"]]))
+        with self.assertRaisesRegex(ValueError, "Data and labels given to "
+                                                "CharPreprocessor are different"
+                                                " lengths, 2 != 1"):
+            prep.process(np.array(["two", "strings"]),
+                         np.array([[(0, 1, "BACKGROUND")]], dtype="object"),
+                         {"BACKGROUND": 1})
 
 
 class TestCharPostprocessor(unittest.TestCase):
@@ -1608,6 +1625,24 @@ class TestStructCharPreprocessor(unittest.TestCase):
             self.assertIsInstance(output, tuple)
             self.assertTrue((expected[0] == output[0]).all())
             self.assertTrue((expected[1] == output[1]).all())
+
+    def test_process_input_checks(self):
+        prep = StructCharPreprocessor()
+        with self.assertRaisesRegex(ValueError, "Data and labels given to "
+                                                "StructCharPreprocessor are of "
+                                                "different shapes, "
+                                                "(2, 1) != (1, 2)"):
+            prep.process(np.array([["hello"], ["world"]]),
+                         np.array([["BACKGROUND", "BACKGROUND"]]),
+                         {"BACKGROUND": 1})
+        with self.assertWarnsRegex(Warning, "Data given to "
+                                            "StructCharPreprocessor was "
+                                            "multidimensional, it will be "
+                                            "flattened for model processing. "
+                                            "Results may be inaccurate, "
+                                            "consider reformatting data or "
+                                            "changing preprocessor."):
+            prep.process(np.array([["this", "is"], ["two", "dimensions"]]))
 
 
 class TestStructCharPostprocessor(unittest.TestCase):

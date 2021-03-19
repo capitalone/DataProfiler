@@ -1167,15 +1167,15 @@ class StructCharPreprocessor(CharPreprocessor,
                 raise ValueError('If `labels` are specified, `label_mapping` '
                                  'must also be specified.')
             if data.shape != labels.shape:
-                raise ValueError(f"Data and labels given to CharPreprocessor "
-                                 f"are of different shapes, "
-                                 f"{data.shape} != {labels.shape}")
+                raise ValueError(f"Data and labels given to "
+                                 f"StructCharPreprocessor are of different "
+                                 f"shapes, {data.shape} != {labels.shape}")
 
         num_dim = sum([dim > 1 for dim in data.shape])
         if num_dim > 1:
             warnings.warn("Data given to StructCharPreprocessor was "
-                          "multidimensional, it will be flattened for model"
-                          "processing. Results may be inaccurate, consider"
+                          "multidimensional, it will be flattened for model "
+                          "processing. Results may be inaccurate, consider "
                           "reformatting data or changing preprocessor.")
         # Flatted data and labels, confirmed to be same shape
         data = data.reshape(-1)

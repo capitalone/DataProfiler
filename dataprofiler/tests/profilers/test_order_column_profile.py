@@ -319,3 +319,9 @@ class TestOrderColumn(unittest.TestCase):
         # Assert that the update wasn't called again
         profiler.update(data)
         mock_get_data_order.assert_called_once()
+        
+    def test_order_column_with_wrong_options(self):
+        with self.assertRaisesRegex(ValueError,
+                                   "OrderColumn parameter 'options' must be of"
+                                   " type OrderOptions."):
+            profiler = OrderColumn("Order", options="wrong_data_type")

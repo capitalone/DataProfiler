@@ -14,6 +14,7 @@ from . import utils
 from .. import test_utils
 
 from dataprofiler.profilers import DateTimeColumn
+from dataprofiler.profilers.profiler_options import DateTimeOptions
 
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
@@ -342,3 +343,9 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
                          "Unsupported operand type(s) for +: "
                          "'DateTimeColumn' and '{}'"
                          .format(profile2.__class__.__name__))
+
+    def test_datetime_column_with_wrong_options(self):
+        with self.assertRaisesRegex(ValueError,
+                                   "DateTimeColumn parameter 'options' must be"
+                                   " of type DateTimeOptions."):
+            profiler = DateTimeColumn("Datetime", options="wrong_data_type")

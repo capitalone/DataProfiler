@@ -348,36 +348,6 @@ class TestDataLabeler(unittest.TestCase):
                 isinstance(data, pd.DataFrame)
             )
 
-    def test_convert_labels_to_encodings(self, *mocks):
-
-        # test label list to label_mapping
-        labels = ['a', 'b', 'd', 'c']
-        label_mapping = UnstructuredDataLabeler._convert_labels_to_encodings(
-            labels, requires_zero_mapping=True)
-        self.assertDictEqual(dict(a=1, b=2, d=3, c=4), label_mapping)
-
-        # test label dict to label_mapping
-        labels = dict(a=1, b=2, d=3, c=4)
-        label_mapping = UnstructuredDataLabeler._convert_labels_to_encodings(
-            labels, requires_zero_mapping=True)
-        self.assertDictEqual(dict(a=1, b=2, d=3, c=4), label_mapping)
-
-        # test raise error if not list or dict
-        labels = 'failure string'
-        with self.assertRaisesRegex(TypeError, "Labels must be an encoding "
-                                               "dict or a list.") as e:
-            label_mapping = UnstructuredDataLabeler.\
-                _convert_labels_to_encodings(
-                    labels, requires_zero_mapping=True)
-
-        # test raise error if not list or dict
-        labels = 1
-        with self.assertRaisesRegex(TypeError, "Labels must be an encoding "
-                                               "dict or a list."):
-            label_mapping = UnstructuredDataLabeler.\
-                _convert_labels_to_encodings(
-                    labels, requires_zero_mapping=True)
-
     def test_set_params(self, mock_open, mock_load_model, mock_base_processor):
 
         self._setup_mock_load_model(mock_load_model)
@@ -470,27 +440,13 @@ class TestDataLabeler(unittest.TestCase):
         labels = ['a', 'b', 'd', 'c']
         data_labeler.set_labels(labels)
         mock_load_model.return_value.set_label_mapping.assert_called_with(
-            label_mapping=dict(a=1, b=2, d=3, c=4))
+            label_mapping= ['a', 'b', 'd', 'c'])
 
         # test label dict to label_mapping
         labels = dict(b=1, c=2, d=3, e=4)
         data_labeler.set_labels(labels)
         mock_load_model.return_value.set_label_mapping.assert_called_with(
             label_mapping=dict(b=1, c=2, d=3, e=4))
-
-        # test raise error if not list or dict
-        labels = 'failure string'
-        with self.assertRaisesRegex(TypeError,
-                                    "Labels must be an encoding dict or a "
-                                    "list."):
-            data_labeler.set_labels(labels)
-
-        # test raise error if not list or dict
-        labels = 1
-        with self.assertRaisesRegex(TypeError,
-                                    "Labels must be an encoding dict or a "
-                                    "list."):
-            data_labeler.set_labels(labels)
 
     def test_set_model(self, mock_open, mock_load_model, mock_load_processor,
                        *mocks):
@@ -695,7 +651,7 @@ class TestDataLabeler(unittest.TestCase):
             x=samples, y=labels, labels=['new', 'labels'])
         self.assertEqual(2, data_labeler.preprocessor.process.call_count)
         data_labeler._model.set_label_mapping.assert_called_with(
-            label_mapping=dict(new=1, labels=2))
+            label_mapping=['new', 'labels'])
         data_labeler._model.reset_weights.assert_not_called()
         self.assertEqual(1, data_labeler._model.fit.call_count)
         self.assertEqual(1, len(output))

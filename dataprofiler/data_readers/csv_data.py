@@ -73,11 +73,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         self._header = options.get("header", 'auto')
         self._checked_header = "header" in options
         self._default_delimiter = ','
+        self._default_quotechar = '"'
 
         if data is not None:
             self._load_data(data)
-            if not self._delimiter:
+            if self._delimiter is None:
                 self._delimiter = self._default_delimiter
+            if self._quotechar is None:
+                self._delimiter = self._default_quotechar
 
     @property
     def selected_columns(self):
@@ -86,6 +89,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     @property
     def delimiter(self):
         return self._delimiter
+
+    @property
+    def quotechar(self):
+        return self._quotechar
 
     @property
     def header(self):
@@ -289,13 +296,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         quotechar = suggested_quotechar
         if not quotechar or len(quotechar) == 0:
             quotechar = '"'
-            
+
         # Determine type for every cell
         header_check_list = []
         only_string_flag = True # Requires additional checks
         for row in data_as_str.split('\n'):
             row_list = list(csv.reader(
                 [row], delimiter=delimiter, quotechar=quotechar))[0]
+            
             header_check_list.append([])
 
             for i in range(len(row_list)):
@@ -434,12 +442,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     def _load_data_from_str(self, data_as_str):
         """Loads the data into memory from the str."""
-        quotechar = None
-        if not self._delimiter:
-            self._delimiter, quotechar = self._guess_delimiter_and_quotechar(
-                data_as_str)
-        if not self._quotechar:
+        delimiter, quotechar = None, None
+        if not self._delimiter or self._quotechar:
+            delimiter, quotechar = self._guess_delimiter_and_quotechar(data_as_str)
+        if self._delimiter is None:
+            self._delimiter = delimiter
+        if self._quotechar is None:
             self._quotechar = quotechar
+        
         data_buffered = StringIO(data_as_str)
         if self._header == 'auto':
             self._header = self._guess_header_row(
@@ -458,12 +468,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 num_lines = 5
                 check_lines = list(islice(csvfile, num_lines))
                 data_as_str = ''.join(check_lines)
-            quotechar = None
-            if not self._delimiter:
-                self._delimiter, quotechar = self._guess_delimiter_and_quotechar(
-                    data_as_str)
-            if not self._quotechar:
-               self._quotechar = quotechar
+                
+            delimiter, quotechar = None, None
+            if not self._delimiter or self._quotechar:
+                delimiter, quotechar = self._guess_delimiter_and_quotechar(data_as_str)
+                if self._delimiter is None:
+                    self._delimiter = delimiter
+                if self._quotechar is None:
+                    self._quotechar = quotechar
+                    
             if self._header == 'auto':
                 self._header = self._guess_header_row(
                     data_as_str, self._delimiter, self._quotechar)
@@ -492,7 +505,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     def _get_data_as_records(self, data):
         sep = self.delimiter if self.delimiter else self._default_delimiter
-        data = data.to_csv(sep=sep, index=False)
+        quote = self.quotechar if self.quotechar else self._default_quotechar
+        data = data.to_csv(sep=sep, quotechar=quote, index=False)
         data = data.splitlines()
         return super(CSVData, self)._get_data_as_records(data)
 
@@ -623,6 +637,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         """
         if not options:
             options = dict()
-        options.update(delimiter=self.delimiter)
+        options.update(
+            header=self.header, delimiter=self.delimiter, quotechar=self.quotechar
+        )
+        print(options)
+        print(self.options)
         super(CSVData, self).reload(input_file_path, data, options)
         self.__init__(input_file_path, data, options)

@@ -355,15 +355,16 @@ def get_delimiter_regex(delimiter=",", quotechar=","):
     if quotechar is None:
         quotechar = '"'
 
-    delimiter_regex = re.escape(str(delimiter))    
+    delimiter_regex = re.escape(str(delimiter))
+    quotechar_escape= re.escape(quotechar)
     quotechar_regex = "(?=" 
     quotechar_regex +=  "(?:"
-    quotechar_regex +=    "[^"+re.escape(quotechar)+"]*"
-    quotechar_regex +=    re.escape(quotechar)
-    quotechar_regex +=    "[^"+re.escape(quotechar)+"]*"
-    quotechar_regex +=    re.escape(quotechar)
+    quotechar_regex +=    "[^"+quotechar_escape+"]*"
+    quotechar_regex +=    quotechar_escape
+    quotechar_regex +=    "[^"+quotechar_escape+"]*"
+    quotechar_regex +=    quotechar_escape
     quotechar_regex +=   ")*"
-    quotechar_regex +=   "[^"+re.escape(quotechar)+"]*"
+    quotechar_regex +=   "[^"+quotechar_escape+"]*"
     quotechar_regex += "$)"
 
     return re.compile(delimiter_regex + quotechar_regex)

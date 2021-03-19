@@ -203,6 +203,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 # Ensure rows have same number of cols, if more than one col
                 if len(proposed_cells) != prior_col_count and len(proposed_cells) > 1:
                     incorrect_delimiter_flag = True
+                    break
 
                 # Ensure there's more than one cell, if there's a delim
                 if len(proposed_cells) > 1:
@@ -222,14 +223,17 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     if cell_type in ['str', 'none'] \
                        and prior_cell_type in ['str', 'none']:
                         if proposed_delim.isalpha():
-                            cell_type_safe_flag = False                            
+                            cell_type_safe_flag = False
+                            break
                         if proposed_delim == ' ' and 2 >= len(proposed_cells):
                             cell_type_safe_flag = False
+                            break
                             
                     # Handle if integer characters are seperators
                     # NOTE: delimiter need one adjoining cell to flag
                     if proposed_delim_type == 'int' and cell_type=='int':
                         cell_type_safe_flag = False
+                        break
 
                     prior_cell_type = cell_type
                     

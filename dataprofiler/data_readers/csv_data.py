@@ -251,8 +251,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 delimiter = proposed_delim
                 largest_delim_count = weighted_delim_count
 
-        print(delimiter, quotechar)
-                
         return delimiter, quotechar
             
 
@@ -573,10 +571,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
                 if line_count >= max_line_count:
                     break
-
-
-        #print(file_path.split("/")[-1], delimiter, quotechar)
-        #print("line count", line_count, min_line_count, delimiter, quotechar)
         
         if line_count <= min_line_count:
             return False

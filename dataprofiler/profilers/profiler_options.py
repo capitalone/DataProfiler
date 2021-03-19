@@ -106,7 +106,8 @@ class BaseOption(object):
         errors = self._validate_helper()
         if raise_error and errors:
             raise ValueError('\n'.join(errors))
-        return errors
+        elif errors: 
+            return errors
 
 
 class BooleanOption(BaseOption):
@@ -157,9 +158,6 @@ class BaseColumnOptions(BooleanOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        if not isinstance(variable_path, str):
-            raise ValueError("The variable path must be a string.")
-
         return super()._validate_helper(variable_path) 
 
     def is_prop_enabled(self, prop):
@@ -325,9 +323,6 @@ class IntOptions(NumericalOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        if not isinstance(variable_path, str):
-            raise ValueError("The variable path must be a string.")
-
         return super()._validate_helper(variable_path) 
 
 class FloatOptions(NumericalOptions):
@@ -366,9 +361,6 @@ class FloatOptions(NumericalOptions):
         :return: list of errors (if raise_error is false)
         :rtype: List of strings
         """
-        if not isinstance(variable_path, str):
-            raise ValueError("The variable path must be a string.")
-
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.precision, BooleanOption):
             errors.append("{}.precision must be a BooleanOption."
@@ -413,9 +405,6 @@ class TextOptions(NumericalOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        if not isinstance(variable_path, str):
-            raise ValueError("The variable path must be a string.")
-
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.vocab, BooleanOption):
             errors.append("{}.vocab must be a BooleanOption."
@@ -443,9 +432,6 @@ class DateTimeOptions(BaseColumnOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        if not isinstance(variable_path, str):
-            raise ValueError("The variable path must be a string.")
-
         return super()._validate_helper(variable_path) 
 
 
@@ -468,9 +454,6 @@ class OrderOptions(BaseColumnOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        if not isinstance(variable_path, str):
-            raise ValueError("The variable path must be a string.")
-
         return super()._validate_helper(variable_path) 
 
 class CategoricalOptions(BaseColumnOptions):
@@ -492,9 +475,6 @@ class CategoricalOptions(BaseColumnOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        if not isinstance(variable_path, str):
-            raise ValueError("The variable path must be a string.")
-
         return super()._validate_helper(variable_path) 
 
 class DataLabelerOptions(BaseColumnOptions):
@@ -522,9 +502,6 @@ class DataLabelerOptions(BaseColumnOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        if not isinstance(variable_path, str):
-            raise ValueError("The variable path must be a string.")
-
         errors = super()._validate_helper(variable_path=variable_path)
         if self.data_labeler_dirpath != None and \
                 not isinstance(self.data_labeler_dirpath, str):

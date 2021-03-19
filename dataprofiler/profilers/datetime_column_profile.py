@@ -6,6 +6,7 @@ import pandas as pd
 
 from .base_column_profilers import BaseColumnProfiler, \
     BaseColumnPrimitiveTypeProfiler
+from .profiler_options import DateTimeOptions
 
 
 class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
@@ -44,7 +45,9 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :param options: Options for the datetime column
         :type options: DateTimeOptions
         """
-        self.options = options
+        if options and not isinstance(options, DateTimeOptions):
+            raise ValueError("DateTimeColumn parameter 'options' must be of "
+                             "type DateTimeOptions.")
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.date_formats = []
         self.min = None
@@ -52,7 +55,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         self._dt_obj_min = None  # datetime obj of min
         self._dt_obj_max = None  # datetime obj of max
 
-        self.__calculations = {'is_enabled': DateTimeColumn._update_datetime}
+        self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
 
     def __add__(self, other):
@@ -69,7 +72,9 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
 
         merged_profile = DateTimeColumn(name=None)
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
-
+        self._merge_calculations(merged_profile.__calculations,
+                                 self.__calculations,
+                                 other.__calculations)
         if other._dt_obj_min is None or self._dt_obj_min < other._dt_obj_min:
             merged_profile.min = self.min
             merged_profile._dt_obj_min = self._dt_obj_min
@@ -315,6 +320,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         df_series = df_series.reset_index(drop=True)
         profile = {"sample_size": len(df_series), "match_count": 0}
         if self._is_subset_datetime_column(df_series):
+            self._update_datetime(df_series, {}, profile)
             super(DateTimeColumn, self)._perform_property_calcs(
                 self.__calculations,
                 df_series=df_series,

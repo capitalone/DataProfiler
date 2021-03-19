@@ -1,4 +1,5 @@
 from . import BaseColumnProfiler
+from .profiler_options import CategoricalOptions
 
 
 class CategoricalColumn(BaseColumnProfiler):
@@ -23,13 +24,12 @@ class CategoricalColumn(BaseColumnProfiler):
         :param name: Name of data
         :type name: String
         """
-
-        self.options = options
+        if options and not isinstance(options, CategoricalOptions):
+            raise ValueError("CategoricalColumn parameter 'options' must be of"
+                             " type CategoricalOptions.")
         super(CategoricalColumn, self).__init__(name)
         self._categories = list()
-        self.__calculations = {
-            "is_enabled": CategoricalColumn._update_categories
-        }
+        self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
 
     def __add__(self, other):
@@ -51,6 +51,9 @@ class CategoricalColumn(BaseColumnProfiler):
         merged_profile._categories = self._categories.copy()
         merged_profile._update_categories(other._categories)
         BaseColumnProfiler._add_helper(merged_profile, self, other)
+        self._merge_calculations(merged_profile.__calculations,
+                                 self.__calculations,
+                                 other.__calculations)
         return merged_profile
 
     @property
@@ -150,7 +153,7 @@ class CategoricalColumn(BaseColumnProfiler):
         profile = dict(
             sample_size=len(df_series)
         )
-
+        CategoricalColumn._update_categories(self, df_series)
         BaseColumnProfiler._perform_property_calcs(
             self, self.__calculations, df_series=df_series,
             prev_dependent_properties={}, subset_properties=profile)

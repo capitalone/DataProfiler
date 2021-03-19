@@ -2,6 +2,7 @@ import unittest
 import os
 from collections import defaultdict
 from unittest import mock
+import warnings
 
 import pandas as pd
 import numpy as np
@@ -54,25 +55,20 @@ class TestFloatColumn(unittest.TestCase):
         df_3 = pd.Series([4.114, 3.161, 2.512, 2.131]).apply(str)
         df_mix = pd.Series([4.1, 3., 2.52, 2.13143]).apply(str)
 
-        float_profiler = FloatColumn(df_1.name)
-        float_profiler.update(df_1)
-        self.assertEqual(1, float_profiler.precision)
-
-        float_profiler.update(df_2)
-        self.assertEqual(2, float_profiler.precision)
-
+        float_profiler = FloatColumn("Name")
         float_profiler.update(df_3)
         self.assertEqual(3, float_profiler.precision)
 
         float_profiler.update(df_2)
-        self.assertEqual(3, float_profiler.precision)
+        self.assertEqual(2, float_profiler.precision)
 
-        float_profiler.update(df_mix)
-        self.assertEqual(5, float_profiler.precision)
+        float_profiler.update(df_1)
+        self.assertEqual(1, float_profiler.precision)
 
-        float_profiler = FloatColumn(df_mix.name)
+        float_profiler = FloatColumn("Name")
         float_profiler.update(df_mix)
-        self.assertEqual(5, float_profiler.precision)
+        self.assertEqual(1, float_profiler.precision)
+
 
     def test_profiled_min(self):
         # test with multiple values
@@ -711,3 +707,53 @@ class TestFloatColumn(unittest.TestCase):
                                     'Profiles have no overlapping bin methods '
                                     'and therefore cannot be added together.'):
             profiler1 + profiler2
+
+    def test_profile_merge_with_different_options(self):
+        # Creating first profiler with default options
+        options = FloatOptions()
+        options.max.is_enabled = False
+        options.min.is_enabled = False
+
+        data = [2, 4, 6, 8]
+        df = pd.Series(data).apply(str)
+        profiler1 = FloatColumn("Float", options=options)
+        profiler1.update(df)
+
+        # Creating second profiler with separate options
+        options = FloatOptions()
+        options.min.is_enabled = False
+        options.precision.is_enabled = False
+        data2 = [10, 15]
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = FloatColumn("Float", options=options)
+        profiler2.update(df2)
+
+        # Asserting warning when adding 2 profilers with different options
+        with warnings.catch_warnings(record=True) as w:
+            profiler3 = profiler1 + profiler2
+            list_of_warning_messages = []
+            for warning in w:
+                list_of_warning_messages.append(str(warning.message))
+
+            warning1 = "precision is disabled because it is not enabled in both" \
+                       " profiles."
+            warning2 = "max is disabled because it is not enabled in both " \
+                       "profiles."
+            self.assertIn(warning1, list_of_warning_messages)
+            self.assertIn(warning2, list_of_warning_messages)
+
+        # Assert that these features are still merged
+        self.assertEqual("rice", profiler3.histogram_selection)
+        self.assertEqual(21.5, profiler3.variance)
+        self.assertEqual(45.0, profiler3.sum)
+
+        # Assert that these features are not calculated
+        self.assertIsNone(profiler3.max)
+        self.assertIsNone(profiler3.min)
+        self.assertEqual(0, profiler3.precision)
+
+    def test_float_column_with_wrong_options(self):
+        with self.assertRaisesRegex(ValueError,
+                                   "FloatColumn parameter 'options' must be of"
+                                   " type FloatOptions."):
+            profiler = FloatColumn("Float", options="wrong_data_type") 

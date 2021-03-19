@@ -1,1 +1,1 @@
-{"max_length": 3400, "default_label": "BACKGROUND", "pad_label":  "PAD", "flatten_split": 0, "flatten_separator": " ", "is_separate_at_max_len": true}
+{"max_length": 3400, "pad_label": "PAD", "default_label": "BACKGROUND", "flatten_split": 0, "flatten_separator": " ", "is_separate_at_max_len": true}

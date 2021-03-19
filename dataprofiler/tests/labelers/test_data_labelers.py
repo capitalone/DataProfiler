@@ -313,13 +313,13 @@ class TestLoadedDataLabeler(unittest.TestCase):
         data_labeler._model.requires_zero_mapping = True
         data_labeler.set_labels(['a', 'b'])
         data_labeler._model.set_label_mapping.assert_called_with(
-            label_mapping={'a': 1, 'b': 2})
+            label_mapping=['a', 'b'])
 
         # test require pad false
         data_labeler._model.requires_zero_mapping = False
         data_labeler.set_labels(['a', 'b'])
         data_labeler._model.set_label_mapping.assert_called_with(
-            label_mapping={'a': 0, 'b': 1})
+            label_mapping=['a', 'b'])
 
     def test_equality(self, mock_open, mock_load_model):
         self._setup_mock_load_model(mock_load_model)

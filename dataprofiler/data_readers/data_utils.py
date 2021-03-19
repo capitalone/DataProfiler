@@ -1,4 +1,5 @@
 from builtins import next
+import re
 import json
 from io import open
 from collections import OrderedDict
@@ -341,3 +342,33 @@ def detect_cell_type(cell):
             cell_type = 'upstr'
             
     return cell_type
+
+
+def get_delimiter_regex(delimiter=",", quotechar=","):
+    """
+    Builds regex for delimiter checks
+    
+    :param delimiter: Delimiter to be added to regex
+    :type delimiter: str
+    :param quotechar: Quotechar to be added to regex
+    :type delimiter: str
+    """
+    
+    if delimiter is None:
+        return ""
+
+    if quotechar is None:
+        quotechar = '"'
+
+    delimiter_regex = re.escape(str(delimiter))    
+    quotechar_regex = "(?=" 
+    quotechar_regex +=  "(?:"
+    quotechar_regex +=    "[^"+re.escape(quotechar)+"]*"
+    quotechar_regex +=    re.escape(quotechar)
+    quotechar_regex +=    "[^"+re.escape(quotechar)+"]*"
+    quotechar_regex +=    re.escape(quotechar)
+    quotechar_regex +=   ")*"
+    quotechar_regex +=   "[^"+re.escape(quotechar)+"]*"
+    quotechar_regex += "$)"
+
+    return re.compile(delimiter_regex + quotechar_regex)

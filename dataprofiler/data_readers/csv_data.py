@@ -156,9 +156,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 quotechar = None
             if not quotechar or len(quotechar) == 0:
                 quotechar = '"'
-
-        # Regex used to remove sections within quotes
-        quotechar_regex = "["+re.escape(quotechar)+"].*["+re.escape(quotechar)+"]"
                 
         # Evaluate vocab, reviewing rows and columns
         delimiter = None
@@ -172,8 +169,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             valid_delim_flag = False
             incorrect_delimiter_flag = False
             cell_type_safe_flag = True
-            row_end_safe_flag = False
-            row_start_safe_flag = False
             
             proposed_delim_type = data_utils.detect_cell_type(proposed_delim)
         
@@ -188,24 +183,26 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             # Fewer columns are okay, as long as earlier in file
             for row_idx in range(len(proposed_dataset)-1, -1, -1):
 
-                proposed_cells = list(csv.reader(
-                    [re.sub(quotechar_regex, "", proposed_dataset[row_idx])],
-                    delimiter=proposed_delim, quotechar=quotechar))[0]
-
+                row = proposed_dataset[row_idx]
+                
                 # Skip - extra split from "\n" with no data 
-                if len(proposed_cells)==0 and row_idx==len(proposed_dataset)-1:
+                if len(row)<=1 and row_idx==len(proposed_dataset)-1:
                     continue
+                
+                delimiter_regex = data_utils.get_delimiter_regex(proposed_delim, quotechar)
+                proposed_cells = re.split(delimiter_regex, row)
 
                 # Keep track of largest number of col's
-                if not max_col_count:
-                    max_col_count = len(proposed_cells)
+                if prior_col_count is None:
                     prior_col_count = len(proposed_cells)
+                if max_col_count == 0:
+                    max_col_count = len(proposed_cells)
 
                 # Ensure rows have same number of cols, if more than one col
-                if len(proposed_cells) != prior_col_count and len(proposed_cells) > 1:
+                if len(proposed_cells) > prior_col_count: 
                     incorrect_delimiter_flag = True
                     break
-
+                
                 # Ensure there's more than one cell, if there's a delim
                 if len(proposed_cells) > 1:
                     valid_delim_flag = True
@@ -237,7 +234,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                         break
 
                     prior_cell_type = cell_type
-                    
+                
             if not incorrect_delimiter_flag and cell_type_safe_flag and valid_delim_flag:
                 validated_proposed_delimiters[proposed_delim] = max_col_count
                 if max_col_count \
@@ -249,11 +246,13 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         for proposed_delim in validated_proposed_delimiters.keys():
             weighted_delim_count = validated_proposed_delimiters[proposed_delim]
             if proposed_delim in preferred:
-                weighted_delim_count = 3*validated_proposed_delimiters[proposed_delim]
+                weighted_delim_count = 5*validated_proposed_delimiters[proposed_delim]
             if weighted_delim_count > largest_delim_count:
                 delimiter = proposed_delim
                 largest_delim_count = weighted_delim_count
-        
+
+        print(delimiter, quotechar)
+                
         return delimiter, quotechar
             
 
@@ -533,22 +532,20 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             quotetmp = None
             if not delimiter:
                 delimiter, quotetmp = cls._guess_delimiter_and_quotechar(data_as_str)
-            if not quotetmp:
+            if quotetmp:
                 quotechar = quotetmp
-            
             if header == 'auto':
                 options.update(header=cls._guess_header_row(
                     data_as_str, delimiter, quotechar))
-
+                
         max_line_count = 1000
         min_line_count = 3
         line_count = 0
         empty_line_count = 0
         delimiter_count = dict()
-
-        # ignore delimiters inside of quotes
-        base_regex = "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"
-        delimiter_regex = re.compile(re.escape(str(delimiter)) + base_regex)
+        
+        delimiter_regex = data_utils.get_delimiter_regex(delimiter, quotechar)
+        space_regex = data_utils.get_delimiter_regex(" ", quotechar)
 
         # Count the possible delimiters
         with open(file_path, encoding=file_encoding) as f:
@@ -563,12 +560,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     continue
 
                 # Find the location(s) where each delimiter was detected
-                delimiter_locs = [i.start() for i in re.finditer(delimiter_regex, line)]
                 if delimiter:
-                    count = len(delimiter_locs)
-                else:
+                    count = len([i.start() for i in re.finditer(delimiter_regex, line)])
+                else:                    
                     # If no delimiter, see if spaces are regular intervals
-                    count = line.count(" ")
+                    count = len([i.start() for i in re.finditer(space_regex, line)])
 
                 # Track the delimiter count per file
                 if count not in delimiter_count:
@@ -578,6 +574,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 if line_count >= max_line_count:
                     break
 
+
+        #print(file_path.split("/")[-1], delimiter, quotechar)
+        #print("line count", line_count, min_line_count, delimiter, quotechar)
+        
         if line_count <= min_line_count:
             return False
 

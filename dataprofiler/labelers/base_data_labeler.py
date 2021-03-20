@@ -789,3 +789,7 @@ class TrainableDataLabeler(BaseDataLabeler):
         data_labeler.set_model(model)
         data_labeler.set_postprocessor(postprocessor)
         return data_labeler
+
+    def close(self):
+        if hasattr(self.model, 'close'):
+            self.model.close()

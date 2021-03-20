@@ -548,6 +548,19 @@ class Profiler(object):
     # def __enter__(self):
     #     return self
     #
-    # def close(self):
-    #     config.data_labeler_loaded = False
-    #     config.existing_data_labeler = None
+    def close(self):
+        structured_options = None
+        if self.options and self.options.structured_options:
+            structured_options = self.options.structured_options
+
+        use_data_labeler = False
+        if structured_options and isinstance(structured_options, StructuredOptions):
+            use_data_labeler = structured_options.data_labeler.is_enabled
+
+        if use_data_labeler:
+            config.data_labeler_loaded = False
+            config.existing_data_labeler = None
+            config.data_labeler_called_from_profile = False
+
+            from . import DataLabelerColumn
+            DataLabelerColumn.close()

@@ -329,3 +329,12 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         :return: None
         """
         raise NotImplementedError()
+
+    @abc.abstractmethod
+    def close(self):
+        """
+        Close the graph of the model.
+
+        :return: None
+        """
+        raise NotImplementedError()

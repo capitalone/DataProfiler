@@ -40,8 +40,9 @@ class DataLabelerColumn(BaseColumnProfiler):
                 dirpath=data_labeler_dirpath,
                 load_options=None)
             print('labeler being loaded...-------------------------')
-            config.data_labeler_loaded = True
-            config.existing_data_labeler = self.data_labeler
+            if config.data_labeler_called_from_profile:
+                config.data_labeler_loaded = True
+                config.existing_data_labeler = self.data_labeler
         else:
             self.data_labeler = config.existing_data_labeler
 
@@ -292,3 +293,8 @@ class DataLabelerColumn(BaseColumnProfiler):
             self, self.__calculations, df_series=df_series,
             prev_dependent_properties={}, subset_properties=profile)
         self._update_helper(df_series, profile)
+
+    def close(self):
+        if hasattr(self.data_labeler, 'close'):
+            self.data_labeler.close()
+

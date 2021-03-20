@@ -301,8 +301,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         header_check_list = []
         only_string_flag = True # Requires additional checks
         for row in data_as_str.split('\n'):
-            row_list = list(csv.reader(
-                [row], delimiter=delimiter, quotechar=quotechar))[0]
+            
+            delimiter_regex = data_utils.get_delimiter_regex(delimiter, quotechar)
+            row_list = re.split(delimiter_regex, row)
             
             header_check_list.append([])
 
@@ -388,8 +389,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             col_stats = {}
             rows = data_as_str.split('\n')
             for i in range(0, len(rows)):
-                cells = list(csv.reader(
-                    [rows[i]], delimiter=delimiter, quotechar=quotechar))[0]
+                
+                delimiter_regex = data_utils.get_delimiter_regex(delimiter, quotechar)
+                cells = re.split(delimiter_regex, rows[i])
+                
                 for j in range(0, len(cells)):
 
                     # Determine number of words in cell

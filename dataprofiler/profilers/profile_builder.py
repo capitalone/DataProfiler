@@ -535,7 +535,15 @@ class Profiler(object):
             raise ValueError('`Profiler` does not currently support data which '
                              'contains columns with duplicate names.')
 
-        for col in df.columns:
+        try:
+            from tqdm import tqdm
+        except:
+            def tqdm(l):
+                for i, e in enumerate(l):
+                    print("Processing Column {}/{}".format(i+1, len(l)))
+                    yield e
+			
+        for col in tqdm(df.columns):
             if col in profile:
                 column_profile = profile[col]
                 column_profile.update_profile(

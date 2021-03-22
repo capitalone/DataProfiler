@@ -106,9 +106,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             if value != 'auto' and value is not None \
                 and not (isinstance(value, int) and value > -1):
                 raise ValueError('`header` must be one of following: auto, '
-                             'none for no header, or a non-negative '
-                             'integer for the row that represents the '
-                             'header (0 based index)')
+                                 'none for no header, or a non-negative '
+                                 'integer for the row that represents the '
+                                 'header (0 based index)')
         if 'delimiter' in options.keys():
             value = options["delimiter"]
             if value is not None and not isinstance(value, str):

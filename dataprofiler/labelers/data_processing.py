@@ -1062,7 +1062,6 @@ class StructCharPreprocessor(CharPreprocessor,
         :rtype: None
         """
         # flatten_split is hard coded above hence cannot be passed
-        # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
         parameters = copy.deepcopy(parameters)
         parameters.pop('flatten_split', None)
         super()._validate_parameters(parameters)

@@ -23,14 +23,6 @@ from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions
 
-try:
-    from tqdm import tqdm
-except:
-    def tqdm(l):
-        for i, e in enumerate(l):
-            print("Processing Column {}/{}".format(i, len(l)))
-            yield e
-			
 
 class StructuredDataProfile(object):
 
@@ -523,6 +515,14 @@ class Profiler(object):
             raise ValueError('`Profiler` does not currently support data which '
                              'contains columns with duplicate names.')
 
+        try:
+            from tqdm import tqdm
+        except:
+            def tqdm(l):
+                for i, e in enumerate(l):
+                    print("Processing Column {}/{}".format(i+1, len(l)))
+                    yield e
+			
         for col in tqdm(df.columns):
             if col in profile:
                 column_profile = profile[col]

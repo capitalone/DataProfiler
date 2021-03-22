@@ -1,8 +1,12 @@
 import re
 import csv
+import re
 from itertools import islice
 from six import StringIO
+
+import random
 import dateutil
+from collections import Counter
 
 import numpy as np
 
@@ -64,6 +68,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         self._data_formats["records"] = self._get_data_as_records
         self._selected_data_format = options.get("data_format", "dataframe")
         self._delimiter = options.get("delimiter", None)
+        self._quotechar = options.get("quotechar", None)
         self._selected_columns = options.get("selected_columns", list())
         self._header = options.get("header", 'auto')
         self._checked_header = "header" in options
@@ -104,26 +109,154 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                                  'header (0 based index)')
         return options
 
+    
     @staticmethod
-    def _determine_delimiter_of_str(data_as_str):
+    def _guess_delimiter_and_quotechar(data_as_str, quotechar=None,
+                                       preferred=[',', '\t'], omitted=['"', "'"]):
         """
         Automatically checks for what delimiter exists in a text document.
 
         :param data_as_str: Single string containing rows (lines separated by "\n")
         :type data_as_str: str
-        :return: Delimiter, if none can be found None is returned
+        :param preferred: Delimiters that will be weighted and selected if possible
+        :type preferred: list
+        :param omitted: Delimiters that will be omitted from selection
+        :type omitted: list
+        :param quotechar: Character used for quotes
+        :type quotechar: str
+        :return: delimiter, if none can be found None is returned
+        :rtype: str or None
+        :return: quotechar, if none can be found None is returned
         :rtype: str or None
         """
-        sniffer = csv.Sniffer()
-        sniffer.preferred = [',', '\t', ';']  # removes ' ', ':' from preferred
-        try:
-            dialect = sniffer.sniff(data_as_str)
-        except csv.Error as exc:
-            return None
-        return dialect.delimiter
+
+        # Detect vocabulary (and count)
+        vocab = Counter(data_as_str)
+        if '\n' in vocab: vocab.pop('\n')
+        for char in omitted+[quotechar]:
+            if char in vocab:
+                vocab.pop(char)
+                
+        # Sort vocabulary by count
+        ordered_vocab = []
+        sorted_keys = sorted(vocab, key=vocab.get, reverse=True)
+        for c in sorted_keys:
+            if c not in preferred:
+                ordered_vocab.append(c)
+
+        # Attempt to identify the quote character
+        if not quotechar:            
+            sniffer = csv.Sniffer()
+            sniffer.preferred = preferred
+            try:
+                # NOTE: Pull the first element, the quote character
+                quotechar = sniffer._guess_quote_and_delimiter(
+                    data_as_str, ordered_vocab[:20])[0]
+            except csv.Error as exc:
+                quotechar = None
+            if not quotechar or len(quotechar) == 0:
+                quotechar = '"'
+                
+        # Evaluate vocab, reviewing rows and columns
+        delimiter = None
+        validated_proposed_delimiters = {}
+        for proposed_delim in preferred+ordered_vocab[:20]:
+
+            col_types = {}
+            max_col_count = 0
+            prior_col_count = None
+
+            valid_delim_flag = False
+            incorrect_delimiter_flag = False
+            cell_type_safe_flag = True
+            
+            proposed_delim_type = data_utils.detect_cell_type(proposed_delim)
+        
+            # If large dataset, select first 25 rows then random sampling
+            proposed_dataset = data_as_str.split('\n')
+            if len(proposed_dataset) > 25:
+                sample_count = min(int(0.1*(len(proposed_dataset)-25)), 1000)
+                proposed_dataset = proposed_dataset[:25] \
+                    + random.choices(proposed_dataset[:25], k=sample_count)
+
+            # Reverse to start at bottom where likely the most columns
+            # Fewer columns are okay, as long as earlier in file
+            for row_idx in range(len(proposed_dataset)-1, -1, -1):
+
+                row = proposed_dataset[row_idx]
+                
+                # Skip - extra split from "\n" with no data 
+                if len(row)<=1 and row_idx==len(proposed_dataset)-1:
+                    continue
+                
+                delimiter_regex = data_utils.get_delimiter_regex(proposed_delim, quotechar)
+                proposed_cells = re.split(delimiter_regex, row)
+
+                # Keep track of largest number of col's
+                if prior_col_count is None:
+                    prior_col_count = len(proposed_cells)
+                if max_col_count == 0:
+                    max_col_count = len(proposed_cells)
+
+                # Ensure rows have same number of cols, if more than one col
+                if len(proposed_cells) > prior_col_count: 
+                    incorrect_delimiter_flag = True
+                    break
+                
+                # Ensure there's more than one cell, if there's a delim
+                if len(proposed_cells) > 1:
+                    valid_delim_flag = True
+
+                prior_col_count = len(proposed_cells)
+
+                prior_cell_type = None # Checks for int/alpha values and delims     
+                for col_id in range(len(proposed_cells)):
+                    
+                    proposed_cell = proposed_cells[col_id]
+                    cell_type = data_utils.detect_cell_type(proposed_cell)
+                    col_types[col_id] = cell_type
+
+                    # Handle if alpha character are seperator                     
+                    # NOTE: delimiter needs two ajoining cells to flag
+                    if cell_type in ['str', 'none'] \
+                       and prior_cell_type in ['str', 'none']:
+                        if proposed_delim.isalpha():
+                            cell_type_safe_flag = False
+                            break
+                        if proposed_delim == ' ' and 2 >= len(proposed_cells):
+                            cell_type_safe_flag = False
+                            break
+                            
+                    # Handle if integer characters are seperators
+                    # NOTE: delimiter need one adjoining cell to flag
+                    if proposed_delim_type == 'int' and cell_type=='int':
+                        cell_type_safe_flag = False
+                        break
+
+                    prior_cell_type = cell_type
+                
+            if not incorrect_delimiter_flag and cell_type_safe_flag and valid_delim_flag:
+                validated_proposed_delimiters[proposed_delim] = max_col_count
+                if max_col_count \
+                   and max_col_count > validated_proposed_delimiters[proposed_delim]:
+                    delimiter = proposed_delim
+
+        # Use preferred delimiters with highest count, if possible
+        largest_delim_count = 0
+        for proposed_delim in validated_proposed_delimiters.keys():
+            weighted_delim_count = validated_proposed_delimiters[proposed_delim]
+            if proposed_delim in preferred:
+                weighted_delim_count = 5*validated_proposed_delimiters[proposed_delim]
+            if weighted_delim_count > largest_delim_count:
+                delimiter = proposed_delim
+                largest_delim_count = weighted_delim_count
+
+        return delimiter, quotechar
+            
 
     @staticmethod
-    def _guess_header_row(data_as_str, suggested_delimiter=None,
+    def _guess_header_row(data_as_str,
+                          suggested_delimiter=None, suggested_quotechar=None,
                           diff_thresh=0.1, none_thresh=0.5, str_thresh=0.9):
         """
         This function attempts to select the best row for which a header would be valid.
@@ -131,6 +264,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :param data_as_str: Single string containing rows (lines seperated by "\n")
         :type data_as_str: str
         :param suggested_delimiter: Delimiter suggested to use when trying to find the header
+        :type suggested_delimiter: str
+        :param suggested_delimiter: quotechar suggested to use when trying to find the header
         :type suggested_delimiter: str
         :param diff_threshold: Max percent difference in cell types between rows allowed 
         :type diff_threshold: float    
@@ -151,42 +286,21 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         delimiter = suggested_delimiter
         if not delimiter:
             delimiter = ','
-        
+        quotechar = suggested_quotechar
+        if not quotechar or len(quotechar) == 0:
+            quotechar = '"'
+            
         # Determine type for every cell
         header_check_list = []
         only_string_flag = True # Requires additional checks
         for row in data_as_str.split('\n'):
-            row_list = list(csv.reader([row],
-                                       delimiter=delimiter,
-                                       quotechar='"'))[0]
+            row_list = list(csv.reader(
+                [row], delimiter=delimiter, quotechar=quotechar))[0]
             header_check_list.append([])
 
             for i in range(len(row_list)):
                 cell = row_list[i].strip()
-                cell_type = 'str'
-                
-                if len(cell) == 0:
-                    cell_type = 'none'
-                else:
-            
-                    try: 
-                        if dateutil.parser.parse(cell, fuzzy=False):
-                            cell_type = 'date'
-                    except ValueError:
-                        pass
-                    except OverflowError:
-                        pass
-
-                    try:
-                        f_cell = float(cell)
-                        cell_type = 'float'
-                        if f_cell.is_integer():
-                            cell_type = 'int'
-                    except ValueError:
-                        pass
-                    
-                    if cell.isupper():
-                        cell_type = 'upstr'
+                cell_type = data_utils.detect_cell_type(cell)
 
                 if cell_type not in ['str', 'none']:
                     only_string_flag = False
@@ -266,9 +380,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             col_stats = {}
             rows = data_as_str.split('\n')
             for i in range(0, len(rows)):
-                cells = list(csv.reader([rows[i]],
-                                        delimiter=delimiter,
-                                        quotechar='"'))[0]
+                cells = list(csv.reader(
+                    [rows[i]], delimiter=delimiter, quotechar=quotechar))[0]
                 for j in range(0, len(cells)):
 
                     # Determine number of words in cell
@@ -321,12 +434,16 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     def _load_data_from_str(self, data_as_str):
         """Loads the data into memory from the str."""
+        quotechar = None
         if not self._delimiter:
-            self._delimiter = self._determine_delimiter_of_str(data_as_str)
+            self._delimiter, quotechar = self._guess_delimiter_and_quotechar(
+                data_as_str)
+        if not self._quotechar:
+            self._quotechar = quotechar
         data_buffered = StringIO(data_as_str)
         if self._header == 'auto':
             self._header = self._guess_header_row(
-                data_as_str, suggested_delim=self._delimiter)
+                data_as_str, self._delimiter, self._quotechar)
         return data_utils.read_csv_df(
             data_buffered,
             self.delimiter, self.header, self.selected_columns,
@@ -341,10 +458,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 num_lines = 5
                 check_lines = list(islice(csvfile, num_lines))
                 data_as_str = ''.join(check_lines)
+            quotechar = None
             if not self._delimiter:
-                self._delimiter = self._determine_delimiter_of_str(data_as_str)            
+                self._delimiter, quotechar = self._guess_delimiter_and_quotechar(
+                    data_as_str)
+            if not self._quotechar:
+               self._quotechar = quotechar
             if self._header == 'auto':
-                self._header = self._guess_header_row(data_as_str, self._delimiter)
+                self._header = self._guess_header_row(
+                    data_as_str, self._delimiter, self._quotechar)
                 self._checked_header = True
 
         # if there is only one delimiter at the end of each row,
@@ -394,6 +516,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         delimiter = options.get("delimiter", None)
+        quotechar = options.get("quotechar", None)
 
         header = options.get("header", 'auto')
         if not delimiter or header == 'auto':
@@ -404,22 +527,23 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 data_as_str = ''.join(islice(csvfile, num_lines))
 
             # Checks if delimiter is a space; If so, returns false
+            quotetmp = None
             if not delimiter:
-                delimiter = cls._determine_delimiter_of_str(data_as_str)
-
+                delimiter, quotetmp = cls._guess_delimiter_and_quotechar(data_as_str)
+            if quotetmp:
+                quotechar = quotetmp
             if header == 'auto':
-                options.update(header=cls._guess_header_row(data_as_str,
-                                                            delimiter))
-
+                options.update(header=cls._guess_header_row(
+                    data_as_str, delimiter, quotechar))
+                
         max_line_count = 1000
         min_line_count = 3
         line_count = 0
         empty_line_count = 0
         delimiter_count = dict()
-
-        # ignore delimiters inside of quotes
-        base_regex = "(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"
-        delimiter_regex = re.compile(re.escape(str(delimiter)) + base_regex)
+        
+        delimiter_regex = data_utils.get_delimiter_regex(delimiter, quotechar)
+        space_regex = data_utils.get_delimiter_regex(" ", quotechar)
 
         # Count the possible delimiters
         with open(file_path, encoding=file_encoding) as f:
@@ -433,13 +557,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     empty_line_count += 1
                     continue
 
-                    # Find the location(s) where each delimiter was detected
-                delimiter_locs = [i.start() for i in re.finditer(delimiter_regex, line)]
+                # Find the location(s) where each delimiter was detected
                 if delimiter:
-                    count = len(delimiter_locs)
-                else:
+                    count = len([i.start() for i in re.finditer(delimiter_regex, line)])
+                else:                    
                     # If no delimiter, see if spaces are regular intervals
-                    count = line.count(" ")
+                    count = len([i.start() for i in re.finditer(space_regex, line)])
 
                 # Track the delimiter count per file
                 if count not in delimiter_count:
@@ -448,7 +571,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
                 if line_count >= max_line_count:
                     break
-
+        
         if line_count <= min_line_count:
             return False
 

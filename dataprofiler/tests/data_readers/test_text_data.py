@@ -48,7 +48,7 @@ class TestTextDataClass(unittest.TestCase):
         for input_file in self.input_file_names:
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
-            self.assertEqual(input_data_obj.data_type, 'text')
+            self.assertEqual(input_data_obj.data_type, 'text', input_file['path'])
 
 
 if __name__ == '__main__':

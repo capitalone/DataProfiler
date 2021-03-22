@@ -23,8 +23,14 @@ from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions
 
-from tqdm import tqdm
-
+try:
+	from tqdm import tqdm
+except:
+	def tqdm(l):
+		for i, e in enumerate(l):
+			print("Processing Column {}/{}".format(i, len(l)))
+			yield e
+			
 class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=500,

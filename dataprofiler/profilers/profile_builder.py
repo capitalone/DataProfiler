@@ -26,10 +26,10 @@ from .profiler_options import ProfilerOptions, StructuredOptions
 try:
 	from tqdm import tqdm
 except:
-	def tqdm(l):
-		for i, e in enumerate(l):
-			print("Processing Column {}/{}".format(i, len(l)))
-			yield e
+    def tqdm(l):
+        for i, e in enumerate(l):
+            print("Processing Column {}/{}".format(i, len(l)))
+            yield e
 			
 class StructuredDataProfile(object):
 

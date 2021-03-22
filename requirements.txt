@@ -11,3 +11,4 @@ chardet>=3.0.4
 fastavro>=1.0.0.post1
 python-snappy>=0.5.4
 h5py>=2.10.0
+tqdm>=4.59.0

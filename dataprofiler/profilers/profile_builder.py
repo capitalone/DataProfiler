@@ -23,6 +23,7 @@ from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions
 
+from tqdm import tqdm
 
 class StructuredDataProfile(object):
 
@@ -515,7 +516,7 @@ class Profiler(object):
             raise ValueError('`Profiler` does not currently support data which '
                              'contains columns with duplicate names.')
 
-        for col in df.columns:
+        for col in tqdm(df.columns):
             if col in profile:
                 column_profile = profile[col]
                 column_profile.update_profile(

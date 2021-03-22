@@ -797,7 +797,7 @@ class CharPostprocessor(BaseDataPostprocessor,
             # Copy entities_in_sample so can return later
             # changed input param to "predictions" for ease
             # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
-            entities_in_sample = list(char_pred)  
+            entities_in_sample = list(char_pred)
 
             # Convert to dict for quick look-up
             separator_dict = {}
@@ -1063,7 +1063,7 @@ class StructCharPreprocessor(CharPreprocessor,
         """
         # flatten_split is hard coded above hence cannot be passed
         # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
-        parameters = dict(parameters)
+        parameters = copy.deepcopy(parameters)
         parameters.pop('flatten_split', None)
         super()._validate_parameters(parameters)
 

@@ -24,7 +24,7 @@ from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions
 
 try:
-	from tqdm import tqdm
+    from tqdm import tqdm
 except:
     def tqdm(l):
         for i, e in enumerate(l):

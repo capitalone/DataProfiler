@@ -145,32 +145,32 @@ class BaseDataLabeler(object):
         Checks incoming data to match the specified fit or predict format.
 
         :param data: data to check
-        :type data: pandas.DataFrame
+        :type data: Union[pandas.DataFrame, pandas.Series, numpy.array, list]
         :param fit_or_predict: if the data needs to be in fit or predict format
         :type fit_or_predict: str
         :return: validated and formatted data
         """
         if fit_or_predict not in ['fit', 'predict']:
             raise ValueError('`fit_or_predict` must equal `fit` or `predict`')
+
+        # Pull dataframe out of data reader object
         if isinstance(data, data_readers.base_data.BaseData):
-            if fit_or_predict == 'fit':
-                data = data.data
-            else:
-                data = np.reshape(data.data.values, -1)
-        elif isinstance(data, np.ndarray) or isinstance(data, list):
-            if fit_or_predict == 'fit':
-                data = pd.DataFrame(data, columns=None)
-            elif isinstance(data, list):
-                data = np.array(data)
-        elif isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
-            if fit_or_predict == 'predict':
-                data = np.reshape(data.values, -1)
-        else:
+            data = data.data
+
+        if isinstance(data, list):
+            data = np.array(data, dtype="object")
+        elif isinstance(data, pd.Series) or isinstance(data, pd.DataFrame):
+            data = data.values
+        elif not isinstance(data, np.ndarray):
             raise TypeError(
-                "Data must either be imported using the data_readers or "
-                "pd.DataFrame."
+                "Data must be imported using the data_readers, "
+                "pd.DataFrames, np.ndarrays, or lists."
             )
-        return data
+
+        if fit_or_predict == "fit":
+            return data
+        else:
+            return np.reshape(data, -1)
 
     def set_params(self, params):
         """
@@ -716,10 +716,10 @@ class TrainableDataLabeler(BaseDataLabeler):
         if reset_weights:
             self._model.reset_weights()
 
-        # shuffle input data, these are pandas.DataFrame or pandas.Series
+        # shuffle input data
         shuffle_inds = np.random.permutation(num_samples)
-        x = x.loc[shuffle_inds].reset_index(drop=True)
-        y = y.loc[shuffle_inds].reset_index(drop=True)
+        x = x[shuffle_inds]
+        y = y[shuffle_inds]
 
         # free memory
         del shuffle_inds
@@ -738,11 +738,10 @@ class TrainableDataLabeler(BaseDataLabeler):
         for i in range(epochs):
             results.append(self._model.fit(train_data, cv_data))
             if i < epochs - 1:
-                # shuffle input data, these are pandas.DataFrame or
-                # pandas.Series
+                # shuffle input data
                 shuffle_inds = np.random.permutation(cv_split_index)
-                train_data_x = x.loc[shuffle_inds].reset_index(drop=True)
-                train_data_y = y.loc[shuffle_inds].reset_index(drop=True)
+                train_data_x = x[shuffle_inds]
+                train_data_y = y[shuffle_inds]
 
                 # free memory
                 del shuffle_inds

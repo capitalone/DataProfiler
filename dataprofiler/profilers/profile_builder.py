@@ -13,6 +13,7 @@ import random
 import re
 import hashlib
 from collections import OrderedDict
+import warnings
 
 import pandas as pd
 
@@ -51,6 +52,14 @@ class StructuredDataProfile(object):
         self.null_types_index = {}
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
+        if sample_size < len(df_series):
+            warnings.warn("The data will be profiled with a sample size of {}. "
+                          "All statistics will be based on this subsample and "
+                          "not the whole dataset.".format(sample_size))
+        elif sample_size > len(df_series):
+            warnings.warn("The dataset is too small for the preferred sample "
+                          "size, so the whole dataset will be sampled for a "
+                          "total of {} samples.".format(len(df_series)))
         clean_sampled_df, base_stats = \
             self.get_base_props_and_clean_null_params(df_series, sample_size)
         self._update_base_stats(base_stats)

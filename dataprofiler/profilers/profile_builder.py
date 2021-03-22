@@ -20,16 +20,17 @@ from . import utils
 from .. import data_readers
 from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
     ColumnStatsProfileCompiler, ColumnDataLabelerCompiler
+from ..labelers.data_labelers import DataLabeler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
-from .profiler_options import ProfilerOptions, StructuredOptions
-from .. import config
+from .profiler_options import ProfilerOptions, StructuredOptions, \
+    DataLabelerOptions
 
 
 class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=500,
                  sampling_ratio=0.2, min_true_samples=None,
-                 options=None):
+                 data_labeler=None, options=None):
         self.options = options
         self._min_sample_size = min_sample_size
         self._sampling_ratio = sampling_ratio
@@ -63,15 +64,20 @@ class StructuredDataProfile(object):
                 ColumnStatsProfileCompiler(clean_sampled_df, self.options)}
 
         # use the data labeler by default
-        use_data_labeler = True
-        if options and isinstance(options, StructuredOptions):
-            use_data_labeler = options.data_labeler.is_enabled
-
-        if use_data_labeler:
-            config.data_labeler_called_from_profile = True
+        if data_labeler:
             self.profiles.update(
-                {'data_label_profile':
-                     ColumnDataLabelerCompiler(clean_sampled_df, self.options)})
+                    {'data_label_profile':
+                         ColumnDataLabelerCompiler(clean_sampled_df,
+                                                   self.options,
+                                                   data_labeler)})
+        # use_data_labeler = True
+        # if options and isinstance(options, StructuredOptions):
+        #     use_data_labeler = options.data_labeler.is_enabled
+        #
+        # if use_data_labeler:
+        #     self.profiles.update(
+        #         {'data_label_profile':
+        #              ColumnDataLabelerCompiler(clean_sampled_df, self.options)})
 
     def __add__(self, other):
         """
@@ -347,6 +353,32 @@ class Profiler(object):
         if isinstance(data, data_readers.text_data.TextData):
             raise TypeError("Cannot provide TextData object to Profiler")
 
+        # assign data labeler
+        data_labeler_dirpath = None
+        self.data_labeler = None
+        structured_options = None
+
+        if profiler_options and profiler_options.structured_options:
+            structured_options = profiler_options.structured_options
+
+        if structured_options and isinstance(
+                structured_options, StructuredOptions):
+            data_labeler_options = structured_options.data_labeler
+
+        if data_labeler_options and isinstance(
+                data_labeler_options, DataLabelerOptions):
+            use_data_labeler = data_labeler_options.is_enabled
+
+        if use_data_labeler:
+            if data_labeler_options.data_labeler_dirpath:
+                data_labeler_dirpath = \
+                    data_labeler_options.data_labeler_dirpath
+
+            self.data_labeler = DataLabeler(
+                labeler_type='structured',
+                dirpath=data_labeler_dirpath,
+                load_options=None)
+
         self.update_profile(data)
 
     def __add__(self, other):
@@ -491,12 +523,7 @@ class Profiler(object):
                 "pd.DataFrame."
             )
 
-        config.data_labeler_loaded = False
-        config.existing_data_labeler = None
-        config.data_labeler_called_from_profile = False
-
-    @staticmethod
-    def _update_profile_from_chunk(df, profile=None, sample_size=None,
+    def _update_profile_from_chunk(self, df, profile=None, sample_size=None,
                                    min_true_samples=None, options=None):
         """
         Iterate over the columns of a dataset and identify its parameters.
@@ -537,30 +564,9 @@ class Profiler(object):
                     df[col],
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
+                    data_labeler=self.data_labeler,
                     options=structured_options
                 )
 
         return profile
 
-    # def __exit__(self, exc_type, exc_val, exc_tb):
-    #     self.close()
-    #
-    # def __enter__(self):
-    #     return self
-    #
-    def close(self):
-        structured_options = None
-        if self.options and self.options.structured_options:
-            structured_options = self.options.structured_options
-
-        use_data_labeler = False
-        if structured_options and isinstance(structured_options, StructuredOptions):
-            use_data_labeler = structured_options.data_labeler.is_enabled
-
-        if use_data_labeler:
-            config.data_labeler_loaded = False
-            config.existing_data_labeler = None
-            config.data_labeler_called_from_profile = False
-
-            from . import DataLabelerColumn
-            DataLabelerColumn.close()

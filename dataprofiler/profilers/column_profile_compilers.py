@@ -15,20 +15,20 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = list()
 
-    def __init__(self, df_series, options=None):
+    def __init__(self, df_series, options=None, data_labeler=None):
         if not self._profilers:
             raise NotImplementedError("Must add profilers.")
 
         self.name = df_series.name
         self._profiles = OrderedDict()
-        self._create_profile(df_series, options)
+        self._create_profile(df_series, options, data_labeler)
 
     @property
     @abc.abstractmethod
     def profile(self):
         raise NotImplementedError()
 
-    def _create_profile(self, df_series, options=None):
+    def _create_profile(self, df_series, options=None, data_labeler=None):
         """
         Initializes and evaluates all profilers for the given dataframe.
         
@@ -56,8 +56,14 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                     col_profile_options = options.properties[col_profile_type.col_type]
 
                 try:
-                    self._profiles[col_profile_type.col_type] = \
-                        col_profile_type(df_series.name, options=col_profile_options)
+                    if not data_labeler:
+                        self._profiles[col_profile_type.col_type] = \
+                            col_profile_type(df_series.name, options=col_profile_options)
+                    else:
+                        self._profiles[col_profile_type.col_type] = \
+                            col_profile_type(df_series.name,
+                                             options=col_profile_options,
+                                             data_labeler=data_labeler)
                     self._profiles[col_profile_type.col_type].update(df_series)
                 except Exception as e:
                     import warnings

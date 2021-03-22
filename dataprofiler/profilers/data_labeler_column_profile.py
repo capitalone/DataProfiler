@@ -5,14 +5,13 @@ import numpy as np
 from . import BaseColumnProfiler
 from ..labelers.data_labelers import DataLabeler
 from .profiler_options import DataLabelerOptions
-from .. import config
 
 
 class DataLabelerColumn(BaseColumnProfiler):
     
     col_type = "data_labeler"
     
-    def __init__(self, name, data_labeler_dirpath=None, options=None):
+    def __init__(self, name, data_labeler=None, options=None):
         """
         Initialization of Data Label profiling for structured datasets.
 
@@ -28,23 +27,10 @@ class DataLabelerColumn(BaseColumnProfiler):
             if not isinstance(options, DataLabelerOptions):
                 raise ValueError("DataLabelerColumn parameter 'options' must be"
                                  " of type DataLabelerOptions.")
-            if options.data_labeler_dirpath:
-                data_labeler_dirpath = options.data_labeler_dirpath
             if options.max_sample_size:
                 self._max_sample_size = options.max_sample_size
 
-        if not config.data_labeler_loaded or \
-                not config.data_labeler_called_from_profile:
-            self.data_labeler = DataLabeler(
-                labeler_type='structured',
-                dirpath=data_labeler_dirpath,
-                load_options=None)
-            print('labeler being loaded...-------------------------')
-            if config.data_labeler_called_from_profile:
-                config.data_labeler_loaded = True
-                config.existing_data_labeler = self.data_labeler
-        else:
-            self.data_labeler = config.existing_data_labeler
+        self.data_labeler = data_labeler
 
         reverse_label_mapping = self.data_labeler.reverse_label_mapping
         num_labels = self.data_labeler.model.num_labels

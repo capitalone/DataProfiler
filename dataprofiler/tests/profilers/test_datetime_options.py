@@ -1,6 +1,7 @@
 from dataprofiler.profilers.profiler_options import DateTimeOptions
 from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
 
+
 class TestDateTimeOptions(TestBaseColumnOptions):
 
     option_class = DateTimeOptions

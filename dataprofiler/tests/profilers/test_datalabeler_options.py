@@ -1,6 +1,7 @@
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
 from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
 
+
 class TestDataLabelerOptions(TestBaseColumnOptions):
     
     option_class = DataLabelerOptions

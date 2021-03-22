@@ -1,6 +1,7 @@
 from dataprofiler.profilers.profiler_options import CategoricalOptions
 from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
 
+
 class TestCategoricalOptions(TestBaseColumnOptions):
     
     option_class = CategoricalOptions

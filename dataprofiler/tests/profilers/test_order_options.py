@@ -2,6 +2,7 @@ from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import OrderOptions
 from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
 
+
 class TestOrderOptions(TestBaseColumnOptions):
     
     options_class = OrderOptions

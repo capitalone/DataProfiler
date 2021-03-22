@@ -797,3 +797,4 @@ class CharacterLevelCnnModel(BaseTrainableModel,
 
     def close(self):
         tf.keras.backend.clear_session()
+        print('closing model =====================')

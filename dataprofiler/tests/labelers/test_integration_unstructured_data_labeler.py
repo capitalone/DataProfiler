@@ -84,6 +84,8 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
         # no bg, pad, but includes micro,macro, weighted
         self.assertEqual(5, len(model_predictions[0][2].keys()))
 
+        default.close()
+
     def test_default_tf_model(self):
         """simple test for new default TF model + predict()"""
         sample = [

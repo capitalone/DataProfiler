@@ -792,11 +792,12 @@ class CharPostprocessor(BaseDataPostprocessor,
         background_label = label_mapping[default_label]
 
         # Iterate over both lists, should be same length
-        for sentence, char_pred in zip(data, predictions):
-            sample = sentence
+        for sample, char_pred in zip(data, predictions):
+            
             # Copy entities_in_sample so can return later
-            entities_in_sample = copy.deepcopy(
-                char_pred)  # changed input param to "predictions" for ease
+            # changed input param to "predictions" for ease
+            # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+            entities_in_sample = list(char_pred)
 
             # Convert to dict for quick look-up
             separator_dict = {}
@@ -999,8 +1000,10 @@ class CharPostprocessor(BaseDataPostprocessor,
         pad_label = self._parameters['pad_label']
 
         # Format predictions
-        results = self.match_sentence_lengths(data, copy.deepcopy(results),
+        # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+        results = self.match_sentence_lengths(data, dict(results),
                                               flatten_separator)
+        
         if use_word_level_argmax:
             results['pred'] = self._word_level_argmax(
                 data, results['pred'], label_mapping, default_label)
@@ -1434,7 +1437,8 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         pad_label = self._parameters['pad_label']
 
         # Format predictions
-        results = self.match_sentence_lengths(data, copy.deepcopy(results),
+        # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+        results = self.match_sentence_lengths(data, dict(results),
                                               flatten_separator)
         results = self.convert_to_structured_analysis(
             data, results,
@@ -1623,6 +1627,7 @@ class RegexPostProcessor(BaseDataPostprocessor,
         aggregation_func = aggregation_func.lower()
 
         results = copy.deepcopy(labels)
+        
         if aggregation_func == 'split':
             self.split_prediction(results)
         elif aggregation_func == 'priority':

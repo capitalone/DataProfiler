@@ -256,6 +256,20 @@ class TestProfiler(unittest.TestCase):
                                                ' to Profiler'):
             profile = dp.Profiler(dp.Data(text_file_path))
 
+    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+                'ColumnDataLabelerCompiler')
+    def test_sample_size_warning_in_the_profiler(self, *mocks):
+        data = pd.DataFrame([1, None, 3, 4, 5, None])
+        with self.assertWarnsRegex(UserWarning,
+                                   "The data will be profiled with a sample "
+                                   "size of 3. All statistics will be based on "
+                                   "this subsample and not the whole dataset."):
+            profile1 = dp.Profiler(data, samples_per_update=3)
+
 
 class TestStructuredDataProfileClass(unittest.TestCase):
 
@@ -442,13 +456,13 @@ class TestProfilerNullValues(unittest.TestCase):
         cls.trained_schema = dp.Profiler(test_dataset, len(test_dataset))
 
     def test_correct_rows_ingested(self):
-        self.assertEqual(['', 'nan', 'None', 'null'],
+        self.assertCountEqual(['', 'nan', 'None', 'null'],
                          self.trained_schema.profile['1'].null_types)
         self.assertEqual(
             5, self.trained_schema.profile['1'].null_count)
         self.assertEqual({'': [4], 'nan': [0], 'None': [2, 3], 'null': [
                          1]}, self.trained_schema.profile['1'].null_types_index)
-        self.assertEqual(['', 'nan', 'None', 'null'],
+        self.assertCountEqual(['', 'nan', 'None', 'null'],
                          self.trained_schema.profile[1].null_types)
         self.assertEqual(
             5, self.trained_schema.profile[1].null_count)

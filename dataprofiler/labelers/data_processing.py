@@ -8,6 +8,7 @@ import inspect
 from collections import Counter
 import random
 import math
+import warnings
 
 import numpy as np
 
@@ -320,7 +321,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             + param_docs[param_start_ind:param_end_ind]
             + "\nProcess Input Format:\n"
             "    data = List of strings ['1st string', 'second string', ...]\n"
-            "    labels = [(<INT>, <INT>, \"<LABEL>\"), ...(num_samples in data)]")
+            "    labels = [[(<INT>, <INT>, \"<LABEL>\"), "
+            "...(num_samples in string)], ...(num strings in data)]")
         print(help_str)
 
     @staticmethod
@@ -418,7 +420,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                     sample_len, label_mapping[default_label])
 
                 # Map the entity to the corresponding character
-                for start, end, label in label_set['entities']:
+                for start, end, label in label_set:
                     label_index = label_mapping[label]
                     label_buffer[start:end] = label_index
                 label_buffer = label_buffer.tolist()
@@ -598,9 +600,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         Flatten batches of data
 
         :param data: List of strings to create embeddings for
-        :type data: list() of strings
+        :type data: numpy.ndarray
         :param labels: labels for each input character
-        :type labels: list of labels for each character in data
+        :type labels: numpy.ndarray
         :param label_mapping: maps labels to their encoded integers
         :type label_mapping: Union[None, dict]
         :param batch_size: Number of samples in the batch of data
@@ -608,13 +610,26 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         :return batch_data: A dict containing  samples of size batch_size
         :rtype batch_data: dicts
         """
-        if labels is not None and not label_mapping:
-            raise ValueError('If `labels` are specified, `label_mapping` must '
-                             'also be specified.')
+        num_dim = sum([dim > 1 for dim in data.shape])
+        if num_dim > 1:
+            raise ValueError("Multidimensional data given to "
+                             "CharPreprocessor. Consider using a different "
+                             "preprocessor or flattening data (and labels)")
+        # Flattened data into single dimensional np array, if it was truly 1D
+        data = data.reshape(-1)
+
+        if labels is not None:
+            if not label_mapping:
+                raise ValueError('If `labels` are specified, `label_mapping` '
+                                 'must also be specified.')
+            if len(data) != len(labels):
+                raise ValueError(f"Data and labels given to CharPreprocessor "
+                                 f"are different lengths, "
+                                 f"{len(data)} != {len(labels)}")
 
         # Import tensorflow
         import tensorflow as tf
-        
+
         # get parameters
         max_length = self._parameters['max_length']
         default_label = self._parameters['default_label']
@@ -792,11 +807,12 @@ class CharPostprocessor(BaseDataPostprocessor,
         background_label = label_mapping[default_label]
 
         # Iterate over both lists, should be same length
-        for sentence, char_pred in zip(data, predictions):
-            sample = sentence
+        for sample, char_pred in zip(data, predictions):
+            
             # Copy entities_in_sample so can return later
-            entities_in_sample = copy.deepcopy(
-                char_pred)  # changed input param to "predictions" for ease
+            # changed input param to "predictions" for ease
+            # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+            entities_in_sample = list(char_pred)
 
             # Convert to dict for quick look-up
             separator_dict = {}
@@ -999,8 +1015,10 @@ class CharPostprocessor(BaseDataPostprocessor,
         pad_label = self._parameters['pad_label']
 
         # Format predictions
-        results = self.match_sentence_lengths(data, copy.deepcopy(results),
+        # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+        results = self.match_sentence_lengths(data, dict(results),
                                               flatten_separator)
+        
         if use_word_level_argmax:
             results['pred'] = self._word_level_argmax(
                 data, results['pred'], label_mapping, default_label)
@@ -1081,7 +1099,7 @@ class StructCharPreprocessor(CharPreprocessor,
             + param_docs[param_start_ind:param_end_ind]
             + "\nProcess Input Format:\n"
             "    data = List of strings ['1st string', 'second string', ...]\n"
-            "    labels = [<INT>, <INT>, ...(num_samples in data)]")
+            "    labels = [\"<LABEL>\", \"<LABEL>\", ...(num_samples in data)]")
         print(help_str)
 
     def get_parameters(self, param_list=None):
@@ -1102,12 +1120,12 @@ class StructCharPreprocessor(CharPreprocessor,
         required input data format.
 
         :param data: list of strings
-        :type data: Union[numpy.ndarray, pandas.DataFrame]
+        :type data: numpy.ndarray
         :param labels: labels for each input character
         :type labels: list
         :return: data in the following format
-                 [ dict(text="<SAMPLE><SEPARATOR><SAMPLE>...",
-                        entities=[dict(start=<INT>, end=<INT>, label="<LABEL>"),
+                 text="<SAMPLE><SEPARATOR><SAMPLE>...",
+                 entities=[(start=<INT>, end=<INT>, label="<LABEL>"),
                                   ...(num_samples in data)])
         """
         separator = self._parameters['flatten_separator']
@@ -1129,7 +1147,7 @@ class StructCharPreprocessor(CharPreprocessor,
             if start < text_len:
                 entities.append((start - separator_length, start, 'PAD'))
 
-        return text, dict(entities=entities)
+        return text, entities
 
     def process(self, data, labels=None, label_mapping=None, batch_size=32):
         """
@@ -1137,9 +1155,9 @@ class StructCharPreprocessor(CharPreprocessor,
         CharacterLevelCnnModel.
 
         :param data: List of strings to create embeddings for
-        :type data: Union[numpy.ndarray, pandas.DataFrame]
+        :type data: numpy.ndarray
         :param labels: labels for each input character
-        :type labels: list
+        :type labels: numpy.ndarray
         :param label_mapping: maps labels to their encoded integers
         :type label_mapping: Union[dict, None]
         :param batch_size: Number of samples in the batch of data
@@ -1147,9 +1165,25 @@ class StructCharPreprocessor(CharPreprocessor,
         :return batch_data: A dict containing  samples of size batch_size
         :rtype batch_data: dict
         """
-        if labels is not None and not label_mapping:
-            raise ValueError('If `labels` are specified, `label_mapping` must '
-                             'also be specified.')
+        if labels is not None:
+            if not label_mapping:
+                raise ValueError('If `labels` are specified, `label_mapping` '
+                                 'must also be specified.')
+            if data.shape != labels.shape:
+                raise ValueError(f"Data and labels given to "
+                                 f"StructCharPreprocessor are of different "
+                                 f"shapes, {data.shape} != {labels.shape}")
+
+        num_dim = sum([dim > 1 for dim in data.shape])
+        if num_dim > 1:
+            warnings.warn("Data given to StructCharPreprocessor was "
+                          "multidimensional, it will be flattened for model "
+                          "processing. Results may be inaccurate, consider "
+                          "reformatting data or changing preprocessor.")
+        # Flattened data and labels, confirmed to be same shape
+        data = data.reshape(-1)
+        if labels is not None:
+            labels = labels.reshape(-1)
 
         # convert structured to unstructured format
         unstructured_data = [[]] * len(data)
@@ -1165,9 +1199,13 @@ class StructCharPreprocessor(CharPreprocessor,
             if labels is not None:
                 unstructured_labels[ind] = unstructured_label_set
 
-        return super().process(
-            np.array(unstructured_data), unstructured_labels, label_mapping,
-            batch_size)
+        if labels is not None:
+            np_unstruct_labels = np.array(unstructured_labels, dtype="object")
+        else:
+            np_unstruct_labels = None
+
+        return super().process(np.array(unstructured_data), np_unstruct_labels,
+                               label_mapping, batch_size)
 
 
 class StructCharPostprocessor(BaseDataPostprocessor,
@@ -1286,7 +1324,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
               "    Each sample receives a label.\n"
               "    Original data - ['My', 'String', ...]\n"
               "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
-              "..(num samples)]")
+              "..(num_samples)]")
         print(help_str)
 
     @staticmethod
@@ -1434,7 +1472,8 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         pad_label = self._parameters['pad_label']
 
         # Format predictions
-        results = self.match_sentence_lengths(data, copy.deepcopy(results),
+        # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+        results = self.match_sentence_lengths(data, dict(results),
                                               flatten_separator)
         results = self.convert_to_structured_analysis(
             data, results,
@@ -1623,6 +1662,7 @@ class RegexPostProcessor(BaseDataPostprocessor,
         aggregation_func = aggregation_func.lower()
 
         results = copy.deepcopy(labels)
+        
         if aggregation_func == 'split':
             self.split_prediction(results)
         elif aggregation_func == 'priority':

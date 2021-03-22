@@ -305,7 +305,7 @@ class TestCSVDataClass(unittest.TestCase):
             with open(input_file['path'], encoding=file_encoding) as csvfile:
                 data_as_str = ''.join(list(islice(csvfile, 5)))
             header_line = CSVData._guess_header_row(data_as_str, input_file['delimiter'])
-            self.assertIn(header_line, input_file['has_header'], input_file)
+            self.assertIn(header_line, input_file['has_header'], input_file['path'])
 
 
 if __name__ == '__main__':

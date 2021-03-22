@@ -5,7 +5,7 @@ import random
 import pkg_resources
 import json
 from io import StringIO
-import warnings
+import re
 
 import numpy as np
 
@@ -675,16 +675,15 @@ class TestCharPreprocessor(unittest.TestCase):
 
     def test_process_input_checks(self):
         prep = CharPreprocessor()
-        prep.process(np.array([1, 2, 3]))
-        with self.assertRaisesRegex(ValueError, "Multidimensional data given to"
-                                                " CharPreprocessor. Consider "
-                                                "using a different preprocessor"
-                                                " or flattening data "
-                                                "(and labels)"):
+        multi_dim_msg = re.escape("Multidimensional data given to "
+                                  "CharPreprocessor. Consider using a different"
+                                  " preprocessor or flattening data "
+                                  "(and labels)")
+        with self.assertRaisesRegex(ValueError, multi_dim_msg):
             prep.process(np.array([["this", "is"], ["two", "dimensions"]]))
-        with self.assertRaisesRegex(ValueError, "Data and labels given to "
-                                                "CharPreprocessor are different"
-                                                " lengths, 2 != 1"):
+        diff_length_msg = re.escape("Data and labels given to CharPreprocessor "
+                                    "are different lengths, 2 != 1")
+        with self.assertRaisesRegex(ValueError, diff_length_msg):
             prep.process(np.array(["two", "strings"]),
                          np.array([[(0, 1, "BACKGROUND")]], dtype="object"),
                          {"BACKGROUND": 1})
@@ -1628,20 +1627,19 @@ class TestStructCharPreprocessor(unittest.TestCase):
 
     def test_process_input_checks(self):
         prep = StructCharPreprocessor()
-        with self.assertRaisesRegex(ValueError, "Data and labels given to "
-                                                "StructCharPreprocessor are of "
-                                                "different shapes, "
-                                                "(2, 1) != (1, 2)"):
+        diff_shape_msg = re.escape("Data and labels given to "
+                                   "StructCharPreprocessor are of different "
+                                   "shapes, (2, 1) != (1, 2)")
+        with self.assertRaisesRegex(ValueError, diff_shape_msg):
             prep.process(np.array([["hello"], ["world"]]),
                          np.array([["BACKGROUND", "BACKGROUND"]]),
                          {"BACKGROUND": 1})
-        with self.assertWarnsRegex(Warning, "Data given to "
-                                            "StructCharPreprocessor was "
-                                            "multidimensional, it will be "
-                                            "flattened for model processing. "
-                                            "Results may be inaccurate, "
-                                            "consider reformatting data or "
-                                            "changing preprocessor."):
+        multi_dim_msg = re.escape("Data given to StructCharPreprocessor was "
+                                  "multidimensional, it will be flattened for "
+                                  "model processing. Results may be inaccurate,"
+                                  " consider reformatting data or changing "
+                                  "preprocessor.")
+        with self.assertWarnsRegex(Warning, multi_dim_msg):
             prep.process(np.array([["this", "is"], ["two", "dimensions"]]))
 
 

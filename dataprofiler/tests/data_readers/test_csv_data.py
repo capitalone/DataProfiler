@@ -295,7 +295,7 @@ class TestCSVDataClass(unittest.TestCase):
         
         _test_options("delimiter", valid = [',', '\t', '', None],
                       invalid = [CSVData(), 1],
-                      expected_error="'delimiter' must be a string")    
+                      expected_error="'delimiter' must be a string or None")    
         
         _test_options("data_format", valid = ['dataframe', 'records'],
                       invalid = ["error", CSVData(), 1, None],

@@ -103,7 +103,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                                  'integer for the row that represents the '
                                  'header (0 based index)')
             if key == "delimiter" and value != None and not isinstance(value, str):
-                raise ValueError("'delimiter' must be a string")
+                raise ValueError("'delimiter' must be a string or None")
             if key == "data_format" and value not in ["dataframe", "records"]:
                 raise ValueError("'data_format' must be one of the following: "
                                  "'dataframe' or 'records' ") 

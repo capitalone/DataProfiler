@@ -123,6 +123,9 @@ The format for a profile is below:
             "categories": list(str),
             "unique_count": int,
             "unique_ratio": float,
+            "precision": int,
+            "times": dict(float),
+            "format": string
         }
     }
 }

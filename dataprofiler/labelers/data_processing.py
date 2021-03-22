@@ -615,7 +615,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             raise ValueError("Multidimensional data given to "
                              "CharPreprocessor. Consider using a different "
                              "preprocessor or flattening data (and labels)")
-        # Flatted data into single dimensional np array, if it was truly 1D
+        # Flattened data into single dimensional np array, if it was truly 1D
         data = data.reshape(-1)
 
         if labels is not None:
@@ -1177,7 +1177,7 @@ class StructCharPreprocessor(CharPreprocessor,
                           "multidimensional, it will be flattened for model "
                           "processing. Results may be inaccurate, consider "
                           "reformatting data or changing preprocessor.")
-        # Flatted data and labels, confirmed to be same shape
+        # Flattened data and labels, confirmed to be same shape
         data = data.reshape(-1)
         if labels is not None:
             labels = labels.reshape(-1)

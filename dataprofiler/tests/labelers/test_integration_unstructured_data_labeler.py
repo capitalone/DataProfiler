@@ -13,15 +13,15 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
         data = [
             ['this is my test sentence.',
              [(5,  7, 'ADDRESS'),
-              (11, 20, 'INTEGER_BIG'),
+              (11, 20, 'INTEGER'),
               (20, 22, 'ADDRESS'),
-              (22, 24, 'INTEGER_BIG')]],
+              (22, 24, 'INTEGER')]],
             ['How nice.',
              [(0, 2, 'ADDRESS'),
-              (4, 5, 'INTEGER_BIG'),
-              (6, 8, 'INTEGER_BIG')]]
+              (4, 5, 'INTEGER'),
+              (6, 8, 'INTEGER')]]
         ]
-        new_labels = ["BACKGROUND", "ADDRESS", "INTEGER_BIG"]
+        new_labels = ["BACKGROUND", "ADDRESS", "INTEGER"]
         data = pd.DataFrame(data * 50)
 
         # constructing default UnstructuredDataLabeler()
@@ -54,13 +54,13 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
         data = [
             ['this is my test sentence.',
              [(5, 7, 'ADDRESS'),
-              (11, 20, 'INTEGER_BIG'),
+              (11, 20, 'INTEGER'),
               (20, 22, 'ADDRESS'),
-              (22, 24, 'INTEGER_BIG')]],
+              (22, 24, 'INTEGER')]],
             ['How nice.',
              [(0, 2, 'ADDRESS'),
-              (4, 5, 'INTEGER_BIG'),
-              (6, 8, 'INTEGER_BIG')]]
+              (4, 5, 'INTEGER'),
+              (6, 8, 'INTEGER')]]
         ]
         data = pd.DataFrame(data * 50)
 
@@ -70,7 +70,7 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
         # get char-level predictions on default model
         model_predictions = default.fit(
             x=data[0], y=data[1],
-            labels=['BACKGROUND', 'INTEGER_BIG', 'ADDRESS'])
+            labels=['BACKGROUND', 'INTEGER', 'ADDRESS'])
         self.assertEqual(1, len(model_predictions))
         self.assertEqual(3, len(model_predictions[0]))
         self.assertIsInstance(model_predictions[0][0], dict)

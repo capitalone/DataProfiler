@@ -100,6 +100,27 @@ class TestFloatColumn(unittest.TestCase):
         float_profiler.update(df_spaces)
         self.assertEqual(3, float_profiler.precision)
 
+        # check to make sure all formats of precision are correctly predicted
+        samples = [
+            # value, expected precision
+            ['10.01', 4],
+            ['.01', 1],
+            ['0.01', 1],
+            ['-0.01', 1],
+            ['+0.01', 1],
+            [' +0.013', 2],
+            ['  -1.3234e-3  ', 5],
+            ['  0012345600  ', 6],
+            ['  0012345600.  ', 8],
+            ['  -0012345600.  ', 8],
+        ]
+        for sample in samples:
+            df_series = pd.Series([sample[0]])
+            expected_precision = sample[1]
+            precision = FloatColumn._get_float_precision(df_series)
+            self.assertEqual(expected_precision, precision,
+                             msg='Errored for: {}'.format(sample[0]))
+
     def test_profiled_min(self):
         # test with multiple values
         data = np.linspace(-5, 5, 11)

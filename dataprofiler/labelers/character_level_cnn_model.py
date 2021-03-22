@@ -765,12 +765,11 @@ class CharacterLevelCnnModel(BaseTrainableModel,
             r_confidences = []
                 
         # Trim array size to length of sentence
-        # 756Mb
         for index, sentence_length \
                 in enumerate(sentence_lengths[:allocation_index]):
-            r_predictions.append(predictions[index][:sentence_length])
+            r_predictions.append(list(predictions[index][:sentence_length]))
             if show_confidences:
-                r_confidences.append(confidences[index][:sentence_length])
+                r_confidences.append(list(confidences[index][:sentence_length]))
 
         if show_confidences:
             return {'pred': r_predictions, 'conf': r_confidences} 

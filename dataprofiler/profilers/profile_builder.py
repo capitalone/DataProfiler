@@ -31,6 +31,7 @@ except:
             print("Processing Column {}/{}".format(i, len(l)))
             yield e
 			
+
 class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=500,

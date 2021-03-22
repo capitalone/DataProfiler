@@ -759,18 +759,20 @@ class CharacterLevelCnnModel(BaseTrainableModel,
             allocation_index += num_samples_in_batch
 
         # Convert predictions, confidences to lists from numpy
-        r_predictions = []
+        r_predictions = [i for i in range(0, allocation_index)] 
         r_confidences = None
         if show_confidences:
-            r_confidences = []
+            r_confidences = [i for i in range(0, allocation_index)]
                 
         # Append slices of predictions to return prediction & confidence matrices
         for index, sentence_length \
                 in enumerate(sentence_lengths[:allocation_index]):
-            r_predictions.append(list(predictions[index][:sentence_length]))
+            # r_predictions.append(list(predictions[index][:sentence_length]))
+            r_predictions[index] = list(predictions[index][:sentence_length])
             if show_confidences:
-                r_confidences.append(list(confidences[index][:sentence_length]))
-
+                # r_confidences.append(list(confidences[index][:sentence_length]))
+                r_confidences = list(confidences[index][:sentence_length])
+                
         if show_confidences:
             return {'pred': r_predictions, 'conf': r_confidences} 
         return {'pred': r_predictions}

@@ -677,16 +677,17 @@ class TestCharPreprocessor(unittest.TestCase):
         prep = CharPreprocessor()
         multi_dim_msg = re.escape("Multidimensional data given to "
                                   "CharPreprocessor. Consider using a different"
-                                  " preprocessor or flattening data "
-                                  "(and labels)")
+                                  " preprocessor or flattening data (and labels)")
         with self.assertRaisesRegex(ValueError, multi_dim_msg):
-            prep.process(np.array([["this", "is"], ["two", "dimensions"]]))
+            next(prep.process(np.array([["this", "is"],
+                                        ["two", "dimensions"]])))
         diff_length_msg = re.escape("Data and labels given to CharPreprocessor "
                                     "are different lengths, 2 != 1")
         with self.assertRaisesRegex(ValueError, diff_length_msg):
-            prep.process(np.array(["two", "strings"]),
-                         np.array([[(0, 1, "BACKGROUND")]], dtype="object"),
-                         {"BACKGROUND": 1})
+            next(prep.process(np.array(["two", "strings"]),
+                              np.array([[(0, 1, "BACKGROUND")]],
+                                       dtype="object"),
+                              {"BACKGROUND": 1}))
 
 
 class TestCharPostprocessor(unittest.TestCase):

@@ -613,7 +613,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         num_dim = sum([dim > 1 for dim in data.shape])
         if num_dim > 1:
             raise ValueError("Multidimensional data given to "
-                             "CharPreprocessor. Consider using a different"
+                             "CharPreprocessor. Consider using a different "
                              "preprocessor or flattening data (and labels)")
         # Flatted data into single dimensional np array, if it was truly 1D
         data = data.reshape(-1)

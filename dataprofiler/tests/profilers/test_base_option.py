@@ -5,9 +5,9 @@ from dataprofiler.tests.profilers.abstract_test_options import AbstractTestOptio
 
 
 class TestBaseOption(AbstractTestOptions, unittest.TestCase):
-    
-    option_class = BaseOption
 
+    option_class = BaseOption
+    
     def test_init(self, *mocks):
         options = self.get_options()
         self.assertDictEqual({}, options.properties) 

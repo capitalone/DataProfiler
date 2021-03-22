@@ -62,7 +62,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
                  "NECROMANTIC` HAVE mastopathy_nonfeasance_DEMOCRAT 26/09/95 "
                  "18:16 HE sugarcoat [8eec39e5-8acc-40ca-b424-7171ac49131b] "
                  "ourselves"],
-             1: [{"entities": [[164, 178, "DATETIME"], [193, 229, "UUID"]]}]
+             1: [[[164, 178, "DATETIME"], [193, 229, "UUID"]]]
             })
         cls.label_mapping = {
             'PAD': 0,

@@ -255,6 +255,18 @@ class TestStructuredDataLabeler(unittest.TestCase):
         # validate epoch id
         self.assertEqual(1, default.model._epoch_id)
 
+    def test_structured_data_labeler_fit_predict_take_data_obj(self):
+        data = pd.DataFrame(["123 Fake st", "1/1/2021", "blah", "333-44-2341",
+                             "foobar@gmail.com", "John Doe", "123-4567"])
+        labels = pd.DataFrame(["ADDRESS", "DATETIME", "BACKGROUND", "SSN",
+                               "EMAIL_ADDRESS", "PERSON", "PHONE_NUMBER"])
+        for dt in ["csv", "json", "parquet"]:
+            data_obj = dp.Data(data=data, data_type=dt)
+            label_obj = dp.Data(data=labels, data_type=dt)
+            labeler = dp.DataLabeler(labeler_type="structured", trainable=True)
+            self.assertIsNotNone(labeler.fit(x=data_obj, y=label_obj))
+            self.assertIsNotNone(labeler.predict(data=data_obj))
+
 
 if __name__ == '__main__':
     unittest.main()

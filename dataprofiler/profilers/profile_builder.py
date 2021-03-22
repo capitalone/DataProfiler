@@ -13,6 +13,7 @@ import random
 import re
 import hashlib
 from collections import OrderedDict
+import warnings
 
 import pandas as pd
 
@@ -26,9 +27,23 @@ from .profiler_options import ProfilerOptions, StructuredOptions
 
 class StructuredDataProfile(object):
 
-    def __init__(self, df_series, sample_size=None, min_sample_size=500,
+    def __init__(self, df_series, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
                  options=None):
+        """
+        Instantiate the Structured Profiler class.
+        
+        :param df_series: Data to be profiled
+        :type df_series: pandas.core.series.Series
+        :param sample_size: Number of samples to use in generating profile
+        :type sample_size: int
+        :param min_true_samples: Minimum number of samples required for the
+            profiler
+        :type min_true_samples: int
+        :param options: Options for the structured profiler.
+        :type options: StructuredOptions Object
+        """
+
         self.options = options
         self._min_sample_size = min_sample_size
         self._sampling_ratio = sampling_ratio
@@ -51,6 +66,10 @@ class StructuredDataProfile(object):
         self.null_types_index = {}
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
+        if sample_size < len(df_series):
+            warnings.warn("The data will be profiled with a sample size of {}. "
+                          "All statistics will be based on this subsample and "
+                          "not the whole dataset.".format(sample_size))
         clean_sampled_df, base_stats = \
             self.get_base_props_and_clean_null_params(df_series, sample_size)
         self._update_base_stats(base_stats)
@@ -241,7 +260,7 @@ class StructuredDataProfile(object):
             "--*": NO_FLAG,
             "__*": NO_FLAG,
         }
-
+        
         len_df = len(df_series)
         if not len_df:
             return df_series, {
@@ -264,26 +283,27 @@ class StructuredDataProfile(object):
             total_sample_size += len(sample_inds)
 
             df_series_subset = df_series.iloc[sample_inds]
-            # Check if known null types exist in column
-            for na, flags in null_values_and_flags.items():
-                # Check for the regex of the na in the string.
-                reg_ex_na = f"^{na}$"
-                matching_na_elements = df_series_subset.str.contains(
-                    reg_ex_na, flags=flags)
-                for row, elem in matching_na_elements.items():
-                    if elem:
-                        # Since df_series_subset[row] is mutable,
-                        # need to make new var
-                        row_value = str(df_series_subset[row])
-                        na_columns.setdefault(row_value, list()).append(row)
 
-                # Drop the values that matched regex_na
-                df_series_subset = df_series_subset[~matching_na_elements]
+            query = '(' + '|'.join(null_values_and_flags.keys()) + ')'
+            reg_ex_na = f"^{(query)}$"
+            matching_na_elements = df_series_subset.str.contains(
+                reg_ex_na, flags=re.IGNORECASE)
+
+            for row, elem in matching_na_elements.items():
+                if elem:
+                    # Since df_series_subset[row] is mutable,
+                    # need to make new var
+                    row_value = str(df_series_subset[row])
+                    na_columns.setdefault(row_value, list()).append(row)
+                    
+            # Drop the values that matched regex_na
+            df_series_subset = df_series_subset[~matching_na_elements]
+            
             true_sample_list += df_series_subset.index.tolist()
 
             if len(true_sample_list) >= min_true_samples and total_sample_size:
                 break
-
+            
         # close the generator in case it is not exhausted.
         sample_ind_generator.close()
 
@@ -515,7 +535,15 @@ class Profiler(object):
             raise ValueError('`Profiler` does not currently support data which '
                              'contains columns with duplicate names.')
 
-        for col in df.columns:
+        try:
+            from tqdm import tqdm
+        except:
+            def tqdm(l):
+                for i, e in enumerate(l):
+                    print("Processing Column {}/{}".format(i+1, len(l)))
+                    yield e
+			
+        for col in tqdm(df.columns):
             if col in profile:
                 column_profile = profile[col]
                 column_profile.update_profile(

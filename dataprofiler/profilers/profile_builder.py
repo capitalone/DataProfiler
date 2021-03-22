@@ -13,6 +13,7 @@ import random
 import re
 import hashlib
 from collections import OrderedDict
+import warnings
 
 import pandas as pd
 
@@ -26,9 +27,23 @@ from .profiler_options import ProfilerOptions, StructuredOptions
 
 class StructuredDataProfile(object):
 
-    def __init__(self, df_series, sample_size=None, min_sample_size=500,
+    def __init__(self, df_series, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
                  options=None):
+        """
+        Instantiate the Structured Profiler class.
+        
+        :param df_series: Data to be profiled
+        :type df_series: pandas.core.series.Series
+        :param sample_size: Number of samples to use in generating profile
+        :type sample_size: int
+        :param min_true_samples: Minimum number of samples required for the
+            profiler
+        :type min_true_samples: int
+        :param options: Options for the structured profiler.
+        :type options: StructuredOptions Object
+        """
+
         self.options = options
         self._min_sample_size = min_sample_size
         self._sampling_ratio = sampling_ratio
@@ -51,6 +66,10 @@ class StructuredDataProfile(object):
         self.null_types_index = {}
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
+        if sample_size < len(df_series):
+            warnings.warn("The data will be profiled with a sample size of {}. "
+                          "All statistics will be based on this subsample and "
+                          "not the whole dataset.".format(sample_size))
         clean_sampled_df, base_stats = \
             self.get_base_props_and_clean_null_params(df_series, sample_size)
         self._update_base_stats(base_stats)

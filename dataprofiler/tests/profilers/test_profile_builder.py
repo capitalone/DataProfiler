@@ -256,6 +256,20 @@ class TestProfiler(unittest.TestCase):
                                                ' to Profiler'):
             profile = dp.Profiler(dp.Data(text_file_path))
 
+    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+                'ColumnDataLabelerCompiler')
+    def test_sample_size_warning_in_the_profiler(self, *mocks):
+        data = pd.DataFrame([1, None, 3, 4, 5, None])
+        with self.assertWarnsRegex(UserWarning,
+                                   "The data will be profiled with a sample "
+                                   "size of 3. All statistics will be based on "
+                                   "this subsample and not the whole dataset."):
+            profile1 = dp.Profiler(data, samples_per_update=3)
+
 
 class TestStructuredDataProfileClass(unittest.TestCase):
 

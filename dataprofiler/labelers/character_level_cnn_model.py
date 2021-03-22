@@ -767,10 +767,8 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         # Append slices of predictions to return prediction & confidence matrices
         for index, sentence_length \
                 in enumerate(sentence_lengths[:allocation_index]):
-            # r_predictions.append(list(predictions[index][:sentence_length]))
             r_predictions[index] = list(predictions[index][:sentence_length])
             if show_confidences:
-                # r_confidences.append(list(confidences[index][:sentence_length]))
                 r_confidences = list(confidences[index][:sentence_length])
                 
         if show_confidences:

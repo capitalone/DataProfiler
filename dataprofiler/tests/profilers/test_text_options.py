@@ -5,7 +5,7 @@ from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOpt
 class TestTextOptions(TestNumericalOptions):
     
     option_class = TextOptions
-    keys = TestNumericalOptions.keys + ["vocab"] # ["min", "max", "sum", "variance", "histogram_and_quantiles", "vocab"]
+    keys = TestNumericalOptions.keys + ["vocab"]
 
     def test_init(self, *mocks):
         super().test_init(*mocks)

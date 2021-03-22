@@ -1461,7 +1461,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :type dirpath: str
         :return:
         """
-        params = dict(self._parameters)
+        params = copy.deepcopy(self._parameters)
         params['random_state'] = params['random_state'].getstate()
         with open(os.path.join(dirpath,
                                self.processor_type + '_parameters.json'),

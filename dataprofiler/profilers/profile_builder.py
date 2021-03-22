@@ -241,7 +241,7 @@ class StructuredDataProfile(object):
             "--*": NO_FLAG,
             "__*": NO_FLAG,
         }
-
+        
         len_df = len(df_series)
         if not len_df:
             return df_series, {
@@ -264,26 +264,27 @@ class StructuredDataProfile(object):
             total_sample_size += len(sample_inds)
 
             df_series_subset = df_series.iloc[sample_inds]
-            # Check if known null types exist in column
-            for na, flags in null_values_and_flags.items():
-                # Check for the regex of the na in the string.
-                reg_ex_na = f"^{na}$"
-                matching_na_elements = df_series_subset.str.contains(
-                    reg_ex_na, flags=flags)
-                for row, elem in matching_na_elements.items():
-                    if elem:
-                        # Since df_series_subset[row] is mutable,
-                        # need to make new var
-                        row_value = str(df_series_subset[row])
-                        na_columns.setdefault(row_value, list()).append(row)
 
-                # Drop the values that matched regex_na
-                df_series_subset = df_series_subset[~matching_na_elements]
+            query = '(' + '|'.join(null_values_and_flags.keys()) + ')'
+            reg_ex_na = f"^{(query)}$"
+            matching_na_elements = df_series_subset.str.contains(
+                reg_ex_na, flags=re.IGNORECASE)
+
+            for row, elem in matching_na_elements.items():
+                if elem:
+                    # Since df_series_subset[row] is mutable,
+                    # need to make new var
+                    row_value = str(df_series_subset[row])
+                    na_columns.setdefault(row_value, list()).append(row)
+                    
+            # Drop the values that matched regex_na
+            df_series_subset = df_series_subset[~matching_na_elements]
+            
             true_sample_list += df_series_subset.index.tolist()
 
             if len(true_sample_list) >= min_true_samples and total_sample_size:
                 break
-
+            
         # close the generator in case it is not exhausted.
         sample_ind_generator.close()
 

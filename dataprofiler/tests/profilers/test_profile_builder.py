@@ -442,13 +442,13 @@ class TestProfilerNullValues(unittest.TestCase):
         cls.trained_schema = dp.Profiler(test_dataset, len(test_dataset))
 
     def test_correct_rows_ingested(self):
-        self.assertEqual(['', 'nan', 'None', 'null'],
+        self.assertCountEqual(['', 'nan', 'None', 'null'],
                          self.trained_schema.profile['1'].null_types)
         self.assertEqual(
             5, self.trained_schema.profile['1'].null_count)
         self.assertEqual({'': [4], 'nan': [0], 'None': [2, 3], 'null': [
                          1]}, self.trained_schema.profile['1'].null_types_index)
-        self.assertEqual(['', 'nan', 'None', 'null'],
+        self.assertCountEqual(['', 'nan', 'None', 'null'],
                          self.trained_schema.profile[1].null_types)
         self.assertEqual(
             5, self.trained_schema.profile[1].null_count)

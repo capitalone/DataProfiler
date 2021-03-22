@@ -90,7 +90,10 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/quote-test.txt'),
                  count=10, delimiter=' ', has_header=[0, None],
-                 num_columns=3, encoding='utf-8'),
+                 num_columns=3, encoding='utf-8'),            
+            dict(path=os.path.join(test_dir, 'csv/quote-test-singlequote.txt'),
+                 count=9, delimiter=' ', has_header=[0, None],
+                 num_columns=3, encoding='utf-8'),            
             dict(path=os.path.join(test_dir, 'csv/multiple-col-delimiter-last.txt'),
                  count=6, delimiter=',', has_header=[0],
                  num_columns=4, encoding='utf-8'),
@@ -124,19 +127,43 @@ class TestCSVDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'csv/all-strings-skip-partial-header.csv'),
                  count=7, delimiter=',', has_header=[None, 1],
                  num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/num-negative-title.csv'),
+                 count=5, delimiter=None, has_header=[None],
+                 num_columns=1, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/num-negative-title-large.csv'),
+                 count=5, delimiter=None, has_header=[None],
+                 num_columns=1, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/daily-activity-sheet-@.csv'),
+                 count=31, delimiter='@', has_header=[1],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/daily-activity-sheet-int-description.csv'),
+                 count=32, delimiter=',', has_header=[1],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/daily-activity-sheet-@-singlequote.csv'),
+                 count=31, delimiter='@', has_header=[1],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/daily-activity-sheet-tab.csv'),
+                 count=31, delimiter='\t', has_header=[0],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/preferred-check-small-num.csv'),
+                 count=5, delimiter=',', has_header=[None],
+                 num_columns=2, encoding='utf-8'),
         ]
         cls.output_file_path = None
-
+        
     def test_auto_file_identification(self):
         """
         Determine if the csv file can be automatically identified
         """
         for input_file in self.input_file_names:
             input_data_obj = Data(input_file['path'])
-            self.assertEqual(input_data_obj.data_type, 'csv')
-            self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
-            self.assertEqual(len(input_data_obj.data.columns),
-                             input_file['num_columns'])
+            try:
+                self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
+                                 input_file['path'])
+                self.assertEqual(len(input_data_obj.data.columns),
+                                 input_file['num_columns'])
+            except AttributeError as e:
+                raise AttributeError(repr(e)+': '+input_file['path'].split("/")[-1])
 
     def test_specifying_data_type(self):
         """
@@ -144,8 +171,9 @@ class TestCSVDataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             input_data_obj = Data(input_file["path"], data_type='csv')
-            self.assertEqual(input_data_obj.data_type, 'csv')
-            self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
+            self.assertEqual(input_data_obj.data_type, 'csv', input_file["path"])
+            self.assertEqual(input_data_obj.delimiter,
+                             input_file['delimiter'], input_file["path"])
 
     def test_data_formats(self):
         """
@@ -153,6 +181,7 @@ class TestCSVDataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             input_data_obj = Data(input_file['path'])
+            self.assertEqual(input_data_obj.data_type, 'csv')
             self.assertIsInstance(input_data_obj.data, pd.DataFrame)
 
             input_data_obj.data_format = "records"
@@ -173,8 +202,9 @@ class TestCSVDataClass(unittest.TestCase):
         for input_file in self.input_file_names:
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
-            self.assertEqual(input_data_obj.data_type, 'csv')
-            self.assertEqual(input_data_obj.delimiter, input_file['delimiter'])
+            self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
+            self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
+                             input_file['path'])
 
     def test_allowed_data_formats(self):
         """
@@ -275,7 +305,7 @@ class TestCSVDataClass(unittest.TestCase):
             with open(input_file['path'], encoding=file_encoding) as csvfile:
                 data_as_str = ''.join(list(islice(csvfile, 5)))
             header_line = CSVData._guess_header_row(data_as_str, input_file['delimiter'])
-            self.assertIn(header_line, input_file['has_header'])
+            self.assertIn(header_line, input_file['has_header'], input_file['path'])
 
 
 if __name__ == '__main__':

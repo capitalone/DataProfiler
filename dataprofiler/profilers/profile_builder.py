@@ -265,7 +265,7 @@ class StructuredDataProfile(object):
 
             df_series_subset = df_series.iloc[sample_inds]
 
-            query = '('+'|'.join(null_values_and_flags.keys())+')'
+            query = '(' + '|'.join(null_values_and_flags.keys()) + ')'
             reg_ex_na = f"^{(query)}$"
             matching_na_elements = df_series_subset.str.contains(
                 reg_ex_na, flags=re.IGNORECASE)

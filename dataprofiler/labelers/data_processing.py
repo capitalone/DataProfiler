@@ -792,11 +792,12 @@ class CharPostprocessor(BaseDataPostprocessor,
         background_label = label_mapping[default_label]
 
         # Iterate over both lists, should be same length
-        for sentence, char_pred in zip(data, predictions):
-            sample = sentence
+        for sample, char_pred in zip(data, predictions):
+            
             # Copy entities_in_sample so can return later
-            entities_in_sample = copy.deepcopy(
-                char_pred)  # changed input param to "predictions" for ease
+            # changed input param to "predictions" for ease
+            # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+            entities_in_sample = list(char_pred)  
 
             # Convert to dict for quick look-up
             separator_dict = {}
@@ -999,8 +1000,10 @@ class CharPostprocessor(BaseDataPostprocessor,
         pad_label = self._parameters['pad_label']
 
         # Format predictions
-        results = self.match_sentence_lengths(data, copy.deepcopy(results),
+        # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+        results = self.match_sentence_lengths(data, dict(results),
                                               flatten_separator)
+        
         if use_word_level_argmax:
             results['pred'] = self._word_level_argmax(
                 data, results['pred'], label_mapping, default_label)
@@ -1059,7 +1062,8 @@ class StructCharPreprocessor(CharPreprocessor,
         :rtype: None
         """
         # flatten_split is hard coded above hence cannot be passed
-        parameters = copy.deepcopy(parameters)
+        # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+        parameters = dict(parameters)
         parameters.pop('flatten_split', None)
         super()._validate_parameters(parameters)
 
@@ -1434,7 +1438,8 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         pad_label = self._parameters['pad_label']
 
         # Format predictions
-        results = self.match_sentence_lengths(data, copy.deepcopy(results),
+        # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
+        results = self.match_sentence_lengths(data, dict(results),
                                               flatten_separator)
         results = self.convert_to_structured_analysis(
             data, results,
@@ -1457,7 +1462,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :type dirpath: str
         :return:
         """
-        params = copy.deepcopy(self._parameters)
+        params = dict(self._parameters)
         params['random_state'] = params['random_state'].getstate()
         with open(os.path.join(dirpath,
                                self.processor_type + '_parameters.json'),
@@ -1623,6 +1628,7 @@ class RegexPostProcessor(BaseDataPostprocessor,
         aggregation_func = aggregation_func.lower()
 
         results = copy.deepcopy(labels)
+        
         if aggregation_func == 'split':
             self.split_prediction(results)
         elif aggregation_func == 'priority':

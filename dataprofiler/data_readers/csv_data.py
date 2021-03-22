@@ -107,13 +107,31 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :return: None
         """
         options = super()._check_and_return_options(options)
-        for key, value in options.items():
-            if key == 'header' and value != 'auto' and value is not None \
-                    and not (isinstance(value, int) and value > -1):
+        
+        if 'header' in options.keys():
+            value = options["header"]
+            if value != 'auto' and value is not None \
+                and not (isinstance(value, int) and value > -1):
                 raise ValueError('`header` must be one of following: auto, '
                                  'none for no header, or a non-negative '
                                  'integer for the row that represents the '
                                  'header (0 based index)')
+        if 'delimiter' in options.keys():
+            value = options["delimiter"]
+            if value is not None and not isinstance(value, str):
+                raise ValueError("'delimiter' must be a string or None")
+        if 'data_format' in options.keys():
+            value = options["data_format"]
+            if value not in ["dataframe", "records"]:
+                raise ValueError("'data_format' must be one of the following: "
+                                 "'dataframe' or 'records' ") 
+        if 'selected_columns' in options.keys():
+            value = options["selected_columns"]
+            if not isinstance(value, list):
+                raise ValueError("'selected_columns' must be a list")
+            for sc in value:
+                if not isinstance(sc, str):
+                    raise ValueError("'selected_columns' must be a list of strings")
         return options
 
     

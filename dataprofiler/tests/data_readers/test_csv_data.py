@@ -307,6 +307,37 @@ class TestCSVDataClass(unittest.TestCase):
             header_line = CSVData._guess_header_row(data_as_str, input_file['delimiter'])
             self.assertIn(header_line, input_file['has_header'], input_file['path'])
 
+    def test_options(self):
+
+        def _test_options(option, valid, invalid, expected_error):
+            # Test Valid
+            for value in valid:
+                CSVData(options={option: value})
+            
+            # Test Invalid
+            for value in invalid:
+                with self.assertRaisesRegex(ValueError, expected_error):
+                    CSVData(options={option: value})
+
+        _test_options("header", valid = ["auto", None, 0, 1],
+                      invalid = ["error", CSVData(), -1],
+                      expected_error = '`header` must be one of following: auto, ')
+        
+        _test_options("delimiter", valid = [',', '\t', '', None],
+                      invalid = [CSVData(), 1],
+                      expected_error="'delimiter' must be a string or None")    
+        
+        _test_options("data_format", valid = ['dataframe', 'records'],
+                      invalid = ["error", CSVData(), 1, None],
+                      expected_error = "'data_format' must be one of the following: ") 
+        
+        _test_options("selected_columns", valid = [['hello', 'world'], ["test"], []],
+                      invalid = ["error", CSVData(), 1, None],
+                      expected_error = "'selected_columns' must be a list") 
+        
+        _test_options("selected_columns", valid = [], invalid = [[0,1,2,3]],
+                      expected_error = "'selected_columns' must be a list of strings") 
+
 
 if __name__ == '__main__':
     unittest.main()

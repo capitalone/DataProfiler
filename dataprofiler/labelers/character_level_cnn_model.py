@@ -760,11 +760,11 @@ class CharacterLevelCnnModel(BaseTrainableModel,
 
         # Convert predictions, confidences to lists from numpy
         r_predictions = []
-        r_confidences = []
+        r_confidences = None
         if show_confidences:
             r_confidences = []
                 
-        # Trim array size to length of sentence
+        # Append slices of predictions to return prediction & confidence matrices
         for index, sentence_length \
                 in enumerate(sentence_lengths[:allocation_index]):
             r_predictions.append(list(predictions[index][:sentence_length]))

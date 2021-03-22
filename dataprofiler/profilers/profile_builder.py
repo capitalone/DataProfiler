@@ -63,21 +63,32 @@ class StructuredDataProfile(object):
             'data_stats_profile':
                 ColumnStatsProfileCompiler(clean_sampled_df, self.options)}
 
-        # use the data labeler by default
         if data_labeler:
             self.profiles.update(
                     {'data_label_profile':
                          ColumnDataLabelerCompiler(clean_sampled_df,
                                                    self.options,
                                                    data_labeler)})
-        # use_data_labeler = True
-        # if options and isinstance(options, StructuredOptions):
-        #     use_data_labeler = options.data_labeler.is_enabled
-        #
-        # if use_data_labeler:
-        #     self.profiles.update(
-        #         {'data_label_profile':
-        #              ColumnDataLabelerCompiler(clean_sampled_df, self.options)})
+        else:
+            # use the data labeler by default
+            use_data_labeler = True
+            if options and isinstance(options, StructuredOptions):
+                use_data_labeler = options.data_labeler.is_enabled
+
+            if use_data_labeler:
+                data_labeler_dirpath = None
+                if options and options.data_labeler_dirpath:
+                    data_labeler_dirpath = options.data_labeler_dirpath
+
+                self.data_labeler = DataLabeler(
+                    labeler_type='structured',
+                    dirpath=data_labeler_dirpath,
+                    load_options=None)
+
+                self.profiles.update(
+                    {'data_label_profile':
+                         ColumnDataLabelerCompiler(clean_sampled_df,
+                                                   self.options)})
 
     def __add__(self, other):
         """
@@ -354,6 +365,7 @@ class Profiler(object):
             raise TypeError("Cannot provide TextData object to Profiler")
 
         # assign data labeler
+        use_data_labeler = True
         data_labeler_dirpath = None
         self.data_labeler = None
         structured_options = None

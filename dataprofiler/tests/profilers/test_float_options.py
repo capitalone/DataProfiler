@@ -5,7 +5,7 @@ from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOpt
 class TestFloatOptions(TestNumericalOptions):
     
     option_class = FloatOptions    
-    keys = ["min", "max", "sum", "variance", "histogram_and_quantiles", "precision"]
+    keys = TestNumericalOptions.keys + ["precision"] #["min", "max", "sum", "variance", "histogram_and_quantiles", "precision"]
         
     def test_init(self, *mocks):
         super().test_init(*mocks)

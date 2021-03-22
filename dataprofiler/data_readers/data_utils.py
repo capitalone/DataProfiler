@@ -1,7 +1,9 @@
 from builtins import next
+import re
 import json
 from io import open
 from collections import OrderedDict
+import dateutil
 
 import pandas as pd
 import pyarrow.parquet as pq
@@ -302,3 +304,67 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     if not encoding or encoding == 'ascii':
         encoding = 'utf-8'
     return encoding.lower()
+
+
+def detect_cell_type(cell):
+    """
+    Detects the cell type (int, float, etc)
+
+    :param cell: String designated for data type detection
+    :type cell: str
+    """
+    
+    cell_type = 'str'
+    if len(cell) == 0:
+        cell_type = 'none'
+    else:
+
+        try:
+            if dateutil.parser.parse(cell, fuzzy=False):
+                cell_type = 'date'
+        except (ValueError, OverflowError, TypeError):
+            pass
+
+        try:
+            f_cell = float(cell)
+            cell_type = 'float'
+            if f_cell.is_integer():
+                cell_type = 'int'
+        except ValueError:
+            pass
+
+        if cell.isupper():
+            cell_type = 'upstr'
+            
+    return cell_type
+
+
+def get_delimiter_regex(delimiter=",", quotechar=","):
+    """
+    Builds regex for delimiter checks
+    
+    :param delimiter: Delimiter to be added to regex
+    :type delimiter: str
+    :param quotechar: Quotechar to be added to regex
+    :type delimiter: str
+    """
+    
+    if delimiter is None:
+        return ""
+
+    if quotechar is None:
+        quotechar = '"'
+
+    delimiter_regex = re.escape(str(delimiter))
+    quotechar_escape= re.escape(quotechar)
+    quotechar_regex = "(?=" 
+    quotechar_regex +=  "(?:"
+    quotechar_regex +=    "[^"+quotechar_escape+"]*"
+    quotechar_regex +=    quotechar_escape
+    quotechar_regex +=    "[^"+quotechar_escape+"]*"
+    quotechar_regex +=    quotechar_escape
+    quotechar_regex +=   ")*"
+    quotechar_regex +=   "[^"+quotechar_escape+"]*"
+    quotechar_regex += "$)"
+
+    return re.compile(delimiter_regex + quotechar_regex)

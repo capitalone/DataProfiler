@@ -382,7 +382,8 @@ class Profiler(object):
             use_data_labeler = data_labeler_options.is_enabled
 
         if use_data_labeler:
-            if data_labeler_options.data_labeler_dirpath:
+            if isinstance(data_labeler_options, DataLabelerOptions) and \
+                    data_labeler_options.data_labeler_dirpath:
                 data_labeler_dirpath = \
                     data_labeler_options.data_labeler_dirpath
 

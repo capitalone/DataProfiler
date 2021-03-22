@@ -10,7 +10,7 @@ from dataprofiler.profilers.profiler_options import IntOptions, FloatOptions
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
             'DataLabelerColumn.update', return_value=None)
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
+@mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
 class TestProfilerOptions(unittest.TestCase):
 
     @classmethod

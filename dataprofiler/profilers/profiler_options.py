@@ -6,6 +6,7 @@ Specify the options when running the data profiler.
 import warnings
 import abc
 import copy
+from ..labelers.data_labelers import DataLabeler
 
 
 class BaseOption(object):
@@ -451,6 +452,7 @@ class DataLabelerOptions(BaseColumnOptions):
         BaseColumnOptions.__init__(self)
         self.data_labeler_dirpath = None
         self.max_sample_size = None
+        self.data_labeler_model = None
 
     def _validate_helper(self, variable_path='DataLabelerOptions'):
         """
@@ -466,6 +468,14 @@ class DataLabelerOptions(BaseColumnOptions):
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
+        print('self.data_labeler_model============================: ', self.data_labeler_model)
+        if self.data_labeler_model and \
+                not isinstance(self.data_labeler_model, DataLabeler):
+            errors.append("{}.data_labeler_model must be a DataLabeler object."
+                          .format(variable_path))
+        if self.data_labeler_model and self.data_labeler_dirpath:
+            warnings.warn("The data labeler passed in will be used,"
+                          " not through the directory of the default model")
         if self.max_sample_size and not isinstance(self.max_sample_size, int):
             errors.append("{}.max_sample_size must be a string."
                           .format(variable_path))

@@ -31,7 +31,7 @@ class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
-                 data_labeler=None, options=None):
+                 options=None):
         """
         Instantiate the Structured Profiler class.
         
@@ -81,12 +81,12 @@ class StructuredDataProfile(object):
             'data_stats_profile':
                 ColumnStatsProfileCompiler(clean_sampled_df, self.options)}
 
+        data_labeler = self.options.data_labeler.data_labeler_model
         if data_labeler:
             self.profiles.update(
-                    {'data_label_profile':
-                         ColumnDataLabelerCompiler(clean_sampled_df,
-                                                   self.options,
-                                                   data_labeler)})
+                {'data_label_profile':
+                     ColumnDataLabelerCompiler(clean_sampled_df, self.options)})
+
         else:
             # use the data labeler by default
             use_data_labeler = True
@@ -98,16 +98,13 @@ class StructuredDataProfile(object):
                 if options and options.data_labeler_dirpath:
                     data_labeler_dirpath = options.data_labeler_dirpath
 
-                data_labeler = DataLabeler(
-                    labeler_type='structured',
-                    dirpath=data_labeler_dirpath,
-                    load_options=None)
-
+                self.options.data_labeler.data_labeler_model = \
+                    DataLabeler(labeler_type='structured',
+                                dirpath=data_labeler_dirpath,
+                                load_options=None)
                 self.profiles.update(
                     {'data_label_profile':
-                         ColumnDataLabelerCompiler(clean_sampled_df,
-                                                   self.options,
-                                                   data_labeler)})
+                         ColumnDataLabelerCompiler(clean_sampled_df, self.options)})
 
     def __add__(self, other):
         """
@@ -601,11 +598,13 @@ class Profiler(object):
                 structured_options = None
                 if options and options.structured_options:
                     structured_options = options.structured_options
+                if self.data_labeler:
+                    structured_options.data_labeler.data_labeler_model = \
+                        self.data_labeler
                 profile[col] = StructuredDataProfile(
                     df[col],
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
-                    data_labeler=self.data_labeler,
                     options=structured_options
                 )
 

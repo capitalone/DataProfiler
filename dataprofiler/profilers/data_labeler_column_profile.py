@@ -290,7 +290,4 @@ class DataLabelerColumn(BaseColumnProfiler):
             prev_dependent_properties={}, subset_properties=profile)
         self._update_helper(df_series, profile)
 
-    def close(self):
-        if hasattr(self.data_labeler, 'close'):
-            self.data_labeler.close()
 

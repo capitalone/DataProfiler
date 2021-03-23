@@ -106,7 +106,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: string representing its precision print format
         :rtype: int
         """
-        if df_series_clean.empty:
+        if not len(df_series_clean):
             return 0
 
         # set it to first value length, at very least will be smaller since min.

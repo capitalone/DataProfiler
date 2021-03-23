@@ -56,15 +56,8 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                     col_profile_options = options.properties[col_profile_type.col_type]
 
                 try:
-                    data_labeler = options.data_labeler.data_labeler_model
-                    if not data_labeler:
-                        self._profiles[col_profile_type.col_type] = \
-                            col_profile_type(df_series.name, options=col_profile_options)
-                    else:
-                        self._profiles[col_profile_type.col_type] = \
-                            col_profile_type(df_series.name,
-                                             options=col_profile_options,
-                                             data_labeler=data_labeler)
+                    self._profiles[col_profile_type.col_type] = \
+                        col_profile_type(df_series.name, options=col_profile_options)
                     self._profiles[col_profile_type.col_type].update(df_series)
                 except Exception as e:
                     import warnings

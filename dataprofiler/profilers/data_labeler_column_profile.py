@@ -11,7 +11,7 @@ class DataLabelerColumn(BaseColumnProfiler):
     
     col_type = "data_labeler"
     
-    def __init__(self, name, data_labeler=None, options=None):
+    def __init__(self, name, options=None):
         """
         Initialization of Data Label profiling for structured datasets.
 
@@ -30,6 +30,7 @@ class DataLabelerColumn(BaseColumnProfiler):
             if options.max_sample_size:
                 self._max_sample_size = options.max_sample_size
 
+        data_labeler = options.data_labeler_model
         if data_labeler is None:
             data_labeler_dirpath = None
             if options and options.data_labeler_dirpath:

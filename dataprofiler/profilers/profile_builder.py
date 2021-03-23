@@ -98,7 +98,7 @@ class StructuredDataProfile(object):
                 if options and options.data_labeler_dirpath:
                     data_labeler_dirpath = options.data_labeler_dirpath
 
-                self.data_labeler = DataLabeler(
+                data_labeler = DataLabeler(
                     labeler_type='structured',
                     dirpath=data_labeler_dirpath,
                     load_options=None)
@@ -106,7 +106,8 @@ class StructuredDataProfile(object):
                 self.profiles.update(
                     {'data_label_profile':
                          ColumnDataLabelerCompiler(clean_sampled_df,
-                                                   self.options)})
+                                                   self.options,
+                                                   data_labeler)})
 
     def __add__(self, other):
         """

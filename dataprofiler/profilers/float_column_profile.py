@@ -96,21 +96,22 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return None
 
     @classmethod
-    def _get_float_precision(cls, df_series):
+    def _get_float_precision(cls, df_series_clean):
         """
-        Determines the precision of the numeric value
+        Determines the precision of the numeric value.
         
-        :param df_series: a given column
-        :type df_series: pandas.core.series.Series
+        :param df_series_clean: df series with nulls removed, assumes all values
+            are floats as well
+        :type df_series_clean: pandas.core.series.Series
         :return: string representing its precision print format
         :rtype: int
         """
-        if df_series.empty:
+        if df_series_clean.empty:
             return 0
 
         # set it to first value length, at very least will be smaller since min.
-        precision = len(df_series.iloc[0])
-        for value in df_series:
+        precision = len(df_series_clean.iloc[0])
+        for value in df_series_clean:
 
             # remove all spaces around value
             value = value.strip()

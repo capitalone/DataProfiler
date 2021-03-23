@@ -409,6 +409,10 @@ class Profiler(object):
                 dirpath=data_labeler_dirpath,
                 load_options=None)
 
+        if self.data_labeler:
+            self.options.structured_options.data_labeler.data_labeler_model = \
+                self.data_labeler
+
         self.update_profile(data)
 
     def __add__(self, other):
@@ -553,7 +557,8 @@ class Profiler(object):
                 "pd.DataFrame."
             )
 
-    def _update_profile_from_chunk(self, df, profile=None, sample_size=None,
+    @staticmethod
+    def _update_profile_from_chunk(df, profile=None, sample_size=None,
                                    min_true_samples=None, options=None):
         """
         Iterate over the columns of a dataset and identify its parameters.
@@ -598,9 +603,6 @@ class Profiler(object):
                 structured_options = None
                 if options and options.structured_options:
                     structured_options = options.structured_options
-                if self.data_labeler:
-                    structured_options.data_labeler.data_labeler_model = \
-                        self.data_labeler
                 profile[col] = StructuredDataProfile(
                     df[col],
                     sample_size=sample_size,

@@ -789,5 +789,3 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         for key, value in self.label_mapping.items():
             print("{}: {}".format(key, value))
 
-    def close(self):
-        tf.keras.backend.clear_session()

@@ -285,7 +285,6 @@ class TestStructuredDataLabeler(unittest.TestCase):
                              "datetime.is_enabled": False, })
 
         profile = dp.Profiler(data, profiler_options=profile_options)
-        self.assertEqual(2, profile.data_labeler.preprocessor.process.call_count)
         results = profile.report()
 
         columns = []

@@ -370,8 +370,7 @@ def get_delimiter_regex(delimiter=",", quotechar=","):
     return re.compile(delimiter_regex + quotechar_regex)
 
 
-def find_nth_loc(string=None, search_query=None,
-                 n=0, return_last_occurance=True):
+def find_nth_loc(string=None, search_query=None, n=0):
     """
     Searches the string via the search_query and
     returns the nth index in which the query occurs.
@@ -383,9 +382,6 @@ def find_nth_loc(string=None, search_query=None,
     :type search_query: str
     :param n: The number of occurances to iterate through
     :type n: int
-    :param return_last_occurance: Flag to return final index,
-    if the strings end before the nth index
-    :type return_last_occurance: boolean
     
     :return idx: Index of the nth or last occurance of the search_query
     :rtype idx: int
@@ -424,7 +420,7 @@ def find_nth_loc(string=None, search_query=None,
     # Checks if end of line is search query, drops
     if string[(idx-len(search_query)):idx] == search_query:
         idx-=len(search_query)
-
+        
     return idx, id_count
 
 

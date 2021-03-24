@@ -161,7 +161,8 @@ class TestCSVDataClass(unittest.TestCase):
                 self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
                                  input_file['path'])
                 self.assertEqual(len(input_data_obj.data.columns),
-                                 input_file['num_columns'])
+                                 input_file['num_columns'],
+                                 input_file['path'])
             except AttributeError as e:
                 raise AttributeError(repr(e)+': '+input_file['path'].split("/")[-1])
 
@@ -173,7 +174,8 @@ class TestCSVDataClass(unittest.TestCase):
             input_data_obj = Data(input_file["path"], data_type='csv')
             self.assertEqual(input_data_obj.data_type, 'csv', input_file["path"])
             self.assertEqual(input_data_obj.delimiter,
-                             input_file['delimiter'], input_file["path"])
+                             input_file['delimiter'],
+                             input_file["path"])
 
     def test_data_formats(self):
         """

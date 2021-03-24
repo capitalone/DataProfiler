@@ -454,23 +454,16 @@ class DataLabelerOptions(BaseColumnOptions):
         self.max_sample_size = None
         self.data_labeler_object = None
 
-    @property
-    def properties(self):
-        """
-        Returns a copy of the option properties.
-
-        :return: dictionary of the option's properties attr: value
-        :rtype: dict
-        """
-        if 'data_labeler_object' in self.__dict__ and \
-                self.__dict__['data_labeler_object']:
-            self.__dict__.pop('data_labeler_object')
-            saved_options = copy.deepcopy(self.__dict__)
-            saved_options['data_labeler_object'] = \
-                self.__dict__['data_labeler_object']
-        else:
-            saved_options = super().properties
-        return saved_options
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            if k == 'data_labeler_object':
+                setattr(result, k, v)
+            else:
+                setattr(result, k, copy.deepcopy(v, memo))
+        return result
 
     def _validate_helper(self, variable_path='DataLabelerOptions'):
         """

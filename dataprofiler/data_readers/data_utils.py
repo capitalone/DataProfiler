@@ -388,7 +388,8 @@ def find_nth_loc(string=None, search_query=None, n=0):
     :return id_count: Number of identifications prior to idx
     :rtype id_count: int
     """
-    
+
+    # Return base case, if there's no string, query or n
     if not string or not search_query or 0 >= n:
         return -1, 0
 
@@ -450,7 +451,7 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=10,
             sample_lines = csvfile.read(sample_size_bytes)
             if len(sample_lines) == 0:                
                 break # No more bytes in file
-        
+
             remaining_lines = max_lines - total_occurances
             loc, occurance = find_nth_loc(sample_lines,
                                           search_query='\n',

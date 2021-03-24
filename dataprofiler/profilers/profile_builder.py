@@ -21,8 +21,10 @@ from . import utils
 from .. import data_readers
 from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
     ColumnStatsProfileCompiler, ColumnDataLabelerCompiler
+from ..labelers.data_labelers import DataLabeler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
-from .profiler_options import ProfilerOptions, StructuredOptions
+from .profiler_options import ProfilerOptions, StructuredOptions, \
+    DataLabelerOptions
 
 
 class StructuredDataProfile(object):
@@ -43,7 +45,6 @@ class StructuredDataProfile(object):
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
-
         self.options = options
         self._min_sample_size = min_sample_size
         self._sampling_ratio = sampling_ratio
@@ -80,7 +81,6 @@ class StructuredDataProfile(object):
             'data_stats_profile':
                 ColumnStatsProfileCompiler(clean_sampled_df, self.options)}
 
-        # use the data labeler by default
         use_data_labeler = True
         if options and isinstance(options, StructuredOptions):
             use_data_labeler = options.data_labeler.is_enabled
@@ -365,6 +365,38 @@ class Profiler(object):
         if isinstance(data, data_readers.text_data.TextData):
             raise TypeError("Cannot provide TextData object to Profiler")
 
+        # assign data labeler
+        use_data_labeler = True
+        data_labeler_dirpath = None
+        data_labeler = None
+        structured_options = None
+
+        if profiler_options and profiler_options.structured_options:
+            structured_options = profiler_options.structured_options
+
+        if structured_options and isinstance(
+                structured_options, StructuredOptions):
+            data_labeler_options = structured_options.data_labeler
+
+        if data_labeler_options and isinstance(
+                data_labeler_options, DataLabelerOptions):
+            use_data_labeler = data_labeler_options.is_enabled
+
+        if use_data_labeler:
+            if isinstance(data_labeler_options, DataLabelerOptions) and \
+                    data_labeler_options.data_labeler_dirpath:
+                data_labeler_dirpath = \
+                    data_labeler_options.data_labeler_dirpath
+
+            data_labeler = DataLabeler(
+                labeler_type='structured',
+                dirpath=data_labeler_dirpath,
+                load_options=None)
+
+        if data_labeler:
+            self.options.structured_options.data_labeler.data_labeler_object = \
+                data_labeler
+
         self.update_profile(data)
 
     def __add__(self, other):
@@ -563,3 +595,4 @@ class Profiler(object):
                 )
 
         return profile
+

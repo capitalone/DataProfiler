@@ -482,14 +482,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         )
 
     def _load_data_from_file(self, input_file_path):
-        """Loads the data into memory from the file."""
-        self._file_encoding = data_utils.detect_file_encoding(input_file_path)        
+        """
+        Loads the data into memory from the file.
+        """
+        
+        self._file_encoding = data_utils.detect_file_encoding(input_file_path)
+        data_as_str = data_utils.load_as_str_from_file(input_file_path,
+                                                       self._file_encoding)
+
         if not self._delimiter or not self._checked_header:
-            with open(input_file_path, encoding=self.file_encoding) as csvfile:
-                num_lines = 5
-                check_lines = list(islice(csvfile, num_lines))
-                data_as_str = ''.join(check_lines)
-                
             delimiter, quotechar = None, None
             if not self._delimiter or not self._quotechar:
                 delimiter, quotechar = self._guess_delimiter_and_quotechar(data_as_str)
@@ -506,17 +507,19 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # if there is only one delimiter at the end of each row,
         # set delimiter to None
         if self._delimiter:
-            with open(input_file_path, encoding=self.file_encoding) as csvfile:
-                num_lines, num_lines_read = 5, 0
+            if len(data_as_str) > 0:
+                num_lines_read = 0
                 count_delimiter_last = 0
-                for line in islice(csvfile, 1, num_lines):
-                    if line.strip()[-1] == self._delimiter and \
-                            line.count(self._delimiter) == 1:
-                        count_delimiter_last += 1
-                    num_lines_read += 1
+                for line in data_as_str.split('\n'):
+                    if len(line) > 0:
+                        if line.count(self._delimiter) == 1 \
+                           and line.strip()[-1] == self._delimiter:
+                            count_delimiter_last += 1
+                        num_lines_read += 1
                 if count_delimiter_last == num_lines_read:
                     self._delimiter = None
 
+        
         return data_utils.read_csv_df(
             input_file_path,
             self.delimiter, self.header, self.selected_columns,
@@ -552,15 +555,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         delimiter = options.get("delimiter", None)
         quotechar = options.get("quotechar", None)
-
         header = options.get("header", 'auto')
+
+        data_as_str = data_utils.load_as_str_from_file(file_path, file_encoding)
+        
         if not delimiter or header == 'auto':
-
-            data_as_str = None
-            with open(file_path, encoding=file_encoding) as csvfile:
-                num_lines = 5
-                data_as_str = ''.join(islice(csvfile, num_lines))
-
+            
             # Checks if delimiter is a space; If so, returns false
             quotetmp = None
             if not delimiter:
@@ -581,33 +581,32 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         space_regex = data_utils.get_delimiter_regex(" ", quotechar)
 
         # Count the possible delimiters
-        with open(file_path, encoding=file_encoding) as f:
-            for line in f:
+        for line in data_as_str.split('\n'):
 
-                count = 0
-                line_count += 1
+            line_count += 1
+            count = 0
 
-                # Must have content in line, >1 due to the \n character
-                if len(line) <= 1:
-                    empty_line_count += 1
-                    continue
+            # Must have content in line, >1 due to the \n character
+            if len(line) <= 1:
+                empty_line_count += 1
+                continue
 
-                # Find the location(s) where each delimiter was detected
-                if delimiter:
-                    count = len([i.start() for i in re.finditer(delimiter_regex, line)])
-                else:                    
-                    # If no delimiter, see if spaces are regular intervals
-                    count = len([i.start() for i in re.finditer(space_regex, line)])
+            # Find the location(s) where each delimiter was detected
+            if delimiter:
+                count = len([i.start() for i in re.finditer(delimiter_regex, line)])
+            else:                    
+                # If no delimiter, see if spaces are regular intervals
+                count = len([i.start() for i in re.finditer(space_regex, line)])
 
-                # Track the delimiter count per file
-                if count not in delimiter_count:
-                    delimiter_count[count] = 0
-                delimiter_count[count] += 1
+            # Track the delimiter count per file
+            if count not in delimiter_count:
+                delimiter_count[count] = 0
+            delimiter_count[count] += 1
 
-                if line_count >= max_line_count:
-                    break
-        
-        if line_count <= min_line_count:
+            if line_count >= max_line_count:
+                break
+
+        if line_count - empty_line_count <= min_line_count:
             return False
 
         # ================================================================

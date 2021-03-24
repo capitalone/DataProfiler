@@ -467,8 +467,9 @@ class DataLabelerOptions(BaseColumnOptions):
             self.__dict__.pop('data_labeler_object')
             saved_options = copy.deepcopy(self.__dict__)
             saved_options['data_labeler_object'] = \
-                self.__dict__.['data_labeler_object']
+                self.__dict__['data_labeler_object']
             return saved_options
+        super().properties
 
     def _validate_helper(self, variable_path='DataLabelerOptions'):
         """
@@ -530,7 +531,6 @@ class StructuredOptions(BaseOption):
     def enabled_columns(self):
         """Returns a list of the enabled profiler columns."""
         enabled_columns = list()
-        print(self.properties)
         for key, value in self.properties.items():
             if value.is_enabled:
                 enabled_columns.append(key)

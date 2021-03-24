@@ -7,6 +7,7 @@ import warnings
 import abc
 import copy
 from ..labelers.data_labelers import DataLabeler
+from ..labelers.base_data_labeler import BaseDataLabeler
 
 
 class BaseOption(object):
@@ -480,8 +481,8 @@ class DataLabelerOptions(BaseColumnOptions):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
         if self.data_labeler_object and \
-                not isinstance(self.data_labeler_object, DataLabeler):
-            errors.append("{}.data_labeler_object must be a DataLabeler object."
+                not isinstance(self.data_labeler_object, BaseDataLabeler):
+            errors.append("{}.data_labeler_object must be a BaseDataLabeler object."
                           .format(variable_path))
         if self.data_labeler_object and self.data_labeler_dirpath:
             warnings.warn("The data labeler passed in will be used,"

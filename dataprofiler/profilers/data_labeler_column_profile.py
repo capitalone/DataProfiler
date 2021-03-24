@@ -30,18 +30,18 @@ class DataLabelerColumn(BaseColumnProfiler):
             if options.max_sample_size:
                 self._max_sample_size = options.max_sample_size
 
-        data_labeler = options.data_labeler_object
-        if data_labeler is None:
+        self.data_labeler = None
+        if options and options.data_labeler_object:
+            self.data_labeler = options.data_labeler_object
+        if self.data_labeler is None:
             data_labeler_dirpath = None
             if options and options.data_labeler_dirpath:
                 data_labeler_dirpath = options.data_labeler_dirpath
 
-            data_labeler = DataLabeler(
+            self.data_labeler = DataLabeler(
                 labeler_type='structured',
                 dirpath=data_labeler_dirpath,
                 load_options=None)
-
-        self.data_labeler = data_labeler
 
         reverse_label_mapping = self.data_labeler.reverse_label_mapping
         num_labels = self.data_labeler.model.num_labels

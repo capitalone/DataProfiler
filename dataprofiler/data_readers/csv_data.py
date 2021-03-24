@@ -582,9 +582,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
         # Count the possible delimiters
         for line in data_as_str.split('\n'):
-            
-            count = 0
+
             line_count += 1
+            count = 0
 
             # Must have content in line, >1 due to the \n character
             if len(line) <= 1:
@@ -605,8 +605,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
             if line_count >= max_line_count:
                 break
-        
-        if line_count <= min_line_count:
+
+        if line_count - empty_line_count <= min_line_count:
             return False
 
         # ================================================================

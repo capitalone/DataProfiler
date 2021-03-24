@@ -36,3 +36,16 @@ class TestDataReadingWriting(unittest.TestCase):
             detected_encoding = \
                 data_utils.detect_file_encoding(file_path=input_file["path"])
             self.assertEqual(detected_encoding.lower(), input_file["encoding"])
+
+    def test_nth_loc_detection(self):
+        """
+        Tests the ability for the `data_utils.find_nth_location` to detect the
+        nth index of a search_query in a string. 
+        """
+        test_queries = [
+            dict(string="This is a test.", query=".", n=0, index=15, occurances=1)
+        ]
+
+        for q in test_queries:
+            self.assertEqual(data_utils.find_nth_loc(
+                q['string'], q['query'], q['n']), (q['index'], q['occurances']))

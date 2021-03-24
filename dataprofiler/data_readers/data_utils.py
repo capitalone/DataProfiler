@@ -412,19 +412,19 @@ def find_nth_loc(string=None, search_query=None, n=0):
         if idx != pre_idx:
             id_count += 1
             pre_idx = idx+1
-
+            
     # If no instances identified, return full string
     if idx == -1:
         idx = len(string)
 
-    # Checks if end of line is search query, drops
+    # Checks if end of line is search query, adds count if true
     if string[(idx-len(search_query)):idx] == search_query:
-        idx-=len(search_query)
+        id_count += 1
         
     return idx, id_count
 
 
-def load_as_str_from_file(file_path, file_encoding, max_lines=5,
+def load_as_str_from_file(file_path, file_encoding, max_lines=10,
                           max_bytes=65536, chunk_size_bytes=1024):
     """
     Loads data from a csv file up to a specific line OR byte_size.
@@ -456,9 +456,9 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=5,
                 break
         
             remaining_lines = max_lines-total_occurances
-            loc,occurance = find_nth_loc(sample_lines,
-                                         search_query='\n',
-                                         n=remaining_lines)
+            loc, occurance = find_nth_loc(sample_lines,
+                                          search_query='\n',
+                                          n=remaining_lines)
 
             data_as_str += sample_lines[:loc]
             total_occurances += occurance

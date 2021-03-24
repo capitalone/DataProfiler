@@ -483,6 +483,19 @@ class DataLabelerOptions(BaseColumnOptions):
                 setattr(result, k, copy.deepcopy(v, memo))
         return result
 
+    @property
+    def properties(self):
+        """
+        Returns a copy of the option properties.
+
+        :return: dictionary of the option's properties attr: value
+        :rtype: dict
+        """
+        props = {k: copy.deepcopy(v)
+                 for k,v in self.__dict__.items() if k != 'data_labeler_object'}
+        props['data_labeler_object'] = self.data_labeler_object
+        return props
+
     def _validate_helper(self, variable_path='DataLabelerOptions'):
         """
         Validates the options do not conflict and cause errors.
@@ -499,7 +512,8 @@ class DataLabelerOptions(BaseColumnOptions):
                           .format(variable_path))
         if self.data_labeler_object and \
                 not isinstance(self.data_labeler_object, BaseDataLabeler):
-            errors.append("{}.data_labeler_object must be a BaseDataLabeler object."
+            errors.append("{}.data_labeler_object must be a BaseDataLabeler "
+                          "object."
                           .format(variable_path))
         if self.data_labeler_object and self.data_labeler_dirpath:
             warnings.warn("The data labeler passed in will be used,"

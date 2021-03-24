@@ -421,6 +421,10 @@ def find_nth_loc(string=None, search_query=None,
     if idx == -1:
         idx = len(string)
 
+    # Checks if end of line is search query, drops
+    if string[(idx-len(search_query)):idx] == search_query:
+        idx-=len(search_query)
+
     return idx, id_count
 
 
@@ -459,10 +463,10 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=5,
             loc,occurance = find_nth_loc(sample_lines,
                                          search_query='\n',
                                          n=remaining_lines)
-            
+
             data_as_str += sample_lines[:loc]
             total_occurances += occurance
             if total_occurances >= max_lines:
                 break
-        
+            
     return data_as_str

@@ -1,5 +1,6 @@
 import os
 import unittest
+from itertools import islice
 
 from dataprofiler.data_readers import data_utils
 
@@ -50,12 +51,107 @@ class TestDataReadingWriting(unittest.TestCase):
             dict(string="This is a test\nThis is a second test\n",
                  query="\n", n=2, index=36, occurances=2),
             dict(string='t', query="t", n=1, index=0, occurances=1),
-            dict(string='s', query="t", n=1, index=-1, occurances=0),
+            dict(string='s', query="t", n=1, index=1, occurances=0),
             dict(string="This is a test\nThis is a second test\n\n",
                  query="\n", n=3, index=37, occurances=3),
-            dict(string="", query="\n", n=3, index=-1, occurances=0),            
+            dict(string="This is a test\nThis is a second test\n\nTest\n",
+                 query="\n", n=5, index=43, occurances=4),
+            dict(string="", query="\n", n=3, index=-1, occurances=0),
         ]
 
         for q in test_queries:
             self.assertEqual(data_utils.find_nth_loc(
                 q['string'], q['query'], q['n']), (q['index'], q['occurances']))
+
+    def test_load_as_str_from_file(self):
+        """
+        Tests if the load_as_str_file function can appropriately load files 
+        thresholded by bytes or max lines.
+        """
+
+        test_dir = os.path.join(test_root_path, 'data')
+        
+        iris_32bit_filepath = os.path.join(test_dir, 'csv/iris-utf-32.csv')
+        iris_32bit_first_5  = ""
+        with open(iris_32bit_filepath, encoding='utf-32') as f:
+            iris_32bit_first_5 = ''.join(list(islice(f, 5)))[:-1] # remove final \n
+
+        input_files = [
+            dict(
+                path=os.path.join(test_dir, 'csv/empty.csv'),
+                encoding='utf-8', max_lines=5, max_bytes=65536,
+                chunk_size_bytes=1024,
+                results = ""
+            ),dict(
+                path=os.path.join(test_dir, 'csv/iris-utf-8.csv'),
+                encoding='utf-8', max_lines=5, max_bytes=65536,
+                chunk_size_bytes=1024,
+                results = """Id,SepalLengthCm,SepalWidthCm,PetalLengthCm,PetalWidthCm,Species
+1,5.1,3.5,1.4,0.2,Iris-setosa
+2,4.9,3.0,1.4,0.2,Iris-setosa
+3,4.7,3.2,1.3,0.2,Iris-setosa
+4,4.6,3.1,1.5,0.2,Iris-setosa"""
+            ),dict(
+                path=os.path.join(test_dir, 'csv/iris-utf-16.csv'),
+                encoding="utf-16", max_lines=5, max_bytes=65536,
+                chunk_size_bytes=1024,
+                results = """Id,SepalLengthCm,SepalWidthCm,PetalLengthCm,PetalWidthCm,Species
+1,5.1,3.5,1.4,0.2,Iris-setosa
+2,4.9,3.0,1.4,0.2,Iris-setosa
+3,4.7,3.2,1.3,0.2,Iris-setosa
+4,4.6,3.1,1.5,0.2,Iris-setosa"""
+            ),dict(
+                path=iris_32bit_filepath,
+                encoding="utf-32", max_lines=5, max_bytes=65536,
+                chunk_size_bytes=1024,
+                results = iris_32bit_first_5
+            ),dict(
+                path=os.path.join(test_dir, 'csv/diamonds.csv'),
+                encoding="utf-8", max_lines=5, max_bytes=65536,
+                chunk_size_bytes=1024,
+                results = """carat,cut,color,clarity,depth,table,price,x,y,z
+0.23,Ideal,E,SI2,61.5,55,326,3.95,3.98,2.43
+0.21,Premium,E,SI1,59.8,61,326,3.89,3.84,2.31
+0.23,Good,E,VS1,56.9,65,327,4.05,4.07,2.31
+0.29,Premium,I,VS2,62.4,58,334,4.2,4.23,2.63"""
+            ),dict(
+                path=os.path.join(test_dir, 'csv/quote-test.txt'),
+                encoding="utf-8", max_lines=9, max_bytes=65536,
+                chunk_size_bytes=5,
+                results = """a b c
+"d e f" 1 2
+h i j
+"k l m" 3 4
+"n o p" 5 6
+q r s
+t u v
+w x y
+z 1 2"""
+            ),dict(
+                path=os.path.join(test_dir, 'csv/quote-test.txt'),
+                encoding="utf-8", max_lines=1, max_bytes=65536,
+                chunk_size_bytes=1024,
+                results = """a b c"""
+            ),dict(
+                path=os.path.join(test_dir, 'csv/quote-test.txt'),
+                encoding="utf-8", max_lines=9, max_bytes=5,
+                chunk_size_bytes=1024,
+                results = """a b c"""
+            ), dict(
+                path=os.path.join(test_dir, 'csv/quote-test.txt'),
+                encoding="utf-8", max_lines=9, max_bytes=10,
+                chunk_size_bytes=2,
+                results = """a b c
+"d e"""
+            )            
+        ]
+
+        for f in input_files:
+            self.assertEqual(f['results'],
+                             data_utils.load_as_str_from_file(
+                                 file_path=f['path'], file_encoding=f['encoding'],
+                                 max_lines=f['max_lines'], max_bytes=f['max_bytes'],
+                                 chunk_size_bytes=f['chunk_size_bytes']
+                             ),
+                             f['path']
+            )

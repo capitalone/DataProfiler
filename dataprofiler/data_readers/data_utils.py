@@ -398,29 +398,22 @@ def find_nth_loc(string=None, search_query=None, n=0):
     for i in range(0, n):
 
         idx = string.find(search_query, idx+1)
-
+        
         # Exit for loop once string ends
-        if pre_idx > 0 and idx == -1:
-            idx = pre_idx # rest to last location
+        if idx == -1:
+
+            if pre_idx > 0:
+                idx = pre_idx+1 # rest to last location
 
             # If final discovery is not the search query
             if string[-len(search_query):] != search_query:
-                idx = len(string)
+                idx = len(string)                
             break
         
         # Keep track of identifications
         if idx != pre_idx:
             id_count += 1
             pre_idx = idx
-    
-    # If no instances identified, return full string
-    if idx == -1:
-        
-        # Checks if end of line is search query, adds count if true
-        if idx != pre_idx and string[(idx-len(search_query)):idx] == search_query:
-            
-            idx = len(string)
-            id_count += 1
         
     return idx, id_count
 
@@ -448,15 +441,17 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=10,
     data_as_str = ""
     total_occurances = 0
     with open(file_path, encoding=file_encoding) as csvfile:
+
+        sample_size_bytes = min(max_bytes, chunk_size_bytes)
         
         # Read the file until the appropriate number of occurances                    
-        for byte_count in range(0, max_bytes, chunk_size_bytes):
+        for byte_count in range(0, max_bytes, sample_size_bytes):
             
-            sample_lines = csvfile.read(chunk_size_bytes)
-            if len(sample_lines) == 0:
-                break
+            sample_lines = csvfile.read(sample_size_bytes)
+            if len(sample_lines) == 0:                
+                break # No more bytes in file
         
-            remaining_lines = max_lines-total_occurances
+            remaining_lines = max_lines - total_occurances
             loc, occurance = find_nth_loc(sample_lines,
                                           search_query='\n',
                                           n=remaining_lines)

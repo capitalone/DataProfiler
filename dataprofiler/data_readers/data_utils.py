@@ -452,11 +452,16 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=10,
             if len(sample_lines) == 0:                
                 break # No more bytes in file
 
+            # Number of lines remaining to be added to data_as_str
             remaining_lines = max_lines - total_occurances
+            
+            # Return either the last index of sample_lines OR
+            # the index of the newline char that matches max_lines
             loc, occurance = find_nth_loc(sample_lines,
                                           search_query='\n',
                                           n=remaining_lines)
 
+            # Add sample_lines to data_as_str no more than max_lines
             data_as_str += sample_lines[:loc]
             total_occurances += occurance
             if total_occurances >= max_lines:

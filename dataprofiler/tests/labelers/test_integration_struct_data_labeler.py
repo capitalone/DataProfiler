@@ -345,7 +345,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
         print('running dp2')
         profile2 = dp.Profiler(data, profiler_options=profile_options)
 
-        #profile = profile1 + profile2
+        profile = profile1 + profile2
 
 
 if __name__ == '__main__':

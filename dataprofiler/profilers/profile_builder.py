@@ -368,7 +368,7 @@ class Profiler(object):
         # assign data labeler
         use_data_labeler = True
         data_labeler_dirpath = None
-        self.data_labeler = None
+        data_labeler = None
         structured_options = None
 
         if profiler_options and profiler_options.structured_options:
@@ -388,14 +388,14 @@ class Profiler(object):
                 data_labeler_dirpath = \
                     data_labeler_options.data_labeler_dirpath
 
-            self.data_labeler = DataLabeler(
+            data_labeler = DataLabeler(
                 labeler_type='structured',
                 dirpath=data_labeler_dirpath,
                 load_options=None)
 
-        if self.data_labeler:
+        if data_labeler:
             self.options.structured_options.data_labeler.data_labeler_object = \
-                self.data_labeler
+                data_labeler
 
         self.update_profile(data)
 

@@ -529,24 +529,6 @@ class StructuredOptions(BaseOption):
         self.data_labeler = DataLabelerOptions()
 
     @property
-    def properties(self):
-        """
-        Returns a copy of the option properties.
-
-        :return: dictionary of the option's properties attr: value
-        :rtype: dict
-        """
-        if 'data_labeler' in self.__dict__ and \
-                self.__dict__['data_labeler'].data_labeler_model:
-            data_labeler_model = \
-                self.__dict__['data_labeler'].data_labeler_model
-            self.__dict__['data_labeler'].data_labeler_model = None
-            saved_options = copy.deepcopy(self.__dict__)
-            saved_options['data_labeler'].data_labeler_model = \
-                data_labeler_model
-            return saved_options
-
-    @property
     def enabled_columns(self):
         """Returns a list of the enabled profiler columns."""
         enabled_columns = list()

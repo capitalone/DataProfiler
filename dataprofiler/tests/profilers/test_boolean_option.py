@@ -3,9 +3,10 @@ from dataprofiler.tests.profilers.test_base_option import TestBaseOption
 
 
 class TestBooleanOption(TestBaseOption):
-
+    
     option_class = BooleanOption
-        
+    keys = []
+    
     def test_init(self, *mocks):
         option = self.get_options()
         self.assertDictEqual({"is_enabled": True}, option.properties)
@@ -54,8 +55,10 @@ class TestBooleanOption(TestBaseOption):
         
         # Option is_enabled is not a boolean
         option = self.get_options(is_enabled="Hello World")
-        expected_error = "{}.is_enabled must be a Boolean.".format(optpth)
-        self.assertEqual([expected_error], option._validate_helper())
+        expected_error = ["{}.is_enabled must be a Boolean.".format(optpth)]
+        expected_error += ["{}.{}.is_enabled must be a Boolean.".format(optpth, key) 
+            for key in self.keys]
+        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
     
     def test_validate(self, *mocks):
         option = self.get_options(is_enabled=True)
@@ -69,4 +72,8 @@ class TestBooleanOption(TestBaseOption):
         expected_error = "{}.is_enabled must be a Boolean.".format(optpth)
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate(raise_error=True)
-        self.assertEqual([expected_error], option.validate(raise_error=False))
+
+        expected_error = [expected_error]
+        expected_error += ["{}.{}.is_enabled must be a Boolean.".format(optpth, key) 
+            for key in self.keys]
+        self.assertSetEqual(set(expected_error), set(option.validate(raise_error=False)))

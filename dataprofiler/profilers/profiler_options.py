@@ -19,24 +19,6 @@ class BaseOption(object):
         :return: dictionary of the option's properties attr: value
         :rtype: dict
         """
-        if 'structured_options' in self.__dict__ and \
-                self.__dict__['structured_options'].data_labeler.data_labeler_model:
-            data_labeler_model = \
-                self.__dict__['structured_options'].data_labeler.data_labeler_model
-            self.__dict__['structured_options'].data_labeler.data_labeler_model = None
-            saved_options = copy.deepcopy(self.__dict__)
-            self.__dict__['structured_options'].data_labeler.data_labeler_model = \
-                data_labeler_model
-            return saved_options
-        if 'data_labeler' in self.__dict__ and \
-                self.__dict__['data_labeler'].data_labeler_model:
-            data_labeler_model = \
-                self.__dict__['data_labeler'].data_labeler_model
-            self.__dict__['data_labeler'].data_labeler_model = None
-            saved_options = copy.deepcopy(self.__dict__)
-            self.__dict__['data_labeler'].data_labeler_model = \
-                data_labeler_model
-            return saved_options
         return copy.deepcopy(self.__dict__)
 
     def _set_helper(self, options, variable_path):
@@ -472,6 +454,24 @@ class DataLabelerOptions(BaseColumnOptions):
         self.max_sample_size = None
         self.data_labeler_model = None
 
+    @property
+    def properties(self):
+        """
+        Returns a copy of the option properties.
+
+        :return: dictionary of the option's properties attr: value
+        :rtype: dict
+        """
+        if 'data_labeler_model' in self.__dict__ and \
+                self.__dict__['data_labeler_model']:
+            data_labeler_model = \
+                self.__dict__['data_labeler_model']
+            self.__dict__['data_labeler_model'] = None
+            saved_options = copy.deepcopy(self.__dict__)
+            saved_options['data_labeler_model'] = \
+                data_labeler_model
+            return saved_options
+
     def _validate_helper(self, variable_path='DataLabelerOptions'):
         """
         Validates the options do not conflict and cause errors.
@@ -527,6 +527,24 @@ class StructuredOptions(BaseOption):
         self.order = OrderOptions()
         self.category = CategoricalOptions()
         self.data_labeler = DataLabelerOptions()
+
+    @property
+    def properties(self):
+        """
+        Returns a copy of the option properties.
+
+        :return: dictionary of the option's properties attr: value
+        :rtype: dict
+        """
+        if 'data_labeler' in self.__dict__ and \
+                self.__dict__['data_labeler'].data_labeler_model:
+            data_labeler_model = \
+                self.__dict__['data_labeler'].data_labeler_model
+            self.__dict__['data_labeler'].data_labeler_model = None
+            saved_options = copy.deepcopy(self.__dict__)
+            saved_options['data_labeler'].data_labeler_model = \
+                data_labeler_model
+            return saved_options
 
     @property
     def enabled_columns(self):

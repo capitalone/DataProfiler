@@ -43,6 +43,8 @@ class TestDataReadingWriting(unittest.TestCase):
         Tests the ability for the `data_utils.find_nth_location` to detect the
         nth index of a search_query in a string. 
         """
+        # Input args: string, query, n
+        # Expected results: index, occurances
         test_queries = [
             dict(string="This is a test.", query=".", n=1, index=14, occurances=1),
             dict(string="This is a test\n", query="\n", n=1, index=14, occurances=1),
@@ -60,8 +62,10 @@ class TestDataReadingWriting(unittest.TestCase):
         ]
 
         for q in test_queries:
-            self.assertEqual(data_utils.find_nth_loc(
-                q['string'], q['query'], q['n']), (q['index'], q['occurances']))
+            self.assertEqual(
+                data_utils.find_nth_loc(q['string'], q['query'], q['n']),
+                (q['index'], q['occurances'])
+            )
 
     def test_load_as_str_from_file(self):
         """

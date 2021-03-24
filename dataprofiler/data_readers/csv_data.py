@@ -482,14 +482,40 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         )
 
     def _load_data_from_file(self, input_file_path):
-        """Loads the data into memory from the file."""
-        self._file_encoding = data_utils.detect_file_encoding(input_file_path)        
-        if not self._delimiter or not self._checked_header:
-            with open(input_file_path, encoding=self.file_encoding) as csvfile:
-                num_lines = 5
-                check_lines = list(islice(csvfile, num_lines))
-                data_as_str = ''.join(check_lines)
+        """
+        Loads the data into memory from the file.
+        """
+        
+        self._file_encoding = data_utils.detect_file_encoding(input_file_path)
+        
+        max_bytes = 65536 # Load 64kB
+        chunk_size_bytes = 1024 # 1kB test 
+        max_lines = 5
+        
+        data_as_str = ""
+        total_occurances = 0
+        
+        # Load data, as required for detection
+        with open(input_file_path, encoding=self.file_encoding) as csvfile:
+            
+            # Read the file until the appropriate number of occurances 
+            for byte_count in range(0, max_bytes, chunk_size_bytes):
                 
+                sample_lines = csvfile.read(chunk_size_bytes)
+                if len(sample_lines) == 0:
+                    break
+                
+                remaining_lines = max_lines-total_occurances
+                loc,occurance = data_utils.find_nth_loc(sample_lines,
+                                                        search_query='\n',
+                                                        n=remaining_lines)
+                
+                data_as_str += sample_lines[:loc]
+                total_occurances += occurance
+                if total_occurances >= max_lines:
+                    break
+
+        if not self._delimiter or not self._checked_header:
             delimiter, quotechar = None, None
             if not self._delimiter or not self._quotechar:
                 delimiter, quotechar = self._guess_delimiter_and_quotechar(data_as_str)
@@ -506,17 +532,19 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # if there is only one delimiter at the end of each row,
         # set delimiter to None
         if self._delimiter:
-            with open(input_file_path, encoding=self.file_encoding) as csvfile:
-                num_lines, num_lines_read = 5, 0
+            if len(data_as_str) > 0:
+                num_lines_read = 0
                 count_delimiter_last = 0
-                for line in islice(csvfile, 1, num_lines):
-                    if line.strip()[-1] == self._delimiter and \
-                            line.count(self._delimiter) == 1:
-                        count_delimiter_last += 1
-                    num_lines_read += 1
+                for line in data_as_str.split('\n'):
+                    if len(line) > 0:
+                        if line.count(self._delimiter) == 1 \
+                           and line.strip()[-1] == self._delimiter:
+                            count_delimiter_last += 1
+                        num_lines_read += 1
                 if count_delimiter_last == num_lines_read:
                     self._delimiter = None
 
+        
         return data_utils.read_csv_df(
             input_file_path,
             self.delimiter, self.header, self.selected_columns,
@@ -556,10 +584,30 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         header = options.get("header", 'auto')
         if not delimiter or header == 'auto':
 
-            data_as_str = None
+            max_bytes = 65536 # Load 64kB
+            chunk_size_bytes = 1024 # 1kB test 
+            max_lines = 5
+            
+            data_as_str = ""
+            total_occurances = 0
             with open(file_path, encoding=file_encoding) as csvfile:
-                num_lines = 5
-                data_as_str = ''.join(islice(csvfile, num_lines))
+            
+                # Read the file until the appropriate number of occurances 
+                for byte_count in range(0, max_bytes, chunk_size_bytes):
+                
+                    sample_lines = csvfile.read(chunk_size_bytes)                    
+                    if len(sample_lines) == 0:
+                        break
+                    
+                    remaining_lines = max_lines-total_occurances
+                    loc,occurance = data_utils.find_nth_loc(sample_lines,
+                                                            search_query='\n',
+                                                            n=remaining_lines)
+                    
+                    data_as_str += sample_lines[:loc]
+                    total_occurances += occurance                
+                    if total_occurances >= max_lines:
+                        break
 
             # Checks if delimiter is a space; If so, returns false
             quotetmp = None

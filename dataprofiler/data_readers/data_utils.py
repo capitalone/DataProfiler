@@ -368,3 +368,59 @@ def get_delimiter_regex(delimiter=",", quotechar=","):
     quotechar_regex += "$)"
 
     return re.compile(delimiter_regex + quotechar_regex)
+
+
+def find_nth_loc(string=None, search_query=None,
+                 n=0, return_last_occurance=True):
+    """
+    Searches the string via the search_query and
+    returns the nth index in which the query occurs.
+    If there are less than 'n' the last loc is returned
+    
+    :param string: Input string, to be searched
+    :type string: str
+    :param search_query: char(s) to find nth occurance of
+    :type search_query: str
+    :param n: The number of occurances to iterate through
+    :type n: int
+    :param return_last_occurance: Flag to return final index,
+    if the strings end before the nth index
+    :type return_last_occurance: boolean
+    
+    :return idx: Index of the nth or last occurance of the search_query
+    :rtype idx: int
+    :return id_count: Number of identifications prior to idx
+    :rtype id_count: int
+    """
+    
+    if not string or not search_query or n < 0:
+        return -1, 0
+
+    # Find index of nth occurrence of search_query 
+    idx, pre_idx = -1, -1
+    id_count = 0
+    for i in range(0, n):
+
+        idx = string.find(search_query, idx+1)
+
+        # Exit for loop once string ends
+        if pre_idx > 0 and idx == -1:
+            idx = pre_idx # rest to last location
+
+            # If final discovery is not the search query
+            if string[-len(search_query):] != search_query:
+                idx = len(string)
+            break
+
+        # Keep track of identifications
+        if idx != pre_idx:
+            id_count += 1
+            pre_idx = idx+1
+
+    # If no instances identified, return full string
+    if idx == -1:
+        idx = len(string)
+
+    return idx, id_count
+
+

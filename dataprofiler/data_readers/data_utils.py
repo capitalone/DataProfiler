@@ -456,7 +456,7 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=10,
             remaining_lines = max_lines - total_occurances
             
             # Return either the last index of sample_lines OR
-            # the index of the newline char that matches max_lines
+            # the index of the newline char that matches remaining_lines
             loc, occurance = find_nth_loc(sample_lines,
                                           search_query='\n',
                                           n=remaining_lines)

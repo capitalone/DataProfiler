@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 
 import dataprofiler as dp
+from dataprofiler.labelers.character_level_cnn_model import \
+    CharacterLevelCnnModel
 
 
 class TestStructuredDataLabeler(unittest.TestCase):
@@ -116,7 +118,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
         original_label_mapping = data_labeler.label_mapping.copy()
         original_max_label = data_labeler.label_mapping[
             max(data_labeler.label_mapping, key=data_labeler.label_mapping.get)]
-        
+
         new_label = 'NEW_LABEL'
         data_labeler.add_label(new_label)
 
@@ -125,9 +127,9 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
         expected_label_mapping = original_label_mapping
         expected_label_mapping[new_label] = new_max_label
-        
+
         new_label_count = len(data_labeler.label_mapping)
-        
+
         # validate raises error if not trained before fit
         with self.assertRaisesRegex(RuntimeError,
                                     "The model label mapping definitions have "
@@ -145,7 +147,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
         self.assertIsInstance(model_predictions[0][2], dict)  # f1_report
         self.assertIn(new_label, data_labeler.label_mapping) # Ensure new label added
         self.assertEqual(original_max_label+1, new_max_label) # Ensure new label iterated
-        self.assertDictEqual(expected_label_mapping, data_labeler.label_mapping) 
+        self.assertDictEqual(expected_label_mapping, data_labeler.label_mapping)
 
         # no bg, pad, but includes micro, macro, weighted
         self.assertEqual(new_label_count+1, len(model_predictions[0][2].keys()))
@@ -234,7 +236,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
             dp.labelers.StructuredDataLabeler._default_model_loc)
         default = dp.labelers.TrainableDataLabeler(dirpath=dirpath)
 
-        # fit on default model with reset weights  
+        # fit on default model with reset weights
         model_predictions = default.fit(
             x=self.df[0], y=self.df[1], reset_weights=True)
 
@@ -267,6 +269,114 @@ class TestStructuredDataLabeler(unittest.TestCase):
             self.assertIsNotNone(labeler.fit(x=data_obj, y=label_obj))
             self.assertIsNotNone(labeler.predict(data=data_obj))
 
+    def test_warning_tf(self):
+
+        test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        test_dir = os.path.join(test_root_path, 'data')
+        path = os.path.join(test_dir, 'csv/diamonds.csv')
+        data = dp.Data(path)
+
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"text.is_enabled": False,
+                             "int.is_enabled": False,
+                             "float.is_enabled": False,
+                             "order.is_enabled": False,
+                             "category.is_enabled": False,
+                             "datetime.is_enabled": False, })
+
+        profile = dp.Profiler(data, profiler_options=profile_options)
+        results = profile.report()
+
+        columns = []
+        predictions = []
+        for col in results['data_stats']:
+            columns.append(col)
+            predictions.append(results['data_stats'][col]['data_label'])
+
+
+    def test_warning_tf_run_dp_multiple_times(self):
+        test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        test_dir = os.path.join(test_root_path, 'data')
+        path = os.path.join(test_dir, 'csv/diamonds.csv')
+
+        for i in range(3):
+            print('running dp =============================', i)
+            data = dp.Data(path)
+            profile_options = dp.ProfilerOptions()
+            profile_options.set({"text.is_enabled": False,
+                                 "int.is_enabled": False,
+                                 "float.is_enabled": False,
+                                 "order.is_enabled": False,
+                                 "category.is_enabled": False,
+                                 "datetime.is_enabled": False, })
+
+            profile = dp.Profiler(data, profiler_options=profile_options)
+
+            results = profile.report()
+
+            columns = []
+            predictions = []
+            for col in results['data_stats']:
+                columns.append(col)
+                predictions.append(results['data_stats'][col]['data_label'])
+
+    def test_warning_tf_run_dp_merge(self):
+        test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        test_dir = os.path.join(test_root_path, 'data')
+        path = os.path.join(test_dir, 'csv/diamonds.csv')
+
+        data = dp.Data(path)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"text.is_enabled": False,
+                             "int.is_enabled": False,
+                             "float.is_enabled": False,
+                             "order.is_enabled": False,
+                             "category.is_enabled": False,
+                             "datetime.is_enabled": False, })
+        print('running dp1')
+        profile1 = dp.Profiler(data, profiler_options=profile_options)
+
+        data = dp.Data(path)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"text.is_enabled": False,
+                             "int.is_enabled": False,
+                             "float.is_enabled": False,
+                             "order.is_enabled": False,
+                             "category.is_enabled": False,
+                             "datetime.is_enabled": False, })
+        print('running dp2')
+        profile2 = dp.Profiler(data, profiler_options=profile_options)
+
+        profile = profile1 + profile2
+
+    def test_warning_tf_multiple_dp_with_update(self):
+        test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        test_dir = os.path.join(test_root_path, 'data')
+        path = os.path.join(test_dir, 'csv/diamonds.csv')
+
+        data = dp.Data(path)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"text.is_enabled": False,
+                             "int.is_enabled": False,
+                             "float.is_enabled": False,
+                             "order.is_enabled": False,
+                             "category.is_enabled": False,
+                             "datetime.is_enabled": False, })
+        print('running dp1')
+        profile1 = dp.Profiler(data, profiler_options=profile_options)
+
+        data = dp.Data(path)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"text.is_enabled": False,
+                             "int.is_enabled": False,
+                             "float.is_enabled": False,
+                             "order.is_enabled": False,
+                             "category.is_enabled": False,
+                             "datetime.is_enabled": False, })
+        print('running dp2')
+        profile2 = dp.Profiler(data, profiler_options=profile_options)
+
+        profile1.update_profile(data)
 
 if __name__ == '__main__':
     unittest.main()

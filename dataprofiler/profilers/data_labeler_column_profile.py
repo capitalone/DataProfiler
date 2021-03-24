@@ -11,7 +11,7 @@ class DataLabelerColumn(BaseColumnProfiler):
     
     col_type = "data_labeler"
     
-    def __init__(self, name, data_labeler_dirpath=None, options=None):
+    def __init__(self, name, options=None):
         """
         Initialization of Data Label profiling for structured datasets.
 
@@ -27,15 +27,21 @@ class DataLabelerColumn(BaseColumnProfiler):
             if not isinstance(options, DataLabelerOptions):
                 raise ValueError("DataLabelerColumn parameter 'options' must be"
                                  " of type DataLabelerOptions.")
-            if options.data_labeler_dirpath:
-                data_labeler_dirpath = options.data_labeler_dirpath
             if options.max_sample_size:
                 self._max_sample_size = options.max_sample_size
 
-        self.data_labeler = DataLabeler(
-            labeler_type='structured',
-            dirpath=data_labeler_dirpath,
-            load_options=None)
+        self.data_labeler = None
+        if options and options.data_labeler_object:
+            self.data_labeler = options.data_labeler_object
+        if self.data_labeler is None:
+            data_labeler_dirpath = None
+            if options:
+                data_labeler_dirpath = options.data_labeler_dirpath
+
+            self.data_labeler = DataLabeler(
+                labeler_type='structured',
+                dirpath=data_labeler_dirpath,
+                load_options=None)
 
         reverse_label_mapping = self.data_labeler.reverse_label_mapping
         num_labels = self.data_labeler.model.num_labels

@@ -788,3 +788,4 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         print("\nModel Label Mapping:")
         for key, value in self.label_mapping.items():
             print("{}: {}".format(key, value))
+

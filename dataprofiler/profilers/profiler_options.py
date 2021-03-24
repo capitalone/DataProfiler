@@ -466,9 +466,13 @@ class DataLabelerOptions(BaseColumnOptions):
         self.data_labeler_object = None
 
     def __deepcopy__(self, memo):
-        # adapted from
-        # https://stackoverflow.com/questions/1500718/
-        # how-to-override-the-copy-deepcopy-operations-for-a-python-object/40484215
+        """
+        Override deepcopy for data labeler object
+        Adapted from https://stackoverflow.com/questions/1500718/
+        how-to-override-the-copy-deepcopy-operations-for-a-python-object/40484215
+        :param memo: data object needed to copy
+        :return:
+        """
         cls = self.__class__
         result = cls.__new__(cls)
         memo[id(self)] = result

@@ -5,12 +5,15 @@ from unittest import mock
 import pandas as pd
 
 from dataprofiler import Data, ProfilerOptions, Profiler
-from dataprofiler.profilers.profiler_options import IntOptions, FloatOptions
+from dataprofiler.profilers.profiler_options import IntOptions, \
+    FloatOptions
+from dataprofiler.profilers.profile_builder import DataLabeler
+from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
             'DataLabelerColumn.update', return_value=None)
-@mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
+@mock.patch('dataprofiler.profilers.profile_builder.DataLabeler', spec=BaseDataLabeler)
 class TestProfilerOptions(unittest.TestCase):
 
     @classmethod
@@ -47,7 +50,7 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
         options.set({"is_numeric_stats_enabled": False})
         profile = Profiler(self.data, profiler_options=options)
-        
+
         for column_name in profile.profile.keys():
             profile_column = profile.profile[column_name].profile
             if profile_column["statistics"] \
@@ -123,7 +126,7 @@ class TestProfilerOptions(unittest.TestCase):
         # Check to see default options enable vocab
         profile = Profiler(self.data)
         vocab_mock.assert_called()
-    
+
     def test_disabling_all_stats(self, *mocks):
         options = ProfilerOptions()
         statistical_options = {
@@ -165,11 +168,11 @@ class TestProfilerOptions(unittest.TestCase):
 
     def test_validate(self, *mocks):
         options = ProfilerOptions()
- 
+
         options.structured_options.data_labeler.is_enabled = "Invalid"
         options.structured_options.data_labeler.data_labeler_dirpath = 5
         options.structured_options.int.max = "Invalid"
-        
+
         expected_error = (
             "ProfilerOptions.structured_options.int.max must be a "
             "BooleanOption.\n"
@@ -179,7 +182,7 @@ class TestProfilerOptions(unittest.TestCase):
             "data_labeler_dirpath must be a string.")
         with self.assertRaisesRegex(ValueError, expected_error):
             profile = Profiler(self.data, profiler_options=options)
-                
+
     def test_validate_numeric_stats(self, *mocks):
         options = ProfilerOptions()
         numerical_options = {
@@ -218,7 +221,7 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
 
         # Ensure set works appropriately
-        options.set({"data_labeler.is_enabled": False, 
+        options.set({"data_labeler.is_enabled": False,
                      "min.is_enabled": False,
                      "data_labeler_dirpath": "test",
                      "max_sample_size": 15})
@@ -235,7 +238,7 @@ class TestProfilerOptions(unittest.TestCase):
         self.assertFalse(int_options["min"].is_enabled)
         self.assertEqual(data_labeler_options["data_labeler_dirpath"], "test")
         self.assertEqual(data_labeler_options["max_sample_size"], 15)
-        
+
         # Ensure direct attribute setting works appropriately
         options.structured_options.data_labeler.max_sample_size = 12
         options.structured_options.text.histogram_and_quantiles\
@@ -265,7 +268,7 @@ class TestProfilerOptions(unittest.TestCase):
                              "ProfileOptions object."):
             profile = Profiler(self.data,
                                profiler_options="Strings are not accepted")
-        
+
         with self.assertRaisesRegex(
                 ValueError, "ProfilerOptions.structured_options.text.max."
                             "is_enabled must be a Boolean."):
@@ -273,23 +276,6 @@ class TestProfilerOptions(unittest.TestCase):
             profile_options.structured_options.text.max.is_enabled \
                 = "String"
             profile = Profiler(self.data, profiler_options=profile_options)
-
-    def test_data_labeler(self, *mocks):
-        options = ProfilerOptions()
-        options.structured_options.data_labeler.data_labeler_dirpath \
-            = "Test_Dirpath"
-        options.structured_options.data_labeler.max_sample_size = 50
-
-        profile = Profiler(self.data,
-                           profiler_options=options)
-
-        # Mock[0] is the Datalabeler Object mock
-        mocks[0].assert_called_with(dirpath='Test_Dirpath',
-                                    labeler_type='structured',
-                                    load_options=None)
-        actual_sample_size = profile._profile[0].profiles['data_label_profile']\
-            ._profiles["data_labeler"]._max_sample_size
-        self.assertEqual(actual_sample_size, 50)
 
     def test_invalid_options_type(self, *mocks):
         # Test incorrect data labeler options
@@ -327,7 +313,7 @@ class TestProfilerOptions(unittest.TestCase):
                                     "data_labeler.is_enabled\' has no attribute"
                                     " \'is_here\'"):
             options.set({"data_labeler.is_enabled.is_here": False})
-            
+
     def test_is_prop_enabled(self, *mocks):
         options = ProfilerOptions()
         with self.assertRaisesRegex(AttributeError,
@@ -335,15 +321,42 @@ class TestProfilerOptions(unittest.TestCase):
                                     "TextOptions."):
             options.structured_options.text.is_prop_enabled("Invalid")
 
-        
+
         # This test is to ensure is_prop_enabled works for BooleanOption objects
         options.structured_options.int.min.is_enabled = True
         self.assertTrue(options.structured_options.int.is_prop_enabled("min"))
 
-        # This test is to ensure is_prop_enabled works for bools 
+        # This test is to ensure is_prop_enabled works for bools
         options.structured_options.int.max.is_enabled = True
         options.structured_options.int.variance.is_enabled = True
         options.structured_options.int.histogram_and_quantiles.is_enabled = True
         options.structured_options.int.sum.is_enabled = True
         self.assertTrue(options.structured_options.int.
                         is_prop_enabled("is_numeric_stats_enabled"))
+
+
+@mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
+            'DataLabelerColumn.update', return_value=None)
+@mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+class TestDataLabelerCallWithOptions(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.data = Data(data=pd.DataFrame([1, 2]), data_type='csv')
+
+    def test_data_labeler(self, *mocks):
+        options = ProfilerOptions()
+        options.structured_options.data_labeler.data_labeler_dirpath \
+            = "Test_Dirpath"
+        options.structured_options.data_labeler.max_sample_size = 50
+
+        profile = Profiler(self.data,
+                           profiler_options=options)
+
+        # Mock[0] is the Datalabeler Object mock
+        mocks[0].assert_called_with(dirpath='Test_Dirpath',
+                                    labeler_type='structured',
+                                    load_options=None)
+        actual_sample_size = profile._profile[0].profiles['data_label_profile'] \
+            ._profiles["data_labeler"]._max_sample_size
+        self.assertEqual(actual_sample_size, 50)

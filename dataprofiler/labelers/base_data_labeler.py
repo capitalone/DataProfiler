@@ -788,3 +788,4 @@ class TrainableDataLabeler(BaseDataLabeler):
         data_labeler.set_model(model)
         data_labeler.set_postprocessor(postprocessor)
         return data_labeler
+

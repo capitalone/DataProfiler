@@ -329,3 +329,4 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         :return: None
         """
         raise NotImplementedError()
+

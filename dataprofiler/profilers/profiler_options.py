@@ -6,6 +6,8 @@ Specify the options when running the data profiler.
 import warnings
 import abc
 import copy
+from ..labelers.data_labelers import DataLabeler
+from ..labelers.base_data_labeler import BaseDataLabeler
 
 
 class BaseOption(object):
@@ -461,6 +463,25 @@ class DataLabelerOptions(BaseColumnOptions):
         BaseColumnOptions.__init__(self)
         self.data_labeler_dirpath = None
         self.max_sample_size = None
+        self.data_labeler_object = None
+
+    def __deepcopy__(self, memo):
+        """
+        Override deepcopy for data labeler object
+        Adapted from https://stackoverflow.com/questions/1500718/
+        how-to-override-the-copy-deepcopy-operations-for-a-python-object/40484215
+        :param memo: data object needed to copy
+        :return:
+        """
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for k, v in self.__dict__.items():
+            if k == 'data_labeler_object':
+                setattr(result, k, v)
+            else:
+                setattr(result, k, copy.deepcopy(v, memo))
+        return result
 
     def _validate_helper(self, variable_path='DataLabelerOptions'):
         """
@@ -476,6 +497,13 @@ class DataLabelerOptions(BaseColumnOptions):
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
+        if self.data_labeler_object and \
+                not isinstance(self.data_labeler_object, BaseDataLabeler):
+            errors.append("{}.data_labeler_object must be a BaseDataLabeler object."
+                          .format(variable_path))
+        if self.data_labeler_object and self.data_labeler_dirpath:
+            warnings.warn("The data labeler passed in will be used,"
+                          " not through the directory of the default model")
         if self.max_sample_size and not isinstance(self.max_sample_size, int):
             errors.append("{}.max_sample_size must be a string."
                           .format(variable_path))

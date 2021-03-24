@@ -19,6 +19,24 @@ class BaseOption(object):
         :return: dictionary of the option's properties attr: value
         :rtype: dict
         """
+        if 'structured_options' in self.__dict__ and \
+                self.__dict__['structured_options'].data_labeler.data_labeler_model:
+            data_labeler_model = \
+                self.__dict__['structured_options'].data_labeler.data_labeler_model
+            self.__dict__['structured_options'].data_labeler.data_labeler_model = None
+            saved_options = copy.deepcopy(self.__dict__)
+            self.__dict__['structured_options'].data_labeler.data_labeler_model = \
+                data_labeler_model
+            return saved_options
+        if 'data_labeler' in self.__dict__ and \
+                self.__dict__['data_labeler'].data_labeler_model:
+            data_labeler_model = \
+                self.__dict__['data_labeler'].data_labeler_model
+            self.__dict__['data_labeler'].data_labeler_model = None
+            saved_options = copy.deepcopy(self.__dict__)
+            self.__dict__['data_labeler'].data_labeler_model = \
+                data_labeler_model
+            return saved_options
         return copy.deepcopy(self.__dict__)
 
     def _set_helper(self, options, variable_path):
@@ -468,7 +486,6 @@ class DataLabelerOptions(BaseColumnOptions):
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
-        print('self.data_labeler_model============================: ', self.data_labeler_model)
         if self.data_labeler_model and \
                 not isinstance(self.data_labeler_model, DataLabeler):
             errors.append("{}.data_labeler_model must be a DataLabeler object."
@@ -515,6 +532,7 @@ class StructuredOptions(BaseOption):
     def enabled_columns(self):
         """Returns a list of the enabled profiler columns."""
         enabled_columns = list()
+        print(self.properties)
         for key, value in self.properties.items():
             if value.is_enabled:
                 enabled_columns.append(key)

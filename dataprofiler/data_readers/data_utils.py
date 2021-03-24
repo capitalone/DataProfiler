@@ -389,7 +389,7 @@ def find_nth_loc(string=None, search_query=None, n=0):
     :rtype id_count: int
     """
     
-    if not string or not search_query or n < 0:
+    if not string or not search_query or 0 >= n:
         return -1, 0
 
     # Find index of nth occurrence of search_query 
@@ -407,19 +407,20 @@ def find_nth_loc(string=None, search_query=None, n=0):
             if string[-len(search_query):] != search_query:
                 idx = len(string)
             break
-
+        
         # Keep track of identifications
         if idx != pre_idx:
             id_count += 1
-            pre_idx = idx+1
-            
+            pre_idx = idx
+    
     # If no instances identified, return full string
     if idx == -1:
-        idx = len(string)
-
-    # Checks if end of line is search query, adds count if true
-    if string[(idx-len(search_query)):idx] == search_query:
-        id_count += 1
+        
+        # Checks if end of line is search query, adds count if true
+        if idx != pre_idx and string[(idx-len(search_query)):idx] == search_query:
+            
+            idx = len(string)
+            id_count += 1
         
     return idx, id_count
 

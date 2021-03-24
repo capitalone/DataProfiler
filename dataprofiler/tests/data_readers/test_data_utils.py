@@ -43,7 +43,17 @@ class TestDataReadingWriting(unittest.TestCase):
         nth index of a search_query in a string. 
         """
         test_queries = [
-            dict(string="This is a test.", query=".", n=0, index=15, occurances=1)
+            dict(string="This is a test.", query=".", n=1, index=14, occurances=1),
+            dict(string="This is a test\n", query="\n", n=1, index=14, occurances=1),
+            dict(string="This is a test\nThis is a second test\n",
+                 query="\n", n=0, index=-1, occurances=0),
+            dict(string="This is a test\nThis is a second test\n",
+                 query="\n", n=2, index=36, occurances=2),
+            dict(string='t', query="t", n=1, index=0, occurances=1),
+            dict(string='s', query="t", n=1, index=-1, occurances=0),
+            dict(string="This is a test\nThis is a second test\n\n",
+                 query="\n", n=3, index=37, occurances=3),
+            dict(string="", query="\n", n=3, index=-1, occurances=0),            
         ]
 
         for q in test_queries:

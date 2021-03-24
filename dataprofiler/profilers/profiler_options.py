@@ -452,7 +452,7 @@ class DataLabelerOptions(BaseColumnOptions):
         BaseColumnOptions.__init__(self)
         self.data_labeler_dirpath = None
         self.max_sample_size = None
-        self.data_labeler_model = None
+        self.data_labeler_object = None
 
     @property
     def properties(self):
@@ -468,8 +468,9 @@ class DataLabelerOptions(BaseColumnOptions):
             saved_options = copy.deepcopy(self.__dict__)
             saved_options['data_labeler_object'] = \
                 self.__dict__['data_labeler_object']
-            return saved_options
-        super().properties
+        else:
+            saved_options = super().properties
+        return saved_options
 
     def _validate_helper(self, variable_path='DataLabelerOptions'):
         """
@@ -485,11 +486,11 @@ class DataLabelerOptions(BaseColumnOptions):
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
-        if self.data_labeler_model and \
-                not isinstance(self.data_labeler_model, DataLabeler):
-            errors.append("{}.data_labeler_model must be a DataLabeler object."
+        if self.data_labeler_object and \
+                not isinstance(self.data_labeler_object, DataLabeler):
+            errors.append("{}.data_labeler_object must be a DataLabeler object."
                           .format(variable_path))
-        if self.data_labeler_model and self.data_labeler_dirpath:
+        if self.data_labeler_object and self.data_labeler_dirpath:
             warnings.warn("The data labeler passed in will be used,"
                           " not through the directory of the default model")
         if self.max_sample_size and not isinstance(self.max_sample_size, int):

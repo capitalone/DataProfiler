@@ -487,33 +487,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         """
         
         self._file_encoding = data_utils.detect_file_encoding(input_file_path)
-        
-        max_bytes = 65536 # Load 64kB
-        chunk_size_bytes = 1024 # 1kB test 
-        max_lines = 5
-        
-        data_as_str = ""
-        total_occurances = 0
-        
-        # Load data, as required for detection
-        with open(input_file_path, encoding=self.file_encoding) as csvfile:
-            
-            # Read the file until the appropriate number of occurances 
-            for byte_count in range(0, max_bytes, chunk_size_bytes):
-                
-                sample_lines = csvfile.read(chunk_size_bytes)
-                if len(sample_lines) == 0:
-                    break
-                
-                remaining_lines = max_lines-total_occurances
-                loc,occurance = data_utils.find_nth_loc(sample_lines,
-                                                        search_query='\n',
-                                                        n=remaining_lines)
-                
-                data_as_str += sample_lines[:loc]
-                total_occurances += occurance
-                if total_occurances >= max_lines:
-                    break
+        data_as_str = data_utils.load_as_str_from_file(input_file_path,
+                                                       self._file_encoding)
 
         if not self._delimiter or not self._checked_header:
             delimiter, quotechar = None, None
@@ -580,35 +555,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         delimiter = options.get("delimiter", None)
         quotechar = options.get("quotechar", None)
-
         header = options.get("header", 'auto')
+
+        data_as_str = data_utils.load_as_str_from_file(file_path, file_encoding)
+        
         if not delimiter or header == 'auto':
-
-            max_bytes = 65536 # Load 64kB
-            chunk_size_bytes = 1024 # 1kB test 
-            max_lines = 5
             
-            data_as_str = ""
-            total_occurances = 0
-            with open(file_path, encoding=file_encoding) as csvfile:
-            
-                # Read the file until the appropriate number of occurances 
-                for byte_count in range(0, max_bytes, chunk_size_bytes):
-                
-                    sample_lines = csvfile.read(chunk_size_bytes)                    
-                    if len(sample_lines) == 0:
-                        break
-                    
-                    remaining_lines = max_lines-total_occurances
-                    loc,occurance = data_utils.find_nth_loc(sample_lines,
-                                                            search_query='\n',
-                                                            n=remaining_lines)
-                    
-                    data_as_str += sample_lines[:loc]
-                    total_occurances += occurance                
-                    if total_occurances >= max_lines:
-                        break
-
             # Checks if delimiter is a space; If so, returns false
             quotetmp = None
             if not delimiter:
@@ -629,31 +581,30 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         space_regex = data_utils.get_delimiter_regex(" ", quotechar)
 
         # Count the possible delimiters
-        with open(file_path, encoding=file_encoding) as f:
-            for line in f:
+        for line in data_as_str.split('\n'):
+            
+            count = 0
+            line_count += 1
 
-                count = 0
-                line_count += 1
+            # Must have content in line, >1 due to the \n character
+            if len(line) <= 1:
+                empty_line_count += 1
+                continue
 
-                # Must have content in line, >1 due to the \n character
-                if len(line) <= 1:
-                    empty_line_count += 1
-                    continue
+            # Find the location(s) where each delimiter was detected
+            if delimiter:
+                count = len([i.start() for i in re.finditer(delimiter_regex, line)])
+            else:                    
+                # If no delimiter, see if spaces are regular intervals
+                count = len([i.start() for i in re.finditer(space_regex, line)])
 
-                # Find the location(s) where each delimiter was detected
-                if delimiter:
-                    count = len([i.start() for i in re.finditer(delimiter_regex, line)])
-                else:                    
-                    # If no delimiter, see if spaces are regular intervals
-                    count = len([i.start() for i in re.finditer(space_regex, line)])
+            # Track the delimiter count per file
+            if count not in delimiter_count:
+                delimiter_count[count] = 0
+            delimiter_count[count] += 1
 
-                # Track the delimiter count per file
-                if count not in delimiter_count:
-                    delimiter_count[count] = 0
-                delimiter_count[count] += 1
-
-                if line_count >= max_line_count:
-                    break
+            if line_count >= max_line_count:
+                break
         
         if line_count <= min_line_count:
             return False

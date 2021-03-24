@@ -424,3 +424,45 @@ def find_nth_loc(string=None, search_query=None,
     return idx, id_count
 
 
+def load_as_str_from_file(file_path, file_encoding, max_lines=5,
+                          max_bytes=65536, chunk_size_bytes=1024):
+    """
+    Loads data from a csv file up to a specific line OR byte_size.
+
+    :param file_path: Path to file to load data from
+    :type file_path: str
+    :param file_encoding: File encoding
+    :type file_encoding: str
+    :param max_lines: Maximum number of lines to load from file
+    :type max_lines: int
+    :param max_bytes: Maximum number of bytes to load from file
+    :type max_bytes: int
+    :param chunk_size_bytes: Chunk size to load every data load
+    :type chunk_size_bytes: int
+    
+    :return data_as_str: Data as string
+    :type data_as_str: str
+    """
+
+    data_as_str = ""
+    total_occurances = 0
+    with open(file_path, encoding=file_encoding) as csvfile:
+        
+        # Read the file until the appropriate number of occurances                    
+        for byte_count in range(0, max_bytes, chunk_size_bytes):
+            
+            sample_lines = csvfile.read(chunk_size_bytes)
+            if len(sample_lines) == 0:
+                break
+        
+            remaining_lines = max_lines-total_occurances
+            loc,occurance = find_nth_loc(sample_lines,
+                                         search_query='\n',
+                                         n=remaining_lines)
+            
+            data_as_str += sample_lines[:loc]
+            total_occurances += occurance
+            if total_occurances >= max_lines:
+                break
+        
+    return data_as_str

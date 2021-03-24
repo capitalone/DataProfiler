@@ -30,7 +30,7 @@ class DataLabelerColumn(BaseColumnProfiler):
             if options.max_sample_size:
                 self._max_sample_size = options.max_sample_size
 
-        data_labeler = options.data_labeler_model
+        data_labeler = options.data_labeler_object
         if data_labeler is None:
             data_labeler_dirpath = None
             if options and options.data_labeler_dirpath:

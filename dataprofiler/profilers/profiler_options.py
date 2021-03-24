@@ -462,14 +462,12 @@ class DataLabelerOptions(BaseColumnOptions):
         :return: dictionary of the option's properties attr: value
         :rtype: dict
         """
-        if 'data_labeler_model' in self.__dict__ and \
-                self.__dict__['data_labeler_model']:
-            data_labeler_model = \
-                self.__dict__['data_labeler_model']
-            self.__dict__['data_labeler_model'] = None
+        if 'data_labeler_object' in self.__dict__ and \
+                self.__dict__['data_labeler_object']:
+            self.__dict__.pop('data_labeler_object')
             saved_options = copy.deepcopy(self.__dict__)
-            saved_options['data_labeler_model'] = \
-                data_labeler_model
+            saved_options['data_labeler_object'] = \
+                self.__dict__.['data_labeler_object']
             return saved_options
 
     def _validate_helper(self, variable_path='DataLabelerOptions'):

@@ -81,7 +81,7 @@ class StructuredDataProfile(object):
             'data_stats_profile':
                 ColumnStatsProfileCompiler(clean_sampled_df, self.options)}
 
-        data_labeler = self.options.data_labeler.data_labeler_model
+        data_labeler = self.options.data_labeler.data_labeler_object
         if data_labeler:
             self.profiles.update(
                 {'data_label_profile':
@@ -98,7 +98,7 @@ class StructuredDataProfile(object):
                 if options and options.data_labeler_dirpath:
                     data_labeler_dirpath = options.data_labeler_dirpath
 
-                self.options.data_labeler.data_labeler_model = \
+                self.options.data_labeler.data_labeler_object = \
                     DataLabeler(labeler_type='structured',
                                 dirpath=data_labeler_dirpath,
                                 load_options=None)
@@ -410,7 +410,7 @@ class Profiler(object):
                 load_options=None)
 
         if self.data_labeler:
-            self.options.structured_options.data_labeler.data_labeler_model = \
+            self.options.structured_options.data_labeler.data_labeler_object = \
                 self.data_labeler
 
         self.update_profile(data)

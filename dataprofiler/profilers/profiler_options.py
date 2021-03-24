@@ -503,14 +503,14 @@ class DataLabelerOptions(BaseColumnOptions):
         :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path=variable_path)
-        if self.data_labeler_dirpath != None and \
+        if self.data_labeler_dirpath is not None and \
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
-        if self.max_sample_size != None and not isinstance(self.max_sample_size, int):
+        if self.max_sample_size is not None and not isinstance(self.max_sample_size, int):
             errors.append("{}.max_sample_size must be an integer."
                           .format(variable_path))
-        elif self.max_sample_size != None and self.max_sample_size <= 0:
+        elif self.max_sample_size is not None and self.max_sample_size <= 0:
             errors.append("{}.max_sample_size must be greater than 0."
                           .format(variable_path))
         return errors

@@ -315,6 +315,16 @@ class IntOptions(NumericalOptions):
         """
         NumericalOptions.__init__(self)
 
+    def _validate_helper(self, variable_path='IntOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path) 
 
 class FloatOptions(NumericalOptions):
     def __init__(self):
@@ -356,7 +366,7 @@ class FloatOptions(NumericalOptions):
         if not isinstance(self.precision, BooleanOption):
             errors.append("{}.precision must be a BooleanOption."
                           .format(variable_path))
-        errors += self.precision._validate_helper(variable_path)
+        errors += self.precision._validate_helper(variable_path + '.precision')
         return errors
 
 
@@ -400,7 +410,7 @@ class TextOptions(NumericalOptions):
         if not isinstance(self.vocab, BooleanOption):
             errors.append("{}.vocab must be a BooleanOption."
                           .format(variable_path))
-        errors += self.vocab._validate_helper(variable_path)
+        errors += self.vocab._validate_helper(variable_path + '.vocab')
         return errors
 
 

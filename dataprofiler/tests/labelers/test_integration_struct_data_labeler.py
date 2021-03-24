@@ -269,33 +269,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
             self.assertIsNotNone(labeler.fit(x=data_obj, y=label_obj))
             self.assertIsNotNone(labeler.predict(data=data_obj))
 
-
-@mock.patch.object(CharacterLevelCnnModel, 'load_from_disk')
-class TestStructuredDataLabelerCalledOnce(unittest.TestCase):
-
-    @staticmethod
-    def _setup_mock_load_model(mock_load_model):
-        model_mock = mock.Mock(spec=CharacterLevelCnnModel)
-        model_mock.set_num_labels = mock.Mock()
-        mock_load_model.return_value = model_mock
-        model_mock.requires_zero_mapping = True
-        model_mock.labels = ['PAD', 'BACKGROUND', 'ADDRESS', 'PERSON']
-        model_mock.label_mapping = {
-            'PAD': 0,
-            'CITY': 1,  # SAME AS BACKGROUND
-            'BACKGROUND': 1,
-            'ADDRESS': 2,
-            'PERSON': 3,
-        }
-        model_mock.reverse_label_mapping = {
-            0: 'PAD',
-            1: 'BACKGROUND',
-            2: 'ADDRESS',
-            3: 'PERSON',
-        }
-
-    def test_warning_tf(self, mock_load_model):
-        self._setup_mock_load_model(mock_load_model)
+    def test_warning_tf(self):
 
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         test_dir = os.path.join(test_root_path, 'data')

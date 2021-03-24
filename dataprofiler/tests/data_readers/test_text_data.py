@@ -30,7 +30,6 @@ class TestTextDataClass(unittest.TestCase):
         Determine if the text file can be automatically identified
         """
         for input_file in self.input_file_names:
-            print(input_file['path'])
             input_data_obj = Data(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'text')
 

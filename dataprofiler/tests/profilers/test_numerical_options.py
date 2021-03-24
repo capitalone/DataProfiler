@@ -7,13 +7,13 @@ class TestNumericalOptions(TestBaseColumnOptions):
     option_class = NumericalOptions
     keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]
 
-    def test_init(self, *mocks):
+    def test_init(self):
         options = self.get_options()
         for key in self.keys + ['is_numeric_stats_enabled', 'is_enabled']:
             self.assertTrue(key in options.properties)
     
-    def test_set_helper(self, *mocks):
-        super().test_set_helper(*mocks)
+    def test_set_helper(self):
+        super().test_set_helper()
         options = self.get_options()
 
         # Enable and Disable Options
@@ -23,8 +23,8 @@ class TestNumericalOptions(TestBaseColumnOptions):
                 options._set_helper({skey:enabled}, '') 
                 self.assertEqual(enabled, options.properties[key].is_enabled)        
 
-    def test_set(self, *mocks):
-        super().test_set(*mocks)
+    def test_set(self):
+        super().test_set()
         options = self.get_options()
         
         # Enable and Disable Options
@@ -34,8 +34,8 @@ class TestNumericalOptions(TestBaseColumnOptions):
                 options.set({skey:enabled}) 
                 self.assertEqual(enabled, options.properties[key].is_enabled)        
     
-    def test_validate_helper(self, *mocks):
-        super().test_validate_helper(*mocks)
+    def test_validate_helper(self):
+        super().test_validate_helper()
         options = self.get_options()
         optpth = self.get_options_path()
     
@@ -53,8 +53,8 @@ class TestNumericalOptions(TestBaseColumnOptions):
         expected_error = "{}: The numeric stats must toggle on the sum if the variance is toggled on.".format(optpth)
         self.assertEqual([expected_error], options._validate_helper()) 
     
-    def test_validate(self, *mocks):
-        super().test_validate(*mocks)
+    def test_validate(self):
+        super().test_validate()
         options = self.get_options()
         optpth = self.get_options_path()
         
@@ -76,7 +76,7 @@ class TestNumericalOptions(TestBaseColumnOptions):
             options.validate(raise_error=True)    
         self.assertEqual([expected_error], options.validate(raise_error=False)) 
     
-    def test_is_numeric_stats_enabled(self, *mocks):
+    def test_is_numeric_stats_enabled(self):
         options = self.get_options()
         numeric_keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]    
 

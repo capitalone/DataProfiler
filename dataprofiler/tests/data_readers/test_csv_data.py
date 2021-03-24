@@ -173,7 +173,8 @@ class TestCSVDataClass(unittest.TestCase):
             input_data_obj = Data(input_file["path"], data_type='csv')
             self.assertEqual(input_data_obj.data_type, 'csv', input_file["path"])
             self.assertEqual(input_data_obj.delimiter,
-                             input_file['delimiter'], input_file["path"])
+                             input_file['delimiter'],
+                             input_file["path"])
 
     def test_data_formats(self):
         """

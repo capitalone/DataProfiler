@@ -81,31 +81,6 @@ class StructuredDataProfile(object):
             'data_stats_profile':
                 ColumnStatsProfileCompiler(clean_sampled_df, self.options)}
 
-        # if self.options and self.options.data_labeler.data_labeler_object:
-        #     self.profiles.update(
-        #         {'data_label_profile':
-        #              ColumnDataLabelerCompiler(clean_sampled_df, self.options)})
-        #
-        # else:
-        #     # use the data labeler by default
-        #     use_data_labeler = True
-        #     if options and isinstance(options, StructuredOptions):
-        #         use_data_labeler = options.data_labeler.is_enabled
-        #
-        #     if use_data_labeler:
-        #         data_labeler_dirpath = None
-        #         if options and options.data_labeler_dirpath:
-        #             data_labeler_dirpath = options.data_labeler_dirpath
-        #
-        #         self.options.data_labeler.data_labeler_object = \
-        #             DataLabeler(labeler_type='structured',
-        #                         dirpath=data_labeler_dirpath,
-        #                         load_options=None)
-        #         self.profiles.update(
-        #             {'data_label_profile':
-        #                  ColumnDataLabelerCompiler(clean_sampled_df, self.options)})
-        # use the data labeler by default
-
         use_data_labeler = True
         if options and isinstance(options, StructuredOptions):
             use_data_labeler = options.data_labeler.is_enabled

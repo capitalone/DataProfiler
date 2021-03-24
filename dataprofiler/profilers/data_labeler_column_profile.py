@@ -35,7 +35,7 @@ class DataLabelerColumn(BaseColumnProfiler):
             self.data_labeler = options.data_labeler_object
         if self.data_labeler is None:
             data_labeler_dirpath = None
-            if options and options.data_labeler_dirpath:
+            if options:
                 data_labeler_dirpath = options.data_labeler_dirpath
 
             self.data_labeler = DataLabeler(
@@ -290,5 +290,3 @@ class DataLabelerColumn(BaseColumnProfiler):
             self, self.__calculations, df_series=df_series,
             prev_dependent_properties={}, subset_properties=profile)
         self._update_helper(df_series, profile)
-
-

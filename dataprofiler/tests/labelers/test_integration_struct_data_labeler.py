@@ -285,14 +285,11 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
         results = profile.report()
 
-        # print(json.dumps(human_readable_report, indent=4))
         columns = []
         predictions = []
         for col in results['data_stats']:
             columns.append(col)
             predictions.append(results['data_stats'][col]['data_label'])
-        print(columns)
-        print(predictions)
 
 
     def test_warning_tf_run_dp_multiple_times(self):
@@ -315,14 +312,11 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
             results = profile.report()
 
-            # print(json.dumps(human_readable_report, indent=4))
             columns = []
             predictions = []
             for col in results['data_stats']:
                 columns.append(col)
                 predictions.append(results['data_stats'][col]['data_label'])
-            print(columns)
-            print(predictions)
 
     def test_warning_tf_run_dp_merge(self):
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

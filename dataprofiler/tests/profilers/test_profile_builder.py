@@ -100,6 +100,7 @@ class TestProfiler(unittest.TestCase):
         self.assertEqual(1.0, self.trained_schema._get_unique_row_ratio())
 
     def test_correct_rows_ingested(self):
+        self.assertEqual(2999, self.trained_schema.total_samples)
         self.assertEqual(2999, self.trained_schema.rows_ingested)
 
     def test_correct_null_row_ratio_test(self):
@@ -166,7 +167,7 @@ class TestProfiler(unittest.TestCase):
         self.assertListEqual(
             list(report['global_stats']),
             [
-                "samples_used", "column_count", "unique_row_ratio",
+                "total_samples", "samples_used", "column_count", "unique_row_ratio",
                 "row_has_null_ratio", 'row_is_null_ratio', "duplicate_row_count",
                 "file_type", "encoding", "data_classification", "covariance"
             ]

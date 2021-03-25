@@ -352,7 +352,7 @@ class Profiler(object):
         
         profiler_options.validate()
         self.options = profiler_options
-            
+        self.total_samples = 0
         self.encoding = None
         self.file_type = None
         self.row_has_null_count = 0
@@ -459,6 +459,7 @@ class Profiler(object):
         columns = list(self._profile.values())
         report = OrderedDict([
             ("global_stats", {
+                "total_samples": self.total_samples,
                 "samples_used": columns[0].sample_size if columns else 0,
                 "column_count": len(columns),
                 "unique_row_ratio": self._get_unique_row_ratio(),
@@ -557,14 +558,15 @@ class Profiler(object):
             sample_size = self._samples_per_update
         if not min_true_samples:
             min_true_samples = self._min_true_samples
-
         if isinstance(data, data_readers.base_data.BaseData):
+            self.total_samples += len(data.data) 
             self._profile = self._update_profile_from_chunk(
                 data.data, self._profile, sample_size, min_true_samples, self.options)
             self._update_row_statistics(data.data)
             self.encoding = data.file_encoding
             self.file_type = data.data_type
         elif isinstance(data, pd.DataFrame):
+            self.total_samples += len(data)
             self._profile = self._update_profile_from_chunk(
                 data, self._profile, sample_size, min_true_samples, self.options)
             self._update_row_statistics(data)

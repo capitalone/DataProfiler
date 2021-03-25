@@ -327,6 +327,7 @@ class IntOptions(NumericalOptions):
         """
         return super()._validate_helper(variable_path) 
 
+
 class FloatOptions(NumericalOptions):
     def __init__(self):
         """
@@ -572,7 +573,21 @@ class StructuredOptions(BaseOption):
         :rtype: list(str)
         """
         errors = []
+
+        prop_check = dict([
+            ('int', IntOptions),
+            ('float', FloatOptions),
+            ('datetime', DateTimeOptions),
+            ('text', TextOptions),
+            ('order', OrderOptions),
+            ('category', CategoricalOptions),
+            ('data_labeler', DataLabelerOptions)
+        ])
+
         for column in self.properties:
+            if not isinstance(self.properties[column], prop_check[column]):
+                errors.append("{} must be a(n) {}.".format(
+                    column, prop_check[column].__name__))
             errors += self.properties[column]._validate_helper(
                 variable_path=(variable_path + '.' + column
                                if variable_path else column))

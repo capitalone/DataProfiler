@@ -456,8 +456,11 @@ class TestProfilerNullValues(unittest.TestCase):
             1: ['nan', 'None', 'null', None, ''],
         }
         test_dataset = pd.DataFrame(data=test_dict)
-        trained_schema = dp.Profiler(test_dataset, len(test_dataset))
-        
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        trained_schema = dp.Profiler(test_dataset, len(test_dataset),
+                                     profiler_options=profiler_options)
+
         self.assertCountEqual(['', 'nan', 'None', 'null'],
                          trained_schema.profile['1'].null_types)
         self.assertEqual(5, trained_schema.profile['1'].null_count)
@@ -479,16 +482,14 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(0.25, profile._get_row_has_null_ratio())
         self.assertEqual(2, profile.row_is_null_count)
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
-        
-        
+
         file_path = os.path.join(test_root_path, 'data','csv/iris-with-null-rows.csv')
         data = pd.read_csv(file_path)
         profile = dp.Profiler(data, profiler_options=profiler_options)
-        self.assertEqual(15, profile.row_has_null_count)
-        self.assertAlmostEqual(0.1, profile._get_row_has_null_ratio())
-        self.assertEqual(7, profile.row_is_null_count)
-        self.assertAlmostEqual(0.04666666, profile._get_row_is_null_ratio())
-
+        self.assertEqual(13, profile.row_has_null_count)
+        self.assertEqual(13/24, profile._get_row_has_null_ratio())
+        self.assertEqual(3, profile.row_is_null_count)
+        self.assertEqual(3/24, profile._get_row_is_null_ratio())
 
 if __name__ == '__main__':
     unittest.main()

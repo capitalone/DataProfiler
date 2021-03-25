@@ -366,15 +366,37 @@ class Profiler(object):
             raise TypeError("Cannot provide TextData object to Profiler")
 
         # assign data labeler
-        # assign data labeler
         data_labeler_options = self.options.structured_options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:
-            data_labeler = DataLabeler(
-                labeler_type='structured',
-                dirpath=data_labeler_options.data_labeler_dirpath,
-                load_options=None)
-            self.options.set({'data_labeler.data_labeler_object': data_labeler})
+            
+            try:
+                
+                data_labeler = DataLabeler(
+                    labeler_type='structured',
+                    dirpath=data_labeler_options.data_labeler_dirpath,
+                    load_options=None)
+                self.options.set({'data_labeler.data_labeler_object': data_labeler})
+                
+            except Exception as e:
+
+                import warnings
+                warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
+                warning_msg += "Profiling Type: {}".format('data_labeler')
+                warning_msg += "\nException: {}".format(type(e).__name__)
+                warning_msg += "\nMessage: {}".format(e)
+                
+                # This is considered a major error
+                if type(e).__name__ == "ValueError":
+                    raise ValueError(e)
+                
+                warning_msg += "\n\nFor labeler errors, try installing "
+                warning_msg += "the extra ml requirements via:\n\n"
+                warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+                
+                warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
+
+                self.options.set({'data_labeler.is_enabled': False})
 
         self.update_profile(data)
 

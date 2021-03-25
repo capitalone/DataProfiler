@@ -236,8 +236,8 @@ class TestProfiler(unittest.TestCase):
                 "could not validate the test.")
 
     @mock.patch('dataprofiler.profilers.profile_builder.StructuredDataProfile')
+    @mock.patch('dataprofiler.profilers.profile_builder.Profiler._update_row_statistics')
     def test_duplicate_column_names(self, *mocks):
-
         # validate works first
         valid_data = pd.DataFrame([[1, 2]], columns=['a', 'b'])
         profile = dp.Profiler(valid_data)
@@ -369,7 +369,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertEqual(6, merged_profile.sample_size)
         self.assertEqual(2, merged_profile.null_count)
         self.assertListEqual(['nan'], merged_profile.null_types)
-        self.assertDictEqual({'nan': [1, 5]}, merged_profile.null_types_index)
+        self.assertDictEqual({'nan': {1, 5}}, merged_profile.null_types_index)
 
         # test add with different sampling properties
         profile1._min_sample_size = 10
@@ -464,13 +464,13 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertCountEqual(['', 'nan', 'None', 'null'],
                          trained_schema.profile['1'].null_types)
         self.assertEqual(5, trained_schema.profile['1'].null_count)
-        self.assertEqual({'': [4], 'nan': [0], 'None': [2, 3], 'null': [
-                         1]}, trained_schema.profile['1'].null_types_index)
+        self.assertEqual({'': {4}, 'nan': {0}, 'None': {2, 3}, 'null': {
+                         1}}, trained_schema.profile['1'].null_types_index)
         self.assertCountEqual(['', 'nan', 'None', 'null'],
                          trained_schema.profile[1].null_types)
         self.assertEqual(5, trained_schema.profile[1].null_count)
-        self.assertEqual({'': [4], 'nan': [0], 'None': [1, 3], 'null': [
-                         2]}, trained_schema.profile[1].null_types_index)
+        self.assertEqual({'': {4}, 'nan': {0}, 'None': {1, 3}, 'null': {
+                         2}}, trained_schema.profile[1].null_types_index)
 
     def test_correct_null_row_counts(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')

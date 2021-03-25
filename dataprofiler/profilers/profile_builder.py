@@ -514,18 +514,23 @@ class Profiler(object):
         )
 
         # Calculate Null Column Count
-        columns = list(self.profile.keys())
-        null_type_dict = self._profile[columns[0]].null_types_index
-        null_rows = {item for sublist in null_type_dict.values()
-                            for item in sublist}
-        null_in_row_count = null_rows
-        for column_index in range(1,len(columns)):
-            null_type_dict = self._profile[columns[column_index]].null_types_index
-            null_row_indices = set.union(*null_type_dict.values())
+        null_rows = set()
+        null_in_row_count = set()
+        first_col_flag = True
+        for column in self._profile:
+            null_type_dict = self._profile[column].null_types_index
+            null_row_indices = set()
+            if null_type_dict:
+                null_row_indices = set.union(*null_type_dict.values())
 
             # Find the common null indices between the columns
-            null_rows = null_rows.intersection(null_row_indices)
-            null_in_row_count = null_in_row_count.union(null_row_indices)
+            if first_col_flag:
+                null_rows = null_row_indices
+                null_in_row_count = null_row_indices
+                first_col_flag = False
+            else:
+                null_rows = null_rows.intersection(null_row_indices)
+                null_in_row_count = null_in_row_count.union(null_row_indices)
 
         self.row_has_null_count = len(null_in_row_count)
         self.row_is_null_count = len(null_rows)

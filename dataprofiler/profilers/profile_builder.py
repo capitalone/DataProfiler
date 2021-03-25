@@ -356,6 +356,7 @@ class Profiler(object):
         self.encoding = None
         self.file_type = None
         self.null_in_row_count = 0
+        self.null_row_count = 0
         self.hashed_row_dict = dict()
         self.rows_ingested = 0
         self._samples_per_update = samples_per_update
@@ -458,7 +459,8 @@ class Profiler(object):
                 "samples_used": columns[0].sample_size if columns else 0,
                 "column_count": len(columns),
                 "unique_row_ratio": self._get_unique_row_ratio(),
-                "row_has_null_ratio": self._get_null_row_ratio(),
+                "row_has_null_ratio": self._get_null_in_row_ratio(),
+                "row_null_ratio": self._get_null_row_ratio(),
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
                 "encoding": self.encoding,
@@ -483,6 +485,9 @@ class Profiler(object):
         return len(self.hashed_row_dict) / self.rows_ingested
 
     def _get_null_row_ratio(self):
+        return self.null_row_count / self.rows_ingested
+
+    def _get_null_in_row_ratio(self):
         return self.null_in_row_count / self.rows_ingested
 
     def _get_duplicate_row_count(self):
@@ -506,6 +511,7 @@ class Profiler(object):
 
         # Calculate Null Column Count
         null_rows = {}
+        null_in_row_count = {}
         first_col_flag = True
         for column in self.profile:
             if "statistics" in self.profile[column].profile and \
@@ -521,11 +527,14 @@ class Profiler(object):
                 # Find the common null indices between the columns
                 if first_col_flag:
                     null_rows = null_row_indices
+                    null_in_row_count = null_row_indices
                     first_col_flag = False
                 else:
                     null_rows = null_rows.intersection(null_row_indices)
+                    null_in_row_count = null_in_row_count.union(null_row_indices)
 
-        self.null_in_row_count = len(null_rows)
+        self.null_in_row_count = len(null_in_row_count)
+        self.null_row_count = len(null_rows)
         
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """

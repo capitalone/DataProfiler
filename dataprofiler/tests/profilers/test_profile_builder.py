@@ -102,9 +102,11 @@ class TestProfiler(unittest.TestCase):
         self.assertEqual(2999, self.trained_schema.rows_ingested)
 
     def test_correct_null_row_ratio_test(self):
-        self.assertEqual(0, self.trained_schema.null_in_row_count)
+        self.assertEqual(2999, self.trained_schema.null_in_row_count)
+        self.assertEqual(1.0, self.trained_schema._get_null_in_row_ratio())
+        self.assertEqual(0, self.trained_schema.null_row_count)
+        self.assertEqual(0, self.trained_schema._get_null_row_ratio())
         self.assertEqual(2999, self.trained_schema.rows_ingested)
-        self.assertAlmostEqual(0.0, self.trained_schema._get_null_row_ratio())
 
     def test_correct_duplicate_row_count_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))
@@ -465,22 +467,24 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual({'': [4], 'nan': [0], 'None': [1, 3], 'null': [
                          2]}, trained_schema.profile[1].null_types_index)
 
-    def test_correct_null_row_ratio_test2(self):
+    def test_correct_null_row_counts(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
         data = pd.read_csv(file_path)
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
         profile = dp.Profiler(data, profiler_options=profiler_options)
         self.assertEqual(2, profile.null_in_row_count)
-        self.assertAlmostEqual(0.25, profile._get_null_row_ratio())
-
+        self.assertEqual(0.25, profile._get_null_in_row_ratio())
+        self.assertEqual(2, profile.null_row_count)
+        self.assertEqual(0.25, profile._get_null_row_ratio())
+        
         
         file_path = os.path.join(test_root_path, 'data','csv/iris-with-null-rows.csv')
         data = pd.read_csv(file_path)
-        profiler_options = ProfilerOptions()
-        profiler_options.set({'data_labeler.is_enabled': False})
         profile = dp.Profiler(data, profiler_options=profiler_options)
-        self.assertEqual(7, profile.null_in_row_count)
+        self.assertEqual(15, profile.null_in_row_count)
+        self.assertEqual(0.1, profile._get_null_in_row_ratio())
+        self.assertEqual(7, profile.null_row_count)
         self.assertAlmostEqual(0.04666666, profile._get_null_row_ratio())
 
 

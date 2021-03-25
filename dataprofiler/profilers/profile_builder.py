@@ -503,7 +503,29 @@ class Profiler(object):
         self.hashed_row_dict = dict.fromkeys(
             pd.util.hash_pandas_object(data, index=False), True
         )
-        self.null_in_row_count = data.isnull().any(axis=1).sum()
+
+        # Calculate Null Column Count
+        null_rows = {}
+        first_col_flag = True
+        for column in self.profile:
+            if "statistics" in self.profile[column].profile and \
+                    "null_types_index" in self.profile[column]\
+                    .profile["statistics"]:
+
+                # Cycle through each column and get all the null indices 
+                null_type_dict = self.profile[column].profile["statistics"]\
+                                 ["null_types_index"]
+                null_row_indices = {item for sublist in null_type_dict.values()
+                                    for item in sublist}
+
+                # Find the common null indices between the columns
+                if first_col_flag:
+                    null_rows = null_row_indices
+                    first_col_flag = False
+                else:
+                    null_rows = null_rows.intersection(null_row_indices)
+
+        self.null_in_row_count = len(null_rows)
         
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """

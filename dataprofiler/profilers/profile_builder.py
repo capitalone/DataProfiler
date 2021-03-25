@@ -367,36 +367,37 @@ class Profiler(object):
             raise TypeError("Cannot provide TextData object to Profiler")
 
         # assign data labeler
-        use_data_labeler = True
-        data_labeler_dirpath = None
-        data_labeler = None
-        structured_options = None
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+            
+            try:
+                
+                data_labeler = DataLabeler(
+                    labeler_type='structured',
+                    dirpath=data_labeler_options.data_labeler_dirpath,
+                    load_options=None)
+                self.options.set({'data_labeler.data_labeler_object': data_labeler})
+                
+            except Exception as e:
 
-        if profiler_options and profiler_options.structured_options:
-            structured_options = profiler_options.structured_options
+                import warnings
+                warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
+                warning_msg += "Profiling Type: {}".format('data_labeler')
+                warning_msg += "\nException: {}".format(type(e).__name__)
+                warning_msg += "\nMessage: {}".format(e)
+                
+                # This is considered a major error
+                if type(e).__name__ == "ValueError":
+                    raise ValueError(e)
+                
+                warning_msg += "\n\nFor labeler errors, try installing "
+                warning_msg += "the extra ml requirements via:\n\n"
+                warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+                
+                warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
 
-        if structured_options and isinstance(
-                structured_options, StructuredOptions):
-            data_labeler_options = structured_options.data_labeler
-
-        if data_labeler_options and isinstance(
-                data_labeler_options, DataLabelerOptions):
-            use_data_labeler = data_labeler_options.is_enabled
-
-        if use_data_labeler:
-            if isinstance(data_labeler_options, DataLabelerOptions) and \
-                    data_labeler_options.data_labeler_dirpath:
-                data_labeler_dirpath = \
-                    data_labeler_options.data_labeler_dirpath
-
-            data_labeler = DataLabeler(
-                labeler_type='structured',
-                dirpath=data_labeler_dirpath,
-                load_options=None)
-
-        if data_labeler:
-            self.options.structured_options.data_labeler.data_labeler_object = \
-                data_labeler
+                self.options.set({'data_labeler.is_enabled': False})
 
         self.update_profile(data)
 

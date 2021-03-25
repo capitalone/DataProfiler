@@ -282,15 +282,13 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
         options.structured_options.data_labeler = IntOptions()
         with self.assertRaisesRegex(
-                ValueError, "DataLabelerColumn parameter 'options' must be of "
-                            "type DataLabelerOptions."):
+                ValueError, "data_labeler must be a\(n\) DataLabelerOptions."):
             profile = Profiler(self.data, profiler_options=options)
         # Test incorrect float options
         options = ProfilerOptions()
         options.structured_options.float = IntOptions()
         with self.assertRaisesRegex(
-                ValueError, "FloatColumn parameter 'options' must be of type "
-                            "FloatOptions."):
+                ValueError, "float must be a\(n\) FloatOptions."):
             profile = Profiler(self.data, profiler_options=options)
 
     @mock.patch('dataprofiler.profilers.float_column_profile.FloatColumn.'
@@ -360,3 +358,20 @@ class TestDataLabelerCallWithOptions(unittest.TestCase):
         actual_sample_size = profile._profile[0].profiles['data_label_profile'] \
             ._profiles["data_labeler"]._max_sample_size
         self.assertEqual(actual_sample_size, 50)
+
+        data_labeler = mock.Mock(spec=BaseDataLabeler)
+        data_labeler.reverse_label_mapping = dict()
+        data_labeler.model.num_labels = 0
+        options.set({'data_labeler.data_labeler_object': data_labeler})
+        with self.assertWarnsRegex(UserWarning,
+                                   "The data labeler passed in will be used,"
+                                   " not through the directory of the default"
+                                   " model"):
+            options.validate()
+
+        profile = Profiler(self.data, profiler_options=options)
+        self.assertEqual(data_labeler,
+                         # profile, col prof, compiler
+                         (profile._profile[0].profiles['data_label_profile'].
+                          # column profiler
+                          _profiles["data_labeler"].data_labeler))

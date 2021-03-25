@@ -203,7 +203,7 @@ class StructuredDataProfile(object):
         for null_type, null_rows in base_stats["null_types"].items():
             if type(null_rows) is list:
                 null_rows.sort()
-            self.null_types_index.setdefault(null_type, []).extend(null_rows)
+            self.null_types_index.setdefault(null_type, set()).update(null_rows)
 
     def update_profile(self, df_series, sample_size=None, min_true_samples=None):
         if not sample_size:
@@ -521,8 +521,7 @@ class Profiler(object):
         null_in_row_count = null_rows
         for column_index in range(1,len(columns)):
             null_type_dict = self._profile[columns[column_index]].null_types_index
-            null_row_indices = {item for sublist in null_type_dict.values()
-                                for item in sublist}
+            null_row_indices = set.union(*null_type_dict.values())
 
             # Find the common null indices between the columns
             null_rows = null_rows.intersection(null_row_indices)

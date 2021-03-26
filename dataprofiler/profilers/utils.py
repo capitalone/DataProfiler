@@ -16,6 +16,7 @@
 import collections
 import random
 import math
+import numpy as np
 
 
 def dict_merge(dct, merge_dct):
@@ -59,7 +60,9 @@ def shuffle_in_chunks(data_length, chunk_size):
     :return: list of shuffled indices of chunk size
     """
     indices = KeyDict()
+    rng = np.random.default_rng()
     j = 0
+    
     # loop through all chunks
     for chunk_ind in range(max(math.ceil(data_length / chunk_size), 1)):
 
@@ -67,11 +70,22 @@ def shuffle_in_chunks(data_length, chunk_size):
         true_chunk_size = min(chunk_size, data_length - chunk_size * chunk_ind)
         values = [-1] * true_chunk_size
 
+        
+        # Generate random list of indicies         
+        list_j = j
+        lower_bound_list = np.zeros([true_chunk_size])
+        for i in range(true_chunk_size):
+            lower_bound_list[i] = list_j
+            list_j+=1
+        random_list = rng.integers(lower_bound_list, data_length)
+
+
         # shuffle the indexes
         for count in range(true_chunk_size):
 
             # get a random index to swap and swap it with j
-            k = random.randrange(j, data_length)
+            # k = random.randrange(j, data_length)
+            k = random_list[count]
             indices[j], indices[k] = indices[k], indices[j]
 
             # set the swapped value to the output

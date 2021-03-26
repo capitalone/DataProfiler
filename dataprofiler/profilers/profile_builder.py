@@ -203,7 +203,7 @@ class StructuredDataProfile(object):
         for null_type, null_rows in base_stats["null_types"].items():
             if type(null_rows) is list:
                 null_rows.sort()
-            self.null_types_index.setdefault(null_type, []).extend(null_rows)
+            self.null_types_index.setdefault(null_type, set()).update(null_rows)
 
     def update_profile(self, df_series, sample_size=None, min_true_samples=None):
         if not sample_size:
@@ -352,10 +352,11 @@ class Profiler(object):
         
         profiler_options.validate()
         self.options = profiler_options
-            
+        self.total_samples = 0
         self.encoding = None
         self.file_type = None
-        self.null_in_row_count = 0
+        self.row_has_null_count = 0
+        self.row_is_null_count = 0
         self.hashed_row_dict = dict()
         self.rows_ingested = 0
         self._samples_per_update = samples_per_update
@@ -366,36 +367,37 @@ class Profiler(object):
             raise TypeError("Cannot provide TextData object to Profiler")
 
         # assign data labeler
-        use_data_labeler = True
-        data_labeler_dirpath = None
-        data_labeler = None
-        structured_options = None
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+            
+            try:
+                
+                data_labeler = DataLabeler(
+                    labeler_type='structured',
+                    dirpath=data_labeler_options.data_labeler_dirpath,
+                    load_options=None)
+                self.options.set({'data_labeler.data_labeler_object': data_labeler})
+                
+            except Exception as e:
 
-        if profiler_options and profiler_options.structured_options:
-            structured_options = profiler_options.structured_options
+                import warnings
+                warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
+                warning_msg += "Profiling Type: {}".format('data_labeler')
+                warning_msg += "\nException: {}".format(type(e).__name__)
+                warning_msg += "\nMessage: {}".format(e)
+                
+                # This is considered a major error
+                if type(e).__name__ == "ValueError":
+                    raise ValueError(e)
+                
+                warning_msg += "\n\nFor labeler errors, try installing "
+                warning_msg += "the extra ml requirements via:\n\n"
+                warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+                
+                warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
 
-        if structured_options and isinstance(
-                structured_options, StructuredOptions):
-            data_labeler_options = structured_options.data_labeler
-
-        if data_labeler_options and isinstance(
-                data_labeler_options, DataLabelerOptions):
-            use_data_labeler = data_labeler_options.is_enabled
-
-        if use_data_labeler:
-            if isinstance(data_labeler_options, DataLabelerOptions) and \
-                    data_labeler_options.data_labeler_dirpath:
-                data_labeler_dirpath = \
-                    data_labeler_options.data_labeler_dirpath
-
-            data_labeler = DataLabeler(
-                labeler_type='structured',
-                dirpath=data_labeler_dirpath,
-                load_options=None)
-
-        if data_labeler:
-            self.options.structured_options.data_labeler.data_labeler_object = \
-                data_labeler
+                self.options.set({'data_labeler.is_enabled': False})
 
         self.update_profile(data)
 
@@ -427,8 +429,10 @@ class Profiler(object):
             if self.encoding == other.encoding else 'multiple files'
         merged_profile.file_type = self.file_type \
             if self.file_type == other.file_type else 'multiple files'
-        merged_profile.null_in_row_count = \
-            self.null_in_row_count + other.null_in_row_count
+        merged_profile.row_has_null_count = \
+            self.row_has_null_count + other.row_has_null_count
+        merged_profile.row_is_null_count = \
+            self.row_is_null_count + other.row_is_null_count
         merged_profile.rows_ingested = self.rows_ingested + other.rows_ingested
         merged_profile.hashed_row_dict.update(self.hashed_row_dict)
         merged_profile.hashed_row_dict.update(other.hashed_row_dict)
@@ -455,10 +459,12 @@ class Profiler(object):
         columns = list(self._profile.values())
         report = OrderedDict([
             ("global_stats", {
+                "total_samples": self.total_samples,
                 "samples_used": columns[0].sample_size if columns else 0,
                 "column_count": len(columns),
                 "unique_row_ratio": self._get_unique_row_ratio(),
-                "row_has_null_ratio": self._get_null_row_ratio(),
+                "row_has_null_ratio": self._get_row_has_null_ratio(),
+                "row_is_null_ratio": self._get_row_is_null_ratio(),
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
                 "encoding": self.encoding,
@@ -482,8 +488,11 @@ class Profiler(object):
     def _get_unique_row_ratio(self):
         return len(self.hashed_row_dict) / self.rows_ingested
 
-    def _get_null_row_ratio(self):
-        return self.null_in_row_count / self.rows_ingested
+    def _get_row_is_null_ratio(self):
+        return self.row_is_null_count / self.rows_ingested
+
+    def _get_row_has_null_ratio(self):
+        return self.row_has_null_count / self.rows_ingested
 
     def _get_duplicate_row_count(self):
         return self.rows_ingested - len(self.hashed_row_dict)
@@ -503,7 +512,28 @@ class Profiler(object):
         self.hashed_row_dict = dict.fromkeys(
             pd.util.hash_pandas_object(data, index=False), True
         )
-        self.null_in_row_count = data.isnull().any(axis=1).sum()
+
+        # Calculate Null Column Count
+        null_rows = set()
+        null_in_row_count = set()
+        first_col_flag = True
+        for column in self._profile:
+            null_type_dict = self._profile[column].null_types_index
+            null_row_indices = set()
+            if null_type_dict:
+                null_row_indices = set.union(*null_type_dict.values())
+
+            # Find the common null indices between the columns
+            if first_col_flag:
+                null_rows = null_row_indices
+                null_in_row_count = null_row_indices
+                first_col_flag = False
+            else:
+                null_rows = null_rows.intersection(null_row_indices)
+                null_in_row_count = null_in_row_count.union(null_row_indices)
+
+        self.row_has_null_count = len(null_in_row_count)
+        self.row_is_null_count = len(null_rows)
         
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """
@@ -523,14 +553,15 @@ class Profiler(object):
             sample_size = self._samples_per_update
         if not min_true_samples:
             min_true_samples = self._min_true_samples
-
         if isinstance(data, data_readers.base_data.BaseData):
+            self.total_samples += len(data.data) 
             self._profile = self._update_profile_from_chunk(
                 data.data, self._profile, sample_size, min_true_samples, self.options)
             self._update_row_statistics(data.data)
             self.encoding = data.file_encoding
             self.file_type = data.data_type
         elif isinstance(data, pd.DataFrame):
+            self.total_samples += len(data)
             self._profile = self._update_profile_from_chunk(
                 data, self._profile, sample_size, min_true_samples, self.options)
             self._update_row_statistics(data)

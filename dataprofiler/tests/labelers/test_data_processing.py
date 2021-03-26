@@ -401,7 +401,7 @@ class TestCharPreprocessor(unittest.TestCase):
         # test default params
         processor = CharPreprocessor()
         self.assertDictEqual(dict(max_length=3400,
-                                  default_label='BACKGROUND',
+                                  default_label='UNKNOWN',
                                   pad_label='PAD',
                                   flatten_split=0,
                                   flatten_separator=' ',
@@ -465,7 +465,7 @@ class TestCharPreprocessor(unittest.TestCase):
 
         label_mapping = {
             'PAD': 0,
-            'BACKGROUND': 1,
+            'UNKNOWN': 1,
             "TEST1": 2,
             "TEST2": 3,
             "TEST3": 4,
@@ -477,7 +477,7 @@ class TestCharPreprocessor(unittest.TestCase):
                                     'The `flatten_separator` length cannot be '
                                     'more than or equal to the `max_length`'):
             process_generator = preprocessor._process_batch_helper(
-                test_sentences, max_length=0, default_label='BACKGROUND',
+                test_sentences, max_length=0, default_label='UNKNOWN',
                 pad_label='PAD', label_mapping=label_mapping, batch_size=2)
             next(process_generator)
 
@@ -492,7 +492,7 @@ class TestCharPreprocessor(unittest.TestCase):
         ]
 
         process_generator = preprocessor._process_batch_helper(
-            test_sentences, max_length=5, default_label='BACKGROUND',
+            test_sentences, max_length=5, default_label='UNKNOWN',
             pad_label='PAD', label_mapping=label_mapping, batch_size=2)
 
         process_output = [data for data in process_generator]
@@ -510,7 +510,7 @@ class TestCharPreprocessor(unittest.TestCase):
         ]
 
         process_generator = preprocessor._process_batch_helper(
-            test_sentences, max_length=5, default_label='BACKGROUND',
+            test_sentences, max_length=5, default_label='UNKNOWN',
             pad_label='PAD', label_mapping=label_mapping, batch_size=2)
 
         process_output = [data for data in process_generator]
@@ -540,7 +540,7 @@ class TestCharPreprocessor(unittest.TestCase):
         ]
 
         process_generator = preprocessor._process_batch_helper(
-            test_sentences, max_length=5, default_label='BACKGROUND',
+            test_sentences, max_length=5, default_label='UNKNOWN',
             pad_label='PAD', labels=labels, label_mapping=label_mapping,
             batch_size=2)
 
@@ -567,7 +567,7 @@ class TestCharPreprocessor(unittest.TestCase):
         ]
 
         process_generator = preprocessor._process_batch_helper(
-            test_sentences, max_length=5, default_label='BACKGROUND',
+            test_sentences, max_length=5, default_label='UNKNOWN',
             pad_label='PAD', labels=labels, label_mapping=label_mapping,
             batch_size=2)
 
@@ -576,11 +576,11 @@ class TestCharPreprocessor(unittest.TestCase):
 
     def test_process(self):
         preprocessor = CharPreprocessor(
-            max_length=5, default_label='BACKGROUND', pad_label='PAD',)
+            max_length=5, default_label='UNKNOWN', pad_label='PAD',)
 
         label_mapping = {
             'PAD': 0,
-            'BACKGROUND': 1,
+            'UNKNOWN': 1,
             "TEST1": 2,
             "TEST2": 3,
             "TEST3": 4,
@@ -685,9 +685,9 @@ class TestCharPreprocessor(unittest.TestCase):
                                     "are different lengths, 2 != 1")
         with self.assertRaisesRegex(ValueError, diff_length_msg):
             next(prep.process(np.array(["two", "strings"]),
-                              np.array([[(0, 1, "BACKGROUND")]],
+                              np.array([[(0, 1, "UNKNOWN")]],
                                        dtype="object"),
-                              {"BACKGROUND": 1}))
+                              {"UNKNOWN": 1}))
 
 
 class TestCharPostprocessor(unittest.TestCase):
@@ -699,7 +699,7 @@ class TestCharPostprocessor(unittest.TestCase):
 
     def test_validate_parameters(self):
 
-        def test_raises(error_msg, default_label='BACKGROUND', pad_label='PAD',
+        def test_raises(error_msg, default_label='UNKNOWN', pad_label='PAD',
                         flatten_separator=' ', use_word_level_argmax=True,
                         output_format='ner', separators=('',),
                         word_level_min_percent=0):
@@ -715,7 +715,7 @@ class TestCharPostprocessor(unittest.TestCase):
                         word_level_min_percent=word_level_min_percent))
             self.assertEqual(error_msg, str(e.exception))
 
-        def test_success(default_label='BACKGROUND', pad_label='PAD',
+        def test_success(default_label='UNKNOWN', pad_label='PAD',
                          flatten_separator=' ', use_word_level_argmax=True,
                          output_format='ner', separators=('',),
                          word_level_min_percent=0):
@@ -863,7 +863,7 @@ class TestCharPostprocessor(unittest.TestCase):
         # test default params
         processor = CharPostprocessor()
         self.assertDictEqual(
-            dict(default_label='BACKGROUND',
+            dict(default_label='UNKNOWN',
                  pad_label='PAD',
                  flatten_separator=" ",
                  use_word_level_argmax=False,
@@ -911,12 +911,12 @@ class TestCharPostprocessor(unittest.TestCase):
         ]
         label_mapping = {
             'PAD': 0,
-            'BACKGROUND': 1,
+            'UNKNOWN': 1,
             "TEST1": 2,
             "TEST2": 3,
             "TEST3": 4,
         }
-        default_label = 'BACKGROUND'
+        default_label = 'UNKNOWN'
 
         # separators = (), No change in predictions.
         processor = CharPostprocessor(separators=tuple())
@@ -982,7 +982,7 @@ class TestCharPostprocessor(unittest.TestCase):
         ]
         label_mapping = {
             'PAD': 0,
-            'BACKGROUND': 1,
+            'UNKNOWN': 1,
             "TEST1": 2,
             "TEST2": 3,
             "TEST3": 4,
@@ -1004,20 +1004,20 @@ class TestCharPostprocessor(unittest.TestCase):
 
         output = processor.convert_to_NER_format(
             predictions, label_mapping=label_mapping,
-            default_label='BACKGROUND', pad_label='PAD')
+            default_label='UNKNOWN', pad_label='PAD')
         self.assertListEqual(expected_output, output)
 
         # pad, background default test
         processor = CharPostprocessor()
         expected_output = [
             [
-                 ( 0,  5, 'BACKGROUND'),
-                 ( 7, 11, 'BACKGROUND'),
-                 (24, 25, 'BACKGROUND')],
+                 ( 0,  5, 'UNKNOWN'),
+                 ( 7, 11, 'UNKNOWN'),
+                 (24, 25, 'UNKNOWN')],
             [
-                 ( 2,  4, 'BACKGROUND'),
-                 ( 5,  6, 'BACKGROUND'),
-                 ( 8,  9, 'BACKGROUND')]
+                 ( 2,  4, 'UNKNOWN'),
+                 ( 5,  6, 'UNKNOWN'),
+                 ( 8,  9, 'UNKNOWN')]
         ]
 
         output = processor.convert_to_NER_format(
@@ -1083,7 +1083,7 @@ class TestCharPostprocessor(unittest.TestCase):
         ])
         label_mapping = {
             'PAD': 0,
-            'BACKGROUND': 1,
+            'UNKNOWN': 1,
             "TEST1": 2,
             "TEST2": 3,
             "TEST3": 4,
@@ -1192,7 +1192,7 @@ class TestPreandPostCharacterProcessorConnection(unittest.TestCase):
     def test_flatten_convert(self):
 
         # initialize variables
-        default_label = 'BACKGROUND'
+        default_label = 'UNKNOWN'
         pad_label = 'PAD'
         test_sentences = np.array(['These', 'are', 'my test', 'sentences.'])
         batch_size = 2
@@ -1243,7 +1243,7 @@ class TestPreandPostCharacterProcessorConnection(unittest.TestCase):
 
         # flattening, no overflow
         preprocessor = CharPreprocessor(
-            max_length=200, default_label='BACKGROUND', pad_label='PAD',
+            max_length=200, default_label='UNKNOWN', pad_label='PAD',
             flatten_split=1, flatten_separator=flatten_separator)
         postprocessor = CharPostprocessor(
             default_label=default_label,
@@ -1428,7 +1428,7 @@ class TestStructCharPreprocessor(unittest.TestCase):
             for params in test_list:
                 # by default uses known working default values
                 test_params = dict(max_length=3400,
-                                   default_label='BACKGROUND',
+                                   default_label='UNKNOWN',
                                    pad_label='PAD',
                                    flatten_separator="\x01" * 5,
                                    is_separate_at_max_len=False)
@@ -1451,7 +1451,7 @@ class TestStructCharPreprocessor(unittest.TestCase):
         # test default params
         processor = StructCharPreprocessor()
         self.assertDictEqual(dict(max_length=3400,
-                                  default_label='BACKGROUND',
+                                  default_label='UNKNOWN',
                                   pad_label='PAD',
                                   flatten_separator='\x01'*5,
                                   is_separate_at_max_len=False),
@@ -1479,7 +1479,7 @@ class TestStructCharPreprocessor(unittest.TestCase):
 
     def test_convert_to_unstructured_format(self):
         preprocessor = StructCharPreprocessor(
-            max_length=10, default_label='BACKGROUND', pad_label='PAD', )
+            max_length=10, default_label='UNKNOWN', pad_label='PAD', )
 
         # test a single sentence
         separator = preprocessor._parameters['flatten_separator']
@@ -1499,7 +1499,7 @@ class TestStructCharPreprocessor(unittest.TestCase):
         # with labels process
         test_array = np.array(['this', ' is', 'my test sentence.', ' How ',
                                'nice.'])
-        labels = ['TEST1', 'TEST2', 'BACKGROUND', 'TEST2', 'TEST1']
+        labels = ['TEST1', 'TEST2', 'UNKNOWN', 'TEST2', 'TEST1']
         expected_labels = [
             (0, 4, 'TEST1'),
             (4, 9, 'PAD'),
@@ -1520,11 +1520,11 @@ class TestStructCharPreprocessor(unittest.TestCase):
 
     def test_process(self):
         preprocessor = StructCharPreprocessor(
-            max_length=10, default_label='BACKGROUND', pad_label='PAD',)
+            max_length=10, default_label='UNKNOWN', pad_label='PAD',)
 
         label_mapping = {
             'PAD': 0,
-            'BACKGROUND': 1,
+            'UNKNOWN': 1,
             "TEST1": 2,
             "TEST2": 3,
             "TEST3": 4,
@@ -1570,7 +1570,7 @@ class TestStructCharPreprocessor(unittest.TestCase):
 
         # with labels process
         test_array = np.array(['this', ' is', 'my test.'])
-        labels = np.array(['TEST1', 'TEST2', 'BACKGROUND'])
+        labels = np.array(['TEST1', 'TEST2', 'UNKNOWN'])
         expected_sentence_output = [
             np.array([['this'], [' is' + separator + 'my']]),
             np.array([[' test.']]),
@@ -1633,8 +1633,8 @@ class TestStructCharPreprocessor(unittest.TestCase):
                                    "shapes, (2, 1) != (1, 2)")
         with self.assertRaisesRegex(ValueError, diff_shape_msg):
             prep.process(np.array([["hello"], ["world"]]),
-                         np.array([["BACKGROUND", "BACKGROUND"]]),
-                         {"BACKGROUND": 1})
+                         np.array([["UNKNOWN", "UNKNOWN"]]),
+                         {"UNKNOWN": 1})
         multi_dim_msg = re.escape("Data given to StructCharPreprocessor was "
                                   "multidimensional, it will be flattened for "
                                   "model processing. Results may be inaccurate,"
@@ -1741,7 +1741,7 @@ class TestStructCharPostprocessor(unittest.TestCase):
             for params in test_list:
                 # by default uses known working default values
                 test_params = dict(
-                    default_label='BACKGROUND',
+                    default_label='UNKNOWN',
                     pad_label='PAD',
                     flatten_separator="\x01"*5,
                     random_state=random.Random())
@@ -1768,7 +1768,7 @@ class TestStructCharPostprocessor(unittest.TestCase):
 
         processor = StructCharPostprocessor(
             random_state=random_state)  # required because mock/isinstance fail
-        self.assertDictEqual(dict(default_label='BACKGROUND',
+        self.assertDictEqual(dict(default_label='UNKNOWN',
                                   pad_label='PAD',
                                   flatten_separator='\x01'*5,
                                   random_state=random_state),
@@ -1812,17 +1812,17 @@ class TestStructCharPostprocessor(unittest.TestCase):
         ])
         label_mapping = {
             'PAD': 0,
-            'BACKGROUND': 1,
+            'UNKNOWN': 1,
             "TEST1": 2,
             "TEST2": 3,
             "TEST3": 4,
         }
 
         expected_output = dict(pred=np.array([
-            'TEST1', 'TEST2', 'BACKGROUND', 'TEST2', 'TEST1'
+            'TEST1', 'TEST2', 'UNKNOWN', 'TEST2', 'TEST1'
         ]))
         processor = StructCharPostprocessor(
-            default_label='BACKGROUND',
+            default_label='UNKNOWN',
             pad_label='PAD',
             flatten_separator='\x01' * 5)
         output = processor.process(data, results, label_mapping)
@@ -2045,7 +2045,7 @@ class TestRegexPostProcessor(unittest.TestCase):
 
         label_mapping = label_mapping = {
             'PAD': 0,
-            'BACKGROUND': 1,
+            'UNKNOWN': 1,
             "TEST1": 2
         }
         data = None

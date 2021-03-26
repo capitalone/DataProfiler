@@ -154,7 +154,7 @@ The format for a profile is below:
 
 *Data Labels* are determined per cell for structured data (column/row when the *profiler* is used) or at the character level for unstructured data.
 
-* BACKGROUND
+* UNKNOWN
 * ADDRESS
 * BAN (bank account number, 10-18 digits)
 * CREDIT_CARD
@@ -664,7 +664,7 @@ Mechanism for training your own data labeler on their own set of structured data
 ```python
 import dataprofiler as dp
 
-# Will need one column with a default label of BACKGROUND
+# Will need one column with a default label of UNKNOWN
 data = dp.Data("your_file.csv")
 
 data_labeler = dp.train_structured_labeler(

@@ -1,24 +1,27 @@
-# Recursive dictionary merge
-# Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import os
 import collections
 import random
 import math
+import warnings
+import numpy as np
 
 
 def dict_merge(dct, merge_dct):
+    # Recursive dictionary merge
+    # Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
+    # 
+    # This program is free software: you can redistribute it and/or modify
+    # it under the terms of the GNU General Public License as published by
+    # the Free Software Foundation, either version 3 of the License, or
+    # (at your option) any later version.
+    # 
+    # This program is distributed in the hope that it will be useful,
+    # but WITHOUT ANY WARRANTY; without even the implied warranty of
+    # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    # GNU General Public License for more details.
+    # 
+    # You should have received a copy of the GNU General Public License
+    # along with this program.  If not, see <https://www.gnu.org/licenses/>.
     """ Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
     updating only top-level keys, dict_merge recurses down into dicts nested
     to an arbitrary depth, updating keys. The ``merge_dct`` is merged into
@@ -58,8 +61,19 @@ def shuffle_in_chunks(data_length, chunk_size):
     :param chunk_size: size of shuffled chunks
     :return: list of shuffled indices of chunk size
     """
-    indices = KeyDict()
+    
+    rng = np.random.default_rng()
+    if 'DATAPROFILER_SEED' in os.environ:
+        try:
+            seed_value = int(os.environ.get('DATAPROFILER_SEED'))
+            rng = np.random.default_rng(seed_value)
+        except ValueError as e:
+            warnings.warn("Seed should be an integer", RuntimeWarning)
+
+
+    indices = KeyDict()        
     j = 0
+    
     # loop through all chunks
     for chunk_ind in range(max(math.ceil(data_length / chunk_size), 1)):
 
@@ -67,11 +81,17 @@ def shuffle_in_chunks(data_length, chunk_size):
         true_chunk_size = min(chunk_size, data_length - chunk_size * chunk_ind)
         values = [-1] * true_chunk_size
 
+        
+        # Generate random list of indicies         
+        lower_bound_list = np.array(range(j, j + true_chunk_size))
+        random_list = rng.integers(lower_bound_list, data_length)
+
+
         # shuffle the indexes
         for count in range(true_chunk_size):
 
             # get a random index to swap and swap it with j
-            k = random.randrange(j, data_length)
+            k = random_list[count]
             indices[j], indices[k] = indices[k], indices[j]
 
             # set the swapped value to the output

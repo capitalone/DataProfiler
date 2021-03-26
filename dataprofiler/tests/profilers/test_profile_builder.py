@@ -365,7 +365,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile2.profiles = dict(test=2)
         merged_profile = profile1 + profile2
         self.assertEqual(3, merged_profile.profiles['test'])
-        self.assertEqual(['5.0', '4.0', '3.0', '1.0'], merged_profile.sample)
+        self.assertCountEqual(['5.0', '4.0', '3.0', '1.0'], merged_profile.sample)
         self.assertEqual(6, merged_profile.sample_size)
         self.assertEqual(2, merged_profile.null_count)
         self.assertListEqual(['nan'], merged_profile.null_types)

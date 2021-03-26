@@ -84,7 +84,6 @@ def shuffle_in_chunks(data_length, chunk_size):
         for count in range(true_chunk_size):
 
             # get a random index to swap and swap it with j
-            # k = random.randrange(j, data_length)
             k = random_list[count]
             indices[j], indices[k] = indices[k], indices[j]
 

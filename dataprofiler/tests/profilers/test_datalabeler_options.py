@@ -1,5 +1,6 @@
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
 from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
+from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 
 
 class TestDataLabelerOptions(TestBaseColumnOptions):
@@ -35,6 +36,11 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         options.set({'max_sample_size': 1})
         self.assertEqual([], options._validate_helper()) 
 
+        # Test valid data labeler object
+        options = self.get_options()
+        options.set({'data_labeler_object': BaseDataLabeler()})
+        self.assertEqual([], options._validate_helper())
+
         # Test invalid dirpath
         options = self.get_options()
         options.set({'data_labeler_dirpath': 0})
@@ -55,6 +61,12 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         options.set({'max_sample_size': -1})
         self.assertEqual([expected_error], options._validate_helper())    
     
+        # Test invalid data labeler object
+        options = self.get_options()
+        expected_error = 'DataLabelerOptions.data_labeler_object must be a BaseDataLabeler object.'
+        options.set({'data_labeler_object': 0})
+        self.assertEqual([expected_error], options._validate_helper())
+
     def test_validate(self):
         super().test_validate()
         optpth = self.get_options_path() 
@@ -63,6 +75,11 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         options = self.get_options()
         options.set({'data_labeler_dirpath': ''})
         self.assertEqual(None, options.validate())
+
+        # Test valid sample size
+        options = self.get_options()
+        options.set({'max_sample_size': 1})
+        self.assertEqual(None, options.validate()) 
 
         # Test valid sample size
         options = self.get_options()
@@ -97,5 +114,13 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)
     
+        # Test invalid data labeler object
+        options = self.get_options()
+        expected_error = 'DataLabelerOptions.data_labeler_object must be a BaseDataLabeler object.'
+        options.set({'data_labeler_object': 0})
+        self.assertEqual([expected_error], options.validate(raise_error=False))    
+        with self.assertRaisesRegex(ValueError, expected_error):
+            options.validate(raise_error=True)
+
     def test_is_prop_enabled(self):
         super().test_is_prop_enabled()

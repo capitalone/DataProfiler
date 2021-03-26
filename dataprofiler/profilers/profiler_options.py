@@ -544,12 +544,13 @@ class DataLabelerOptions(BaseColumnOptions):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
             
-        if self.data_labeler_object and \
+        if self.data_labeler_object is not None and \
                 not isinstance(self.data_labeler_object, BaseDataLabeler):
             errors.append("{}.data_labeler_object must be a BaseDataLabeler "
                           "object."
                           .format(variable_path))
-        if self.data_labeler_object and self.data_labeler_dirpath:
+        if self.data_labeler_object is not None and \
+                self.data_labeler_dirpath is not None:
             warnings.warn("The data labeler passed in will be used,"
                           " not through the directory of the default model")
             

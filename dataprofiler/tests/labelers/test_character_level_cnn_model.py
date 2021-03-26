@@ -24,7 +24,7 @@ mock_model_parameters = {
     "dim_embed": 64,
     "size_fc": [96, 96],
     "dropout": 0.073,
-    "default_label": "BACKGROUND",
+    "default_label": "UNKNOWN",
     "num_fil": [48, 48, 48, 48]
 }
 
@@ -32,7 +32,7 @@ mock_model_parameters = {
 mock_label_mapping = {
     "PAD": 0,
     "CITY": 1,  # ensure that overlapping labels get removed.
-    "BACKGROUND": 1,
+    "UNKNOWN": 1,
     "ADDRESS": 2,
 }
 
@@ -66,8 +66,8 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
             })
         cls.label_mapping = {
             'PAD': 0,
-            'CITY': 1,        # SAME AS BACKGROUND, ensure that overlapping
-            'BACKGROUND': 1,  # labels get removed.
+            'CITY': 1,        # SAME AS UNKNOWN, ensure that overlapping
+            'UNKNOWN': 1,  # labels get removed.
             'ADDRESS': 2,
             'BAN': 3,
             'CREDIT_CARD': 4,
@@ -98,7 +98,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         # load default
         cnn_model = CharacterLevelCnnModel(self.label_mapping)
 
-        labels = ['PAD', 'BACKGROUND', 'ADDRESS', 'BAN', 'CREDIT_CARD',
+        labels = ['PAD', 'UNKNOWN', 'ADDRESS', 'BAN', 'CREDIT_CARD',
                   'EMAIL_ADDRESS', 'UUID', 'HASH_OR_KEY', 'IPV4', 'IPV6',
                   'MAC_ADDRESS', 'PERSON', 'PHONE_NUMBER', 'SSN', 'URL',
                   'DATETIME', 'INTEGER_BIG']
@@ -113,7 +113,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         # should notice that CITY does not exist in reverse
         reverse_label_mapping = {
             0: 'PAD',
-            1: 'BACKGROUND',
+            1: 'UNKNOWN',
             2: 'ADDRESS',
             3: 'BAN',
             4: 'CREDIT_CARD',
@@ -160,14 +160,14 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         # test raise error if default label not in mapping
         label_mapping = {'PAD': 0}
         with self.assertRaisesRegex(ValueError,
-                                    "The `default_label` of BACKGROUND must "
+                                    "The `default_label` of UNKNOWN must "
                                     "exist in the label mapping."):
             cnn_model.set_label_mapping(label_mapping)
 
         # test label_mapping without PAD
         label_mapping = {
-            'CITY': 1,  # SAME AS BACKGROUND
-            'BACKGROUND': 1,
+            'CITY': 1,  # SAME AS UNKNOWN
+            'UNKNOWN': 1,
             'ADDRESS': 2,
         }
         cnn_model.set_label_mapping(label_mapping)
@@ -179,8 +179,8 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         # test label_mapping with PAD: 0
         label_mapping = {
             'PAD': 0,
-            'CITY': 1,  # SAME AS BACKGROUND
-            'BACKGROUND': 1,
+            'CITY': 1,  # SAME AS UNKNOWN
+            'UNKNOWN': 1,
             'ADDRESS': 2,
         }
         cnn_model.set_label_mapping(label_mapping)
@@ -247,10 +247,10 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
 
     def test_fit_and_predict_with_new_labels_set_via_method(self):
         # Initialize model
-        invalid_entities = {"PAD": 0, "BACKGROUND": 1, "test3": 2}
+        invalid_entities = {"PAD": 0, "UNKNOWN": 1, "test3": 2}
         cnn_model = CharacterLevelCnnModel(invalid_entities)
         cnn_model._construct_model()
-        invalid_entities2 = {"PAD": 0, "BACKGROUND": 1}
+        invalid_entities2 = {"PAD": 0, "UNKNOWN": 1}
         cnn_model.set_label_mapping(invalid_entities2)
         cnn_model._reconstruct_model()
         cnn_model.set_label_mapping(self.label_mapping)
@@ -295,7 +295,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         # are caught
         parameters = {
             'max_length': 10, 'max_char_encoding_id': 11, 'size_fc': [64, 64],
-            'dropout': 0.9, 'size_conv': 11, 'default_label': "BACKGROUND",
+            'dropout': 0.9, 'size_conv': 11, 'default_label': "UNKNOWN",
             'num_fil': [48 for _ in range(2)]
         }
         invalid_parameters = {
@@ -357,8 +357,8 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         parameters = {'max_char_encoding_id': 100, 'size_conv': 6}
         label_mapping = {
             'PAD': 0,
-            'CITY': 1,  # SAME AS BACKGROUND
-            'BACKGROUND': 1,
+            'CITY': 1,  # SAME AS UNKNOWN
+            'UNKNOWN': 1,
             'ADDRESS': 2,
         }
         cnn_model = CharacterLevelCnnModel(label_mapping, parameters)
@@ -372,10 +372,10 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
             # model parameters
             '{"max_char_encoding_id": 100, "size_conv": 6, "max_length": 3400, '
             '"dim_embed": 64, "size_fc": [96, 96], "dropout": 0.073, '
-            '"default_label": "BACKGROUND", "num_fil": [48, 48, 48, 48], '
+            '"default_label": "UNKNOWN", "num_fil": [48, 48, 48, 48], '
             '"pad_label": "PAD"}'
             # label_mapping 
-            '{"PAD": 0, "CITY": 1, "BACKGROUND": 1, "ADDRESS": 2}',
+            '{"PAD": 0, "CITY": 1, "UNKNOWN": 1, "ADDRESS": 2}',
             mock_file.getvalue())
 
         # close mock

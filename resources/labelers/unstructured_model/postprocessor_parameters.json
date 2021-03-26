@@ -1,1 +1,1 @@
-{"default_label": "BACKGROUND", "pad_label": "PAD", "flatten_separator": " ", "use_word_level_argmax": false, "output_format": "character_argmax", "separators": [" ", ",", ";", "'", "\"", ":", "\n", "\t", "."], "word_level_min_percent": 0.75}
+{"default_label": "UNKNOWN", "pad_label": "PAD", "flatten_separator": " ", "use_word_level_argmax": false, "output_format": "character_argmax", "separators": [" ", ",", ";", "'", "\"", ":", "\n", "\t", "."], "word_level_min_percent": 0.75}

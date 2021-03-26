@@ -64,7 +64,7 @@ class TestDataLabelerTrainer(unittest.TestCase):
             dp.train_structured_labeler(pd.DataFrame([]), "/a/test")
 
         try:
-            data = {'BACKGROUND': ["Beep", "Boop"],
+            data = {'UNKNOWN': ["Beep", "Boop"],
                     'PERSON': ["GRANT", "MENSHENG"]}
             df = pd.DataFrame(data=data)
             dp.train_structured_labeler(df, save_dirpath=None)
@@ -181,8 +181,8 @@ class TestDataLabeler(unittest.TestCase):
                            np.array(one_dim), fit_or_predict='predict')))
 
         # test proper conversion of unstructured labels
-        labels = [[(0, 4, "BACKGROUND"), (4, 10, "ADDRESS")],
-                  [(0, 5, "SSN"), (5, 8, "BACKGROUND")]]
+        labels = [[(0, 4, "UNKNOWN"), (4, 10, "ADDRESS")],
+                  [(0, 5, "SSN"), (5, 8, "UNKNOWN")]]
         validated_labels = \
             BaseDataLabeler._check_and_return_valid_data_format(labels)
         self.assertIsInstance(validated_labels, np.ndarray)
@@ -203,14 +203,14 @@ class TestDataLabeler(unittest.TestCase):
 label_encoding = {
     "encoder": {
         'PAD': 0,
-        'CITY': 1,  # SAME AS BACKGROUND
-        'BACKGROUND': 1,
+        'CITY': 1,  # SAME AS UNKNOWN
+        'UNKNOWN': 1,
         'ADDRESS': 2,
         'PERSON': 3,
     },
     "decoder": {
         0: "PAD",
-        1: "BACKGROUND",
+        1: "UNKNOWN",
         2: "ADDRESS",
         3: "PERSON"
     },
@@ -225,8 +225,8 @@ unstruct_data_labeler_parameters = {
     },
     'label_mapping': {
         'PAD': 0,
-        'CITY': 1,  # SAME AS BACKGROUND
-        'BACKGROUND': 1,
+        'CITY': 1,  # SAME AS UNKNOWN
+        'UNKNOWN': 1,
         'ADDRESS': 2,
         'PERSON': 3,
     },
@@ -246,8 +246,8 @@ struct_data_labeler_parameters = {
     },
     'label_mapping': {
         'PAD': 0,
-        'CITY': 1,  # SAME AS BACKGROUND
-        'BACKGROUND': 1,
+        'CITY': 1,  # SAME AS UNKNOWN
+        'UNKNOWN': 1,
         'ADDRESS': 2,
         'PERSON': 3,
     },
@@ -427,7 +427,7 @@ class TestLoadedDataLabeler(unittest.TestCase):
         self.assertNotEqual(struct_data_labeler1, unstruct_data_labeler1)
 
         # Assert they are unequal because of _label_encoding
-        struct_data_labeler1.set_labels(['BACKGROUND', 'b', 'c'])
+        struct_data_labeler1.set_labels(['UNKNOWN', 'b', 'c'])
         self.assertNotEqual(struct_data_labeler1, struct_data_labeler2)
 
     @mock.patch("sys.stdout", new_callable=StringIO)
@@ -506,8 +506,8 @@ class TestDataLabelerNoMock(unittest.TestCase):
         unstructured_labeler = dp.DataLabeler(labeler_type='unstructured')
         unstructured_labeler._label_encoding = {
             'PAD': 0,
-            'CITY': 1,  # SAME AS BACKGROUND
-            'BACKGROUND': 1,
+            'CITY': 1,  # SAME AS UNKNOWN
+            'UNKNOWN': 1,
             'ADDRESS': 2,
             'BAN': 3,
             'CREDIT_CARD': 4,

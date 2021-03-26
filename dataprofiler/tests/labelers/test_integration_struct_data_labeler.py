@@ -19,8 +19,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              ['4/3/22', 'abc', '333-44-2341']] * num_repeat_data
         ).reshape((-1,))
         cls.labels = np.array(
-            [['ADDRESS', 'DATETIME', 'BACKGROUND'],
-             ['DATETIME', 'BACKGROUND', 'SSN']] * num_repeat_data
+            [['ADDRESS', 'DATETIME', 'UNKNOWN'],
+             ['DATETIME', 'UNKNOWN', 'SSN']] * num_repeat_data
         ).reshape((-1,))
         cls.df = pd.DataFrame([cls.data, cls.labels]).T
 
@@ -75,12 +75,12 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
         # get char-level predictions on default model
         expected_label_mapping = dict(list(zip(
-            ['PAD', 'BACKGROUND', 'ADDRESS', 'DATETIME', 'SSN'],
+            ['PAD', 'UNKNOWN', 'ADDRESS', 'DATETIME', 'SSN'],
             [0, 1, 2, 3, 4]
         )))
         model_predictions = default.fit(
             x=self.df[0], y=self.df[1],
-            labels=['BACKGROUND', 'ADDRESS', 'DATETIME', 'SSN'])
+            labels=['UNKNOWN', 'ADDRESS', 'DATETIME', 'SSN'])
         self.assertEqual(1, len(model_predictions))
         self.assertEqual(3, len(model_predictions[0]))  # history, f1, f1_report
         self.assertIsInstance(model_predictions[0][0], dict)  # history
@@ -96,7 +96,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
         try:
             model_predictions = default.fit(
                 x=self.df[0], y=self.df[1],
-                labels=['BACKGROUND', 'ADDRESS', 'DATETIME', 'SSN',
+                labels=['UNKNOWN', 'ADDRESS', 'DATETIME', 'SSN',
                         'CREDIT_CARD'])
         except Exception as e:
             self.fail(str(e))
@@ -105,7 +105,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
         with self.assertRaises(KeyError):
             model_predictions = default.fit(
                 x=self.df[0], y=self.df[1],
-                labels=['BACKGROUND', 'ADDRESS', 'DATETIME'])
+                labels=['UNKNOWN', 'ADDRESS', 'DATETIME'])
 
     def test_data_labeler_extend_labels(self):
         """test extending labels of data labeler with fitting data"""
@@ -222,7 +222,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
         sample2 = ["", "abc", "\t", ""]
 
         # this can change if model changes
-        expected_output = {'pred': [None, 'BACKGROUND', 'BACKGROUND', None]}
+        expected_output = {'pred': [None, 'UNKNOWN', 'UNKNOWN', None]}
         output = default.predict(sample2)
         output['pred'] = output['pred'].tolist()
         self.assertDictEqual(expected_output, output)
@@ -260,7 +260,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
     def test_structured_data_labeler_fit_predict_take_data_obj(self):
         data = pd.DataFrame(["123 Fake st", "1/1/2021", "blah", "333-44-2341",
                              "foobar@gmail.com", "John Doe", "123-4567"])
-        labels = pd.DataFrame(["ADDRESS", "DATETIME", "BACKGROUND", "SSN",
+        labels = pd.DataFrame(["ADDRESS", "DATETIME", "UNKNOWN", "SSN",
                                "EMAIL_ADDRESS", "PERSON", "PHONE_NUMBER"])
         for dt in ["csv", "json", "parquet"]:
             data_obj = dp.Data(data=data, data_type=dt)

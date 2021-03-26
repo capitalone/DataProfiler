@@ -52,7 +52,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         parameters.setdefault('regex_patterns', {})
         parameters.setdefault('encapsulators', {'start': '', 'end': ''})
         parameters.setdefault('ignore_case', True)
-        parameters.setdefault('default_label', 'BACKGROUND')
+        parameters.setdefault('default_label', 'UNKNOWN')
         self._epoch_id = 0
 
         # initialize class

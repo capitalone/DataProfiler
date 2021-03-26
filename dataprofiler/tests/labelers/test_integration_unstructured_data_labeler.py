@@ -21,7 +21,7 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
               (4, 5, 'INTEGER'),
               (6, 8, 'INTEGER')]]
         ]
-        new_labels = ["BACKGROUND", "ADDRESS", "INTEGER"]
+        new_labels = ["UNKNOWN", "ADDRESS", "INTEGER"]
         data = pd.DataFrame(data * 50)
 
         # constructing default UnstructuredDataLabeler()
@@ -70,7 +70,7 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
         # get char-level predictions on default model
         model_predictions = default.fit(
             x=data[0], y=data[1],
-            labels=['BACKGROUND', 'INTEGER', 'ADDRESS'])
+            labels=['UNKNOWN', 'INTEGER', 'ADDRESS'])
         self.assertEqual(1, len(model_predictions))
         self.assertEqual(3, len(model_predictions[0]))
         self.assertIsInstance(model_predictions[0][0], dict)
@@ -266,7 +266,7 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
 
         data_cells = ["123 Fake st", "1/1/2021", "blah", "555-55-5555",
                       "foobar@gmail.com", "John Doe", "123-4567"]
-        label_cells = ["ADDRESS", "DATETIME", "BACKGROUND", "SSN",
+        label_cells = ["ADDRESS", "DATETIME", "UNKNOWN", "SSN",
                        "EMAIL_ADDRESS", "PERSON", "PHONE_NUMBER"]
 
         # Test with one large string of data

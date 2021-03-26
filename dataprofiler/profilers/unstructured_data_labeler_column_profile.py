@@ -161,14 +161,14 @@ class UnstructuredDataLabelerProfile(object):
             text, entities = result
             index = 0
             for entity in entities:
-                char_label_counts['BACKGROUND'] += (entity[0] - index)
+                char_label_counts['UNKNOWN'] += (entity[0] - index)
                 #Add entity char count
                 char_label_counts[entity[2]] += (entity[1] - entity[0])
                 #Update index
                 index = entity[1]
 
             #Add background from end if there is any
-            char_label_counts['BACKGROUND'] += (len(text) - index)
+            char_label_counts['UNKNOWN'] += (len(text) - index)
 
     def _update_word_label_counts(self, df_series_clean, format_predictions):
         """
@@ -194,7 +194,7 @@ class UnstructuredDataLabelerProfile(object):
                     if begin_word_idx != -1:
                         #Add background words when separator is found
                         if text[index] in self.separators:
-                            word_label_counts['BACKGROUND'] += 1
+                            word_label_counts['UNKNOWN'] += 1
                             begin_word_idx = -1
                     #Reset index when new word is found
                     elif text[index] not in self.separators:
@@ -207,7 +207,7 @@ class UnstructuredDataLabelerProfile(object):
             while index < len(text):
                 if begin_word_idx != -1:
                     if text[index] in self.separators:
-                        word_label_counts['BACKGROUND'] += 1
+                        word_label_counts['UNKNOWN'] += 1
                         begin_word_idx = -1
                 elif text[index] not in self.separators:
                     begin_word_idx = index

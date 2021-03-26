@@ -171,6 +171,8 @@ class TestProfilerOptions(unittest.TestCase):
 
         options.structured_options.data_labeler.is_enabled = "Invalid"
         options.structured_options.data_labeler.data_labeler_dirpath = 5
+        options.structured_options.data_labeler.data_labeler_object = "object"
+
         options.structured_options.int.max = "Invalid"
 
         expected_error = (
@@ -179,7 +181,9 @@ class TestProfilerOptions(unittest.TestCase):
             "ProfilerOptions.structured_options.data_labeler.is_enabled must be"
             " a Boolean.\n"
             "ProfilerOptions.structured_options.data_labeler."
-            "data_labeler_dirpath must be a string.")
+            "data_labeler_dirpath must be a string.\n"
+            "ProfilerOptions.structured_options.data_labeler."
+            "data_labeler_object must be a BaseDataLabeler object.")
         with self.assertRaisesRegex(ValueError, expected_error):
             profile = Profiler(self.data, profiler_options=options)
 
@@ -221,10 +225,12 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
 
         # Ensure set works appropriately
+        base_data_labeler = BaseDataLabeler()
         options.set({"data_labeler.is_enabled": False,
                      "min.is_enabled": False,
                      "data_labeler_dirpath": "test",
-                     "max_sample_size": 15})
+                     "max_sample_size": 15,
+                     "data_labeler_object": base_data_labeler})
 
         text_options = options.structured_options.text.properties
         float_options = options.structured_options.float.properties
@@ -238,9 +244,13 @@ class TestProfilerOptions(unittest.TestCase):
         self.assertFalse(int_options["min"].is_enabled)
         self.assertEqual(data_labeler_options["data_labeler_dirpath"], "test")
         self.assertEqual(data_labeler_options["max_sample_size"], 15)
+        self.assertEqual(data_labeler_options["data_labeler_object"],
+                         base_data_labeler)
 
         # Ensure direct attribute setting works appropriately
         options.structured_options.data_labeler.max_sample_size = 12
+        options.structured_options.data_labeler.data_labeler_object = \
+            base_data_labeler
         options.structured_options.text.histogram_and_quantiles\
             .is_enabled = True
         options.structured_options.text.is_enabled = False
@@ -249,6 +259,8 @@ class TestProfilerOptions(unittest.TestCase):
         data_labeler_options = options.structured_options.data_labeler \
             .properties
         self.assertEqual(data_labeler_options["max_sample_size"], 12)
+        self.assertEqual(data_labeler_options["data_labeler_object"],
+                         base_data_labeler)
         self.assertTrue(text_options["histogram_and_quantiles"].is_enabled)
         self.assertFalse(text_options["is_enabled"])
 
@@ -349,6 +361,9 @@ class TestDataLabelerCallWithOptions(unittest.TestCase):
         options.structured_options.data_labeler.data_labeler_dirpath \
             = "Test_Dirpath"
         options.structured_options.data_labeler.max_sample_size = 50
+        base_data_labeler = BaseDataLabeler()
+        options.structured_options.data_labeler.data_labeler_object = \
+            base_data_labeler
 
         profile = Profiler(self.data,
                            profiler_options=options)

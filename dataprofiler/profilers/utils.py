@@ -1,21 +1,8 @@
-# Recursive dictionary merge
-# Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+import os
 import collections
 import random
 import math
+import warnings
 import numpy as np
 
 
@@ -59,8 +46,17 @@ def shuffle_in_chunks(data_length, chunk_size):
     :param chunk_size: size of shuffled chunks
     :return: list of shuffled indices of chunk size
     """
-    indices = KeyDict()
+    
     rng = np.random.default_rng()
+    if 'DATAPROFILER_SEED' in os.environ:
+        try:
+            seed_value = int(os.environ.get('DATAPROFILER_SEED'))
+            rng = np.random.default_rng(seed_value)
+        except ValueError as e:
+            warnings.warn("Seed should be an integer", RuntimeWarning)
+
+
+    indices = KeyDict()        
     j = 0
     
     # loop through all chunks

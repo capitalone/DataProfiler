@@ -365,7 +365,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile2.profiles = dict(test=2)
         merged_profile = profile1 + profile2
         self.assertEqual(3, merged_profile.profiles['test'])
-        self.assertEqual(['4.0', '5.0', '1.0', '3.0'], merged_profile.sample)
+        self.assertCountEqual(['5.0', '4.0', '3.0', '1.0'], merged_profile.sample)
         self.assertEqual(6, merged_profile.sample_size)
         self.assertEqual(2, merged_profile.null_count)
         self.assertListEqual(['nan'], merged_profile.null_types)
@@ -438,12 +438,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     def test_null_count(self):
         column = pd.Series([1, float('nan')] * 10)
 
-        # test null_count when subset of full sample size
-        random.seed(0)
-        profile = StructuredDataProfile(column, sample_size=10)
-        self.assertEqual(6, profile.null_count)
-
         # test null_count when full sample size
+        random.seed(0)
         profile = StructuredDataProfile(column, sample_size=len(column))
         self.assertEqual(10, profile.null_count)
 

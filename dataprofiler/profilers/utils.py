@@ -72,11 +72,7 @@ def shuffle_in_chunks(data_length, chunk_size):
 
         
         # Generate random list of indicies         
-        list_j = j
-        lower_bound_list = np.zeros([true_chunk_size])
-        for i in range(true_chunk_size):
-            lower_bound_list[i] = list_j
-            list_j+=1
+        lower_bound_list = np.array(range(j, j + true_chunk_size))
         random_list = rng.integers(lower_bound_list, data_length)
 
 

@@ -573,7 +573,6 @@ class TestFloatColumn(unittest.TestCase):
             min=2.5,
             max=12.5,
             mean=20/3.0,
-            median=None,
             variance=27 + 1/12.0,
             stddev=np.sqrt(27+1/12.0),
             histogram={

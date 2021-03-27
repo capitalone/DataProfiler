@@ -86,9 +86,10 @@ class StructuredDataProfile(object):
             use_data_labeler = options.data_labeler.is_enabled
 
         if use_data_labeler:
-            self.profiles.update(
-                {'data_label_profile':
-                     ColumnDataLabelerCompiler(clean_sampled_df, self.options)})
+            self.profiles.update({
+                'data_label_profile':
+                ColumnDataLabelerCompiler(clean_sampled_df, self.options)
+            })
 
     def __add__(self, other):
         """
@@ -150,8 +151,7 @@ class StructuredDataProfile(object):
                 "null_types": self.null_types,
                 "null_types_index": self.null_types_index,
                 "data_type_representation":
-                    unordered_profile["data_type_representation"],
-                "data_label_probability": None,
+                    unordered_profile["data_type_representation"]
             })
 
         dict_order = [
@@ -459,17 +459,15 @@ class Profiler(object):
         columns = list(self._profile.values())
         report = OrderedDict([
             ("global_stats", {
-                "total_samples": self.total_samples,
                 "samples_used": columns[0].sample_size if columns else 0,
                 "column_count": len(columns),
-                "unique_row_ratio": self._get_unique_row_ratio(),
+                "row_count": self.total_samples,
                 "row_has_null_ratio": self._get_row_has_null_ratio(),
                 "row_is_null_ratio": self._get_row_is_null_ratio(),
+                "unique_row_ratio": self._get_unique_row_ratio(),
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
-                "encoding": self.encoding,
-                "data_classification": None,
-                "covariance": None,
+                "encoding": self.encoding
             }),
             ("data_stats", OrderedDict()),
         ])

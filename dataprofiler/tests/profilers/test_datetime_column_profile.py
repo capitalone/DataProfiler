@@ -243,7 +243,6 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         expected_profile = dict(
             min='03/10/13 15:43',
             max='Mar 11, 2013',
-            median=None,
             histogram=None,
             format=[
                 '%Y-%m-%d %H:%M:%S',

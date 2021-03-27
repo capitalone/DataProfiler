@@ -167,9 +167,9 @@ class TestProfiler(unittest.TestCase):
         self.assertListEqual(
             list(report['global_stats']),
             [
-                "total_samples", "samples_used", "column_count", "unique_row_ratio",
-                "row_has_null_ratio", 'row_is_null_ratio', "duplicate_row_count",
-                "file_type", "encoding", "data_classification", "covariance"
+                "samples_used", "column_count", "row_count", 
+                "row_has_null_ratio", 'row_is_null_ratio',
+                "unique_row_ratio", "duplicate_row_count", "file_type", "encoding"
             ]
         )
         flat_report = self.trained_schema.report(report_options={"output_format":"flat"})

@@ -70,7 +70,6 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             min=self.min,
             max=self.max,
             mean=self.mean,
-            median=None,
             variance=self.variance,
             stddev=self.stddev,
             histogram=self.histogram_methods[histogram_method]['histogram'],

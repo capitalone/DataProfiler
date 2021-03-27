@@ -183,7 +183,6 @@ class TestTextColumnProfiler(unittest.TestCase):
             min=1.0,
             max=4.0,
             mean=20.0 / 10.0,
-            median=None,
             variance=14.0 / 9.0,
             stddev=np.sqrt(14.0 / 9.0),
             histogram={

@@ -77,13 +77,13 @@ The format for a profile is below:
 "global_stats": {
     "samples_used": int,
     "column_count": int,
-    "unique_row_ratio": float,
+    "row_count": int,
     "row_has_null_ratio": float,
+    "row_is_null_ratio": float,    
+    "unique_row_ratio": float,
     "duplicate_row_count": int,
     "file_type": string,
     "encoding": string,
-    "data_classification": [null, string],
-    "covariance": [null, float],
 },
 "data_stats": {
     <column name>: {
@@ -92,7 +92,7 @@ The format for a profile is below:
         "data_label": string,
         "categorical": bool,
         "order": string,
-        "samples": list(str),
+	"samples": list(str),
         "statistics": {
             "sample_size": int,
             "null_count": int,
@@ -101,13 +101,9 @@ The format for a profile is below:
                 string: list(int)
             },
             "data_type_representation": string,
-            "data_label_probability": {
-              string: float
-            },
             "min": [null, float],
             "max": [null, float],
             "mean": float,
-            "median": null,  
             "variance": float,
             "stddev": float,
             "histogram": { 

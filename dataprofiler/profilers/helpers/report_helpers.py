@@ -42,6 +42,16 @@ def flat_dict(od, separator='_', key=''):
 
 
 def _prepare_report(report, output_format=None):
+    """
+    Prepares report dictionary for users upon request
+
+    :param report: contains the values identified from the profile
+    :type report: dict()
+    :param output_format: designation for how to format the returned report
+    :type output_format: dict()
+    :return report: handle to the updated report
+    :type report: dict()
+    """
     if output_format:
         output_format = output_format.lower()
     if not output_format or output_format not in ['pretty', 'serializable', 'flat']:

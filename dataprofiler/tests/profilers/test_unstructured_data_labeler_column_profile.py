@@ -104,7 +104,7 @@ class TestUnstructuredDataLabelerProfile(unittest.TestCase):
     def test_profile(self, processor_class_mock, model_class_mock):
         # setup mocks
         model_mock = mock.Mock()
-        model_mock.reverse_label_mapping = {1: 'BACKGROUND'}
+        model_mock.reverse_label_mapping = {1: 'UNKNOWN'}
         model_mock.predict.return_value = dict(pred=[[1]])
         model_class_mock.return_value = model_mock
         processor_mock = mock.Mock()
@@ -117,8 +117,8 @@ class TestUnstructuredDataLabelerProfile(unittest.TestCase):
         sample = pd.Series(["a"])
         expected_profile = dict(
             entity_counts={
-                'postprocess_char_level': defaultdict(int, {'BACKGROUND': 1}),
-                'true_char_level': defaultdict(int, {'BACKGROUND': 1}),
+                'postprocess_char_level': defaultdict(int, {'UNKNOWN': 1}),
+                'true_char_level': defaultdict(int, {'UNKNOWN': 1}),
                 'word_level': defaultdict(int)
             },
             times=defaultdict(float, {'data_labeler_predict': 1.0})

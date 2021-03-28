@@ -103,7 +103,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         parameters.setdefault('size_fc', [96, 96])
         parameters.setdefault('dropout', 0.073)
         parameters.setdefault('size_conv', 13)
-        parameters.setdefault('default_label', "BACKGROUND")
+        parameters.setdefault('default_label', "UNKNOWN")
         parameters.setdefault('num_fil', [48 for _ in range(4)])
         parameters['pad_label'] = 'PAD'
         self._epoch_id = 0

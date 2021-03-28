@@ -220,7 +220,7 @@ class DirectPassPreprocessor(BaseDataPreprocessor,
 
 class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
-    def __init__(self, max_length=3400, default_label='BACKGROUND',
+    def __init__(self, max_length=3400, default_label='UNKNOWN',
                  pad_label='PAD', flatten_split=0, flatten_separator=" ",
                  is_separate_at_max_len=False):
         """
@@ -657,7 +657,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                         metaclass=AutoSubRegistrationMeta):
 
     def __init__(self,
-                 default_label='BACKGROUND', pad_label='PAD',
+                 default_label='UNKNOWN', pad_label='PAD',
                  flatten_separator=" ",
                  use_word_level_argmax=False,
                  output_format='character_argmax',
@@ -1032,7 +1032,7 @@ class CharPostprocessor(BaseDataPostprocessor,
 class StructCharPreprocessor(CharPreprocessor,
                              metaclass=AutoSubRegistrationMeta):
 
-    def __init__(self, max_length=3400, default_label='BACKGROUND',
+    def __init__(self, max_length=3400, default_label='UNKNOWN',
                  pad_label='PAD', flatten_separator="\x01"*5,
                  is_separate_at_max_len=False):
         """
@@ -1211,7 +1211,7 @@ class StructCharPreprocessor(CharPreprocessor,
 class StructCharPostprocessor(BaseDataPostprocessor,
                               metaclass=AutoSubRegistrationMeta):
 
-    def __init__(self, default_label='BACKGROUND', pad_label='PAD',
+    def __init__(self, default_label='UNKNOWN', pad_label='PAD',
                  flatten_separator="\x01"*5, random_state=None):
         """
         Initialize the StructCharPostprocessor class

@@ -23,6 +23,7 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         super().test_set()
     
     def test_validate_helper(self):
+        # Valid cases should return [] while invalid cases should return a list of errors
         super().test_validate_helper()
         optpth = self.get_options_path() 
 
@@ -68,6 +69,7 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         self.assertEqual([expected_error], options._validate_helper())
 
     def test_validate(self):
+        # Valid cases should return None while invalid cases should return or throw a list of errors
         super().test_validate()
         optpth = self.get_options_path() 
 
@@ -81,10 +83,10 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         options.set({'max_sample_size': 1})
         self.assertEqual(None, options.validate()) 
 
-        # Test valid sample size
+        # Test valid data labeler object
         options = self.get_options()
-        options.set({'max_sample_size': 1})
-        self.assertEqual(None, options.validate()) 
+        options.set({'data_labeler_object': BaseDataLabeler()})
+        self.assertEqual(None, options.validate())
 
         # Test invalid dirpath
         options = self.get_options()

@@ -43,13 +43,16 @@ def flat_dict(od, separator='_', key=''):
 
 def _prepare_report(report, output_format=None, omit_keys=[]):
     """
-    Prepares report dictionary for users upon request
+    Prepares report dictionary for users upon request.
 
     :param report: contains the values identified from the profile
     :type report: dict()
     :param output_format: designation for how to format the returned report
     :type output_format: dict()
-    :param omit_keys: Keys to omit from the output report
+    :param omit_keys: Keys to omit from the output report, to omit keys in the 
+                      report a '.' represents a level of recursion example: 
+                      report: { 'test1': { 'test2': val, 'test3': val }, 
+                      to omit key 'test3' from report: omit_keys=['test1.test3']
     :type omit_keys: list(str)
     :return report: handle to the updated report
     :type report: dict()
@@ -61,19 +64,46 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
     if not output_format or output_format not in format_options:
         return report
     
-    fmt_report = report.copy()
+    fmt_report = {}
     max_str_len = 50
     max_array_len = 5
-    for key in fmt_report:
-        value = fmt_report[key]
+    
+    for key in report:
+        
+        # Remove any keys omitted
+        if key in omit_keys:
+            continue
+            
+        value = report[key]
+        
         if isinstance(value, dict):
-            fmt_report[key] = _prepare_report(
-                fmt_report[key], output_format=output_format)
+
+            # split off any remaining keys for the recursion
+            # i.e. [test0, test1.test2] -> omit_keys => [test1.test2]
+            next_layer_omit_keys = []
+            for omit_key in omit_keys:
+                omit_key_split = omit_key.split('.', 1)
+                
+                # Must have more keys left for recursion 
+                if len(omit_key_split) > 1: 
+                    next_key_layer = omit_key_split[-1]
+                    prior_key_layer = omit_key_split[0]
+                    if len(next_key_layer) > 0 and prior_key_layer == key:
+                        next_layer_omit_keys.append(next_key_layer)
+
+            # Recusively add keys to the final report
+            fmt_report[key] = _prepare_report(value, output_format,
+                                              next_layer_omit_keys)
+            
         elif isinstance(value, list) or isinstance(value, np.ndarray):
+            
             if output_format == "pretty":
+                
                 if isinstance(value, list):
                     fmt_report[key] = np.array(value)
+                    
                 str_value = np.array2string(value, separator=', ')
+                
                 if len(str_value) > max_str_len and len(value) > max_array_len:
                     ind = 1
                     str_value = ''
@@ -81,20 +111,20 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
                         str_value = \
                             np.array2string(value[:ind], separator=', ')[:-1] + \
                             ', ... , ' + \
-                            np.array2string(
-                                value[-ind:], separator=', ')[1:]
+                            np.array2string(value[-ind:], separator=', ')[1:]
                         ind += 1
+                        
                 fmt_report[key] = str_value
+                
             elif output_format == "serializable" and isinstance(value, np.ndarray):
                 fmt_report[key] = value.tolist()
-        elif output_format == "pretty" and isinstance(value, float):
-            fmt_report[key] = round(fmt_report[key], 4)
-
-        # Remove any keys omitted
-        if key in omit_keys:
-            fmt_report.pop(key, None)
+                
+        elif isinstance(value, float) and output_format == "pretty":
+            fmt_report[key] = round(value, 4)
+        else:
+            fmt_report[key] = value
             
     if output_format == 'flat':
         fmt_report = flat_dict(fmt_report)
-        
+
     return fmt_report

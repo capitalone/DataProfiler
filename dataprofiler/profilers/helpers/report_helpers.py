@@ -24,7 +24,8 @@ def calculate_quantiles(num_quantile_groups, quantiles):
 
 def flat_dict(od, separator='_', key=''):
     """
-    Function to flatten nested dictionary. Each level is collapsed and joined with the specified seperator.
+    Function to flatten nested dictionary. Each level is collapsed and 
+    joined with the specified seperator.
 
     :param od: dictionary or dictionary-like object
     :type od: dict

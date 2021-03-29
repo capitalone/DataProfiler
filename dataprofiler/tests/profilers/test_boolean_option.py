@@ -7,14 +7,14 @@ class TestBooleanOption(TestBaseOption):
     option_class = BooleanOption
     keys = []
     
-    def test_init(self, *mocks):
+    def test_init(self):
         option = self.get_options()
         self.assertDictEqual({"is_enabled": True}, option.properties)
         option = self.get_options(is_enabled=False)
         self.assertDictEqual({"is_enabled": False}, option.properties)
     
-    def test_set_helper(self, *mocks):
-        super().test_set_helper(*mocks)
+    def test_set_helper(self):
+        super().test_set_helper()
         
         # Enable and Disable Option
         for is_enabled in [True, False]:
@@ -27,8 +27,8 @@ class TestBooleanOption(TestBaseOption):
         with self.assertRaisesRegex(AttributeError, expected_error):
             option._set_helper({'is_enabled.is_enabled': True}, '')    
         
-    def test_set(self, *mocks):
-        super().test_set(*mocks)
+    def test_set(self):
+        super().test_set()
 
         # Enable and Disable Options       
         for is_enabled in [True, False]:
@@ -41,7 +41,7 @@ class TestBooleanOption(TestBaseOption):
         with self.assertRaisesRegex(AttributeError, expected_error):
             option.set({'is_enabled.error': True})    
 
-    def test_validate_helper(self, *mocks):
+    def test_validate_helper(self):
         option = self.get_options(is_enabled=True)
         optpth = self.get_options_path()
 
@@ -60,7 +60,7 @@ class TestBooleanOption(TestBaseOption):
             for key in self.keys]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
     
-    def test_validate(self, *mocks):
+    def test_validate(self):
         option = self.get_options(is_enabled=True)
         optpth = self.get_options_path()
     

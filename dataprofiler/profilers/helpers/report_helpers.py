@@ -53,31 +53,40 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
                       report a '.' represents a level of recursion example: 
                       report: { 'test1': { 'test2': val, 'test3': val }, 
                       to omit key 'test3' from report: omit_keys=['test1.test3']
+                      wildcards are also possible, so: omit_keys=['*.test3']
     :type omit_keys: list(str)
     :return report: handle to the updated report
     :type report: dict()
     """
-
-    if not output_format:
-        return report
     
-    format_options = ['pretty', 'serializable', 'flat']
-    output_format = output_format.lower()
-    if output_format not in format_options:
-        return report
+    format_options = ['pretty', 'serializable', 'flat', 'compact']
+    if output_format is not None:
+        output_format = output_format.lower()
+
     if omit_keys is None:
         omit_keys = []
 
     fmt_report = {}
     max_str_len = 50
     max_array_len = 5
+
+    if output_format == 'compact':
+        omit_keys.extend([
+            "data_stats.*.statistics.times",
+            "data_stats.*.statistics.avg_predictions",
+            "data_stats.*.statistics.data_label_representation",
+            "data_stats.*.statistics.null_types_index",
+            "data_stats.*.statistics.histogram.bin_counts",
+            "data_stats.*.statistics.histogram.bin_edges"
+        ])
+        output_format = "pretty"
     
     for key in report:
         
         # Remove any keys omitted
         if key in omit_keys:
             continue
-            
+        
         value = report[key]
         
         if isinstance(value, dict):
@@ -92,8 +101,9 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
                 if len(omit_key_split) > 1: 
                     next_key_layer = omit_key_split[-1]
                     prior_key_layer = omit_key_split[0]
-                    if len(next_key_layer) > 0 and prior_key_layer == key:
-                        next_layer_omit_keys.append(next_key_layer)
+                    if len(next_key_layer) > 0:
+                        if prior_key_layer == '*' or prior_key_layer == key:
+                            next_layer_omit_keys.append(next_key_layer)
 
             # Recusively add keys to the final report
             fmt_report[key] = _prepare_report(value, output_format,
@@ -104,7 +114,7 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
             if output_format == "pretty":
                 
                 if isinstance(value, list):
-                    fmt_report[key] = np.array(value)
+                    value = np.array(value)
                     
                 str_value = np.array2string(value, separator=', ')
                 

@@ -125,6 +125,59 @@ class TestReportHelperClass(unittest.TestCase):
         prepared_report = _prepare_report(report, output_format, omit_keys)
         self.assertDictEqual(prepared_report, report)
 
+
+        # Test wildcard removals
+        wild_report1 = {
+            "test0": 0,
+            "test1": 1,
+            "test2": {
+            },
+            "test4": {
+                "test5": {
+                    "test3": 3
+                }
+            }
+        }
+        omit_keys = ["*.test3"]
+
+        prepared_report = _prepare_report(report, output_format, omit_keys)
+        self.assertDictEqual(prepared_report, wild_report1)
+
+        # Ensure rigid counting
+        wild_report2 = {
+            "test0": 0,
+            "test1": 1,
+            "test2": {
+                "test3": 3
+            },
+            "test4": {
+                "test5": {
+                    "test3": 3
+                }
+            }
+        }
+        omit_keys = ["*.test3.test3"]
+
+        prepared_report = _prepare_report(report, output_format, omit_keys)
+        self.assertDictEqual(prepared_report, wild_report2)
+
+
+        # Ensure multiple wildcards
+        wild_report3 = {
+            "test0": 0,
+            "test1": 1,
+            "test2": {
+                "test3": 3
+            },
+            "test4": {
+                "test5": {
+                }
+            }
+        }
+        omit_keys = ["*.*.test3"]
+
+        prepared_report = _prepare_report(report, output_format, omit_keys)
+        self.assertDictEqual(prepared_report, wild_report3)
         
             
 if __name__ == '__main__':

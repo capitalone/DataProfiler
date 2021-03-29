@@ -453,7 +453,8 @@ class Profiler(object):
                 "output_format": None,
                 "num_quantile_groups": 4,
             }
-        output_format = report_options.get("output_format", None)
+            
+        output_format = report_options.get("output_format", None)        
         omit_keys = report_options.get("omit_keys", [])
         num_quantile_groups = report_options.get("num_quantile_groups", 4)
 
@@ -480,7 +481,7 @@ class Profiler(object):
                 quantiles = calculate_quantiles(num_quantile_groups, quantiles)
                 report["data_stats"][key]["statistics"]["quantiles"] = quantiles
 
-        return _prepare_report(report, output_format=output_format, omit_keys=omit_keys)
+        return _prepare_report(report, output_format, omit_keys)
 
     def _get_unique_row_ratio(self):
         return len(self.hashed_row_dict) / self.rows_ingested

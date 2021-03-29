@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-
 import unittest
 from unittest import mock
 import random
@@ -19,7 +18,7 @@ from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
     ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler
-
+from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -200,6 +199,36 @@ class TestProfiler(unittest.TestCase):
             1: report2_1000_quant[499],
             2: report2_1000_quant[749],
         })
+
+    def test_report_omit_keys(self):
+        omit_keys = [ 'global_stats', 'data_stats' ]
+                
+        report_omit_keys = self.trained_schema.report(
+            report_options={ "omit_keys": omit_keys })
+        
+        self.assertCountEqual({}, report_omit_keys)
+
+
+    def test_report_compact(self):
+        report = self.trained_schema.report(
+            report_options={ "output_format": "pretty" })
+        omit_keys = [
+            "data_stats.*.statistics.times",
+            "data_stats.*.statistics.avg_predictions",
+            "data_stats.*.statistics.data_label_representation",
+            "data_stats.*.statistics.null_types_index",
+            "data_stats.*.statistics.histogram.bin_counts",
+            "data_stats.*.statistics.histogram.bin_edges"
+        ]
+
+        report = _prepare_report(report, 'pretty', omit_keys)
+        
+        report_compact = self.trained_schema.report(
+            report_options={"output_format": "compact" })
+
+        self.assertEqual(report, report_compact)        
+        
+        
 
     def test_profile_key_name_without_space(self):
 
@@ -485,6 +514,7 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(13/24, profile._get_row_has_null_ratio())
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(3/24, profile._get_row_is_null_ratio())
+
         
 if __name__ == '__main__':
     unittest.main()

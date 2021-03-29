@@ -165,6 +165,8 @@ class HistogramOption(BooleanOption):
         """
         errors = super()._validate_helper(variable_path=variable_path)
         h_methods = ['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt']
+        if not isinstance(self.method, str):
+            errors.append("{}.method must be a string.".format(variable_path))
         if self.method not in h_methods:
             errors.append("{}.methods must be one of the following: {}."
                           .format(variable_path, h_methods))

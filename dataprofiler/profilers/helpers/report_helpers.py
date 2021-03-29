@@ -62,8 +62,6 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
     format_options = ['pretty', 'serializable', 'flat', 'compact']    
     if output_format is not None:
         output_format = output_format.lower()
-    if output_format not in format_options:
-        return report
     if omit_keys is None:
         omit_keys = []
 
@@ -133,6 +131,8 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
                 
             elif output_format == "serializable" and isinstance(value, np.ndarray):
                 fmt_report[key] = value.tolist()
+            else:
+                fmt_report[key] = value
                 
         elif isinstance(value, float) and output_format == "pretty":
             fmt_report[key] = round(value, 4)

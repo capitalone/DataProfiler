@@ -8,11 +8,11 @@ class TestBaseOption(AbstractTestOptions, unittest.TestCase):
 
     option_class = BaseOption
     
-    def test_init(self, *mocks):
+    def test_init(self):
         options = self.get_options()
         self.assertDictEqual({}, options.properties) 
 
-    def test_set_helper(self, *mocks):
+    def test_set_helper(self):
         options = self.get_options()
 
         # Options Is Not A Dictionary
@@ -29,7 +29,7 @@ class TestBaseOption(AbstractTestOptions, unittest.TestCase):
         with self.assertRaisesRegex(ValueError, expected_error):
             options._set_helper({}, 1)
 
-    def test_set(self, *mocks):
+    def test_set(self):
         options = self.get_options()
 
         # Options Is Not A Dictionary
@@ -39,13 +39,13 @@ class TestBaseOption(AbstractTestOptions, unittest.TestCase):
         with self.assertRaisesRegex(ValueError, expected_error):
             options.set(["not", "a", "dictionary"])
     
-    def test_validate_helper(self, *mocks):
+    def test_validate_helper(self):
         options = self.get_options()
 
         with self.assertRaises(NotImplementedError):
             options._validate_helper()
     
-    def test_validate(self, *mocks):
+    def test_validate(self):
         options = self.get_options()
 
         with self.assertRaises(NotImplementedError):

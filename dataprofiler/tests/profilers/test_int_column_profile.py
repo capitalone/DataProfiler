@@ -270,7 +270,6 @@ class TestIntColumn(unittest.TestCase):
             min=2.0,
             max=6.0,
             mean=4.0,
-            median=None,
             variance=8.0,
             stddev=np.sqrt(8.0),
             histogram={

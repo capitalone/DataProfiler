@@ -18,9 +18,9 @@ print(data.data.head(5)) # Access data directly via a compatible Pandas DataFram
 
 profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 
-human_readable_report = profile.report(report_options={"output_format":"pretty"})
+readable_report = profile.report(report_options={"output_format":"pretty"})
 
-print(json.dumps(human_readable_report, indent=4))
+print(json.dumps(readable_report, indent=4))
 ```
 
 To install the full package from pypi: `pip install DataProfiler[ml]`
@@ -77,13 +77,13 @@ The format for a profile is below:
 "global_stats": {
     "samples_used": int,
     "column_count": int,
-    "unique_row_ratio": float,
+    "row_count": int,
     "row_has_null_ratio": float,
+    "row_is_null_ratio": float,    
+    "unique_row_ratio": float,
     "duplicate_row_count": int,
     "file_type": string,
     "encoding": string,
-    "data_classification": [null, string],
-    "covariance": [null, float],
 },
 "data_stats": {
     <column name>: {
@@ -92,7 +92,7 @@ The format for a profile is below:
         "data_label": string,
         "categorical": bool,
         "order": string,
-        "samples": list(str),
+	"samples": list(str),
         "statistics": {
             "sample_size": int,
             "null_count": int,
@@ -101,13 +101,9 @@ The format for a profile is below:
                 string: list(int)
             },
             "data_type_representation": string,
-            "data_label_probability": {
-              string: float
-            },
             "min": [null, float],
             "max": [null, float],
             "mean": float,
-            "median": null,  
             "variance": float,
             "stddev": float,
             "histogram": { 
@@ -494,14 +490,16 @@ batch_2 = [1, 2, 3] # notice how the first value is less than the last value in 
 For every profile, we can provide a report and customize it with a couple optional parameters:
 * output_format (string)
   * This will allow the user to decide the output format for report.
-    * Options are one of [pretty, serializable, flat] (case insensitive):
+    * Options are one of [pretty, compact, serializable, flat]:
       * Pretty: floats are rounded to four decimal places, and lists are shortened.
+      * Compact: Similar to pretty, but removes detailed statistics such as runtimes, label probabilities, index locations of null types, etc.
       * Serializable: Output is json serializable and not prettified
       * Flat: Nested output is returned as a flattened dictionary
 * num_quantile_groups (int)
   * You can sample your data as you like! With a minimum of one and a maximum of 1000, you can decide the number of quantile groups!
 ```python
 report  = profile.report(report_options={"output_format": "pretty"})
+report  = profile.report(report_options={"output_format": "compact"})
 report  = profile.report(report_options={"output_format": "serializable"})
 report  = profile.report(report_options={"output_format": "flat"})
 ```

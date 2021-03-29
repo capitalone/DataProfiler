@@ -409,18 +409,11 @@ print(json.dumps(profile.report(report_options={"output_format":"pretty"}), inde
 
 # Profile Options
 
-Currently, the data profiler may accept several options to toggle on and off 
+The data profiler accepts several options to toggle on and off 
 features. The 8 columns (int options, float options, datetime options,
 text options, order options, category options, data labeler options) can be 
-enabled or disabled. The int options, float options, and text options have
-statistical properties that can be toggled which are "histogram_and_quantiles",
-"min", "max", "sum", and "variance." Toggle on and off vocabulary in
-text options with the "vocab" property. Toggle on and off float precision in
-float options with the "precision" property. Set the data labeler directory path
-in the data labeler options with the "data_labeler_dirpath" property. Set the
-max sample size in the data labeler options with the "max_sample_size" property.
-Below is an example of how to alter these options. By default, all options are 
-toggled on.
+enabled or disabled. By default, all options are toggled on. Below is an example
+of how to alter these options. 
 
 ```python
 import json
@@ -457,6 +450,68 @@ profile = Profiler(data, profiler_options=profile_options)
 report  = profile.report(report_options={"output_format":"pretty"})
 print(json.dumps(report, indent=4))
 ```
+
+Below is an breakdown of all the options.
+
+* ProfilerOptions - The top-level options class that contains everything else
+    * structured_options - Options responsible for all structured data
+        * int - Options for the integer columns
+            * is_enabled - (Boolean) Enables or disables the integer operations
+            * min - Finds minimum value in a column
+                * is_enabled - (Boolean) Enables or disables min
+            * max - Finds maximum value in a column
+                * is_enabled - (Boolean) Enables or disables max
+            * sum - Finds sum of all values in a column
+                * is_enabled - (Boolean) Enables or disables sum
+            * variance - Finds variance of all values in a column
+                * is_enabled - (Boolean) Enables or disables variance
+            * histogram_and_quantiles - Generates a histogram and quantiles
+            from the column values
+                * is_enabled - (Boolean) Enables or disables histogram and quantiles
+        * float - Options for the float columns
+            * is_enabled - (Boolean) Enables or disables the float operations
+            * precision - Finds the lowest common denominator of float precision
+                * is_enabled - (Boolean) Enables or disables precision
+            * min - Finds minimum value in a column
+                * is_enabled - (Boolean) Enables or disables min
+            * max - Finds maximum value in a column
+                * is_enabled - (Boolean) Enables or disables max
+            * sum - Finds sum of all values in a column
+                * is_enabled - (Boolean) Enables or disables sum
+            * variance - Finds variance of all values in a column
+                * is_enabled - (Boolean) Enables or disables variance
+            * histogram_and_quantiles - Generates a histogram and quantiles
+            from the column values
+                * is_enabled - (Boolean) Enables or disables histogram and quantiles        
+        * text - Options for the text columns
+            * is_enabled - (Boolean) Enables or disables the text operations
+            * vocab - Finds all the unique characters used in a column
+                * is_enabled - (Boolean) Enables or disables vocab
+            * min - Finds minimum value in a column
+                * is_enabled - (Boolean) Enables or disables min
+            * max - Finds maximum value in a column
+                * is_enabled - (Boolean) Enables or disables max
+            * sum - Finds sum of all values in a column
+                * is_enabled - (Boolean) Enables or disables sum
+            * variance - Finds variance of all values in a column
+                * is_enabled - (Boolean) Enables or disables variance
+            * histogram_and_quantiles - Generates a histogram and quantiles
+            from the column values
+                * is_enabled - (Boolean) Enables or disables histogram and quantiles  
+        * datetime - Options for the datetime columns
+            * is_enabled - (Boolean) Enables or disables the datetime operations
+        * order - Options for the order columns
+            * is_enabled - (Boolean) Enables or disables the order operations
+        * category- Options for the category columns
+            * is_enabled  - (Boolean) Enables or disables the category operations
+        * data_labeler - Options for the data labeler columns
+            * is_enabled - (Boolean) Enables or disables the data labeler operations
+            * data_labeler_dirpath - (String) Directory path to data labeler
+            * data_labeler_object - (BaseDataLabeler) - Datalabeler to replace 
+            the default labeler 
+            * max_sample_size - (Int) The max number of samples for the data 
+            labeler
+
 
 #### Statistical Dependency on Order of Updates
 

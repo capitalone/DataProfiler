@@ -411,10 +411,9 @@ class TestStructuredDataProfileClass(unittest.TestCase):
                 min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
-        self.assertDictEqual(
-            {'sample': ['4.0', '6.0', '3.0'], 'sample_size': 5, 'null_count': 2,
-             'null_types': dict(nan=['e', 'b'])},
-            base_stats)
+        self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
+                               'sample_size': 5, 'null_count': 2,
+                               'null_types': dict(nan=['e', 'b'])}, base_stats)            
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
@@ -486,6 +485,6 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(13/24, profile._get_row_has_null_ratio())
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(3/24, profile._get_row_is_null_ratio())
-
+        
 if __name__ == '__main__':
     unittest.main()

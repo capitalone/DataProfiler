@@ -57,13 +57,17 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
     :return report: handle to the updated report
     :type report: dict()
     """
-    
-    format_options = ['pretty', 'serializable', 'flat']
-    if output_format:
-        output_format = output_format.lower()
-    if not output_format or output_format not in format_options:
+
+    if not output_format:
         return report
     
+    format_options = ['pretty', 'serializable', 'flat']
+    output_format = output_format.lower()
+    if output_format not in format_options:
+        return report
+    if omit_keys is None:
+        omit_keys = []
+
     fmt_report = {}
     max_str_len = 50
     max_array_len = 5

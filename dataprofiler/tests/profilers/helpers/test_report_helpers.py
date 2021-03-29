@@ -120,6 +120,11 @@ class TestReportHelperClass(unittest.TestCase):
         prepared_report = _prepare_report(report, output_format, omit_keys)
         self.assertDictEqual(prepared_report, report)
 
+        # Robustness check
+        omit_keys = None
+        prepared_report = _prepare_report(report, output_format, omit_keys)
+        self.assertDictEqual(prepared_report, report)
+
         
             
 if __name__ == '__main__':

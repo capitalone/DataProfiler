@@ -490,8 +490,9 @@ batch_2 = [1, 2, 3] # notice how the first value is less than the last value in 
 For every profile, we can provide a report and customize it with a couple optional parameters:
 * output_format (string)
   * This will allow the user to decide the output format for report.
-    * Options are one of [pretty, serializable, flat] (case insensitive):
+    * Options are one of [pretty, compact, serializable, flat]:
       * Pretty: floats are rounded to four decimal places, and lists are shortened.
+      * Compact: Similar to pretty, but removes detailed statistics such as runtimes, label probabilities, index locations of null types, etc.
       * Serializable: Output is json serializable and not prettified
       * Flat: Nested output is returned as a flattened dictionary
 * num_quantile_groups (int)

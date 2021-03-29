@@ -1,6 +1,7 @@
 from dataprofiler.profilers.profiler_options import StructuredOptions
 from dataprofiler.tests.profilers.test_base_option import TestBaseOption
 
+
 class TestStructuredOptions(TestBaseOption):
     
     option_class = StructuredOptions
@@ -12,13 +13,13 @@ class TestStructuredOptions(TestBaseOption):
         options.set(params)
         return options
     
-    def test_init(self, *mocks):
+    def test_init(self):
         options = self.get_options()
         for key in self.keys:
             self.assertTrue(key in options.properties)
 
-    def test_set_helper(self, *mocks):
-        super().test_set_helper(*mocks)
+    def test_set_helper(self):
+        super().test_set_helper()
         option = self.get_options()
         optpth = self.get_options_path()
         
@@ -35,8 +36,8 @@ class TestStructuredOptions(TestBaseOption):
             with self.assertRaisesRegex(AttributeError, expected_error):
                 option._set_helper({'{}.is_enabled.is_enabled'.format(key): True}, '')    
         
-    def test_set(self, *mocks):
-        super().test_set(*mocks)
+    def test_set(self):
+        super().test_set()
         option = self.get_options()
         optpth = self.get_options_path()
 
@@ -53,7 +54,8 @@ class TestStructuredOptions(TestBaseOption):
             with self.assertRaisesRegex(AttributeError, expected_error):
                 option.set({'{}.is_enabled.is_enabled'.format(key): True})
     
-    def test_validate_helper(self, *mocks):
+    def test_validate_helper(self):
+        # Valid cases should return [] while invalid cases should return a list of errors
         option = self.get_options()
         optpth = self.get_options_path()
 
@@ -89,11 +91,12 @@ class TestStructuredOptions(TestBaseOption):
             if key == "data_labeler": ckey = "DataLabeler"
             elif key == "category": ckey = "Categorical"
             elif key == "datetime": ckey = "DateTime"
-            expected_error.add('{}.{} must be a {}Options.'.format(optpth, key, ckey))
+            expected_error.add('{}.{} must be a(n) {}Options.'.format(optpth, key, ckey))
         expected_error = set(expected_error)
         self.assertSetEqual(expected_error, set(option._validate_helper()))
             
-    def test_validate(self, *mocks):
+    def test_validate(self):
+        # Valid cases should return None while invalid cases should return or throw a list of errors
         option = self.get_options()
         optpth = self.get_options_path()
     
@@ -125,11 +128,11 @@ class TestStructuredOptions(TestBaseOption):
             if key == "data_labeler": ckey = "DataLabeler"
             elif key == "category": ckey = "Categorical"
             elif key == "datetime": ckey = "DateTime"
-            expected_error.add('{}.{} must be a {}Options.'.format(optpth, key, ckey))
+            expected_error.add('{}.{} must be a(n) {}Options.'.format(optpth, key, ckey))
         expected_error = set(expected_error)
         self.assertSetEqual(expected_error, set(option.validate(raise_error=False)))
             
-    def test_enabled_columns(self, *mocks):
+    def test_enabled_columns(self):
         options = self.get_options()
         
         # All Columns Enabled

@@ -217,8 +217,7 @@ class TestProfiler(unittest.TestCase):
             "data_stats.*.statistics.avg_predictions",
             "data_stats.*.statistics.data_label_representation",
             "data_stats.*.statistics.null_types_index",
-            "data_stats.*.statistics.histogram.bin_counts",
-            "data_stats.*.statistics.histogram.bin_edges"
+            "data_stats.*.statistics.histogram"
         ]
 
         report = _prepare_report(report, 'pretty', omit_keys)

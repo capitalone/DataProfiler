@@ -611,6 +611,9 @@ class StructuredOptions(BaseOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
         errors = []
 
         prop_check = dict([

@@ -18,9 +18,9 @@ print(data.data.head(5)) # Access data directly via a compatible Pandas DataFram
 
 profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 
-human_readable_report = profile.report(report_options={"output_format":"pretty"})
+readable_report = profile.report(report_options={"output_format":"compact"})
 
-print(json.dumps(human_readable_report, indent=4))
+print(json.dumps(readable_report, indent=4))
 ```
 
 To install the full package from pypi: `pip install DataProfiler[ml]`

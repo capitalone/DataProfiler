@@ -288,17 +288,21 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     :return: encoding type
     :rtype: str
     """
-
-    detector = UniversalDetector()
-    line_count = 0
-    with open(file_path, 'rb') as input_file:
-        chunk = input_file.read(buffer_size)
-        while chunk and line_count < max_lines:
-            detector.feed(chunk)
+    try:
+        from charset_normalizer import CharsetNormalizerMatches as CnM
+        result = CnM.from_path(file_path, steps=max_lines, chunk_size=buffer_size)
+        encoding = result.best().first().encoding
+    except:
+        detector = UniversalDetector()
+        line_count = 0
+        with open(file_path, 'rb') as input_file:
             chunk = input_file.read(buffer_size)
-            line_count += 1
-    detector.close()
-    encoding = detector.result["encoding"]
+            while chunk and line_count < max_lines:
+                detector.feed(chunk)
+                chunk = input_file.read(buffer_size)
+                line_count += 1
+        detector.close()
+        encoding = detector.result["encoding"]
 
     # Typical file representation is utf-8 instead of ascii, treat as such.
     if not encoding or encoding == 'ascii':

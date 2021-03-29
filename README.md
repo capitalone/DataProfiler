@@ -1,4 +1,4 @@
-\65;6203;1c# Data Profiler | What's in your data?
+# Data Profiler | What's in your data?
 
 The DataProfiler is a Python library designed to make data analysis, monitoring and **sensitive data detection** easy.
 

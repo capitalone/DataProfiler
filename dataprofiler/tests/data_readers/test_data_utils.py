@@ -42,7 +42,7 @@ class TestDataReadingWriting(unittest.TestCase):
             data_utils.detect_file_encoding(file_path=os.path.join(test_dir, 'txt/utf8.txt'))
         try:
             from charset_normalizer import CharsetNormalizerMatches as CnM
-            self.assertEqual("utf-8", detected_encoding.lower()) 
+            self.assertEqual("utf_8", detected_encoding.lower()) 
         except:
             # Verify that detected encoding is incorrect using chardet instead of charset_normalizer
             self.assertEqual("windows-1254", detected_encoding.lower()) 

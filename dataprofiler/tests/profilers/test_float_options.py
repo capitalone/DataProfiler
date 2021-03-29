@@ -7,20 +7,20 @@ class TestFloatOptions(TestNumericalOptions):
     option_class = FloatOptions    
     keys = TestNumericalOptions.keys + ["precision"] 
         
-    def test_init(self, *mocks):
-        super().test_init(*mocks)
+    def test_init(self):
+        super().test_init()
     
-    def test_set_helper(self, *mocks):
-        super().test_set_helper(*mocks)
+    def test_set_helper(self):
+        super().test_set_helper()
 
-    def test_set(self, *mocks):
-        super().test_set(*mocks)
+    def test_set(self):
+        super().test_set()
     
-    def test_validate_helper(self, *mocks):
-        super().test_validate_helper(*mocks)
+    def test_validate_helper(self):
+        super().test_validate_helper()
     
-    def test_validate(self, *mocks):
-        super().test_validate(*mocks)
+    def test_validate(self):
+        super().test_validate()
     
-    def test_is_numeric_stats_enabled(self, *mocks):
-        super().test_is_numeric_stats_enabled(*mocks)
+    def test_is_numeric_stats_enabled(self):
+        super().test_is_numeric_stats_enabled()

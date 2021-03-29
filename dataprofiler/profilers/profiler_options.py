@@ -142,6 +142,7 @@ class BooleanOption(BaseOption):
 
 
 class BaseColumnOptions(BooleanOption):
+
     def __init__(self):
         """
         Base options for all the columns.
@@ -184,6 +185,7 @@ class BaseColumnOptions(BooleanOption):
 
 
 class NumericalOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Numerical Stats Mixin
@@ -293,6 +295,7 @@ class NumericalOptions(BaseColumnOptions):
 
 
 class IntOptions(NumericalOptions):
+
     def __init__(self):
         """
         Options for the Int Column
@@ -329,6 +332,7 @@ class IntOptions(NumericalOptions):
 
 
 class FloatOptions(NumericalOptions):
+
     def __init__(self):
         """
         Options for the Float Column.
@@ -373,6 +377,7 @@ class FloatOptions(NumericalOptions):
 
 
 class TextOptions(NumericalOptions):
+
     def __init__(self):
         """
         Options for the Text Column:
@@ -417,6 +422,7 @@ class TextOptions(NumericalOptions):
 
 
 class DateTimeOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Datetime Column
@@ -439,6 +445,7 @@ class DateTimeOptions(BaseColumnOptions):
 
 
 class OrderOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Order Column
@@ -459,7 +466,9 @@ class OrderOptions(BaseColumnOptions):
         """
         return super()._validate_helper(variable_path) 
 
+
 class CategoricalOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Categorical Column
@@ -480,7 +489,9 @@ class CategoricalOptions(BaseColumnOptions):
         """
         return super()._validate_helper(variable_path) 
 
+
 class DataLabelerOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Data Labeler Column.

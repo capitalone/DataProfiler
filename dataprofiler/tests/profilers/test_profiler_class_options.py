@@ -80,10 +80,8 @@ class TestProfilerOptions(TestBaseOption):
         option = self.get_options()
         option.structured_options = ProfilerOptions()
 
-        expected_error = set()
-        expected_error.add('{}.structured_options must be a StructuredOptions.'.format(optpth,))
-
-        self.assertSetEqual(expected_error, set(option._validate_helper()))
+        expected_error = ['{}.structured_options must be a StructuredOptions.'.format(optpth,)]
+        self.assertEqual(expected_error, option._validate_helper())
             
     def test_validate(self):
         # Valid cases should return None while invalid cases should return or throw a list of errors
@@ -106,6 +104,7 @@ class TestProfilerOptions(TestBaseOption):
         option = self.get_options()
         option.structured_options = ProfilerOptions()
 
-        expected_error = set()
-        expected_error.add('{}.structured_options must be a StructuredOptions.'.format(optpth,))
-        self.assertSetEqual(expected_error, set(option.validate(raise_error=False)))
+        expected_error = '{}.structured_options must be a StructuredOptions.'.format(optpth,)
+        with self.assertRaisesRegex(ValueError, expected_error):
+            option.validate()
+        self.assertEqual([expected_error], option.validate(raise_error=False))

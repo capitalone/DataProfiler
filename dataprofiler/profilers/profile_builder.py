@@ -171,7 +171,6 @@ class StructuredDataProfile(object):
                 profile[key] = unordered_profile[key]
             except KeyError as e:
                 profile[key] = None
-                print(f"Error: {key} has no data")
 
         return profile
 

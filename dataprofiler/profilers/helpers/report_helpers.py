@@ -85,8 +85,7 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
             "data_stats.*.statistics.avg_predictions",
             "data_stats.*.statistics.data_label_representation",
             "data_stats.*.statistics.null_types_index",
-            "data_stats.*.statistics.histogram.bin_counts",
-            "data_stats.*.statistics.histogram.bin_edges"
+            "data_stats.*.statistics.histogram"
         ])
         output_format = "pretty"
     

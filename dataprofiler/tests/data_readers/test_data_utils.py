@@ -42,7 +42,7 @@ class TestDataReadingWriting(unittest.TestCase):
             from charset_normalizer import CharsetNormalizerMatches as CnM
             detected_encoding = \
                 data_utils.detect_file_encoding(file_path=os.path.join(test_dir, 'txt/utf8.txt'))
-            self.assertEqual("utf-8", detected_ecnoding.lower()) 
+            self.assertEqual("utf-8", detected_encoding.lower()) 
         except:
             detected_encoding = \
                 data_utils.detect_file_encoding(file_path=os.path.join(test_dir, 'txt/utf8.txt'))

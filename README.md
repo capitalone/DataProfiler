@@ -1,4 +1,4 @@
-# Data Profiler | What's in your data?
+\65;6203;1c# Data Profiler | What's in your data?
 
 The DataProfiler is a Python library designed to make data analysis, monitoring and **sensitive data detection** easy.
 
@@ -18,7 +18,7 @@ print(data.data.head(5)) # Access data directly via a compatible Pandas DataFram
 
 profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 
-readable_report = profile.report(report_options={"output_format":"compact"})
+readable_report = profile.report(report_options={"output_format":"pretty"})
 
 print(json.dumps(readable_report, indent=4))
 ```
@@ -499,6 +499,7 @@ For every profile, we can provide a report and customize it with a couple option
   * You can sample your data as you like! With a minimum of one and a maximum of 1000, you can decide the number of quantile groups!
 ```python
 report  = profile.report(report_options={"output_format": "pretty"})
+report  = profile.report(report_options={"output_format": "compact"})
 report  = profile.report(report_options={"output_format": "serializable"})
 report  = profile.report(report_options={"output_format": "flat"})
 ```

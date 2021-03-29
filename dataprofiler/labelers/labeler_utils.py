@@ -64,7 +64,7 @@ def f1_report_dict_to_str(f1_report, label_names):
 
 def evaluate_accuracy(predicted_entities_in_index, true_entities_in_index,
                       num_labels, entity_rev_dict, verbose=True,
-                      omitted_labels=('PAD', 'BACKGROUND'),
+                      omitted_labels=('PAD', 'UNKNOWN'),
                       confusion_matrix_file=None):
     """
     Evaluate the accuracy from comparing the predicted labels with true labels

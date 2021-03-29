@@ -17,21 +17,21 @@ _resource_labeler_dir = pkg_resources.resource_filename('resources', 'labelers')
 mock_model_parameters = {
     'regex_patterns': {
         'PAD': [r'\W'],
-        'BACKGROUND': ['.*']
+        'UNKNOWN': ['.*']
     },
     'encapsulators': {
         'start': r'(?<![\w.\$\%\-])',
         'end': r'(?:(?=(\b|[ ]))|(?=[^\w\%\$]([^\w]|$))|$)',
     },
     'ignore_case': True,
-    'default_label': 'BACKGROUND'
+    'default_label': 'UNKNOWN'
 }
 
 
 mock_label_mapping = {
     "PAD": 0,
     "CITY": 1,  # ensure that overlapping labels get removed.
-    "BACKGROUND": 1,
+    "UNKNOWN": 1,
     "ADDRESS": 2,
 }
 
@@ -61,7 +61,7 @@ class TestRegexModel(unittest.TestCase):
         self.label_mapping = {
             "PAD": 0,
             "CITY": 1,  # ensure that overlapping labels get removed.
-            "BACKGROUND": 1,
+            "UNKNOWN": 1,
             "ADDRESS": 2,
         }
 
@@ -77,7 +77,7 @@ class TestRegexModel(unittest.TestCase):
         # load default
         model = RegexModel(self.label_mapping)
 
-        labels = ['PAD', 'BACKGROUND', 'ADDRESS']
+        labels = ['PAD', 'UNKNOWN', 'ADDRESS']
 
         self.assertListEqual(labels, model.labels)
 
@@ -89,7 +89,7 @@ class TestRegexModel(unittest.TestCase):
         # should notice that CITY does not exist in reverse
         reverse_label_mapping = {
             0: 'PAD',
-            1: 'BACKGROUND',
+            1: 'UNKNOWN',
             2: 'ADDRESS'}
 
         self.assertDictEqual(reverse_label_mapping,
@@ -110,8 +110,8 @@ class TestRegexModel(unittest.TestCase):
         # test label_mapping
         label_mapping = {
             'PAD': 0,
-            'CITY': 1,  # SAME AS BACKGROUND
-            'BACKGROUND': 1,
+            'CITY': 1,  # SAME AS UNKNOWN
+            'UNKNOWN': 1,
             'ADDRESS': 2,
         }
         model.set_label_mapping(label_mapping)
@@ -123,14 +123,14 @@ class TestRegexModel(unittest.TestCase):
         parameters = {
             'regex_patterns': {
                 'PAD': [r'\W'],
-                'BACKGROUND': [r'\w']
+                'UNKNOWN': [r'\w']
             },
             'encapsulators': {
                 'start': r'(?<![\w.\$\%\-])',
                 'end': r'(?:(?=(\b|[ ]))|(?=[^\w\%\$]([^\w]|$))|$)',
             },
             'ignore_case': True,
-            'default_label': 'BACKGROUND',
+            'default_label': 'UNKNOWN',
         }
         invalid_parameters = [
             {'regex_patterns': -1, 'encapsulators': "words",
@@ -164,10 +164,10 @@ class TestRegexModel(unittest.TestCase):
         parameters = {
             'regex_patterns': {
                 'PAD': [r'\W'],
-                'BACKGROUND': [r'\w']
+                'UNKNOWN': [r'\w']
             },
             'ignore_case': True,
-            'default_label': 'BACKGROUND',
+            'default_label': 'UNKNOWN',
         }
         model = RegexModel(label_mapping=self.label_mapping,
                            parameters=parameters)
@@ -249,19 +249,19 @@ class TestRegexModel(unittest.TestCase):
         parameters = {
             'regex_patterns': {
                 'PAD': [r'\W'],
-                'BACKGROUND': [r'\w']
+                'UNKNOWN': [r'\w']
             },
             'encapsulators': {
                 'start': r'(?<![\w.\$\%\-])',
                 'end': r'(?:(?=(\b|[ ]))|(?=[^\w\%\$]([^\w]|$))|$)',
             },
             'ignore_case': True,
-            'default_label': 'BACKGROUND',
+            'default_label': 'UNKNOWN',
         }
         label_mapping = {
             'PAD': 0,
-            'CITY': 1,  # SAME AS BACKGROUND
-            'BACKGROUND': 1,
+            'CITY': 1,  # SAME AS UNKNOWN
+            'UNKNOWN': 1,
             'ADDRESS': 2,
         }
         model = RegexModel(label_mapping, parameters)
@@ -270,14 +270,14 @@ class TestRegexModel(unittest.TestCase):
         model.save_to_disk(".")
         self.assertEqual(
             # model parameters
-            '{"regex_patterns": {"PAD": ["\\\\W"], "BACKGROUND": ["\\\\w"]}, '
+            '{"regex_patterns": {"PAD": ["\\\\W"], "UNKNOWN": ["\\\\w"]}, '
             '"encapsulators": {"start": "(?<![\\\\w.\\\\$\\\\%\\\\-])", '
             '"end": '
             '"(?:(?=(\\\\b|[ ]))|(?=[^\\\\w\\\\%\\\\$]([^\\\\w]|$))|$)"}, '
-            '"ignore_case": true, "default_label": "BACKGROUND"}'
+            '"ignore_case": true, "default_label": "UNKNOWN"}'
             
             # label mapping
-            '{"PAD": 0, "CITY": 1, "BACKGROUND": 1, "ADDRESS": 2}',
+            '{"PAD": 0, "CITY": 1, "UNKNOWN": 1, "ADDRESS": 2}',
             mock_file.getvalue())
 
         # close mock

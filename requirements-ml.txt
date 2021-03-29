@@ -5,3 +5,4 @@ keras>=2.4.3
 tensorflow-gpu>=2.3.0; sys.platform == 'linux'
 tensorflow>=2.3.0; sys.platform == 'darwin'
 tensorboard>=2.3.0; sys.platform == 'darwin'
+tqdm>=4.0.0

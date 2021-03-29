@@ -368,3 +368,103 @@ def get_delimiter_regex(delimiter=",", quotechar=","):
     quotechar_regex += "$)"
 
     return re.compile(delimiter_regex + quotechar_regex)
+
+
+def find_nth_loc(string=None, search_query=None, n=0):
+    """
+    Searches the string via the search_query and
+    returns the nth index in which the query occurs.
+    If there are less than 'n' the last loc is returned
+    
+    :param string: Input string, to be searched
+    :type string: str
+    :param search_query: char(s) to find nth occurance of
+    :type search_query: str
+    :param n: The number of occurances to iterate through
+    :type n: int
+    
+    :return idx: Index of the nth or last occurance of the search_query
+    :rtype idx: int
+    :return id_count: Number of identifications prior to idx
+    :rtype id_count: int
+    """
+
+    # Return base case, if there's no string, query or n
+    if not string or not search_query or 0 >= n:
+        return -1, 0
+
+    # Find index of nth occurrence of search_query 
+    idx, pre_idx = -1, -1
+    id_count = 0
+    for i in range(0, n):
+
+        idx = string.find(search_query, idx+1)
+        
+        # Exit for loop once string ends
+        if idx == -1:
+
+            if pre_idx > 0:
+                idx = pre_idx+1 # rest to last location
+
+            # If final discovery is not the search query
+            if string[-len(search_query):] != search_query:
+                idx = len(string)                
+            break
+        
+        # Keep track of identifications
+        if idx != pre_idx:
+            id_count += 1
+            pre_idx = idx
+        
+    return idx, id_count
+
+
+def load_as_str_from_file(file_path, file_encoding, max_lines=10,
+                          max_bytes=65536, chunk_size_bytes=1024):
+    """
+    Loads data from a csv file up to a specific line OR byte_size.
+
+    :param file_path: Path to file to load data from
+    :type file_path: str
+    :param file_encoding: File encoding
+    :type file_encoding: str
+    :param max_lines: Maximum number of lines to load from file
+    :type max_lines: int
+    :param max_bytes: Maximum number of bytes to load from file
+    :type max_bytes: int
+    :param chunk_size_bytes: Chunk size to load every data load
+    :type chunk_size_bytes: int
+    
+    :return data_as_str: Data as string
+    :type data_as_str: str
+    """
+
+    data_as_str = ""
+    total_occurances = 0
+    with open(file_path, encoding=file_encoding) as csvfile:
+
+        sample_size_bytes = min(max_bytes, chunk_size_bytes)
+        
+        # Read the file until the appropriate number of occurances                    
+        for byte_count in range(0, max_bytes, sample_size_bytes):
+            
+            sample_lines = csvfile.read(sample_size_bytes)
+            if len(sample_lines) == 0:                
+                break # No more bytes in file
+
+            # Number of lines remaining to be added to data_as_str
+            remaining_lines = max_lines - total_occurances
+            
+            # Return either the last index of sample_lines OR
+            # the index of the newline char that matches remaining_lines
+            loc, occurance = find_nth_loc(sample_lines,
+                                          search_query='\n',
+                                          n=remaining_lines)
+
+            # Add sample_lines to data_as_str no more than max_lines
+            data_as_str += sample_lines[:loc]
+            total_occurances += occurance
+            if total_occurances >= max_lines:
+                break
+            
+    return data_as_str

@@ -11,7 +11,7 @@ class TestClassificationReport(unittest.TestCase):
     def setUpClass(cls):
         cls.reverse_label_mapping = {
             0: 'PAD',
-            1: 'BACKGROUND',
+            1: 'UNKNOWN',
             2: 'OTHER',
         }
 
@@ -27,7 +27,7 @@ class TestClassificationReport(unittest.TestCase):
                 'f1-score': 1 / 2,
                 'support': 2,
             },
-            'BACKGROUND': {
+            'UNKNOWN': {
                 'precision': 0,
                 'recall': 0,
                 'f1-score': 0,
@@ -70,7 +70,7 @@ class TestClassificationReport(unittest.TestCase):
             target_names=list(self.reverse_label_mapping.values()))
 
         self.assertIn('PAD', report)
-        self.assertIn('BACKGROUND', report)
+        self.assertIn('UNKNOWN', report)
         self.assertIn('OTHER', report)
         self.assertIn('weighted avg', report)
         self.assertIn('accuracy', report)

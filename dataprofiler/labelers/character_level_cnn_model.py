@@ -103,7 +103,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         parameters.setdefault('size_fc', [96, 96])
         parameters.setdefault('dropout', 0.073)
         parameters.setdefault('size_conv', 13)
-        parameters.setdefault('default_label', "BACKGROUND")
+        parameters.setdefault('default_label', "UNKNOWN")
         parameters.setdefault('num_fil', [48 for _ in range(4)])
         parameters['pad_label'] = 'PAD'
         self._epoch_id = 0
@@ -759,27 +759,21 @@ class CharacterLevelCnnModel(BaseTrainableModel,
             allocation_index += num_samples_in_batch
 
         # Convert predictions, confidences to lists from numpy
-        predictions = predictions.tolist()
+        predictions_list = [i for i in range(0, allocation_index)] 
+        confidences_list = None
         if show_confidences:
-            confidences = confidences.tolist()
-        else:
-            confidences = None
-
-        # Trim array size to number of samples
-        if len(predictions) > allocation_index:
-            del predictions[allocation_index:]
-            if show_confidences:
-                del confidences[allocation_index:]
-
-        # Trim array size to length of sentence
+            confidences_list = [i for i in range(0, allocation_index)]
+                
+        # Append slices of predictions to return prediction & confidence matrices
         for index, sentence_length \
                 in enumerate(sentence_lengths[:allocation_index]):
-            del predictions[index][sentence_length:]
+            predictions_list[index] = list(predictions[index][:sentence_length])
             if show_confidences:
-                del confidences[index][sentence_length:]
+                confidences_list = list(confidences[index][:sentence_length])
+                
         if show_confidences:
-            return {'pred': predictions, 'conf': confidences}
-        return {'pred': predictions}
+            return {'pred': predictions_list, 'conf': confidences_list} 
+        return {'pred': predictions_list}
 
     def details(self):
         """
@@ -794,3 +788,4 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         print("\nModel Label Mapping:")
         for key, value in self.label_mapping.items():
             print("{}: {}".format(key, value))
+

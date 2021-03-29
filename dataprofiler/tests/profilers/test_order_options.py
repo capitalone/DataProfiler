@@ -1,11 +1,11 @@
-from dataprofiler.profilers.profiler_options import IntOptions
-from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOptions
+from dataprofiler.profilers.profiler_options import OrderOptions
+from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
 
 
-class TestIntOptions(TestNumericalOptions):
+class TestOrderOptions(TestBaseColumnOptions):
     
-    option_class = IntOptions
-
+    options_class = OrderOptions
+    
     def test_init(self):
         super().test_init()
     
@@ -20,6 +20,6 @@ class TestIntOptions(TestNumericalOptions):
     
     def test_validate(self):
         super().test_validate()
-    
-    def test_is_numeric_stats_enabled(self):
-        super().test_is_numeric_stats_enabled()
+
+    def test_is_prop_enabled(self):
+        super().test_is_prop_enabled()

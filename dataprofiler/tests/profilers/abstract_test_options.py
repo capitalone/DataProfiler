@@ -30,17 +30,17 @@ class AbstractTestOptions():
         cls.validate_option_class(*args, **kwargs)
         return cls.option_class.__name__
 
-    def test_init(self, *mocks):
+    def test_init(self):
         raise NotImplementedError
  
-    def test_set_helper(self, *mocks):
+    def test_set_helper(self):
         raise NotImplementedError
  
-    def test_set(self, *mocks):
+    def test_set(self):
         raise NotImplementedError
  
-    def test_validate_helper(self, *mocks):
+    def test_validate_helper(self):
         raise NotImplementedError
  
-    def test_validate(self, *mocks):
+    def test_validate(self):
         raise NotImplementedError

@@ -29,8 +29,8 @@ data_labeler_parameters = {
     },
     'label_mapping': {
         'PAD': 0,
-        'CITY': 1,  # SAME AS BACKGROUND
-        'BACKGROUND': 1,
+        'CITY': 1,  # SAME AS UNKNOWN
+        'UNKNOWN': 1,
         'ADDRESS': 2,
         'PERSON': 3,
     },
@@ -84,17 +84,17 @@ class TestDataLabeler(unittest.TestCase):
         model_mock.set_num_labels = mock.Mock()
         mock_load_model.return_value = model_mock
         model_mock.requires_zero_mapping = True
-        model_mock.labels = ['PAD', 'BACKGROUND', 'ADDRESS', 'PERSON']
+        model_mock.labels = ['PAD', 'UNKNOWN', 'ADDRESS', 'PERSON']
         model_mock.label_mapping = {
             'PAD': 0,
-            'CITY': 1,  # SAME AS BACKGROUND
-            'BACKGROUND': 1,
+            'CITY': 1,  # SAME AS UNKNOWN
+            'UNKNOWN': 1,
             'ADDRESS': 2,
             'PERSON': 3,
         }
         model_mock.reverse_label_mapping = {
             0: 'PAD',
-            1: 'BACKGROUND',
+            1: 'UNKNOWN',
             2: 'ADDRESS',
             3: 'PERSON',
         }
@@ -195,7 +195,7 @@ class TestDataLabeler(unittest.TestCase):
         self.assertDictEqual(data_labeler.label_mapping,
                              data_labeler_parameters['label_mapping'])
         self.assertListEqual(
-            data_labeler.labels, ['PAD', 'BACKGROUND', 'ADDRESS', 'PERSON'])
+            data_labeler.labels, ['PAD', 'UNKNOWN', 'ADDRESS', 'PERSON'])
         self.assertIsInstance(data_labeler.preprocessor,
                               data_processing.BaseDataPreprocessor)
         self.assertIsInstance(data_labeler.postprocessor,
@@ -214,7 +214,7 @@ class TestDataLabeler(unittest.TestCase):
                              data_labeler_parameters['label_mapping'])
         self.assertListEqual(
             data_labeler.labels,
-            ['PAD', 'BACKGROUND', 'ADDRESS', 'PERSON'])
+            ['PAD', 'UNKNOWN', 'ADDRESS', 'PERSON'])
         self.assertIsInstance(
             data_labeler.preprocessor, data_processing.BaseDataPreprocessor)
         self.assertIsInstance(
@@ -233,7 +233,7 @@ class TestDataLabeler(unittest.TestCase):
                              data_labeler_parameters['label_mapping'])
         self.assertListEqual(
             data_labeler.labels,
-            ['PAD', 'BACKGROUND', 'ADDRESS', 'PERSON'])
+            ['PAD', 'UNKNOWN', 'ADDRESS', 'PERSON'])
         self.assertIsInstance(
             data_labeler.preprocessor, data_processing.BaseDataPreprocessor)
         self.assertIsInstance(
@@ -250,7 +250,7 @@ class TestDataLabeler(unittest.TestCase):
 
         reverse_label_mapping = {
             0: 'PAD',
-            1: 'BACKGROUND',
+            1: 'UNKNOWN',
             2: 'ADDRESS',
             3: 'PERSON',
         }
@@ -265,7 +265,7 @@ class TestDataLabeler(unittest.TestCase):
         self._setup_mock_load_processor(mock_load_processor)
 
         # load default
-        labels = ['PAD', 'BACKGROUND', 'ADDRESS', 'PERSON']
+        labels = ['PAD', 'UNKNOWN', 'ADDRESS', 'PERSON']
         data_labeler = UnstructuredDataLabeler()
 
         self.assertListEqual(labels, data_labeler.labels)

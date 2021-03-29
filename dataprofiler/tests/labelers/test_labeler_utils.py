@@ -15,7 +15,7 @@ class TestEvaluateAccuracy(unittest.TestCase):
         cls.num_labels = 3
         cls.reverse_label_mapping = {
             0: 'PAD',
-            1: 'BACKGROUND',
+            1: 'UNKNOWN',
             2: 'OTHER',
         }
         cls.y_true = np.array([[0, 1, 2, 2, 2, 0]]).T.tolist()
@@ -30,7 +30,7 @@ class TestEvaluateAccuracy(unittest.TestCase):
                 'f1-score': 1/2,
                 'support': 2,
             },
-            'BACKGROUND': {
+            'UNKNOWN': {
                 'precision': 0,
                 'recall': 0,
                 'f1-score': 0,
@@ -67,7 +67,7 @@ class TestEvaluateAccuracy(unittest.TestCase):
     def test_omit_1_class(self):
 
         expected_output = {
-            'BACKGROUND': {
+            'UNKNOWN': {
                 'precision': 0,
                 'recall': 0,
                 'f1-score': 0,
@@ -201,7 +201,7 @@ class TestEvaluateAccuracy(unittest.TestCase):
             self.reverse_label_mapping, omitted_labels=[], verbose=True)
 
         self.assertIn('PAD', mock_stdout.getvalue())
-        self.assertIn('BACKGROUND', mock_stdout.getvalue())
+        self.assertIn('UNKNOWN', mock_stdout.getvalue())
         self.assertIn('OTHER', mock_stdout.getvalue())
         self.assertIn('weighted avg', mock_stdout.getvalue())
         self.assertIn('accuracy', mock_stdout.getvalue())
@@ -221,8 +221,8 @@ class TestEvaluateAccuracy(unittest.TestCase):
             [0, 1, 2],
         ])
         expected_row_col_names = dict(
-            columns=['pred:PAD', 'pred:BACKGROUND', 'pred:OTHER'],
-            index=['true:PAD', 'true:BACKGROUND', 'true:OTHER']
+            columns=['pred:PAD', 'pred:UNKNOWN', 'pred:OTHER'],
+            index=['true:PAD', 'true:UNKNOWN', 'true:OTHER']
         )
         mock_instance_df = mock.Mock(spec=pd.DataFrame)()
         mock_dataframe.return_value = mock_instance_df

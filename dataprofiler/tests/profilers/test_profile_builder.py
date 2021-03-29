@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-
 import unittest
 from unittest import mock
 import random
@@ -19,7 +18,7 @@ from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
     ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler
-
+from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -167,9 +166,9 @@ class TestProfiler(unittest.TestCase):
         self.assertListEqual(
             list(report['global_stats']),
             [
-                "total_samples", "samples_used", "column_count", "unique_row_ratio",
-                "row_has_null_ratio", 'row_is_null_ratio', "duplicate_row_count",
-                "file_type", "encoding", "data_classification", "covariance"
+                "samples_used", "column_count", "row_count", 
+                "row_has_null_ratio", 'row_is_null_ratio',
+                "unique_row_ratio", "duplicate_row_count", "file_type", "encoding"
             ]
         )
         flat_report = self.trained_schema.report(report_options={"output_format":"flat"})
@@ -200,6 +199,35 @@ class TestProfiler(unittest.TestCase):
             1: report2_1000_quant[499],
             2: report2_1000_quant[749],
         })
+
+    def test_report_omit_keys(self):
+        omit_keys = [ 'global_stats', 'data_stats' ]
+                
+        report_omit_keys = self.trained_schema.report(
+            report_options={ "omit_keys": omit_keys })
+        
+        self.assertCountEqual({}, report_omit_keys)
+
+
+    def test_report_compact(self):
+        report = self.trained_schema.report(
+            report_options={ "output_format": "pretty" })
+        omit_keys = [
+            "data_stats.*.statistics.times",
+            "data_stats.*.statistics.avg_predictions",
+            "data_stats.*.statistics.data_label_representation",
+            "data_stats.*.statistics.null_types_index",
+            "data_stats.*.statistics.histogram"
+        ]
+
+        report = _prepare_report(report, 'pretty', omit_keys)
+        
+        report_compact = self.trained_schema.report(
+            report_options={"output_format": "compact" })
+
+        self.assertEqual(report, report_compact)        
+        
+        
 
     def test_profile_key_name_without_space(self):
 
@@ -365,7 +393,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile2.profiles = dict(test=2)
         merged_profile = profile1 + profile2
         self.assertEqual(3, merged_profile.profiles['test'])
-        self.assertEqual(['4.0', '5.0', '1.0', '3.0'], merged_profile.sample)
+        self.assertCountEqual(['5.0', '4.0', '3.0', '1.0'], merged_profile.sample)
         self.assertEqual(6, merged_profile.sample_size)
         self.assertEqual(2, merged_profile.null_count)
         self.assertListEqual(['nan'], merged_profile.null_types)
@@ -411,10 +439,9 @@ class TestStructuredDataProfileClass(unittest.TestCase):
                 min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
-        self.assertDictEqual(
-            {'sample': ['4.0', '6.0', '3.0'], 'sample_size': 5, 'null_count': 2,
-             'null_types': dict(nan=['e', 'b'])},
-            base_stats)
+        self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
+                               'sample_size': 5, 'null_count': 2,
+                               'null_types': dict(nan=['e', 'b'])}, base_stats)            
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
@@ -438,12 +465,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     def test_null_count(self):
         column = pd.Series([1, float('nan')] * 10)
 
-        # test null_count when subset of full sample size
-        random.seed(0)
-        profile = StructuredDataProfile(column, sample_size=10)
-        self.assertEqual(6, profile.null_count)
-
         # test null_count when full sample size
+        random.seed(0)
         profile = StructuredDataProfile(column, sample_size=len(column))
         self.assertEqual(10, profile.null_count)
 
@@ -491,5 +514,6 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(3/24, profile._get_row_is_null_ratio())
 
+        
 if __name__ == '__main__':
     unittest.main()

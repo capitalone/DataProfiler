@@ -426,6 +426,17 @@ class DateTimeOptions(BaseColumnOptions):
         """
         BaseColumnOptions.__init__(self)
 
+    def _validate_helper(self, variable_path='DateTimeOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path) 
+
 
 class OrderOptions(BaseColumnOptions):
     def __init__(self):
@@ -437,6 +448,16 @@ class OrderOptions(BaseColumnOptions):
         """
         BaseColumnOptions.__init__(self)
 
+    def _validate_helper(self, variable_path='OrderOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path) 
 
 class CategoricalOptions(BaseColumnOptions):
     def __init__(self):
@@ -448,6 +469,16 @@ class CategoricalOptions(BaseColumnOptions):
         """
         BaseColumnOptions.__init__(self)
 
+    def _validate_helper(self, variable_path='CategoricalOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path) 
 
 class DataLabelerOptions(BaseColumnOptions):
     def __init__(self):
@@ -507,20 +538,28 @@ class DataLabelerOptions(BaseColumnOptions):
         :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path=variable_path)
-        if self.data_labeler_dirpath and \
+        
+        if self.data_labeler_dirpath is not None and \
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
-        if self.data_labeler_object and \
+            
+        if self.data_labeler_object is not None and \
                 not isinstance(self.data_labeler_object, BaseDataLabeler):
             errors.append("{}.data_labeler_object must be a BaseDataLabeler "
                           "object."
                           .format(variable_path))
-        if self.data_labeler_object and self.data_labeler_dirpath:
+        if self.data_labeler_object is not None and \
+                self.data_labeler_dirpath is not None:
             warnings.warn("The data labeler passed in will be used,"
                           " not through the directory of the default model")
-        if self.max_sample_size and not isinstance(self.max_sample_size, int):
-            errors.append("{}.max_sample_size must be a string."
+            
+        if self.max_sample_size is not None and \
+                not isinstance(self.max_sample_size, int):
+            errors.append("{}.max_sample_size must be an integer."
+                          .format(variable_path))
+        elif self.max_sample_size is not None and self.max_sample_size <= 0:
+            errors.append("{}.max_sample_size must be greater than 0."
                           .format(variable_path))
         return errors
 

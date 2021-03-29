@@ -101,7 +101,6 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         profile = dict(
             min=self.min,
             max=self.max,
-            median=None,
             histogram=None,
             format=self.date_formats,
             times=self.times

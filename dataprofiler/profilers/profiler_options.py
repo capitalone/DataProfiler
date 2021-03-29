@@ -141,6 +141,36 @@ class BooleanOption(BaseOption):
         return errors
 
 
+class HistogramOption(BooleanOption):
+
+    def __init__(self, method=None):
+        """Options for histograms
+
+        :ivar is_enabled: boolean option to enable/disable the option.
+        :vartype is_enabled: bool
+        :ivar method: method with which to calculate histograms
+        :vartype method: Union[None, str]
+        """
+        self.method = method
+        super().__init__(is_enabled=True)
+
+    def _validate_helper(self, variable_path='HistogramOption'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+        h_methods = ['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt']
+        if self.method not in h_methods:
+            errors.append("{}.methods must be one of the following: {}."
+                          .format(variable_path, h_methods))
+        return errors
+
+
 class BaseColumnOptions(BooleanOption):
 
     def __init__(self):

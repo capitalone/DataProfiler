@@ -59,10 +59,11 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
     :type report: dict()
     """
     
-    format_options = ['pretty', 'serializable', 'flat', 'compact']
+    format_options = ['pretty', 'serializable', 'flat', 'compact']    
     if output_format is not None:
         output_format = output_format.lower()
-
+    if output_format not in format_options:
+        return report
     if omit_keys is None:
         omit_keys = []
 

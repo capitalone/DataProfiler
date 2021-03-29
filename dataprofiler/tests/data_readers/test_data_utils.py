@@ -37,7 +37,17 @@ class TestDataReadingWriting(unittest.TestCase):
             detected_encoding = \
                 data_utils.detect_file_encoding(file_path=input_file["path"])
             self.assertEqual(detected_encoding.lower(), input_file["encoding"])
-
+        
+        try:
+            from charset_normalizer import CharsetNormalizerMatches as CnM
+            detected_encoding = \
+                data_utils.detect_file_encoding(file_path=os.path.join(test_dir, 'txt/utf8.txt'))
+            self.assertEqual("utf-8", detected_ecnoding.lower()) 
+        except:
+            detected_encoding = \
+                data_utils.detect_file_encoding(file_path=os.path.join(test_dir, 'txt/utf8.txt'))
+            self.assertEqual("windows-1254", detected_encoding.lower()) 
+                        
     def test_nth_loc_detection(self):
         """
         Tests the ability for the `data_utils.find_nth_location` to detect the

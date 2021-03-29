@@ -45,9 +45,18 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
     """
     Prepares report dictionary for users upon request.
 
+    output_format options: 
+
+    - Pretty: floats are rounded to four decimal places & lists are shortened.
+    - Compact: Similar to pretty, but removes detailed statistics such as 
+               runtimes, label probabilities, index locations of null types
+    - Serializable: Output is json serializable and not prettified
+    - Flat: Nested output is returned as a flattened dictionary
+
     :param report: contains the values identified from the profile
     :type report: dict()
-    :param output_format: designation for how to format the returned report
+    :param output_format: designation for how to format the returned report;
+                          possible options: pretty, serializable, flat, compact
     :type output_format: dict()
     :param omit_keys: Keys to omit from the output report, to omit keys in the 
                       report a '.' represents a level of recursion example: 
@@ -59,7 +68,7 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
     :type report: dict()
     """
     
-    format_options = ['pretty', 'serializable', 'flat', 'compact']    
+
     if output_format is not None:
         output_format = output_format.lower()
     if omit_keys is None:

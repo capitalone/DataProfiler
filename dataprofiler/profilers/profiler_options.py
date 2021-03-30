@@ -165,7 +165,7 @@ class HistogramOption(BooleanOption):
         """
         errors = super()._validate_helper(variable_path=variable_path)
         h_methods = ['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt']
-        if not isinstance(self.method, str):
+        if self.method is not None and not isinstance(self.method, str):
             errors.append("{}.method must be a string.".format(variable_path))
         if self.method not in h_methods:
             errors.append("{}.methods must be one of the following: {}."
@@ -243,7 +243,7 @@ class NumericalOptions(BaseColumnOptions):
         self.max = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
-        self.histogram_and_quantiles = BooleanOption(is_enabled=True)
+        self.histogram_and_quantiles = HistogramOption(method=None)
         BaseColumnOptions.__init__(self)
 
     @property

@@ -445,6 +445,15 @@ class Profiler(object):
     def profile(self):
         return self._profile
 
+    @property
+    def samples_used(self):
+        samples_used = 0
+        columns = list(self._profile.values())
+        for col in columns:
+            if col.sample_size:
+                samples_used = max(samples_used, col.sample_size)
+        return samples_used
+
     def report(self, report_options=None):
         if not report_options:
             report_options = {
@@ -459,7 +468,7 @@ class Profiler(object):
         columns = list(self._profile.values())
         report = OrderedDict([
             ("global_stats", {
-                "samples_used": columns[0].sample_size if columns else 0,
+                "samples_used": self.samples_used,
                 "column_count": len(columns),
                 "row_count": self.total_samples,
                 "row_has_null_ratio": self._get_row_has_null_ratio(),
@@ -485,14 +494,12 @@ class Profiler(object):
         return len(self.hashed_row_dict) / self.total_samples
 
     def _get_row_is_null_ratio(self):
-        columns = list(self._profile.values())
-        samples_used = columns[0].sample_size
-        return self.row_is_null_count / samples_used
+        return 0 if self.samples_used == 0 \
+            else self.row_is_null_count / self.samples_used
 
     def _get_row_has_null_ratio(self):
-        columns = list(self._profile.values())
-        samples_used = columns[0].sample_size
-        return self.row_has_null_count / samples_used
+        return 0 if self.samples_used == 0 \
+            else self.row_has_null_count / self.samples_used
 
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)

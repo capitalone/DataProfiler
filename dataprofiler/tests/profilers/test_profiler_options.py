@@ -375,4 +375,3 @@ class TestDataLabelerCallWithOptions(unittest.TestCase):
                          (profile._profile[0].profiles['data_label_profile'].
                           # column profiler
                           _profiles["data_labeler"].data_labeler))
-

@@ -447,11 +447,13 @@ class Profiler(object):
 
     @property
     def samples_used(self):
+        """
+        Calculates and returns the maximum samples used in any of the columns.
+        """
         samples_used = 0
         columns = list(self._profile.values())
         for col in columns:
-            if col.sample_size:
-                samples_used = max(samples_used, col.sample_size)
+            samples_used = max(samples_used, col.sample_size)
         return samples_used
 
     def report(self, report_options=None):

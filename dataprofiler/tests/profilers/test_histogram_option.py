@@ -1,5 +1,6 @@
 from dataprofiler.profilers.profiler_options import HistogramOption
 from dataprofiler.tests.profilers.test_boolean_option import TestBooleanOption
+import re
 
 
 class TestHistogramOption(TestBooleanOption):
@@ -37,7 +38,37 @@ class TestHistogramOption(TestBooleanOption):
             option.set({'method.is_enabled': True})
 
     def test_validate_helper(self):
-        pass
+        option = self.get_options()
+
+        # Default configuration is valid
+        self.assertEqual([], option._validate_helper())
+
+        # Set method to something that isn't a string
+        option.method = 3
+        errs = ["HistogramOption.method must be a string.",
+                "HistogramOption.method must be one of the following: "
+                "['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt']."]
+        self.assertEqual(errs, option._validate_helper())
+
+        # Set method to a string that isn't a correct method
+        option.method = "whoops"
+        self.assertEqual(errs[1:], option._validate_helper())
 
     def test_validate(self):
-        pass
+        option = self.get_options()
+
+        # Default configuration is valid
+        self.assertEqual([], option._validate_helper())
+
+        # Set method to something that isn't a string
+        option.method = 3
+        errs = ["HistogramOption.method must be a string.",
+                "HistogramOption.method must be one of the following: "
+                "['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt']."]
+        with self.assertRaisesRegex(ValueError, re.escape('\n'.join(errs))):
+            option.validate()
+
+        # Set method to a string that isn't a correct method
+        option.method = "whoops"
+        with self.assertRaisesRegex(ValueError, re.escape(errs[1])):
+            option.validate()

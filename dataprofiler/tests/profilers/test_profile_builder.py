@@ -527,15 +527,13 @@ class TestProfilerNullValues(unittest.TestCase):
         profile.update_profile(data)
         
         self.assertEqual(16, profile.total_samples)
-        self.assertEqual(4, profile.report()["global_stats"]["samples_used"])
+        self.assertEqual(4, profile.samples_used)
         self.assertEqual(2, profile.row_has_null_count)
         self.assertEqual(0.5, profile._get_row_has_null_ratio())
         self.assertEqual(2, profile.row_is_null_count)
         self.assertEqual(0.5, profile._get_row_is_null_ratio())
         self.assertEqual(0.4375, profile._get_unique_row_ratio())
         self.assertEqual(9, profile._get_duplicate_row_count())
-
-
 
 
 if __name__ == '__main__':

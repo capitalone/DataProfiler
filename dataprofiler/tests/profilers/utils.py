@@ -11,8 +11,7 @@ def set_seed(seed=None):
     :param seed:
     :return:
     """
-    np.random.seed(seed)
-    random.seed(seed)
+    os.environ["DATAPROFILER_SEED"] = str(seed)
 
 
 def delete_folder(path):

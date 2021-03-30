@@ -83,7 +83,7 @@ class TestProfiler(unittest.TestCase):
             "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type)
         self.assertEqual(2, merged_profile.row_has_null_count)
         self.assertEqual(2, merged_profile.row_is_null_count)
-        self.assertEqual(6, merged_profile.rows_ingested)
+        self.assertEqual(6, merged_profile.total_samples)
         self.assertEqual(5, len(merged_profile.hashed_row_dict))
 
         # test success if drawn from multiple files
@@ -95,23 +95,22 @@ class TestProfiler(unittest.TestCase):
 
     def test_correct_unique_row_ratio_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))
-        self.assertEqual(2999, self.trained_schema.rows_ingested)
+        self.assertEqual(2999, self.trained_schema.total_samples)
         self.assertEqual(1.0, self.trained_schema._get_unique_row_ratio())
 
     def test_correct_rows_ingested(self):
         self.assertEqual(2999, self.trained_schema.total_samples)
-        self.assertEqual(2999, self.trained_schema.rows_ingested)
 
     def test_correct_null_row_ratio_test(self):
         self.assertEqual(2999, self.trained_schema.row_has_null_count)
         self.assertEqual(1.0, self.trained_schema._get_row_has_null_ratio())
         self.assertEqual(0, self.trained_schema.row_is_null_count)
         self.assertEqual(0, self.trained_schema._get_row_is_null_ratio())
-        self.assertEqual(2999, self.trained_schema.rows_ingested)
+        self.assertEqual(2999, self.trained_schema.total_samples)
 
     def test_correct_duplicate_row_count_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))
-        self.assertEqual(2999, self.trained_schema.rows_ingested)
+        self.assertEqual(2999, self.trained_schema.total_samples)
         self.assertEqual(0.0, self.trained_schema._get_duplicate_row_count())
 
     def test_correct_datatime_schema_test(self):
@@ -473,6 +472,9 @@ class TestStructuredDataProfileClass(unittest.TestCase):
 
 class TestProfilerNullValues(unittest.TestCase):
 
+    def setUp(self):
+        test_utils.set_seed(0)
+
     def test_correct_rows_ingested(self):
         test_dict = {
             '1': ['nan', 'null', None, None, ''],
@@ -514,6 +516,27 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(3/24, profile._get_row_is_null_ratio())
 
+    def test_correct_total_sample_size_and_counts(self):
+        file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
+        data = pd.read_csv(file_path)
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        # Profile Once
+        profile = dp.Profiler(data, profiler_options=profiler_options, samples_per_update=2)
+        # Profile Twice
+        profile.update_profile(data)
         
+        self.assertEqual(16, profile.total_samples)
+        self.assertEqual(4, profile.report()["global_stats"]["samples_used"])
+        self.assertEqual(2, profile.row_has_null_count)
+        self.assertEqual(0.5, profile._get_row_has_null_ratio())
+        self.assertEqual(2, profile.row_is_null_count)
+        self.assertEqual(0.5, profile._get_row_is_null_ratio())
+        self.assertEqual(0.4375, profile._get_unique_row_ratio())
+        self.assertEqual(9, profile._get_duplicate_row_count())
+
+
+
+
 if __name__ == '__main__':
     unittest.main()

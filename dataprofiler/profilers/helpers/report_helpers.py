@@ -99,7 +99,7 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
 
         # Convert set to list, for report generation
         if isinstance(value, set):
-            value = list(value)
+            value = sorted(list(value))
 
         if isinstance(value, dict):
 

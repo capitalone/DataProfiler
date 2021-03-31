@@ -520,7 +520,7 @@ class TestProfilerNullValues(unittest.TestCase):
 
     def test_null_in_file(self):
         filename_null_in_file = os.path.join(
-            test_root_path, 'data','csv/stripe-payments.csv')
+            test_root_path, 'data', 'csv/sparse-first-and-last-column.txt')
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
         data = dp.Data(filename_null_in_file)
@@ -529,8 +529,13 @@ class TestProfilerNullValues(unittest.TestCase):
         report = profile.report(report_options={"output_format":"pretty"})
         
         self.assertEqual(
-            report['data_stats']['invoice_id']['statistics']['null_types_index'],
-            {'': '[53]'}
+            report['data_stats']['COUNT']['statistics']['null_types_index'],
+            {'': '[2, 3, 4, 5, 7, 8]'}
+        )
+        
+        self.assertEqual(
+            report['data_stats'][' NUMBERS']['statistics']['null_types_index'],
+            {'': '[5, 6, 8]', ' ': '[2, 4]'}
         )
 
     def test_correct_total_sample_size_and_counts(self):

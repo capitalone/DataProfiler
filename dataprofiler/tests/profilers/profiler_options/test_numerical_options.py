@@ -1,5 +1,5 @@
 from dataprofiler.profilers.profiler_options import BooleanOption, NumericalOptions
-from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
+from dataprofiler.tests.profilers.profiler_options.test_base_column_options import TestBaseColumnOptions
 
 
 class TestNumericalOptions(TestBaseColumnOptions):

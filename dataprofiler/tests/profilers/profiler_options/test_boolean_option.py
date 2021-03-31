@@ -1,5 +1,5 @@
 from dataprofiler.profilers.profiler_options import BooleanOption
-from dataprofiler.tests.profilers.test_base_option import TestBaseOption
+from dataprofiler.tests.profilers.profiler_options.test_base_option import TestBaseOption
 
 
 class TestBooleanOption(TestBaseOption):

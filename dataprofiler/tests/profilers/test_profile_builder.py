@@ -528,7 +528,7 @@ class TestProfilerNullValues(unittest.TestCase):
         
         self.assertEqual(
             report['data_stats']['invoice_id']['statistics']['null_types_index'],
-            {'': "['']"}
+            {'': '[53]'}
         )
 
 

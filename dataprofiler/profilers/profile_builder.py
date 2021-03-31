@@ -144,17 +144,13 @@ class StructuredDataProfile(object):
             "column_name": self.name,
             "samples": self.sample,
         })
-        
-        null_index_list = {}
-        for null_type in self.null_types_index:
-            null_index_list[null_type] = list(self.null_types_index.keys())
-        
+                
         if unordered_profile.get("data_type", None) is not None:
             unordered_profile["statistics"].update({
                 "sample_size": self.sample_size,
                 "null_count": self.null_count,
                 "null_types": self.null_types,
-                "null_types_index": null_index_list,
+                "null_types_index": self.null_types_index,
                 "data_type_representation":
                     unordered_profile["data_type_representation"]
             })

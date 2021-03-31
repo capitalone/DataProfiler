@@ -96,7 +96,11 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
             continue
         
         value = report[key]
-        
+
+        # Convert set to list, for report generation
+        if isinstance(value, set):
+            value = list(value)
+
         if isinstance(value, dict):
 
             # split off any remaining keys for the recursion

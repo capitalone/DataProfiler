@@ -219,7 +219,7 @@ class StructuredDataProfile(object):
     def _get_sample_size(self, df_series):
         """
         Determines the minimum sampling size for detecting column type.
-        
+
         :param df_series: a column of data
         :type df_series: pandas.core.series.Series
         :return: integer sampling size
@@ -357,7 +357,6 @@ class Profiler(object):
         self.row_has_null_count = 0
         self.row_is_null_count = 0
         self.hashed_row_dict = dict()
-        self.rows_ingested = 0
         self._samples_per_update = samples_per_update
         self._min_true_samples = min_true_samples
         self._profile = dict()
@@ -432,7 +431,7 @@ class Profiler(object):
             self.row_has_null_count + other.row_has_null_count
         merged_profile.row_is_null_count = \
             self.row_is_null_count + other.row_is_null_count
-        merged_profile.rows_ingested = self.rows_ingested + other.rows_ingested
+        merged_profile.total_samples = self.total_samples + other.total_samples
         merged_profile.hashed_row_dict.update(self.hashed_row_dict)
         merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
@@ -445,6 +444,17 @@ class Profiler(object):
     @property
     def profile(self):
         return self._profile
+
+    @property
+    def _max_col_samples_used(self):
+        """
+        Calculates and returns the maximum samples used in any of the columns.
+        """
+        samples_used = 0
+        columns = list(self._profile.values())
+        for col in columns:
+            samples_used = max(samples_used, col.sample_size)
+        return samples_used
 
     def report(self, report_options=None):
         if not report_options:
@@ -460,7 +470,7 @@ class Profiler(object):
         columns = list(self._profile.values())
         report = OrderedDict([
             ("global_stats", {
-                "samples_used": columns[0].sample_size if columns else 0,
+                "samples_used": self._max_col_samples_used,
                 "column_count": len(columns),
                 "row_count": self.total_samples,
                 "row_has_null_ratio": self._get_row_has_null_ratio(),
@@ -483,16 +493,18 @@ class Profiler(object):
         return _prepare_report(report, output_format, omit_keys)
 
     def _get_unique_row_ratio(self):
-        return len(self.hashed_row_dict) / self.rows_ingested
+        return len(self.hashed_row_dict) / self.total_samples
 
     def _get_row_is_null_ratio(self):
-        return self.row_is_null_count / self.rows_ingested
+        return 0 if self._max_col_samples_used == 0 \
+            else self.row_is_null_count / self._max_col_samples_used
 
     def _get_row_has_null_ratio(self):
-        return self.row_has_null_count / self.rows_ingested
+        return 0 if self._max_col_samples_used == 0 \
+            else self.row_has_null_count / self._max_col_samples_used
 
     def _get_duplicate_row_count(self):
-        return self.rows_ingested - len(self.hashed_row_dict)
+        return self.total_samples - len(self.hashed_row_dict)
 
     def _update_row_statistics(self, data):
         """
@@ -505,7 +517,7 @@ class Profiler(object):
         :type data: pandas.DataFrame
         """
         
-        self.rows_ingested = len(data)
+        self.total_samples += len(data)
         self.hashed_row_dict = dict.fromkeys(
             pd.util.hash_pandas_object(data, index=False), True
         )
@@ -529,8 +541,8 @@ class Profiler(object):
                 null_rows = null_rows.intersection(null_row_indices)
                 null_in_row_count = null_in_row_count.union(null_row_indices)
 
-        self.row_has_null_count = len(null_in_row_count)
-        self.row_is_null_count = len(null_rows)
+        self.row_has_null_count += len(null_in_row_count)
+        self.row_is_null_count += len(null_rows)
         
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """
@@ -551,14 +563,12 @@ class Profiler(object):
         if not min_true_samples:
             min_true_samples = self._min_true_samples
         if isinstance(data, data_readers.base_data.BaseData):
-            self.total_samples += len(data.data) 
             self._profile = self._update_profile_from_chunk(
                 data.data, self._profile, sample_size, min_true_samples, self.options)
             self._update_row_statistics(data.data)
             self.encoding = data.file_encoding
             self.file_type = data.data_type
         elif isinstance(data, pd.DataFrame):
-            self.total_samples += len(data)
             self._profile = self._update_profile_from_chunk(
                 data, self._profile, sample_size, min_true_samples, self.options)
             self._update_row_statistics(data)

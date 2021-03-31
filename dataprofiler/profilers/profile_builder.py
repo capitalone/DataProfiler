@@ -446,7 +446,7 @@ class Profiler(object):
         return self._profile
 
     @property
-    def samples_used(self):
+    def _max_col_samples_used(self):
         """
         Calculates and returns the maximum samples used in any of the columns.
         """
@@ -470,7 +470,7 @@ class Profiler(object):
         columns = list(self._profile.values())
         report = OrderedDict([
             ("global_stats", {
-                "samples_used": self.samples_used,
+                "samples_used": self._max_col_samples_used,
                 "column_count": len(columns),
                 "row_count": self.total_samples,
                 "row_has_null_ratio": self._get_row_has_null_ratio(),
@@ -496,12 +496,12 @@ class Profiler(object):
         return len(self.hashed_row_dict) / self.total_samples
 
     def _get_row_is_null_ratio(self):
-        return 0 if self.samples_used == 0 \
-            else self.row_is_null_count / self.samples_used
+        return 0 if self._max_col_samples_used == 0 \
+            else self.row_is_null_count / self._max_col_samples_used
 
     def _get_row_has_null_ratio(self):
-        return 0 if self.samples_used == 0 \
-            else self.row_has_null_count / self.samples_used
+        return 0 if self._max_col_samples_used == 0 \
+            else self.row_has_null_count / self._max_col_samples_used
 
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)

@@ -112,6 +112,10 @@ class TestStructuredOptions(TestBaseOption):
             for key in self.keys]
         expected_error = set(expected_error)
         # Verify expected errors are a subset of all errors
+        with self.assertRaises(ValueError) as cm:
+            option.validate(raise_error=True)
+        raised_error = set(str(cm.exception).split("\n"))
+        self.assertEqual(expected_error, expected_error.intersection(raised_error))
         self.assertSetEqual(expected_error, expected_error.intersection(set(option.validate(raise_error=False))))
 
         # Wrong Class Type

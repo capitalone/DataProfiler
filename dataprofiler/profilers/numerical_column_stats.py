@@ -58,7 +58,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         else:
             self.histogram_selection = None
         if self.histogram_selection is not None:
-            self.histogram_bin_mathod_names = [self.histogram_selection]
+            self.histogram_bin_method_names = [self.histogram_selection]
         else:
             self.histogram_bin_method_names = ['auto', 'fd', 'doane', 'scott',
                                                'rice', 'sturges', 'sqrt']

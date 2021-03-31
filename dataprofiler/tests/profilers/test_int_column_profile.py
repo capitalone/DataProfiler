@@ -501,3 +501,10 @@ class TestIntColumn(unittest.TestCase):
                                    "IntColumn parameter 'options' must be of"
                                    " type IntOptions."):
             profiler = IntColumn("Int", options="wrong_data_type")
+
+    def test_histogram_option_integration(self):
+        options = IntOptions()
+        options.histogram_and_quantiles.method = "sturges"
+        num_profiler = IntColumn(name="test", options=options)
+        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)

@@ -108,7 +108,7 @@ The format for a profile is below:
             "stddev": float,
             "histogram": { 
                 "bin_counts": list(int),
-        DATAPROFILER_SEED=0 pytest --forked                "bin_edges": list(float),
+		"bin_edges": list(float),
             },
             "quantiles": {
                 int: float

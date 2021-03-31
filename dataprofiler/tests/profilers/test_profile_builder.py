@@ -41,6 +41,7 @@ class TestProfiler(unittest.TestCase):
         cls.trained_schema = dp.Profiler(cls.aws_dataset, len(cls.aws_dataset),
                                          profiler_options=profiler_options)
 
+
     @mock.patch('dataprofiler.profilers.column_profile_compilers.'
                 'ColumnPrimitiveTypeProfileCompiler')
     @mock.patch('dataprofiler.profilers.column_profile_compilers.'
@@ -513,6 +514,23 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(13/24, profile._get_row_has_null_ratio())
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(3/24, profile._get_row_is_null_ratio())
+
+
+    def test_null_in_file(self):
+        filename_null_in_file = os.path.join(
+            test_root_path, 'data','csv/stripe-payments.csv')
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        data = dp.Data(filename_null_in_file)
+        profile = dp.Profiler(data, profiler_options=profiler_options)
+
+        report = profile.report(report_options={"output_format":"pretty"})
+        
+        self.assertEqual(
+            report['data_stats']['invoice_id']['statistics']['null_types_index'],
+            {'': "['']"}
+        )
+
 
         
 if __name__ == '__main__':

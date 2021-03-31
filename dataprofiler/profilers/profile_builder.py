@@ -144,6 +144,7 @@ class StructuredDataProfile(object):
             "column_name": self.name,
             "samples": self.sample,
         })
+                
         if unordered_profile.get("data_type", None) is not None:
             unordered_profile["statistics"].update({
                 "sample_size": self.sample_size,

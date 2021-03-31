@@ -108,7 +108,7 @@ The format for a profile is below:
             "stddev": float,
             "histogram": { 
                 "bin_counts": list(int),
-                "bin_edges": list(float),
+		"bin_edges": list(float),
             },
             "quantiles": {
                 int: float
@@ -245,23 +245,23 @@ pip3 install -r requirements-test.txt
 
 To run all unit tests, use:
 ```
-python3 -m unittest discover -p "test*.py"
+DATAPROFILER_SEED=0 python3 -m unittest discover -p "test*.py"
 ```
 
 To run file of unit tests, use form:
 
 ```
-python3 -m unittest discover -p test_profile_builder.py
+DATAPROFILER_SEED=0 python3 -m unittest discover -p test_profile_builder.py
 ```
 
 To run a file with Pytest use:
 ```
-pytest dataprofiler/tests/data_readers/test_csv_data.py -v
+DATAPROFILER_SEED=0 pytest dataprofiler/tests/data_readers/test_csv_data.py -v
 ```
 
 To run individual of unit test, use form:
 ```
-python3 -m unittest dataprofiler.tests.profilers.test_profile_builder.TestProfiler
+DATAPROFILER_SEED=0 python3 -m unittest dataprofiler.tests.profilers.test_profile_builder.TestProfiler
 ```
 
 # Get Started

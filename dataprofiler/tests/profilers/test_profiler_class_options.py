@@ -16,7 +16,7 @@ class TestProfilerOptions(TestBaseOption):
     def test_init(self):
         options = self.get_options()
         for key in self.keys:
-            self.assertTrue(key in options.properties)
+            self.assertIn(key, options.properties)
 
     def test_set_helper(self):
         super().test_set_helper()
@@ -74,6 +74,7 @@ class TestProfilerOptions(TestBaseOption):
         expected_error = ['{}.structured_options.{}.is_enabled must be a Boolean.'.format(optpth, key) 
             for key in option.structured_options.properties]
         expected_error = set(expected_error)
+        # Verify expected errors are a subset of all errors
         self.assertSetEqual(expected_error, expected_error.intersection(set(option._validate_helper())))
 
         # Wrong Class Type
@@ -98,6 +99,7 @@ class TestProfilerOptions(TestBaseOption):
         expected_error = ['{}.structured_options.{}.is_enabled must be a Boolean.'.format(optpth, key) 
             for key in option.structured_options.properties]
         expected_error = set(expected_error)
+        # Verify expected errors are a subset of all errors
         self.assertSetEqual(expected_error, expected_error.intersection(set(option.validate(raise_error=False))))
 
         # Wrong Class Type

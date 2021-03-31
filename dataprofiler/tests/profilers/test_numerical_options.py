@@ -10,7 +10,7 @@ class TestNumericalOptions(TestBaseColumnOptions):
     def test_init(self):
         options = self.get_options()
         for key in self.keys + ['is_numeric_stats_enabled', 'is_enabled']:
-            self.assertTrue(key in options.properties)
+            self.assertIn(key, options.properties)
     
     def test_set_helper(self):
         super().test_set_helper()

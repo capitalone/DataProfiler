@@ -288,24 +288,50 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     :return: encoding type
     :rtype: str
     """
-    try:
-        from charset_normalizer import CharsetNormalizerMatches as CnM
-        result = CnM.from_path(file_path, steps=max_lines, chunk_size=buffer_size)
-        encoding = result.best().first().encoding
-    except:
-        detector = UniversalDetector()
-        line_count = 0
-        with open(file_path, 'rb') as input_file:
+    detector = UniversalDetector()
+    line_count = 0
+    with open(file_path, 'rb') as input_file:
+        chunk = input_file.read(buffer_size)
+        while chunk and line_count < max_lines:
+            detector.feed(chunk)
             chunk = input_file.read(buffer_size)
-            while chunk and line_count < max_lines:
-                detector.feed(chunk)
-                chunk = input_file.read(buffer_size)
-                line_count += 1
-        detector.close()
-        encoding = detector.result["encoding"]
+            line_count += 1
+    detector.close()
+    encoding = detector.result["encoding"]
 
     # Typical file representation is utf-8 instead of ascii, treat as such.
-    if not encoding or encoding == 'ascii':
+    if encoding == 'ascii':
+        encoding = 'utf-8'
+
+    # If no encoding is found or the encoding is windows-1254, use charset_normalizer
+    if not encoding or encoding == 'Windows-1254':
+        try:
+            from charset_normalizer import CharsetNormalizerMatches as CnM
+            
+            # Try with small sample 
+            with open(file_path, 'rb') as input_file:
+                raw_data = input_file.read(2560)
+                result = CnM.from_bytes(raw_data, steps=5, 
+                                        chunk_size=512, threshold=0.2,
+                                        cp_isolation=None, cp_exclusion=None,
+                                        preemptive_behaviour=True, explain=False)
+            encoding = result.best().first().encoding
+    
+            # Try again with full sample
+            if not encoding:
+                with open(file_path, 'rb') as input_file:
+                    raw_data = input_file.read(max_lines*buffer_size)
+                    result = CnM.from_bytes(raw_data, steps=max_lines, 
+                                            chunk_size=buffer_size, threshold=0.2,
+                                            cp_isolation=None, cp_exclusion=None,
+                                            preemptive_behaviour=True, explain=False)
+                encoding = result.best().first().encoding
+
+        except:
+            print("Install charset_normalizer for improved file encoding detection")
+
+    # If no encoding is still found, default to utf-8
+    if not encoding:
         encoding = 'utf-8'
     return encoding.lower()
 

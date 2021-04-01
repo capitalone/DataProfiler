@@ -57,9 +57,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                                            'rice', 'sturges', 'sqrt']
         self.histogram_selection = None
         if options is not None and isinstance(options, NumericalOptions):
-            self.histogram_selection = options.histogram_and_quantiles.method
-            if self.histogram_selection is not None:
-                self.histogram_bin_method_names = [self.histogram_selection]
+            opt_method = options.histogram_and_quantiles.method
+            if isinstance(opt_method, str):
+                self.histogram_bin_method_names = [opt_method]
+                self.histogram_selection = opt_method
+            elif isinstance(opt_method, list):
+                self.histogram_bin_method_names = opt_method
         self.histogram_methods = {}
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {

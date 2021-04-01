@@ -467,7 +467,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String/List[String]) Designates preferred method for calculating histogram.  
+                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
                 If left unspecified (None) the optimal method will be chosen.  
                 If multiple specified (list) the optimal method will be chosen out of provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
@@ -487,7 +487,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String/List[String]) Designates preferred method for calculating histogram.  
+                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
                 If left unspecified (None) the optimal method will be chosen.  
                 If multiple specified (list) the optimal method will be chosen out of provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
@@ -507,7 +507,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String/List[String]) Designates preferred method for calculating histogram.  
+                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
                 If left unspecified (None) the optimal method will be chosen.  
                 If multiple specified (list) the optimal method will be chosen out of provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  

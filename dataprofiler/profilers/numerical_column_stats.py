@@ -53,15 +53,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.sum = 0
         self.variance = 0
         self.max_histogram_bin = 10000
+        self.histogram_bin_method_names = ['auto', 'fd', 'doane', 'scott',
+                                           'rice', 'sturges', 'sqrt']
+        self.histogram_selection = None
         if options is not None and isinstance(options, NumericalOptions):
             self.histogram_selection = options.histogram_and_quantiles.method
-        else:
-            self.histogram_selection = None
-        if self.histogram_selection is not None:
-            self.histogram_bin_method_names = [self.histogram_selection]
-        else:
-            self.histogram_bin_method_names = ['auto', 'fd', 'doane', 'scott',
-                                               'rice', 'sturges', 'sqrt']
+            if self.histogram_selection is not None:
+                self.histogram_bin_method_names = [self.histogram_selection]
         self.histogram_methods = {}
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {

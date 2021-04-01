@@ -631,6 +631,7 @@ class StructuredOptions(BaseOption):
         :ivar data_labeler: option set for data_labeler profiling.
         :vartype data_labeler: DataLabelerOptions
         """
+        self.multiprocess = BooleanOption()
         self.int = IntOptions()
         self.float = FloatOptions()
         self.datetime = DateTimeOptions()
@@ -660,6 +661,7 @@ class StructuredOptions(BaseOption):
         errors = []
 
         prop_check = dict([
+            ('multiprocess', BooleanOption),
             ('int', IntOptions),
             ('float', FloatOptions),
             ('datetime', DateTimeOptions),

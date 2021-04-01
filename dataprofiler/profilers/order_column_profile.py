@@ -327,7 +327,7 @@ class OrderColumn(BaseColumnProfiler):
         :return: None
         """
         if len(df_series) == 0:
-            return
+            return self
 
         profile = dict(sample_size=len(df_series))
         OrderColumn._update_order(self, df_series=df_series)
@@ -335,3 +335,5 @@ class OrderColumn(BaseColumnProfiler):
             self, self.__calculations, df_series=df_series,
             prev_dependent_properties={}, subset_properties=profile)
         self._update_helper(df_series, profile)
+
+        return self

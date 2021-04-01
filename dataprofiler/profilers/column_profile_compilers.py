@@ -165,7 +165,8 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         """
         df_series = df_series.apply(str)
         for column_profile in self._profiles:
-            self._profiles[column_profile].update(df_series)
+            self._profiles[column_profile].update(df_series)            
+        return self
 
 
 class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):

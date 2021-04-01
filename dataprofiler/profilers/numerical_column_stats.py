@@ -53,7 +53,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.sum = 0
         self.variance = 0
         self.max_histogram_bin = 10000
-        if options is not None:
+        if options is not None and isinstance(options, NumericalOptions):
             self.histogram_selection = options.histogram_and_quantiles.method
         else:
             self.histogram_selection = None

@@ -15,6 +15,8 @@ import hashlib
 from collections import OrderedDict
 import warnings
 
+import multiprocessing as mp
+
 import pandas as pd
 
 from . import utils
@@ -76,10 +78,10 @@ class StructuredDataProfile(object):
         self._update_base_stats(base_stats)
         self.profiles = {
             'data_type_profile':
-                ColumnPrimitiveTypeProfileCompiler(clean_sampled_df,
-                                                   self.options),
+            ColumnPrimitiveTypeProfileCompiler(clean_sampled_df, self.options),
             'data_stats_profile':
-                ColumnStatsProfileCompiler(clean_sampled_df, self.options)}
+            ColumnStatsProfileCompiler(clean_sampled_df, self.options)
+        }
 
         use_data_labeler = True
         if options and isinstance(options, StructuredOptions):
@@ -214,8 +216,10 @@ class StructuredDataProfile(object):
             self.get_base_props_and_clean_null_params(
                 df_series, sample_size, min_true_samples=min_true_samples)
         self._update_base_stats(base_stats)
+            
         for profile in self.profiles.values():
             profile.update_profile(clean_sampled_df)
+
 
     def _get_sample_size(self, df_series):
         """

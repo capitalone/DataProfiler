@@ -315,7 +315,8 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :return: None
         """
         if len(df_series) == 0:
-            return
+            return self
+        
         df_series = df_series.reset_index(drop=True)
         profile = {"sample_size": len(df_series), "match_count": 0}
         if self._is_subset_datetime_column(df_series):
@@ -326,3 +327,5 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
                 prev_dependent_properties={},
                 subset_properties=profile)
         self._update_helper(df_series=df_series, profile=profile)
+
+        return self

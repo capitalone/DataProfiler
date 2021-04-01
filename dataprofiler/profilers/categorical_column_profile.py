@@ -150,6 +150,9 @@ class CategoricalColumn(BaseColumnProfiler):
         :type df_series: pandas.core.series.Series
         :return: None
         """
+        if len(df_series) == 0:
+            return self
+        
         profile = dict(
             sample_size=len(df_series)
         )
@@ -159,3 +162,5 @@ class CategoricalColumn(BaseColumnProfiler):
             prev_dependent_properties={}, subset_properties=profile)
 
         self._update_helper(df_series, profile)
+
+        return self

@@ -272,9 +272,6 @@ class AbstractTestColumnProfiler(object):
                 zip(self.column_profile._profiles.values(), profiler_mocks):
             self.assertIn(profile.__class__, self.profilers)
             self.assertEqual(1, profiler_mock.call_count)
-            self.assertEqual(
-                1, profiler_mock.return_value.update.call_count
-            )
         self._delete_profiler_mocks()
 
     def test_updated_profile(self):
@@ -284,9 +281,6 @@ class AbstractTestColumnProfiler(object):
 
         for profiler_mock in profiler_mocks:
             self.assertEqual(1, profiler_mock.call_count)
-            self.assertEqual(
-                2, profiler_mock.return_value.update.call_count
-            )
         self._delete_profiler_mocks()
 
     def test_profile(self):

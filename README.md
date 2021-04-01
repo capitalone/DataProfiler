@@ -468,8 +468,8 @@ Below is an breakdown of all the options.
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
                 * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
-                If left unspecified (None) the optimal method will be chosen.  
-                If multiple specified (list) the optimal method will be chosen out of provided ones.  
+                If left unspecified (None) the optimal method will be chosen by attempting all methods.  
+                If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
                 Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles
@@ -488,8 +488,8 @@ Below is an breakdown of all the options.
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
                 * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
-                If left unspecified (None) the optimal method will be chosen.  
-                If multiple specified (list) the optimal method will be chosen out of provided ones.  
+                If left unspecified (None) the optimal method will be chosen by attempting all methods.  
+                If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
                 Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles        
@@ -508,8 +508,8 @@ Below is an breakdown of all the options.
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
                 * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
-                If left unspecified (None) the optimal method will be chosen.  
-                If multiple specified (list) the optimal method will be chosen out of provided ones.  
+                If left unspecified (None) the optimal method will be chosen by attempting all methods.  
+                If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
                 Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles  

@@ -16,6 +16,9 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = list()
 
+    def __repr__(self):
+        return self.__class__.__name__
+
     def __init__(self, df_series, options=None):
         if not self._profilers:
             raise NotImplementedError("Must add profilers.")
@@ -53,12 +56,12 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
             selected_col_profiles = options.enabled_columns
             multiprocess_flag = options.multiprocess.is_enabled
 
-        pool = mp.Pool(len(self._profilers))
+
         single_process_list = []
         multi_process_dict = {}
+        if multiprocess_flag: # only create pool when necessary
+            pool = mp.Pool(len(self._profilers))
 
-        # smm = mp.managers.SharedMemoryManager()        
-        
         for col_profile_type in self._profilers:
             
             # Create profile if options allow for it or if there are no options
@@ -76,11 +79,11 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 single_process_flag = True
                 if multiprocess_flag:
                     single_process_flag = False
-                    try:                        
+                    try:
+                        # Add update function to be applied on the pool
                         f = pool.apply_async(
                             self._profiles[col_profile_type.col_type].update,
-                            (df_series,)
-                        )
+                            (df_series,))
                         multi_process_dict[col_profile_type.col_type] = f
                     except Exception as e:
                         # Occurs when object cannot be pickled
@@ -90,6 +93,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 if single_process_flag:
                     single_process_list.append(col_profile_type.col_type)
 
+        # Loop through remaining multiprocesses and close them out
         for col in multi_process_dict.keys():
             try:
                 f = multi_process_dict[col]
@@ -106,13 +110,15 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         # Wait for all workers to complete
         pool.join()
 
-        for col_profile_type_col_type in single_process_list:
+
+        # Single process thread to loop through
+        for col_profile_type in single_process_list:
             try:
-                self._profiles[col_profile_type_col_type].update(df_series)
+                self._profiles[col_profile_type].update(df_series)
             except Exception as e:
                 import warnings
                 warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
-                warning_msg += "Profiling Type: {}".format(col_profile_type_col_type)
+                warning_msg += "Profiling Type: {}".format(col_profile_type)
                 warning_msg += "\nException: {}".format(type(e).__name__)
                 warning_msg += "\nMessage: {}".format(e)
 
@@ -125,7 +131,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
                 
                 warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
-            
+
 
     def __add__(self, other):
         """
@@ -170,9 +176,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
 
 
 class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
-
-    def __repr__(self):
-        return 'ColumnPrimitiveTypeProfileCompiler'
     
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
@@ -209,9 +212,6 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
 
 class ColumnStatsProfileCompiler(BaseColumnProfileCompiler):
 
-    def __repr__(self):
-        return 'ColumnStatsProfileCompiler'
-    
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
         OrderColumn,
@@ -228,10 +228,6 @@ class ColumnStatsProfileCompiler(BaseColumnProfileCompiler):
 
 class ColumnDataLabelerCompiler(BaseColumnProfileCompiler):
 
-    def __repr__(self):
-        return 'ColumnDataLabelerCompiler'
-
-    
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
         DataLabelerColumn

@@ -1,5 +1,4 @@
 import numpy as np
-import copy
 
 from .numerical_column_stats import NumericStatsMixin
 from .base_column_profilers import BaseColumnProfiler, \

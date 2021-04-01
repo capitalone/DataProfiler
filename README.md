@@ -497,7 +497,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String) Designates preferred method for calculating histogram
+                * method - (String) Designates preferred method for calculating histogram ('auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'). If left unspecified all methods will be used to calculate and optimal one will be chosen.
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles  
         * datetime - Options for the datetime columns
             * is_enabled - (Boolean) Enables or disables the datetime operations

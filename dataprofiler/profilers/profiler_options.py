@@ -141,7 +141,43 @@ class BooleanOption(BaseOption):
         return errors
 
 
+class HistogramOption(BooleanOption):
+
+    def __init__(self, method=None):
+        """Options for histograms
+
+        :ivar is_enabled: boolean option to enable/disable the option.
+        :vartype is_enabled: bool
+        :ivar method: method with which to calculate histograms
+        :vartype method: Union[None, str]
+        """
+        self.method = method
+        super().__init__(is_enabled=True)
+
+    def _validate_helper(self, variable_path='HistogramOption'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+        if self.method is not None:
+            valid_methods = ['auto', 'fd', 'doane', 'scott',
+                             'rice', 'sturges', 'sqrt']
+            if not isinstance(self.method, str):
+                errors.append("{}.method must be a string."
+                              .format(variable_path))
+            if self.method not in valid_methods:
+                errors.append("{}.method must be one of the following: {}."
+                              .format(variable_path, valid_methods))
+        return errors
+
+
 class BaseColumnOptions(BooleanOption):
+
     def __init__(self):
         """
         Base options for all the columns.
@@ -184,6 +220,7 @@ class BaseColumnOptions(BooleanOption):
 
 
 class NumericalOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Numerical Stats Mixin
@@ -209,7 +246,7 @@ class NumericalOptions(BaseColumnOptions):
         self.max = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
-        self.histogram_and_quantiles = BooleanOption(is_enabled=True)
+        self.histogram_and_quantiles = HistogramOption(method=None)
         BaseColumnOptions.__init__(self)
 
     @property
@@ -293,6 +330,7 @@ class NumericalOptions(BaseColumnOptions):
 
 
 class IntOptions(NumericalOptions):
+
     def __init__(self):
         """
         Options for the Int Column
@@ -329,6 +367,7 @@ class IntOptions(NumericalOptions):
 
 
 class FloatOptions(NumericalOptions):
+
     def __init__(self):
         """
         Options for the Float Column.
@@ -373,6 +412,7 @@ class FloatOptions(NumericalOptions):
 
 
 class TextOptions(NumericalOptions):
+
     def __init__(self):
         """
         Options for the Text Column:
@@ -417,6 +457,7 @@ class TextOptions(NumericalOptions):
 
 
 class DateTimeOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Datetime Column
@@ -439,6 +480,7 @@ class DateTimeOptions(BaseColumnOptions):
 
 
 class OrderOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Order Column
@@ -459,7 +501,9 @@ class OrderOptions(BaseColumnOptions):
         """
         return super()._validate_helper(variable_path) 
 
+
 class CategoricalOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Categorical Column
@@ -480,7 +524,9 @@ class CategoricalOptions(BaseColumnOptions):
         """
         return super()._validate_helper(variable_path) 
 
+
 class DataLabelerOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Data Labeler Column.

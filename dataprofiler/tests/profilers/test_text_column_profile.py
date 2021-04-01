@@ -343,3 +343,10 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     "TextColumn parameter 'options' must be of"
                                     " type TextOptions."):
             profiler = TextColumn("Text", options="wrong_data_type")
+
+    def test_histogram_option_integration(self):
+        options = TextOptions()
+        options.histogram_and_quantiles.method = "sturges"
+        num_profiler = TextColumn(name="test", options=options)
+        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)

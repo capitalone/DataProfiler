@@ -94,21 +94,22 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                     single_process_list.append(col_profile_type.col_type)
 
         # Loop through remaining multiprocesses and close them out
-        for col in multi_process_dict.keys():
-            try:
-                f = multi_process_dict[col]
-                returned_profile = f.get()
-                if returned_profile is not None:
-                    self._profiles[col] = returned_profile                
-            except Exception as e:
-                # Attempt again as a single process
-                single_process_list.append(col_profile_type.col_type)
-                    
-        # Close pool for new tasks        
-        pool.close()
-        
-        # Wait for all workers to complete
-        pool.join()
+        if multiprocess_flag:
+            for col in multi_process_dict.keys():
+                try:
+                    f = multi_process_dict[col]
+                    returned_profile = f.get()
+                    if returned_profile is not None:
+                        self._profiles[col] = returned_profile                
+                except Exception as e:
+                    # Attempt again as a single process
+                    single_process_list.append(col_profile_type.col_type)
+
+            # Close pool for new tasks  
+            pool.close()
+            
+            # Wait for all workers to complete
+            pool.join()
 
 
         # Single process thread to loop through

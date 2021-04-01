@@ -216,49 +216,9 @@ class StructuredDataProfile(object):
             self.get_base_props_and_clean_null_params(
                 df_series, sample_size, min_true_samples=min_true_samples)
         self._update_base_stats(base_stats)
-
-
-
-        #if self.options and self.options.StructuredOptions \
-        #   and self.options.StructuredOptions.multiprocess.is_enabled:
             
         for profile in self.profiles.values():
             profile.update_profile(clean_sampled_df)
-
-        """
-        else: # Multiprocessing
-            
-            pool = mp.Pool(len(self.profiles.values()))
-            multi_processing_dict = {}
-            single_thread_list = []
-            for profile_name in self.profiles.keys():
-                
-                profile = self.profiles[profile_name]
-                single_thread_flag = True                
-                if profile.__repr__() != 'ColumnDataLabelerCompiler':
-                    try:
-                        single_thread_flag = False
-                        f = pool.apply_async(profile.update_profile, [clean_sampled_df])
-                        multi_processing_dict[profile_name] = f
-                    except Exception as e:
-                        single_thread_flag = True
-                        
-                if single_thread_flag:
-                    single_thread_list.append(profile_name)
-                        
-            for profile_name in multi_processing_dict.keys():
-                self.profiles[profile_name] = f.get()
-                
-            # Close pool for new tasks
-            pool.close()
-            
-            # Wait for all workers to complete 
-            pool.join()
-
-            # Clean up anything remaining
-            for profile_name in single_thread_list:
-                self.profiles[profile_name].update_profile(clean_sampled_df)
-        """
 
     def _get_sample_size(self, df_series):
         """

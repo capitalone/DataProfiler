@@ -68,7 +68,6 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
     :return report: handle to the updated report
     :type report: dict()
     """
-    
 
     if output_format is not None:
         output_format = output_format.lower()

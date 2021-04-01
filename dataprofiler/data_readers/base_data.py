@@ -147,3 +147,20 @@ class BaseData(object):
         self._tmp_file_name = None
         self.options = None
         self._batch_info = dict(perm=list(), iter=0)
+
+    def __len__(self):
+        """
+        Returns the length of the dataset which is loaded.
+
+        :return: length of the dataset
+        """
+        return len(self.data)
+
+    @property
+    def length(self):
+        """
+        Returns the length of the dataset which is loaded.
+
+        :return: length of the dataset
+        """
+        return len(self)

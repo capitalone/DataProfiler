@@ -75,7 +75,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                     warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
 
                     warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
-            
 
     def __add__(self, other):
         """

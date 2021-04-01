@@ -225,7 +225,7 @@ If you see:
 ```
  ERROR: Double requirement given:dataprofiler==X.Y.Z from dataprofiler/dist/DataProfiler-X.Y.Z-py3-none-any.whl (already in dataprofiler==X2.Y2.Z2 from dataprofiler/dist/DataProfiler-X2.Y2.Z2-py3-none-any.whl, name='dataprofiler')
  ```
-This means that you have an multiple versions of the DataProfiler distribution 
+This means that you have multiple versions of the DataProfiler distribution 
 in the dist folder.
 To resolve, either remove the older one or delete the folder and rerun the steps
  above.
@@ -961,7 +961,7 @@ need an override.
 
 # Updating Documentation  
 To update the docs branch, checkout the gh-pages branch. Make sure it is up to
-date, then copy the dataprofiler folder from the feature branch you want to 
+date, then copy the `dataprofiler` folder from the feature branch you want to 
 update the documentation with (probably master).
 
 In /docs run:

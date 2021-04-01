@@ -11,6 +11,22 @@ from .profiler_options import StructuredOptions
 
 import multiprocessing as mp
 
+def warn_on_profile_col(col_profile, e):    
+    import warnings
+    warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
+    warning_msg += "Profiling Type: {}".format(col_profile)
+    warning_msg += "\nException: {}".format(type(e).__name__)
+    warning_msg += "\nMessage: {}".format(e)
+    # This is considered a major error
+    if type(e).__name__ == "ValueError": raise ValueError(e)
+    warning_msg += "\n\nFor labeler errors, try installing "
+    warning_msg += "the extra ml requirements via:\n\n"
+    warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+    warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
+
+
+
+
 class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
 
     # NOTE: these profilers are ordered. Test functionality if changed.
@@ -24,6 +40,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
             raise NotImplementedError("Must add profilers.")
 
         self.name = df_series.name
+        self.multiprocess_flag = True
         self._profiles = OrderedDict()
         self._create_profile(df_series, options)
 
@@ -45,23 +62,14 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         """
 
         if len(self._profilers) == 0:
-            return
+            return 
 
-        # convert all the values to string
-        df_series = df_series.apply(str)
-
-        multiprocess_flag = True
         selected_col_profiles = None
         if options and isinstance(options, StructuredOptions):
             selected_col_profiles = options.enabled_columns
-            multiprocess_flag = options.multiprocess.is_enabled
+            self.multiprocess_flag = options.multiprocess.is_enabled
 
-
-        single_process_list = []
-        multi_process_dict = {}
-        if multiprocess_flag: # only create pool when necessary
-            pool = mp.Pool(len(self._profilers))
-
+        # Create profiles
         for col_profile_type in self._profilers:
             
             # Create profile if options allow for it or if there are no options
@@ -71,67 +79,16 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 col_options = None
                 if options and options.properties[col_profile_type.col_type]:
                     col_options = options.properties[col_profile_type.col_type]
-                    
-                self._profiles[col_profile_type.col_type] = \
-                    col_profile_type(df_series.name, options=col_options)
-                
-                # MULTIPROCESSING
-                single_process_flag = True
-                if multiprocess_flag:
-                    single_process_flag = False
-                    try:
-                        # Add update function to be applied on the pool
-                        f = pool.apply_async(
-                            self._profiles[col_profile_type.col_type].update,
-                            (df_series,))
-                        multi_process_dict[col_profile_type.col_type] = f
-                    except Exception as e:
-                        # Occurs when object cannot be pickled
-                        single_process_flag = True
 
-                # Add to single process list to execute later
-                if single_process_flag:
-                    single_process_list.append(col_profile_type.col_type)
-
-        # Loop through remaining multiprocesses and close them out
-        if multiprocess_flag:
-            for col in multi_process_dict.keys():
                 try:
-                    f = multi_process_dict[col]
-                    returned_profile = f.get()
-                    if returned_profile is not None:
-                        self._profiles[col] = returned_profile                
+                    self._profiles[col_profile_type.col_type] = \
+                        col_profile_type(df_series.name, options=col_options)
                 except Exception as e:
-                    # Attempt again as a single process
-                    single_process_list.append(col_profile_type.col_type)
+                    warn_on_profile_col(col_profile, e)
 
-            # Close pool for new tasks  
-            pool.close()
-            
-            # Wait for all workers to complete
-            pool.join()
-
-
-        # Single process thread to loop through
-        for col_profile_type in single_process_list:
-            try:
-                self._profiles[col_profile_type].update(df_series)
-            except Exception as e:
-                import warnings
-                warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
-                warning_msg += "Profiling Type: {}".format(col_profile_type)
-                warning_msg += "\nException: {}".format(type(e).__name__)
-                warning_msg += "\nMessage: {}".format(e)
-
-                # This is considered a major error
-                if type(e).__name__ == "ValueError":
-                    raise ValueError(e)
-            
-                warning_msg += "\n\nFor labeler errors, try installing "
-                warning_msg += "the extra ml requirements via:\n\n"
-                warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
-                
-                warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
+        # Update profile after creation
+        self.update_profile(df_series)
+                        
 
 
     def __add__(self, other):
@@ -170,9 +127,54 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         :return: None
         :rtype: None
         """
+        
+        if len(self._profilers) == 0:
+            return 
+        
         df_series = df_series.apply(str)
-        for column_profile in self._profiles:
-            self._profiles[column_profile].update(df_series)            
+
+        # If single process, loop and return
+        if not self.multiprocess_flag:
+            for col_profile in self._profiles:
+                self._profiles[col_profile].update(df_series)
+            return self
+
+
+        # If multiprocess, setup pool, etc
+        single_process_list = []
+        multi_process_dict = {}
+        pool = mp.Pool(len(self._profilers))
+        
+        # Spin off seperate processes, where possible
+        for col_profile in self._profiles:
+            try: # Add update function to be applied on the pool
+                multi_process_dict[col_profile] = pool.apply_async(
+                    self._profiles[col_profile], (df_series,))
+            except Exception as e: # Attempt again as a single process
+                single_process_list.append(col_profile)
+
+                
+        # Loop through remaining multiprocesses and close them out
+        if self.multiprocess_flag:
+            for col in multi_process_dict.keys():
+                try:
+                    returned_profile = multi_process_dict[col].get()                    
+                    if returned_profile is not None:
+                        self._profiles[col] = returned_profile
+                except Exception as e:
+                    # Attempt again as a single process
+                    single_process_list.append(col_profile)                    
+            pool.close() # Close pool for new tasks  
+            pool.join() # Wait for all workers to complete
+
+
+        # Single process thread to loop through
+        for col_profile in single_process_list:
+            try:
+                self._profiles[col_profile].update(df_series)
+            except Exception as e:
+                warn_on_profile_col(col_profile, e)
+                
         return self
 
 

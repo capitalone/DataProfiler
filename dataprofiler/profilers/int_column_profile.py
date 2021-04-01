@@ -151,5 +151,5 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             df_series_clean=df_series[is_each_row_int],
             profile=profile
         )
-
+        
         return self

@@ -124,6 +124,13 @@ class TestCategoricalColumn(unittest.TestCase):
         num_nan_count = 2
         categories = pd.concat([df1, df2]).apply(str).unique().tolist()
         column_profile.update_profile(df2)
+
+        print()
+        print('correct', categories)
+        print()
+        print('current', column_profile.null_types + cat_profiler.categories)
+        print()
+        
         six.assertCountEqual(
             self,
             categories,

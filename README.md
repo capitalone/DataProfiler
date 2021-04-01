@@ -467,6 +467,11 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
+                * method - (String/List[String]) Designates preferred method for calculating histogram.  
+                If left unspecified (None) the optimal method will be chosen.  
+                If multiple specified (list) the optimal method will be chosen out of provided ones.  
+                methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
+                Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles
         * float - Options for the float columns
             * is_enabled - (Boolean) Enables or disables the float operations
@@ -482,6 +487,11 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
+                * method - (String/List[String]) Designates preferred method for calculating histogram.  
+                If left unspecified (None) the optimal method will be chosen.  
+                If multiple specified (list) the optimal method will be chosen out of provided ones.  
+                methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
+                Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles        
         * text - Options for the text columns
             * is_enabled - (Boolean) Enables or disables the text operations
@@ -497,8 +507,11 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String) Designates preferred method for calculating histogram. If left unspecified the optimal method will be chosen.  
-                options: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'
+                * method - (String/List[String]) Designates preferred method for calculating histogram.  
+                If left unspecified (None) the optimal method will be chosen.  
+                If multiple specified (list) the optimal method will be chosen out of provided ones.  
+                methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
+                Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles  
         * datetime - Options for the datetime columns
             * is_enabled - (Boolean) Enables or disables the datetime operations
@@ -509,7 +522,7 @@ Below is an breakdown of all the options.
         * data_labeler - Options for the data labeler columns
             * is_enabled - (Boolean) Enables or disables the data labeler operations
             * data_labeler_dirpath - (String) Directory path to data labeler
-            * data_labeler_object - (BaseDataLabeler) - Datalabeler to replace 
+            * data_labeler_object - (BaseDataLabeler) Datalabeler to replace 
             the default labeler 
             * max_sample_size - (Int) The max number of samples for the data 
             labeler

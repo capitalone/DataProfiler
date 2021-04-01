@@ -133,7 +133,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 
                 warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
 
-
     def __add__(self, other):
         """
         Merges two profile compilers together overriding the `+` operator.

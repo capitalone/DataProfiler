@@ -132,7 +132,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
             return 
         
         df_series = df_series.apply(str)
-
+                
         # If single process, loop and return
         if not self.multiprocess_flag:
             for col_profile in self._profiles:
@@ -144,6 +144,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         single_process_list = []
         multi_process_dict = {}
         pool = mp.Pool(len(self._profilers))
+
         
         # Spin off seperate processes, where possible
         for col_profile in self._profiles:
@@ -156,18 +157,18 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 
         # Loop through remaining multiprocesses and close them out
         if self.multiprocess_flag:
-            for col in multi_process_dict.keys():
+            for col_profile in multi_process_dict.keys():
                 try:
-                    returned_profile = multi_process_dict[col].get()                    
+                    returned_profile = multi_process_dict[col_profile].get()
                     if returned_profile is not None:
-                        self._profiles[col] = returned_profile
+                        self._profiles[col_profile] = returned_profile
                 except Exception as e:
                     # Attempt again as a single process
                     single_process_list.append(col_profile)                    
             pool.close() # Close pool for new tasks  
             pool.join() # Wait for all workers to complete
 
-
+            
         # Single process thread to loop through
         for col_profile in single_process_list:
             try:

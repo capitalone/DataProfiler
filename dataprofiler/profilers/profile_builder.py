@@ -29,6 +29,20 @@ from .profiler_options import ProfilerOptions, StructuredOptions, \
     DataLabelerOptions
 
 
+def warn_on_profile_col(col_profile, e):
+    import warnings
+    warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
+    warning_msg += "Profiling Type: {}".format(col_profile)
+    warning_msg += "\nException: {}".format(type(e).__name__)
+    warning_msg += "\nMessage: {}".format(e)
+    # This is considered a major error
+    if type(e).__name__ == "ValueError": raise ValueError(e)
+    warning_msg += "\n\nFor labeler errors, try installing "
+    warning_msg += "the extra ml requirements via:\n\n"
+    warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+    warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
+
+
 class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=5000,
@@ -219,43 +233,48 @@ class StructuredDataProfile(object):
             
         for profile in self.profiles.values():
             profile.update_profile(clean_sampled_df)
+        return
+    
+        # If multiprocess, setup pool, etc
+        multi_process_dict = {}
+        single_process_list = []
+        pool = mp.Pool(len(self.profiles.values()))
 
-        """
-        if self.options and self.options.StructuredOptions \
-           and self.options.StructuredOptions.multiprocess.is_enabled:
-        else: # Multiprocessing
-            
-            pool = mp.Pool(len(self.profiles.values()))
-            multi_processing_dict = {}
-            single_thread_list = []
-            for profile_name in self.profiles.keys():
-                
-                profile = self.profiles[profile_name]
-                single_thread_flag = True                
-                if profile.__repr__() != 'ColumnDataLabelerCompiler':
-                    try:
-                        single_thread_flag = False
-                        f = pool.apply_async(profile.update_profile, [clean_sampled_df])
-                        multi_processing_dict[profile_name] = f
-                    except Exception as e:
-                        single_thread_flag = True
-                        
-                if single_thread_flag:
-                    single_thread_list.append(profile_name)
-                        
-            for profile_name in multi_processing_dict.keys():
-                self.profiles[profile_name] = f.get()
-                
-            # Close pool for new tasks
-            pool.close()
-            
-            # Wait for all workers to complete 
-            pool.join()
+        
+        # Spin off seperate processes, where possible
+        for col_profile in self.profiles.keys():
+            name = self.profiles[col_profile].__repr__()
+            if name != 'ColumnDataLabelerCompiler':
+                try:
+                    multi_process_dict[col_profile] = pool.apply_async(
+                        self.profiles[col_profile].update_profile,
+                        (clean_sampled_df,))
+                except Exception as e:
+                    single_process_list.append(col_profile)
+            else:
+                single_process_list.append(col_profile)
 
-            # Clean up anything remaining
-            for profile_name in single_thread_list:
-                self.profiles[profile_name].update_profile(clean_sampled_df)
-        """
+                
+        # Loop through remaining multiprocesses and close them out
+        for col_profile in multi_process_dict.keys():
+            try:
+                returned_profile = multi_process_dict[col_profile].get()
+                if returned_profile is not None:
+                    self.profiles[col_profile] = returned_profile
+            except Exception as e: # Attempt again as a single process
+                warn_on_profile_col(col_profile, e)
+                single_process_list.append(col_profile)
+                
+        pool.close() # Close pool for new tasks
+        pool.join() # Wait for all workers to complete
+        
+        # Single process thread to loop through
+        for col_profile in single_process_list:
+            try:
+                self.profiles[col_profile].update_profile(df_series)
+            except Exception as e:
+                warn_on_profile_col(col_profile, e)
+
 
     def _get_sample_size(self, df_series):
         """
@@ -419,23 +438,7 @@ class Profiler(object):
                 self.options.set({'data_labeler.data_labeler_object': data_labeler})
                 
             except Exception as e:
-
-                import warnings
-                warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
-                warning_msg += "Profiling Type: {}".format('data_labeler')
-                warning_msg += "\nException: {}".format(type(e).__name__)
-                warning_msg += "\nMessage: {}".format(e)
-                
-                # This is considered a major error
-                if type(e).__name__ == "ValueError":
-                    raise ValueError(e)
-                
-                warning_msg += "\n\nFor labeler errors, try installing "
-                warning_msg += "the extra ml requirements via:\n\n"
-                warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
-                
-                warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
-
+                warn_on_profile_col('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
         self.update_profile(data)

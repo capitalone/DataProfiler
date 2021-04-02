@@ -20,7 +20,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
     def __repr__(self):
         return self.__class__.__name__
 
-    
     def __init__(self, df_series, options=None):
         if not self._profilers:
             raise NotImplementedError("Must add profilers.")
@@ -50,12 +49,12 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         """
 
         if len(self._profilers) == 0:
-            return 
+            return
 
         selected_col_profiles = None
         if options and isinstance(options, StructuredOptions):
             selected_col_profiles = options.enabled_columns
-            self.multiprocess_flag = options.multiprocess.is_enabled
+            multiprocess_flag = options.multiprocess.is_enabled
 
         # Create profiles
         for col_profile_type in self._profilers:
@@ -67,7 +66,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 col_options = None
                 if options and options.properties[col_profile_type.col_type]:
                     col_options = options.properties[col_profile_type.col_type]
-
+                    
                 try:
                     self._profiles[col_profile_type.col_type] = \
                         col_profile_type(df_series.name, options=col_options)

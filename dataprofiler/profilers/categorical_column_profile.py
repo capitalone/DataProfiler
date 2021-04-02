@@ -165,5 +165,5 @@ class CategoricalColumn(BaseColumnProfiler):
             prev_dependent_properties={}, subset_properties=profile)
 
         self._update_helper(df_series, profile)
-        
+
         return self

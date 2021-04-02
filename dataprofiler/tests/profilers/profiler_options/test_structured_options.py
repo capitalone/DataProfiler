@@ -71,7 +71,7 @@ class TestStructuredOptions(TestBaseOption):
         for key in self.keys:
             option.set({'{}.is_enabled'.format(key): "Hello World"}) 
         expected_error = ['{}.{}.is_enabled must be a Boolean.'.format(optpth, key) 
-            for key in self.keys]
+                         for key in self.keys]
         expected_error = set(expected_error)
         # Verify expected errors are a subset of all errors
         self.assertSetEqual(expected_error, expected_error.intersection(set(option._validate_helper())))
@@ -97,7 +97,6 @@ class TestStructuredOptions(TestBaseOption):
                 expected_error.add('{}.{} must be a(n) BooleanOption.'.format(optpth, key, ckey))
             else:
                 expected_error.add('{}.{} must be a(n) {}Options.'.format(optpth, key, ckey))
-        expected_error = set(expected_error)
         self.assertSetEqual(expected_error, set(option._validate_helper()))
             
     def test_validate(self):
@@ -113,7 +112,7 @@ class TestStructuredOptions(TestBaseOption):
             option.set({'{}.is_enabled'.format(key): "Hello World"}) 
         
         expected_error = ["{}.{}.is_enabled must be a Boolean.".format(optpth, key) 
-            for key in self.keys]
+                         for key in self.keys]
         expected_error = set(expected_error)
         # Verify expected errors are a subset of all errors
         with self.assertRaises(ValueError) as cm:
@@ -143,14 +142,12 @@ class TestStructuredOptions(TestBaseOption):
                 expected_error.add('{}.{} must be a(n) BooleanOption.'.format(optpth, key, ckey))
             else:
                 expected_error.add('{}.{} must be a(n) {}Options.'.format(optpth, key, ckey))
-        expected_error = set(expected_error)
         # Verify expected errors are a subset of all errors
         self.assertSetEqual(expected_error, set(option.validate(raise_error=False)))
         with self.assertRaises(ValueError) as cm:
             option.validate(raise_error=True)
         raised_error = set(str(cm.exception).split("\n"))
-        self.assertEqual(expected_error, expected_error.intersection(raised_error))
-        self.assertSetEqual(expected_error, expected_error.intersection(set(option.validate(raise_error=False))))
+        self.assertEqual(expected_error, raised_error)
             
     def test_enabled_columns(self):
         options = self.get_options()

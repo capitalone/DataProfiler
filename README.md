@@ -108,7 +108,7 @@ The format for a profile is below:
             "stddev": float,
             "histogram": { 
                 "bin_counts": list(int),
-                "bin_edges": list(float),
+		"bin_edges": list(float),
             },
             "quantiles": {
                 int: float
@@ -225,7 +225,7 @@ If you see:
 ```
  ERROR: Double requirement given:dataprofiler==X.Y.Z from dataprofiler/dist/DataProfiler-X.Y.Z-py3-none-any.whl (already in dataprofiler==X2.Y2.Z2 from dataprofiler/dist/DataProfiler-X2.Y2.Z2-py3-none-any.whl, name='dataprofiler')
  ```
-This means that you have an multiple versions of the DataProfiler distribution 
+This means that you have multiple versions of the DataProfiler distribution 
 in the dist folder.
 To resolve, either remove the older one or delete the folder and rerun the steps
  above.
@@ -245,23 +245,23 @@ pip3 install -r requirements-test.txt
 
 To run all unit tests, use:
 ```
-python3 -m unittest discover -p "test*.py"
+DATAPROFILER_SEED=0 python3 -m unittest discover -p "test*.py"
 ```
 
 To run file of unit tests, use form:
 
 ```
-python3 -m unittest discover -p test_profile_builder.py
+DATAPROFILER_SEED=0 python3 -m unittest discover -p test_profile_builder.py
 ```
 
 To run a file with Pytest use:
 ```
-pytest dataprofiler/tests/data_readers/test_csv_data.py -v
+DATAPROFILER_SEED=0 pytest dataprofiler/tests/data_readers/test_csv_data.py -v
 ```
 
 To run individual of unit test, use form:
 ```
-python3 -m unittest dataprofiler.tests.profilers.test_profile_builder.TestProfiler
+DATAPROFILER_SEED=0 python3 -m unittest dataprofiler.tests.profilers.test_profile_builder.TestProfiler
 ```
 
 # Get Started
@@ -467,6 +467,11 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
+                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                If left unspecified (None) the optimal method will be chosen by attempting all methods.  
+                If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
+                methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
+                Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles
         * float - Options for the float columns
             * is_enabled - (Boolean) Enables or disables the float operations
@@ -482,6 +487,11 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
+                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                If left unspecified (None) the optimal method will be chosen by attempting all methods.  
+                If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
+                methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
+                Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles        
         * text - Options for the text columns
             * is_enabled - (Boolean) Enables or disables the text operations
@@ -497,6 +507,11 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
+                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                If left unspecified (None) the optimal method will be chosen by attempting all methods.  
+                If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
+                methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
+                Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles  
         * datetime - Options for the datetime columns
             * is_enabled - (Boolean) Enables or disables the datetime operations
@@ -507,7 +522,7 @@ Below is an breakdown of all the options.
         * data_labeler - Options for the data labeler columns
             * is_enabled - (Boolean) Enables or disables the data labeler operations
             * data_labeler_dirpath - (String) Directory path to data labeler
-            * data_labeler_object - (BaseDataLabeler) - Datalabeler to replace 
+            * data_labeler_object - (BaseDataLabeler) Datalabeler to replace 
             the default labeler 
             * max_sample_size - (Int) The max number of samples for the data 
             labeler
@@ -959,7 +974,7 @@ need an override.
 
 # Updating Documentation  
 To update the docs branch, checkout the gh-pages branch. Make sure it is up to
-date, then copy the dataprofiler folder from the feature branch you want to 
+date, then copy the `dataprofiler` folder from the feature branch you want to 
 update the documentation with (probably master).
 
 In /docs run:

@@ -38,11 +38,11 @@ class TestJSONDataClass(unittest.TestCase):
 
         test_dir = os.path.join(test_root_path, 'data')
         cls.input_file_names = [
-            dict(path=os.path.join(test_dir, 'json/iris-utf-8.json'), encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'json/iris-utf-16.json'), encoding='utf-16'),
-            dict(path=os.path.join(test_dir, "json/honeypot"), encoding='utf-8'),
-            dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.csv"), encoding='utf-8'),
-            dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.parquet"), encoding='utf-8')
+            dict(path=os.path.join(test_dir, 'json/iris-utf-8.json'), encoding='utf-8', count=150),
+            dict(path=os.path.join(test_dir, 'json/iris-utf-16.json'), encoding='utf-16', count=150),
+            dict(path=os.path.join(test_dir, "json/honeypot"), encoding='utf-8', count=14),
+            dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.csv"), encoding='utf-8', count=14),
+            dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.parquet"), encoding='utf-8', count=14)
         ]
 
     def test_json_file_identification(self):
@@ -120,6 +120,21 @@ class TestJSONDataClass(unittest.TestCase):
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)
                     self.assertIsInstance(data[0], str)
+
+    def test_len_data(self):
+        """
+        Validate that length called on JSONData is appropriately determining the
+        length value.
+        """
+
+        for input_file in self.input_file_names:
+            data = Data(input_file["path"])
+            self.assertEqual(input_file['count'],
+                             len(data),
+                             msg=input_file['path'])
+            self.assertEqual(input_file['count'],
+                             data.length,
+                             msg=input_file['path'])
 
 
 if __name__ == '__main__':

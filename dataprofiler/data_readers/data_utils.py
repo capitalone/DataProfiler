@@ -321,7 +321,8 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
                                         chunk_size=512, threshold=0.2,
                                         cp_isolation=None, cp_exclusion=None,
                                         preemptive_behaviour=True, explain=False)
-            encoding = result.best().first().encoding
+                result = result.best().first()
+            if result: encoding = result.encoding
 
             # Try again with full sample
             if not _decode_is_valid(encoding): 
@@ -331,10 +332,13 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
                                             chunk_size=buffer_size, threshold=0.2,
                                             cp_isolation=None, cp_exclusion=None,
                                             preemptive_behaviour=True, explain=False)
-                encoding = result.best().first().encoding
+                    result = result.best().first()
+                if result: encoding = result.encoding
 
         except:
             print("Install charset_normalizer for improved file encoding detection")
+            if encoding == 'Windows-1254':
+                encoding = "utf-8"
 
     # If no encoding is still found, default to utf-8
     if not encoding:

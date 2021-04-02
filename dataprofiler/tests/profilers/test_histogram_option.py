@@ -1,5 +1,5 @@
 from dataprofiler.profilers.profiler_options import HistogramOption
-from dataprofiler.tests.profilers.test_boolean_option import TestBooleanOption
+from dataprofiler.tests.profilers.profiler_options.test_boolean_option import TestBooleanOption
 import re
 
 

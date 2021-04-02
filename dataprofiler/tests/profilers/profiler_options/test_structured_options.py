@@ -5,7 +5,7 @@ from dataprofiler.tests.profilers.profiler_options.test_base_option import TestB
 class TestStructuredOptions(TestBaseOption):
     
     option_class = StructuredOptions
-    keys = ["int", "float", "datetime", "text", "order", "category", "data_labeler"]
+    keys = ["int", "float", "datetime", "text", "order", "category", "data_labeler", "multiprocess"]
 
     @classmethod
     def get_options(self, **params):
@@ -85,6 +85,7 @@ class TestStructuredOptions(TestBaseOption):
         option.order = StructuredOptions()
         option.category = StructuredOptions()
         option.data_labeler = StructuredOptions()
+        option.multiprocess = StructuredOptions()
 
         expected_error = set()
         for key in self.keys:
@@ -92,7 +93,10 @@ class TestStructuredOptions(TestBaseOption):
             if key == "data_labeler": ckey = "DataLabeler"
             elif key == "category": ckey = "Categorical"
             elif key == "datetime": ckey = "DateTime"
-            expected_error.add('{}.{} must be a(n) {}Options.'.format(optpth, key, ckey))
+            if key == "multiprocess":
+                expected_error.add('{}.{} must be a(n) BooleanOption.'.format(optpth, key, ckey))
+            else:
+                expected_error.add('{}.{} must be a(n) {}Options.'.format(optpth, key, ckey))
         expected_error = set(expected_error)
         self.assertSetEqual(expected_error, set(option._validate_helper()))
             
@@ -127,6 +131,7 @@ class TestStructuredOptions(TestBaseOption):
         option.order = StructuredOptions()
         option.category = StructuredOptions()
         option.data_labeler = StructuredOptions()
+        option.multiprocess = StructuredOptions()
 
         expected_error = set()
         for key in self.keys:
@@ -134,9 +139,18 @@ class TestStructuredOptions(TestBaseOption):
             if key == "data_labeler": ckey = "DataLabeler"
             elif key == "category": ckey = "Categorical"
             elif key == "datetime": ckey = "DateTime"
-            expected_error.add('{}.{} must be a(n) {}Options.'.format(optpth, key, ckey))
+            if key == "multiprocess":
+                expected_error.add('{}.{} must be a(n) BooleanOption.'.format(optpth, key, ckey))
+            else:
+                expected_error.add('{}.{} must be a(n) {}Options.'.format(optpth, key, ckey))
         expected_error = set(expected_error)
+        # Verify expected errors are a subset of all errors
         self.assertSetEqual(expected_error, set(option.validate(raise_error=False)))
+        with self.assertRaises(ValueError) as cm:
+            option.validate(raise_error=True)
+        raised_error = set(str(cm.exception).split("\n"))
+        self.assertEqual(expected_error, expected_error.intersection(raised_error))
+        self.assertSetEqual(expected_error, expected_error.intersection(set(option.validate(raise_error=False))))
             
     def test_enabled_columns(self):
         options = self.get_options()

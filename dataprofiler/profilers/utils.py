@@ -70,7 +70,8 @@ def shuffle_in_chunks(data_length, chunk_size):
         except ValueError as e:
             warnings.warn("Seed should be an integer", RuntimeWarning)
 
-    indices = KeyDict()        
+
+    indices = KeyDict()
     j = 0
     
     # loop through all chunks

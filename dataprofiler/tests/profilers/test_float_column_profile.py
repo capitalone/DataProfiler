@@ -814,3 +814,8 @@ class TestFloatColumn(unittest.TestCase):
         num_profiler = FloatColumn(name="test", options=options)
         self.assertEqual("sturges", num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
+
+        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        num_profiler = FloatColumn(name="test2", options=options)
+        self.assertIsNone(num_profiler.histogram_selection)
+        self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)

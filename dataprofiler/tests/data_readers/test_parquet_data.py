@@ -24,9 +24,9 @@ class TestParquetDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'nation.plain.intentionally_mislabled_file.csv'), count=25),
             dict(path=os.path.join(test_dir, 'nation.plain.intentionally_mislabled_file.txt'), count=25),
             dict(path=os.path.join(test_dir, 'nation.plain.intentionally_mislabled_file.json'), count=25),
-            dict(path=os.path.join(test_dir, 'brotli_compressed_intentionally_mislabeled_parquet_file.csv'), count=25),
-            dict(path=os.path.join(test_dir, 'gzip_compressed_intentionally_mislabeled_parquet_file.csv'), count=25),
-            dict(path=os.path.join(test_dir, 'snappy_compressed_intentionally_mislabeled_parquet_file.csv'), count=25),
+            dict(path=os.path.join(test_dir, 'brotli_compressed_intentionally_mislabeled_parquet_file.csv'), count=2999),
+            dict(path=os.path.join(test_dir, 'gzip_compressed_intentionally_mislabeled_parquet_file.csv'), count=2999),
+            dict(path=os.path.join(test_dir, 'snappy_compressed_intentionally_mislabeled_parquet_file.csv'), count=2999),
 
         ]
         cls.output_file_path = None
@@ -110,3 +110,18 @@ class TestParquetDataClass(unittest.TestCase):
         self.assertNotIn("b'", parq_data.data['col2'][1])
         self.assertNotIn('b"', parq_data.data['col2'][3])
         self.assertNotIn("b'", parq_data.data['col2'][3])
+
+    def test_len_data(self):
+        """
+        Validate that length called on ParquetData is appropriately determining
+        the length value.
+        """
+
+        for input_file in self.input_file_names:
+            data = Data(input_file["path"])
+            self.assertEqual(input_file['count'],
+                             len(data),
+                             msg=input_file['path'])
+            self.assertEqual(input_file['count'],
+                             data.length,
+                             msg=input_file['path'])

@@ -149,7 +149,7 @@ class HistogramOption(BooleanOption):
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
         :ivar method: method with which to calculate histograms
-        :vartype method: Union[None, str]
+        :vartype method: Union[str, list(str)]
         """
         self.method = method
         super().__init__(is_enabled=True)
@@ -167,12 +167,22 @@ class HistogramOption(BooleanOption):
         if self.method is not None:
             valid_methods = ['auto', 'fd', 'doane', 'scott',
                              'rice', 'sturges', 'sqrt']
-            if not isinstance(self.method, str):
-                errors.append("{}.method must be a string."
-                              .format(variable_path))
-            if self.method not in valid_methods:
+            str_list_check = False
+            if isinstance(self.method, list):
+                str_list_check = all([isinstance(item, str)
+                                      for item in self.method])
+            if not isinstance(self.method, str) and not str_list_check:
+                errors.append("{}.method must be a string or list of strings "
+                              "from the following: {}."
+                              .format(variable_path, valid_methods))
+            if isinstance(self.method, str) and self.method not in valid_methods:
                 errors.append("{}.method must be one of the following: {}."
                               .format(variable_path, valid_methods))
+            if isinstance(self.method, list) and \
+                    not set(self.method).issubset(set(valid_methods)):
+                errors.append("{}.method must be a subset of {}."
+                              .format(variable_path, valid_methods))
+
         return errors
 
 

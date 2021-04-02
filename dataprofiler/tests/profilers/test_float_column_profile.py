@@ -806,4 +806,16 @@ class TestFloatColumn(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,
                                    "FloatColumn parameter 'options' must be of"
                                    " type FloatOptions."):
-            profiler = FloatColumn("Float", options="wrong_data_type") 
+            profiler = FloatColumn("Float", options="wrong_data_type")
+
+    def test_histogram_option_integration(self):
+        options = FloatOptions()
+        options.histogram_and_quantiles.method = "sturges"
+        num_profiler = FloatColumn(name="test", options=options)
+        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
+
+        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        num_profiler = FloatColumn(name="test2", options=options)
+        self.assertIsNone(num_profiler.histogram_selection)
+        self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)

@@ -118,7 +118,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 column_profile.null_types_index["nan"]))
 
         num_null_types = 4
-        num_nan_count = 2        
+        num_nan_count = 2
         categories = pd.concat([df1, df2]).apply(str).unique().tolist()
         column_profile.update_profile(df2)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]

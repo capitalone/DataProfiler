@@ -107,12 +107,12 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
     
     def update_profile(self, df_series):
         """
-        Initializes the profiles the column dataframe.
+        Updates the profiles from the data frames
         
         :param df_series: a given column
         :type df_series: pandas.core.series.Series
-        :return: None
-        :rtype: None
+        :return: Self
+        :rtype: BaseColumnProfileCompiler
         """
         
         if len(self._profilers) == 0:
@@ -125,13 +125,11 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
             for col_profile in self._profiles:
                 self._profiles[col_profile].update(df_series)
             return self
-
         
         # If multiprocess, setup pool, etc
         single_process_list = []
         multi_process_dict = {}
         pool = mp.Pool(len(self._profilers))
-
         
         # Spin off seperate processes, where possible
         for col_profile in self._profiles:
@@ -140,7 +138,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                     self._profiles[col_profile].update, (df_series,))
             except Exception as e: # Attempt again as a single process
                 single_process_list.append(col_profile)
-
                 
         # Loop through remaining multiprocesses and close them out
         for col_profile in multi_process_dict.keys():
@@ -153,7 +150,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 
         pool.close() # Close pool for new tasks  
         pool.join() # Wait for all workers to complete
-
         
         # Single process thread to loop through
         for col_profile in single_process_list:

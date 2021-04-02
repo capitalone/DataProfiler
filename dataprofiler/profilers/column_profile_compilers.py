@@ -71,7 +71,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                     self._profiles[col_profile_type.col_type] = \
                         col_profile_type(df_series.name, options=col_options)
                 except Exception as e:
-                    utils.warn_on_profile(col_profile, e)
+                    utils.warn_on_profile(col_profile_type.col_type, e)
 
         # Update profile after creation
         self.update_profile(df_series)

@@ -122,8 +122,6 @@ class TestCategoricalColumn(unittest.TestCase):
         categories = pd.concat([df1, df2]).apply(str).unique().tolist()
         column_profile.update_profile(df2)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
-        print('real', cat_profiler.categories + column_profile.null_types)
-        print('cat_profiler', cat_profiler.categories + column_profile.null_types)
         six.assertCountEqual(
             self, categories, cat_profiler.categories+column_profile.null_types)
         self.assertEqual(num_null_types, len(column_profile.null_types))

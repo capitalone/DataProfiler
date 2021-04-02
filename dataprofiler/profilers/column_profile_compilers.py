@@ -54,7 +54,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         selected_col_profiles = None
         if options and isinstance(options, StructuredOptions):
             selected_col_profiles = options.enabled_columns
-            multiprocess_flag = options.multiprocess.is_enabled
+            self.multiprocess_flag = options.multiprocess.is_enabled
 
         # Create profiles
         for col_profile_type in self._profilers:

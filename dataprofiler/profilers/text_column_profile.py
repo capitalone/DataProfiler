@@ -141,7 +141,8 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         len_df = len(df_series)
         if len_df == 0:
-            return
+            return self
+        
         profile = dict(match_count=len_df, sample_size=len_df)
 
         BaseColumnProfiler._perform_property_calcs(
@@ -149,3 +150,5 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             prev_dependent_properties={}, subset_properties=profile)
 
         self._update_helper(df_series, profile)
+
+        return self

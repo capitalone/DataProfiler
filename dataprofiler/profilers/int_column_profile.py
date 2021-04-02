@@ -63,7 +63,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         histogram_method = self.histogram_bin_method_names[0]
         if self.histogram_selection is not None:
             histogram_method = self.histogram_selection
-
+            
         profile = dict(
             min=self.min,
             max=self.max,
@@ -74,7 +74,9 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             quantiles=self.quantiles,
             times=self.times
         )
+
         return profile
+
 
     @property
     def data_type_ratio(self):
@@ -133,8 +135,8 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: None
         """
         if len(df_series) == 0:
-            return
-
+            return self
+        
         df_series = df_series.reset_index(drop=True)
         is_each_row_int = self._is_each_row_int(df_series)
         sample_size = len(is_each_row_int)
@@ -149,3 +151,5 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             df_series_clean=df_series[is_each_row_int],
             profile=profile
         )
+
+        return self

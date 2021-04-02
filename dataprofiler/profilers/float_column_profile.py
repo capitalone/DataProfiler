@@ -74,7 +74,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             min=self.min,
             max=self.max,
             mean=self.mean,
-            median=None,
             variance=self.variance,
             stddev=self.stddev,
             histogram=self.histogram_methods[histogram_method]['histogram'],
@@ -195,31 +194,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if self._NumericStatsMixin__calculations:
             NumericStatsMixin._update_helper(self, df_series_clean, profile)
         self._update_column_base_properties(profile)
-
-    def update(self, df_series):
-        """
-        Updates the column profile.
-        :param df_series: df series
-        :type df_series: pandas.core.series.Series
-        :return: None
-        """
-        if len(df_series) == 0:
-            return
-        df_series = df_series.reset_index(drop=True)
-        is_each_row_float = self._is_each_row_float(df_series)
-        sample_size = len(is_each_row_float)
-        float_count = np.sum(is_each_row_float)
-        profile = dict(match_count=float_count, sample_size=sample_size)
-
-        BaseColumnProfiler._perform_property_calcs(
-            self, self.__calculations, df_series=df_series[is_each_row_float],
-            prev_dependent_properties={}, subset_properties=profile)
-
-        self._update_helper(
-            df_series_clean=df_series[is_each_row_float],
-            profile=profile
-        )
-
+        
     def _update_numeric_stats(self, df_series, prev_dependent_properties,
                               subset_properties):
         """
@@ -236,3 +211,31 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: None 
         """
         super(FloatColumn, self)._update_helper(df_series, subset_properties)
+        
+    def update(self, df_series):
+        """
+        Updates the column profile.
+        :param df_series: df series
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        if len(df_series) == 0:
+            return self
+        
+        df_series = df_series.reset_index(drop=True)
+        is_each_row_float = self._is_each_row_float(df_series)
+        sample_size = len(is_each_row_float)
+        float_count = np.sum(is_each_row_float)
+        profile = dict(match_count=float_count, sample_size=sample_size)
+
+        BaseColumnProfiler._perform_property_calcs(
+            self, self.__calculations, df_series=df_series[is_each_row_float],
+            prev_dependent_properties={}, subset_properties=profile)
+
+        self._update_helper(
+            df_series_clean=df_series[is_each_row_float],
+            profile=profile
+        )
+
+        return self
+        

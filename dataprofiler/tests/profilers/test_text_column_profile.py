@@ -183,7 +183,6 @@ class TestTextColumnProfiler(unittest.TestCase):
             min=1.0,
             max=4.0,
             mean=20.0 / 10.0,
-            median=None,
             variance=14.0 / 9.0,
             stddev=np.sqrt(14.0 / 9.0),
             histogram={
@@ -344,3 +343,15 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     "TextColumn parameter 'options' must be of"
                                     " type TextOptions."):
             profiler = TextColumn("Text", options="wrong_data_type")
+
+    def test_histogram_option_integration(self):
+        options = TextOptions()
+        options.histogram_and_quantiles.method = "sturges"
+        num_profiler = TextColumn(name="test", options=options)
+        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
+
+        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        num_profiler = TextColumn(name="test2", options=options)
+        self.assertIsNone(num_profiler.histogram_selection)
+        self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)

@@ -141,7 +141,53 @@ class BooleanOption(BaseOption):
         return errors
 
 
+class HistogramOption(BooleanOption):
+
+    def __init__(self, method=None):
+        """Options for histograms
+
+        :ivar is_enabled: boolean option to enable/disable the option.
+        :vartype is_enabled: bool
+        :ivar method: method with which to calculate histograms
+        :vartype method: Union[str, list(str)]
+        """
+        self.method = method
+        super().__init__(is_enabled=True)
+
+    def _validate_helper(self, variable_path='HistogramOption'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+        if self.method is not None:
+            valid_methods = ['auto', 'fd', 'doane', 'scott',
+                             'rice', 'sturges', 'sqrt']
+            str_list_check = False
+            if isinstance(self.method, list):
+                str_list_check = all([isinstance(item, str)
+                                      for item in self.method])
+            if not isinstance(self.method, str) and not str_list_check:
+                errors.append("{}.method must be a string or list of strings "
+                              "from the following: {}."
+                              .format(variable_path, valid_methods))
+            if isinstance(self.method, str) and self.method not in valid_methods:
+                errors.append("{}.method must be one of the following: {}."
+                              .format(variable_path, valid_methods))
+            if isinstance(self.method, list) and \
+                    not set(self.method).issubset(set(valid_methods)):
+                errors.append("{}.method must be a subset of {}."
+                              .format(variable_path, valid_methods))
+
+        return errors
+
+
 class BaseColumnOptions(BooleanOption):
+
     def __init__(self):
         """
         Base options for all the columns.
@@ -184,6 +230,7 @@ class BaseColumnOptions(BooleanOption):
 
 
 class NumericalOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Numerical Stats Mixin
@@ -209,7 +256,7 @@ class NumericalOptions(BaseColumnOptions):
         self.max = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
-        self.histogram_and_quantiles = BooleanOption(is_enabled=True)
+        self.histogram_and_quantiles = HistogramOption(method=None)
         BaseColumnOptions.__init__(self)
 
     @property
@@ -293,6 +340,7 @@ class NumericalOptions(BaseColumnOptions):
 
 
 class IntOptions(NumericalOptions):
+
     def __init__(self):
         """
         Options for the Int Column
@@ -329,6 +377,7 @@ class IntOptions(NumericalOptions):
 
 
 class FloatOptions(NumericalOptions):
+
     def __init__(self):
         """
         Options for the Float Column.
@@ -373,6 +422,7 @@ class FloatOptions(NumericalOptions):
 
 
 class TextOptions(NumericalOptions):
+
     def __init__(self):
         """
         Options for the Text Column:
@@ -417,6 +467,7 @@ class TextOptions(NumericalOptions):
 
 
 class DateTimeOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Datetime Column
@@ -426,8 +477,20 @@ class DateTimeOptions(BaseColumnOptions):
         """
         BaseColumnOptions.__init__(self)
 
+    def _validate_helper(self, variable_path='DateTimeOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path) 
+
 
 class OrderOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Order Column
@@ -437,8 +500,20 @@ class OrderOptions(BaseColumnOptions):
         """
         BaseColumnOptions.__init__(self)
 
+    def _validate_helper(self, variable_path='OrderOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path) 
+
 
 class CategoricalOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Categorical Column
@@ -448,8 +523,20 @@ class CategoricalOptions(BaseColumnOptions):
         """
         BaseColumnOptions.__init__(self)
 
+    def _validate_helper(self, variable_path='CategoricalOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path) 
+
 
 class DataLabelerOptions(BaseColumnOptions):
+
     def __init__(self):
         """
         Options for the Data Labeler Column.
@@ -507,20 +594,28 @@ class DataLabelerOptions(BaseColumnOptions):
         :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path=variable_path)
-        if self.data_labeler_dirpath and \
+        
+        if self.data_labeler_dirpath is not None and \
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
-        if self.data_labeler_object and \
+            
+        if self.data_labeler_object is not None and \
                 not isinstance(self.data_labeler_object, BaseDataLabeler):
             errors.append("{}.data_labeler_object must be a BaseDataLabeler "
                           "object."
                           .format(variable_path))
-        if self.data_labeler_object and self.data_labeler_dirpath:
+        if self.data_labeler_object is not None and \
+                self.data_labeler_dirpath is not None:
             warnings.warn("The data labeler passed in will be used,"
                           " not through the directory of the default model")
-        if self.max_sample_size and not isinstance(self.max_sample_size, int):
-            errors.append("{}.max_sample_size must be a string."
+            
+        if self.max_sample_size is not None and \
+                not isinstance(self.max_sample_size, int):
+            errors.append("{}.max_sample_size must be an integer."
+                          .format(variable_path))
+        elif self.max_sample_size is not None and self.max_sample_size <= 0:
+            errors.append("{}.max_sample_size must be greater than 0."
                           .format(variable_path))
         return errors
 
@@ -546,6 +641,7 @@ class StructuredOptions(BaseOption):
         :ivar data_labeler: option set for data_labeler profiling.
         :vartype data_labeler: DataLabelerOptions
         """
+        self.multiprocess = BooleanOption()
         self.int = IntOptions()
         self.float = FloatOptions()
         self.datetime = DateTimeOptions()
@@ -575,6 +671,7 @@ class StructuredOptions(BaseOption):
         errors = []
 
         prop_check = dict([
+            ('multiprocess', BooleanOption),
             ('int', IntOptions),
             ('float', FloatOptions),
             ('datetime', DateTimeOptions),

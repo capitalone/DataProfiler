@@ -270,7 +270,6 @@ class TestIntColumn(unittest.TestCase):
             min=2.0,
             max=6.0,
             mean=4.0,
-            median=None,
             variance=8.0,
             stddev=np.sqrt(8.0),
             histogram={
@@ -502,3 +501,15 @@ class TestIntColumn(unittest.TestCase):
                                    "IntColumn parameter 'options' must be of"
                                    " type IntOptions."):
             profiler = IntColumn("Int", options="wrong_data_type")
+
+    def test_histogram_option_integration(self):
+        options = IntOptions()
+        options.histogram_and_quantiles.method = "sturges"
+        num_profiler = IntColumn(name="test", options=options)
+        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
+
+        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        num_profiler = IntColumn(name="test2", options=options)
+        self.assertIsNone(num_profiler.histogram_selection)
+        self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)

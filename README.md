@@ -18,9 +18,9 @@ print(data.data.head(5)) # Access data directly via a compatible Pandas DataFram
 
 profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 
-human_readable_report = profile.report(report_options={"output_format":"pretty"})
+readable_report = profile.report(report_options={"output_format":"pretty"})
 
-print(json.dumps(human_readable_report, indent=4))
+print(json.dumps(readable_report, indent=4))
 ```
 
 To install the full package from pypi: `pip install DataProfiler[ml]`
@@ -77,13 +77,13 @@ The format for a profile is below:
 "global_stats": {
     "samples_used": int,
     "column_count": int,
-    "unique_row_ratio": float,
+    "row_count": int,
     "row_has_null_ratio": float,
+    "row_is_null_ratio": float,    
+    "unique_row_ratio": float,
     "duplicate_row_count": int,
     "file_type": string,
     "encoding": string,
-    "data_classification": [null, string],
-    "covariance": [null, float],
 },
 "data_stats": {
     <column name>: {
@@ -92,7 +92,7 @@ The format for a profile is below:
         "data_label": string,
         "categorical": bool,
         "order": string,
-        "samples": list(str),
+	"samples": list(str),
         "statistics": {
             "sample_size": int,
             "null_count": int,
@@ -101,18 +101,14 @@ The format for a profile is below:
                 string: list(int)
             },
             "data_type_representation": string,
-            "data_label_probability": {
-              string: float
-            },
             "min": [null, float],
             "max": [null, float],
             "mean": float,
-            "median": null,  
             "variance": float,
             "stddev": float,
             "histogram": { 
                 "bin_counts": list(int),
-                "bin_edges": list(float),
+		"bin_edges": list(float),
             },
             "quantiles": {
                 int: float
@@ -229,7 +225,7 @@ If you see:
 ```
  ERROR: Double requirement given:dataprofiler==X.Y.Z from dataprofiler/dist/DataProfiler-X.Y.Z-py3-none-any.whl (already in dataprofiler==X2.Y2.Z2 from dataprofiler/dist/DataProfiler-X2.Y2.Z2-py3-none-any.whl, name='dataprofiler')
  ```
-This means that you have an multiple versions of the DataProfiler distribution 
+This means that you have multiple versions of the DataProfiler distribution 
 in the dist folder.
 To resolve, either remove the older one or delete the folder and rerun the steps
  above.
@@ -249,23 +245,23 @@ pip3 install -r requirements-test.txt
 
 To run all unit tests, use:
 ```
-python3 -m unittest discover -p "test*.py"
+DATAPROFILER_SEED=0 python3 -m unittest discover -p "test*.py"
 ```
 
 To run file of unit tests, use form:
 
 ```
-python3 -m unittest discover -p test_profile_builder.py
+DATAPROFILER_SEED=0 python3 -m unittest discover -p test_profile_builder.py
 ```
 
 To run a file with Pytest use:
 ```
-pytest dataprofiler/tests/data_readers/test_csv_data.py -v
+DATAPROFILER_SEED=0 pytest dataprofiler/tests/data_readers/test_csv_data.py -v
 ```
 
 To run individual of unit test, use form:
 ```
-python3 -m unittest dataprofiler.tests.profilers.test_profile_builder.TestProfiler
+DATAPROFILER_SEED=0 python3 -m unittest dataprofiler.tests.profilers.test_profile_builder.TestProfiler
 ```
 
 # Get Started
@@ -413,18 +409,11 @@ print(json.dumps(profile.report(report_options={"output_format":"pretty"}), inde
 
 # Profile Options
 
-Currently, the data profiler may accept several options to toggle on and off 
+The data profiler accepts several options to toggle on and off 
 features. The 8 columns (int options, float options, datetime options,
 text options, order options, category options, data labeler options) can be 
-enabled or disabled. The int options, float options, and text options have
-statistical properties that can be toggled which are "histogram_and_quantiles",
-"min", "max", "sum", and "variance." Toggle on and off vocabulary in
-text options with the "vocab" property. Toggle on and off float precision in
-float options with the "precision" property. Set the data labeler directory path
-in the data labeler options with the "data_labeler_dirpath" property. Set the
-max sample size in the data labeler options with the "max_sample_size" property.
-Below is an example of how to alter these options. By default, all options are 
-toggled on.
+enabled or disabled. By default, all options are toggled on. Below is an example
+of how to alter these options. 
 
 ```python
 import json
@@ -462,6 +451,83 @@ report  = profile.report(report_options={"output_format":"pretty"})
 print(json.dumps(report, indent=4))
 ```
 
+Below is an breakdown of all the options.
+
+* ProfilerOptions - The top-level options class that contains everything else
+    * structured_options - Options responsible for all structured data
+        * int - Options for the integer columns
+            * is_enabled - (Boolean) Enables or disables the integer operations
+            * min - Finds minimum value in a column
+                * is_enabled - (Boolean) Enables or disables min
+            * max - Finds maximum value in a column
+                * is_enabled - (Boolean) Enables or disables max
+            * sum - Finds sum of all values in a column
+                * is_enabled - (Boolean) Enables or disables sum
+            * variance - Finds variance of all values in a column
+                * is_enabled - (Boolean) Enables or disables variance
+            * histogram_and_quantiles - Generates a histogram and quantiles
+            from the column values
+                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                If left unspecified (None) the optimal method will be chosen by attempting all methods.  
+                If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
+                methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
+                Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
+                * is_enabled - (Boolean) Enables or disables histogram and quantiles
+        * float - Options for the float columns
+            * is_enabled - (Boolean) Enables or disables the float operations
+            * precision - Finds the lowest common denominator of float precision
+                * is_enabled - (Boolean) Enables or disables precision
+            * min - Finds minimum value in a column
+                * is_enabled - (Boolean) Enables or disables min
+            * max - Finds maximum value in a column
+                * is_enabled - (Boolean) Enables or disables max
+            * sum - Finds sum of all values in a column
+                * is_enabled - (Boolean) Enables or disables sum
+            * variance - Finds variance of all values in a column
+                * is_enabled - (Boolean) Enables or disables variance
+            * histogram_and_quantiles - Generates a histogram and quantiles
+            from the column values
+                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                If left unspecified (None) the optimal method will be chosen by attempting all methods.  
+                If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
+                methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
+                Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
+                * is_enabled - (Boolean) Enables or disables histogram and quantiles        
+        * text - Options for the text columns
+            * is_enabled - (Boolean) Enables or disables the text operations
+            * vocab - Finds all the unique characters used in a column
+                * is_enabled - (Boolean) Enables or disables vocab
+            * min - Finds minimum value in a column
+                * is_enabled - (Boolean) Enables or disables min
+            * max - Finds maximum value in a column
+                * is_enabled - (Boolean) Enables or disables max
+            * sum - Finds sum of all values in a column
+                * is_enabled - (Boolean) Enables or disables sum
+            * variance - Finds variance of all values in a column
+                * is_enabled - (Boolean) Enables or disables variance
+            * histogram_and_quantiles - Generates a histogram and quantiles
+            from the column values
+                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                If left unspecified (None) the optimal method will be chosen by attempting all methods.  
+                If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
+                methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
+                Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
+                * is_enabled - (Boolean) Enables or disables histogram and quantiles  
+        * datetime - Options for the datetime columns
+            * is_enabled - (Boolean) Enables or disables the datetime operations
+        * order - Options for the order columns
+            * is_enabled - (Boolean) Enables or disables the order operations
+        * category- Options for the category columns
+            * is_enabled  - (Boolean) Enables or disables the category operations
+        * data_labeler - Options for the data labeler columns
+            * is_enabled - (Boolean) Enables or disables the data labeler operations
+            * data_labeler_dirpath - (String) Directory path to data labeler
+            * data_labeler_object - (BaseDataLabeler) Datalabeler to replace 
+            the default labeler 
+            * max_sample_size - (Int) The max number of samples for the data 
+            labeler
+
+
 #### Statistical Dependency on Order of Updates
 
 Some profile features/statistics are dependent on the order in which the profiler
@@ -494,14 +560,16 @@ batch_2 = [1, 2, 3] # notice how the first value is less than the last value in 
 For every profile, we can provide a report and customize it with a couple optional parameters:
 * output_format (string)
   * This will allow the user to decide the output format for report.
-    * Options are one of [pretty, serializable, flat] (case insensitive):
+    * Options are one of [pretty, compact, serializable, flat]:
       * Pretty: floats are rounded to four decimal places, and lists are shortened.
+      * Compact: Similar to pretty, but removes detailed statistics such as runtimes, label probabilities, index locations of null types, etc.
       * Serializable: Output is json serializable and not prettified
       * Flat: Nested output is returned as a flattened dictionary
 * num_quantile_groups (int)
   * You can sample your data as you like! With a minimum of one and a maximum of 1000, you can decide the number of quantile groups!
 ```python
 report  = profile.report(report_options={"output_format": "pretty"})
+report  = profile.report(report_options={"output_format": "compact"})
 report  = profile.report(report_options={"output_format": "serializable"})
 report  = profile.report(report_options={"output_format": "flat"})
 ```
@@ -906,7 +974,7 @@ need an override.
 
 # Updating Documentation  
 To update the docs branch, checkout the gh-pages branch. Make sure it is up to
-date, then copy the dataprofiler folder from the feature branch you want to 
+date, then copy the `dataprofiler` folder from the feature branch you want to 
 update the documentation with (probably master).
 
 In /docs run:

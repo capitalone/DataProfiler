@@ -9,11 +9,15 @@ from . import OrderColumn, CategoricalColumn
 from . import DataLabelerColumn
 from .profiler_options import StructuredOptions
 
+import multiprocessing as mp
 
 class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = list()
+
+    def __repr__(self):
+        return self.__class__.__name__
 
     def __init__(self, df_series, options=None):
         if not self._profilers:
@@ -40,42 +44,94 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         :rtype: None
         """
 
+        if len(self._profilers) == 0:
+            return
+
         # convert all the values to string
         df_series = df_series.apply(str)
-        
+
+        multiprocess_flag = True
         selected_col_profiles = None
         if options and isinstance(options, StructuredOptions):
             selected_col_profiles = options.enabled_columns
+            multiprocess_flag = options.multiprocess.is_enabled
+
+
+        single_process_list = []
+        multi_process_dict = {}
+        if multiprocess_flag: # only create pool when necessary
+            pool = mp.Pool(len(self._profilers))
 
         for col_profile_type in self._profilers:
+            
             # Create profile if options allow for it or if there are no options
             if selected_col_profiles is None or \
-                    col_profile_type.col_type in selected_col_profiles:
-                col_profile_options = None
+               col_profile_type.col_type in selected_col_profiles:
+
+                col_options = None
                 if options and options.properties[col_profile_type.col_type]:
-                    col_profile_options = options.properties[col_profile_type.col_type]
-
-                try:
-                    self._profiles[col_profile_type.col_type] = \
-                        col_profile_type(df_series.name, options=col_profile_options)
-                    self._profiles[col_profile_type.col_type].update(df_series)
-                except Exception as e:
-                    import warnings
-                    warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
-                    warning_msg += "Profiling Type: {}".format(col_profile_type.col_type)
-                    warning_msg += "\nException: {}".format(type(e).__name__)
-                    warning_msg += "\nMessage: {}".format(e)
-
-                    # This is considered a major error
-                    if type(e).__name__ == "ValueError":
-                        raise ValueError(e)
+                    col_options = options.properties[col_profile_type.col_type]
                     
-                    warning_msg += "\n\nFor labeler errors, try installing "
-                    warning_msg += "the extra ml requirements via:\n\n"
-                    warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+                self._profiles[col_profile_type.col_type] = \
+                    col_profile_type(df_series.name, options=col_options)
+                
+                # MULTIPROCESSING
+                single_process_flag = True
+                if multiprocess_flag:
+                    single_process_flag = False
+                    try:
+                        # Add update function to be applied on the pool
+                        f = pool.apply_async(
+                            self._profiles[col_profile_type.col_type].update,
+                            (df_series,))
+                        multi_process_dict[col_profile_type.col_type] = f
+                    except Exception as e:
+                        # Occurs when object cannot be pickled
+                        single_process_flag = True
 
-                    warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
+                # Add to single process list to execute later
+                if single_process_flag:
+                    single_process_list.append(col_profile_type.col_type)
+
+        # Loop through remaining multiprocesses and close them out
+        if multiprocess_flag:
+            for col in multi_process_dict.keys():
+                try:
+                    f = multi_process_dict[col]
+                    returned_profile = f.get()
+                    if returned_profile is not None:
+                        self._profiles[col] = returned_profile                
+                except Exception as e:
+                    # Attempt again as a single process
+                    single_process_list.append(col_profile_type.col_type)
+
+            # Close pool for new tasks  
+            pool.close()
             
+            # Wait for all workers to complete
+            pool.join()
+
+
+        # Single process thread to loop through
+        for col_profile_type in single_process_list:
+            try:
+                self._profiles[col_profile_type].update(df_series)
+            except Exception as e:
+                import warnings
+                warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
+                warning_msg += "Profiling Type: {}".format(col_profile_type)
+                warning_msg += "\nException: {}".format(type(e).__name__)
+                warning_msg += "\nMessage: {}".format(e)
+
+                # This is considered a major error
+                if type(e).__name__ == "ValueError":
+                    raise ValueError(e)
+            
+                warning_msg += "\n\nFor labeler errors, try installing "
+                warning_msg += "the extra ml requirements via:\n\n"
+                warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+                
+                warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
 
     def __add__(self, other):
         """
@@ -115,11 +171,12 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         """
         df_series = df_series.apply(str)
         for column_profile in self._profiles:
-            self._profiles[column_profile].update(df_series)
+            self._profiles[column_profile].update(df_series)            
+        return self
 
 
 class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
-
+    
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
         DateTimeColumn,
@@ -136,7 +193,9 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
             "statistics": dict()
         }
         has_found_match = False
+        
         for _, profiler in self._profiles.items():
+
             if not has_found_match and profiler.data_type_ratio == 1.0:
                 profile.update(
                     {

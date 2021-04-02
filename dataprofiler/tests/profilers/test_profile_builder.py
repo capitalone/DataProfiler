@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-
 import unittest
 from unittest import mock
 import random
@@ -19,7 +18,7 @@ from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
     ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler
-
+from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -41,6 +40,7 @@ class TestProfiler(unittest.TestCase):
         profiler_options.set({'data_labeler.is_enabled': False})
         cls.trained_schema = dp.Profiler(cls.aws_dataset, len(cls.aws_dataset),
                                          profiler_options=profiler_options)
+
 
     @mock.patch('dataprofiler.profilers.column_profile_compilers.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -84,7 +84,7 @@ class TestProfiler(unittest.TestCase):
             "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type)
         self.assertEqual(2, merged_profile.row_has_null_count)
         self.assertEqual(2, merged_profile.row_is_null_count)
-        self.assertEqual(6, merged_profile.rows_ingested)
+        self.assertEqual(6, merged_profile.total_samples)
         self.assertEqual(5, len(merged_profile.hashed_row_dict))
 
         # test success if drawn from multiple files
@@ -96,23 +96,22 @@ class TestProfiler(unittest.TestCase):
 
     def test_correct_unique_row_ratio_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))
-        self.assertEqual(2999, self.trained_schema.rows_ingested)
+        self.assertEqual(2999, self.trained_schema.total_samples)
         self.assertEqual(1.0, self.trained_schema._get_unique_row_ratio())
 
     def test_correct_rows_ingested(self):
         self.assertEqual(2999, self.trained_schema.total_samples)
-        self.assertEqual(2999, self.trained_schema.rows_ingested)
 
     def test_correct_null_row_ratio_test(self):
         self.assertEqual(2999, self.trained_schema.row_has_null_count)
         self.assertEqual(1.0, self.trained_schema._get_row_has_null_ratio())
         self.assertEqual(0, self.trained_schema.row_is_null_count)
         self.assertEqual(0, self.trained_schema._get_row_is_null_ratio())
-        self.assertEqual(2999, self.trained_schema.rows_ingested)
+        self.assertEqual(2999, self.trained_schema.total_samples)
 
     def test_correct_duplicate_row_count_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))
-        self.assertEqual(2999, self.trained_schema.rows_ingested)
+        self.assertEqual(2999, self.trained_schema.total_samples)
         self.assertEqual(0.0, self.trained_schema._get_duplicate_row_count())
 
     def test_correct_datatime_schema_test(self):
@@ -167,9 +166,9 @@ class TestProfiler(unittest.TestCase):
         self.assertListEqual(
             list(report['global_stats']),
             [
-                "total_samples", "samples_used", "column_count", "unique_row_ratio",
-                "row_has_null_ratio", 'row_is_null_ratio', "duplicate_row_count",
-                "file_type", "encoding", "data_classification", "covariance"
+                "samples_used", "column_count", "row_count", 
+                "row_has_null_ratio", 'row_is_null_ratio',
+                "unique_row_ratio", "duplicate_row_count", "file_type", "encoding"
             ]
         )
         flat_report = self.trained_schema.report(report_options={"output_format":"flat"})
@@ -200,6 +199,35 @@ class TestProfiler(unittest.TestCase):
             1: report2_1000_quant[499],
             2: report2_1000_quant[749],
         })
+
+    def test_report_omit_keys(self):
+        omit_keys = [ 'global_stats', 'data_stats' ]
+                
+        report_omit_keys = self.trained_schema.report(
+            report_options={ "omit_keys": omit_keys })
+        
+        self.assertCountEqual({}, report_omit_keys)
+
+
+    def test_report_compact(self):
+        report = self.trained_schema.report(
+            report_options={ "output_format": "pretty" })
+        omit_keys = [
+            "data_stats.*.statistics.times",
+            "data_stats.*.statistics.avg_predictions",
+            "data_stats.*.statistics.data_label_representation",
+            "data_stats.*.statistics.null_types_index",
+            "data_stats.*.statistics.histogram"
+        ]
+
+        report = _prepare_report(report, 'pretty', omit_keys)
+        
+        report_compact = self.trained_schema.report(
+            report_options={"output_format": "compact" })
+
+        self.assertEqual(report, report_compact)        
+        
+        
 
     def test_profile_key_name_without_space(self):
 
@@ -411,10 +439,9 @@ class TestStructuredDataProfileClass(unittest.TestCase):
                 min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
-        self.assertDictEqual(
-            {'sample': ['4.0', '6.0', '3.0'], 'sample_size': 5, 'null_count': 2,
-             'null_types': dict(nan=['e', 'b'])},
-            base_stats)
+        self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
+                               'sample_size': 5, 'null_count': 2,
+                               'null_types': dict(nan=['e', 'b'])}, base_stats)            
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
@@ -445,6 +472,9 @@ class TestStructuredDataProfileClass(unittest.TestCase):
 
 
 class TestProfilerNullValues(unittest.TestCase):
+
+    def setUp(self):
+        test_utils.set_seed(0)
 
     def test_correct_rows_ingested(self):
         test_dict = {
@@ -486,6 +516,47 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(13/24, profile._get_row_has_null_ratio())
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(3/24, profile._get_row_is_null_ratio())
+
+
+    def test_null_in_file(self):
+        filename_null_in_file = os.path.join(
+            test_root_path, 'data', 'csv/sparse-first-and-last-column.txt')
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        data = dp.Data(filename_null_in_file)
+        profile = dp.Profiler(data, profiler_options=profiler_options)
+
+        report = profile.report(report_options={"output_format":"pretty"})
+        
+        self.assertEqual(
+            report['data_stats']['COUNT']['statistics']['null_types_index'],
+            {'': '[2, 3, 4, 5, 7, 8]'}
+        )
+        
+        self.assertEqual(
+            report['data_stats'][' NUMBERS']['statistics']['null_types_index'],
+            {'': '[5, 6, 8]', ' ': '[2, 4]'}
+        )
+
+    def test_correct_total_sample_size_and_counts(self):
+        file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
+        data = pd.read_csv(file_path)
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        # Profile Once
+        profile = dp.Profiler(data, profiler_options=profiler_options, samples_per_update=2)
+        # Profile Twice
+        profile.update_profile(data)
+        
+        self.assertEqual(16, profile.total_samples)
+        self.assertEqual(4, profile._max_col_samples_used)
+        self.assertEqual(2, profile.row_has_null_count)
+        self.assertEqual(0.5, profile._get_row_has_null_ratio())
+        self.assertEqual(2, profile.row_is_null_count)
+        self.assertEqual(0.5, profile._get_row_is_null_ratio())
+        self.assertEqual(0.4375, profile._get_unique_row_ratio())
+        self.assertEqual(9, profile._get_duplicate_row_count())
+
 
 if __name__ == '__main__':
     unittest.main()

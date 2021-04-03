@@ -95,6 +95,7 @@ class StructuredDataProfile(object):
         if options and isinstance(options, StructuredOptions):
             use_data_labeler = options.data_labeler.is_enabled
 
+        # TODO: Document pool, can't pool this anyway
         if use_data_labeler:
             self.profiles.update({
                 'data_label_profile':

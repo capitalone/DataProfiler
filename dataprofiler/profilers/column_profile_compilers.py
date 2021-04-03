@@ -19,7 +19,8 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
     def __repr__(self):
         return self.__class__.__name__
 
-    def __init__(self, df_series, options=None):
+    # TODO: Document pool
+    def __init__(self, df_series, options=None, pool=None):
         if not self._profilers:
             raise NotImplementedError("Must add profilers.")
 
@@ -160,7 +161,8 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
             )
         return merged_profile_compiler
 
-    def update_profile(self, df_series):
+    # TODO: Document pool
+    def update_profile(self, df_series, pool=None):
         """
         Initializes the profiles the column dataframe.
         

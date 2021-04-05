@@ -30,7 +30,6 @@ from .profiler_options import ProfilerOptions, StructuredOptions, \
 
 class StructuredDataProfile(object):
 
-    # TODO: Document pool
     def __init__(self, df_series, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
                  sample_ids=None, pool=None, options=None):
@@ -46,6 +45,8 @@ class StructuredDataProfile(object):
         :type min_true_samples: int
         :param sample_ids: Randomized list of sample indices
         :type sample_ids: list(list)
+        :param pool: pool utilized for multiprocessing
+        :type pool: multiprocessing.Pool
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
@@ -201,6 +202,7 @@ class StructuredDataProfile(object):
             return a
         return list(OrderedDict.fromkeys(a + b))
 
+    
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
         self.sample = base_stats["sample"]
@@ -215,10 +217,24 @@ class StructuredDataProfile(object):
             self.null_types_index.setdefault(null_type, set()).update(null_rows)
 
 
-    # TODO: Document pool            
     def update_profile(self, df_series, sample_size=None,
                        min_true_samples=None, sample_ids=None,
                        pool=None):
+        """
+        Update the column profiler
+        
+        :param df_series: Data to be profiled
+        :type df_series: pandas.core.series.Series
+        :param sample_size: Number of samples to use in generating profile
+        :type sample_size: int
+        :param min_true_samples: Minimum number of samples required for the
+            profiler
+        :type min_true_samples: int
+        :param sample_ids: Randomized list of sample indices
+        :type sample_ids: list(list)
+        :param pool: pool utilized for multiprocessing
+        :type pool: multiprocessing.Pool        
+        """
         if not sample_size:
             sample_size = len(df_series)
         if not sample_size:
@@ -232,7 +248,6 @@ class StructuredDataProfile(object):
         self._update_base_stats(base_stats)
 
         # Profile compilers being updated
-        # TODO: Document pool
         for profile in self.profiles.values():
             profile.update_profile(clean_sampled_df, pool)
 
@@ -631,6 +646,7 @@ class Profiler(object):
         # Shuffle indices ones and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
 
+        pool = None
         if options.structured_options.multiprocess.is_enabled:
             cpu_count = 1
             try:
@@ -661,7 +677,7 @@ class Profiler(object):
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,
-                    pool=pool, # TODO
+                    pool=pool,
                     options=structured_options
                 )
 

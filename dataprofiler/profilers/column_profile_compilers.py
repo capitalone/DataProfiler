@@ -20,7 +20,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
     def __repr__(self):
         return self.__class__.__name__
 
-    # TODO: Document pool
     def __init__(self, df_series, options=None, pool=None):
         if not self._profilers:
             raise NotImplementedError("Must add profilers.")
@@ -104,13 +103,14 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         return merged_profile_compiler
 
 
-    # TODO: Document pool
     def update_profile(self, df_series, pool=None):
         """
         Updates the profiles from the data frames
         
         :param df_series: a given column
         :type df_series: pandas.core.series.Series
+        :param pool: pool to utilized for multiprocessing
+        :type pool: multiprocessing.Pool
         :return: Self
         :rtype: BaseColumnProfileCompiler
         """

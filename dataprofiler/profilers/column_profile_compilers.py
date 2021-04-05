@@ -123,10 +123,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         # If single process, loop and return
         if not self.multiprocess_flag:
             for col_profile in self._profiles:
-                try:
-                    self._profiles[col_profile].update(df_series)
-                except Exception as e:
-                    utils.warn_on_profile(col_profile, e)
+                self._profiles[col_profile].update(df_series)
             return self
         
         # If multiprocess, setup pool, etc
@@ -156,10 +153,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         
         # Single process thread to loop through
         for col_profile in single_process_list:
-            try:
-                self._profiles[col_profile].update(df_series)
-            except Exception as e:
-                utils.warn_on_profile(col_profile, e)
+            self._profiles[col_profile].update(df_series)
                 
         return self
 

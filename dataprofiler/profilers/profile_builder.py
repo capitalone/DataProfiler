@@ -81,7 +81,6 @@ class StructuredDataProfile(object):
                 df_series, sample_size, sample_ids=sample_ids)
         self._update_base_stats(base_stats)
 
-        # TODO: Document pool
         self.profiles = {
             'data_type_profile':
             ColumnPrimitiveTypeProfileCompiler(

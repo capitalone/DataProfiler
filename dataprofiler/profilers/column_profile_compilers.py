@@ -132,17 +132,17 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         
         # Spin off seperate processes, where possible
         for col_profile in self._profiles:
-            single_thread_flag = (not self._profiles[col_profile].thread_safe)
-
+            
             if self._profiles[col_profile].thread_safe:
+                
                 try: # Add update function to be applied on the pool
                     multi_process_dict[col_profile] = pool.apply_async(
                         self._profiles[col_profile].update, (df_series,))
                 except Exception as e: # Attempt again as a single process
-                    single_thread_flag = True
+                    self._profiles[col_profile].thread_safe = False
                     multi_process_dict.pop(col_profile, None) # On error
                 
-            if single_thread_flag:
+            if not self._profiles[col_profile].thread_safe:                
                 single_process_list.append(col_profile)
 
         # Single process thread to loop through any known unsafe

@@ -300,7 +300,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     encoding = detector.result["encoding"]
 
     # Typical file representation is utf-8 instead of ascii, treat as such.
-    if not encoding or encoding == 'ascii':
+    if not encoding or encoding == 'ascii' or encoding == 'Windows-1254':
         encoding = 'utf-8'
 
     # Check if encoding can be used to decode without throwing an error
@@ -337,8 +337,6 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
 
         except:
             print("Install charset_normalizer for improved file encoding detection")
-            if encoding == 'Windows-1254':
-                encoding = "utf-8"
 
     # If no encoding is still found, default to utf-8
     if not encoding:

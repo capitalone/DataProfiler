@@ -1,3 +1,4 @@
+import re
 import numpy as np
 
 from .numerical_column_stats import NumericStatsMixin
@@ -108,36 +109,12 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if not len(df_series_clean):
             return 0
 
-        # set it to first value length, at very least will be smaller since min.
-        precision = len(df_series_clean.iloc[0])
-        for value in df_series_clean:
-
-            # remove all spaces around value
-            value = value.strip()
-
-            # if scientific notation, remove e and everything after
-            e_ind = value.find('e')
-            if e_ind > -1:
-                value = value[:e_ind]
-
-            # remove negative of positive characters
-            if value[0] in ['+', '-']:
-                value = value[1:]
-
-            # if int: remove 0s on right, otherwise if float remove the decimal.
-            if '.' not in value:
-                value = value.rstrip('0')
-            else:
-                value = value.replace('.', '')
-
-            # strip all zeros on left
-            value = value.lstrip('0')
-            temp_precision = len(value)
-
-            # take the minimum precision
-            if temp_precision < precision:
-                precision = temp_precision
-        return precision
+        # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$)
+        # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
+        r = re.compile(r'^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D')
+        
+        return df_series_clean.replace(to_replace=r, value='').map(len).min()
+        
 
     @classmethod
     def _is_each_row_float(cls, df_series):

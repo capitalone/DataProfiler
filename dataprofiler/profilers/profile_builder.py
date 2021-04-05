@@ -392,11 +392,6 @@ class Profiler(object):
         self._min_true_samples = min_true_samples
         self._profile = dict()
 
-
-        # Always start with an empty pool
-        self.pool = None
-        
-
         if isinstance(data, data_readers.text_data.TextData):
             raise TypeError("Cannot provide TextData object to Profiler")
 
@@ -636,15 +631,16 @@ class Profiler(object):
         # Shuffle indices ones and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
 
-        if profile_options.structured_options.multiprocess.is_enabled:
+        if options.structured_options.multiprocess.is_enabled:
             cpu_count = 1
             try:
                 cpu_count = mp.cpu_count()
             except NotImplementedError as e:
                 cpu_count = 1
-                
-            self.pool = mp.Pool(max(cpu_count-2)
-            
+
+            # No additional advantage beyond 8 processes
+            # Always leave 2 cores free
+            pool = mp.Pool(min(max(cpu_count-2, 1), 8))            
         
         for col in tqdm(df.columns):
             if col in profile:
@@ -654,7 +650,7 @@ class Profiler(object):
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,
-                    pool=self.pool # TODO
+                    pool=pool
                 )
             else:
                 structured_options = None
@@ -665,9 +661,13 @@ class Profiler(object):
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,
-                    pool=self.pool, # TODO
+                    pool=pool, # TODO
                     options=structured_options
                 )
 
+        if pool is not None:
+            pool.close() # Close pool for new tasks
+            pool.join() # Wait for all workers to complete
+            
         return profile
 

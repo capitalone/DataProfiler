@@ -111,7 +111,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
         # Lead zeros: ^[+-.0 \t\n]+ End zeross: \.?0+([ \n\t]|$)
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
-        r =re.compile('^[+-.0 \t\n]+|\.?0+([ \n\t]|$)|(?<=[e])(.*)|\D')
+        r = re.compile('^[+-.0 \t\n]+|\.?0+([ \n\t]|$)|(?<=[e])(.*)|\D')
         
         return df_series_clean.replace(to_replace=r, value='').map(len).min()
         

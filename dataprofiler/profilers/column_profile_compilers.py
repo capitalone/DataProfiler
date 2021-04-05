@@ -20,14 +20,13 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
     def __repr__(self):
         return self.__class__.__name__
 
-    def __init__(self, df_series, options=None):
+    def __init__(self, df_series, options=None, pool=None):
         if not self._profilers:
             raise NotImplementedError("Must add profilers.")
 
         self.name = df_series.name
-        self.multiprocess_flag = True
         self._profiles = OrderedDict()
-        self._create_profile(df_series, options)
+        self._create_profile(df_series, options, pool)
 
         
     @property
@@ -36,7 +35,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         raise NotImplementedError()
 
     
-    def _create_profile(self, df_series, options=None):
+    def _create_profile(self, df_series, options=None, pool=None):
         """
         Initializes and evaluates all profilers for the given dataframe.
         
@@ -54,7 +53,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         selected_col_profiles = None
         if options and isinstance(options, StructuredOptions):
             selected_col_profiles = options.enabled_columns
-            self.multiprocess_flag = options.multiprocess.is_enabled
 
         # Create profiles
         for col_profile_type in self._profilers:
@@ -74,7 +72,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                     utils.warn_on_profile(col_profile_type.col_type, e)
 
         # Update profile after creation
-        self.update_profile(df_series)
+        self.update_profile(df_series, pool)
                         
 
     def __add__(self, other):
@@ -104,13 +102,15 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
             )
         return merged_profile_compiler
 
-    
-    def update_profile(self, df_series):
+
+    def update_profile(self, df_series, pool=None):
         """
         Updates the profiles from the data frames
         
         :param df_series: a given column
         :type df_series: pandas.core.series.Series
+        :param pool: pool to utilized for multiprocessing
+        :type pool: multiprocessing.Pool
         :return: Self
         :rtype: BaseColumnProfileCompiler
         """
@@ -121,7 +121,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         df_series = df_series.apply(str)
                 
         # If single process, loop and return
-        if not self.multiprocess_flag:
+        if pool is None:
             for col_profile in self._profiles:
                 self._profiles[col_profile].update(df_series)
             return self
@@ -129,27 +129,36 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         # If multiprocess, setup pool, etc
         single_process_list = []
         multi_process_dict = {}
-        pool = mp.Pool(len(self._profilers))
         
         # Spin off seperate processes, where possible
         for col_profile in self._profiles:
-            try: # Add update function to be applied on the pool
-                multi_process_dict[col_profile] = pool.apply_async(
-                    self._profiles[col_profile].update, (df_series,))
-            except Exception as e: # Attempt again as a single process
+            
+            if self._profiles[col_profile].thread_safe:
+                
+                try: # Add update function to be applied on the pool
+                    multi_process_dict[col_profile] = pool.apply_async(
+                        self._profiles[col_profile].update, (df_series,))
+                except Exception as e: # Attempt again as a single process
+                    self._profiles[col_profile].thread_safe = False
+                    multi_process_dict.pop(col_profile, None) # On error
+                
+            if not self._profiles[col_profile].thread_safe:                
                 single_process_list.append(col_profile)
+
+        # Single process thread to loop through any known unsafe
+        for col_profile in single_process_list:
+            self._profiles[col_profile].update(df_series)
                 
         # Loop through remaining multiprocesses and close them out
+        single_process_list = []
         for col_profile in multi_process_dict.keys():
             try:
                 returned_profile = multi_process_dict[col_profile].get()
                 if returned_profile is not None:
                     self._profiles[col_profile] = returned_profile
             except Exception as e: # Attempt again as a single process
-                single_process_list.append(col_profile)
-                
-        pool.close() # Close pool for new tasks  
-        pool.join() # Wait for all workers to complete
+                self._profiles[col_profile].thread_safe = False            
+                single_process_list.append(col_profile)                
         
         # Single process thread to loop through
         for col_profile in single_process_list:

@@ -43,6 +43,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         self.sample_size = 0
         self.metadata = dict()
         self.times = defaultdict(float)
+        self.thread_safe = True
 
     @staticmethod
     def _combine_unique_sets(a, b):  # TODO: Not needed for data labeling

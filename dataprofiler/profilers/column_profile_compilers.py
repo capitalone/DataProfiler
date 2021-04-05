@@ -121,7 +121,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         df_series = df_series.apply(str)
                 
         # If single process, loop and return
-        if pool is not None:
+        if pool is None:
             for col_profile in self._profiles:
                 self._profiles[col_profile].update(df_series)
             return self

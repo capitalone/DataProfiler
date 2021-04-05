@@ -157,6 +157,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                 if returned_profile is not None:
                     self._profiles[col_profile] = returned_profile
             except Exception as e: # Attempt again as a single process
+                self._profiles[col_profile].thread_safe = False            
                 single_process_list.append(col_profile)                
         
         # Single process thread to loop through

@@ -71,7 +71,9 @@ class CategoricalColumn(BaseColumnProfiler):
             times=self.times
         )
         if self.is_match:
-            profile["statistics"].update(dict(categories=self.categories))
+            profile["statistics"].update(
+                dict(categories=self.categories)
+            )
         return profile
 
     @property
@@ -104,6 +106,7 @@ class CategoricalColumn(BaseColumnProfiler):
         elif self.sample_size \
                 and self.unique_ratio <= self._CATEGORICAL_THRESHOLD_DEFAULT:
             is_match = True
+        
         return is_match
 
     @BaseColumnProfiler._timeit(name="categories")

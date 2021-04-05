@@ -1,3 +1,4 @@
+
 import os
 import collections
 import random
@@ -61,6 +62,10 @@ def shuffle_in_chunks(data_length, chunk_size):
     :param chunk_size: size of shuffled chunks
     :return: list of shuffled indices of chunk size
     """
+
+    if not data_length or data_length == 0 \
+       or not chunk_size or chunk_size == 0:
+        return []
     
     rng = np.random.default_rng()
     if 'DATAPROFILER_SEED' in os.environ:
@@ -69,6 +74,7 @@ def shuffle_in_chunks(data_length, chunk_size):
             rng = np.random.default_rng(seed_value)
         except ValueError as e:
             warnings.warn("Seed should be an integer", RuntimeWarning)
+
 
     indices = KeyDict()
     j = 0
@@ -100,3 +106,40 @@ def shuffle_in_chunks(data_length, chunk_size):
             j += 1
             
         yield values
+
+
+def warn_on_profile(col_profile, e):
+    """
+    Returns a warning if a given profile errors (tensorflow typcially)
+
+    :param col_profile: Name of the column profile
+    :type col_profile: str
+    :param e: Error message from profiler error
+    :type e: Exception
+    """
+    import warnings
+    warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
+    warning_msg += "Profiling Type: {}".format(col_profile)
+    warning_msg += "\nException: {}".format(type(e).__name__)
+    warning_msg += "\nMessage: {}".format(e)
+    # This is considered a major error 
+    if type(e).__name__ == "ValueError": raise ValueError(e)
+    warning_msg += "\n\nFor labeler errors, try installing "
+    warning_msg += "the extra ml requirements via:\n\n"
+    warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+    warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
+
+
+def partition(data, chunk_size):
+    """
+    Creates a generator which returns the data
+    in the specified chunk size.
+    
+    :param data: list, dataframe, etc
+    :type data: list, dataframe, etc
+    :param chunk_size: size of partition to return
+    :type chunk_size: int
+    """
+    for idx in range(0, len(data), chunk_size):
+        yield data[idx:idx+chunk_size]
+

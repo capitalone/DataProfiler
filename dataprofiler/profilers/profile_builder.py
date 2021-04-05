@@ -32,7 +32,7 @@ class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
-                 sample_ids=None, options=None):
+                 sample_ids=None, pool=None, options=None):
         """
         Instantiate the Structured Profiler class for a given column.
         
@@ -45,6 +45,8 @@ class StructuredDataProfile(object):
         :type min_true_samples: int
         :param sample_ids: Randomized list of sample indices
         :type sample_ids: list(list)
+        :param pool: pool utilized for multiprocessing
+        :type pool: multiprocessing.Pool
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
@@ -78,11 +80,14 @@ class StructuredDataProfile(object):
             self.get_base_props_and_clean_null_params(
                 df_series, sample_size, sample_ids=sample_ids)
         self._update_base_stats(base_stats)
+
         self.profiles = {
             'data_type_profile':
-            ColumnPrimitiveTypeProfileCompiler(clean_sampled_df, self.options),
+            ColumnPrimitiveTypeProfileCompiler(
+                clean_sampled_df, self.options, pool),
             'data_stats_profile':
-            ColumnStatsProfileCompiler(clean_sampled_df, self.options)
+            ColumnStatsProfileCompiler(
+                clean_sampled_df, self.options, pool)
         }
 
         use_data_labeler = True
@@ -196,6 +201,7 @@ class StructuredDataProfile(object):
             return a
         return list(OrderedDict.fromkeys(a + b))
 
+    
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
         self.sample = base_stats["sample"]
@@ -209,8 +215,25 @@ class StructuredDataProfile(object):
                 null_rows.sort()
             self.null_types_index.setdefault(null_type, set()).update(null_rows)
 
+
     def update_profile(self, df_series, sample_size=None,
-                       min_true_samples=None, sample_ids=None):
+                       min_true_samples=None, sample_ids=None,
+                       pool=None):
+        """
+        Update the column profiler
+        
+        :param df_series: Data to be profiled
+        :type df_series: pandas.core.series.Series
+        :param sample_size: Number of samples to use in generating profile
+        :type sample_size: int
+        :param min_true_samples: Minimum number of samples required for the
+            profiler
+        :type min_true_samples: int
+        :param sample_ids: Randomized list of sample indices
+        :type sample_ids: list(list)
+        :param pool: pool utilized for multiprocessing
+        :type pool: multiprocessing.Pool        
+        """
         if not sample_size:
             sample_size = len(df_series)
         if not sample_size:
@@ -222,9 +245,10 @@ class StructuredDataProfile(object):
                 sample_ids=sample_ids
             )
         self._update_base_stats(base_stats)
-            
+
+        # Profile compilers being updated
         for profile in self.profiles.values():
-            profile.update_profile(clean_sampled_df)
+            profile.update_profile(clean_sampled_df, pool)
 
 
     def _get_sample_size(self, df_series):
@@ -616,11 +640,23 @@ class Profiler(object):
             def tqdm(l):
                 for i, e in enumerate(l):
                     print("Processing Column {}/{}".format(i+1, len(l)))
-                    yield e
-
+                    yield e                    
 
         # Shuffle indices ones and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
+
+        pool = None
+        if options.structured_options.multiprocess.is_enabled:
+            cpu_count = 1
+            try:
+                cpu_count = mp.cpu_count()
+            except NotImplementedError as e:
+                cpu_count = 1
+
+            # No additional advantage beyond 8 processes
+            # Always leave 1 cores free
+            if cpu_count > 2:
+                pool = mp.Pool(min(cpu_count-1, 8))            
         
         for col in tqdm(df.columns):
             if col in profile:
@@ -629,7 +665,8 @@ class Profiler(object):
                     df[col],
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
-                    sample_ids=sample_ids
+                    sample_ids=sample_ids,
+                    pool=pool
                 )
             else:
                 structured_options = None
@@ -640,8 +677,13 @@ class Profiler(object):
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,
+                    pool=pool,
                     options=structured_options
                 )
 
+        if pool is not None:
+            pool.close() # Close pool for new tasks
+            pool.join() # Wait for all workers to complete
+            
         return profile
 

@@ -67,6 +67,8 @@ class DataLabelerColumn(BaseColumnProfiler):
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
 
+        self.thread_safe = False
+
     @staticmethod
     def assert_equal_conditions(data_labeler, data_labeler2):
         """

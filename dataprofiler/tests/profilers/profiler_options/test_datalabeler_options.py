@@ -1,5 +1,6 @@
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
-from dataprofiler.tests.profilers.profiler_options.test_base_column_options import TestBaseColumnOptions
+from dataprofiler.tests.profilers.profiler_options.test_base_column_options \
+     import TestBaseColumnOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 
 
@@ -23,7 +24,8 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         super().test_set()
     
     def test_validate_helper(self):
-        # Valid cases should return [] while invalid cases should return a list of errors
+        # Valid cases should return [] while invalid case
+        # should return a list of errors
         super().test_validate_helper()
         optpth = self.get_options_path() 
 
@@ -45,18 +47,21 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         # Test invalid dirpath
         options = self.get_options()
         options.set({'data_labeler_dirpath': 0})
-        expected_error = "{}.data_labeler_dirpath must be a string.".format(optpth)
+        expected_error = "{}.data_labeler_dirpath must be a string." \
+                         .format(optpth)
         self.assertEqual([expected_error], options._validate_helper())    
 
         # Test invalid sample size
         options = self.get_options()
         options.set({'max_sample_size': ''})
-        expected_error = "{}.max_sample_size must be an integer.".format(optpth)
+        expected_error = "{}.max_sample_size must be an integer." \
+                         .format(optpth)
         self.assertEqual([expected_error], options._validate_helper())    
         
         # Test max sample size less than or equal to 0
         options = self.get_options()
-        expected_error = "{}.max_sample_size must be greater than 0.".format(optpth)
+        expected_error = "{}.max_sample_size must be greater than 0." \
+                         .format(optpth)
         options.set({'max_sample_size': 0})
         self.assertEqual([expected_error], options._validate_helper())    
         options.set({'max_sample_size': -1})
@@ -64,12 +69,14 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
     
         # Test invalid data labeler object
         options = self.get_options()
-        expected_error = 'DataLabelerOptions.data_labeler_object must be a BaseDataLabeler object.'
+        expected_error = 'DataLabelerOptions.data_labeler_object must be a '\
+                         'BaseDataLabeler object.'
         options.set({'data_labeler_object': 0})
         self.assertEqual([expected_error], options._validate_helper())
 
     def test_validate(self):
-        # Valid cases should return None while invalid cases should return or throw a list of errors
+        # Valid cases should return None while invalid cases 
+        # should return or throw a list of errors
         super().test_validate()
         optpth = self.get_options_path() 
 
@@ -91,36 +98,46 @@ class TestDataLabelerOptions(TestBaseColumnOptions):
         # Test invalid dirpath
         options = self.get_options()
         options.set({'data_labeler_dirpath': 0})
-        expected_error = "{}.data_labeler_dirpath must be a string.".format(optpth)
-        self.assertEqual([expected_error], options.validate(raise_error=False))    
+        expected_error = "{}.data_labeler_dirpath must be a string." \
+                         .format(optpth)
+        self.assertEqual([expected_error], 
+                         options.validate(raise_error=False))    
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)
 
         # Test invalid sample size
         options = self.get_options()
         options.set({'max_sample_size': ''})
-        expected_error = "{}.max_sample_size must be an integer.".format(optpth)
-        self.assertEqual([expected_error], options.validate(raise_error=False))    
+        expected_error = "{}.max_sample_size must be an integer." \
+                         .format(optpth)
+        self.assertEqual([expected_error], 
+                         options.validate(raise_error=False))    
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)
 
         # Test max sample size less than or equal to 0
         options = self.get_options()
-        expected_error = "{}.max_sample_size must be greater than 0.".format(optpth)
+        expected_error = "{}.max_sample_size must be greater than 0." \
+                         .format(optpth)
         options.set({'max_sample_size': 0})
-        self.assertEqual([expected_error], options.validate(raise_error=False))    
+        self.assertEqual([expected_error], 
+                         options.validate(raise_error=False))    
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)
+
         options.set({'max_sample_size': -1})
-        self.assertEqual([expected_error], options.validate(raise_error=False))    
+        self.assertEqual([expected_error], 
+                         options.validate(raise_error=False))    
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)
     
         # Test invalid data labeler object
         options = self.get_options()
-        expected_error = 'DataLabelerOptions.data_labeler_object must be a BaseDataLabeler object.'
+        expected_error = 'DataLabelerOptions.data_labeler_object must be a ' \
+                         'BaseDataLabeler object.'
         options.set({'data_labeler_object': 0})
-        self.assertEqual([expected_error], options.validate(raise_error=False))    
+        self.assertEqual([expected_error], 
+                         options.validate(raise_error=False))
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)
 

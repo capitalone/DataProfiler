@@ -140,6 +140,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                         self._profiles[col_profile].update, (df_series,))
                 except Exception as e: # Attempt again as a single process
                     single_thread_flag = True
+                    multi_process_dict.pop(col_profile, None) # On error
                 
             if single_thread_flag:
                 single_process_list.append(col_profile)
@@ -149,6 +150,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
             self._profiles[col_profile].update(df_series)
                 
         # Loop through remaining multiprocesses and close them out
+        single_process_list = []
         for col_profile in multi_process_dict.keys():
             try:
                 returned_profile = multi_process_dict[col_profile].get()

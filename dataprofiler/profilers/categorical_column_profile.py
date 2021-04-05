@@ -101,12 +101,13 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         is_match = False
         unique = len(self._categories)
+        
         if unique <= self._MAXIMUM_UNIQUE_VALUES_TO_CLASSIFY_AS_CATEGORICAL:
             is_match = True
         elif self.sample_size \
                 and self.unique_ratio <= self._CATEGORICAL_THRESHOLD_DEFAULT:
             is_match = True
-        
+            
         return is_match
 
     @BaseColumnProfiler._timeit(name="categories")

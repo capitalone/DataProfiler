@@ -261,8 +261,9 @@ class TestCategoricalSentence(unittest.TestCase):
             float(1) / CategoricalColumn._CATEGORICAL_THRESHOLD_DEFAULT) - 1
         cat_sentence_list = list_unique_values * num_sentences
 
-        cat_sentence_df = pd.Series(cat_sentence_list)
+        cat_sentence_df = pd.Series(cat_sentence_list)        
         column_profile = StructuredDataProfile(cat_sentence_df)
+        
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
         
         self.assertEqual(False, cat_profiler.is_match)

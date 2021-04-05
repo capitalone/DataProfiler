@@ -392,9 +392,9 @@ class Profiler(object):
         self._min_true_samples = min_true_samples
         self._profile = dict()
 
-        
-        # TODO: Add docs and input command, add to options
-        self.pool = mp.Pool(4) # Create multiprocessing pool of 4
+
+        # Always start with an empty pool
+        self.pool = None
         
 
         if isinstance(data, data_readers.text_data.TextData):
@@ -631,11 +631,20 @@ class Profiler(object):
             def tqdm(l):
                 for i, e in enumerate(l):
                     print("Processing Column {}/{}".format(i+1, len(l)))
-                    yield e
-
+                    yield e                    
 
         # Shuffle indices ones and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
+
+        if profile_options.structured_options.multiprocess.is_enabled:
+            cpu_count = 1
+            try:
+                cpu_count = mp.cpu_count()
+            except NotImplementedError as e:
+                cpu_count = 1
+                
+            self.pool = mp.Pool(max(cpu_count-2)
+            
         
         for col in tqdm(df.columns):
             if col in profile:

@@ -111,10 +111,7 @@ class TestCategoricalColumn(unittest.TestCase):
         num_nan_count = 1
         categories = df1.apply(str).unique().tolist()
         six.assertCountEqual(
-            self,
-            categories,
-            cat_profiler.categories +
-            column_profile.null_types)
+            self,categories,cat_profiler.categories+column_profile.null_types)
         self.assertEqual(num_null_types, len(column_profile.null_types))
         self.assertEqual(
             num_nan_count, len(
@@ -124,25 +121,20 @@ class TestCategoricalColumn(unittest.TestCase):
         num_nan_count = 2
         categories = pd.concat([df1, df2]).apply(str).unique().tolist()
         column_profile.update_profile(df2)
+        cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
         six.assertCountEqual(
-            self,
-            categories,
-            cat_profiler.categories +
-            column_profile.null_types)
+            self, categories, cat_profiler.categories+column_profile.null_types)
         self.assertEqual(num_null_types, len(column_profile.null_types))
         self.assertEqual(
-            num_nan_count, len(
-                column_profile.null_types_index["nan"]))
+            num_nan_count, len(column_profile.null_types_index["nan"]))
 
         num_null_types = 4
         num_nan_count = 3
         categories = pd.concat([df1, df2, df3]).apply(str).unique().tolist()
         column_profile.update_profile(df3)
+        cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
         six.assertCountEqual(
-            self,
-            categories,
-            cat_profiler.categories +
-            column_profile.null_types)
+            self,categories,cat_profiler.categories+column_profile.null_types)
         self.assertEqual(num_null_types, len(column_profile.null_types))
         self.assertEqual(
             num_nan_count, len(
@@ -201,7 +193,7 @@ class TestCategoricalColumn(unittest.TestCase):
 
         profile2 = CategoricalColumn("Name")
         profile2.update(df2)
-
+        
         # Add profiles
         profile3 = profile + profile2
         self.assertListEqual(expected_categories, profile3.categories)
@@ -272,6 +264,7 @@ class TestCategoricalSentence(unittest.TestCase):
         cat_sentence_df = pd.Series(cat_sentence_list)
         column_profile = StructuredDataProfile(cat_sentence_df)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
+        
         self.assertEqual(False, cat_profiler.is_match)
 
     def test_less_than_CATEGORICAL_THRESHOLD_DEFAULT(self):

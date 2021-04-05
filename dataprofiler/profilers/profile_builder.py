@@ -28,7 +28,6 @@ from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions, \
     DataLabelerOptions
 
-
 class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=5000,
@@ -400,23 +399,7 @@ class Profiler(object):
                 self.options.set({'data_labeler.data_labeler_object': data_labeler})
                 
             except Exception as e:
-
-                import warnings
-                warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
-                warning_msg += "Profiling Type: {}".format('data_labeler')
-                warning_msg += "\nException: {}".format(type(e).__name__)
-                warning_msg += "\nMessage: {}".format(e)
-                
-                # This is considered a major error
-                if type(e).__name__ == "ValueError":
-                    raise ValueError(e)
-                
-                warning_msg += "\n\nFor labeler errors, try installing "
-                warning_msg += "the extra ml requirements via:\n\n"
-                warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
-                
-                warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
-
+                utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
         self.update_profile(data)

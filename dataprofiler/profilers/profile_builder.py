@@ -33,9 +33,9 @@ class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
-                 options=None):
+                 sample_ids=None, options=None):
         """
-        Instantiate the Structured Profiler class.
+        Instantiate the Structured Profiler class for a given column.
         
         :param df_series: Data to be profiled
         :type df_series: pandas.core.series.Series
@@ -44,6 +44,8 @@ class StructuredDataProfile(object):
         :param min_true_samples: Minimum number of samples required for the
             profiler
         :type min_true_samples: int
+        :param sample_ids: Randomized list of sample indices
+        :type sample_ids: list(list)
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
@@ -74,7 +76,8 @@ class StructuredDataProfile(object):
                           "All statistics will be based on this subsample and "
                           "not the whole dataset.".format(sample_size))
         clean_sampled_df, base_stats = \
-            self.get_base_props_and_clean_null_params(df_series, sample_size)
+            self.get_base_props_and_clean_null_params(
+                df_series, sample_size, sample_ids=sample_ids)
         self._update_base_stats(base_stats)
         self.profiles = {
             'data_type_profile':
@@ -207,14 +210,18 @@ class StructuredDataProfile(object):
                 null_rows.sort()
             self.null_types_index.setdefault(null_type, set()).update(null_rows)
 
-    def update_profile(self, df_series, sample_size=None, min_true_samples=None):
+    def update_profile(self, df_series, sample_size=None,
+                       min_true_samples=None, sample_ids=None):
         if not sample_size:
             sample_size = len(df_series)
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
         clean_sampled_df, base_stats = \
             self.get_base_props_and_clean_null_params(
-                df_series, sample_size, min_true_samples=min_true_samples)
+                df_series, sample_size,
+                min_true_samples=min_true_samples,
+                sample_ids=sample_ids
+            )
         self._update_base_stats(base_stats)
             
         for profile in self.profiles.values():
@@ -238,7 +245,8 @@ class StructuredDataProfile(object):
     # TODO: flag column name with null values and potentially return row
     #  index number in the error as well
     def get_base_props_and_clean_null_params(self, df_series, sample_size,
-                                             min_true_samples=None):
+                                             min_true_samples=None,
+                                             sample_ids=None):
         """
         Identify null characters and return them in a dictionary as well as
         remove any nulls in column.
@@ -250,6 +258,8 @@ class StructuredDataProfile(object):
         :param min_true_samples: Minimum number of samples required for the
             profiler
         :type min_true_samples: int
+        :param sample_ids: Randomized list of sample indices
+        :type sample_ids: list(list)
         :return: updated column with null removed and dictionary of null
             parameters
         :rtype: pd.Series, dict
@@ -277,16 +287,22 @@ class StructuredDataProfile(object):
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
 
-        sample_ind_generator = utils.shuffle_in_chunks(
-            len_df, chunk_size=sample_size)
 
+        # Select generator depending if sample_ids availablity
+        if sample_ids is None:
+            sample_ind_generator = utils.shuffle_in_chunks(
+                len_df, chunk_size=sample_size)
+        else:
+            sample_ind_generator = utils.partition(
+                sample_ids[0], chunk_size=sample_size)
+            
         na_columns = dict()
         true_sample_list = list()
         total_sample_size = 0
-        for sample_inds in sample_ind_generator:
-            total_sample_size += len(sample_inds)
+        for chunked_sample_ids in sample_ind_generator:
+            total_sample_size += len(chunked_sample_ids)
 
-            df_series_subset = df_series.iloc[sample_inds]
+            df_series_subset = df_series.iloc[chunked_sample_ids]
 
             query = '(' + '|'.join(null_values_and_flags.keys()) + ')'
             reg_ex_na = f"^{(query)}$"
@@ -309,7 +325,8 @@ class StructuredDataProfile(object):
                 break
             
         # close the generator in case it is not exhausted.
-        sample_ind_generator.close()
+        if sample_ids is None:
+            sample_ind_generator.close()
 
         df_series = df_series.loc[sorted(true_sample_list)]
         non_na = len(df_series)
@@ -617,14 +634,19 @@ class Profiler(object):
                 for i, e in enumerate(l):
                     print("Processing Column {}/{}".format(i+1, len(l)))
                     yield e
-			
+
+
+        # Shuffle indices ones and share with columns
+        sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
+        
         for col in tqdm(df.columns):
             if col in profile:
                 column_profile = profile[col]
                 column_profile.update_profile(
                     df[col],
                     sample_size=sample_size,
-                    min_true_samples=min_true_samples
+                    min_true_samples=min_true_samples,
+                    sample_ids=sample_ids
                 )
             else:
                 structured_options = None
@@ -634,6 +656,7 @@ class Profiler(object):
                     df[col],
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
+                    sample_ids=sample_ids,
                     options=structured_options
                 )
 

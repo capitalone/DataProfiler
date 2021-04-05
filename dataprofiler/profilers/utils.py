@@ -1,3 +1,4 @@
+
 import os
 import collections
 import random
@@ -61,6 +62,10 @@ def shuffle_in_chunks(data_length, chunk_size):
     :param chunk_size: size of shuffled chunks
     :return: list of shuffled indices of chunk size
     """
+
+    if not data_length or data_length == 0 \
+       or not chunk_size or chunk_size == 0:
+        return []
     
     rng = np.random.default_rng()
     if 'DATAPROFILER_SEED' in os.environ:
@@ -100,3 +105,17 @@ def shuffle_in_chunks(data_length, chunk_size):
             j += 1
             
         yield values
+
+
+def partition(data, chunk_size):
+    """
+    Creates a generator which returns the data
+    in the specified chunk size.
+    
+    :param data: list, dataframe, etc
+    :type data: list, dataframe, etc
+    :param chunk_size: size of partition to return
+    :type chunk_size: int
+    """
+    for idx in range(0, len(data), chunk_size):
+        yield data[idx:idx+chunk_size]

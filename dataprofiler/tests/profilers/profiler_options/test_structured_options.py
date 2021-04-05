@@ -71,7 +71,7 @@ class TestStructuredOptions(TestBaseOption):
         for key in self.keys:
             option.set({'{}.is_enabled'.format(key): "Hello World"}) 
         expected_error = ['{}.{}.is_enabled must be a Boolean.'.format(optpth, key) 
-                         for key in self.keys]
+                          for key in self.keys]
         expected_error = set(expected_error)
         # Verify expected errors are a subset of all errors
         self.assertSetEqual(expected_error, expected_error.intersection(set(option._validate_helper())))
@@ -112,7 +112,7 @@ class TestStructuredOptions(TestBaseOption):
             option.set({'{}.is_enabled'.format(key): "Hello World"}) 
         
         expected_error = ["{}.{}.is_enabled must be a Boolean.".format(optpth, key) 
-                         for key in self.keys]
+                          for key in self.keys]
         expected_error = set(expected_error)
         # Verify expected errors are a subset of all errors
         with self.assertRaises(ValueError) as cm:

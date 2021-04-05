@@ -72,7 +72,7 @@ class TestProfilerOptions(TestBaseOption):
             option.set({'structured_options.{}.is_enabled'.format(key): "Hello World"}) 
 
         expected_error = ['{}.structured_options.{}.is_enabled must be a Boolean.'.format(optpth, key) 
-                         for key in option.structured_options.properties]
+                          for key in option.structured_options.properties]
         expected_error = set(expected_error)
         # Verify expected errors are a subset of all errors
         self.assertSetEqual(expected_error, expected_error.intersection(set(option._validate_helper())))
@@ -97,7 +97,7 @@ class TestProfilerOptions(TestBaseOption):
             option.set({'structured_options.{}.is_enabled'.format(key): "Hello World"}) 
 
         expected_error = ['{}.structured_options.{}.is_enabled must be a Boolean.'.format(optpth, key) 
-                         for key in option.structured_options.properties]
+                          for key in option.structured_options.properties]
         expected_error = set(expected_error)
 
         # Verify expected errors are a subset of all errors

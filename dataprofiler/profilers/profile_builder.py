@@ -655,8 +655,9 @@ class Profiler(object):
                 cpu_count = 1
 
             # No additional advantage beyond 8 processes
-            # Always leave 2 cores free
-            pool = mp.Pool(min(max(cpu_count-2, 1), 8))            
+            # Always leave 1 cores free
+            if cpu_count > 2:
+                pool = mp.Pool(min(cpu_count-1, 8))            
         
         for col in tqdm(df.columns):
             if col in profile:

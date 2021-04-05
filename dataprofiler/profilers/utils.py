@@ -107,7 +107,7 @@ def shuffle_in_chunks(data_length, chunk_size):
             
         yield values
 
-                
+
 def warn_on_profile(col_profile, e):
     """
     Returns a warning if a given profile errors (tensorflow typcially)

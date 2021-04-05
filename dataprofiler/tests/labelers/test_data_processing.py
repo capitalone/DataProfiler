@@ -1186,6 +1186,28 @@ class TestCharPostprocessor(unittest.TestCase):
                                     post_process_results['pred']):
             self.assertTrue((expected == output).all())
 
+        # Test that results are not modified with inplace
+        data = np.array(['test', 'hellotomyfriends', 'lol'])
+        results = dict(pred=[
+            #T  E  S  T                 H  E  L  L  O  T  O  M  Y  F
+            [2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            #R  I  E  N  D  S                 L  O  L
+            [3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 4, 4, 4, 1, 1, 1, 1, 1],
+        ])
+
+        post_process_results = \
+            processor.match_sentence_lengths(data,
+                                             results,
+                                             flatten_separator='\x01' * 5,
+                                             inplace=False)
+        self.assertNotEqual(results, post_process_results)
+
+        post_process_results = \
+            processor.match_sentence_lengths(data,
+                                             results,
+                                             flatten_separator='\x01' * 5,
+                                             inplace=True)
+        self.assertEqual(results, post_process_results)
 
 class TestPreandPostCharacterProcessorConnection(unittest.TestCase):
 
@@ -1908,6 +1930,28 @@ class TestStructCharPostprocessor(unittest.TestCase):
                                     post_process_results['pred']):
             self.assertTrue((expected == output).all())
 
+        # Test that results are not modified with inplace
+        data = np.array(['test', 'hellotomyfriends', 'lol'])
+        results = dict(pred=[
+            #T  E  S  T                 H  E  L  L  O  T  O  M  Y  F
+            [2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            #R  I  E  N  D  S                 L  O  L
+            [3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 4, 4, 4, 1, 1, 1, 1, 1],
+        ])
+
+        post_process_results = \
+            processor.match_sentence_lengths(data, 
+                                             results,
+                                             flatten_separator='\x01' * 5,
+                                             inplace=False)
+        self.assertNotEqual(results, post_process_results)
+
+        post_process_results = \
+            processor.match_sentence_lengths(data,
+                                             results,
+                                             flatten_separator='\x01' * 5,
+                                             inplace=True)
+        self.assertEqual(results, post_process_results)
 
 class TestRegexPostProcessor(unittest.TestCase):
 

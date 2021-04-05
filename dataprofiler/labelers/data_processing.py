@@ -9,6 +9,7 @@ from collections import Counter
 import random
 import math
 import warnings
+import copy
 
 import numpy as np
 
@@ -926,7 +927,7 @@ class CharPostprocessor(BaseDataPostprocessor,
         return output_result
 
     @staticmethod
-    def match_sentence_lengths(data, results, flatten_separator):
+    def match_sentence_lengths(data, results, flatten_separator, inplace=True):
         """
         Converts the results from the model into the same ragged data shapes as
         the original data.
@@ -945,6 +946,9 @@ class CharPostprocessor(BaseDataPostprocessor,
         result_ind = 0
         buffer_add_inds = np.cumsum(list(map(len, results['pred']))).tolist()
         separator_len = len(flatten_separator)
+
+        if not inplace:
+            results = copy.deepcopy(results) 
 
         if results['pred']:
             pred_buffer = np.concatenate(results['pred'])
@@ -1328,7 +1332,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         print(help_str)
 
     @staticmethod
-    def match_sentence_lengths(data, results, flatten_separator):
+    def match_sentence_lengths(data, results, flatten_separator, inplace=True):
         """
         Converts the results from the model into the same ragged data shapes as
         the original data.
@@ -1347,6 +1351,9 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         result_ind = 0
         buffer_add_inds = np.cumsum(list(map(len, results['pred']))).tolist()
         separator_len = len(flatten_separator)
+
+        if not inplace:
+            results = copy.deepcopy(results) 
 
         if results['pred']:
             pred_buffer = np.concatenate(results['pred'])

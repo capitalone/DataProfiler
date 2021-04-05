@@ -109,9 +109,9 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if not len(df_series_clean):
             return 0
 
-        # Lead zeros: ^[+-.0 \t\n]+ End zeros: \.?0+([ \n\t]|$)
+        # Lead zeros: ^[+-.0\s\t\n]+ End zeros: \.?0+([ \n\t]|$)
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
-        r = re.compile('^[+-.0 \t\n]+|\.?0+([ \n\t]|$)|(?<=[e])(.*)|\D')
+        r = re.compile('^[+-.0\s\t\n]+|\.?0+([ \n\t]|$)|(?<=[e])(.*)|\D')
         
         return df_series_clean.replace(to_replace=r, value='').map(len).min()
         

@@ -214,6 +214,7 @@ class StructuredDataProfile(object):
                 null_rows.sort()
             self.null_types_index.setdefault(null_type, set()).update(null_rows)
 
+
     # TODO: Document pool            
     def update_profile(self, df_series, sample_size=None,
                        min_true_samples=None, sample_ids=None,

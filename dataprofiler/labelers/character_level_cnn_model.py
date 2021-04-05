@@ -27,6 +27,7 @@ tf_logger = logging.getLogger('tensorflow')
 tf_logger.addFilter(NoV1ResourceMessageFilter())
 
 
+@tf.keras.utils.register_keras_serializable()
 class FBetaScore(tf.keras.metrics.Metric):
     r"""Computes F-Beta score.
     Adapted and slightly modified from https://github.com/tensorflow/addons/blob/v0.12.0/tensorflow_addons/metrics/f_scores.py#L211-L283
@@ -52,33 +53,6 @@ class FBetaScore(tf.keras.metrics.Metric):
         dtype: (Optional) Data type of the metric result.
     Returns:
         F-Beta Score: float.
-    Raises:
-        ValueError: If the `average` has values other than
-        `[None, 'micro', 'macro', 'weighted']`.
-        ValueError: If the `beta` value is less than or equal
-        to 0.
-    `average` parameter behavior:
-        None: Scores for each class are returned
-        micro: True positivies, false positives and
-            false negatives are computed globally.
-        macro: True positivies, false positives and
-            false negatives are computed for each class
-            and their unweighted mean is returned.
-        weighted: Metrics are computed for each class
-            and returns the mean weighted by the
-            number of true instances in each class.
-    Usage:
-    >>> metric = tfa.metrics.FBetaScore(num_classes=3, beta=2.0, threshold=0.5)
-    >>> y_true = np.array([[1, 1, 1],
-    ...                    [1, 0, 0],
-    ...                    [1, 1, 0]], np.int32)
-    >>> y_pred = np.array([[0.2, 0.6, 0.7],
-    ...                    [0.2, 0.6, 0.6],
-    ...                    [0.6, 0.8, 0.0]], np.float32)
-    >>> metric.update_state(y_true, y_pred)
-    >>> result = metric.result()
-    >>> result.numpy()
-    array([0.3846154 , 0.90909094, 0.8333334 ], dtype=float32)
     """
 
     def __init__(self, num_classes, average=None, beta=1.0, threshold=None,
@@ -174,9 +148,55 @@ class FBetaScore(tf.keras.metrics.Metric):
 
         return f1_score
 
+    def get_config(self):
+        """Returns the serializable config of the metric."""
+
+        config = {
+            "num_classes": self.num_classes,
+            "average": self.average,
+            "beta": self.beta,
+            "threshold": self.threshold,
+        }
+
+        base_config = super().get_config()
+        return {**base_config, **config}
+
     def reset_states(self):
         reset_value = tf.zeros(self.init_shape, dtype=self.dtype)
         tf.keras.backend.batch_set_value([(v, reset_value) for v in self.variables])
+
+
+@tf.keras.utils.register_keras_serializable()
+class F1Score(FBetaScore):
+    r"""Computes F-1 Score.
+    It is the harmonic mean of precision and recall.
+    Output range is `[0, 1]`. Works for both multi-class
+    and multi-label classification.
+    $$
+    F_1 = 2 \cdot \frac{\textrm{precision} \cdot \textrm{recall}}{\textrm{precision} + \textrm{recall}}
+    $$
+    Args:
+        num_classes: Number of unique classes in the dataset.
+        average: Type of averaging to be performed on data.
+            Acceptable values are `None`, `micro`, `macro`
+            and `weighted`. Default value is None.
+        threshold: Elements of `y_pred` above threshold are
+            considered to be 1, and the rest 0. If threshold is
+            None, the argmax is converted to 1, and the rest 0.
+        name: (Optional) String name of the metric instance.
+        dtype: (Optional) Data type of the metric result.
+    Returns:
+        F-1 Score: float.
+    """
+
+    def __init__(self, num_classes, average=None, threshold=None,
+                 name="f1_score", dtype=None):
+        super().__init__(num_classes, average, 1.0, threshold, name=name, dtype=dtype)
+
+    def get_config(self):
+        base_config = super().get_config()
+        del base_config["beta"]
+        return base_config
 
 
 def build_embd_dictionary(filename):
@@ -424,10 +444,9 @@ class CharacterLevelCnnModel(BaseTrainableModel,
 
         # use f1 score metric
         custom_objects = {
-            "F1Score": FBetaScore(
+            "F1Score": F1Score(
                 num_classes=max(label_mapping.values()) + 1,
-                average='micro',
-                beta=1.0),
+                average='micro'),
             "CharacterLevelCnnModel": cls,
         }
         with tf.keras.utils.custom_object_scope(custom_objects):
@@ -645,8 +664,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
         # use f1 score metric
-        f1_score_training = FBetaScore(
-            num_classes=num_labels, average='micro', beta=1.0)
+        f1_score_training = F1Score(num_classes=num_labels, average='micro')
         metrics = {softmax_output_layer_name: ['acc', f1_score_training]}
 
         self._model.compile(loss=losses,
@@ -707,8 +725,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
         # use f1 score metric
-        f1_score_training = FBetaScore(
-            num_classes=num_labels, average='micro', beta=1.0)
+        f1_score_training = F1Score(num_classes=num_labels, average='micro')
         metrics = {softmax_output_layer_name: ['acc', f1_score_training]}
 
         self._model.compile(loss=losses,

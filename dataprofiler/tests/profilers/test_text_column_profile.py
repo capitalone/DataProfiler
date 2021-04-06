@@ -241,7 +241,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     'sum': 1.0,
                                     'variance': 1.0,
                                     'histogram_and_quantiles': 15.0,
-                                    'vocab': 1.0}
+                                    'vocab': 1.0})
             self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second

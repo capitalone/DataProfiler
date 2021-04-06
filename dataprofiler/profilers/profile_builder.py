@@ -70,6 +70,7 @@ class StructuredDataProfile(object):
         self.null_count = 0
         self.null_types = list()
         self.null_types_index = {}
+                
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
         if sample_size < len(df_series):
@@ -261,7 +262,7 @@ class StructuredDataProfile(object):
         :rtype: int
         """
         len_df = len(df_series)
-        if len_df < self._min_sample_size:
+        if len_df <= self._min_sample_size:
             return int(len_df)
         return max(int(self._sampling_ratio * len_df), self._min_sample_size)
 

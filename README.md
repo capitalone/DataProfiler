@@ -456,7 +456,7 @@ Below is an breakdown of all the options.
 * **ProfilerOptions** - The top-level options class that contains everything else
     * **structured_options** - Options responsible for all structured data
       	* **multiprocess** - Option to enable multiprocessing pool, the pool size is determined by the following formulation: `min(cpu_count - 1, 8)`
-	    * is_enabled - (Boolean) Enables or disables multiprocessing
+	  		   * is_enabled - (Boolean) Enables or disables multiprocessing
         * **int** - Options for the integer columns
             * is_enabled - (Boolean) Enables or disables the integer operations
             * min - Finds minimum value in a column

@@ -23,7 +23,7 @@ class TestBaseColumnProfileCompilerClass(unittest.TestCase):
     @mock.patch.multiple(
         col_pro_compilers.BaseColumnProfileCompiler, __abstractmethods__=set(),
         _profilers=[mock.Mock()])
-    @mock.patch.multiple(    
+    @mock.patch.multiple(
         col_pro_compilers.ColumnStatsProfileCompiler, _profilers=[mock.Mock()])
     def test_add_profilers(self):
         compiler1 = col_pro_compilers.BaseColumnProfileCompiler(mock.Mock())

@@ -11,7 +11,6 @@ class TestHistogramOption(TestBooleanOption):
     def test_init(self):
         option = self.get_options()
         self.assertTrue(option.is_enabled)
-        self.assertIsNone(option.method)
 
     def test_set_helper(self):
         option = self.get_options()

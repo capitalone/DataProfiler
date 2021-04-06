@@ -143,7 +143,7 @@ class BooleanOption(BaseOption):
 
 class HistogramOption(BooleanOption):
 
-    def __init__(self, method=['rice']):
+    def __init__(self, method=['auto']):
         """Options for histograms
 
         :ivar is_enabled: boolean option to enable/disable the option.

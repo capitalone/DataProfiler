@@ -230,7 +230,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.profile['times'])
+            self.assertCountEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
 
             # Validate the time in the datetime class has the expected time.
@@ -241,7 +241,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     'sum': 1.0,
                                     'variance': 1.0,
                                     'histogram_and_quantiles': 15.0,
-                                    'vocab': 1.0})
+                                    'vocab': 1.0}
             self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second
@@ -303,6 +303,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         options = TextOptions()
         options.max.is_enabled = False
         options.min.is_enabled = False
+        options.histogram_and_quantiles.method = None
 
         df = pd.Series(
             ["pancake", "banana", "lighthouse", "aa", "b", "4", "3", "2", "dfd", "2"]
@@ -316,6 +317,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.min.is_enabled = False
         options.max.is_enabled = False
         options.vocab.is_enabled = False
+        options.histogram_and_quantiles.method = None
         df2 = pd.Series(
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
         )

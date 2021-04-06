@@ -94,7 +94,8 @@ class TestDataProfiler(unittest.TestCase):
 
         with mock.patch('builtins.__import__', side_effect=import_mock):
 
-            with self.assertWarns(RuntimeWarning) as w:
+            with self.assertWarnsRegex(RuntimeWarning,
+                                       "Partial Profiler Failure"):
                 modules_with_tf = [
                     'dataprofiler.labelers.character_level_cnn_model',
                 ]
@@ -103,9 +104,6 @@ class TestDataProfiler(unittest.TestCase):
                         del sys.modules[module]
                 df = pandas.DataFrame([[1, 2.0], [1, 2.2], [-1, 3]])
                 profile = Profiler(df)
-
-        warning_msg = "Partial Profiler Failure"
-        self.assertIn(warning_msg, str(w.warning))
 
 
 if __name__ == '__main__':

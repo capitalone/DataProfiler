@@ -207,14 +207,14 @@ class TestTextColumnProfiler(unittest.TestCase):
             quantiles = profile.pop('quantiles')
             histogram = profile.pop('histogram')
             # key and value populated correctly
-            self.assertDictEqual(expected_profile, profile)
+            self.assertCountEqual(expected_profile, profile)
             self.assertTrue(np.all(
                 expected_histogram['bin_counts'] == histogram['bin_counts']
             ))
             self.assertTrue(np.all(
                 expected_histogram['bin_edges'] == histogram['bin_edges']
             ))
-            self.assertDictEqual(
+            self.assertCountEqual(
                 expected_quantiles, {
                     0: quantiles[249], 1: quantiles[499], 2: quantiles[749]})
 
@@ -241,7 +241,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     'sum': 1.0,
                                     'variance': 1.0,
                                     'histogram_and_quantiles': 15.0,
-                                    'vocab': 1.0})            
+                                    'vocab': 1.0})
             self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second
@@ -281,7 +281,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertEqual(profiler3.sample_size,
                          profiler.sample_size + profiler2.sample_size)
         self.assertEqual(profiler3.max, profiler2.max)
-        self.assertEqual(expected_vocab, profiler3.vocab)
+        self.assertCountEqual(expected_vocab, profiler3.vocab)
 
     def test_merge_timing(self):
         profiler1 = TextColumn("placeholder_name")
@@ -296,7 +296,7 @@ class TestTextColumnProfiler(unittest.TestCase):
 
             # __add__() call adds 1 so expected is 6
             expected_times = defaultdict(float, {'vocab': 6.0})
-            self.assertDictEqual(expected_times, profiler3.profile['times'])
+            self.assertCountEqual(expected_times, profiler3.profile['times'])
 
     def test_profile_merge_with_different_options(self):
         # Creating first profiler with default options

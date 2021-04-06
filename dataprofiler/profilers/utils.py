@@ -51,6 +51,25 @@ class KeyDict(collections.defaultdict):
         return key
 
 
+def _combine_unique_sets(a, b):
+    """
+    Method to union two lists.
+    :type a: list
+    :type b: list
+    :rtype: list
+    """
+    combined_list = None
+    if not a and not b:
+        combined_list = list()
+    elif not a:
+        combined_list = set(b)
+    elif not b:
+        combined_list = set(a)
+    else:
+        combined_list = set().union(a,b)
+    return list(combined_list)
+
+    
 def shuffle_in_chunks(data_length, chunk_size):
     """
     A generator for creating shuffled indexes in chunks. This reduces the cost

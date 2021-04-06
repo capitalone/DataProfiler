@@ -45,11 +45,11 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         self.times = defaultdict(float)
         self.thread_safe = True
 
+
     @staticmethod
     def _combine_unique_sets(a, b):  # TODO: Not needed for data labeling
         """
         Method to union two lists.
-
         :type a: list
         :type b: list
         :rtype: list
@@ -66,6 +66,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         combined_list = list(combined_list)        
         return combined_list
 
+        
     @staticmethod
     def _timeit(method=None, name=None):
         """

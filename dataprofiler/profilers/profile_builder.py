@@ -184,30 +184,12 @@ class StructuredDataProfile(object):
                 profile[key] = None
 
         return profile
-
-    @staticmethod
-    def _combine_unique_sets(a, b):
-        """
-        Method to union two lists.
-        
-        :type a: list
-        :type b: list
-        :rtype: list
-        """
-        if not a and not b:
-            return list()
-        elif not a:
-            return b
-        elif not b:
-            return a
-        return list(OrderedDict.fromkeys(a + b))
-
     
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
-        self.null_types = self._combine_unique_sets(
+        self.null_types = utils._combine_unique_sets(
             self.null_types, list(base_stats["null_types"].keys())
         )
 

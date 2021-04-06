@@ -1,5 +1,6 @@
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
+from . import utils
 
 
 class CategoricalColumn(BaseColumnProfiler):
@@ -128,7 +129,7 @@ class CategoricalColumn(BaseColumnProfiler):
         if hasattr(df_series, 'tolist'):
             df_series = df_series.tolist()
 
-        self._categories = self._combine_unique_sets(
+        self._categories = utils._combine_unique_sets(
             self._categories, df_series)
 
     def _update_helper(self, df_series_clean, profile):

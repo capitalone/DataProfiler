@@ -2,6 +2,7 @@ from .numerical_column_stats import NumericStatsMixin
 from .base_column_profilers import BaseColumnProfiler, \
     BaseColumnPrimitiveTypeProfiler
 from .profiler_options import TextOptions
+from . import utils
 import itertools
 
 class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
@@ -89,8 +90,9 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: ratio of data type
         :rtype: float
         """
-        return 1.0 if self.sample_size else None
+        return 1.0 if self.sample_size else None        
 
+    
     @BaseColumnProfiler._timeit(name='vocab')
     def _update_vocab(self, data, prev_dependent_properties=None,
                       subset_properties=None):
@@ -107,8 +109,10 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type subset_properties: dict
         :return: None
         """
+        
         data_flat = list(itertools.chain(*data))
-        self.vocab = TextColumn._combine_unique_sets(self.vocab, data_flat)
+        self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
+        
 
     def _update_helper(self, df_series_clean, profile):
         """

@@ -90,7 +90,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: ratio of data type
         :rtype: float
         """
-        return 1.0 if self.sample_size else None        
+        return 1.0 if self.sample_size else None
 
     
     @BaseColumnProfiler._timeit(name='vocab')

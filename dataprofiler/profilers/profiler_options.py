@@ -143,7 +143,7 @@ class BooleanOption(BaseOption):
 
 class HistogramOption(BooleanOption):
 
-    def __init__(self, method=None):
+    def __init__(self, method=['auto']):
         """Options for histograms
 
         :ivar is_enabled: boolean option to enable/disable the option.
@@ -256,7 +256,7 @@ class NumericalOptions(BaseColumnOptions):
         self.max = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
-        self.histogram_and_quantiles = HistogramOption(method=None)
+        self.histogram_and_quantiles = HistogramOption()
         BaseColumnOptions.__init__(self)
 
     @property

@@ -81,6 +81,7 @@ class StructuredDataProfile(object):
                 df_series, sample_size, sample_ids=sample_ids)
         self._update_base_stats(base_stats)
 
+        # data_type_profile and data_stats_profile
         self.profiles = {
             'data_type_profile':
             ColumnPrimitiveTypeProfileCompiler(
@@ -259,7 +260,7 @@ class StructuredDataProfile(object):
         :type df_series: pandas.core.series.Series
         :return: integer sampling size
         :rtype: int
-        """
+        """        
         len_df = len(df_series)
         if len_df < self._min_sample_size:
             return int(len_df)
@@ -310,7 +311,6 @@ class StructuredDataProfile(object):
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
 
-
         # Select generator depending if sample_ids availablity
         if sample_ids is None:
             sample_ind_generator = utils.shuffle_in_chunks(
@@ -352,7 +352,7 @@ class StructuredDataProfile(object):
             sample_ind_generator.close()
 
         df_series = df_series.loc[sorted(true_sample_list)]
-        non_na = len(df_series)
+        non_na = len(df_series)        
         total_na = total_sample_size - non_na
 
         base_stats = {
@@ -656,7 +656,9 @@ class Profiler(object):
             # No additional advantage beyond 8 processes
             # Always leave 1 cores free
             if cpu_count > 2:
-                pool = mp.Pool(min(cpu_count-1, 8))            
+                cpu_count = min(cpu_count-1, 8)
+                pool = mp.Pool(cpu_count)
+                print("Utilizing",cpu_count, "processes for profiling")
         
         for col in tqdm(df.columns):
             if col in profile:

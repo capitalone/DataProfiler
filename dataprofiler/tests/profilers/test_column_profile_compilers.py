@@ -23,8 +23,6 @@ class TestBaseColumnProfileCompilerClass(unittest.TestCase):
     @mock.patch.multiple(
         col_pro_compilers.BaseColumnProfileCompiler, __abstractmethods__=set(),
         _profilers=[mock.Mock()])
-    @mock.patch.multiple(
-        col_pro_compilers.ColumnStatsProfileCompiler, _profilers=[mock.Mock()])
     def test_add_profilers(self):
         compiler1 = col_pro_compilers.BaseColumnProfileCompiler(mock.Mock())
         compiler2 = col_pro_compilers.BaseColumnProfileCompiler(mock.Mock())
@@ -42,7 +40,7 @@ class TestBaseColumnProfileCompilerClass(unittest.TestCase):
                                     '`ColumnStatsProfileCompiler` are '
                                     'not of the same profile compiler type.'):
             compiler1 + compiler3
-
+            
         # test mismatched names
         compiler1.name = 'compiler1'
         compiler2.name = 'compiler2'

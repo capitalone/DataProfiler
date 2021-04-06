@@ -107,7 +107,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         """
         Updates the profiles from the data frames
         
-        :param df_series: a given column
+        :param df_series: a given column, assume df_series in str
         :type df_series: pandas.core.series.Series
         :param pool: pool to utilized for multiprocessing
         :type pool: multiprocessing.Pool
@@ -118,14 +118,12 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         if len(self._profilers) == 0:
             return 
         
-        df_series = df_series.apply(str)
-                
         # If single process, loop and return
         if pool is None:
             for col_profile in self._profiles:
                 self._profiles[col_profile].update(df_series)
             return self
-        
+
         # If multiprocess, setup pool, etc
         single_process_list = []
         multi_process_dict = {}
@@ -140,7 +138,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
                         self._profiles[col_profile].update, (df_series,))
                 except Exception as e: # Attempt again as a single process
                     self._profiles[col_profile].thread_safe = False
-                    multi_process_dict.pop(col_profile, None) # On error
                 
             if not self._profiles[col_profile].thread_safe:                
                 single_process_list.append(col_profile)
@@ -163,7 +160,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         # Single process thread to loop through
         for col_profile in single_process_list:
             self._profiles[col_profile].update(df_series)
-                
+            
         return self
 
 
@@ -179,35 +176,34 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
 
     @property
     def profile(self):
+        
         profile = {
             "data_type_representation": dict(),
             "data_type": None,
             "statistics": dict()
-        }
+        }        
         has_found_match = False
         
         for _, profiler in self._profiles.items():
-
             if not has_found_match and profiler.data_type_ratio == 1.0:
-                profile.update(
-                    {
-                        "data_type": profiler.col_type,
-                        "statistics": profiler.profile,
-                    }
-                )
+                profile.update({
+                    "data_type": profiler.col_type,
+                    "statistics": profiler.profile,
+                })
                 has_found_match = True
             profile["data_type_representation"].update(
                 dict([(profiler.col_type, profiler.data_type_ratio)])
             )
+                
         return profile
-
+    
 
 class ColumnStatsProfileCompiler(BaseColumnProfileCompiler):
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
         OrderColumn,
-        CategoricalColumn,
+        CategoricalColumn
     ]
 
     @property
@@ -218,6 +214,7 @@ class ColumnStatsProfileCompiler(BaseColumnProfileCompiler):
         return profile
 
 
+    
 class ColumnDataLabelerCompiler(BaseColumnProfileCompiler):
 
     # NOTE: these profilers are ordered. Test functionality if changed.

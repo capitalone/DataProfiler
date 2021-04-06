@@ -173,7 +173,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
     ]
 
     @property
-    def profile(self):        
+    def profile(self):
         profile = {
             "data_type_representation": dict(),
             "data_type": None,
@@ -190,7 +190,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
                 has_found_match = True
             profile["data_type_representation"].update(
                 dict([(profiler.col_type, profiler.data_type_ratio)])
-            )                
+            )
         return profile
 
 

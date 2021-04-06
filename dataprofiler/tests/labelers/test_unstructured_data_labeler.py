@@ -74,7 +74,8 @@ def setup_save_mock_open(mock_open):
 
 
 @mock.patch('dataprofiler.labelers.data_processing.BaseDataProcessor')
-@mock.patch.object(CharacterLevelCnnModel, 'load_from_disk')
+@mock.patch('dataprofiler.labelers.character_level_cnn_model.'
+            'CharacterLevelCnnModel.load_from_disk')
 @mock.patch("builtins.open", side_effect=mock_open)
 class TestDataLabeler(unittest.TestCase):
 

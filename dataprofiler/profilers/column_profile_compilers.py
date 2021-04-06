@@ -160,7 +160,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         # Single process thread to loop through
         for col_profile in single_process_list:
             self._profiles[col_profile].update(df_series)
-
         return self
 
 class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
@@ -174,8 +173,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
     ]
 
     @property
-    def profile(self):
-        
+    def profile(self):        
         profile = {
             "data_type_representation": dict(),
             "data_type": None,
@@ -192,8 +190,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
                 has_found_match = True
             profile["data_type_representation"].update(
                 dict([(profiler.col_type, profiler.data_type_ratio)])
-            )
-                
+            )                
         return profile
 
 
@@ -202,7 +199,7 @@ class ColumnStatsProfileCompiler(BaseColumnProfileCompiler):
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
         OrderColumn,
-        CategoricalColumn
+        CategoricalColumn,
     ]
 
     @property
@@ -213,7 +210,6 @@ class ColumnStatsProfileCompiler(BaseColumnProfileCompiler):
         return profile
 
 
-    
 class ColumnDataLabelerCompiler(BaseColumnProfileCompiler):
 
     # NOTE: these profilers are ordered. Test functionality if changed.

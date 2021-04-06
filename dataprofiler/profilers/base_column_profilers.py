@@ -10,7 +10,7 @@ from __future__ import division
 
 import abc
 import time
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from future.utils import with_metaclass
 import functools
 import warnings
@@ -57,10 +57,10 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         if not a and not b:
             return list()
         elif not a:
-            return list(OrderedDict.fromkeys(b))
+            return list(sorted(b))
         elif not b:
-            return list(OrderedDict.fromkeys(a))
-        return list(OrderedDict.fromkeys(a + b))
+            return list(sorted(a))
+        return sorted(set().union(a,b))
 
     @staticmethod
     def _timeit(method=None, name=None):

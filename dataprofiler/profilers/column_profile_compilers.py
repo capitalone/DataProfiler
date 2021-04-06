@@ -123,7 +123,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
             for col_profile in self._profiles:
                 self._profiles[col_profile].update(df_series)
             return self
-
+        
         # If multiprocess, setup pool, etc
         single_process_list = []
         multi_process_dict = {}
@@ -160,9 +160,8 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         # Single process thread to loop through
         for col_profile in single_process_list:
             self._profiles[col_profile].update(df_series)
-            
-        return self
 
+        return self
 
 class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
     
@@ -181,7 +180,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
             "data_type_representation": dict(),
             "data_type": None,
             "statistics": dict()
-        }        
+        }
         has_found_match = False
         
         for _, profiler in self._profiles.items():
@@ -196,7 +195,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
             )
                 
         return profile
-    
+
 
 class ColumnStatsProfileCompiler(BaseColumnProfileCompiler):
 

@@ -81,7 +81,6 @@ class StructuredDataProfile(object):
                 df_series, sample_size, sample_ids=sample_ids)
         self._update_base_stats(base_stats)
 
-        # data_type_profile and data_stats_profile
         self.profiles = {
             'data_type_profile':
             ColumnPrimitiveTypeProfileCompiler(
@@ -260,7 +259,7 @@ class StructuredDataProfile(object):
         :type df_series: pandas.core.series.Series
         :return: integer sampling size
         :rtype: int
-        """        
+        """
         len_df = len(df_series)
         if len_df < self._min_sample_size:
             return int(len_df)
@@ -352,7 +351,7 @@ class StructuredDataProfile(object):
             sample_ind_generator.close()
 
         df_series = df_series.loc[sorted(true_sample_list)]
-        non_na = len(df_series)        
+        non_na = len(df_series)
         total_na = total_sample_size - non_na
 
         base_stats = {

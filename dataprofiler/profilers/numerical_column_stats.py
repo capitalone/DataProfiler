@@ -64,7 +64,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 self.histogram_selection = opt_method
             elif isinstance(opt_method, list):
                 self.histogram_bin_method_names = opt_method
-                
         self.histogram_methods = {}
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {

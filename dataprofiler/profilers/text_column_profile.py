@@ -109,9 +109,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         vocab = []
         for row in data:
-            row = list(row)
-            vocab = TextColumn._combine_unique_sets(vocab, row)
-        self.vocab = self._combine_unique_sets(self.vocab, vocab)
+            self.vocab = TextColumn._combine_unique_sets(vocab, list(row))
 
     def _update_helper(self, df_series_clean, profile):
         """

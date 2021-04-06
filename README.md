@@ -453,9 +453,11 @@ print(json.dumps(report, indent=4))
 
 Below is an breakdown of all the options.
 
-* ProfilerOptions - The top-level options class that contains everything else
-    * structured_options - Options responsible for all structured data
-        * int - Options for the integer columns
+* **ProfilerOptions** - The top-level options class that contains everything else
+    * **structured_options** - Options responsible for all structured data
+      	* **multiprocess** - Option to enable multiprocessing pool, the pool size is determined by the following formulation: `min(cpu_count - 1, 8)`
+	    * is_enabled - (Boolean) Enables or disables multiprocessing
+        * **int** - Options for the integer columns
             * is_enabled - (Boolean) Enables or disables the integer operations
             * min - Finds minimum value in a column
                 * is_enabled - (Boolean) Enables or disables min
@@ -473,7 +475,7 @@ Below is an breakdown of all the options.
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
                 Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles
-        * float - Options for the float columns
+        * **float** - Options for the float columns
             * is_enabled - (Boolean) Enables or disables the float operations
             * precision - Finds the lowest common denominator of float precision
                 * is_enabled - (Boolean) Enables or disables precision
@@ -493,7 +495,7 @@ Below is an breakdown of all the options.
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
                 Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles        
-        * text - Options for the text columns
+        * **text** - Options for the text columns
             * is_enabled - (Boolean) Enables or disables the text operations
             * vocab - Finds all the unique characters used in a column
                 * is_enabled - (Boolean) Enables or disables vocab
@@ -513,13 +515,13 @@ Below is an breakdown of all the options.
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
                 Note: 'auto' is used to choose optimally between 'fd' and 'sturges'
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles  
-        * datetime - Options for the datetime columns
+        * **datetime** - Options for the datetime columns
             * is_enabled - (Boolean) Enables or disables the datetime operations
-        * order - Options for the order columns
+        * **order** - Options for the order columns
             * is_enabled - (Boolean) Enables or disables the order operations
-        * category- Options for the category columns
+        * **category** - Options for the category columns
             * is_enabled  - (Boolean) Enables or disables the category operations
-        * data_labeler - Options for the data labeler columns
+        * **data_labeler** - Options for the data labeler columns
             * is_enabled - (Boolean) Enables or disables the data labeler operations
             * data_labeler_dirpath - (String) Directory path to data labeler
             * data_labeler_object - (BaseDataLabeler) Datalabeler to replace 

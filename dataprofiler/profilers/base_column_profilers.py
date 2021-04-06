@@ -10,7 +10,7 @@ from __future__ import division
 
 import abc
 import time
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from future.utils import with_metaclass
 import functools
 import warnings
@@ -45,23 +45,28 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         self.times = defaultdict(float)
         self.thread_safe = True
 
+
     @staticmethod
     def _combine_unique_sets(a, b):  # TODO: Not needed for data labeling
         """
         Method to union two lists.
-
         :type a: list
         :type b: list
         :rtype: list
         """
+        combined_list = None
         if not a and not b:
-            return list()
+            combined_list = list()
         elif not a:
-            return list(OrderedDict.fromkeys(b))
+            combined_list = set(b)
         elif not b:
-            return list(OrderedDict.fromkeys(a))
-        return list(OrderedDict.fromkeys(a + b))
+            combined_list = set(a)
+        else:
+            combined_list = set().union(a,b)
+        combined_list = list(combined_list)        
+        return combined_list
 
+        
     @staticmethod
     def _timeit(method=None, name=None):
         """

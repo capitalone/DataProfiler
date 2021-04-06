@@ -3,6 +3,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
+from . import utils
 
 from .base_column_profilers import BaseColumnProfiler, \
     BaseColumnPrimitiveTypeProfiler
@@ -89,7 +90,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             merged_profile.max = other.max
             merged_profile._dt_obj_max = other._dt_obj_max
 
-        merged_profile.date_formats = self._combine_unique_sets(
+        merged_profile.date_formats = utils._combine_unique_sets(
             self.date_formats, other.date_formats)
         return merged_profile
 

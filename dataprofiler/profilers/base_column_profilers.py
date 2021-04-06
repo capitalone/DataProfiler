@@ -54,13 +54,17 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :type b: list
         :rtype: list
         """
+        combined_list = None
         if not a and not b:
-            return list()
+            combined_list = list()
         elif not a:
-            return list(sorted(b))
+            combined_list = set(b)
         elif not b:
-            return list(sorted(a))
-        return sorted(set().union(a,b))
+            combined_list = set(a)
+        else:
+            combined_list = set().union(a,b)
+        combined_list = list(combined_list)        
+        return combined_list
 
     @staticmethod
     def _timeit(method=None, name=None):

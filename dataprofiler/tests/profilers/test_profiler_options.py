@@ -124,7 +124,9 @@ class TestProfilerOptions(unittest.TestCase):
         vocab_mock.assert_not_called()
 
         # Check to see default options enable vocab
-        profile = Profiler(self.data)
+        multi_options = ProfilerOptions()
+        multi_options.structured_options.multiprocess.is_enabled = False
+        profile = Profiler(self.data, profiler_options=multi_options)
         vocab_mock.assert_called()
 
     def test_disabling_all_stats(self, *mocks):
@@ -296,11 +298,14 @@ class TestProfilerOptions(unittest.TestCase):
     def test_float_precision(self, update_precision, *mocks):
         options = ProfilerOptions()
         options.structured_options.float.precision.is_enabled = False
+        options.structured_options.multiprocess.is_enabled = False
 
         profile = Profiler(self.data, profiler_options=options)
         update_precision.assert_not_called()
 
-        profile = Profiler(self.data)
+        multi_options = ProfilerOptions()
+        multi_options.structured_options.multiprocess.is_enabled = False
+        profile = Profiler(self.data, profiler_options=multi_options)
         update_precision.assert_called()
 
     def test_set_attribute_error(self, *mocks):

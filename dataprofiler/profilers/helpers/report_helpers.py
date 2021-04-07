@@ -68,7 +68,6 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
     :return report: handle to the updated report
     :type report: dict()
     """
-    
 
     if output_format is not None:
         output_format = output_format.lower()
@@ -96,7 +95,11 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
             continue
         
         value = report[key]
-        
+
+        # Convert set to list, for report generation
+        if isinstance(value, set):
+            value = sorted(list(value))
+
         if isinstance(value, dict):
 
             # split off any remaining keys for the recursion

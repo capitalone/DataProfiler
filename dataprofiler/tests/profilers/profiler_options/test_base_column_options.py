@@ -1,5 +1,6 @@
 from dataprofiler.profilers.profiler_options import BaseColumnOptions
-from dataprofiler.tests.profilers.test_boolean_option import TestBooleanOption
+from dataprofiler.tests.profilers.profiler_options.test_boolean_option \
+     import TestBooleanOption
 
 
 class TestBaseColumnOptions(TestBooleanOption):
@@ -39,7 +40,8 @@ class TestBaseColumnOptions(TestBooleanOption):
         self.assertFalse(options.is_prop_enabled("is_enabled"))
     
         # Check is prop enabled for invalid property    
-        expected_error = 'Property "Hello World" does not exist in {}.'.format(optpth)
+        expected_error = 'Property "Hello World" does not exist in {}.' \
+                         .format(optpth)
         with self.assertRaisesRegex(AttributeError, expected_error):
             options.is_prop_enabled("Hello World")
 

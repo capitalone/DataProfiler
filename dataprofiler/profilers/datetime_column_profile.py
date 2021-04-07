@@ -3,6 +3,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
+from . import utils
 
 from .base_column_profilers import BaseColumnProfiler, \
     BaseColumnPrimitiveTypeProfiler
@@ -89,7 +90,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             merged_profile.max = other.max
             merged_profile._dt_obj_max = other._dt_obj_max
 
-        merged_profile.date_formats = self._combine_unique_sets(
+        merged_profile.date_formats = utils._combine_unique_sets(
             self.date_formats, other.date_formats)
         return merged_profile
 
@@ -315,7 +316,8 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :return: None
         """
         if len(df_series) == 0:
-            return
+            return self
+        
         df_series = df_series.reset_index(drop=True)
         profile = {"sample_size": len(df_series), "match_count": 0}
         if self._is_subset_datetime_column(df_series):
@@ -326,3 +328,5 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
                 prev_dependent_properties={},
                 subset_properties=profile)
         self._update_helper(df_series=df_series, profile=profile)
+
+        return self

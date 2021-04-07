@@ -67,6 +67,8 @@ class DataLabelerColumn(BaseColumnProfiler):
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
 
+        self.thread_safe = False
+
     @staticmethod
     def assert_equal_conditions(data_labeler, data_labeler2):
         """
@@ -278,7 +280,8 @@ class DataLabelerColumn(BaseColumnProfiler):
         :return: None
         """
         if len(df_series) == 0:
-            return
+            return self
+        
         sample_size = min(len(df_series), self._max_sample_size)
         df_series = df_series.sample(sample_size)
 
@@ -290,3 +293,5 @@ class DataLabelerColumn(BaseColumnProfiler):
             self, self.__calculations, df_series=df_series,
             prev_dependent_properties={}, subset_properties=profile)
         self._update_helper(df_series, profile)
+
+        return self

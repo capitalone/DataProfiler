@@ -8,6 +8,7 @@ from unittest.mock import patch, MagicMock
 import pandas as pd
 import numpy as np
 
+from dataprofiler.profilers import utils
 from dataprofiler.tests.profilers import utils as test_utils
 from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler, \
     BaseColumnPrimitiveTypeProfiler
@@ -158,7 +159,7 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
     def test_combine_unqiue_sets(self):
         a = [1, 2, 3]
         b = [3, 1, 4, -1]
-        c = BaseColumnPrimitiveTypeProfiler._combine_unique_sets(a, b)
+        c = utils._combine_unique_sets(a, b)
         six.assertCountEqual(self, [1, 2, 3, 4, -1], c)
 
     def test__init__(self):
@@ -272,9 +273,6 @@ class AbstractTestColumnProfiler(object):
                 zip(self.column_profile._profiles.values(), profiler_mocks):
             self.assertIn(profile.__class__, self.profilers)
             self.assertEqual(1, profiler_mock.call_count)
-            self.assertEqual(
-                1, profiler_mock.return_value.update.call_count
-            )
         self._delete_profiler_mocks()
 
     def test_updated_profile(self):
@@ -284,9 +282,6 @@ class AbstractTestColumnProfiler(object):
 
         for profiler_mock in profiler_mocks:
             self.assertEqual(1, profiler_mock.call_count)
-            self.assertEqual(
-                2, profiler_mock.return_value.update.call_count
-            )
         self._delete_profiler_mocks()
 
     def test_profile(self):

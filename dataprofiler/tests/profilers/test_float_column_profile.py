@@ -640,15 +640,15 @@ class TestFloatColumn(unittest.TestCase):
 
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0,\
                                            'variance': 1.0, 'precision': 1.0,\
-                                           'histogram_and_quantiles': 15.0})
-            self.assertEqual(expected, profile['times'])
+                                           'histogram_and_quantiles': 15.0})            
+            self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0,\
                                            'variance': 2.0, 'precision': 2.0,\
                                            'histogram_and_quantiles': 30.0})
-            self.assertEqual(expected, profiler.profile['times'])
+            self.assertCountEqual(expected, profiler.profile['times'])
 
     def test_profile_merge(self):
         data = [2.0, 'not a float', 6.0, 'not a float']
@@ -763,6 +763,7 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.max.is_enabled = False
         options.min.is_enabled = False
+        options.histogram_and_quantiles.method = None
 
         data = [2, 4, 6, 8]
         df = pd.Series(data).apply(str)
@@ -773,6 +774,8 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.min.is_enabled = False
         options.precision.is_enabled = False
+        options.histogram_and_quantiles.method = None
+        
         data2 = [10, 15]
         df2 = pd.Series(data2).apply(str)
         profiler2 = FloatColumn("Float", options=options)
@@ -806,4 +809,16 @@ class TestFloatColumn(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,
                                    "FloatColumn parameter 'options' must be of"
                                    " type FloatOptions."):
-            profiler = FloatColumn("Float", options="wrong_data_type") 
+            profiler = FloatColumn("Float", options="wrong_data_type")
+
+    def test_histogram_option_integration(self):
+        options = FloatOptions()
+        options.histogram_and_quantiles.method = "sturges"
+        num_profiler = FloatColumn(name="test", options=options)
+        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
+
+        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        num_profiler = FloatColumn(name="test2", options=options)
+        self.assertIsNone(num_profiler.histogram_selection)
+        self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)

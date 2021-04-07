@@ -207,14 +207,14 @@ class TestTextColumnProfiler(unittest.TestCase):
             quantiles = profile.pop('quantiles')
             histogram = profile.pop('histogram')
             # key and value populated correctly
-            self.assertDictEqual(expected_profile, profile)
+            self.assertCountEqual(expected_profile, profile)
             self.assertTrue(np.all(
                 expected_histogram['bin_counts'] == histogram['bin_counts']
             ))
             self.assertTrue(np.all(
                 expected_histogram['bin_edges'] == histogram['bin_edges']
             ))
-            self.assertDictEqual(
+            self.assertCountEqual(
                 expected_quantiles, {
                     0: quantiles[249], 1: quantiles[499], 2: quantiles[749]})
 
@@ -230,7 +230,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.profile['times'])
+            self.assertCountEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
 
             # Validate the time in the datetime class has the expected time.
@@ -242,7 +242,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     'variance': 1.0,
                                     'histogram_and_quantiles': 15.0,
                                     'vocab': 1.0})
-            self.assertEqual(expected, profile['times'])
+            self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second
             # update
@@ -253,7 +253,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     'variance': 2.0,
                                     'histogram_and_quantiles': 30.0,
                                     'vocab': 2.0})
-            self.assertEqual(expected, profiler.profile['times'])
+            self.assertCountEqual(expected, profiler.profile['times'])
 
     def test_merge_profile(self):
         df = pd.Series(
@@ -281,7 +281,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertEqual(profiler3.sample_size,
                          profiler.sample_size + profiler2.sample_size)
         self.assertEqual(profiler3.max, profiler2.max)
-        self.assertEqual(expected_vocab, profiler3.vocab)
+        self.assertCountEqual(expected_vocab, profiler3.vocab)
 
     def test_merge_timing(self):
         profiler1 = TextColumn("placeholder_name")
@@ -296,13 +296,14 @@ class TestTextColumnProfiler(unittest.TestCase):
 
             # __add__() call adds 1 so expected is 6
             expected_times = defaultdict(float, {'vocab': 6.0})
-            self.assertDictEqual(expected_times, profiler3.profile['times'])
+            self.assertCountEqual(expected_times, profiler3.profile['times'])
 
     def test_profile_merge_with_different_options(self):
         # Creating first profiler with default options
         options = TextOptions()
         options.max.is_enabled = False
         options.min.is_enabled = False
+        options.histogram_and_quantiles.method = None
 
         df = pd.Series(
             ["pancake", "banana", "lighthouse", "aa", "b", "4", "3", "2", "dfd", "2"]
@@ -316,6 +317,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.min.is_enabled = False
         options.max.is_enabled = False
         options.vocab.is_enabled = False
+        options.histogram_and_quantiles.method = None
         df2 = pd.Series(
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
         )
@@ -343,3 +345,15 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     "TextColumn parameter 'options' must be of"
                                     " type TextOptions."):
             profiler = TextColumn("Text", options="wrong_data_type")
+
+    def test_histogram_option_integration(self):
+        options = TextOptions()
+        options.histogram_and_quantiles.method = "sturges"
+        num_profiler = TextColumn(name="test", options=options)
+        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
+
+        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        num_profiler = TextColumn(name="test2", options=options)
+        self.assertIsNone(num_profiler.histogram_selection)
+        self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)

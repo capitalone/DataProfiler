@@ -300,14 +300,15 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     encoding = detector.result["encoding"]
 
     # Typical file representation is utf-8 instead of ascii, treat as such.
-    if not encoding or encoding == 'ascii' or encoding == 'Windows-1254':
+    if not encoding or encoding.lower() in ['ascii', 'windows-1254']:
         encoding = 'utf-8'
 
     # Check if encoding can be used to decode without throwing an error
     def _decode_is_valid(encoding):
         try: 
-            open(file_path, "rb").read().decode(encoding.lower())
-            return True
+            with open(file_path, "rb", encoding=encoding) as input_file:
+                input_file.read(1024*1024)
+                return True
         except: return False
 
     if not _decode_is_valid(encoding):
@@ -316,7 +317,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
             
             # Try with small sample 
             with open(file_path, 'rb') as input_file:
-                raw_data = input_file.read(2560)
+                raw_data = input_file.read(10000)
                 result = CnM.from_bytes(raw_data, steps=5, 
                                         chunk_size=512, threshold=0.2,
                                         cp_isolation=None, cp_exclusion=None,

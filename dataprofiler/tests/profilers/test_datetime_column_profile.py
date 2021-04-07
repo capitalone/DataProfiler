@@ -261,7 +261,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             expected = defaultdict(float, {'datetime': 1.0})
             self.assertEqual(expected, profiler.profile['times'])
             profile = profiler.profile
-            self.assertDictEqual(expected_profile, profile)
+            self.assertCountEqual(expected_profile, profile)
             
             # Validate time in datetime class has expected time after second
             # update
@@ -328,7 +328,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         self.assertEqual('Mar 12, 2013', merged_profile.max)
 
         # checks for date format merge
-        self.assertEqual(
+        self.assertCountEqual(
             ['%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%S.%fZ',
              '%m/%d/%Y %H:%M', '%H:%M:%S.%f', '%b %d, %Y'],
             merged_profile.date_formats)

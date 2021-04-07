@@ -28,14 +28,13 @@ from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions, \
     DataLabelerOptions
 
-
 class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
-                 options=None):
+                 sample_ids=None, pool=None, options=None):
         """
-        Instantiate the Structured Profiler class.
+        Instantiate the Structured Profiler class for a given column.
         
         :param df_series: Data to be profiled
         :type df_series: pandas.core.series.Series
@@ -44,6 +43,10 @@ class StructuredDataProfile(object):
         :param min_true_samples: Minimum number of samples required for the
             profiler
         :type min_true_samples: int
+        :param sample_ids: Randomized list of sample indices
+        :type sample_ids: list(list)
+        :param pool: pool utilized for multiprocessing
+        :type pool: multiprocessing.Pool
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
@@ -67,6 +70,7 @@ class StructuredDataProfile(object):
         self.null_count = 0
         self.null_types = list()
         self.null_types_index = {}
+                
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
         if sample_size < len(df_series):
@@ -74,13 +78,17 @@ class StructuredDataProfile(object):
                           "All statistics will be based on this subsample and "
                           "not the whole dataset.".format(sample_size))
         clean_sampled_df, base_stats = \
-            self.get_base_props_and_clean_null_params(df_series, sample_size)
+            self.get_base_props_and_clean_null_params(
+                df_series, sample_size, sample_ids=sample_ids)
         self._update_base_stats(base_stats)
+
         self.profiles = {
             'data_type_profile':
-            ColumnPrimitiveTypeProfileCompiler(clean_sampled_df, self.options),
+            ColumnPrimitiveTypeProfileCompiler(
+                clean_sampled_df, self.options, pool),
             'data_stats_profile':
-            ColumnStatsProfileCompiler(clean_sampled_df, self.options)
+            ColumnStatsProfileCompiler(
+                clean_sampled_df, self.options, pool)
         }
 
         use_data_labeler = True
@@ -176,29 +184,12 @@ class StructuredDataProfile(object):
                 profile[key] = None
 
         return profile
-
-    @staticmethod
-    def _combine_unique_sets(a, b):
-        """
-        Method to union two lists.
-        
-        :type a: list
-        :type b: list
-        :rtype: list
-        """
-        if not a and not b:
-            return list()
-        elif not a:
-            return b
-        elif not b:
-            return a
-        return list(OrderedDict.fromkeys(a + b))
-
+    
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
-        self.null_types = self._combine_unique_sets(
+        self.null_types = utils._combine_unique_sets(
             self.null_types, list(base_stats["null_types"].keys())
         )
 
@@ -207,18 +198,40 @@ class StructuredDataProfile(object):
                 null_rows.sort()
             self.null_types_index.setdefault(null_type, set()).update(null_rows)
 
-    def update_profile(self, df_series, sample_size=None, min_true_samples=None):
+
+    def update_profile(self, df_series, sample_size=None,
+                       min_true_samples=None, sample_ids=None,
+                       pool=None):
+        """
+        Update the column profiler
+        
+        :param df_series: Data to be profiled
+        :type df_series: pandas.core.series.Series
+        :param sample_size: Number of samples to use in generating profile
+        :type sample_size: int
+        :param min_true_samples: Minimum number of samples required for the
+            profiler
+        :type min_true_samples: int
+        :param sample_ids: Randomized list of sample indices
+        :type sample_ids: list(list)
+        :param pool: pool utilized for multiprocessing
+        :type pool: multiprocessing.Pool        
+        """
         if not sample_size:
             sample_size = len(df_series)
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
         clean_sampled_df, base_stats = \
             self.get_base_props_and_clean_null_params(
-                df_series, sample_size, min_true_samples=min_true_samples)
+                df_series, sample_size,
+                min_true_samples=min_true_samples,
+                sample_ids=sample_ids
+            )
         self._update_base_stats(base_stats)
-            
+
+        # Profile compilers being updated
         for profile in self.profiles.values():
-            profile.update_profile(clean_sampled_df)
+            profile.update_profile(clean_sampled_df, pool)
 
 
     def _get_sample_size(self, df_series):
@@ -231,14 +244,15 @@ class StructuredDataProfile(object):
         :rtype: int
         """
         len_df = len(df_series)
-        if len_df < self._min_sample_size:
+        if len_df <= self._min_sample_size:
             return int(len_df)
         return max(int(self._sampling_ratio * len_df), self._min_sample_size)
 
     # TODO: flag column name with null values and potentially return row
     #  index number in the error as well
     def get_base_props_and_clean_null_params(self, df_series, sample_size,
-                                             min_true_samples=None):
+                                             min_true_samples=None,
+                                             sample_ids=None):
         """
         Identify null characters and return them in a dictionary as well as
         remove any nulls in column.
@@ -250,6 +264,8 @@ class StructuredDataProfile(object):
         :param min_true_samples: Minimum number of samples required for the
             profiler
         :type min_true_samples: int
+        :param sample_ids: Randomized list of sample indices
+        :type sample_ids: list(list)
         :return: updated column with null removed and dictionary of null
             parameters
         :rtype: pd.Series, dict
@@ -277,16 +293,21 @@ class StructuredDataProfile(object):
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
 
-        sample_ind_generator = utils.shuffle_in_chunks(
-            len_df, chunk_size=sample_size)
-
+        # Select generator depending if sample_ids availablity
+        if sample_ids is None:
+            sample_ind_generator = utils.shuffle_in_chunks(
+                len_df, chunk_size=sample_size)
+        else:
+            sample_ind_generator = utils.partition(
+                sample_ids[0], chunk_size=sample_size)
+            
         na_columns = dict()
         true_sample_list = list()
         total_sample_size = 0
-        for sample_inds in sample_ind_generator:
-            total_sample_size += len(sample_inds)
+        for chunked_sample_ids in sample_ind_generator:
+            total_sample_size += len(chunked_sample_ids)
 
-            df_series_subset = df_series.iloc[sample_inds]
+            df_series_subset = df_series.iloc[chunked_sample_ids]
 
             query = '(' + '|'.join(null_values_and_flags.keys()) + ')'
             reg_ex_na = f"^{(query)}$"
@@ -309,7 +330,8 @@ class StructuredDataProfile(object):
                 break
             
         # close the generator in case it is not exhausted.
-        sample_ind_generator.close()
+        if sample_ids is None:
+            sample_ind_generator.close()
 
         df_series = df_series.loc[sorted(true_sample_list)]
         non_na = len(df_series)
@@ -383,23 +405,7 @@ class Profiler(object):
                 self.options.set({'data_labeler.data_labeler_object': data_labeler})
                 
             except Exception as e:
-
-                import warnings
-                warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
-                warning_msg += "Profiling Type: {}".format('data_labeler')
-                warning_msg += "\nException: {}".format(type(e).__name__)
-                warning_msg += "\nMessage: {}".format(e)
-                
-                # This is considered a major error
-                if type(e).__name__ == "ValueError":
-                    raise ValueError(e)
-                
-                warning_msg += "\n\nFor labeler errors, try installing "
-                warning_msg += "the extra ml requirements via:\n\n"
-                warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
-                
-                warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
-
+                utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
         self.update_profile(data)
@@ -616,15 +622,35 @@ class Profiler(object):
             def tqdm(l):
                 for i, e in enumerate(l):
                     print("Processing Column {}/{}".format(i+1, len(l)))
-                    yield e
-			
+                    yield e                    
+
+        # Shuffle indices ones and share with columns
+        sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
+
+        pool = None
+        if options.structured_options.multiprocess.is_enabled:
+            cpu_count = 1
+            try:
+                cpu_count = mp.cpu_count()
+            except NotImplementedError as e:
+                cpu_count = 1
+
+            # No additional advantage beyond 8 processes
+            # Always leave 1 cores free
+            if cpu_count > 2:
+                cpu_count = min(cpu_count-1, 8)
+                pool = mp.Pool(cpu_count)
+                print("Utilizing",cpu_count, "processes for profiling")
+        
         for col in tqdm(df.columns):
             if col in profile:
                 column_profile = profile[col]
                 column_profile.update_profile(
                     df[col],
                     sample_size=sample_size,
-                    min_true_samples=min_true_samples
+                    min_true_samples=min_true_samples,
+                    sample_ids=sample_ids,
+                    pool=pool
                 )
             else:
                 structured_options = None
@@ -634,8 +660,14 @@ class Profiler(object):
                     df[col],
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
+                    sample_ids=sample_ids,
+                    pool=pool,
                     options=structured_options
                 )
 
+        if pool is not None:
+            pool.close() # Close pool for new tasks
+            pool.join() # Wait for all workers to complete
+            
         return profile
 

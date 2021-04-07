@@ -1,10 +1,11 @@
-from dataprofiler.profilers.profiler_options import CategoricalOptions
-from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
+from dataprofiler.profilers.profiler_options import OrderOptions
+from dataprofiler.tests.profilers.profiler_options.test_base_column_options \
+     import TestBaseColumnOptions
 
 
-class TestCategoricalOptions(TestBaseColumnOptions):
+class TestOrderOptions(TestBaseColumnOptions):
     
-    option_class = CategoricalOptions
+    options_class = OrderOptions
     
     def test_init(self):
         super().test_init()

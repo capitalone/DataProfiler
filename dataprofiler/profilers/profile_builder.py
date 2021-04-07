@@ -431,9 +431,9 @@ class Profiler(object):
                              'profiles and cannot be added together.')
         merged_profile = Profiler(
             data=pd.DataFrame([]), samples_per_update=self._samples_per_update,
-            min_true_samples=self._min_true_samples, profiler_options=None
+            min_true_samples=self._min_true_samples,
+            profiler_options=self.options
         )
-        merged_profile.options = self.options
         merged_profile.encoding = self.encoding \
             if self.encoding == other.encoding else 'multiple files'
         merged_profile.file_type = self.file_type \

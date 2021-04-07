@@ -70,6 +70,7 @@ class StructuredDataProfile(object):
         self.null_count = 0
         self.null_types = list()
         self.null_types_index = {}
+                
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
         if sample_size < len(df_series):
@@ -183,30 +184,12 @@ class StructuredDataProfile(object):
                 profile[key] = None
 
         return profile
-
-    @staticmethod
-    def _combine_unique_sets(a, b):
-        """
-        Method to union two lists.
-        
-        :type a: list
-        :type b: list
-        :rtype: list
-        """
-        if not a and not b:
-            return list()
-        elif not a:
-            return b
-        elif not b:
-            return a
-        return list(OrderedDict.fromkeys(a + b))
-
     
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
-        self.null_types = self._combine_unique_sets(
+        self.null_types = utils._combine_unique_sets(
             self.null_types, list(base_stats["null_types"].keys())
         )
 
@@ -261,7 +244,7 @@ class StructuredDataProfile(object):
         :rtype: int
         """
         len_df = len(df_series)
-        if len_df < self._min_sample_size:
+        if len_df <= self._min_sample_size:
             return int(len_df)
         return max(int(self._sampling_ratio * len_df), self._min_sample_size)
 
@@ -309,7 +292,6 @@ class StructuredDataProfile(object):
 
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
-
 
         # Select generator depending if sample_ids availablity
         if sample_ids is None:
@@ -656,7 +638,9 @@ class Profiler(object):
             # No additional advantage beyond 8 processes
             # Always leave 1 cores free
             if cpu_count > 2:
-                pool = mp.Pool(min(cpu_count-1, 8))            
+                cpu_count = min(cpu_count-1, 8)
+                pool = mp.Pool(cpu_count)
+                print("Utilizing",cpu_count, "processes for profiling")
         
         for col in tqdm(df.columns):
             if col in profile:

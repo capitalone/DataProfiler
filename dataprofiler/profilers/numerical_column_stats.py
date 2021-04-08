@@ -414,16 +414,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             current_total_var, current_run_time)
         self.histogram_selection = selected_method
 
-    def _get_percentile(self, percentile):
+    def _get_percentile(self, percentiles):
         """
         Get value for the number where the given percentage of values fall below
         it.
 
-        :param percentile: Percentage of values to fall before the value
-        :type percentile: float
-        :return: Value for which the percentage of values in the distribution
-            fall before the percentage
+        :param percentiles: List of percentage of values to fall before the
+            value
+        :type percentiles: list[float]
+        :return: List of corresponding values for which the percentage of values
+            in the distribution fall before each percentage
         """
+
         selected_method = self.histogram_selection
         bin_counts = \
             self.histogram_methods[selected_method]['histogram']['bin_counts']
@@ -431,33 +433,45 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.histogram_methods[selected_method]['histogram']['bin_edges']
         num_edges = len(bin_edges)
 
-        if percentile == 100:
-            return bin_edges[-1]
-        percentile = float(percentile) / 100
+        quantiles = [0] * len(percentiles)
+        sorted_percentile_inds = np.argsort(percentiles)
 
+        bin_id = -1
         accumulated_count = 0
         bin_counts = bin_counts.astype(float)
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
 
-        bin_id = -1
-        # keep updating the total counts until it is
-        # close to the designated percentile
-        while accumulated_count < percentile:
-            bin_id += 1
-            accumulated_count += normalized_bin_counts[bin_id]
+        for ind in sorted_percentile_inds:
 
-        if accumulated_count == percentile:
-            if (num_edges % 2) == 0:
-                return 0.5 * (bin_edges[bin_id] + bin_edges[bin_id + 1])
+            percentile = percentiles[ind]
+            if percentile == 100:
+                quantiles[ind] = bin_edges[-1]
+                continue
+
+            percentile = float(percentile) / 100
+
+            # keep updating the total counts until it is
+            # close to the designated percentile
+            while accumulated_count < percentile:
+                bin_id += 1
+                accumulated_count += normalized_bin_counts[bin_id]
+
+            if accumulated_count == percentile:
+                if (num_edges % 2) == 0:
+                    quantiles[ind] = 0.5 * (bin_edges[bin_id]
+                                            + bin_edges[bin_id + 1])
+                else:
+                    quantiles[ind] = bin_edges[bin_id + 1]
             else:
-                return bin_edges[bin_id + 1]
-        else:
-            if bin_id == 0:
-                return 0.5 * (bin_edges[0] + bin_edges[1])
-            if (num_edges % 2) == 0:
-                return 0.5 * (bin_edges[bin_id - 1] + bin_edges[bin_id])
-            else:
-                return bin_edges[bin_id]
+                if bin_id == 0:
+                    quantiles[ind] = 0.5 * (bin_edges[0] + bin_edges[1])
+                elif (num_edges % 2) == 0:
+                    quantiles[ind] = 0.5 * (bin_edges[bin_id - 1]
+                                            + bin_edges[bin_id])
+                else:
+                    quantiles[ind] = bin_edges[bin_id]
+
+        return quantiles
 
     def _get_quantiles(self):
         """
@@ -466,10 +480,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         :return: list of quantiles
         """
-        size_bins = 100 / len(self.quantiles)
-        for bin_num in range(len(self.quantiles) - 1):
-            self.quantiles[bin_num] = self._get_percentile(
-                percentile=((bin_num + 1) * size_bins))
+        percentiles = np.linspace(0, 1, len(self.quantiles)+1)[1:]*100
+        self.quantiles = self._get_percentile(
+            percentiles=percentiles)
 
     def _update_helper(self, df_series_clean, profile):
         """

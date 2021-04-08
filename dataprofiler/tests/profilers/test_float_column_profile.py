@@ -28,7 +28,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.variance, 0)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
-        self.assertEqual(len(profiler.quantiles), 1000)
+        self.assertEqual(len(profiler.quantiles), 999)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
@@ -627,12 +627,12 @@ class TestFloatColumn(unittest.TestCase):
                 'bin_edges': np.array([2.5, 5.0, 7.5, 10.0, 12.5]),
             },
             quantiles={
-                0: 3.75,
-                1: 5.0,
-                2: 10.0
+                0: 35 / 8,  # 75% between 2.5 and 5 (histogram based)
+                1: (5 + 7.5) / 2,  # 50% between 5.0 and 7.5 (histogram based)
+                2: 35 / 4,  # 25% between 7.5 and 12.5 (histogram based)
             },
-            times=defaultdict(float, {'histogram_and_quantiles': 15.0,\
-                                      'precision': 1.0, 'max': 1.0, 'min': 1.0,\
+            times=defaultdict(float, {'histogram_and_quantiles': 15.0,
+                                      'precision': 1.0, 'max': 1.0, 'min': 1.0,
                                       'sum': 1.0, 'variance': 1.0}),
             precision={
                 'min': 1,

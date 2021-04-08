@@ -277,9 +277,9 @@ class TestIntColumn(unittest.TestCase):
                 'bin_edges': np.array([2.0, 10.0/3.0, 14.0/3.0, 6.0])
             },
             quantiles={
-                0: 8.0/3.0,
-                1: 8.0/3.0,
-                2: 4.0
+                0: 8 / 3,  # halfway between 2 and 3.333 (histogram based)
+                1: 10 / 3,  # 50% achieved at 10 / 3 (histogram based)
+                2: 14 / 3,  # halfway between between 10 / 3 and 6
             },
             times=defaultdict(
                 float, {'histogram_and_quantiles': 15.0, 'max': 1.0, 'min': 1.0,
@@ -294,8 +294,8 @@ class TestIntColumn(unittest.TestCase):
 
             # Validate the time in the datetime class has the expected time.
             profile = profiler.profile
-            # pop out the histogram and quartiles to test separately from the rest
-            # of the dict as we need comparison with some precision
+            # pop out the histogram and quartiles to test separately from the
+            # rest of the dict as we need comparison with some precision
             histogram = profile.pop('histogram')
             expected_histogram = expected_profile.pop('histogram')
             quartiles = profile.pop('quantiles')
@@ -307,21 +307,21 @@ class TestIntColumn(unittest.TestCase):
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
 
-            self.assertEqual(round(expected_quartiles[0], 12),
-                             round(quartiles[249], 12))
-            self.assertEqual(round(expected_quartiles[1], 12),
-                             round(quartiles[499], 12))
-            self.assertEqual(round(expected_quartiles[2], 12),
-                             round(quartiles[724], 12))
+            self.assertAlmostEqual(expected_quartiles[0], quartiles[249])
+            self.assertAlmostEqual(expected_quartiles[1], quartiles[499])
+            self.assertAlmostEqual(expected_quartiles[2], quartiles[749])
 
-            expected = defaultdict(float, {'min': 1.0, 'max': 1.0, 'sum': 1.0, 'variance': 1.0, \
-                                           'histogram_and_quantiles': 15.0})
+            expected = defaultdict(
+                float, {'min': 1.0, 'max': 1.0, 'sum': 1.0, 'variance': 1.0,
+                        'histogram_and_quantiles': 15.0})
             self.assertEqual(expected, profile['times'])
 
-            # Validate time in datetime class has expected time after second update
+            # Validate time in datetime class has expected time after second
+            # update
             profiler.update(df)
-            expected = defaultdict(float, {'min': 2.0, 'max': 2.0, 'sum': 2.0, 'variance': 2.0, \
-                                           'histogram_and_quantiles': 30.0})
+            expected = defaultdict(
+                float, {'min': 2.0, 'max': 2.0, 'sum': 2.0, 'variance': 2.0,
+                        'histogram_and_quantiles': 30.0})
             self.assertEqual(expected, profiler.profile['times'])
 
     def test_option_timing(self):

@@ -581,19 +581,22 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df)
         profile = profiler.profile
 
-        est_quartiles = profile['quantiles']
-        est_Q1 = est_quartiles[249]
-        est_Q2 = est_quartiles[499]
-        est_Q3 = est_quartiles[749]
+        est_quantiles = profile['quantiles']
+        est_Q1 = est_quantiles[249]
+        est_Q2 = est_quantiles[499]
+        est_Q3 = est_quantiles[749]
 
         data_to_num = [float(item) for item in data]
         exact_Q1 = np.percentile(data_to_num, 25)
         exact_Q2 = np.percentile(data_to_num, 50)
         exact_Q3 = np.percentile(data_to_num, 75)
 
+        self.assertEqual(999, len(est_quantiles))
+        self.assertAlmostEqual(1.003, est_quantiles[0])
         self.assertEqual(est_Q1, exact_Q1)
         self.assertEqual(est_Q2, exact_Q2)
         self.assertEqual(est_Q3, exact_Q3)
+        self.assertAlmostEqual(3.997, est_quantiles[-1])
 
     def test_data_type_ratio(self):
         data = np.linspace(-5, 5, 4)

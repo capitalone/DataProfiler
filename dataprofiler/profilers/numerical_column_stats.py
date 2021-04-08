@@ -79,7 +79,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                     'bin_edges': None
                 }
             }
-        self.quantiles = { bin_num: None for bin_num in range(1000) }
+        num_quantiles = 1000  # TODO: add to options
+        self.quantiles = {bin_num: None for bin_num in range(num_quantiles - 1)}
         self.__calculations = {
             "min": NumericStatsMixin._get_min,
             "max": NumericStatsMixin._get_max,
@@ -440,36 +441,39 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         accumulated_count = 0
         bin_counts = bin_counts.astype(float)
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
+        return np.interp(percentiles / 100,
+                         np.append([0], np.cumsum(normalized_bin_counts)),
+                         bin_edges).tolist()
 
-        for ind in sorted_percentile_inds:
-
-            percentile = percentiles[ind]
-            if percentile == 100:
-                quantiles[ind] = bin_edges[-1]
-                continue
-
-            percentile = float(percentile) / 100
-
-            # keep updating the total counts until it is
-            # close to the designated percentile
-            while accumulated_count < percentile:
-                bin_id += 1
-                accumulated_count += normalized_bin_counts[bin_id]
-
-            if accumulated_count == percentile:
-                if (num_edges % 2) == 0:
-                    quantiles[ind] = 0.5 * (bin_edges[bin_id]
-                                            + bin_edges[bin_id + 1])
-                else:
-                    quantiles[ind] = bin_edges[bin_id + 1]
-            else:
-                if bin_id == 0:
-                    quantiles[ind] = 0.5 * (bin_edges[0] + bin_edges[1])
-                elif (num_edges % 2) == 0:
-                    quantiles[ind] = 0.5 * (bin_edges[bin_id - 1]
-                                            + bin_edges[bin_id])
-                else:
-                    quantiles[ind] = bin_edges[bin_id]
+        # for ind in sorted_percentile_inds:
+        #
+        #     percentile = percentiles[ind]
+        #     if percentile == 100:
+        #         quantiles[ind] = bin_edges[-1]
+        #         continue
+        #
+        #     percentile = float(percentile) / 100
+        #
+        #     # keep updating the total counts until it is
+        #     # close to the designated percentile
+        #     while accumulated_count < percentile:
+        #         bin_id += 1
+        #         accumulated_count += normalized_bin_counts[bin_id]
+        #
+        #     if accumulated_count == percentile:
+        #         if (num_edges % 2) == 0:
+        #             quantiles[ind] = 0.5 * (bin_edges[bin_id]
+        #                                     + bin_edges[bin_id + 1])
+        #         else:
+        #             quantiles[ind] = bin_edges[bin_id + 1]
+        #     else:
+        #         if bin_id == 0:
+        #             quantiles[ind] = 0.5 * (bin_edges[0] + bin_edges[1])
+        #         elif (num_edges % 2) == 0:
+        #             quantiles[ind] = 0.5 * (bin_edges[bin_id - 1]
+        #                                     + bin_edges[bin_id])
+        #         else:
+        #             quantiles[ind] = bin_edges[bin_id]
 
         return quantiles
 
@@ -480,7 +484,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         :return: list of quantiles
         """
-        percentiles = np.linspace(0, 1, len(self.quantiles)+1)[1:]*100
+        percentiles = np.linspace(0, 100, len(self.quantiles) + 2)[1:-1]
         self.quantiles = self._get_percentile(
             percentiles=percentiles)
 

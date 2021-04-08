@@ -32,6 +32,21 @@ class FBetaScore(tf.keras.metrics.Metric):
     r"""Computes F-Beta score.
     Adapted and slightly modified from https://github.com/tensorflow/addons/blob/v0.12.0/tensorflow_addons/metrics/f_scores.py#L211-L283
 
+    # Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    # ==============================================================================
+
     It is the weighted harmonic mean of precision
     and recall. Output range is `[0, 1]`. Works for
     both multi-class and multi-label classification.
@@ -55,6 +70,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         F-Beta Score: float.
     """
 
+    # Modification: remove the run-time type checking for functions
     def __init__(self, num_classes, average=None, beta=1.0, threshold=None,
                  name="fbeta_score", dtype=None, **kwargs):
         super().__init__(name=name, dtype=dtype)
@@ -169,6 +185,22 @@ class FBetaScore(tf.keras.metrics.Metric):
 @tf.keras.utils.register_keras_serializable()
 class F1Score(FBetaScore):
     r"""Computes F-1 Score.
+
+    # Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    # ==============================================================================
+
     It is the harmonic mean of precision and recall.
     Output range is `[0, 1]`. Works for both multi-class
     and multi-label classification.
@@ -189,6 +221,7 @@ class F1Score(FBetaScore):
         F-1 Score: float.
     """
 
+    # Modification: remove the run-time type checking for functions
     def __init__(self, num_classes, average=None, threshold=None,
                  name="f1_score", dtype=None):
         super().__init__(num_classes, average, 1.0, threshold, name=name, dtype=dtype)

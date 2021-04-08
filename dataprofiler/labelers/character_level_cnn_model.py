@@ -39,6 +39,7 @@ class FBetaScore(tf.keras.metrics.Metric):
     # You may obtain a copy of the License at
     #
     #     http://www.apache.org/licenses/LICENSE-2.0
+    #     https://github.com/tensorflow/addons/blob/v0.12.0/LICENSE
     #
     # Unless required by applicable law or agreed to in writing, software
     # distributed under the License is distributed on an "AS IS" BASIS,
@@ -193,6 +194,7 @@ class F1Score(FBetaScore):
     # You may obtain a copy of the License at
     #
     #     http://www.apache.org/licenses/LICENSE-2.0
+    #     https://github.com/tensorflow/addons/blob/v0.12.0/LICENSE
     #
     # Unless required by applicable law or agreed to in writing, software
     # distributed under the License is distributed on an "AS IS" BASIS,

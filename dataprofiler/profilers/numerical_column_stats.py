@@ -432,6 +432,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.histogram_methods[selected_method]['histogram']['bin_counts']
         bin_edges = \
             self.histogram_methods[selected_method]['histogram']['bin_edges']
+
+        non_zero_inds = bin_counts != 0
+        bin_counts = bin_counts[non_zero_inds]
+        bin_edges = bin_edges[np.append([True], non_zero_inds)]
+
         bin_counts = bin_counts.astype(float)
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
         return np.interp(percentiles / 100,

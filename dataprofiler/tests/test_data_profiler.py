@@ -92,15 +92,16 @@ class TestDataProfiler(unittest.TestCase):
             if name == 'tensorflow':
                 raise ImportError('test')
             return orig_import(name, *args)
-                        
+
         with mock.patch('builtins.__import__', side_effect=import_mock):
 
             with self.assertWarns(RuntimeWarning) as w:
                 import dataprofiler
                 df = pandas.DataFrame([[1, 2.0],[1, 2.2],[-1, 3]])
                 profile = dataprofiler.Profiler(df)
-        
+
         warning_msg = "Partial Profiler Failure"
+        print(str(w.warning))
         self.assertIn(warning_msg, str(w.warning))
 
 if __name__ == '__main__':

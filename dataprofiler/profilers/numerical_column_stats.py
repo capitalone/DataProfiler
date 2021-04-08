@@ -432,50 +432,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.histogram_methods[selected_method]['histogram']['bin_counts']
         bin_edges = \
             self.histogram_methods[selected_method]['histogram']['bin_edges']
-        num_edges = len(bin_edges)
-
-        quantiles = [0] * len(percentiles)
-        sorted_percentile_inds = np.argsort(percentiles)
-
-        bin_id = -1
-        accumulated_count = 0
         bin_counts = bin_counts.astype(float)
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
         return np.interp(percentiles / 100,
                          np.append([0], np.cumsum(normalized_bin_counts)),
                          bin_edges).tolist()
-
-        # for ind in sorted_percentile_inds:
-        #
-        #     percentile = percentiles[ind]
-        #     if percentile == 100:
-        #         quantiles[ind] = bin_edges[-1]
-        #         continue
-        #
-        #     percentile = float(percentile) / 100
-        #
-        #     # keep updating the total counts until it is
-        #     # close to the designated percentile
-        #     while accumulated_count < percentile:
-        #         bin_id += 1
-        #         accumulated_count += normalized_bin_counts[bin_id]
-        #
-        #     if accumulated_count == percentile:
-        #         if (num_edges % 2) == 0:
-        #             quantiles[ind] = 0.5 * (bin_edges[bin_id]
-        #                                     + bin_edges[bin_id + 1])
-        #         else:
-        #             quantiles[ind] = bin_edges[bin_id + 1]
-        #     else:
-        #         if bin_id == 0:
-        #             quantiles[ind] = 0.5 * (bin_edges[0] + bin_edges[1])
-        #         elif (num_edges % 2) == 0:
-        #             quantiles[ind] = 0.5 * (bin_edges[bin_id - 1]
-        #                                     + bin_edges[bin_id])
-        #         else:
-        #             quantiles[ind] = bin_edges[bin_id]
-
-        return quantiles
 
     def _get_quantiles(self):
         """

@@ -1,12 +1,12 @@
-from dataprofiler.profilers.profiler_options import FloatOptions
-from dataprofiler.tests.profilers.test_numerical_options import TestNumericalOptions
+from dataprofiler.profilers.profiler_options import IntOptions
+from dataprofiler.tests.profilers.profiler_options.test_numerical_options \
+     import TestNumericalOptions
 
 
-class TestFloatOptions(TestNumericalOptions):
+class TestIntOptions(TestNumericalOptions):
     
-    option_class = FloatOptions    
-    keys = TestNumericalOptions.keys + ["precision"] 
-        
+    option_class = IntOptions
+
     def test_init(self):
         super().test_init()
     

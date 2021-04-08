@@ -1,5 +1,6 @@
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
+from . import utils
 
 
 class CategoricalColumn(BaseColumnProfiler):
@@ -71,7 +72,9 @@ class CategoricalColumn(BaseColumnProfiler):
             times=self.times
         )
         if self.is_match:
-            profile["statistics"].update(dict(categories=self.categories))
+            profile["statistics"].update(
+                dict(categories=self.categories)
+            )
         return profile
 
     @property
@@ -103,7 +106,7 @@ class CategoricalColumn(BaseColumnProfiler):
             is_match = True
         elif self.sample_size \
                 and self.unique_ratio <= self._CATEGORICAL_THRESHOLD_DEFAULT:
-            is_match = True
+            is_match = True            
         return is_match
 
     @BaseColumnProfiler._timeit(name="categories")
@@ -126,7 +129,7 @@ class CategoricalColumn(BaseColumnProfiler):
         if hasattr(df_series, 'tolist'):
             df_series = df_series.tolist()
 
-        self._categories = self._combine_unique_sets(
+        self._categories = utils._combine_unique_sets(
             self._categories, df_series)
 
     def _update_helper(self, df_series_clean, profile):
@@ -150,6 +153,9 @@ class CategoricalColumn(BaseColumnProfiler):
         :type df_series: pandas.core.series.Series
         :return: None
         """
+        if len(df_series) == 0:
+            return self
+        
         profile = dict(
             sample_size=len(df_series)
         )
@@ -159,3 +165,5 @@ class CategoricalColumn(BaseColumnProfiler):
             prev_dependent_properties={}, subset_properties=profile)
 
         self._update_helper(df_series, profile)
+
+        return self

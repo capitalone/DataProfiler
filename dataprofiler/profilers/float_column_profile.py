@@ -1,3 +1,4 @@
+import re
 import numpy as np
 
 from .numerical_column_stats import NumericStatsMixin
@@ -108,36 +109,13 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if not len(df_series_clean):
             return 0
 
-        # set it to first value length, at very least will be smaller since min.
-        precision = len(df_series_clean.iloc[0])
-        for value in df_series_clean:
-
-            # remove all spaces around value
-            value = value.strip()
-
-            # if scientific notation, remove e and everything after
-            e_ind = value.find('e')
-            if e_ind > -1:
-                value = value[:e_ind]
-
-            # remove negative of positive characters
-            if value[0] in ['+', '-']:
-                value = value[1:]
-
-            # if int: remove 0s on right, otherwise if float remove the decimal.
-            if '.' not in value:
-                value = value.rstrip('0')
-            else:
-                value = value.replace('.', '')
-
-            # strip all zeros on left
-            value = value.lstrip('0')
-            temp_precision = len(value)
-
-            # take the minimum precision
-            if temp_precision < precision:
-                precision = temp_precision
-        return precision
+        # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$)
+        # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
+        r = re.compile(r'^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D')
+        
+        return float(df_series_clean.replace(
+            to_replace=r, value='').map(len).min())
+        
 
     @classmethod
     def _is_each_row_float(cls, df_series):
@@ -194,31 +172,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if self._NumericStatsMixin__calculations:
             NumericStatsMixin._update_helper(self, df_series_clean, profile)
         self._update_column_base_properties(profile)
-
-    def update(self, df_series):
-        """
-        Updates the column profile.
-        :param df_series: df series
-        :type df_series: pandas.core.series.Series
-        :return: None
-        """
-        if len(df_series) == 0:
-            return
-        df_series = df_series.reset_index(drop=True)
-        is_each_row_float = self._is_each_row_float(df_series)
-        sample_size = len(is_each_row_float)
-        float_count = np.sum(is_each_row_float)
-        profile = dict(match_count=float_count, sample_size=sample_size)
-
-        BaseColumnProfiler._perform_property_calcs(
-            self, self.__calculations, df_series=df_series[is_each_row_float],
-            prev_dependent_properties={}, subset_properties=profile)
-
-        self._update_helper(
-            df_series_clean=df_series[is_each_row_float],
-            profile=profile
-        )
-
+        
     def _update_numeric_stats(self, df_series, prev_dependent_properties,
                               subset_properties):
         """
@@ -235,3 +189,31 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: None 
         """
         super(FloatColumn, self)._update_helper(df_series, subset_properties)
+        
+    def update(self, df_series):
+        """
+        Updates the column profile.
+        :param df_series: df series
+        :type df_series: pandas.core.series.Series
+        :return: None
+        """
+        if len(df_series) == 0:
+            return self
+        
+        df_series = df_series.reset_index(drop=True)
+        is_each_row_float = self._is_each_row_float(df_series)
+        sample_size = len(is_each_row_float)
+        float_count = np.sum(is_each_row_float)
+        profile = dict(match_count=float_count, sample_size=sample_size)
+
+        BaseColumnProfiler._perform_property_calcs(
+            self, self.__calculations, df_series=df_series[is_each_row_float],
+            prev_dependent_properties={}, subset_properties=profile)
+
+        self._update_helper(
+            df_series_clean=df_series[is_each_row_float],
+            profile=profile
+        )
+
+        return self
+        

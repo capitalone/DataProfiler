@@ -1,7 +1,8 @@
 import unittest
 
 from dataprofiler.profilers.profiler_options import BaseOption
-from dataprofiler.tests.profilers.abstract_test_options import AbstractTestOptions
+from dataprofiler.tests.profilers.profiler_options.abstract_test_options \
+     import AbstractTestOptions
 
 
 class TestBaseOption(AbstractTestOptions, unittest.TestCase):

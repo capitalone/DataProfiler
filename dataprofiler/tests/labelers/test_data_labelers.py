@@ -61,7 +61,7 @@ class TestDataLabelerTrainer(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,
                                     "The `save_dirpath` is not valid or not "
                                     "accessible."):
-            dp.train_structured_labeler(pd.DataFrame([]), "/a/test")
+            dp.train_structured_labeler(pd.DataFrame([]), save_dirpath="/a/test")
 
         try:
             data = {'UNKNOWN': ["Beep", "Boop"],

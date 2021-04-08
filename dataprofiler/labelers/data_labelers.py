@@ -11,7 +11,7 @@ default_labeler_dir = pkg_resources.resource_filename(
 )
 
 
-def train_structured_labeler(data, save_dirpath=None, epochs=2):
+def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs=2):
     """
     Uses provided data to create and save a structured data labeler
 
@@ -48,6 +48,10 @@ def train_structured_labeler(data, save_dirpath=None, epochs=2):
 
     data_labeler = DataLabeler(labeler_type='structured', trainable=True)
     labels = value_label_df[1].unique().tolist()
+
+    if default_label and default_label not in labels:
+        labels.append(default_label)
+
     data_labeler.fit(
         x=value_label_df[0], y=value_label_df[1], labels=labels, epochs=epochs)
     if save_dirpath:

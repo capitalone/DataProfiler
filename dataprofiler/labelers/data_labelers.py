@@ -49,8 +49,10 @@ def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs
     data_labeler = DataLabeler(labeler_type='structured', trainable=True)
     labels = value_label_df[1].unique().tolist()
 
-    if default_label and default_label not in labels:
-        labels.append(default_label)
+    if default_label:
+        params = {'default_label': default_label}
+        data_labeler.set_params(
+            {'preprocessor': params, 'model': params, 'postprocessor': params})
 
     data_labeler.fit(
         x=value_label_df[0], y=value_label_df[1], labels=labels, epochs=epochs)

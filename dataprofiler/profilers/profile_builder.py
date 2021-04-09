@@ -28,6 +28,7 @@ from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions, \
     DataLabelerOptions
 
+
 class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=5000,
@@ -124,7 +125,9 @@ class StructuredDataProfile(object):
             min_sample_size=max(self._min_sample_size, other._min_sample_size),
             sampling_ratio=max(self._sampling_ratio, other._sampling_ratio),
             min_true_samples=max(self._min_true_samples,
-                                 other._min_true_samples))
+                                 other._min_true_samples),
+            options=self.options,
+        )
 
         merged_profile.name = self.name
         merged_profile._update_base_stats(
@@ -431,9 +434,9 @@ class Profiler(object):
                              'profiles and cannot be added together.')
         merged_profile = Profiler(
             data=pd.DataFrame([]), samples_per_update=self._samples_per_update,
-            min_true_samples=self._min_true_samples, profiler_options=None
+            min_true_samples=self._min_true_samples,
+            profiler_options=self.options
         )
-        merged_profile.options = self.options
         merged_profile.encoding = self.encoding \
             if self.encoding == other.encoding else 'multiple files'
         merged_profile.file_type = self.file_type \

@@ -1,5 +1,7 @@
-from dataprofiler.profilers.profiler_options import BooleanOption, NumericalOptions
-from dataprofiler.tests.profilers.test_base_column_options import TestBaseColumnOptions
+from dataprofiler.profilers.profiler_options \
+     import BooleanOption, NumericalOptions
+from dataprofiler.tests.profilers.profiler_options.test_base_column_options \
+     import TestBaseColumnOptions
 
 
 class TestNumericalOptions(TestBaseColumnOptions):
@@ -10,7 +12,7 @@ class TestNumericalOptions(TestBaseColumnOptions):
     def test_init(self):
         options = self.get_options()
         for key in self.keys + ['is_numeric_stats_enabled', 'is_enabled']:
-            self.assertTrue(key in options.properties)
+            self.assertIn(key, options.properties)
     
     def test_set_helper(self):
         super().test_set_helper()
@@ -21,7 +23,7 @@ class TestNumericalOptions(TestBaseColumnOptions):
             skey = '{}.is_enabled'.format(key)
             for enabled in [True, False]:
                 options._set_helper({skey:enabled}, '') 
-                self.assertEqual(enabled, options.properties[key].is_enabled)        
+                self.assertEqual(enabled, options.properties[key].is_enabled) 
 
     def test_set(self):
         super().test_set()
@@ -32,7 +34,7 @@ class TestNumericalOptions(TestBaseColumnOptions):
             skey = '{}.is_enabled'.format(key)
             for enabled in [True, False]:
                 options.set({skey:enabled}) 
-                self.assertEqual(enabled, options.properties[key].is_enabled)        
+                self.assertEqual(enabled, options.properties[key].is_enabled)
     
     def test_validate_helper(self):
         super().test_validate_helper()
@@ -42,7 +44,8 @@ class TestNumericalOptions(TestBaseColumnOptions):
         # Set BooleanOptions' is_enabled to a non-boolean value
         for key in self.keys:
             skey = '{}.is_enabled'.format(key)
-            expected_error = "{}.{}.is_enabled must be a Boolean.".format(optpth, key)
+            expected_error = "{}.{}.is_enabled must be a Boolean." \
+                             .format(optpth, key)
             
             options.set({skey: "Hello World"})
             self.assertEqual([expected_error], options._validate_helper())
@@ -50,7 +53,8 @@ class TestNumericalOptions(TestBaseColumnOptions):
 
         # Disable Sum and Enable Variance
         options.set({"sum.is_enabled": False, "variance.is_enabled": True})
-        expected_error = "{}: The numeric stats must toggle on the sum if the variance is toggled on.".format(optpth)
+        expected_error = "{}: The numeric stats must toggle on the sum if " \
+                         "the variance is toggled on.".format(optpth)
         self.assertEqual([expected_error], options._validate_helper()) 
     
     def test_validate(self):
@@ -61,27 +65,32 @@ class TestNumericalOptions(TestBaseColumnOptions):
         # Set BooleanOptions' is_enabled to a non-boolean value
         for key in self.keys:
             skey = '{}.is_enabled'.format(key)
-            expected_error = "{}.{}.is_enabled must be a Boolean.".format(optpth, key)
+            expected_error = "{}.{}.is_enabled must be a Boolean." \
+                             .format(optpth, key)
             
             options.set({skey: "Hello World"})
             with self.assertRaisesRegex(ValueError, expected_error):
                 options.validate(raise_error=True)    
-            self.assertEqual([expected_error], options.validate(raise_error=False))
+            self.assertEqual([expected_error], 
+                             options.validate(raise_error=False))
             options.set({skey: True})
 
         # Disable Sum and Enable Variance
         options.set({"sum.is_enabled": False, "variance.is_enabled": True})
-        expected_error = "{}: The numeric stats must toggle on the sum if the variance is toggled on.".format(optpth)
+        expected_error = "{}: The numeric stats must toggle on the sum if " \
+                         "the variance is toggled on.".format(optpth)
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)    
-        self.assertEqual([expected_error], options.validate(raise_error=False)) 
+        self.assertEqual([expected_error], options.validate(raise_error=False))
     
     def test_is_numeric_stats_enabled(self):
         options = self.get_options()
-        numeric_keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]    
+        numeric_keys = ["min", "max", "sum", "variance", 
+                        "histogram_and_quantiles"] 
 
         # Disable All Numeric Stats
-        options.set({'{}.is_enabled'.format(key):False for key in numeric_keys})
+        options.set({'{}.is_enabled'.format(key):False 
+                     for key in numeric_keys})
         self.assertFalse(options.is_numeric_stats_enabled)
         
         # Enable Only One Numeric Stat

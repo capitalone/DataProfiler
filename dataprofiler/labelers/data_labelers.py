@@ -33,6 +33,8 @@ def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs
             "Input data must be either a `pd.DataFrame` or a "
             "`data_profiler.Data` and not of type `TextData`."
         )
+    if not isinstance(default_label, str):
+        raise TypeError("Default label must be a string.")
     if save_dirpath is not None:
         if not isinstance(save_dirpath, str):
             raise TypeError("The output dirpath must be a string.")

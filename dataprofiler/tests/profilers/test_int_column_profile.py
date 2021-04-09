@@ -277,8 +277,8 @@ class TestIntColumn(unittest.TestCase):
                 'bin_edges': np.array([2.0, 10.0/3.0, 14.0/3.0, 6.0])
             },
             quantiles={
-                0: 8 / 3,  # halfway between 2 and 3.333 (histogram based)
-                1: 10 / 3,  # 50% achieved at 10 / 3 (histogram based)
+                0: 8 /  3,  # halfway between 2 and 3.333 (histogram based)
+                1: 4.0   ,  # median between 2 and 6
                 2: 16 / 3,  # halfway between between 14 / 3 and 6
             },
             times=defaultdict(

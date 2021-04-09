@@ -439,14 +439,22 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
         cumsum_bin_counts = np.cumsum(normalized_bin_counts)
 
+        median_value = None
+        median_bin_inds = cumsum_bin_counts == 0.5
+        if np.sum(median_bin_inds) > 1:
+            median_value = np.mean(bin_edges[np.append([False], median_bin_inds)])
+
         # use the floor by slightly increasing cases where no bin exist.
         cumsum_bin_counts[zero_inds] += 1e-15
 
         # add initial zero bin
         cumsum_bin_counts = np.append([0], cumsum_bin_counts)
 
-        return np.interp(
-            percentiles / 100, cumsum_bin_counts, bin_edges).tolist()
+        quantiles = np.interp(percentiles / 100,
+                              cumsum_bin_counts, bin_edges).tolist()
+        if median_value:
+            quantiles[499] = median_value
+        return quantiles
 
     def _get_quantiles(self):
         """

@@ -433,14 +433,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_edges = \
             self.histogram_methods[selected_method]['histogram']['bin_edges']
 
-        non_zero_inds = bin_counts == 0
+        zero_inds = bin_counts == 0
 
         bin_counts = bin_counts.astype(float)
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
         cumsum_bin_counts = np.cumsum(normalized_bin_counts)
 
         # use the floor by slightly increasing cases where no bin exist.
-        cumsum_bin_counts[non_zero_inds] += 1e-15
+        cumsum_bin_counts[zero_inds] += 1e-15
 
         # add initial zero bin
         cumsum_bin_counts = np.append([0], cumsum_bin_counts)

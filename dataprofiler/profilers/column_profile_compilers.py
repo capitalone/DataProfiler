@@ -10,7 +10,6 @@ from . import OrderColumn, CategoricalColumn
 from . import DataLabelerColumn
 from .profiler_options import StructuredOptions
 
-import multiprocessing as mp
 
 class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
 
@@ -20,20 +19,20 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
     def __repr__(self):
         return self.__class__.__name__
 
-    def __init__(self, df_series, options=None, pool=None):
+    def __init__(self, df_series=None, options=None, pool=None):
         if not self._profilers:
             raise NotImplementedError("Must add profilers.")
 
-        self.name = df_series.name
         self._profiles = OrderedDict()
-        self._create_profile(df_series, options, pool)
+        if df_series is not None:
+            self.name = df_series.name
+            self._create_profile(df_series, options, pool)
 
         
     @property
     @abc.abstractmethod
     def profile(self):
         raise NotImplementedError()
-
     
     def _create_profile(self, df_series, options=None, pool=None):
         """
@@ -73,7 +72,6 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
 
         # Update profile after creation
         self.update_profile(df_series, pool)
-                        
 
     def __add__(self, other):
         """
@@ -94,14 +92,13 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
             raise ValueError('Column profilers were not setup with the same '
                              'options, hence they do not calculate the same '
                              'profiles and cannot be added together.')
-        merged_profile_compiler = self.__class__(pd.Series([]))
+        merged_profile_compiler = self.__class__()
         merged_profile_compiler.name = self.name
         for profile_name in self._profiles:
             merged_profile_compiler._profiles[profile_name] = (
                 self._profiles[profile_name] + other._profiles[profile_name]
             )
         return merged_profile_compiler
-
 
     def update_profile(self, df_series, pool=None):
         """
@@ -161,6 +158,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         for col_profile in single_process_list:
             self._profiles[col_profile].update(df_series)
         return self
+
 
 class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
     

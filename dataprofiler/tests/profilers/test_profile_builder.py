@@ -558,57 +558,5 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(9, profile._get_duplicate_row_count())
 
 
-    def test_add_profilers(self, *mocks):
-        #file_path = os.path.join(test_root_path, 'data', 'csv/aws_honeypot_marx_geo.csv')
-        file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
-        data = pd.read_csv(file_path)
-        options = ProfilerOptions()
-        options.structured_options.multiprocess.is_enabled = False
-        profile1 = dp.Profiler(data, profiler_options=options)
-        profile2 = dp.Profiler(data, profiler_options=options)
-        import time
-        ts = time.time()
-        @profile
-        def merge():
-            merged_profile = profile1 + profile2
-        merge()
-        #merged_profile = profile1 + profile2
-        time1 = time.time() - ts
-        print(time1)
-        
-        data = pd.read_csv(file_path)
-        options = ProfilerOptions()
-        options.structured_options.multiprocess.is_enabled = True
-        profile1 = dp.Profiler(data, profiler_options=options)
-        profile2 = dp.Profiler(data, profiler_options=options)
-        import time
-        ts = time.time()
-        merged_profile = profile1 + profile2
-        time2 = time.time() - ts
-        print(time2)
-        
-        
-        """
-        # test success
-        profile1._profile = dict(test=1)
-        profile2._profile = dict(test=2)
-        merged_profile = profile1 + profile2
-        self.assertEqual(3, merged_profile._profile['test'])
-        self.assertIsNone(merged_profile.encoding)
-        self.assertEqual(
-            "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type)
-        self.assertEqual(2, merged_profile.row_has_null_count)
-        self.assertEqual(2, merged_profile.row_is_null_count)
-        self.assertEqual(6, merged_profile.total_samples)
-        self.assertEqual(5, len(merged_profile.hashed_row_dict))
-
-        # test success if drawn from multiple files
-        profile2.encoding = 'test'
-        profile2.file_type = 'test'
-        merged_profile = profile1 + profile2
-        self.assertEqual('multiple files', merged_profile.encoding)
-        self.assertEqual('multiple files', merged_profile.file_type)
-        """
-
 if __name__ == '__main__':
     unittest.main()

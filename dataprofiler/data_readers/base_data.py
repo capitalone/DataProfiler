@@ -53,9 +53,9 @@ class BaseData(object):
 
     @property
     def data(self):
-        print("hello")
-        self._load_data()
-        print("Okay")
+        if self._data is None:
+            self._load_data()
+
         allowed_data_formats = list(self._data_formats.keys())
         if not self._selected_data_format:
             return self._data

@@ -433,11 +433,20 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_edges = \
             self.histogram_methods[selected_method]['histogram']['bin_edges']
 
+        non_zero_inds = bin_counts == 0
+
         bin_counts = bin_counts.astype(float)
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
-        return np.interp(percentiles / 100,
-                         np.append([0], np.cumsum(normalized_bin_counts)),
-                         bin_edges).tolist()
+        cumsum_bin_counts = np.cumsum(normalized_bin_counts)
+
+        # use the floor by slightly increasing cases where no bin exist.
+        cumsum_bin_counts[non_zero_inds] += 1e-12
+
+        # add initial zero bin
+        cumsum_bin_counts = np.append([0], cumsum_bin_counts)
+
+        return np.interp(
+            percentiles / 100, cumsum_bin_counts, bin_edges).tolist()
 
     def _get_quantiles(self):
         """

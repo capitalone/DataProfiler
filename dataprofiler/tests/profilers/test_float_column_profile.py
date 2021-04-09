@@ -627,9 +627,9 @@ class TestFloatColumn(unittest.TestCase):
                 'bin_edges': np.array([2.5, 5.0, 7.5, 10.0, 12.5]),
             },
             quantiles={
-                0: 35 / 8,  # 75% between 2.5 and 5 (histogram based)
-                1: (5 + 7.5) / 2,  # 50% between 5.0 and 7.5 (histogram based)
-                2: 35 / 4,  # 25% between 7.5 and 12.5 (histogram based)
+                0: 4.375,  # 75% between 2.5 and 5 (histogram based)
+                1: 6.25,  # 50% between 5.0 and 7.5 (histogram based)
+                2: 10.625,  # 25% between 10.0 and 12.5 (histogram based)
             },
             times=defaultdict(float, {'histogram_and_quantiles': 15.0,
                                       'precision': 1.0, 'max': 1.0, 'min': 1.0,

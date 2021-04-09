@@ -279,7 +279,7 @@ class TestIntColumn(unittest.TestCase):
             quantiles={
                 0: 8 / 3,  # halfway between 2 and 3.333 (histogram based)
                 1: 10 / 3,  # 50% achieved at 10 / 3 (histogram based)
-                2: 14 / 3,  # halfway between between 10 / 3 and 6
+                2: 16 / 3,  # halfway between between 14 / 3 and 6
             },
             times=defaultdict(
                 float, {'histogram_and_quantiles': 15.0, 'max': 1.0, 'min': 1.0,

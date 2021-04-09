@@ -34,6 +34,8 @@ class TestDataReadingWriting(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'txt/utf8.txt'),
                  encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/zomato.csv'),
+                 encoding='utf-8'), 
+            dict(path=os.path.join(test_dir, 'csv/reddit_wsb.csv'),
                  encoding='utf-8') 
         ]
 

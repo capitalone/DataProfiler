@@ -135,6 +135,21 @@ class TestJSONDataClass(unittest.TestCase):
             self.assertEqual(input_file['count'],
                              data.length,
                              msg=input_file['path'])
+        
+    def test_intuitive_json_detection(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/math.json')
+
+        math = Data(input_file_name, 
+                    options={"intuitive_detection": True})
+
+        self.assertTrue("meta.view.columns.cachedContents.largest" 
+                        in math.data.columns)
+        self.assertEqual(math.data["meta.view.columns.cachedContents.largest"][9]
+                         ,"102188")
+        self.assertTrue("data.22" in math.data.columns)
+        self.assertEqual(math.data["data.22"][167], "77.9")
+
 
 
 if __name__ == '__main__':

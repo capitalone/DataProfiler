@@ -2,7 +2,7 @@ from collections import OrderedDict
 import json
 
 import numpy as np
-
+import pandas as pd
 from . import data_utils
 from .base_data import BaseData
 from .structured_mixins import SpreadSheetDataMixin
@@ -54,6 +54,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
         self._selected_data_format = options.get("data_format", "dataframe")
+        self._intuitive_detection = options.get("intuitive_detection", False)
         self._selected_keys = options.get("selected_keys", list())
 
         if data is not None:
@@ -63,21 +64,93 @@ class JSONData(SpreadSheetDataMixin, BaseData):
     def selected_keys(self):
         return self._selected_keys
 
+    def _find_data(self, json_lines, path=""):
+        """
+        Finds all the column headers/data in a Json and returns them as a 
+        list.
+
+        :param json_lines: json format list of dicts or dict
+        :type json_lines: list or string or dict
+        :return: list of dicts of {column headers: values}
+        """
+        if path != "":
+            path = path + "."
+
+        list_of_dict = []
+        if isinstance(json_lines, dict):
+            for key in json_lines:
+                if isinstance(json_lines[key], dict):
+                    list_of_dict = list_of_dict + self._find_data(
+                        json_lines[key], path + key)
+                elif isinstance(json_lines[key], list):
+                    if isinstance(json_lines[key][0], dict):
+                        for item in json_lines[key]:
+                            list_of_dict = list_of_dict + self._find_data(item, path + key)
+                    else:
+                        list_of_dict = list_of_dict + [{path+key: json_lines[key]}]
+                else:
+                    list_of_dict = list_of_dict + [{path+key: json_lines[key]}]
+        else:
+            list_of_dict = list_of_dict + [{path: json_lines}]
+        return list_of_dict
+
+
     def _load_data_from_json_format(self, json_lines):
         """
         Loads the data when in a JSON format such as
         `json_lines = [dict(a=1), dict(a=2)]`
-        
+
         :param json_lines: json format list of dicts or dict
         :return:
         """
-        if isinstance(json_lines, dict):
-            json_lines = [json_lines]
-        data, original_df_dtypes = data_utils.json_to_dataframe(
-            json_lines=json_lines,
-            selected_columns=self.selected_keys,
-            read_in_string=False
-        )
+        if self._intuitive_detection:
+            bulk_data = None
+            if isinstance(json_lines, dict):
+                if "data" in json_lines.keys():
+                    bulk_data = json_lines["data"]
+                    bulk_data, original_df_dtypes = data_utils.json_to_dataframe(
+                        json_lines=bulk_data,
+                        selected_columns=self.selected_keys,
+                        read_in_string=False
+                    )
+                    for column in bulk_data.columns:
+                        bulk_data.rename(
+                            columns={column: "data." + str(column)},
+                            inplace=True)
+                    del json_lines["data"]
+                list_of_additions = self._find_data(json_lines)
+
+                coalesced_list_of_additions = []
+                for item in list_of_additions:
+                    if len(coalesced_list_of_additions) == 0:
+                        coalesced_list_of_additions.append(item)
+                    else:
+                        found = False
+                        for dict_items in coalesced_list_of_additions:
+                            if list(item.keys())[0] not in dict_items:
+                                dict_items[list(item.keys())[0]] = item[
+                                    list(item.keys())[0]]
+                                found = True
+                                break
+                        if found == False:
+                            coalesced_list_of_additions.append(item)
+
+            data, original_df_dtypes = data_utils.json_to_dataframe(
+                json_lines=coalesced_list_of_additions,
+                selected_columns=self.selected_keys,
+                read_in_string=False
+            )
+            if bulk_data is not None:
+                data = [data, bulk_data]
+                data = pd.concat(data, axis=1)
+        else:
+            if isinstance(json_lines, dict):
+                json_lines = [json_lines]
+            data, original_df_dtypes = data_utils.json_to_dataframe(
+                json_lines=json_lines,
+                selected_columns=self.selected_keys,
+                read_in_string=False
+            )
         return data, original_df_dtypes
 
     def _load_data_from_str(self, data_as_str):

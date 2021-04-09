@@ -306,7 +306,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     # Check if encoding can be used to decode without throwing an error
     def _decode_is_valid(encoding):
         try: 
-            with open(file_path, "rb", encoding=encoding) as input_file:
+            with open(file_path, encoding=encoding) as input_file:
                 input_file.read(1024*1024)
                 return True
         except: return False

@@ -93,6 +93,26 @@ class TestDataLabelerTrainer(unittest.TestCase):
         except Exception as e:
             self.fail(str(e))
 
+        # test default label
+        data = {'LABEL1': ["word1", "word2"],
+                'LABEL2': ["word3", "word4"]}
+        df = pd.DataFrame(data=data)
+        
+        with self.assertRaisesRegex(ValueError,
+                                    "The `default_label` of UNKNOWN must "
+                                    "exist in the label mapping."):
+            dp.train_structured_labeler(
+                df, default_label=None, save_dirpath=None)
+
+        try:
+            default_label = 'LABEL1'
+            data_labeler = dp.train_structured_labeler(
+                df, default_label=default_label, save_dirpath=None)
+            self.assertTrue(default_label in data_labeler.label_mapping)
+
+        except Exception as e:
+            self.fail(str(e))
+
 
 class TestDataLabeler(unittest.TestCase):
 

@@ -658,7 +658,7 @@ class TestFloatColumn(unittest.TestCase):
             expected_histogram = expected_profile.pop('histogram')
             quantiles = profile.pop('quantiles')
             expected_quantiles = expected_profile.pop('quantiles')
-            actual_quartiles = {0: quantiles[249], 1: quantiles[499], 2: quantiles[749]}
+
             self.assertDictEqual(expected_profile, profile)
             self.assertDictEqual(expected_profile['precision'], profile['precision'])
             self.assertCountEqual(expected_histogram['bin_counts'],
@@ -666,7 +666,9 @@ class TestFloatColumn(unittest.TestCase):
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
 
-            self.assertDictEqual(actual_quartiles, expected_quantiles)
+            self.assertAlmostEqual(expected_quantiles[0], quantiles[249])
+            self.assertAlmostEqual(expected_quantiles[1], quantiles[499])
+            self.assertAlmostEqual(expected_quantiles[2], quantiles[749])
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)

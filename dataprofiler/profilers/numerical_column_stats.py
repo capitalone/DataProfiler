@@ -440,7 +440,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         cumsum_bin_counts = np.cumsum(normalized_bin_counts)
 
         # use the floor by slightly increasing cases where no bin exist.
-        cumsum_bin_counts[non_zero_inds] += 1e-12
+        cumsum_bin_counts[non_zero_inds] += 1e-15
 
         # add initial zero bin
         cumsum_bin_counts = np.append([0], cumsum_bin_counts)

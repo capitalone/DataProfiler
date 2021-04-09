@@ -31,17 +31,19 @@ class TestDataReadingWriting(unittest.TestCase):
                  encoding="utf-16"),
             dict(path=os.path.join(test_dir, 'json/iris-utf-32.json'),
                  encoding="utf-32"),
+            dict(path=os.path.join(test_dir, 'txt/utf8.txt'),
+                 encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/zomato.csv'),
+                 encoding='utf-8') 
         ]
 
         for input_file in input_files:
             detected_encoding = \
                 data_utils.detect_file_encoding(file_path=input_file["path"])
-            self.assertEqual(detected_encoding.lower(), input_file["encoding"])
+            # Charset Normalizer Uses '_' instead of '-'
+            detected_encoding = detected_encoding.lower().replace("_", "-")
+            self.assertEqual(detected_encoding, input_file["encoding"])
         
-        detected_encoding = \
-            data_utils.detect_file_encoding(file_path=os.path.join(test_dir, 'txt/utf8.txt'))
-        self.assertIn(detected_encoding.lower(), ["utf-8", "utf_8"]) 
-                        
     def test_nth_loc_detection(self):
         """
         Tests the ability for the `data_utils.find_nth_location` to detect the

@@ -16,12 +16,14 @@ from .base_model import AutoSubRegistrationMeta
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 
+
 class NoV1ResourceMessageFilter(logging.Filter):
     """Removes TF2 warning for using TF1 model which has resources."""
     def filter(self, record):
         msg = 'is a problem, consider rebuilding the SavedModel after ' + \
             'running tf.compat.v1.enable_resource_variables()'
         return msg not in record.getMessage()
+
 
 tf_logger = logging.getLogger('tensorflow')
 tf_logger.addFilter(NoV1ResourceMessageFilter())
@@ -280,6 +282,7 @@ def create_glove_char(n_dims, source_file=None):
     with open(embd_file_name, 'w') as file:
         for word, embd in zip(embd_words, reduced_embds):
             file.write(word + " " + ' '.join(str(num) for num in embd) + "\n")
+
 
 class CharacterLevelCnnModel(BaseTrainableModel,
                              metaclass=AutoSubRegistrationMeta):

@@ -106,7 +106,8 @@ class TestDataLabelerTrainer(unittest.TestCase):
             data_labeler = dp.train_structured_labeler(
                 df, default_label=default_label)
             self.assertTrue(default_label in data_labeler.label_mapping)
-
+            self.assertEqual(default_label,
+                             data_labeler.model._parameters['default_label'])
         except Exception as e:
             self.fail(str(e))
 

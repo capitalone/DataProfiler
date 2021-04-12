@@ -31,13 +31,28 @@ class TestDataReadingWriting(unittest.TestCase):
                  encoding="utf-16"),
             dict(path=os.path.join(test_dir, 'json/iris-utf-32.json'),
                  encoding="utf-32"),
+            dict(path=os.path.join(test_dir, 'txt/utf8.txt'),
+                 encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/zomato.csv'),
+                 encoding='ISO-8859-1'), 
+            dict(path=os.path.join(test_dir, 'csv/reddit_wsb.csv'),
+                 encoding='utf-8') 
         ]
 
+        get_match_acc = lambda s, s2: sum([s[i] == s2[i] for i 
+                                           in range(len(s))])/len(s)
+        
         for input_file in input_files:
             detected_encoding = \
                 data_utils.detect_file_encoding(file_path=input_file["path"])
-            self.assertEqual(detected_encoding.lower(), input_file["encoding"])
-
+            with open(input_file['path'], "rb") as infile:
+                # Read a max of 1 MB of data
+                content = infile.read(1024*1024)
+                # Assert at least 99.9% of the content was correctly decoded
+                match_acc = get_match_acc(content.decode(input_file["encoding"]),
+                                          content.decode(detected_encoding))
+                self.assertGreaterEqual(match_acc, .999)
+        
     def test_nth_loc_detection(self):
         """
         Tests the ability for the `data_utils.find_nth_location` to detect the

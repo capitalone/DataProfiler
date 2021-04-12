@@ -76,14 +76,21 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         self._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,
                                  other.__calculations)
-        if other._dt_obj_min is None or self._dt_obj_min < other._dt_obj_min:
+
+        if self._dt_obj_min is None:
+            merged_profile.min = other.min
+            merged_profile._dt_obj_min = other._dt_obj_min
+        elif other._dt_obj_min is None or self._dt_obj_min < other._dt_obj_min:
             merged_profile.min = self.min
             merged_profile._dt_obj_min = self._dt_obj_min
         else:
             merged_profile.min = other.min
             merged_profile._dt_obj_min = other._dt_obj_min
 
-        if other._dt_obj_max is None or self._dt_obj_max > other._dt_obj_max:
+        if self._dt_obj_max is None:
+            merged_profile.max = other.max
+            merged_profile._dt_obj_max = other._dt_obj_max
+        elif other._dt_obj_max is None or self._dt_obj_max > other._dt_obj_max:
             merged_profile.max = self.max
             merged_profile._dt_obj_max = self._dt_obj_max
         else:

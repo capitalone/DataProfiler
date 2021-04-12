@@ -143,7 +143,7 @@ class BooleanOption(BaseOption):
 
 class HistogramOption(BooleanOption):
 
-    def __init__(self, method=None):
+    def __init__(self, method=['auto']):
         """Options for histograms
 
         :ivar is_enabled: boolean option to enable/disable the option.
@@ -256,7 +256,7 @@ class NumericalOptions(BaseColumnOptions):
         self.max = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
-        self.histogram_and_quantiles = HistogramOption(method=None)
+        self.histogram_and_quantiles = HistogramOption()
         BaseColumnOptions.__init__(self)
 
     @property
@@ -668,6 +668,9 @@ class StructuredOptions(BaseOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
         errors = []
 
         prop_check = dict([
@@ -683,8 +686,8 @@ class StructuredOptions(BaseOption):
 
         for column in self.properties:
             if not isinstance(self.properties[column], prop_check[column]):
-                errors.append("{} must be a(n) {}.".format(
-                    column, prop_check[column].__name__))
+                errors.append("{}.{} must be a(n) {}.".format(
+                    variable_path, column, prop_check[column].__name__))
             errors += self.properties[column]._validate_helper(
                 variable_path=(variable_path + '.' + column
                                if variable_path else column))
@@ -711,5 +714,14 @@ class ProfilerOptions(BaseOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return self.structured_options._validate_helper(
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
+        errors = []
+        if not isinstance(self.structured_options, StructuredOptions):
+            errors.append("{}.structured_options must be a StructuredOptions.".format(variable_path))	
+
+        errors += self.structured_options._validate_helper(
             variable_path=variable_path + '.structured_options')
+
+        return errors

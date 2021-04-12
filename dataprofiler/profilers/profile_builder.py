@@ -28,11 +28,12 @@ from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions, \
     DataLabelerOptions
 
+
 class StructuredDataProfile(object):
 
     def __init__(self, df_series, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
-                 sample_ids=None, options=None):
+                 sample_ids=None, pool=None, options=None):
         """
         Instantiate the Structured Profiler class for a given column.
         
@@ -45,6 +46,8 @@ class StructuredDataProfile(object):
         :type min_true_samples: int
         :param sample_ids: Randomized list of sample indices
         :type sample_ids: list(list)
+        :param pool: pool utilized for multiprocessing
+        :type pool: multiprocessing.Pool
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
@@ -68,6 +71,7 @@ class StructuredDataProfile(object):
         self.null_count = 0
         self.null_types = list()
         self.null_types_index = {}
+                
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
         if sample_size < len(df_series):
@@ -78,11 +82,14 @@ class StructuredDataProfile(object):
             self.get_base_props_and_clean_null_params(
                 df_series, sample_size, sample_ids=sample_ids)
         self._update_base_stats(base_stats)
+
         self.profiles = {
             'data_type_profile':
-            ColumnPrimitiveTypeProfileCompiler(clean_sampled_df, self.options),
+            ColumnPrimitiveTypeProfileCompiler(
+                clean_sampled_df, self.options, pool),
             'data_stats_profile':
-            ColumnStatsProfileCompiler(clean_sampled_df, self.options)
+            ColumnStatsProfileCompiler(
+                clean_sampled_df, self.options, pool)
         }
 
         use_data_labeler = True
@@ -118,7 +125,9 @@ class StructuredDataProfile(object):
             min_sample_size=max(self._min_sample_size, other._min_sample_size),
             sampling_ratio=max(self._sampling_ratio, other._sampling_ratio),
             min_true_samples=max(self._min_true_samples,
-                                 other._min_true_samples))
+                                 other._min_true_samples),
+            options=self.options,
+        )
 
         merged_profile.name = self.name
         merged_profile._update_base_stats(
@@ -178,29 +187,12 @@ class StructuredDataProfile(object):
                 profile[key] = None
 
         return profile
-
-    @staticmethod
-    def _combine_unique_sets(a, b):
-        """
-        Method to union two lists.
-        
-        :type a: list
-        :type b: list
-        :rtype: list
-        """
-        if not a and not b:
-            return list()
-        elif not a:
-            return b
-        elif not b:
-            return a
-        return list(OrderedDict.fromkeys(a + b))
-
+    
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
-        self.null_types = self._combine_unique_sets(
+        self.null_types = utils._combine_unique_sets(
             self.null_types, list(base_stats["null_types"].keys())
         )
 
@@ -209,8 +201,25 @@ class StructuredDataProfile(object):
                 null_rows.sort()
             self.null_types_index.setdefault(null_type, set()).update(null_rows)
 
+
     def update_profile(self, df_series, sample_size=None,
-                       min_true_samples=None, sample_ids=None):
+                       min_true_samples=None, sample_ids=None,
+                       pool=None):
+        """
+        Update the column profiler
+        
+        :param df_series: Data to be profiled
+        :type df_series: pandas.core.series.Series
+        :param sample_size: Number of samples to use in generating profile
+        :type sample_size: int
+        :param min_true_samples: Minimum number of samples required for the
+            profiler
+        :type min_true_samples: int
+        :param sample_ids: Randomized list of sample indices
+        :type sample_ids: list(list)
+        :param pool: pool utilized for multiprocessing
+        :type pool: multiprocessing.Pool        
+        """
         if not sample_size:
             sample_size = len(df_series)
         if not sample_size:
@@ -222,9 +231,10 @@ class StructuredDataProfile(object):
                 sample_ids=sample_ids
             )
         self._update_base_stats(base_stats)
-            
+
+        # Profile compilers being updated
         for profile in self.profiles.values():
-            profile.update_profile(clean_sampled_df)
+            profile.update_profile(clean_sampled_df, pool)
 
 
     def _get_sample_size(self, df_series):
@@ -237,7 +247,7 @@ class StructuredDataProfile(object):
         :rtype: int
         """
         len_df = len(df_series)
-        if len_df < self._min_sample_size:
+        if len_df <= self._min_sample_size:
             return int(len_df)
         return max(int(self._sampling_ratio * len_df), self._min_sample_size)
 
@@ -285,7 +295,6 @@ class StructuredDataProfile(object):
 
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
-
 
         # Select generator depending if sample_ids availablity
         if sample_ids is None:
@@ -425,9 +434,9 @@ class Profiler(object):
                              'profiles and cannot be added together.')
         merged_profile = Profiler(
             data=pd.DataFrame([]), samples_per_update=self._samples_per_update,
-            min_true_samples=self._min_true_samples, profiler_options=None
+            min_true_samples=self._min_true_samples,
+            profiler_options=self.options
         )
-        merged_profile.options = self.options
         merged_profile.encoding = self.encoding \
             if self.encoding == other.encoding else 'multiple files'
         merged_profile.file_type = self.file_type \
@@ -616,11 +625,25 @@ class Profiler(object):
             def tqdm(l):
                 for i, e in enumerate(l):
                     print("Processing Column {}/{}".format(i+1, len(l)))
-                    yield e
-
+                    yield e                    
 
         # Shuffle indices ones and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
+
+        pool = None
+        if options.structured_options.multiprocess.is_enabled:
+            cpu_count = 1
+            try:
+                cpu_count = mp.cpu_count()
+            except NotImplementedError as e:
+                cpu_count = 1
+
+            # No additional advantage beyond 8 processes
+            # Always leave 1 cores free
+            if cpu_count > 2:
+                cpu_count = min(cpu_count-1, 8)
+                pool = mp.Pool(cpu_count)
+                print("Utilizing",cpu_count, "processes for profiling")
         
         for col in tqdm(df.columns):
             if col in profile:
@@ -629,7 +652,8 @@ class Profiler(object):
                     df[col],
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
-                    sample_ids=sample_ids
+                    sample_ids=sample_ids,
+                    pool=pool
                 )
             else:
                 structured_options = None
@@ -640,8 +664,13 @@ class Profiler(object):
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,
+                    pool=pool,
                     options=structured_options
                 )
 
+        if pool is not None:
+            pool.close() # Close pool for new tasks
+            pool.join() # Wait for all workers to complete
+            
         return profile
 

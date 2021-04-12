@@ -159,7 +159,7 @@ class TestCategoricalColumn(unittest.TestCase):
         )
         self.assertEqual(3, report["statistics"]["unique_count"])
         self.assertEqual(0.25, report["statistics"]["unique_ratio"])
-        self.assertListEqual(
+        self.assertCountEqual(
             ["a", "b", "c"], report["statistics"]["categories"]
         )
 
@@ -196,7 +196,7 @@ class TestCategoricalColumn(unittest.TestCase):
         
         # Add profiles
         profile3 = profile + profile2
-        self.assertListEqual(expected_categories, profile3.categories)
+        self.assertCountEqual(expected_categories, profile3.categories)
         self.assertEqual(
             profile3.sample_size,
             profile.sample_size +
@@ -205,7 +205,7 @@ class TestCategoricalColumn(unittest.TestCase):
 
         # Add again
         profile3 = profile + profile3
-        self.assertListEqual(expected_categories, profile3.categories)
+        self.assertCountEqual(expected_categories, profile3.categories)
         self.assertEqual(profile3.sample_size, 33)
 
         # Check is_match and unique_ratio if the sample size was small

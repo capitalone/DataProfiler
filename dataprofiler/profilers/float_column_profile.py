@@ -113,7 +113,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
         r = re.compile(r'^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D')
         
-        return df_series_clean.replace(to_replace=r, value='').map(len).min()
+        return float(df_series_clean.replace(
+            to_replace=r, value='').map(len).min())
         
 
     @classmethod

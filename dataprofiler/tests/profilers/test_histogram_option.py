@@ -1,5 +1,6 @@
 from dataprofiler.profilers.profiler_options import HistogramOption
-from dataprofiler.tests.profilers.test_boolean_option import TestBooleanOption
+from dataprofiler.tests.profilers.profiler_options.test_boolean_option \
+     import TestBooleanOption
 import re
 
 
@@ -11,7 +12,7 @@ class TestHistogramOption(TestBooleanOption):
     def test_init(self):
         option = self.get_options()
         self.assertTrue(option.is_enabled)
-        self.assertIsNone(option.method)
+        self.assertEqual(option.method, ['auto'])
 
     def test_set_helper(self):
         option = self.get_options()

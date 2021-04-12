@@ -67,6 +67,8 @@ class DataLabelerColumn(BaseColumnProfiler):
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
 
+        self.thread_safe = False
+
     @staticmethod
     def assert_equal_conditions(data_labeler, data_labeler2):
         """
@@ -128,7 +130,13 @@ class DataLabelerColumn(BaseColumnProfiler):
                                  "profiles.")
         
         self.assert_equal_conditions(self, other)
-        merged_profile = DataLabelerColumn(None)
+
+        # recreate options so the DataLabeler is transferred and not duplicated
+        options = DataLabelerOptions()
+        options.max_sample_size = self._max_sample_size
+        options.data_labeler_object = self.data_labeler
+
+        merged_profile = DataLabelerColumn(self.name, options)
         BaseColumnProfiler._add_helper(merged_profile, self, other)
 
         #Set all common variables

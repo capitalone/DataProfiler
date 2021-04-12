@@ -336,7 +336,7 @@ class TestIntColumn(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.profile['times'])
+            self.assertCountEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
 
             # Validate the time in the datetime class has the expected time.
@@ -344,13 +344,13 @@ class TestIntColumn(unittest.TestCase):
 
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0, 'variance': 1.0, \
                                            'histogram_and_quantiles': 15.0})
-            self.assertEqual(expected, profile['times'])
+            self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0, 'variance': 2.0, \
                                            'histogram_and_quantiles': 30.0})
-            self.assertEqual(expected, profiler.profile['times'])
+            self.assertCountEqual(expected, profiler.profile['times'])
 
     def test_profile_merge(self):
         data = [2.0, 12.5, 'not an int', 6.0, 'not an int']

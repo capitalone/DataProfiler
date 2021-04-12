@@ -48,13 +48,11 @@ class TestDataLabelerTrainer(unittest.TestCase):
 
         with self.assertRaisesRegex(TypeError,
                                     "The output dirpath must be a string."):
-            dp.train_structured_labeler(
-                pd.DataFrame([]), save_dirpath=0)
+            dp.train_structured_labeler(pd.DataFrame([]), save_dirpath=0)
 
-        with self.assertRaisesRegex(TypeError,
-                                    "Default label must be a string."):
-            dp.train_structured_labeler(
-                pd.DataFrame([]), default_label=1)
+        with self.assertRaisesRegex(ValueError,
+                                    "`default_label` must be a string."):
+            dp.train_structured_labeler(pd.DataFrame([]), default_label=1)
 
         # doesn't accept text data
         text_data = dp.Data(data='test', data_type='text')
@@ -62,38 +60,15 @@ class TestDataLabelerTrainer(unittest.TestCase):
                                     "Input data must be either a "
                                     "`pd.DataFrame` or a `data_profiler.Data` "
                                     "and not of type `TextData`."):
-            dp.train_structured_labeler(
-                text_data, default_label=None, save_dirpath=None)
+            dp.train_structured_labeler(text_data)
 
         with self.assertRaisesRegex(ValueError,
                                     "The `save_dirpath` is not valid or not "
                                     "accessible."):
             dp.train_structured_labeler(
-                pd.DataFrame([]), default_label=None, save_dirpath="/a/test")
+                pd.DataFrame([]), save_dirpath="/a/test")
 
-        try:
-            data = {'UNKNOWN': ["Beep", "Boop"],
-                    'PERSON': ["GRANT", "MENSHENG"]}
-            df = pd.DataFrame(data=data)
-            dp.train_structured_labeler(
-                df, default_label=None, save_dirpath=None)
-
-            fake_data = dp.Data(data=df, data_type='csv')
-            dp.train_structured_labeler(
-                fake_data, default_label=None, save_dirpath=None)
-
-            fake_data = dp.Data(data=df, data_type='json')
-            dp.train_structured_labeler(
-                fake_data, default_label=None, save_dirpath=None)
-
-            fake_data = dp.Data(data=df, data_type='parquet')
-            dp.train_structured_labeler(
-                fake_data, default_label=None, save_dirpath=None)
-
-        except Exception as e:
-            self.fail(str(e))
-
-        # test default label
+        # default label not in the label mapping
         data = {'LABEL1': ["word1", "word2"],
                 'LABEL2': ["word3", "word4"]}
         df = pd.DataFrame(data=data)
@@ -101,13 +76,35 @@ class TestDataLabelerTrainer(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,
                                     "The `default_label` of UNKNOWN must "
                                     "exist in the label mapping."):
-            dp.train_structured_labeler(
-                df, default_label=None, save_dirpath=None)
+            dp.train_structured_labeler(df)
+
+        try:
+            data = {'UNKNOWN': ["Beep", "Boop"],
+                    'PERSON': ["GRANT", "MENSHENG"]}
+            df = pd.DataFrame(data=data)
+            dp.train_structured_labeler(df)
+
+            fake_data = dp.Data(data=df, data_type='csv')
+            dp.train_structured_labeler(fake_data)
+
+            fake_data = dp.Data(data=df, data_type='json')
+            dp.train_structured_labeler(fake_data)
+
+            fake_data = dp.Data(data=df, data_type='parquet')
+            dp.train_structured_labeler(fake_data)
+
+        except Exception as e:
+            self.fail(str(e))
+
+        # set default label to be in label mapping
+        data = {'LABEL1': ["word1", "word2"],
+                'LABEL2': ["word3", "word4"]}
+        df = pd.DataFrame(data=data)
 
         try:
             default_label = 'LABEL1'
             data_labeler = dp.train_structured_labeler(
-                df, default_label=default_label, save_dirpath=None)
+                df, default_label=default_label)
             self.assertTrue(default_label in data_labeler.label_mapping)
 
         except Exception as e:

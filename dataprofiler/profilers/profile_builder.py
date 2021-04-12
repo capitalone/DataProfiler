@@ -679,12 +679,16 @@ class Profiler(object):
         return profile
 
     def _delete_data_labelers(self):
-                
+        """
+        Helper method for deleting all data labelers before saving to disk.
+        """
+        # Delete data labeler for profiler
         data_labeler_options = self.options.structured_options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is not None:
                     data_labeler_options.data_labeler_object = None
                 
+        # Delete data labelers for all columns
         for key in self._profile:
 
             val = self._profile[key]
@@ -697,7 +701,11 @@ class Profiler(object):
                    .data_labeler = None
 
     def _restore_data_labelers(self):
-
+        """
+        Helper method for restoring all data labelers after saving to or 
+        loading from disk.
+        """
+        # Restore data labeler for profiler
         data_labeler_options = self.options.structured_options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:
@@ -712,6 +720,7 @@ class Profiler(object):
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
                 
+        # Restore data labelers for all columns
         for key in self._profile:
 
             val = self._profile[key]
@@ -746,7 +755,7 @@ class Profiler(object):
         :type dirpath: String
         :return: None
         """
-      
+        # Save JSON for all metadata to disk 
         data = { 
                 "total_samples": self.total_samples,
                 "encoding": self.encoding,
@@ -761,14 +770,18 @@ class Profiler(object):
         with open(pth + "-meta.json", "w") as outfile:
             json.dump(data, outfile)
  
+        # Delete data labelers as they can't be pickled
         self._delete_data_labelers()
 
+        # Pickle and save options to disk
         with open(pth + "-options.pkl", "wb") as outfile:
             pickle.dump(self.options, outfile)
 
+        # Pickle and save profile to disk
         with open(pth + ".pkl", "wb") as outfile:
             pickle.dump(self._profile, outfile)
 
+        # Restore all data labelers
         self._restore_data_labelers()
 
     def load(self, name="profiler", dirpath="."):
@@ -782,6 +795,7 @@ class Profiler(object):
         :return: None
         """
       
+        # Load JSON for all metadata from disk 
         pth = os.path.join(dirpath, name)
         with open(pth + "-meta.json", "r") as infile:
             data = json.load(infile)
@@ -795,10 +809,13 @@ class Profiler(object):
             self._samples_per_update = data["_samples_per_update"]
             self._min_true_samples = data["_min_true_samples"]
 
+        # Load options from disk
         with open(pth + "-options.pkl", "rb") as infile:
             self.options = pickle.load(infile)
 
+        # Load profile from disk
         with open(pth + ".pkl", "rb") as infile:
             self._profile = pickle.load(infile)
 
+        # Restore all data labelers
         self._restore_data_labelers()

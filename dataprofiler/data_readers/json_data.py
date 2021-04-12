@@ -64,36 +64,37 @@ class JSONData(SpreadSheetDataMixin, BaseData):
     def selected_keys(self):
         return self._selected_keys
 
-    def _find_data(self, json_lines, path=""):
+
+    def _find_data(self, json_data, path=""):
         """
         Finds all the column headers/data in a Json and returns them as a 
         list.
 
-        :param json_lines: json format list of dicts or dict
-        :type json_lines: list or string or dict
+        :param json_data: the json data or a subset of the json data
+        :type json_data: Union[list, dict, str]
+        :param path: path of keys to the json_data
+        :type path: str
         :return: list of dicts of {column headers: values}
         """
-        if path != "":
+        if path != "" and path[-1] != ".":
             path = path + "."
 
         list_of_dict = []
-        if isinstance(json_lines, dict):
-            for key in json_lines:
-                if isinstance(json_lines[key], dict): # If nested dictionary
-                    list_of_dict = list_of_dict + self._find_data(
-                        json_lines[key], path + key)
-                elif isinstance(json_lines[key], list): # If list
-                    if isinstance(json_lines[key][0], dict): # If list of dictionaries
-                        for item in json_lines[key]:
-                            list_of_dict = list_of_dict + self._find_data(item, path+key)
-                    else: # if non-dict list
-                        list_of_dict = list_of_dict + [{path+key: json_lines[key]}]
-                else: # If just a dictionary of non-dict non-list values
-                    list_of_dict = list_of_dict + [{path+key: json_lines[key]}]
-        else: 
-            list_of_dict = list_of_dict + [{path: json_lines}]
+        if isinstance(json_data, dict):
+            for key in json_data:
+                if isinstance(json_data[key], dict) or isinstance(json_data[key], list):
+                    list_of_dict = list_of_dict + self._find_data(json_data[key], path + key)
+                else:
+                    list_of_dict = list_of_dict + [{path + key: json_data[key]}]
+        elif isinstance(json_data, list):
+            if all(isinstance(x, dict) for x in json_data):
+                for key in json_data:
+                    list_of_dict = list_of_dict + self._find_data(key, path)
+            else:
+                list_of_dict = list_of_dict + [{path: json_data}]
+        else:
+            list_of_dict = list_of_dict + [{path: json_data}]
         return list_of_dict
-
 
     def _load_data_from_json_format(self, json_lines):
         """

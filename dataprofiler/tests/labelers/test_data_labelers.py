@@ -36,8 +36,8 @@ class TestDataLabelerTrainer(unittest.TestCase):
         self.assertTrue(hasattr(dp, 'train_structured_labeler'))
 
         with mock.patch('dataprofiler.train_structured_labeler') as mock_obj:
-            dp.train_structured_labeler(None, None, None)
-            self.assertEqual(mock_obj.call_args, mock.call(None, None, None))
+            dp.train_structured_labeler(None)
+            self.assertEqual(mock_obj.call_args, mock.call(None))
 
     def test_accepted_inputs(self):
         with self.assertRaisesRegex(TypeError,

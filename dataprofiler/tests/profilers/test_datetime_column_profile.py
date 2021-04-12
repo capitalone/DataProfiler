@@ -343,6 +343,29 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
                          "'DateTimeColumn' and '{}'"
                          .format(profile2.__class__.__name__))
 
+    def test_null_add(self):
+
+        # initialize the profiles
+        dates = [None, "2014-12-18", "2015-07-21"]
+        df = pd.Series(dates)
+        df_nulls = df[:1]
+        df_dates = df[1:]
+
+        profile1 = DateTimeColumn(name="date")
+        profile2 = DateTimeColumn(name="date")
+        profile1.update(df_nulls)
+        profile2.update(df_dates)
+
+        # test when first profile has the nulls
+        merged_profile = profile1 + profile2
+        self.assertEqual("2014-12-18", merged_profile.min)
+        self.assertEqual("2015-07-21", merged_profile.max)
+
+        # test when second profile has the nulls
+        merged_profile = profile2 + profile1
+        self.assertEqual("2014-12-18", merged_profile.min)
+        self.assertEqual("2015-07-21", merged_profile.max)
+
     def test_datetime_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
                                    "DateTimeColumn parameter 'options' must be"

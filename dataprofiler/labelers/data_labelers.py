@@ -49,6 +49,7 @@ def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs
     data_labeler = DataLabeler(labeler_type='structured', trainable=True)
     labels = value_label_df[1].unique().tolist()
 
+    # set default label to the data labeler pipeline
     if default_label:
         params = {'default_label': default_label}
         data_labeler.set_params(

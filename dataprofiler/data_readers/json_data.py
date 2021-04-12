@@ -79,18 +79,18 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         list_of_dict = []
         if isinstance(json_lines, dict):
             for key in json_lines:
-                if isinstance(json_lines[key], dict):
+                if isinstance(json_lines[key], dict): # If nested dictionary
                     list_of_dict = list_of_dict + self._find_data(
                         json_lines[key], path + key)
-                elif isinstance(json_lines[key], list):
-                    if isinstance(json_lines[key][0], dict):
+                elif isinstance(json_lines[key], list): # If list
+                    if isinstance(json_lines[key][0], dict): # If list of dictionaries
                         for item in json_lines[key]:
-                            list_of_dict = list_of_dict + self._find_data(item, path + key)
-                    else:
+                            list_of_dict = list_of_dict + self._find_data(item, path+key)
+                    else: # if non-dict list
                         list_of_dict = list_of_dict + [{path+key: json_lines[key]}]
-                else:
+                else: # If just a dictionary of non-dict non-list values
                     list_of_dict = list_of_dict + [{path+key: json_lines[key]}]
-        else:
+        else: 
             list_of_dict = list_of_dict + [{path: json_lines}]
         return list_of_dict
 

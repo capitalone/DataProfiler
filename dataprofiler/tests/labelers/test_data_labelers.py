@@ -44,17 +44,17 @@ class TestDataLabelerTrainer(unittest.TestCase):
                                     "Input data must be either a "
                                     "`pd.DataFrame` or a `data_profiler.Data` "
                                     "and not of type `TextData`."):
-            dp.train_structured_labeler(None, None, None)
+            dp.train_structured_labeler(None)
 
         with self.assertRaisesRegex(TypeError,
                                     "The output dirpath must be a string."):
             dp.train_structured_labeler(
-                pd.DataFrame([]), default_label=None, save_dirpath=0)
+                pd.DataFrame([]), save_dirpath=0)
 
         with self.assertRaisesRegex(TypeError,
                                     "Default label must be a string."):
             dp.train_structured_labeler(
-                pd.DataFrame([]), default_label=1, save_dirpath=None)
+                pd.DataFrame([]), default_label=1)
 
         # doesn't accept text data
         text_data = dp.Data(data='test', data_type='text')
@@ -97,7 +97,7 @@ class TestDataLabelerTrainer(unittest.TestCase):
         data = {'LABEL1': ["word1", "word2"],
                 'LABEL2': ["word3", "word4"]}
         df = pd.DataFrame(data=data)
-        
+
         with self.assertRaisesRegex(ValueError,
                                     "The `default_label` of UNKNOWN must "
                                     "exist in the label mapping."):

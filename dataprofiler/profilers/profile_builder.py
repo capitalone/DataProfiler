@@ -19,6 +19,10 @@ import multiprocessing as mp
 
 import pandas as pd
 
+import json
+import pickle
+import os
+
 from . import utils
 from .. import data_readers
 from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
@@ -674,3 +678,127 @@ class Profiler(object):
             
         return profile
 
+    def _delete_data_labelers(self):
+                
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is not None:
+                    data_labeler_options.data_labeler_object = None
+                
+        for key in self._profile:
+
+            val = self._profile[key]
+            use_data_labeler = True
+            if val.options and isinstance(val.options, StructuredOptions):
+                use_data_labeler = val.options.data_labeler.is_enabled
+
+            if use_data_labeler:
+                val.profiles['data_label_profile']._profiles['data_labeler'] \
+                   .data_labeler = None
+
+    def _restore_data_labelers(self):
+
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+            try:
+                data_labeler = DataLabeler(
+                    labeler_type='structured',
+                    dirpath=data_labeler_options.data_labeler_dirpath,
+                    load_options=None)
+                self.options.set({'data_labeler.data_labeler_object': data_labeler})
+                
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
+                
+        for key in self._profile:
+
+            val = self._profile[key]
+            use_data_labeler = True
+            if val.options and isinstance(val.options, StructuredOptions):
+                use_data_labeler = val.options.data_labeler.is_enabled
+
+            if use_data_labeler:
+                data_labeler_profile = val.profiles['data_label_profile']._profiles['data_labeler']
+                data_labeler_profile.data_labeler = None
+                
+                if val.options and val.options.data_labeler.data_labeler_object:
+                    data_labeler_profile.data_labeler = val.options.data_labeler.data_labeler_object
+                if data_labeler_profile.data_labeler is None:
+                    data_labeler_dirpath = None
+                    if val.options:
+                        data_labeler_dirpath = val.options.data_labeler.data_labeler_dirpath
+                
+                    data_labeler_profile.data_labeler = DataLabeler(
+                        labeler_type='structured',
+                        dirpath=data_labeler_dirpath,
+                        load_options=None)
+
+
+    def save(self, name="profiler", dirpath="."):
+        """
+        Save profiler to disk
+        
+        :param name: Name of profiler
+        :type name: String
+        :param dirpath: Path of directory to save to
+        :type dirpath: String
+        :return: None
+        """
+      
+        data = { 
+                "total_samples": self.total_samples,
+                "encoding": self.encoding,
+                "file_type": self.file_type,
+                "row_has_null_count": self.row_has_null_count,
+                "row_is_null_count": self.row_is_null_count,
+                "hashed_row_dict": self.hashed_row_dict,
+                "_samples_per_update": self._samples_per_update,
+                "_min_true_samples": self._min_true_samples,
+               } 
+        pth = os.path.join(dirpath, name)
+        with open(pth + "-meta.json", "w") as outfile:
+            json.dump(data, outfile)
+ 
+        self._delete_data_labelers()
+
+        with open(pth + "-options.pkl", "wb") as outfile:
+            pickle.dump(self.options, outfile)
+
+        with open(pth + ".pkl", "wb") as outfile:
+            pickle.dump(self._profile, outfile)
+
+        self._restore_data_labelers()
+
+    def load(self, name="profiler", dirpath="."):
+        """
+        Load profiler from disk
+        
+        :param name: Name of profiler
+        :type name: String
+        :param dirpath: Path of directory to load from
+        :type dirpath: String
+        :return: None
+        """
+      
+        pth = os.path.join(dirpath, name)
+        with open(pth + "-meta.json", "r") as infile:
+            data = json.load(infile)
+
+            self.total_samples = data["total_samples"]
+            self.encoding = data["encoding"]
+            self.file_type = data["file_type"]
+            self.row_has_null_count = data["row_has_null_count"]
+            self.row_is_null_count = data["row_is_null_count"]
+            self.hashed_row_dict = data["hashed_row_dict"]
+            self._samples_per_update = data["_samples_per_update"]
+            self._min_true_samples = data["_min_true_samples"]
+
+        with open(pth + "-options.pkl", "rb") as infile:
+            self.options = pickle.load(infile)
+
+        with open(pth + ".pkl", "rb") as infile:
+            self._profile = pickle.load(infile)
+
+        self._restore_data_labelers()

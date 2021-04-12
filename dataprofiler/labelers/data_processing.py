@@ -939,6 +939,8 @@ class CharPostprocessor(BaseDataPostprocessor,
         :param flatten_separator: string which joins to samples together when
                                   flattening
         :type flatten_separator: str
+        :param inplace: flag to modify results in place
+        :type inplace: bool
         :return: dict(pred=...) or dict(pred=..., conf=...)
         """
         pred_buffer = []
@@ -1344,6 +1346,8 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :param flatten_separator: string which joins to samples together when
                                   flattening
         :type flatten_separator: str
+        :param inplace: flag to modify results in place
+        :type inplace: bool
         :return: dict(pred=...) or dict(pred=..., conf=...)
         """
         pred_buffer = []

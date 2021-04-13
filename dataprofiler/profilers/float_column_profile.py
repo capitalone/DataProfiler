@@ -126,7 +126,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         max_precision = float(len_per_float.max())
 
         return min_precision
-    
 
     @classmethod
     def _is_each_row_float(cls, df_series):
@@ -143,7 +142,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :rtype: list
         """
         if len(df_series) == 0: return list()
-        return [NumericStatsMixin.is_float(x) for x in df_series]
+        return df_series.map(NumericStatsMixin.is_float)
 
     @BaseColumnProfiler._timeit(name='precision')
     def _update_precision(self, df_series, prev_dependent_properties,

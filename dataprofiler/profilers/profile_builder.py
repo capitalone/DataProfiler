@@ -631,17 +631,18 @@ class Profiler(object):
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
 
         pool = None
-        if options.structured_options.multiprocess.is_enabled:
+        if options.structured_options.multiprocess.is_enabled:            
             cpu_count = 1
             try:
+                mp.set_start_method('fork')
                 cpu_count = mp.cpu_count()
             except NotImplementedError as e:
                 cpu_count = 1
 
-            # No additional advantage beyond 8 processes
+            # No additional advantage beyond 5 processes
             # Always leave 1 cores free
             if cpu_count > 2:
-                cpu_count = min(cpu_count-1, 8)
+                cpu_count = min(cpu_count-1, 5)
                 pool = mp.Pool(cpu_count)
                 print("Utilizing",cpu_count, "processes for profiling")
         

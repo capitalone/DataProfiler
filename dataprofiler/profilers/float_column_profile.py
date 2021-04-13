@@ -112,20 +112,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
         r = re.compile(r'^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D')
 
-        # Take a sampling of the dataset. If small use full dataset,
-        # OR 20k samples or 5% of the dataset which ever is larger.
-        sample_size = min(len(df_series_clean),
-                          max(20000, int(len(df_series_clean)/20)))
-
-        # length of sampled cells after all punctuation removed
-        len_per_float = df_series_clean.sample(sample_size).replace(
-            to_replace=r, value='').map(len)
-
-        # Determine the max and min precision
-        min_precision = float(len_per_float.min())
-        max_precision = float(len_per_float.max())
-
-        return min_precision
+        return float(df_series_clean.replace(
+            to_replace=r, value='').map(len).min())
 
     @classmethod
     def _is_each_row_float(cls, df_series):

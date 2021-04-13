@@ -94,7 +94,6 @@ def shuffle_in_chunks(data_length, chunk_size):
         except ValueError as e:
             warnings.warn("Seed should be an integer", RuntimeWarning)
 
-
     indices = KeyDict()
     j = 0
     
@@ -104,12 +103,10 @@ def shuffle_in_chunks(data_length, chunk_size):
         # determine the chunk size and preallocate an array
         true_chunk_size = min(chunk_size, data_length - chunk_size * chunk_ind)
         values = [-1] * true_chunk_size
-
         
-        # Generate random list of indicies         
+        # Generate random list of indices
         lower_bound_list = np.array(range(j, j + true_chunk_size))
         random_list = rng.integers(lower_bound_list, data_length)
-
 
         # shuffle the indexes
         for count in range(true_chunk_size):

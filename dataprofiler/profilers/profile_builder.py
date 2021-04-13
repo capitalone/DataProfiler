@@ -627,7 +627,7 @@ class Profiler(object):
                     print("Processing Column {}/{}".format(i+1, len(l)))
                     yield e                    
 
-        # Shuffle indices ones and share with columns
+        # Shuffle indices once and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
 
         pool = None
@@ -643,7 +643,7 @@ class Profiler(object):
             if cpu_count > 2:
                 cpu_count = min(cpu_count-1, 8)
                 pool = mp.Pool(cpu_count)
-                print("Utilizing",cpu_count, "processes for profiling")
+                print("Utilizing", cpu_count, "processes for profiling")
         
         for col in tqdm(df.columns):
             if col in profile:
@@ -669,8 +669,8 @@ class Profiler(object):
                 )
 
         if pool is not None:
-            pool.close() # Close pool for new tasks
-            pool.join() # Wait for all workers to complete
+            pool.close()  # Close pool for new tasks
+            pool.join()  # Wait for all workers to complete
             
         return profile
 

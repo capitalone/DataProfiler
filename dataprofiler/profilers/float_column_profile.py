@@ -143,8 +143,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :rtype: list
         """
         if len(df_series) == 0: return list()
-        query = r'^[\s]*[+-]?[\d]+[\.]*[\d]*[ ]?[*eE]*[ ]?[+-]?[\d]*[\s]*$'
-        return df_series.str.count(query).astype(bool)
+        return [NumericStatsMixin.is_float(x) for x in df_series]
 
     @BaseColumnProfiler._timeit(name='precision')
     def _update_precision(self, df_series, prev_dependent_properties,

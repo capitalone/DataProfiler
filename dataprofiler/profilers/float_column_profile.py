@@ -209,7 +209,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if len(df_series) == 0:
             return self
         
-        df_series = df_series.reset_index(drop=True) # TODO
         is_each_row_float = self._is_each_row_float(df_series)
         sample_size = len(is_each_row_float)
         float_count = np.sum(is_each_row_float)

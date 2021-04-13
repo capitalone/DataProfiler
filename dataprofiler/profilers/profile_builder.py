@@ -631,7 +631,7 @@ class Profiler(object):
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
 
         pool = None
-        if options.structured_options.multiprocess.is_enabled:            
+        if options.structured_options.multiprocess.is_enabled:
             cpu_count = 1
             try:
                 mp.set_start_method('fork')

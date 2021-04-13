@@ -634,17 +634,25 @@ class Profiler(object):
         if options.structured_options.multiprocess.is_enabled:
             cpu_count = 1
             try:
-                mp.set_start_method('fork')
                 cpu_count = mp.cpu_count()
             except NotImplementedError as e:
                 cpu_count = 1
 
             # No additional advantage beyond 5 processes
             # Always leave 1 cores free
+            # https://docs.python.org/3/library/multiprocessing.html#multiprocessing.set_start_method            
             if cpu_count > 2:
                 cpu_count = min(cpu_count-1, 5)
-                pool = mp.Pool(cpu_count)
-                print("Utilizing",cpu_count, "processes for profiling")
+                try: 
+                    pool = mp.Pool(cpu_count)
+                    print("Utilizing",cpu_count, "processes for profiling")
+                except Exception as e:
+                    pool = None
+                    warnings.warn(
+                        'Multiprocessing disabled, please change the multiprocessing'+
+                        ' start method, via: multiprocessing.set_start_method(<method>)'+
+                        ' Possible methods include: fork, spawn, forkserver, None'
+                    )
         
         for col in tqdm(df.columns):
             if col in profile:

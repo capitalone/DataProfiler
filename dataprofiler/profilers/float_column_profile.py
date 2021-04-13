@@ -30,7 +30,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.precision = 0
         self.__calculations = {
-            "precision": FloatColumn._update_precision,
+            "precision": FloatColumn._update_precision
         }
         self._filter_properties_w_options(self.__calculations, options)
 
@@ -106,16 +106,27 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: string representing its precision print format
         :rtype: int
         """
-        if not len(df_series_clean):
-            return 0
+        if not len(df_series_clean): return 0
 
-        # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$)
+        # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$) 
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
         r = re.compile(r'^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D')
-        
-        return float(df_series_clean.replace(
-            to_replace=r, value='').map(len).min())
-        
+
+        # Take a sampling of the dataset. If small use full dataset,
+        # OR 20k samples or 5% of the dataset which ever is larger.
+        sample_size = min(len(df_series_clean),
+                          max(20000, int(len(df_series_clean)/20)))
+
+        # length of sampled cells after all punctuation removed
+        len_per_float = df_series_clean.sample(sample_size).replace(
+            to_replace=r, value='').map(len)
+
+        # Determine the max and min precision
+        min_precision = float(len_per_float.min())
+        max_precision = float(len_per_float.max())
+
+        return min_precision
+    
 
     @classmethod
     def _is_each_row_float(cls, df_series):
@@ -131,11 +142,9 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: is_float_col
         :rtype: list
         """
-        len_df = len(df_series)
-        if len_df == 0:
-            return list()
-
-        return [NumericStatsMixin.is_float(x) for x in df_series]
+        if len(df_series) == 0: return list()
+        query = r'^[\s]*[+-]?[\d]+[\.]*[\d]*[ ]?[*eE]*[ ]?[+-]?[\d]*[\s]*$'
+        return df_series.str.count(query).astype(bool)
 
     @BaseColumnProfiler._timeit(name='precision')
     def _update_precision(self, df_series, prev_dependent_properties,
@@ -200,7 +209,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if len(df_series) == 0:
             return self
         
-        df_series = df_series.reset_index(drop=True)
+        df_series = df_series.reset_index(drop=True) # TODO
         is_each_row_float = self._is_each_row_float(df_series)
         sample_size = len(is_each_row_float)
         float_count = np.sum(is_each_row_float)
@@ -216,4 +225,3 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         )
 
         return self
-        

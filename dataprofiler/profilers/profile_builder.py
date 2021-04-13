@@ -638,11 +638,11 @@ class Profiler(object):
             except NotImplementedError as e:
                 cpu_count = 1
 
-            # No additional advantage beyond 5 processes
+            # No additional advantage beyond 4 processes
             # Always leave 1 cores free
             # https://docs.python.org/3/library/multiprocessing.html#multiprocessing.set_start_method            
             if cpu_count > 2:
-                cpu_count = min(cpu_count-1, 5)
+                cpu_count = min(cpu_count-1, 4)
                 try: 
                     pool = mp.Pool(cpu_count)
                     print("Utilizing",cpu_count, "processes for profiling")

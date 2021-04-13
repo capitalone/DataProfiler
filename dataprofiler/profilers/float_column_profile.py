@@ -30,7 +30,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.precision = 0
         self.__calculations = {
-            "precision": FloatColumn._update_precision
+            "precision": FloatColumn._update_precision,
         }
         self._filter_properties_w_options(self.__calculations, options)
 
@@ -108,7 +108,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         if not len(df_series_clean): return 0
 
-        # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$) 
+        # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$)
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
         r = re.compile(r'^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D')
 

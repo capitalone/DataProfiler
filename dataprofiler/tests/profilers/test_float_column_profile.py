@@ -57,52 +57,61 @@ class TestFloatColumn(unittest.TestCase):
 
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_3)
-        self.assertEqual(4, float_profiler.precision)
-
+        self.assertEqual(4, float_profiler.precision['min'])
+        self.assertEqual(4, float_profiler.precision['max'])
+        
         float_profiler.update(df_2)
-        self.assertEqual(2, float_profiler.precision)
+        self.assertEqual(2, float_profiler.precision['min'])
+        self.assertEqual(4, float_profiler.precision['max'])
 
         float_profiler.update(df_1)
-        self.assertEqual(1, float_profiler.precision)
+        self.assertEqual(1, float_profiler.precision['min'])
+        self.assertEqual(4, float_profiler.precision['max'])
 
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_mix)
-        self.assertEqual(1, float_profiler.precision)
+        self.assertEqual(1, float_profiler.precision['min'])
+        self.assertEqual(6, float_profiler.precision['max'])
 
         # edge cases #
         # integer with 0s on right and left side
         df_ints = pd.Series(['0013245678', '123456700', '0012345600'])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_ints)
-        self.assertEqual(6, float_profiler.precision)
+        self.assertEqual(6, float_profiler.precision['min'])
+        self.assertEqual(8, float_profiler.precision['max'])
 
         # scientific
         df_scientific = pd.Series(['1.23e-3', '2.2344', '1.244e4'])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_scientific)
-        self.assertEqual(3, float_profiler.precision)
+        self.assertEqual(3, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
 
         # plus
         df_plus = pd.Series(['+1.3e-3', '+2.244', '+1.3324e4'])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_plus)
-        self.assertEqual(2, float_profiler.precision)
+        self.assertEqual(2, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
 
         # minus
         df_minus = pd.Series(['-1.3234e-3', '-0.244', '-1.3324e4'])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_minus)
-        self.assertEqual(3, float_profiler.precision)
+        self.assertEqual(3, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
 
         # spaces around values
         df_spaces = pd.Series(['  -1.3234e-3  ', '  -0.244  '])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_spaces)
-        self.assertEqual(3, float_profiler.precision)
+        self.assertEqual(3, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
 
         # check to make sure all formats of precision are correctly predicted
         samples = [
-            # value, expected precision
+            # value, min expected precision
             ['10.01', 4],
             ['.01', 1],
             ['0.01', 1],
@@ -116,9 +125,9 @@ class TestFloatColumn(unittest.TestCase):
         ]
         for sample in samples:
             df_series = pd.Series([sample[0]])
-            expected_precision = sample[1]
+            min_expected_precision = sample[1]
             precision = FloatColumn._get_float_precision(df_series)
-            self.assertEqual(expected_precision, precision,
+            self.assertEqual(min_expected_precision, precision['min'],
                              msg='Errored for: {}'.format(sample[0]))
 
     def test_profiled_min(self):
@@ -587,7 +596,17 @@ class TestFloatColumn(unittest.TestCase):
             times=defaultdict(float, {'histogram_and_quantiles': 15.0,\
                                       'precision': 1.0, 'max': 1.0, 'min': 1.0,\
                                       'sum': 1.0, 'variance': 1.0}),
-            precision=1.0
+            precision={
+                'min': 1.0,
+                'max': 3.0,
+                'mean': 2.0,
+                'var': 1.0,
+                'std': 1.0,
+                'sum': 6.0,
+                'sample_size': 3,
+                'margin_of_error': 1.9,
+                'confidence_level': 0.999
+            }
         )
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
@@ -603,9 +622,8 @@ class TestFloatColumn(unittest.TestCase):
             quantiles = profile.pop('quantiles')
             expected_quantiles = expected_profile.pop('quantiles')
             actual_quartiles = {0: quantiles[249], 1: quantiles[499], 2: quantiles[749]}
-
-            self.assertDictEqual(expected_profile, profile)
-            self.assertEqual(expected_profile['precision'], 1.0)
+            self.assertCountEqual(expected_profile, profile)
+            self.assertCountEqual(expected_profile['precision'], profile['precision'])
             self.assertCountEqual(expected_histogram['bin_counts'],
                                   histogram['bin_counts'])
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
@@ -803,7 +821,8 @@ class TestFloatColumn(unittest.TestCase):
         # Assert that these features are not calculated
         self.assertIsNone(profiler3.max)
         self.assertIsNone(profiler3.min)
-        self.assertEqual(0, profiler3.precision)
+        self.assertEqual(None, profiler3.precision['min'])
+        self.assertEqual(None, profiler3.precision['max'])
 
     def test_float_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,

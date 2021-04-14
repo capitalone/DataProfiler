@@ -45,9 +45,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :param options: Options for the numerical stats.
         :type options: NumericalOptions
         """
-        self.options = None
-        if options and isinstance(options, NumericalOptions):
-            self.options = options
+        if options and not isinstance(options, NumericalOptions):
+            raise ValueError("NumericalStatsMixin parameter 'options' must be "
+                             "of type NumericalOptions.")
         self.min = None
         self.max = None
         self.sum = 0

@@ -133,7 +133,16 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             histogram=self.histogram_methods[histogram_method]['histogram'],
             quantiles=self.quantiles,
             times=self.times,
-            precision=self.precision
+            precision=dict(
+                min=self.precision['min'],
+                max=self.precision['max'],
+                mean=self.precision['mean'],
+                var=self.precision['var'],
+                std=self.precision['std'],
+                sample_size=self.precision['sample_size'],
+                margin_of_error=self.precision['margin_of_error'],
+                confidence_level=self.precision['confidence_level']
+            )
         )
         return profile
 

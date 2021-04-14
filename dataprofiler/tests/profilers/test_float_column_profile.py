@@ -115,9 +115,6 @@ class TestFloatColumn(unittest.TestCase):
                                  '+.342', '-123e1', '23.1'])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_constant)
-        print()
-        print(float_profiler.precision)
-        print()
         self.assertEqual(3, float_profiler.precision['min'])
         self.assertEqual(3, float_profiler.precision['max'])
         self.assertEqual(3, float_profiler.precision['mean'])
@@ -622,7 +619,6 @@ class TestFloatColumn(unittest.TestCase):
                 'mean': 2.0,
                 'var': 1.0,
                 'std': 1.0,
-                'sum': 6.0,
                 'sample_size': 3,
                 'margin_of_error': 1.9,
                 'confidence_level': 0.999

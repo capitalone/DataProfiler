@@ -745,17 +745,18 @@ class Profiler(object):
                         load_options=None)
 
 
-    def save(self, name="profiler", dirpath="."):
+    def save(self, filepath="profile.pkl"):
         """
         Save profiler to disk
         
-        :param name: Name of profiler
-        :type name: String
-        :param dirpath: Path of directory to save to
-        :type dirpath: String
+        :param filepath: Path of file to save to
+        :type filepath: String
         :return: None
         """
-        # Save JSON for all metadata to disk 
+        # Delete data labelers as they can't be pickled
+        self._delete_data_labelers()
+
+        # Create dictionary for all metadata, options, and profile 
         data = { 
                 "total_samples": self.total_samples,
                 "encoding": self.encoding,
@@ -765,40 +766,28 @@ class Profiler(object):
                 "hashed_row_dict": self.hashed_row_dict,
                 "_samples_per_update": self._samples_per_update,
                 "_min_true_samples": self._min_true_samples,
+                "options": self.options,
+                "_profile": self.profile
                } 
-        pth = os.path.join(dirpath, name)
-        with open(pth + "-meta.json", "w") as outfile:
-            json.dump(data, outfile)
- 
-        # Delete data labelers as they can't be pickled
-        self._delete_data_labelers()
-
-        # Pickle and save options to disk
-        with open(pth + "-options.pkl", "wb") as outfile:
-            pickle.dump(self.options, outfile)
 
         # Pickle and save profile to disk
-        with open(pth + ".pkl", "wb") as outfile:
-            pickle.dump(self._profile, outfile)
+        with open(filepath, "wb") as outfile:
+            pickle.dump(data, outfile)
 
         # Restore all data labelers
         self._restore_data_labelers()
 
-    def load(self, name="profiler", dirpath="."):
+    def load(self, filepath="profile.pkl"):
         """
         Load profiler from disk
         
-        :param name: Name of profiler
-        :type name: String
-        :param dirpath: Path of directory to load from
-        :type dirpath: String
+        :param filepath: Path of file to load from
+        :type filepath: String
         :return: None
         """
-      
-        # Load JSON for all metadata from disk 
-        pth = os.path.join(dirpath, name)
-        with open(pth + "-meta.json", "r") as infile:
-            data = json.load(infile)
+        # Load profile from disk
+        with open(filepath, "rb") as infile:
+            data = pickle.load(infile)
 
             self.total_samples = data["total_samples"]
             self.encoding = data["encoding"]
@@ -808,14 +797,8 @@ class Profiler(object):
             self.hashed_row_dict = data["hashed_row_dict"]
             self._samples_per_update = data["_samples_per_update"]
             self._min_true_samples = data["_min_true_samples"]
-
-        # Load options from disk
-        with open(pth + "-options.pkl", "rb") as infile:
-            self.options = pickle.load(infile)
-
-        # Load profile from disk
-        with open(pth + ".pkl", "rb") as infile:
-            self._profile = pickle.load(infile)
+            self._profile = data["_profile"]
+            self.options = data["options"]
 
         # Restore all data labelers
         self._restore_data_labelers()

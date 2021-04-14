@@ -115,7 +115,24 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if not bin_methods:
             raise ValueError('Profiles have no overlapping bin methods and '
                              'therefore cannot be added together.')
+        elif other1.user_set_histogram_bin and other2.user_set_histogram_bin:
+            if other1.user_set_histogram_bin != other2.user_set_histogram_bin:
+                warnings.warn('User set histogram bin counts did not match. '
+                              'Choosing the larger bin count.')
+            self.user_set_histogram_bin = max(other1.user_set_histogram_bin,
+                                              other2.user_set_histogram_bin)
+
         self.histogram_bin_method_names = bin_methods
+        self.histogram_methods = dict()
+        for method in self.histogram_bin_method_names:
+            self.histogram_methods[method] = {
+                'total_loss': 0,
+                'current_loss': 0,
+                'histogram': {
+                    'bin_counts': None,
+                    'bin_edges': None
+                }
+            }
 
         for i, method in enumerate(self.histogram_bin_method_names):
             combined_values = other1._histogram_to_array(
@@ -319,7 +336,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type bin_method: str
         :return: bin edges and bin counts
         """
-        if len(np.unique(values)) == 1 and self.user_set_histogram_bin is None:
+        if len(np.unique(values)) == 1:
             bin_counts = np.array([len(values)])
             if isinstance(values, (np.ndarray, list)):
                 unique_value = values[0]

@@ -58,7 +58,7 @@ class TestHistogramOption(TestBooleanOption):
         with self.assertRaisesRegex(AttributeError, expected_error):
             option.set({'hist_bin_count.is_enabled': True})
 
-    def test_validate_helper(self):
+    def test_validate(self):
 
         params_to_check = [
             # non errors
@@ -98,7 +98,7 @@ class TestHistogramOption(TestBooleanOption):
 
         # Default configuration is valid
         option = self.get_options()
-        self.assertEqual([], option._validate_helper())
+        self.assertIsNone(option.validate(raise_error=False))
 
         for params in params_to_check:
             prop, value_list, expected_errors = (
@@ -107,11 +107,15 @@ class TestHistogramOption(TestBooleanOption):
             option = self.get_options()
             for value in value_list:
                 setattr(option, prop, value)
-                validate_errors = option._validate_helper()
-                self.assertListEqual(
-                    expected_errors,
-                    validate_errors,
-                    msg='Errored for prop: {}, value: {}.'.format(prop, value))
+                validate_errors = option.validate(raise_error=False)
+                if expected_errors:
+                    self.assertListEqual(
+                        expected_errors,
+                        validate_errors,
+                        msg='Errored for prop: {}, value: {}.'.format(prop,
+                                                                      value))
+                else:
+                    self.assertIsNone(validate_errors)
 
         # test for invalidity between mismatched histogram method / bins
         option = self.get_options()
@@ -121,7 +125,7 @@ class TestHistogramOption(TestBooleanOption):
                                    r'HistogramOption.method will be ignored.'):
             option.hist_bin_count = 10
             option.method = 'auto'
-            option._validate_helper()
+            option.validate(raise_error=False)
 
         option = self.get_options()
         option.hist_bin_count = None
@@ -129,35 +133,9 @@ class TestHistogramOption(TestBooleanOption):
         expected_errors = [r"Either HistogramOption.hist_bin_count or "
                            r"HistogramOption.method must be set to compute "
                            r"histograms."]
-        errors = option._validate_helper()
+        errors = option.validate(raise_error=False)
         self.assertListEqual(expected_errors, errors)
 
-    def test_validate(self):
-        option = self.get_options()
-
-        # Default configuration is valid
-        self.assertEqual([], option._validate_helper())
-
-        # Set method to something that isn't a string
-        option.method = 3
-        err = re.escape("HistogramOption.method must be a string or list of "
-                        "strings from the following: ['auto', 'fd', 'doane', "
-                        "'scott', 'rice', 'sturges', 'sqrt'].")
-        with self.assertRaisesRegex(ValueError, err):
-            option.validate()
-
-        # Set method to a string that isn't a correct method
-        option.method = "whoops"
-        err = re.escape("HistogramOption.method must be one of the following: "
-                        "['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', "
-                        "'sqrt'].")
-        with self.assertRaisesRegex(ValueError, err):
-            option.validate()
-
-        # Set method to a list that isn't a subset of the correct methods
-        option.method = ["this", "is", "incorrect"]
-        err = re.escape("HistogramOption.method must be a subset of "
-                        "['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', "
-                        "'sqrt'].")
-        with self.assertRaisesRegex(ValueError, err):
+        # this time testing raising an error
+        with self.assertRaisesRegex(ValueError, expected_errors[0]):
             option.validate()

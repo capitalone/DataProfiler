@@ -754,8 +754,9 @@ class TestFloatColumn(unittest.TestCase):
 
         # no warning should occur
         with warnings.catch_warnings(record=True) as w:
-            profiler1 + profiler2
+            merge_profile = profiler1 + profiler2
         self.assertListEqual([], w)
+        self.assertEqual(10, merge_profile.user_set_histogram_bin)
 
         # make bin counts different and get warning
         profiler2.user_set_histogram_bin = 120
@@ -844,7 +845,7 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.histogram_and_quantiles.method = "sturges"
         num_profiler = FloatColumn(name="test", options=options)
-        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
 
         options.histogram_and_quantiles.method = ["sturges", "doane"]
@@ -853,7 +854,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(["sturges", "doane"],
                          num_profiler.histogram_bin_method_names)
 
-        # test hisogram bin count set
+        # test histogram bin count set
         options.histogram_and_quantiles.method = None
         options.histogram_and_quantiles.hist_bin_count = 100
         num_profiler = FloatColumn(name="test3", options=options)

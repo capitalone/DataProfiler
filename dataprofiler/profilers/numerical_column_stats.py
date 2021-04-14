@@ -63,7 +63,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             opt_method = options.histogram_and_quantiles.method
             if isinstance(opt_method, str):
                 self.histogram_bin_method_names = [opt_method]
-                self.histogram_selection = opt_method
             elif isinstance(opt_method, list):
                 self.histogram_bin_method_names = opt_method
             self.user_set_histogram_bin = \

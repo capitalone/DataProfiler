@@ -30,10 +30,10 @@ class TestHistogramOption(TestBooleanOption):
         params_to_check = [
             dict(prop='is_enabled', value_list=[False, True]),
             dict(prop='method',
-                 value_list=['auto', 'fd', 'doane', 'scott', 'rice', 'sturges',
-                             'sqrt', ['sturges', 'doane']]),
+                 value_list=[None, 'auto', 'fd', 'doane', 'scott', 'rice',
+                             'sturges', 'sqrt', ['sturges', 'doane']]),
             dict(prop='hist_bin_count',
-                 value_list=['1', '10', '100', '1000', '99', '10000000'])
+                 value_list=[None, '1', '10', '100', '1000', '99', '10000000'])
         ]
 
         # this code can be abstracted to limit code everywhere else
@@ -89,7 +89,8 @@ class TestHistogramOption(TestBooleanOption):
                      "from: ['auto', 'fd', 'doane', 'scott', 'rice', 'sturges',"
                      " 'sqrt']."
                  ]),
-            dict(prop='hist_bin_count', value_list=[-1, False, [], 1.2, 1.0],
+            dict(prop='hist_bin_count', value_list=[-1, False, [], 1.2, 1.0,
+                                                    'one'],
                  errors=[
                      "HistogramOption.hist_bin_count must be an integer more "
                      "than 0."

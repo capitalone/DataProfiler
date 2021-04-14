@@ -3,6 +3,7 @@ import unittest
 from unittest import mock
 import six
 from collections import defaultdict
+import warnings
 
 import pandas as pd
 import numpy as np
@@ -346,14 +347,68 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     " type TextOptions."):
             profiler = TextColumn("Text", options="wrong_data_type")
 
+    def test_custom_bin_count_merge(self):
+
+        options = TextOptions()
+        options.histogram_and_quantiles.method = None
+        options.histogram_and_quantiles.hist_bin_count = 10
+
+        data = ['this', 'is', 'a', 'test']
+        df = pd.Series(data).apply(str)
+        profiler1 = TextColumn("Float", options)
+        profiler1.update(df)
+
+        data2 = ['this', 'is', 'another', 'test']
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = TextColumn("Float", options)
+        profiler2.update(df2)
+
+        # no warning should occur
+        with warnings.catch_warnings(record=True) as w:
+            merge_profile = profiler1 + profiler2
+        self.assertListEqual([], w)
+        self.assertEqual(10, merge_profile.user_set_histogram_bin)
+
+        # make bin counts different and get warning
+        profiler2.user_set_histogram_bin = 120
+        with self.assertWarnsRegex(UserWarning,
+                                   'User set histogram bin counts did not '
+                                   'match. Choosing the larger bin count.'):
+            merged_profile = profiler1 + profiler2
+        self.assertEqual(120, merged_profile.user_set_histogram_bin)
+
     def test_histogram_option_integration(self):
         options = TextOptions()
         options.histogram_and_quantiles.method = "sturges"
         num_profiler = TextColumn(name="test", options=options)
-        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
 
         options.histogram_and_quantiles.method = ["sturges", "doane"]
         num_profiler = TextColumn(name="test2", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)
+
+        # test histogram bin count set
+        options.histogram_and_quantiles.method = None
+        options.histogram_and_quantiles.hist_bin_count = 100
+        num_profiler = TextColumn(name="test3", options=options)
+        self.assertIsNone(num_profiler.histogram_selection)
+        self.assertEqual(['custom'], num_profiler.histogram_bin_method_names)
+
+        # case when just 1 unique value, should just set bin size to be 1
+        num_profiler.update(pd.Series(['1', '1']))
+        self.assertEqual(
+            1,
+            len(num_profiler.histogram_methods['custom']['histogram'][
+                    'bin_counts'])
+        )
+
+        # case when more than 1 unique value, by virtue of a streaming update
+        num_profiler.update(pd.Series(['22']))
+        self.assertEqual(
+            100,
+            len(num_profiler.histogram_methods['custom']['histogram'][
+                    'bin_counts'])
+        )
+

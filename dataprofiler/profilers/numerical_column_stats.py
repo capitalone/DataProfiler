@@ -122,6 +122,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.user_set_histogram_bin = max(other1.user_set_histogram_bin,
                                               other2.user_set_histogram_bin)
 
+        # initial creation of the profiler creates all methods, but
+        # only the methods which intersect should exist.
         self.histogram_bin_method_names = bin_methods
         self.histogram_methods = dict()
         for method in self.histogram_bin_method_names:

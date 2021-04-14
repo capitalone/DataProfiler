@@ -638,12 +638,21 @@ class Profiler(object):
             except NotImplementedError as e:
                 cpu_count = 1
 
-            # No additional advantage beyond 8 processes
+            # No additional advantage beyond 4 processes
             # Always leave 1 cores free
+            # https://docs.python.org/3/library/multiprocessing.html#multiprocessing.set_start_method            
             if cpu_count > 2:
-                cpu_count = min(cpu_count-1, 8)
-                pool = mp.Pool(cpu_count)
-                print("Utilizing", cpu_count, "processes for profiling")
+                cpu_count = min(cpu_count-1, 4)
+                try: 
+                    pool = mp.Pool(cpu_count)
+                    print("Utilizing",cpu_count, "processes for profiling")
+                except Exception as e:
+                    pool = None
+                    warnings.warn(
+                        'Multiprocessing disabled, please change the multiprocessing'+
+                        ' start method, via: multiprocessing.set_start_method(<method>)'+
+                        ' Possible methods include: fork, spawn, forkserver, None'
+                    )
         
         for col in tqdm(df.columns):
             if col in profile:

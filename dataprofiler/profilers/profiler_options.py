@@ -407,7 +407,7 @@ class FloatOptions(NumericalOptions):
         """
         NumericalOptions.__init__(self)
         self.precision = BooleanOption(is_enabled=True)
-        self.precision_sample_ratio = None
+        # self.precision_sample_ratio = None
 
     def _validate_helper(self, variable_path='FloatOptions'):
         """
@@ -424,14 +424,16 @@ class FloatOptions(NumericalOptions):
                           .format(variable_path))        
         errors += self.precision._validate_helper(
             variable_path + '.precision')
-        
-        if isinstance(self.precision_sample_ratio, float) \
+
+        """
+        if self.precision_sample_ratio is not None \
+           and isinstance(self.precision_sample_ratio, float) \
            and self.precision_sample_ratio < 0 and self.precision_sample_ratio > 1.0:
             errors.append("{}.precision_sample_ratio must be a float between 0 and 1."
                           .format(variable_path))
         errors += self.precision._validate_helper(
             variable_path + '.precision_sample_ratio')
-        
+        """
         return errors
 
 

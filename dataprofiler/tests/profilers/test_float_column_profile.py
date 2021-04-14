@@ -109,6 +109,23 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(3, float_profiler.precision['min'])
         self.assertEqual(5, float_profiler.precision['max'])
 
+        # constant precision
+        df_constant = pd.Series(['1.34', '+1.23e-4', '00101',
+                                 '+100.', '0.234', '-432', '.954',
+                                 '+.342', '-123e1', '23.1'])
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(df_constant)
+        print()
+        print(float_profiler.precision)
+        print()
+        self.assertEqual(3, float_profiler.precision['min'])
+        self.assertEqual(3, float_profiler.precision['max'])
+        self.assertEqual(3, float_profiler.precision['mean'])
+        self.assertEqual(10, float_profiler.precision['sample_size'])
+        self.assertEqual(0, float_profiler.precision['var'])
+        self.assertEqual(0, float_profiler.precision['std'])
+
+
         # check to make sure all formats of precision are correctly predicted
         samples = [
             # value, min expected precision
@@ -123,12 +140,15 @@ class TestFloatColumn(unittest.TestCase):
             ['  0012345600.  ', 8],
             ['  -0012345600.  ', 8],
         ]
+        
         for sample in samples:
             df_series = pd.Series([sample[0]])
             min_expected_precision = sample[1]
             precision = FloatColumn._get_float_precision(df_series)
             self.assertEqual(min_expected_precision, precision['min'],
                              msg='Errored for: {}'.format(sample[0]))
+
+        
 
     def test_profiled_min(self):
         # test with multiple values
@@ -578,7 +598,7 @@ class TestFloatColumn(unittest.TestCase):
 
         profiler = FloatColumn(df.name)
 
-        expected_profile = dict(
+        expected_profile = dict(            
             min=2.5,
             max=12.5,
             mean=20/3.0,
@@ -608,6 +628,7 @@ class TestFloatColumn(unittest.TestCase):
                 'confidence_level': 0.999
             }
         )
+        
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty

@@ -190,7 +190,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         }
         
         return subset_precision
-
     
     @classmethod
     def _is_each_row_float(cls, df_series):
@@ -232,40 +231,29 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         
         # (min, max, var, sum, sample_size)
         subset_precision = self._get_float_precision(df_series, sample_ratio)
-        if subset_precision is None: return
-        
-        # Update values
-        if self.precision['min'] is None:
-            self.precision['min'] = subset_precision['min']
-        else:
+        if subset_precision is None:
+            return
+        elif self.precision['min'] is None:
+            self.precision.update(subset_precision)
+        else:        
+            # Update the calculations as data is valid
             self.precision['min'] = min(
                 self.precision['min'], subset_precision['min'])
-            
-        if self.precision['max'] is None:
-            self.precision['max'] = subset_precision['max']
-        else:
             self.precision['max'] = max(
-                self.precision['max'], subset_precision['max'])
+                self.precision['max'], subset_precision['max'])            
+            self.precision['sum'] += subset_precision['sum']
             
-        if self.precision['sum'] is None:
-            self.precision['sum'] = 0
-        self.precision['sum'] += subset_precision['sum']
-
-        # Must update before sample size or mean are updated
-        if self.precision['var'] is None:
-            self.precision['var'] = subset_precision['var']
-        else:
             self.precision['var'] = self._merge_variance(
                 self.precision['sample_size'], self.precision['var'],
                 self.precision['mean'],
-                subset_precision['sample_size'],subset_precision['var'],
+                subset_precision['sample_size'], subset_precision['var'],
                 subset_precision['mean'])
             
-        if self.precision['sample_size'] is None:
-            self.precision['sample_size'] = 0 
-        self.precision['sample_size'] += subset_precision['sample_size']
+            self.precision['sample_size'] += subset_precision['sample_size']            
+            self.precision['mean'] = self.precision['sum'] \
+                / self.precision['sample_size']
 
-        self.precision['mean'] = self.precision['sum'] / self.precision['sample_size']
+        # Calculated outside        
         self.precision['std'] = math.sqrt(self.precision['var'])
 
         # Margin of error, 99.9% confidence level

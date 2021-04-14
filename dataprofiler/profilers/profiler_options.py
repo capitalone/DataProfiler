@@ -6,7 +6,6 @@ Specify the options when running the data profiler.
 import warnings
 import abc
 import copy
-from ..labelers.data_labelers import DataLabeler
 from ..labelers.base_data_labeler import BaseDataLabeler
 
 
@@ -735,7 +734,8 @@ class ProfilerOptions(BaseOption):
 
         errors = []
         if not isinstance(self.structured_options, StructuredOptions):
-            errors.append("{}.structured_options must be a StructuredOptions.".format(variable_path))	
+            errors.append("{}.structured_options must be a StructuredOptions."
+                          .format(variable_path))
 
         errors += self.structured_options._validate_helper(
             variable_path=variable_path + '.structured_options')

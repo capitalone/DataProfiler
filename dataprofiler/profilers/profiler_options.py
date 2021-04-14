@@ -407,7 +407,7 @@ class FloatOptions(NumericalOptions):
         """
         NumericalOptions.__init__(self)
         self.precision = BooleanOption(is_enabled=True)
-        # self.precision_sample_ratio = None
+        self.precision_sample_ratio = None
 
     def _validate_helper(self, variable_path='FloatOptions'):
         """

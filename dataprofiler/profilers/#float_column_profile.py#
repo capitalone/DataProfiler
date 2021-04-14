@@ -190,7 +190,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         }
         
         return subset_precision
-
     
     @classmethod
     def _is_each_row_float(cls, df_series):
@@ -273,8 +272,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             self.__z_value_precision * (
                 self.precision['std'] / math.sqrt(self.precision['sample_size'])
             ), int(self.precision['max'])
-        )            
-        
+        )
                 
     def _update_helper(self, df_series_clean, profile):
         """

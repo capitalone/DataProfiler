@@ -386,6 +386,10 @@ class FloatOptions(NumericalOptions):
         :vartype is_enabled: bool
         :ivar precision: boolean option to enable/disable precision
         :vartype precision: BooleanOption
+        :ivar precision_sample_ratio: float option to determine ratio of valid
+                                      float samples in determining percision.
+                                      This ratio will override any defaults.
+        :vartype precision_sample_ratio: float
         :ivar min: boolean option to enable/disable min
         :vartype min: BooleanOption
         :ivar max: boolean option to enable/disable max
@@ -403,6 +407,7 @@ class FloatOptions(NumericalOptions):
         """
         NumericalOptions.__init__(self)
         self.precision = BooleanOption(is_enabled=True)
+        self.precision_sample_ratio = None
 
     def _validate_helper(self, variable_path='FloatOptions'):
         """
@@ -416,8 +421,17 @@ class FloatOptions(NumericalOptions):
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.precision, BooleanOption):
             errors.append("{}.precision must be a BooleanOption."
+                          .format(variable_path))        
+        errors += self.precision._validate_helper(
+            variable_path + '.precision')
+        
+        if isinstance(self.precision_sample_ratio, float) \
+           and self.precision_sample_ratio < 0 and self.precision_sample_ratio > 1.0:
+            errors.append("{}.precision_sample_ratio must be a float between 0 and 1."
                           .format(variable_path))
-        errors += self.precision._validate_helper(variable_path + '.precision')
+        errors += self.precision._validate_helper(
+            variable_path + '.precision_sample_ratio')
+        
         return errors
 
 

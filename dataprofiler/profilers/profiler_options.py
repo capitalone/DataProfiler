@@ -143,19 +143,21 @@ class BooleanOption(BaseOption):
 
 class HistogramOption(BooleanOption):
 
-    def __init__(self, method=None, hist_bin_count=None):
+    def __init__(self, is_enabled=True, method=None, hist_bin_count=None):
         """Options for histograms
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
         :ivar method: method with which to calculate histograms
         :vartype method: Union[str, list(str)]
+        :ivar hist_bin_count: number of bins in the histogram
+        :vartype hist_bin_count: int
         """
         if method is None and hist_bin_count is None:
             method = ['auto']
         self.method = method
         self.hist_bin_count = hist_bin_count
-        super().__init__(is_enabled=True)
+        super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='HistogramOption'):
         """

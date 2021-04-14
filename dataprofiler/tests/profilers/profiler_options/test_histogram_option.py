@@ -57,8 +57,13 @@ class TestHistogramOption(TestBooleanOption):
                           "'is_enabled'")
         with self.assertRaisesRegex(AttributeError, expected_error):
             option.set({'hist_bin_count.is_enabled': True})
+    
+    def test_validate_helper(self):
+        super(TestHistogramOption, self).test_validate_helper()
 
     def test_validate(self):
+
+        super(TestHistogramOption, self).test_validate()
 
         params_to_check = [
             # non errors

@@ -288,7 +288,6 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     :return: encoding type
     :rtype: str
     """
-
     detector = UniversalDetector()
     line_count = 0
     with open(file_path, 'rb') as input_file:
@@ -301,7 +300,47 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     encoding = detector.result["encoding"]
 
     # Typical file representation is utf-8 instead of ascii, treat as such.
-    if not encoding or encoding == 'ascii':
+    if not encoding or encoding.lower() in ['ascii', 'windows-1254']:
+        encoding = 'utf-8'
+
+    # Check if encoding can be used to decode without throwing an error
+    def _decode_is_valid(encoding):
+        try: 
+            with open(file_path, encoding=encoding) as input_file:
+                input_file.read(1024*1024)
+                return True
+        except: return False
+
+    if not _decode_is_valid(encoding):
+        try:
+            from charset_normalizer import CharsetNormalizerMatches as CnM
+            
+            # Try with small sample 
+            with open(file_path, 'rb') as input_file:
+                raw_data = input_file.read(10000)
+                result = CnM.from_bytes(raw_data, steps=5, 
+                                        chunk_size=512, threshold=0.2,
+                                        cp_isolation=None, cp_exclusion=None,
+                                        preemptive_behaviour=True, explain=False)
+                result = result.best().first()
+            if result: encoding = result.encoding
+
+            # Try again with full sample
+            if not _decode_is_valid(encoding): 
+                with open(file_path, 'rb') as input_file:
+                    raw_data = input_file.read(max_lines*buffer_size)
+                    result = CnM.from_bytes(raw_data, steps=max_lines, 
+                                            chunk_size=buffer_size, threshold=0.2,
+                                            cp_isolation=None, cp_exclusion=None,
+                                            preemptive_behaviour=True, explain=False)
+                    result = result.best().first()
+                if result: encoding = result.encoding
+
+        except:
+            print("Install charset_normalizer for improved file encoding detection")
+
+    # If no encoding is still found, default to utf-8
+    if not encoding:
         encoding = 'utf-8'
     return encoding.lower()
 

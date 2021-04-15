@@ -304,7 +304,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         options = TextOptions()
         options.max.is_enabled = False
         options.min.is_enabled = False
-        options.histogram_and_quantiles.method = None
+        options.histogram_and_quantiles.bin_count_or_method = None
 
         df = pd.Series(
             ["pancake", "banana", "lighthouse", "aa", "b", "4", "3", "2", "dfd", "2"]
@@ -318,7 +318,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.min.is_enabled = False
         options.max.is_enabled = False
         options.vocab.is_enabled = False
-        options.histogram_and_quantiles.method = None
+        options.histogram_and_quantiles.bin_count_or_method = None
         df2 = pd.Series(
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
         )
@@ -350,8 +350,7 @@ class TestTextColumnProfiler(unittest.TestCase):
     def test_custom_bin_count_merge(self):
 
         options = TextOptions()
-        options.histogram_and_quantiles.method = None
-        options.histogram_and_quantiles.hist_bin_count = 10
+        options.histogram_and_quantiles.bin_count_or_method = 10
 
         data = ['this', 'is', 'a', 'test']
         df = pd.Series(data).apply(str)

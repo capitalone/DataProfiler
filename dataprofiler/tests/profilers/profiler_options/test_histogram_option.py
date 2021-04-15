@@ -31,8 +31,8 @@ class TestHistogramOption(TestBooleanOption):
             dict(prop='is_enabled', value_list=[False, True]),
             dict(prop='bin_count_or_method',
                  value_list=[None, 'auto', 'fd', 'doane', 'scott', 'rice',
-                             'sturges', 'sqrt', ['sturges', 'doane'], '1',
-                             '10', '100', '1000', '99', '10000000'])
+                             'sturges', 'sqrt', ['sturges', 'doane'], 1,
+                             10, 100, 1000, 99, 10000000])
         ]
 
         # this code can be abstracted to limit code everywhere else

@@ -6,7 +6,7 @@ Loading **Data** with a single command, the library automatically formats & load
 
 The Data Profiler comes with a cutting edge pre-trained deep learning model, used to efficiently identify **sensitive data** (or **PII**). If customization is needed, it's easy to add new entities to the existing pre-trained model or insert a new pipeline for entity recognition.
 
-The best part? Getting started only takes a few lines of code ([example csv](https://raw.githubusercontent.com/capitalone/DataProfiler/main/dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv)):
+The best part? Getting started only takes a few lines of code (<a id="raw-url" href="https://raw.githubusercontent.com/capitalone/DataProfiler/main/dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv" target="_blank" download>download example csv</a>):
 
 ```python
 import json

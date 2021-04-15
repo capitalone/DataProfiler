@@ -74,6 +74,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.histogram_methods[method] = {
                 'total_loss': 0,
                 'current_loss': 0,
+                'suggested_bin_count': self.min_histogram_bin,
                 'histogram': {
                     'bin_counts': None,
                     'bin_edges': None
@@ -139,11 +140,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         for i, method in enumerate(self.histogram_bin_method_names):
             combined_values = other1._histogram_to_array(
                 method) + other2._histogram_to_array(method)
-            bin_counts, bin_edges = self._get_histogram(
+            bin_counts, bin_edges, suggested_bin_count = self._get_histogram(
                 combined_values, method)
             self.histogram_methods[method]['histogram']['bin_counts'] = \
                 bin_counts
             self.histogram_methods[method]['histogram']['bin_edges'] = bin_edges
+            self.histogram_methods[method]['suggested_bin_count'] = \
+                suggested_bin_count
 
         # Select histogram: always choose first profile selected method
         # Either both profiles have the same selection or you at least use one
@@ -299,6 +302,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         current_avg_run_time = current_run_time.mean()
         min_total_loss = np.inf
         selected_method = ''
+        selected_suggested_bin_count = 0
         for method_id, method in enumerate(self.histogram_bin_method_names):
             self.histogram_methods[method]['current_loss'] = \
                 self._histogram_loss(current_diff_var[method_id],
@@ -310,9 +314,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.histogram_methods[method]['total_loss'] += \
                 self.histogram_methods[method]['current_loss']
 
-            if min_total_loss > self.histogram_methods[method]['total_loss']:
+            if min_total_loss >= self.histogram_methods[method]['total_loss']:
+                if (self.histogram_methods[method]['suggested_bin_count']
+                        <= selected_suggested_bin_count
+                        and min_total_loss ==
+                        self.histogram_methods[method]['total_loss']):
+                    continue
                 min_total_loss = self.histogram_methods[method]['total_loss']
                 selected_method = method
+                selected_suggested_bin_count = \
+                    self.histogram_methods[method]['suggested_bin_count']
 
         return selected_method
 
@@ -340,6 +351,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         """
         if len(np.unique(values)) == 1:
             bin_counts = np.array([len(values)])
+            suggested_bin_count = 1
             if isinstance(values, (np.ndarray, list)):
                 unique_value = values[0]
             else:
@@ -355,15 +367,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 suggested_bin_count = min(n_equal_bins, self.max_histogram_bin)
                 n_equal_bins = max(self.min_histogram_bin, suggested_bin_count)
             bin_counts, bin_edges = np.histogram(values, bins=n_equal_bins)
-        return bin_counts, bin_edges
+        return bin_counts, bin_edges, suggested_bin_count
 
     def _merge_histogram(self, values, bins):
         # values is the current array of values,
         # that needs to be updated to the accumulated histogram
         combined_values = values + self._histogram_to_array(bins)
-        bin_counts, bin_edges = self._get_histogram(combined_values, bins)
+        bin_counts, bin_edges, suggested_bin_count = \
+            self._get_histogram(combined_values, bins)
         self.histogram_methods[bins]['histogram']['bin_counts'] = bin_counts
         self.histogram_methods[bins]['histogram']['bin_edges'] = bin_edges
+        self.histogram_methods[bins]['suggested_bin_count'] = \
+            suggested_bin_count
 
     def _update_histogram(self, df_series):
         """
@@ -395,10 +410,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         for i, method in enumerate(self.histogram_bin_method_names):
             # update histogram for the method
             start_time = time.time()
-            bin_counts, bin_edges = self._get_histogram(df_series, method)
+            bin_counts, bin_edges, suggested_bin_count = \
+                self._get_histogram(df_series, method)
             if self.histogram_methods[method]['histogram']['bin_counts'] is None:
                 self.histogram_methods[method]['histogram']['bin_counts'] = bin_counts
                 self.histogram_methods[method]['histogram']['bin_edges'] = bin_edges
+                self.histogram_methods[method]['suggested_bin_count'] = \
+                    suggested_bin_count
             else:
                 self._merge_histogram(df_series.tolist(), bins=method)
             run_time = time.time() - start_time
@@ -414,6 +432,102 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             current_exact_var, current_est_var,
             current_total_var, current_run_time)
         self.histogram_selection = selected_method
+        
+    def _histogram_for_profile(self, histogram_method):
+        """
+        Converts the stored histogram into the presentable state based on the
+        suggested histogram bin count from numpy.histograms. The bin count used
+        is stored in 'suggested_bin_count' for each method.
+        
+        :param histogram_method: method to use for determining the histogram
+            profile
+        :type histogram_method: str
+        :return: histogram bin edges and bin counts
+        :rtype: dict
+        """
+        bin_counts, bin_edges, suggested_bin_count = (
+            self.histogram_methods[histogram_method]['histogram']['bin_counts'],
+            self.histogram_methods[histogram_method]['histogram']['bin_edges'],
+            self.histogram_methods[histogram_method]['suggested_bin_count'],
+        )
+        
+        # base case, no need to change if it is already correct
+        if bin_counts is None or len(bin_counts) == suggested_bin_count:
+            return (self.histogram_methods[histogram_method]['histogram'],
+                    self.histogram_methods[histogram_method]['total_loss'])
+
+        # create proper binning
+        new_bin_counts = np.zeros((suggested_bin_count,))
+        new_bin_edges = np.linspace(
+            bin_edges[0], bin_edges[-1], suggested_bin_count + 1)
+        
+        # allocate bin_counts
+        new_bin_id = 0
+        hist_loss = 0
+        for bin_id, bin_count in enumerate(bin_counts):
+            if not bin_count:  # if nothing in bin, nothing to add
+                continue
+
+            bin_edge = bin_edges[bin_id: bin_id + 3]
+
+            # loop until we have a new bin which contains the current bin.
+            while (bin_edge[0] >= new_bin_edges[new_bin_id + 1]
+                   and new_bin_id < suggested_bin_count - 1):
+                new_bin_id += 1
+
+            new_bin_edge = new_bin_edges[new_bin_id: new_bin_id + 3]
+            
+            # find where the current bin falls within the new bins
+            is_last_bin = new_bin_id == suggested_bin_count -1
+            if bin_edge[1] < new_bin_edge[1] or is_last_bin:
+                # current bin is within the new bin
+                new_bin_counts[new_bin_id] += bin_count
+                hist_loss += ((
+                    (new_bin_edge[1] + new_bin_edge[0])
+                    - (bin_edge[1] + bin_edge[0])) / 2) ** 2 * bin_count
+            elif bin_edge[0] < new_bin_edge[1]:
+                # current bin straddles two of the new bins
+                # get the percentage of bin that falls to the left
+                percentage_in_left_bin = (
+                    (new_bin_edge[1] - bin_edge[0])
+                    / (bin_edge[1] - bin_edge[0])
+                )
+                count_in_left_bin = round(bin_count * percentage_in_left_bin)
+                new_bin_counts[new_bin_id] += count_in_left_bin
+                hist_loss += ((
+                    (new_bin_edge[1] + new_bin_edge[0])
+                    - (bin_edge[1] + bin_edge[0])) / 2) ** 2 * count_in_left_bin
+
+                # allocate leftovers to the right bin
+                new_bin_counts[new_bin_id + 1] += bin_count - count_in_left_bin
+                hist_loss += ((
+                    (new_bin_edge[2] - new_bin_edge[1])
+                    - (bin_edge[1] - bin_edge[0])
+                ) / 2)**2 * (bin_count - count_in_left_bin)
+
+                # increment bin id to the right bin
+                new_bin_id += 1
+
+        return ({'bin_edges': new_bin_edges, 'bin_counts': new_bin_counts},
+                hist_loss)
+
+    def _get_best_histogram_for_profile(self):
+        """
+        Converts the stored histogram into the presentable state based on the
+        suggested histogram bin count from numpy.histograms. The bin count used
+        is stored in 'suggested_bin_count' for each method.
+
+        :return: histogram bin edges and bin counts
+        :rtype: dict
+        """
+        best_histogram = {'bin_edges': [], 'bin_counts': []}
+        best_hist_loss = np.inf
+        for method in self.histogram_methods:
+            histogram, hist_loss = self._histogram_for_profile(method)
+            if hist_loss < best_hist_loss:
+                best_histogram = histogram
+                best_hist_loss = hist_loss
+        return best_histogram
 
     def _get_percentile(self, percentiles):
         """

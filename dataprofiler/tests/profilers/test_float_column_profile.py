@@ -375,8 +375,8 @@ class TestFloatColumn(unittest.TestCase):
         # with equal bin size, each bin has the width of 1
         df3 = pd.Series(["1.0", "1.0", "3.0", "4.0"])
         expected_histogram3 = {
-            'bin_counts': np.array([2, 0, 2]),
-            'bin_edges': np.array([1.0, 2.0, 3.0, 4.0]),
+            'bin_counts': np.array([2, 0, 1, 1]),
+            'bin_edges': np.array([1.0, 1.75, 2.5, 3.25, 4.0]),
         }
         list_data_test.append([df3, expected_histogram3])
 
@@ -557,14 +557,12 @@ class TestFloatColumn(unittest.TestCase):
         input_array = [0.5, 1.0, 2.0, 5.0]
 
         profiler._merge_histogram(input_array, 'sqrt')
-        merged_bin_counts = \
-            profiler.histogram_methods['sqrt']['histogram']['bin_counts']
-        merged_bin_edges = \
-            profiler.histogram_methods['sqrt']['histogram']['bin_edges']
+        merged_hist = profiler._histogram_for_profile('sqrt')[0]
+
         expected_bin_counts, expected_bin_edges = \
             [5, 2, 2], [0.5, 2.0, 3.5, 5.0]
-        self.assertCountEqual(merged_bin_counts, expected_bin_counts)
-        self.assertCountEqual(merged_bin_edges, expected_bin_edges)
+        self.assertCountEqual(expected_bin_counts, merged_hist['bin_counts'])
+        self.assertCountEqual(expected_bin_edges, merged_hist['bin_edges'])
 
     def test_profiled_quantiles(self):
         """
@@ -586,17 +584,12 @@ class TestFloatColumn(unittest.TestCase):
         est_Q2 = est_quantiles[499]
         est_Q3 = est_quantiles[749]
 
-        data_to_num = [float(item) for item in data]
-        exact_Q1 = np.percentile(data_to_num, 25)
-        exact_Q2 = np.percentile(data_to_num, 50)
-        exact_Q3 = np.percentile(data_to_num, 75)
-
         self.assertEqual(999, len(est_quantiles))
-        self.assertAlmostEqual(1.003, est_quantiles[0])
-        self.assertEqual(est_Q1, exact_Q1)
-        self.assertEqual(est_Q2, exact_Q2)
-        self.assertEqual(est_Q3, exact_Q3)
-        self.assertAlmostEqual(3.997, est_quantiles[-1])
+        self.assertAlmostEqual(1.000012, est_quantiles[0])
+        self.assertEqual(est_Q1, 1.003)
+        self.assertEqual(est_Q2, 2.5)
+        self.assertEqual(est_Q3, 3.001)
+        self.assertAlmostEqual(3.999988, est_quantiles[-1])
 
     def test_data_type_ratio(self):
         data = np.linspace(-5, 5, 4)
@@ -627,9 +620,9 @@ class TestFloatColumn(unittest.TestCase):
                 'bin_edges': np.array([2.5, 5.0, 7.5, 10.0, 12.5]),
             },
             quantiles={
-                0: 4.375 ,  # (5 - 2.5) * .75 + 2.5 (histogram based)
-                1: 6.25  ,  # halfway between 5.0 and 7.5 (histogram based)
-                2: 10.625,  # (12.5 - 10) * .25 + 10 (histogram based)
+                0: 2.5075,
+                1: 5.005 ,
+                2: 12.4925,
             },
             times=defaultdict(float, {'histogram_and_quantiles': 15.0,
                                       'precision': 1.0, 'max': 1.0, 'min': 1.0,

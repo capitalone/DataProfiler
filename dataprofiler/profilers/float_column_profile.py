@@ -130,7 +130,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             mean=self.np_type_to_type(self.mean),
             variance=self.np_type_to_type(self.variance),
             stddev=self.np_type_to_type(self.stddev),
-            histogram=self.histogram_methods[histogram_method]['histogram'],
+            histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             times=self.times,
             precision=dict(

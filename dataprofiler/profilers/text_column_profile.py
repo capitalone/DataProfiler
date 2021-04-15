@@ -5,6 +5,7 @@ from .profiler_options import TextOptions
 from . import utils
 import itertools
 
+
 class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     """
     Text column profile subclass of BaseColumnProfiler. Represents a column in
@@ -73,7 +74,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             mean=self.mean,
             variance=self.variance,
             stddev=self.stddev,
-            histogram=self.histogram_methods[histogram_method]['histogram'],
+            histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             vocab=self.vocab,
             times=self.times

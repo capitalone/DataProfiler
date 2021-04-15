@@ -230,8 +230,8 @@ class TestIntColumn(unittest.TestCase):
         # with equal bin size, each bin has the width of 1
         data3 = ["1", "1", "3", "4"]  # 3 bins, range of 3
         expected_histogram3 = {
-            'bin_counts': np.array([2, 0, 2]),
-            'bin_edges': np.array([1.0, 2.0, 3.0, 4.0]),
+            'bin_counts': np.array([1, 1, 0, 2]),
+            'bin_edges': np.array([1.0, 1.75, 2.5, 3.25, 4.0]),
         }
         list_data_test.append([data3, expected_histogram3])
 
@@ -277,9 +277,9 @@ class TestIntColumn(unittest.TestCase):
                 'bin_edges': np.array([2.0, 10.0/3.0, 14.0/3.0, 6.0])
             },
             quantiles={
-                0: 8 /  3,  # halfway between 2 and 3.333 (histogram based)
-                1: 4.0   ,  # median between 2 and 6
-                2: 16 / 3,  # halfway between between 14 / 3 and 6
+                0: 2.002,  # halfway between 2 and 3.333 (histogram based)
+                1: 4,  # median between 2 and 6
+                2: 5.998,  # halfway between between 14 / 3 and 6
             },
             times=defaultdict(
                 float, {'histogram_and_quantiles': 15.0, 'max': 1.0, 'min': 1.0,

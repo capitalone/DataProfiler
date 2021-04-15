@@ -87,9 +87,7 @@ class TestHistogramOption(TestBooleanOption):
         ]
 
         # # this code can be abstracted to limit code everywhere else
-        # # AKA, params_to_check would be the only needed code
-        # def _assert_validate_helper(prop, value):
-        #
+        # # AKA, for loop below could be abstracted to a utils func
 
         # Default configuration is valid
         option = self.get_options()

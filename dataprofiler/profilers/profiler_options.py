@@ -391,7 +391,9 @@ class PrecisionOptions(BooleanOption):
                             This ratio will override any defaults.
         :vartype sample_ratio: float
         """
-        self.sample_ratio = float(sample_ratio)
+        self.sample_ratio = None
+        if sample_ratio is not None:
+            self.sample_ratio = float(sample_ratio)
         super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='PrecisionOptions'):

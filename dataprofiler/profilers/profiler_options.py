@@ -175,15 +175,12 @@ class HistogramOption(BooleanOption):
             if isinstance(value, int) and value >= 1:
                 pass  # use errors below if not a passing int
             elif (not isinstance(value, list) or len(value) < 1
-                  or not all([isinstance(item, str) for item in value])):
+                  or not all([isinstance(item, str) for item in value]) or
+                  not set(value).issubset(set(valid_methods))):
                 errors.append("{}.bin_count_or_method must be an integer more "
                               "than 1, a string, or list of strings from the "
                               "following: {}.".format(variable_path,
-                                                      valid_methods))
-            elif not set(value).issubset(set(valid_methods)):
-                errors.append("{}.bin_count_or_method must be a subset or "
-                              "selection from: {}.".format(variable_path,
-                                                           valid_methods))
+                                                      valid_methods)))
         return errors
 
 

@@ -70,19 +70,12 @@ class TestHistogramOption(TestBooleanOption):
 
             # errors
             dict(prop='bin_count_or_method',
-                 value_list=[-1, 1.2, 1.0, [], False],
+                 value_list=[-1, 1.2, 1.0, [], False, 'whoops', ["doane", "incorrect"], '1'],
                  errors=[
                      "HistogramOption.bin_count_or_method must be an integer "
                      "more than 1, a string, or list of strings from the "
                      "following: ['auto', 'fd', 'doane', 'scott', 'rice', "
                      "'sturges', 'sqrt']."
-                 ]),
-            dict(prop='bin_count_or_method',
-                 value_list=['whoops', ["doane", "incorrect"], '1'],
-                 errors=[
-                     r"HistogramOption.bin_count_or_method must be a subset or "
-                     r"selection from: ['auto', 'fd', 'doane', 'scott', 'rice', "
-                     r"'sturges', 'sqrt']."
                  ]),
         ]
 
@@ -116,8 +109,8 @@ class TestHistogramOption(TestBooleanOption):
         # this time testing raising an error
         option.bin_count_or_method = 'fake method'
         expected_error = (
-            r"HistogramOption.bin_count_or_method must be a subset or selection"
-            r" from: \['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', "
-            r"'sqrt'\].")
+            r"HistogramOption.bin_count_or_method must be an integer more than "
+            r"1, a string, or list of strings from the following: "
+            r"\['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'].")
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()

@@ -67,8 +67,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             elif isinstance(bin_count_or_method, list):
                 self.histogram_bin_method_names = bin_count_or_method
             elif isinstance(bin_count_or_method, int):
-                self.user_set_histogram_bin = \
-                    options.histogram_and_quantiles.bin_count_or_method
+                self.user_set_histogram_bin = bin_count_or_method
                 self.histogram_bin_method_names = ['custom']
         self.histogram_methods = {}
         for method in self.histogram_bin_method_names:

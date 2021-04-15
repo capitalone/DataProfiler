@@ -128,7 +128,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         """
         payload_data = None
         if isinstance(json_lines, dict):
-
+            # Glean Payload Data
             if self._data_key in json_lines.keys():
                 payload_data = json_lines[self._data_key]
                 payload_data, original_df_dtypes = data_utils.json_to_dataframe(
@@ -141,24 +141,23 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                         columns={column: self._data_key + "." + str(column)},
                         inplace=True)
 
+            # Get the non-payload data
             flattened_json = []
             for key in json_lines:
                 if key != self._data_key:
                     flattened_json = flattened_json + self._find_data(json_lines[key], path=key)
-            json_lines = []
+
+            # Coalesce the data together
+            json_lines = [{}]
             for item in flattened_json:
-                if len(json_lines) == 0:
+                found = False
+                for dict_items in json_lines:
+                    if list(item.keys())[0] not in dict_items:
+                        dict_items.update(item)
+                        found = True
+                        break
+                if not found:
                     json_lines.append(item)
-                else:
-                    found = False
-                    for dict_items in json_lines:
-                        if list(item.keys())[0] not in dict_items:
-                            dict_items[list(item.keys())[0]] = item[
-                                list(item.keys())[0]]
-                            found = True
-                            break
-                    if found == False:
-                        json_lines.append(item)
 
         data, original_df_dtypes = data_utils.json_to_dataframe(
             json_lines=json_lines,

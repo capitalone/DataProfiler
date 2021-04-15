@@ -407,7 +407,8 @@ class PrecisionOptions(BooleanOption):
                and not isinstance(self.sample_ratio, int):
                 errors.append("{}.sample_ratio must be a float and cannot be a string."
                               .format(variable_path))                
-            if isinstance(self.sample_ratio, float) \
+            if (isinstance(self.sample_ratio, float) \
+               or isinstance(self.sample_ratio, int)) \
                and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
                 errors.append("{}.sample_ratio must be a float between 0 and 1."
                               .format(variable_path))                

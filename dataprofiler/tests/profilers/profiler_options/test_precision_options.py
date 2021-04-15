@@ -32,8 +32,12 @@ class TestPrecisionOptions(TestBooleanOption):
         option = self.get_options(sample_ratio=None)
         self.assertEqual([], option._validate_helper())
 
-        # Valid configuration
+        # Valid configurations
         option = self.get_options(sample_ratio=0.5)
+        self.assertEqual([], option._validate_helper())
+        option = self.get_options(sample_ratio=1)
+        self.assertEqual([], option._validate_helper())
+        option = self.get_options(sample_ratio=0)
         self.assertEqual([], option._validate_helper())
 
         # Option sample_ratio cannot be a string, must be a float
@@ -57,3 +61,35 @@ class TestPrecisionOptions(TestBooleanOption):
     
     def test_validate(self):
         super().test_validate()
+
+        optpth = self.get_options_path()
+
+        # Default configuration
+        option = self.get_options(sample_ratio=None)
+        self.assertEqual([], option._validate_helper())
+
+        # Valid configurations
+        option = self.get_options(sample_ratio=0.5)
+        self.assertEqual([], option._validate_helper())
+        option = self.get_options(sample_ratio=1)
+        self.assertEqual([], option._validate_helper())
+        option = self.get_options(sample_ratio=0)
+        self.assertEqual([], option._validate_helper())
+
+        # Option sample_ratio cannot be a string, must be a float
+        option = self.get_options(sample_ratio="Hello World")
+        expected_error = ["{}.sample_ratio must be a float and cannot be a string."
+                          .format(optpth)]
+        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
+
+        # Option sample_ratio must be between 0 and 1
+        option = self.get_options(sample_ratio=1.1)
+        expected_error = ["{}.sample_ratio must be a float between 0 and 1."
+                          .format(optpth)]
+        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
+
+        # Option sample_ratio must be between 0 and 1
+        option = self.get_options(sample_ratio=-1)
+        expected_error = ["{}.sample_ratio must be a float between 0 and 1."
+                          .format(optpth)]
+        self.assertSetEqual(set(expected_error), set(option._validate_helper()))

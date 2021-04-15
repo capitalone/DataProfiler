@@ -201,7 +201,6 @@ class StructuredDataProfile(object):
                 null_rows.sort()
             self.null_types_index.setdefault(null_type, set()).update(null_rows)
 
-
     def update_profile(self, df_series, sample_size=None,
                        min_true_samples=None, sample_ids=None,
                        pool=None):
@@ -235,7 +234,6 @@ class StructuredDataProfile(object):
         # Profile compilers being updated
         for profile in self.profiles.values():
             profile.update_profile(clean_sampled_df, pool)
-
 
     def _get_sample_size(self, df_series):
         """

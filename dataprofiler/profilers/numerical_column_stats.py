@@ -45,25 +45,30 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :param options: Options for the numerical stats.
         :type options: NumericalOptions
         """
-        self.options = None
-        if options and isinstance(options, NumericalOptions):
-            self.options = options
+        if options and not isinstance(options, NumericalOptions):
+            raise ValueError("NumericalStatsMixin parameter 'options' must be "
+                             "of type NumericalOptions.")
         self.min = None
         self.max = None
         self.sum = 0
         self.variance = 0
         self.max_histogram_bin = 10000
+        self.min_histogram_bin = 1
         self.histogram_bin_method_names = [
             'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'
         ]
         self.histogram_selection = None
-        if options is not None and isinstance(options, NumericalOptions):
-            opt_method = options.histogram_and_quantiles.method
-            if isinstance(opt_method, str):
-                self.histogram_bin_method_names = [opt_method]
-                self.histogram_selection = opt_method
-            elif isinstance(opt_method, list):
-                self.histogram_bin_method_names = opt_method
+        self.user_set_histogram_bin = None
+        if options:
+            bin_count_or_method = \
+                options.histogram_and_quantiles.bin_count_or_method
+            if isinstance(bin_count_or_method, str):
+                self.histogram_bin_method_names = [bin_count_or_method]
+            elif isinstance(bin_count_or_method, list):
+                self.histogram_bin_method_names = bin_count_or_method
+            elif isinstance(bin_count_or_method, int):
+                self.user_set_histogram_bin = bin_count_or_method
+                self.histogram_bin_method_names = ['custom']
         self.histogram_methods = {}
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {
@@ -109,7 +114,26 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if not bin_methods:
             raise ValueError('Profiles have no overlapping bin methods and '
                              'therefore cannot be added together.')
+        elif other1.user_set_histogram_bin and other2.user_set_histogram_bin:
+            if other1.user_set_histogram_bin != other2.user_set_histogram_bin:
+                warnings.warn('User set histogram bin counts did not match. '
+                              'Choosing the larger bin count.')
+            self.user_set_histogram_bin = max(other1.user_set_histogram_bin,
+                                              other2.user_set_histogram_bin)
+
+        # initial creation of the profiler creates all methods, but
+        # only the methods which intersect should exist.
         self.histogram_bin_method_names = bin_methods
+        self.histogram_methods = dict()
+        for method in self.histogram_bin_method_names:
+            self.histogram_methods[method] = {
+                'total_loss': 0,
+                'current_loss': 0,
+                'histogram': {
+                    'bin_counts': None,
+                    'bin_edges': None
+                }
+            }
 
         for i, method in enumerate(self.histogram_bin_method_names):
             combined_values = other1._histogram_to_array(
@@ -321,11 +345,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 unique_value = values.iloc[0]
             bin_edges = np.array([unique_value, unique_value])
         else:
-            values, weights = histogram_utils._ravel_and_check_weights(
-                values, None)
-            _, n_equal_bins = histogram_utils._get_bin_edges(
-                values, bin_method, None, None)
-            n_equal_bins = min(n_equal_bins, self.max_histogram_bin)
+            n_equal_bins = suggested_bin_count = self.user_set_histogram_bin
+            if n_equal_bins is None:
+                values, weights = histogram_utils._ravel_and_check_weights(
+                    values, None)
+                _, n_equal_bins = histogram_utils._get_bin_edges(
+                    values, bin_method, None, None)
+                suggested_bin_count = min(n_equal_bins, self.max_histogram_bin)
+                n_equal_bins = max(self.min_histogram_bin, suggested_bin_count)
             bin_counts, bin_edges = np.histogram(values, bins=n_equal_bins)
         return bin_counts, bin_edges
 

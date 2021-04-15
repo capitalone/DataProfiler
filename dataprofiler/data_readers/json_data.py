@@ -129,7 +129,6 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         bulk_data = None
         if isinstance(json_lines, dict):
             if self._data_key in json_lines.keys():
-                print("HERERER")
                 bulk_data = json_lines[self._data_key]
                 bulk_data, original_df_dtypes = data_utils.json_to_dataframe(
                     json_lines=bulk_data,

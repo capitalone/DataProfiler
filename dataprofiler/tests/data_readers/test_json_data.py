@@ -98,7 +98,7 @@ class TestJSONDataClass(unittest.TestCase):
         for json_string in failing_json_strings:
             # in memory data must specify the data_type category
             with self.assertRaises(ValueError) as assert_raised:
-                Data(data=json_string['value'], data_type='json')
+                Data(data=json_string['value'], data_type='json').data
             self.assertEqual(
                 str(assert_raised.exception),
                 json_string['error']
@@ -136,20 +136,19 @@ class TestJSONDataClass(unittest.TestCase):
                              data.length,
                              msg=input_file['path'])
         
-    def test_intuitive_json_detection(self):
+    def test_data_stream_format(self):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/math.json')
 
         math = Data(input_file_name, 
-                    options={"intuitive_detection": True})
+                    options={"data_format": "data_stream"})
 
         self.assertTrue("meta.view.columns.cachedContents.largest" 
-                        in math.data.columns)
-        self.assertEqual(math.data["meta.view.columns.cachedContents.largest"][9]
+                        in math.data_and_metadata.columns)
+        self.assertEqual(math.metadata["meta.view.columns.cachedContents.largest"][9]
                          ,"102188")
         self.assertTrue("data.22" in math.data.columns)
         self.assertEqual(math.data["data.22"][167], "77.9")
-
 
 
 if __name__ == '__main__':

@@ -180,7 +180,7 @@ class HistogramOption(BooleanOption):
                 errors.append("{}.bin_count_or_method must be an integer more "
                               "than 1, a string, or list of strings from the "
                               "following: {}.".format(variable_path,
-                                                      valid_methods)))
+                                                      valid_methods))
         return errors
 
 

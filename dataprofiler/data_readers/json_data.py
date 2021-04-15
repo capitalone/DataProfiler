@@ -72,8 +72,8 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         """
         Returns a data frame that contains the metadata
         """
-        if self._metadata is None:
-            warnings.warn("No metadata was detected")
+        if self._metadata is None or self._metadata.empty:
+            warnings.warn("No metadata was detected.")
         return self._metadata
 
     @property
@@ -82,7 +82,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         Returns a data frame that joins the data and the metadata.
         """
         data = self.data
-        if self._metadata is not None:
+        if self._metadata is not None and not self._metadata.empty:
             data = [self._metadata, data]
             data = pd.concat(data, axis=1)
         return data
@@ -113,10 +113,30 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 for key in json_data:
                     list_of_dict = list_of_dict + self._find_data(key, path)
             else:
-                list_of_dict = list_of_dict + [{path: json_data}]
+                list_of_dict = list_of_dict + [{path[:-1]: json_data}]
         else:
-            list_of_dict = list_of_dict + [{path: json_data}]
+            list_of_dict = list_of_dict + [{path[:-1]: json_data}]
         return list_of_dict
+    
+    def _coalesce_dicts(self, list_of_dicts):
+        """
+        Merges all the dictionaries into as few dictionaries as possible.
+
+        :param list_of_dicts: the list of dictionaries to be coalesced
+        :type list_of_dicts: list(dict)
+        :return: Coalesced list of dictionaries
+        """
+        coalesced_list_of_dicts = [{}]
+        for item in list_of_dicts:
+            found = False
+            for dict_items in coalesced_list_of_dicts:
+                if list(item.keys())[0] not in dict_items:
+                    dict_items.update(item)
+                    found = True
+                    break
+            if not found:
+                coalesced_list_of_dicts.append(item)
+        return coalesced_list_of_dicts
 
     def _get_data_as_data_stream(self, json_lines):
         """
@@ -131,6 +151,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             # Glean Payload Data
             if self._data_key in json_lines.keys():
                 payload_data = json_lines[self._data_key]
+                if isinstance(payload_data, dict):
+                    payload_data = self._find_data(payload_data)
+                    payload_data = self._coalesce_dicts(payload_data)
                 payload_data, original_df_dtypes = data_utils.json_to_dataframe(
                     json_lines=payload_data,
                     selected_columns=self.selected_keys,
@@ -148,16 +171,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                     flattened_json = flattened_json + self._find_data(json_lines[key], path=key)
 
             # Coalesce the data together
-            json_lines = [{}]
-            for item in flattened_json:
-                found = False
-                for dict_items in json_lines:
-                    if list(item.keys())[0] not in dict_items:
-                        dict_items.update(item)
-                        found = True
-                        break
-                if not found:
-                    json_lines.append(item)
+            json_lines = self._coalesce_dicts(flattened_json)
 
         data, original_df_dtypes = data_utils.json_to_dataframe(
             json_lines=json_lines,

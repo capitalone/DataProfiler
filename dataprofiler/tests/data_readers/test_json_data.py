@@ -135,7 +135,26 @@ class TestJSONDataClass(unittest.TestCase):
             self.assertEqual(input_file['count'],
                              data.length,
                              msg=input_file['path'])
+
+    def test_data_stream_format_with_no_payload(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/simple.json')
+
+        simple = Data(input_file_name, options={"data_format": "data_stream", 
+                                                "data_key": "data"})
         
+        self.assertEqual(3, len(simple.data_and_metadata.columns))
+        self.assertEqual(2, len(simple.data.columns))
+        self.assertEqual(1, len(simple.metadata.columns))
+
+        simple = Data(input_file_name, options={"data_format": "data_stream", 
+                                                "data_key": "no_data_key_test"})
+
+        self.assertEqual(3, len(simple.data_and_metadata.columns))
+        self.assertEqual(3, len(simple.data.columns))
+        with self.assertWarnsRegex(UserWarning,"No metadata was detected."):
+            self.assertIsNone(simple.metadata)
+            
     def test_data_stream_format(self):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/math.json')
@@ -149,7 +168,7 @@ class TestJSONDataClass(unittest.TestCase):
                          ,"102188")
         self.assertTrue("data.22" in math.data.columns)
         self.assertEqual(math.data["data.22"][167], "77.9")
-
+    
 
 if __name__ == '__main__':
     unittest.main()

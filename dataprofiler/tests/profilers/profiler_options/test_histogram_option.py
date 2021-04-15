@@ -78,7 +78,7 @@ class TestHistogramOption(TestBooleanOption):
                      "'sturges', 'sqrt']."
                  ]),
             dict(prop='bin_count_or_method',
-                 value_list=['whoops', ["doane", "incorrect"]],
+                 value_list=['whoops', ["doane", "incorrect"], '1'],
                  errors=[
                      r"HistogramOption.bin_count_or_method must be a subset or "
                      r"selection from: ['auto', 'fd', 'doane', 'scott', 'rice', "

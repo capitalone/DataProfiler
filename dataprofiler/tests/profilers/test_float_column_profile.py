@@ -122,7 +122,27 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(0, float_profiler.precision['var'])
         self.assertEqual(0, float_profiler.precision['std'])
 
+        # random precision
+        df_random = pd.Series(['+ 9', '-.3', '-1e-3', '3.2343', '0',
+                               '1230', '0.33', '4.3', '302.1', '-4.322'])
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(df_random)
+        self.assertEqual(0, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
+        self.assertEqual(2.4444, float_profiler.precision['mean'])
+        self.assertEqual(9, float_profiler.precision['sample_size'])
+        self.assertEqual(2.7778, float_profiler.precision['var'])
+        self.assertEqual(1.6667, float_profiler.precision['std'])
 
+        # Ensure order doesn't change anything
+        df_random_order = pd.Series(['1230', '0.33', '4.3', '302.1', '-4.322',
+                                     '+ 9', '-.3', '-1e-3', '3.2343', '0'])
+        float_profiler_order = FloatColumn("Name")
+        float_profiler_order.update(df_random)
+        self.assertCountEqual(
+            float_profiler.precision, float_profiler_order.precision
+        )
+        
         # check to make sure all formats of precision are correctly predicted
         samples = [
             # value, min expected precision
@@ -840,6 +860,19 @@ class TestFloatColumn(unittest.TestCase):
         self.assertIsNone(profiler3.min)
         self.assertEqual(None, profiler3.precision['min'])
         self.assertEqual(None, profiler3.precision['max'])
+
+
+        # Creating profiler with precision to 0.1
+        options = FloatOptions()
+        options.max.is_enabled = False
+        options.min.is_enabled = False
+        options.histogram_and_quantiles.method = None
+
+        data = [2, 4, 6, 8]
+        df = pd.Series(data).apply(str)
+        profiler1 = FloatColumn("Float", options=options)
+        profiler1.update(df)
+        
 
     def test_float_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,

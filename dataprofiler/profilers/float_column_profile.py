@@ -47,8 +47,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         self.__z_value_precision = 3.291
 
         self.__precision_sample_ratio = None
-        if options and options.precision_sample_ratio:
-            self.__precision_sample_ratio = options.precision_sample_ratio
+        if options and options.precision and options.precision.is_enabled:
+            self.__precision_sample_ratio = options.precision.sample_ratio
         
         self.__calculations = {
             "precision": FloatColumn._update_precision,
@@ -134,8 +134,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             quantiles=self.quantiles,
             times=self.times,
             precision=dict(
-                min=self.precision['min'],
-                max=self.precision['max'],
+                min=int(self.precision['min']),
+                max=int(self.precision['max']),
                 mean=self.precision['mean'],
                 var=self.precision['var'],
                 std=self.precision['std'],
@@ -158,7 +158,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return None
 
     @classmethod
-    def _get_float_precision(cls, df_series_clean, sample_ratio=0.05):
+    def _get_float_precision(cls, df_series_clean, sample_ratio=None):
         """
         Determines the precision of the numeric value.
         
@@ -176,12 +176,16 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
         r = re.compile(r'^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D')
 
-        # Take a sampling of the dataset. If small use full dataset,
+        # DEFAULT: Sample the dataset. If small use full dataset,
         # OR 20k samples or 5% of the dataset which ever is larger.
-        sample_size = min(len(df_series_clean),
-                          max(20000,
-                              int(len(df_series_clean)/sample_ratio))
-                          )
+        # If user sets sample ratio, utilize their request
+        if sample_ratio is not None and sample_ratio > 0:
+            sample_size = int(len(df_series_clean)/sample_ratio)
+        else:
+            sample_size = min(len(df_series_clean),
+                              max(20000,
+                                  int(len(df_series_clean)/0.05))
+                              )
 
         # length of sampled cells after all punctuation removed
         len_per_float = df_series_clean.sample(sample_size).replace(
@@ -234,7 +238,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: None
         """
 
-        sample_ratio = 0.05
+        sample_ratio = None
         if self.__precision_sample_ratio is not None:
             sample_ratio = self.__precision_sample_ratio
         
@@ -262,7 +266,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             self.precision['mean'] = self.precision['sum'] \
                 / self.precision['sample_size']
 
-        # Calculated outside        
+        # Calculated outside
         self.precision['std'] = math.sqrt(self.precision['var'])
 
         # Margin of error, 99.9% confidence level
@@ -270,7 +274,13 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             self.__z_value_precision * (
                 self.precision['std'] / math.sqrt(self.precision['sample_size'])
             ), int(self.precision['max'])
-        )            
+        )
+
+        # Set the significant figures
+        sigfigs = int(self.precision['max'])
+        for key in ['mean', 'var', 'std', 'margin_of_error']:
+            self.precision[key] = \
+                float('{:.{p}g}'.format(self.precision[key], p=sigfigs))
         
                 
     def _update_helper(self, df_series_clean, profile):

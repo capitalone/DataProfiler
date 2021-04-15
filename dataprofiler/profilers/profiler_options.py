@@ -376,6 +376,43 @@ class IntOptions(NumericalOptions):
         return super()._validate_helper(variable_path) 
 
 
+class PrecisionOptions(BooleanOption):
+    
+    def __init__(self, is_enabled=True, sample_ratio=None):
+        """
+        Options for precision
+
+        :ivar is_enabled: boolean option to enable/disable the column.
+        :vartype is_enabled: bool
+        :ivar precision: boolean option to enable/disable precision
+        :vartype precision: BooleanOption
+        :ivar sample_ratio: float option to determine ratio of valid
+                            float samples in determining percision.
+                            This ratio will override any defaults.
+        :vartype sample_ratio: float
+        """
+        self.sample_ratio = sample_ratio
+        super().__init__(is_enabled=is_enabled)
+
+    def _validate_helper(self, variable_path='PrecisionOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+        
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: List of strings
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+    
+        if self.sample_ratio is not None \
+           and isinstance(self.sample_ratio, float) \
+           and self.sample_ratio < 0 and self.sample_ratio > 1.0:
+            errors.append("{}.sample_ratio must be a float between 0 and 1."
+                          .format(variable_path))                
+        
+        return errors
+    
 class FloatOptions(NumericalOptions):
 
     def __init__(self):
@@ -384,12 +421,6 @@ class FloatOptions(NumericalOptions):
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
-        :ivar precision: boolean option to enable/disable precision
-        :vartype precision: BooleanOption
-        :ivar precision_sample_ratio: float option to determine ratio of valid
-                                      float samples in determining percision.
-                                      This ratio will override any defaults.
-        :vartype precision_sample_ratio: float
         :ivar min: boolean option to enable/disable min
         :vartype min: BooleanOption
         :ivar max: boolean option to enable/disable max
@@ -406,32 +437,22 @@ class FloatOptions(NumericalOptions):
         :vartype is_numeric_stats_enabled: bool
         """
         NumericalOptions.__init__(self)
-        self.precision = BooleanOption(is_enabled=True)
-        self.precision_sample_ratio = None
+        self.precision = PrecisionOptions(is_enabled=True)
 
     def _validate_helper(self, variable_path='FloatOptions'):
         """
         Validates the options do not conflict and cause errors.
-
+        
         :param variable_path: current path to variable set.
         :type variable_path: str
         :return: list of errors (if raise_error is false)
-        :rtype: List of strings
+        :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path=variable_path)
-        if not isinstance(self.precision, BooleanOption):
-            errors.append("{}.precision must be a BooleanOption."
-                          .format(variable_path))        
-        errors += self.precision._validate_helper(
-            variable_path + '.precision')
-        
-        
-        if self.precision_sample_ratio is not None \
-           and isinstance(self.precision_sample_ratio, float) \
-           and self.precision_sample_ratio < 0 and self.precision_sample_ratio > 1.0:
-            errors.append("{}.precision_sample_ratio must be a float between 0 and 1."
-                          .format(variable_path))
-        
+        if not isinstance(self.precision, PrecisionOptions):
+            errors.append("{}.precision must be a PrecisionOptions."
+                          .format(variable_path))                
+        errors += self.precision._validate_helper(variable_path+'.precision')
         return errors
 
 

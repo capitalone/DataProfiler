@@ -165,8 +165,6 @@ class TestFloatColumn(unittest.TestCase):
             self.assertEqual(min_expected_precision, precision['min'],
                              msg='Errored for: {}'.format(sample[0]))
 
-        
-
     def test_profiled_min(self):
         # test with multiple values
         data = np.linspace(-5, 5, 11)

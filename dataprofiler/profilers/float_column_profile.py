@@ -281,8 +281,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         for key in ['mean', 'var', 'std', 'margin_of_error']:
             self.precision[key] = \
                 float('{:.{p}g}'.format(self.precision[key], p=sigfigs))
-        
-                
+                        
     def _update_helper(self, df_series_clean, profile):
         """
         Method for updating the column profile properties with a cleaned

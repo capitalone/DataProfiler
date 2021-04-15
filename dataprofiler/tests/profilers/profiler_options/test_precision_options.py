@@ -14,6 +14,9 @@ class TestPrecisionOptions(TestBooleanOption):
         option = self.get_options(is_enabled=False)
         self.assertDictEqual(
             {"is_enabled": False, "sample_ratio": None}, option.properties)
+        option = self.get_options(is_enabled=False, sample_ratio=0.5)
+        self.assertDictEqual(
+            {"is_enabled": False, "sample_ratio": 0.5}, option.properties)
     
     def test_set_helper(self):
         super().test_set_helper()

@@ -673,6 +673,31 @@ class TestFloatColumn(unittest.TestCase):
                                            'histogram_and_quantiles': 30.0})
             self.assertEqual(expected, profiler.profile['times'])
 
+    def test_option_precision(self):
+        data = [1.1, 2.2, 3.3, 4.4]
+        df = pd.Series(data).apply(str)
+
+        # Turn off precision
+        options = FloatOptions()
+        options.set({"precision.is_enabled": False})
+        profiler = FloatColumn(df.name, options=options)
+        profiler.update(df)        
+        self.assertEqual(None, profiler.precision['sample_size'])
+
+        # Turn on precision, check sample_size
+        options = FloatOptions()
+        options.set({"precision.is_enabled": True})
+        profiler = FloatColumn(df.name, options=options)
+        profiler.update(df)        
+        self.assertEqual(4, profiler.precision['sample_size'])
+
+        # Trun on precision, set 0.5 sample_size
+        options = FloatOptions()
+        options.set({"precision.sample_ratio": 0.5})
+        profiler = FloatColumn(df.name, options=options)
+        profiler.update(df)        
+        self.assertEqual(2, profiler.precision['sample_size'])
+            
     def test_option_timing(self):
         data = [2.0, 12.5, 'not a float', 6.0, 'not a float']
         df = pd.Series(data).apply(str)
@@ -681,6 +706,7 @@ class TestFloatColumn(unittest.TestCase):
         options.set({"min.is_enabled": False})
 
         profiler = FloatColumn(df.name, options=options)
+        
 
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):

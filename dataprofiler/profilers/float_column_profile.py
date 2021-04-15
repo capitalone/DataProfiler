@@ -124,6 +124,12 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if self.histogram_selection is not None:
             histogram_method = self.histogram_selection
 
+        protected_precision = {}
+        for key in ['min', 'max']:
+            protected_precision[key] = None
+        if self.precision[key] is not None:
+            protected_precision[key] = int(self.precision[key])
+            
         profile = dict(
             min=self.min,
             max=self.max,
@@ -134,8 +140,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             quantiles=self.quantiles,
             times=self.times,
             precision=dict(
-                min=int(self.precision['min']),
-                max=int(self.precision['max']),
+                min=protected_precision['min'],
+                max=protected_precision['max'],
                 mean=self.precision['mean'],
                 var=self.precision['var'],
                 std=self.precision['std'],
@@ -170,7 +176,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: string representing its precision print format
         :rtype: int
         """
-        if not len(df_series_clean): return None
+        len_df = len(df_series_clean)
+        if not len_df: return None
 
         # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$)
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
@@ -179,13 +186,9 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         # DEFAULT: Sample the dataset. If small use full dataset,
         # OR 20k samples or 5% of the dataset which ever is larger.
         # If user sets sample ratio, utilize their request
+        sample_size = min(len_df, max(20000, int(len_df * 0.05)))
         if sample_ratio is not None and sample_ratio > 0:
-            sample_size = int(len(df_series_clean)/sample_ratio)
-        else:
-            sample_size = min(len(df_series_clean),
-                              max(20000,
-                                  int(len(df_series_clean)/0.05))
-                              )
+            sample_size = int(len_df * sample_ratio)
 
         # length of sampled cells after all punctuation removed
         len_per_float = df_series_clean.sample(sample_size).replace(

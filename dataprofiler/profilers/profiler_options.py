@@ -389,9 +389,7 @@ class PrecisionOptions(BooleanOption):
                             This ratio will override any defaults.
         :vartype sample_ratio: float
         """
-        self.sample_ratio = None
-        if sample_ratio is not None:
-            self.sample_ratio = float(sample_ratio)
+        self.sample_ratio = sample_ratio
         super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='PrecisionOptions'):
@@ -404,11 +402,15 @@ class PrecisionOptions(BooleanOption):
         :rtype: List of strings
         """
         errors = super()._validate_helper(variable_path=variable_path)    
-        if self.sample_ratio is not None \
-           and isinstance(self.sample_ratio, float) \
-           and self.sample_ratio < 0 and self.sample_ratio > 1.0:
-            errors.append("{}.sample_ratio must be a float between 0 and 1."
-                          .format(variable_path))                
+        if self.sample_ratio is not None:
+            if not isinstance(self.sample_ratio, float) \
+               and not isinstance(self.sample_ratio, int):
+                errors.append("{}.sample_ratio must be a float and cannot be a string."
+                              .format(variable_path))                
+            if isinstance(self.sample_ratio, float) \
+               and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
+                errors.append("{}.sample_ratio must be a float between 0 and 1."
+                              .format(variable_path))                
         
         return errors
     

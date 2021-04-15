@@ -739,8 +739,7 @@ class TestFloatColumn(unittest.TestCase):
     def test_custom_bin_count_merge(self):
 
         options = FloatOptions()
-        options.histogram_and_quantiles.method = None
-        options.histogram_and_quantiles.hist_bin_count = 10
+        options.histogram_and_quantiles.bin_count_or_method = 10
 
         data = [2.0, 'not a float', 6.0, 'not a float']
         df = pd.Series(data).apply(str)
@@ -792,7 +791,7 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.max.is_enabled = False
         options.min.is_enabled = False
-        options.histogram_and_quantiles.method = None
+        options.histogram_and_quantiles.bin_count_or_method = None
 
         data = [2, 4, 6, 8]
         df = pd.Series(data).apply(str)
@@ -803,7 +802,7 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.min.is_enabled = False
         options.precision.is_enabled = False
-        options.histogram_and_quantiles.method = None
+        options.histogram_and_quantiles.bin_count_or_method = None
         
         data2 = [10, 15]
         df2 = pd.Series(data2).apply(str)
@@ -817,10 +816,10 @@ class TestFloatColumn(unittest.TestCase):
             for warning in w:
                 list_of_warning_messages.append(str(warning.message))
 
-            warning1 = "precision is disabled because it is not enabled in both" \
-                       " profiles."
-            warning2 = "max is disabled because it is not enabled in both " \
-                       "profiles."
+            warning1 = ("precision is disabled because it is not enabled in "
+                        "both profiles.")
+            warning2 = ("max is disabled because it is not enabled in both "
+                       "profiles.")
             self.assertIn(warning1, list_of_warning_messages)
             self.assertIn(warning2, list_of_warning_messages)
 
@@ -843,20 +842,20 @@ class TestFloatColumn(unittest.TestCase):
     def test_histogram_option_integration(self):
         # test setting bin methods
         options = FloatOptions()
-        options.histogram_and_quantiles.method = "sturges"
+        options.histogram_and_quantiles.bin_count_or_method = "sturges"
         num_profiler = FloatColumn(name="test", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
 
-        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        options.histogram_and_quantiles.bin_count_or_method = ["sturges",
+                                                               "doane"]
         num_profiler = FloatColumn(name="test2", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges", "doane"],
                          num_profiler.histogram_bin_method_names)
 
         # test histogram bin count set
-        options.histogram_and_quantiles.method = None
-        options.histogram_and_quantiles.hist_bin_count = 100
+        options.histogram_and_quantiles.bin_count_or_method = 100
         num_profiler = FloatColumn(name="test3", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(['custom'], num_profiler.histogram_bin_method_names)

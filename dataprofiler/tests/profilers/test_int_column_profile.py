@@ -505,19 +505,19 @@ class TestIntColumn(unittest.TestCase):
     def test_histogram_option_integration(self):
         # test setting bin methods
         options = IntOptions()
-        options.histogram_and_quantiles.method = "sturges"
+        options.histogram_and_quantiles.bin_count_or_method = "sturges"
         num_profiler = IntColumn(name="test", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
 
-        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        options.histogram_and_quantiles.bin_count_or_method = ["sturges",
+                                                               "doane"]
         num_profiler = IntColumn(name="test2", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges", "doane"],
                          num_profiler.histogram_bin_method_names)
 
-        options.histogram_and_quantiles.method = None
-        options.histogram_and_quantiles.hist_bin_count = 100
+        options.histogram_and_quantiles.bin_count_or_method = 100
         num_profiler = IntColumn(name="test3", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(['custom'], num_profiler.histogram_bin_method_names)

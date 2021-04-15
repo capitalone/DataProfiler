@@ -60,14 +60,15 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.histogram_selection = None
         self.user_set_histogram_bin = None
         if options:
-            opt_method = options.histogram_and_quantiles.method
-            if isinstance(opt_method, str):
-                self.histogram_bin_method_names = [opt_method]
-            elif isinstance(opt_method, list):
-                self.histogram_bin_method_names = opt_method
-            self.user_set_histogram_bin = \
-                options.histogram_and_quantiles.hist_bin_count
-            if self.user_set_histogram_bin:
+            bin_count_or_method = \
+                options.histogram_and_quantiles.bin_count_or_method
+            if isinstance(bin_count_or_method, str):
+                self.histogram_bin_method_names = [bin_count_or_method]
+            elif isinstance(bin_count_or_method, list):
+                self.histogram_bin_method_names = bin_count_or_method
+            elif isinstance(bin_count_or_method, int):
+                self.user_set_histogram_bin = \
+                    options.histogram_and_quantiles.bin_count_or_method
                 self.histogram_bin_method_names = ['custom']
         self.histogram_methods = {}
         for method in self.histogram_bin_method_names:

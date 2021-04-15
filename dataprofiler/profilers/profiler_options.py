@@ -142,20 +142,16 @@ class BooleanOption(BaseOption):
 
 class HistogramOption(BooleanOption):
 
-    def __init__(self, is_enabled=True, method=None, hist_bin_count=None):
+    def __init__(self, is_enabled=True, bin_count_or_method='auto'):
         """Options for histograms
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
-        :ivar method: method with which to calculate histograms
-        :vartype method: Union[str, list(str)]
-        :ivar hist_bin_count: number of bins in the histogram
-        :vartype hist_bin_count: int
+        :ivar bin_count_or_method: bin count or the method with which to
+            calculate histograms
+        :vartype bin_count_or_method: Union[str, int, list(str)]
         """
-        if method is None and hist_bin_count is None:
-            method = ['auto']
-        self.method = method
-        self.hist_bin_count = hist_bin_count
+        self.bin_count_or_method = bin_count_or_method
         super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='HistogramOption'):
@@ -169,35 +165,25 @@ class HistogramOption(BooleanOption):
         """
         errors = super()._validate_helper(variable_path=variable_path)
 
-        if self.method is not None:
+        if self.bin_count_or_method is not None:
             valid_methods = ['auto', 'fd', 'doane', 'scott', 'rice', 'sturges',
                              'sqrt']
             
-            method = self.method
-            if isinstance(method, str):
-                method = [method]
-            if (not isinstance(method, list) or len(method) < 1
-                    or not all([isinstance(item, str) for item in method])):
-                errors.append("{}.method must be a string or list of strings "
-                              "from the following: {}."
-                              .format(variable_path, valid_methods))
-            elif not set(method).issubset(set(valid_methods)):
-                errors.append("{}.method must be a subset or selection from: "
-                              "{}.".format(variable_path, valid_methods))
-
-        if self.hist_bin_count is not None:
-            if (not isinstance(self.hist_bin_count, int) 
-                    or self.hist_bin_count < 1):
-                errors.append("{}.hist_bin_count must be an integer more than "
-                              "0.".format(variable_path))
-            elif self.method is not None:
-                warnings.warn('Setting {}.hist_bin_count overrides {}.method. '
-                              '{}.method will be ignored.'.format(
-                                variable_path, variable_path, variable_path))
-        elif self.method is None:
-            errors.append("Either {}.hist_bin_count or {}.method must be set "
-                          "to compute histograms.".format(variable_path,
-                                                          variable_path))
+            value = self.bin_count_or_method
+            if isinstance(value, str):
+                value = [value]
+            if isinstance(value, int) and value >= 1:
+                pass  # use errors below if not a passing int
+            elif (not isinstance(value, list) or len(value) < 1
+                  or not all([isinstance(item, str) for item in value])):
+                errors.append("{}.bin_count_or_method must be an integer more "
+                              "than 1, a string, or list of strings from the "
+                              "following: {}.".format(variable_path,
+                                                      valid_methods))
+            elif not set(value).issubset(set(valid_methods)):
+                errors.append("{}.bin_count_or_method must be a subset or "
+                              "selection from: {}.".format(variable_path,
+                                                           valid_methods))
         return errors
 
 

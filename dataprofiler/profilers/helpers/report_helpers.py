@@ -116,7 +116,7 @@ def _prepare_report(report, output_format=None, omit_keys=[]):
                         if prior_key_layer == '*' or prior_key_layer == key:
                             next_layer_omit_keys.append(next_key_layer)
 
-            # Recusively add keys to the final report
+            # Recursively add keys to the final report
             fmt_report[key] = _prepare_report(value, output_format,
                                               next_layer_omit_keys)
             

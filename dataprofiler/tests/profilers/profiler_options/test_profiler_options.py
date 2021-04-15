@@ -7,7 +7,6 @@ import pandas as pd
 from dataprofiler import Data, ProfilerOptions, Profiler
 from dataprofiler.profilers.profiler_options import IntOptions, \
     FloatOptions
-from dataprofiler.profilers.profile_builder import DataLabeler
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 
 

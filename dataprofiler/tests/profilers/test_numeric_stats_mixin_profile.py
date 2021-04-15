@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 
 from dataprofiler.profilers import NumericStatsMixin
+from dataprofiler.profilers.profiler_options import NumericalOptions
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -26,6 +27,25 @@ class TestColumn(NumericStatsMixin):
 
 
 class TestNumericStatsMixin(unittest.TestCase):
+
+    @mock.patch.multiple(NumericStatsMixin, __abstractmethods__=set(),
+                         _filter_properties_w_options=mock.MagicMock(
+                             return_value=None),
+                         create=True)
+    def test_base(self):
+
+        # validate requires NumericalOptions
+        with self.assertRaisesRegex(ValueError,
+                                    "NumericalStatsMixin parameter 'options' "
+                                    "must be of type NumericalOptions."):
+            profile = NumericStatsMixin(options='bad options')
+
+        try:
+            # validate doesn't fail
+            profile = NumericStatsMixin()
+            profile = NumericStatsMixin(NumericalOptions())
+        except Exception as e:
+            self.fail(e)
 
     def test_check_float(self):
         """

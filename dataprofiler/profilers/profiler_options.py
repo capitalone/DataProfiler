@@ -384,8 +384,6 @@ class PrecisionOptions(BooleanOption):
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
-        :ivar precision: boolean option to enable/disable precision
-        :vartype precision: BooleanOption
         :ivar sample_ratio: float option to determine ratio of valid
                             float samples in determining percision.
                             This ratio will override any defaults.

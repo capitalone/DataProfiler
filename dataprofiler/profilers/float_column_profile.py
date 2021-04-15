@@ -273,11 +273,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         self.precision['std'] = math.sqrt(self.precision['var'])
 
         # Margin of error, 99.9% confidence level
-        self.precision['margin_of_error'] = round(
-            self.__z_value_precision * (
-                self.precision['std'] / math.sqrt(self.precision['sample_size'])
-            ), int(self.precision['max'])
-        )
+        self.precision['margin_of_error'] = self.__z_value_precision *(
+            self.precision['std'] / math.sqrt(self.precision['sample_size']))
 
         # Set the significant figures
         sigfigs = int(self.precision['max'])

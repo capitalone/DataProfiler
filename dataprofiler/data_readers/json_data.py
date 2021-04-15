@@ -1,5 +1,7 @@
 from collections import OrderedDict
 import json
+import warnings
+import types
 
 import numpy as np
 import pandas as pd
@@ -53,10 +55,11 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         #  _selected_keys: keys being selected from the entire dataset
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
+        self._data_formats["data_stream"] = self._get_data_as_data_stream
         self._selected_data_format = options.get("data_format", "dataframe")
-        self._intuitive_detection = options.get("intuitive_detection", False)
+        self._data_key = options.get("data_key", "data")
         self._selected_keys = options.get("selected_keys", list())
-
+        self._metadata = None
         if data is not None:
             self._load_data(data)
 
@@ -64,6 +67,25 @@ class JSONData(SpreadSheetDataMixin, BaseData):
     def selected_keys(self):
         return self._selected_keys
 
+    @property
+    def metadata(self):
+        """
+        Returns a data frame that contains the metadata
+        """
+        if self._metadata is None:
+            warnings.warn("No metadata was detected")
+        return self._metadata
+
+    @property
+    def data_and_metadata(self):
+        """
+        Returns a data frame that joins the data and the metadata.
+        """
+        data = self.data
+        if self._metadata is not None:
+            data = [self._metadata, data]
+            data = pd.concat(data, axis=1)
+        return data
 
     def _find_data(self, json_data, path=""):
         """
@@ -96,90 +118,83 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             list_of_dict = list_of_dict + [{path: json_data}]
         return list_of_dict
 
-    def _load_data_from_json_format(self, json_lines):
+    def _get_data_as_data_stream(self, json_lines):
         """
-        Loads the data when in a JSON format such as
-        `json_lines = [dict(a=1), dict(a=2)]`
+        Loads the data when in a JSON format from a data stream (nested
+        lists of dictionaries and a key value for a payload.
 
         :param json_lines: json format list of dicts or dict
         :return:
         """
-        if self._intuitive_detection:
-            bulk_data = None
-            if isinstance(json_lines, dict):
-                if "data" in json_lines.keys():
-                    bulk_data = json_lines["data"]
-                    bulk_data, original_df_dtypes = data_utils.json_to_dataframe(
-                        json_lines=bulk_data,
-                        selected_columns=self.selected_keys,
-                        read_in_string=False
-                    )
-                    for column in bulk_data.columns:
-                        bulk_data.rename(
-                            columns={column: "data." + str(column)},
-                            inplace=True)
-                    del json_lines["data"]
-                list_of_additions = self._find_data(json_lines)
+        bulk_data = None
+        if isinstance(json_lines, dict):
+            if self._data_key in json_lines.keys():
+                print("HERERER")
+                bulk_data = json_lines[self._data_key]
+                bulk_data, original_df_dtypes = data_utils.json_to_dataframe(
+                    json_lines=bulk_data,
+                    selected_columns=self.selected_keys,
+                    read_in_string=False
+                )
+                for column in bulk_data.columns:
+                    bulk_data.rename(
+                        columns={column: self._data_key + "." + str(column)},
+                        inplace=True)
 
-                coalesced_list_of_additions = []
-                for item in list_of_additions:
-                    if len(coalesced_list_of_additions) == 0:
+            list_of_additions = []
+            for key in json_lines:
+                if key != self._data_key:
+                    list_of_additions = list_of_additions + self._find_data(json_lines[key], path=key)
+            coalesced_list_of_additions = []
+            for item in list_of_additions:
+                if len(coalesced_list_of_additions) == 0:
+                    coalesced_list_of_additions.append(item)
+                else:
+                    found = False
+                    for dict_items in coalesced_list_of_additions:
+                        if list(item.keys())[0] not in dict_items:
+                            dict_items[list(item.keys())[0]] = item[
+                                list(item.keys())[0]]
+                            found = True
+                            break
+                    if found == False:
                         coalesced_list_of_additions.append(item)
-                    else:
-                        found = False
-                        for dict_items in coalesced_list_of_additions:
-                            if list(item.keys())[0] not in dict_items:
-                                dict_items[list(item.keys())[0]] = item[
-                                    list(item.keys())[0]]
-                                found = True
-                                break
-                        if found == False:
-                            coalesced_list_of_additions.append(item)
 
-            data, original_df_dtypes = data_utils.json_to_dataframe(
-                json_lines=coalesced_list_of_additions,
-                selected_columns=self.selected_keys,
-                read_in_string=False
-            )
-            if bulk_data is not None:
-                data = [data, bulk_data]
-                data = pd.concat(data, axis=1)
-        else:
-            if isinstance(json_lines, dict):
-                json_lines = [json_lines]
-            data, original_df_dtypes = data_utils.json_to_dataframe(
-                json_lines=json_lines,
-                selected_columns=self.selected_keys,
-                read_in_string=False
-            )
-        return data, original_df_dtypes
+        data, original_df_dtypes = data_utils.json_to_dataframe(
+            json_lines=coalesced_list_of_additions,
+            selected_columns=self.selected_keys,
+            read_in_string=False
+        )
+        if bulk_data is not None:
+            self._metadata = data
+            data = bulk_data
+
+        self._original_df_dtypes = original_df_dtypes
+        return data
 
     def _load_data_from_str(self, data_as_str):
         """
         Loads the data from a string.
-        
+
         :param data_as_str: data in string format.
         :type data_as_str: str
         :return:
         """
         try:
-            json_lines = json.loads(data_as_str)
-            data, original_df_dtypes = \
-                self._load_data_from_json_format(json_lines)
+            data = json.loads(data_as_str)
         except json.JSONDecodeError:
-            data_generator = data_utils.data_generator(data_as_str.splitlines())
-            data, original_df_dtypes = data_utils.read_json_df(
-                data_generator=data_generator,
+            data = data_utils.data_generator(data_as_str.splitlines())
+            data = data_utils.read_json(
+                data_generator=data,
                 selected_columns=self.selected_keys,
                 read_in_string=False
             )
-        self._original_df_dtypes = original_df_dtypes
         return data
 
     def _load_data_from_file(self, input_file_path):
         """
         Loads the data from a file.
-        
+
         :param input_file_path: file path to file being loaded.
         :type input_file_path: str
         :return:
@@ -187,21 +202,20 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         self._file_encoding = data_utils.detect_file_encoding(input_file_path)
         with open(input_file_path, encoding=self.file_encoding) as input_file:
             try:
-                json_lines = json.load(input_file)
-                data, original_df_dtypes = \
-                    self._load_data_from_json_format(json_lines)
+                data = json.load(input_file)
             except (json.JSONDecodeError, UnicodeDecodeError):
                 input_file.seek(0)
-                data_generator = data_utils.generator_on_file(input_file)
-                data, original_df_dtypes = data_utils.read_json_df(
-                    data_generator=data_generator,
+                data = data_utils.generator_on_file(input_file)
+                data = data_utils.read_json(
+                    data_generator=data,
                     selected_columns=self.selected_keys,
                     read_in_string=False
                 )
-            self._original_df_dtypes = original_df_dtypes
             return data
 
+
     def _get_data_as_records(self, data):
+        data = self._get_data_as_df(data)
         data = data.to_dict(orient="records", into=OrderedDict)
         for i, sample in enumerate(data):
             data[i] = json.dumps(
@@ -210,9 +224,22 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         return super(JSONData, self)._get_data_as_records(data)
 
     def _get_data_as_json(self, data):
+        data = self._get_data_as_df(data)
         data = data.to_json(orient="records")
         char_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
         return list(map(''.join, zip(*[iter(data)] * char_per_line)))
+
+
+    def _get_data_as_df(self, data):
+        if isinstance(data, dict):
+            data = [data]
+        data, original_df_dtypes = data_utils.json_to_dataframe(
+            json_lines=data,
+            selected_columns=self.selected_keys,
+            read_in_string=False
+        )
+        self._original_df_dtypes = original_df_dtypes
+        return data
 
     @classmethod
     def _convert_flat_to_nested_cols(cls, dic, separator='.'):

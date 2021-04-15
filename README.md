@@ -615,8 +615,12 @@ may also be specified using the options dict parameter.
 
 Possible `options`:
 
-* data_format - must be a string, choices: "dataframe", "records", "json"
+* data_format - must be a string, choices: "dataframe", "records", "json", "data_stream"
+  * "data stream" refers to a JSON structure typically found in data streams that contain
+nested lists of dictionaries and a payload.
 * selected_keys - columns being selected from the entire dataset, must be a list `["column 1", "ssn"]`
+* data_key - The dictionary key for the payload of the JSON, typically called "data"
+or "payload". Defaults to "data".
 
 
 ##### AVROData

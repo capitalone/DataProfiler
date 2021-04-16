@@ -538,25 +538,35 @@ class TestProfilerNullValues(unittest.TestCase):
             {'': '[5, 6, 8]', ' ': '[2, 4]'}
         )
 
-    def test_correct_total_sample_size_and_counts(self):
+    def test_correct_total_sample_size_and_counts_and_mutability(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
         data = pd.read_csv(file_path)
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
-        # Profile Once
-        profile = dp.Profiler(data, profiler_options=profiler_options, samples_per_update=2)
-        # Profile Twice
-        profile.update_profile(data)
-        
-        self.assertEqual(16, profile.total_samples)
-        self.assertEqual(4, profile._max_col_samples_used)
-        self.assertEqual(2, profile.row_has_null_count)
-        self.assertEqual(0.5, profile._get_row_has_null_ratio())
-        self.assertEqual(2, profile.row_is_null_count)
-        self.assertEqual(0.5, profile._get_row_is_null_ratio())
-        self.assertEqual(0.4375, profile._get_unique_row_ratio())
-        self.assertEqual(9, profile._get_duplicate_row_count())
 
+        col_one_len = len(data['NAME'])
+        col_two_len = len(data[' VALUE'])
+
+        # Test reloading data, ensuring unmutable 
+        for i in range(2):
+            
+            # Profile Once
+            profile = dp.Profiler(data, profiler_options=profiler_options,
+                                  samples_per_update=2)
+            # Profile Twice
+            profile.update_profile(data)
+            
+            self.assertEqual(16, profile.total_samples)
+            self.assertEqual(4, profile._max_col_samples_used)
+            self.assertEqual(2, profile.row_has_null_count)
+            self.assertEqual(0.5, profile._get_row_has_null_ratio())
+            self.assertEqual(2, profile.row_is_null_count)
+            self.assertEqual(0.5, profile._get_row_is_null_ratio())
+            self.assertEqual(0.4375, profile._get_unique_row_ratio())
+            self.assertEqual(9, profile._get_duplicate_row_count())
+        
+        self.assertEqual(col_one_len, len(data['NAME']))
+        self.assertEqual(col_two_len, len(data[' VALUE']))
 
 if __name__ == '__main__':
     unittest.main()

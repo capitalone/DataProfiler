@@ -119,7 +119,16 @@ The format for a profile is below:
             "categories": list(str),
             "unique_count": int,
             "unique_ratio": float,
-            "precision": int,
+            "precision": {
+	        'min': int,
+		'max': int,
+		'mean': float,
+		'var': float,
+		'std': float,
+		'sample_size': int,
+		'margin_of_error': float,
+		'confidence_level': float		
+	    },
             "times": dict(float),
             "format": string
         }
@@ -373,7 +382,6 @@ import pandas as pd
 import dataprofiler as dp
 import json
 
-
 my_dataframe = pd.DataFrame([[1, 2.0],[1, 2.2],[-1, 3]])
 profile = dp.Profiler(my_dataframe)
 
@@ -477,8 +485,9 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables histogram and quantiles
         * **float** - Options for the float columns
             * is_enabled - (Boolean) Enables or disables the float operations
-            * precision - Finds the lowest common denominator of float precision
+            * precision - Finds the precision (significant figures) within the column
                 * is_enabled - (Boolean) Enables or disables precision
+		* sample_ratio - (Float) The ratio of 0 to 1 how much data (identified as floats) to utilize as samples in determining precision 
             * min - Finds minimum value in a column
                 * is_enabled - (Boolean) Enables or disables min
             * max - Finds maximum value in a column

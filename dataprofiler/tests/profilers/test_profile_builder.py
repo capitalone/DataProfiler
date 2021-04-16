@@ -538,7 +538,7 @@ class TestProfilerNullValues(unittest.TestCase):
             {'': '[5, 6, 8]', ' ': '[2, 4]'}
         )
 
-    def test_correct_total_sample_size_and_counts(self):
+    def test_correct_total_sample_size_and_counts_and_mutability(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
         data = pd.read_csv(file_path)
         profiler_options = ProfilerOptions()
@@ -549,6 +549,7 @@ class TestProfilerNullValues(unittest.TestCase):
 
         # Test reloading data, ensuring unmutable 
         for i in range(2):
+            
             # Profile Once
             profile = dp.Profiler(data, profiler_options=profiler_options,
                                   samples_per_update=2)

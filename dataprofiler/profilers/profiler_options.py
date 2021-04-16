@@ -6,7 +6,6 @@ Specify the options when running the data profiler.
 import warnings
 import abc
 import copy
-from ..labelers.data_labelers import DataLabeler
 from ..labelers.base_data_labeler import BaseDataLabeler
 
 
@@ -143,16 +142,17 @@ class BooleanOption(BaseOption):
 
 class HistogramOption(BooleanOption):
 
-    def __init__(self, method=['auto']):
+    def __init__(self, is_enabled=True, bin_count_or_method='auto'):
         """Options for histograms
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
-        :ivar method: method with which to calculate histograms
-        :vartype method: Union[str, list(str)]
+        :ivar bin_count_or_method: bin count or the method with which to
+            calculate histograms
+        :vartype bin_count_or_method: Union[str, int, list(str)]
         """
-        self.method = method
-        super().__init__(is_enabled=True)
+        self.bin_count_or_method = bin_count_or_method
+        super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='HistogramOption'):
         """
@@ -164,25 +164,23 @@ class HistogramOption(BooleanOption):
         :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path=variable_path)
-        if self.method is not None:
-            valid_methods = ['auto', 'fd', 'doane', 'scott',
-                             'rice', 'sturges', 'sqrt']
-            str_list_check = False
-            if isinstance(self.method, list):
-                str_list_check = all([isinstance(item, str)
-                                      for item in self.method])
-            if not isinstance(self.method, str) and not str_list_check:
-                errors.append("{}.method must be a string or list of strings "
-                              "from the following: {}."
-                              .format(variable_path, valid_methods))
-            if isinstance(self.method, str) and self.method not in valid_methods:
-                errors.append("{}.method must be one of the following: {}."
-                              .format(variable_path, valid_methods))
-            if isinstance(self.method, list) and \
-                    not set(self.method).issubset(set(valid_methods)):
-                errors.append("{}.method must be a subset of {}."
-                              .format(variable_path, valid_methods))
 
+        if self.bin_count_or_method is not None:
+            valid_methods = ['auto', 'fd', 'doane', 'scott', 'rice', 'sturges',
+                             'sqrt']
+            
+            value = self.bin_count_or_method
+            if isinstance(value, str):
+                value = [value]
+            if isinstance(value, int) and value >= 1:
+                pass  # use errors below if not a passing int
+            elif (not isinstance(value, list) or len(value) < 1
+                  or not all([isinstance(item, str) for item in value]) or
+                  not set(value).issubset(set(valid_methods))):
+                errors.append("{}.bin_count_or_method must be an integer more "
+                              "than 1, a string, or list of strings from the "
+                              "following: {}.".format(variable_path,
+                                                      valid_methods))
         return errors
 
 
@@ -376,6 +374,45 @@ class IntOptions(NumericalOptions):
         return super()._validate_helper(variable_path) 
 
 
+class PrecisionOptions(BooleanOption):
+    
+    def __init__(self, is_enabled=True, sample_ratio=None):
+        """
+        Options for precision
+
+        :ivar is_enabled: boolean option to enable/disable the column.
+        :vartype is_enabled: bool
+        :ivar sample_ratio: float option to determine ratio of valid
+                            float samples in determining percision.
+                            This ratio will override any defaults.
+        :vartype sample_ratio: float
+        """
+        self.sample_ratio = sample_ratio
+        super().__init__(is_enabled=is_enabled)
+
+    def _validate_helper(self, variable_path='PrecisionOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+        
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: List of strings
+        """
+        errors = super()._validate_helper(variable_path=variable_path)    
+        if self.sample_ratio is not None:
+            if not isinstance(self.sample_ratio, float) \
+               and not isinstance(self.sample_ratio, int):
+                errors.append("{}.sample_ratio must be a float."
+                              .format(variable_path))                
+            if (isinstance(self.sample_ratio, float) \
+               or isinstance(self.sample_ratio, int)) \
+               and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
+                errors.append("{}.sample_ratio must be a float between 0 and 1."
+                              .format(variable_path))                
+        
+        return errors
+    
 class FloatOptions(NumericalOptions):
 
     def __init__(self):
@@ -384,8 +421,6 @@ class FloatOptions(NumericalOptions):
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
-        :ivar precision: boolean option to enable/disable precision
-        :vartype precision: BooleanOption
         :ivar min: boolean option to enable/disable min
         :vartype min: BooleanOption
         :ivar max: boolean option to enable/disable max
@@ -402,22 +437,22 @@ class FloatOptions(NumericalOptions):
         :vartype is_numeric_stats_enabled: bool
         """
         NumericalOptions.__init__(self)
-        self.precision = BooleanOption(is_enabled=True)
+        self.precision = PrecisionOptions(is_enabled=True)
 
     def _validate_helper(self, variable_path='FloatOptions'):
         """
         Validates the options do not conflict and cause errors.
-
+        
         :param variable_path: current path to variable set.
         :type variable_path: str
         :return: list of errors (if raise_error is false)
-        :rtype: List of strings
+        :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path=variable_path)
-        if not isinstance(self.precision, BooleanOption):
-            errors.append("{}.precision must be a BooleanOption."
+        if not isinstance(self.precision, PrecisionOptions):
+            errors.append("{}.precision must be a PrecisionOptions."
                           .format(variable_path))
-        errors += self.precision._validate_helper(variable_path + '.precision')
+        errors += self.precision._validate_helper(variable_path+'.precision')
         return errors
 
 
@@ -719,7 +754,8 @@ class ProfilerOptions(BaseOption):
 
         errors = []
         if not isinstance(self.structured_options, StructuredOptions):
-            errors.append("{}.structured_options must be a StructuredOptions.".format(variable_path))	
+            errors.append("{}.structured_options must be a StructuredOptions."
+                          .format(variable_path))
 
         errors += self.structured_options._validate_helper(
             variable_path=variable_path + '.structured_options')

@@ -332,8 +332,12 @@ class StructuredDataProfile(object):
         if sample_ids is None:
             sample_ind_generator.close()
 
+        # If min_true_samples exists, sort
+        if min_true_samples is not None and min_true_samples > 0:
+            true_sample_list = sorted(true_sample_list)
+        
         # iloc should work here, there appears to be a bug
-        df_series = df_series.loc[sorted(true_sample_list)]
+        df_series = df_series.loc[true_sample_list]
         non_na = len(df_series)
         total_na = total_sample_size - non_na
 
@@ -627,6 +631,15 @@ class Profiler(object):
         # Shuffle indices ones and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
 
+        # If there are no minimum true samples, you can sort to save time
+        if (min_true_samples is None or min_true_samples == 0) \
+           and len(sample_ids) > 0:
+            # If there's a sample size, truncate
+            if sample_size is not None:
+                sample_ids[0] = sample_ids[0][:sample_size]
+            # Sort the sample_ids anre replace prior
+            sample_ids[0] = sorted(sample_ids[0])
+        
         pool = None
         if options.structured_options.multiprocess.is_enabled:
             cpu_count = 1

@@ -199,7 +199,22 @@ class TestJSONDataClass(unittest.TestCase):
                          ,"102188")
         self.assertIn("data.22", math.data.columns)
         self.assertEqual(math.data["data.22"][167], "77.9")
-    
+        
+    def test_payload_key(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/hits.json')
+
+        hits = Data(input_file_name, options={"payload_key": "hits"})
+        self.assertIn("hits._highlightResult.story_url.value",
+                      hits.data.columns)
+        self.assertNotIn("hits._highlightResult.story_url.value",
+                      hits.metadata.columns)
+        self.assertNotIn("processingTimeMS", hits.data.columns)
+        self.assertIn("processingTimeMS", hits.metadata.columns)
+
+        self.assertIn("processingTimeMS", hits.data_and_metadata.columns)
+        self.assertIn("hits._highlightResult.story_url.value",
+                      hits.data_and_metadata.columns)
 
 if __name__ == '__main__':
     unittest.main()

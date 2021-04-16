@@ -285,8 +285,9 @@ class StructuredDataProfile(object):
         len_df = len(df_series)
         if not len_df:
             return df_series, {
-                "sample_size": 0, "null_count": 0, "null_types": dict(),
-                "sample": []}
+                "sample_size": 0, "null_count": 0,
+                "null_types": dict(), "sample": []
+            }
 
         if min_true_samples is None:
             min_true_samples = self._min_true_samples
@@ -303,7 +304,7 @@ class StructuredDataProfile(object):
                 sample_ids[0], chunk_size=sample_size)
             
         na_columns = dict()
-        true_sample_list = list()
+        true_sample_list = set()
         total_sample_size = 0
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
@@ -314,18 +315,15 @@ class StructuredDataProfile(object):
             reg_ex_na = f"^{(query)}$"
             matching_na_elements = df_series_subset.str.contains(
                 reg_ex_na, flags=re.IGNORECASE)
-
+            
             for row, elem in matching_na_elements.items():
                 if elem:
                     # Since df_series_subset[row] is mutable,
                     # need to make new var
                     row_value = str(df_series_subset[row])
                     na_columns.setdefault(row_value, list()).append(row)
-                    
-            # Drop the values that matched regex_na
-            df_series_subset = df_series_subset[~matching_na_elements]
-            
-            true_sample_list += df_series_subset.index.tolist()
+                else:
+                    true_sample_list.add(row)
 
             if len(true_sample_list) >= min_true_samples and total_sample_size:
                 break
@@ -334,6 +332,7 @@ class StructuredDataProfile(object):
         if sample_ids is None:
             sample_ind_generator.close()
 
+        # iloc should work here, there appears to be a bug
         df_series = df_series.loc[sorted(true_sample_list)]
         non_na = len(df_series)
         total_na = total_sample_size - non_na

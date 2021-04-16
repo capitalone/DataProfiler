@@ -65,8 +65,8 @@ class TestNumericalOptions(TestBaseColumnOptions):
         # Set BooleanOptions' is_enabled to a non-boolean value
         for key in self.keys:
             skey = '{}.is_enabled'.format(key)
-            expected_error = "{}.{}.is_enabled must be a Boolean." \
-                             .format(optpth, key)
+            expected_error = "{}.{}.is_enabled must be a Boolean."\
+                .format(optpth, key)
             
             options.set({skey: "Hello World"})
             with self.assertRaisesRegex(ValueError, expected_error):

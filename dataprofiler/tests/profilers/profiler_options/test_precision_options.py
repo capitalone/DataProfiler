@@ -22,6 +22,10 @@ class TestPrecisionOptions(TestBooleanOption):
 
     def test_set(self):
         super().test_set()
+        option = self.get_options()
+        option.set({"sample_ratio": 0.5})
+        self.assertDictEqual(
+            {"is_enabled": True, "sample_ratio": 0.5}, option.properties)
     
     def test_validate_helper(self):
         super().test_validate_helper()
@@ -57,7 +61,6 @@ class TestPrecisionOptions(TestBooleanOption):
         expected_error = ["{}.sample_ratio must be a float between 0 and 1."
                           .format(optpth)]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
-
     
     def test_validate(self):
         super().test_validate()
@@ -78,18 +81,22 @@ class TestPrecisionOptions(TestBooleanOption):
 
         # Option sample_ratio cannot be a string, must be a float
         option = self.get_options(sample_ratio="Hello World")
-        expected_error = ["{}.sample_ratio must be a float."
-                          .format(optpth)]
-        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
+        expected_error = ("PrecisionOptions.sample_ratio must be a float.")
+        with self.assertRaisesRegex(ValueError, expected_error):
+            option.validate()
 
         # Option sample_ratio must be between 0 and 1
         option = self.get_options(sample_ratio=1.1)
-        expected_error = ["{}.sample_ratio must be a float between 0 and 1."
-                          .format(optpth)]
-        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
+        expected_error = (
+            "PrecisionOptions.sample_ratio must be a float between 0 and 1."
+        )
+        with self.assertRaisesRegex(ValueError, expected_error):
+            option.validate()
 
         # Option sample_ratio must be between 0 and 1
         option = self.get_options(sample_ratio=-1)
-        expected_error = ["{}.sample_ratio must be a float between 0 and 1."
-                          .format(optpth)]
-        self.assertSetEqual(set(expected_error), set(option._validate_helper()))
+        expected_error = (
+            "PrecisionOptions.sample_ratio must be a float between 0 and 1."
+        )
+        with self.assertRaisesRegex(ValueError, expected_error):
+            option.validate()

@@ -70,6 +70,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 self.user_set_histogram_bin = bin_count_or_method
                 self.histogram_bin_method_names = ['custom']
         self.histogram_methods = {}
+        self._profile_histogram = None
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {
                 'total_loss': 0,
@@ -80,7 +81,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                     'bin_edges': None
                 }
             }
-        self._profile_histogram = None
         num_quantiles = 1000  # TODO: add to options
         self.quantiles = {bin_num: None for bin_num in range(num_quantiles - 1)}
         self.__calculations = {

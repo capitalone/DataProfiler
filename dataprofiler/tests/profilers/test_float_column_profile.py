@@ -412,6 +412,63 @@ class TestFloatColumn(unittest.TestCase):
                 self.assertCountEqual(expected_histogram['bin_edges'],
                                       histogram['bin_edges'])
 
+    def test_profile_histogram_w_updates(self):
+        """
+        Checks if histogram properly resets the _profiled histogram after
+        merge or update.
+        :return:
+        """
+        list_data_test = []
+        # this data has 4 bins, range of 3
+        # with equal bin size, each bin has the width of 0.75
+        df1 = pd.Series(["1.0", "2.0", "3.0", "4.0"])
+        expected_histogram1 = {
+            'bin_counts': np.array([1, 1, 1, 1]),
+            'bin_edges': np.array([1.0, 1.75, 2.5, 3.25, 4.0]),
+        }
+        list_data_test.append([df1, expected_histogram1])
+
+        # this data has 4 bins, range of 12
+        # with equal bin size, each bin has the width of 3.0
+        df2 = pd.Series(["1.0", "5.0", "8.0", "13.0"])
+        expected_histogram2 = {
+            'bin_counts': np.array([4, 1, 1, 1, 0, 1]),
+            'bin_edges': np.array([1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0]),
+        }
+        list_data_test.append([df2, expected_histogram2])
+
+        profiler = FloatColumn("test")
+        for i, (df, expected_histogram) in enumerate(list_data_test):
+            profiler.update(df)
+            self.assertIsNone(profiler._profile_histogram)
+
+            profile = profiler.profile
+            self.assertIsNotNone(profiler._profile_histogram)
+            histogram = profile['histogram']
+
+            self.assertCountEqual(expected_histogram['bin_counts'],
+                                  histogram['bin_counts'])
+            self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
+                              np.round(histogram['bin_edges'], 12))
+
+        # apply test to merging profiles
+        expected_histogram = {
+            'bin_edges': np.array([1., 19/7, 31/7, 43/7, 55/7, 67/7, 79/7,
+                                   13.]),
+            'bin_counts': np.array([6, 4, 2, 0, 2, 0, 2])
+        }
+        merged_profiler = profiler + profiler
+        self.assertIsNone(merged_profiler._profile_histogram)
+
+        profile = merged_profiler.profile
+        self.assertIsNotNone(merged_profiler._profile_histogram)
+        histogram = profile['histogram']
+        self.assertCountEqual(expected_histogram['bin_counts'],
+                              histogram['bin_counts'])
+        self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
+                              np.round(histogram['bin_edges'], 12))
+
+
     def test_histogram_with_varying_number_of_bin(self):
         """
         Checks the histogram with large number of bins
@@ -665,8 +722,8 @@ class TestFloatColumn(unittest.TestCase):
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
-            expected = defaultdict(float, {'min': 2.0, 'max': 2.0, 'sum': 2.0,\
-                                           'variance': 2.0, 'precision': 2.0,\
+            expected = defaultdict(float, {'min': 2.0, 'max': 2.0, 'sum': 2.0,
+                                           'variance': 2.0, 'precision': 2.0,
                                            'histogram_and_quantiles': 30.0})
             self.assertEqual(expected, profiler.profile['times'])
 

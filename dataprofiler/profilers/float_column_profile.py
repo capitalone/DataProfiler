@@ -123,12 +123,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         histogram_method = self.histogram_bin_method_names[0]
         if self.histogram_selection is not None:
             histogram_method = self.histogram_selection
-
-        protected_precision = {}
-        for key in ['min', 'max']:
-            protected_precision[key] = None
-            if self.precision[key] is not None:
-                protected_precision[key] = int(self.precision[key])
             
         profile = dict(
             min=self.min,
@@ -140,8 +134,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             quantiles=self.quantiles,
             times=self.times,
             precision=dict(
-                min=protected_precision['min'],
-                max=protected_precision['max'],
+                min=self.precision['min'],
+                max=self.precision['max'],
                 mean=self.precision['mean'],
                 var=self.precision['var'],
                 std=self.precision['std'],
@@ -195,10 +189,10 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             to_replace=r, value='').map(len)
 
         # Determine statistics precision
-        precision_sum = float(len_per_float.sum())
+        precision_sum = len_per_float.sum()
         subset_precision = {
-            'min': float(len_per_float.min()),
-            'max': float(len_per_float.max()),
+            'min': len_per_float.min(),
+            'max': len_per_float.max(),
             'mean': precision_sum / sample_size,
             'var': float(len_per_float.var()),
             'sum': precision_sum,

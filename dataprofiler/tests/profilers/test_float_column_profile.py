@@ -736,13 +736,41 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.min, 2.0)
         self.assertEqual(profiler.max, 5.0)
 
+    def test_custom_bin_count_merge(self):
+
+        options = FloatOptions()
+        options.histogram_and_quantiles.bin_count_or_method = 10
+
+        data = [2.0, 'not a float', 6.0, 'not a float']
+        df = pd.Series(data).apply(str)
+        profiler1 = FloatColumn("Float", options)
+        profiler1.update(df)
+
+        data2 = [10.0, 'not a float', 15.0, 'not a float']
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = FloatColumn("Float", options)
+        profiler2.update(df2)
+
+        # no warning should occur
+        with warnings.catch_warnings(record=True) as w:
+            merge_profile = profiler1 + profiler2
+        self.assertListEqual([], w)
+        self.assertEqual(10, merge_profile.user_set_histogram_bin)
+
+        # make bin counts different and get warning
+        profiler2.user_set_histogram_bin = 120
+        with self.assertWarnsRegex(UserWarning,
+                                   'User set histogram bin counts did not '
+                                   'match. Choosing the larger bin count.'):
+            merged_profile = profiler1 + profiler2
+        self.assertEqual(120, merged_profile.user_set_histogram_bin)
+
     def test_profile_merge_no_bin_overlap(self):
 
         data = [2.0, 'not a float', 6.0, 'not a float']
         df = pd.Series(data).apply(str)
         profiler1 = FloatColumn("Float")
         profiler1.update(df)
-        profiler1.match_count = 0
 
         data2 = [10.0, 'not a float', 15.0, 'not a float']
         df2 = pd.Series(data2).apply(str)
@@ -763,7 +791,7 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.max.is_enabled = False
         options.min.is_enabled = False
-        options.histogram_and_quantiles.method = None
+        options.histogram_and_quantiles.bin_count_or_method = None
 
         data = [2, 4, 6, 8]
         df = pd.Series(data).apply(str)
@@ -774,7 +802,7 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.min.is_enabled = False
         options.precision.is_enabled = False
-        options.histogram_and_quantiles.method = None
+        options.histogram_and_quantiles.bin_count_or_method = None
         
         data2 = [10, 15]
         df2 = pd.Series(data2).apply(str)
@@ -788,10 +816,10 @@ class TestFloatColumn(unittest.TestCase):
             for warning in w:
                 list_of_warning_messages.append(str(warning.message))
 
-            warning1 = "precision is disabled because it is not enabled in both" \
-                       " profiles."
-            warning2 = "max is disabled because it is not enabled in both " \
-                       "profiles."
+            warning1 = ("precision is disabled because it is not enabled in "
+                        "both profiles.")
+            warning2 = ("max is disabled because it is not enabled in both "
+                       "profiles.")
             self.assertIn(warning1, list_of_warning_messages)
             self.assertIn(warning2, list_of_warning_messages)
 
@@ -812,13 +840,38 @@ class TestFloatColumn(unittest.TestCase):
             profiler = FloatColumn("Float", options="wrong_data_type")
 
     def test_histogram_option_integration(self):
+        # test setting bin methods
         options = FloatOptions()
-        options.histogram_and_quantiles.method = "sturges"
+        options.histogram_and_quantiles.bin_count_or_method = "sturges"
         num_profiler = FloatColumn(name="test", options=options)
-        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
 
-        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        options.histogram_and_quantiles.bin_count_or_method = ["sturges",
+                                                               "doane"]
         num_profiler = FloatColumn(name="test2", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
-        self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)
+        self.assertEqual(["sturges", "doane"],
+                         num_profiler.histogram_bin_method_names)
+
+        # test histogram bin count set
+        options.histogram_and_quantiles.bin_count_or_method = 100
+        num_profiler = FloatColumn(name="test3", options=options)
+        self.assertIsNone(num_profiler.histogram_selection)
+        self.assertEqual(['custom'], num_profiler.histogram_bin_method_names)
+
+        # case when just 1 unique value, should just set bin size to be 1
+        num_profiler.update(pd.Series(['1', '1']))
+        self.assertEqual(
+            1,
+            len(num_profiler.histogram_methods['custom']['histogram'][
+                    'bin_counts'])
+        )
+
+        # case when more than 1 unique value, by virtue of a streaming update
+        num_profiler.update(pd.Series(['2']))
+        self.assertEqual(
+            100,
+            len(num_profiler.histogram_methods['custom']['histogram'][
+                    'bin_counts'])
+        )

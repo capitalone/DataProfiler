@@ -140,28 +140,59 @@ class TestJSONDataClass(unittest.TestCase):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/simple.json')
 
-        simple = Data(input_file_name, options={"data_format": "data_stream", 
-                                                "data_key": "data"})
+        simple = Data(input_file_name, options={"data_format": "flattened_dataframe", 
+                                                "payload_key": "data"})
         
         self.assertEqual(3, len(simple.data_and_metadata.columns))
         self.assertEqual(2, len(simple.data.columns))
         self.assertEqual(1, len(simple.metadata.columns))
 
-        simple = Data(input_file_name, options={"data_format": "data_stream", 
-                                                "data_key": "no_data_key_test"})
+        simple = Data(input_file_name, options={"data_format": "flattened_dataframe", 
+                                                "payload_key": "no_data_key_test"})
 
         self.assertEqual(3, len(simple.data_and_metadata.columns))
         self.assertEqual(3, len(simple.data.columns))
         with self.assertWarnsRegex(UserWarning,"No metadata was detected."):
             self.assertIsNone(simple.metadata)
-            
+
+    def test_key_separator_in_payload_format(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/simple.json')
+
+        simple = Data(input_file_name, options={"key_separator": "~~~"})
+        expected_columns = ["data~~~list_of_things~~~id",
+                            "data~~~list_of_things~~~tags"]
+
+        self.assertListEqual(expected_columns, list(simple.data.columns))
+
+    def test_complex_nested_json_in_payload_format(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/complex_nested.json')
+
+        complex = Data(input_file_name)
+        self.assertEqual(8, len(complex.data.columns))
+        self.assertEqual("Depression", complex.data["payload.Lion.medical_condition"][0])
+        
+        self.assertEqual(11, len(complex.data_and_metadata.columns))
+        self.assertEqual("Frodo", complex.data_and_metadata["meta.creator"][0])
+
+        self.assertEqual(3, len(complex.metadata.columns))
+        self.assertEqual("Frodo", complex.data_and_metadata["meta.creator"][0])
+
+
+    def test_list_of_dictionaries_in_payload_format(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/iris-utf-8.json')
+
+        simple = Data(input_file_name)
+        self.assertEqual(6, len(simple.data.columns))
+        self.assertEqual(150, len(simple.data))
+        
     def test_data_stream_format(self):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/math.json')
 
-        math = Data(input_file_name, 
-                    options={"data_format": "data_stream"})
-
+        math = Data(input_file_name)
         self.assertTrue("meta.view.columns.cachedContents.largest" 
                         in math.data_and_metadata.columns)
         self.assertEqual(math.metadata["meta.view.columns.cachedContents.largest"][9]

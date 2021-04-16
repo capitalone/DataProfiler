@@ -56,13 +56,16 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         #  _selected_data_format: user selected format in which to return data
         #                         can only be of types in _data_formats
         #  _selected_keys: keys being selected from the entire dataset
-        #  _data_key: dictionary key that determines the payload
+        #  _payload_key: dictionary key that determines the payload
 
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
-        self._data_formats["data_stream"] = self._get_data_as_data_stream
-        self._selected_data_format = options.get("data_format", "dataframe")
-        self._data_key = options.get("data_key", "data")
+        self._data_formats["flattened_dataframe"] = self._get_data_as_flattened_dataframe
+        self._selected_data_format = options.get("data_format", "flattened_dataframe")
+        self._payload_key = options.get("payload_key", ["data", "payload"])
+        if not isinstance(self._payload_key, list):
+            self._payload_key = [self._payload_key]
+        self._key_separator = options.get("key_separator", ".")
         self._selected_keys = options.get("selected_keys", list())
         self._metadata = None
         if data is not None:
@@ -103,8 +106,8 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type path: str
         :return: list of dicts of {column headers: values}
         """
-        if path != "" and path[-1] != ".":
-            path = path + "."
+        if path != "" and path[-len(self._key_separator):] != self._key_separator:
+            path = path + self._key_separator
 
         list_of_dict = []
         if isinstance(json_data, dict):
@@ -118,9 +121,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 for key in json_data:
                     list_of_dict = list_of_dict + self._find_data(key, path)
             else:
-                list_of_dict = list_of_dict + [{path[:-1]: json_data}]
+                list_of_dict = list_of_dict + [{path[:-len(self._key_separator)]: json_data}]
         else:
-            list_of_dict = list_of_dict + [{path[:-1]: json_data}]
+            list_of_dict = list_of_dict + [{path[:-len(self._key_separator)]: json_data}]
         return list_of_dict
     
     def _coalesce_dicts(self, list_of_dicts):
@@ -143,7 +146,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 coalesced_list_of_dicts.append(item)
         return coalesced_list_of_dicts
 
-    def _get_data_as_data_stream(self, json_lines):
+    def _get_data_as_flattened_dataframe(self, json_lines):
         """
         Loads the data when in a JSON format from a data stream (nested
         lists of dictionaries and a key value for a payload.
@@ -151,28 +154,34 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :param json_lines: json format list of dicts or dict
         :return:
         """
+        if isinstance(json_lines, pd.DataFrame):
+            return json_lines
         payload_data = None
         if isinstance(json_lines, dict):
             # Glean Payload Data
-            if self._data_key in json_lines.keys():
-                payload_data = json_lines[self._data_key]
-                if isinstance(payload_data, dict):
-                    payload_data = self._find_data(payload_data)
-                    payload_data = self._coalesce_dicts(payload_data)
-                payload_data, original_df_dtypes = data_utils.json_to_dataframe(
-                    json_lines=payload_data,
-                    selected_columns=self.selected_keys,
-                    read_in_string=False
-                )
-                for column in payload_data.columns:
-                    payload_data.rename(
-                        columns={column: self._data_key + "." + str(column)},
-                        inplace=True)
-
+            found_payload_key = None
+            for payload_key in self._payload_key:
+                if payload_key in json_lines.keys():
+                    payload_data = json_lines[payload_key]
+                    if isinstance(payload_data, dict):
+                        payload_data = self._find_data(payload_data)
+                        payload_data = self._coalesce_dicts(payload_data)
+                    payload_data, original_df_dtypes = data_utils.json_to_dataframe(
+                        json_lines=payload_data,
+                        selected_columns=self.selected_keys,
+                        read_in_string=False
+                    )
+                    for column in payload_data.columns:
+                        payload_data.rename(
+                            columns={column: payload_key + self._key_separator + str(column)},
+                            inplace=True)
+                    found_payload_key = payload_key
+                    break
+                        
             # Get the non-payload data
             flattened_json = []
             for key in json_lines:
-                if key != self._data_key:
+                if key != found_payload_key:
                     flattened_json = flattened_json + self._find_data(json_lines[key], path=key)
 
             # Coalesce the data together

@@ -439,6 +439,36 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.min, 2)
         self.assertEqual(profiler.max, 5)
 
+    def test_custom_bin_count_merge(self):
+
+        options = IntOptions()
+        options.histogram_and_quantiles.bin_count_or_method = 10
+
+        data = [2, 'not an int', 6, 'not an int']
+        df = pd.Series(data).apply(str)
+        profiler1 = IntColumn("Int", options)
+        profiler1.update(df)
+
+        data2 = [10, 'not an int', 15, 'not an int']
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = IntColumn("Int", options)
+        profiler2.update(df2)
+
+        # no warning should occur
+        import warnings
+        with warnings.catch_warnings(record=True) as w:
+            merge_profile = profiler1 + profiler2
+        self.assertListEqual([], w)
+        self.assertEqual(10, merge_profile.user_set_histogram_bin)
+
+        # make bin counts different and get warning
+        profiler2.user_set_histogram_bin = 120
+        with self.assertWarnsRegex(UserWarning,
+                                   'User set histogram bin counts did not '
+                                   'match. Choosing the larger bin count.'):
+            merged_profile = profiler1 + profiler2
+        self.assertEqual(120, merged_profile.user_set_histogram_bin)
+
     def test_profile_merge_no_bin_overlap(self):
 
         data = [2, 'not an int', 6, 'not an int']
@@ -503,13 +533,37 @@ class TestIntColumn(unittest.TestCase):
             profiler = IntColumn("Int", options="wrong_data_type")
 
     def test_histogram_option_integration(self):
+        # test setting bin methods
         options = IntOptions()
-        options.histogram_and_quantiles.method = "sturges"
+        options.histogram_and_quantiles.bin_count_or_method = "sturges"
         num_profiler = IntColumn(name="test", options=options)
-        self.assertEqual("sturges", num_profiler.histogram_selection)
+        self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
 
-        options.histogram_and_quantiles.method = ["sturges", "doane"]
+        options.histogram_and_quantiles.bin_count_or_method = ["sturges",
+                                                               "doane"]
         num_profiler = IntColumn(name="test2", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
-        self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)
+        self.assertEqual(["sturges", "doane"],
+                         num_profiler.histogram_bin_method_names)
+
+        options.histogram_and_quantiles.bin_count_or_method = 100
+        num_profiler = IntColumn(name="test3", options=options)
+        self.assertIsNone(num_profiler.histogram_selection)
+        self.assertEqual(['custom'], num_profiler.histogram_bin_method_names)
+
+        # case when just 1 unique value, should just set bin size to be 1
+        num_profiler.update(pd.Series(['1', '1']))
+        self.assertEqual(
+            1,
+            len(num_profiler.histogram_methods['custom']['histogram'][
+                    'bin_counts'])
+        )
+
+        # case when more than 1 unique value, by virtue of a streaming update
+        num_profiler.update(pd.Series(['2']))
+        self.assertEqual(
+            100,
+            len(num_profiler.histogram_methods['custom']['histogram'][
+                    'bin_counts'])
+        )

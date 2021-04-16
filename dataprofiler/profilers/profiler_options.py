@@ -451,7 +451,7 @@ class FloatOptions(NumericalOptions):
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.precision, PrecisionOptions):
             errors.append("{}.precision must be a PrecisionOptions."
-                          .format(variable_path))                
+                          .format(variable_path))
         errors += self.precision._validate_helper(variable_path+'.precision')
         return errors
 

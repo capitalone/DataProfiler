@@ -25,14 +25,17 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         Possible Options::
         
             options = dict(
-                data_format= type: str, choices: "dataframe", "records", "json"
+                data_format= type: str, choices: "dataframe", "records", "json",
+                 "data_stream"
                 selected_keys= type: list(str)
+                data_key= type: str
             )
 
         
         data_format: user selected format in which to return data
         can only be of specified types
         selected_keys: keys being selected from the entire dataset
+        data_key: dictionary key that determines the payload
 
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str
@@ -53,6 +56,8 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         #  _selected_data_format: user selected format in which to return data
         #                         can only be of types in _data_formats
         #  _selected_keys: keys being selected from the entire dataset
+        #  _data_key: dictionary key that determines the payload
+
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
         self._data_formats["data_stream"] = self._get_data_as_data_stream
@@ -229,6 +234,13 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
 
     def _get_data_as_records(self, data):
+        """
+        Extracts the data as a record format.
+        
+        :param data: raw data
+        :type data: list
+        :return: dataframe in record format
+        """
         data = self._get_data_as_df(data)
         data = data.to_dict(orient="records", into=OrderedDict)
         for i, sample in enumerate(data):
@@ -238,6 +250,13 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         return super(JSONData, self)._get_data_as_records(data)
 
     def _get_data_as_json(self, data):
+        """
+        Extracts the data as a json format.
+
+        :param data: raw data
+        :type data: list
+        :return: dataframe in json format
+        """
         data = self._get_data_as_df(data)
         data = data.to_json(orient="records")
         char_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
@@ -245,6 +264,13 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
 
     def _get_data_as_df(self, data):
+        """
+        Extracts the data as pandas formats it.
+
+        :param data: raw data
+        :type data: list
+        :return: pandas dataframe
+        """
         if isinstance(data, dict):
             data = [data]
         data, original_df_dtypes = data_utils.json_to_dataframe(

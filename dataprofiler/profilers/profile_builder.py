@@ -775,7 +775,8 @@ class Profiler(object):
         # Restore all data labelers
         self._restore_data_labelers()
 
-    def load(self, filepath="profile.pkl"):
+    @staticmethod
+    def load(filepath="profile.pkl"):
         """
         Load profiler from disk
         
@@ -783,20 +784,26 @@ class Profiler(object):
         :type filepath: String
         :return: None
         """
+        # Create Empty Profile
+        profile = Profiler(pd.DataFrame([]))
+        profile._delete_data_labelers()
+
         # Load profile from disk
         with open(filepath, "rb") as infile:
             data = pickle.load(infile)
 
-            self.total_samples = data["total_samples"]
-            self.encoding = data["encoding"]
-            self.file_type = data["file_type"]
-            self.row_has_null_count = data["row_has_null_count"]
-            self.row_is_null_count = data["row_is_null_count"]
-            self.hashed_row_dict = data["hashed_row_dict"]
-            self._samples_per_update = data["_samples_per_update"]
-            self._min_true_samples = data["_min_true_samples"]
-            self._profile = data["_profile"]
-            self.options = data["options"]
+            profile.total_samples = data["total_samples"]
+            profile.encoding = data["encoding"]
+            profile.file_type = data["file_type"]
+            profile.row_has_null_count = data["row_has_null_count"]
+            profile.row_is_null_count = data["row_is_null_count"]
+            profile.hashed_row_dict = data["hashed_row_dict"]
+            profile._samples_per_update = data["_samples_per_update"]
+            profile._min_true_samples = data["_min_true_samples"]
+            profile._profile = data["_profile"]
+            profile.options = data["options"]
 
         # Restore all data labelers
-        self._restore_data_labelers()
+        profile._restore_data_labelers()
+
+        return profile

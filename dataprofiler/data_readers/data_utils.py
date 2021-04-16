@@ -182,15 +182,14 @@ def read_json_df(data_generator, selected_columns=None, read_in_string=False):
 
 def read_json(data_generator, selected_columns=None, read_in_string=False):
     """
-    This function returns an iterator that returns a chunk of data
-    as dataframe in each call. The source of input to this function is either a
-    file or a list of JSON structured strings. If the file path is given as
-    input, the file is expected to have one JSON structures in each line. The
-    lines that are not valid json will be ignored. Therefore, a file with
-    pretty printed JSON objects will not be considered valid JSON. If the
-    input is a data list, it is expected to be a list of strings where each
-    string is a valid JSON object. if the individual object is not valid
-    JSON, it will be ignored.
+    This function returns the lines of a json. The source of input to this 
+    function is either a file or a list of JSON structured strings. If the 
+    file path is given as input, the file is expected to have one JSON 
+    structures in each line. The lines that are not valid json will be ignored. 
+    Therefore, a file with pretty printed JSON objects will not be considered 
+    valid JSON. If the input is a data list, it is expected to be a list of 
+    strings where each string is a valid JSON object. if the individual object 
+    is not valid JSON, it will be ignored.
 
     NOTE: both data_list and file_path cannot be passed at the same time.
 
@@ -201,8 +200,7 @@ def read_json(data_generator, selected_columns=None, read_in_string=False):
     :param read_in_string: if True, all the values in dataframe will be
         converted to string
     :type read_in_string: bool
-    :return: returns an iterator that returns a chunk of file as dataframe in
-        each call as well as original dtypes of the dataframe columns.
+    :return: returns the lines of a json file
     :rtype: list(dict)
     """
 

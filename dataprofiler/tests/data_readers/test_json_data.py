@@ -193,11 +193,11 @@ class TestJSONDataClass(unittest.TestCase):
         input_file_name = os.path.join(test_dir, 'json/math.json')
 
         math = Data(input_file_name)
-        self.assertTrue("meta.view.columns.cachedContents.largest" 
-                        in math.data_and_metadata.columns)
+        self.assertIn("meta.view.columns.cachedContents.largest",
+                      math.data_and_metadata.columns)
         self.assertEqual(math.metadata["meta.view.columns.cachedContents.largest"][9]
                          ,"102188")
-        self.assertTrue("data.22" in math.data.columns)
+        self.assertIn("data.22", math.data.columns)
         self.assertEqual(math.data["data.22"][167], "77.9")
     
 

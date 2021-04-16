@@ -203,7 +203,7 @@ def read_json(data_generator, selected_columns=None, read_in_string=False):
     :type read_in_string: bool
     :return: returns an iterator that returns a chunk of file as dataframe in
         each call as well as original dtypes of the dataframe columns.
-    :rtype: typle(Iterator(pd.DataFrame), pd.Series(dtypes)
+    :rtype: list(dict)
     """
 
     lines = list()

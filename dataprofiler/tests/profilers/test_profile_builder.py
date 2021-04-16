@@ -568,5 +568,36 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(col_one_len, len(data['NAME']))
         self.assertEqual(col_two_len, len(data[' VALUE']))
 
+    def test_save_and_load(self):
+        datapth = "dataprofiler/tests/data/"
+        test_files = ["csv/guns.csv", "csv/iris.csv"]
+
+        def _clean_report(report):
+            data_stats = report["data_stats"]
+            for key in data_stats:
+                stats = data_stats[key]["statistics"]
+                if "histogram" in stats:
+                    if "bin_counts" in stats["histogram"]:
+                        stats["histogram"]["bin_counts"] = \
+                            stats["histogram"]["bin_counts"].tolist() 
+                    if "bin_edges" in stats["histogram"]:
+                        stats["histogram"]["bin_edges"] = \
+                            stats["histogram"]["bin_edges"].tolist() 
+            return report
+
+        for test_file in test_files:
+            # Create Data and Profiler objects
+            data = dp.Data(os.path.join(datapth, test_file))
+            save_profile = dp.Profiler(data)
+            
+            # Save and Load profile
+            save_profile.save()
+            load_profile = dp.Profiler.load()
+
+            # Check that reports are equivalent
+            save_report = _clean_report(save_profile.report())
+            load_report = _clean_report(load_profile.report())
+            self.assertDictEqual(save_report, load_report)       
+
 if __name__ == '__main__':
     unittest.main()

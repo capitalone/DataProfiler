@@ -80,6 +80,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                     'bin_edges': None
                 }
             }
+        self._profile_histogram = None
         num_quantiles = 1000  # TODO: add to options
         self.quantiles = {bin_num: None for bin_num in range(num_quantiles - 1)}
         self.__calculations = {
@@ -174,6 +175,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 other1.match_count, other1.variance, other1.mean,
                 other2.match_count, other2.variance, other2.mean)
         if "histogram_and_quantiles" in self.__calculations.keys():
+            self._profile_histogram = None
             if other1.histogram_selection is not None and \
                     other2.histogram_selection is not None:
                 self._add_helper_merge_profile_histograms(other1, other2)
@@ -525,6 +527,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: histogram bin edges and bin counts
         :rtype: dict
         """
+        if self._profile_histogram is not None:
+            return self._profile_histogram
         best_histogram = {'bin_edges': [], 'bin_counts': []}
         best_hist_loss = np.inf
         for method in self.histogram_methods:
@@ -532,6 +536,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             if hist_loss < best_hist_loss:
                 best_histogram = histogram
                 best_hist_loss = hist_loss
+        self._profile_histogram = best_histogram
         return best_histogram
 
     def _get_percentile(self, percentiles):
@@ -650,6 +655,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                                      subset_properties):
         try:
             self._update_histogram(df_series)
+            self._profile_histogram = None
             if self.histogram_selection is not None:
                 self._get_quantiles()
         except BaseException:

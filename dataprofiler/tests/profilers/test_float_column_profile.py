@@ -705,7 +705,7 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.set({"min.is_enabled": False})
 
-        profiler = FloatColumn(df.name, options=options)        
+        profiler = FloatColumn(df.name, options=options)
 
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):

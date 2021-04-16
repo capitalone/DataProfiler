@@ -271,6 +271,8 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type data: list
         :return: pandas dataframe
         """
+        if isinstance(data, pd.DataFrame):
+            return data
         if isinstance(data, dict):
             data = [data]
         data, original_df_dtypes = data_utils.json_to_dataframe(

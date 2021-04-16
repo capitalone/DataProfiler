@@ -123,27 +123,35 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         histogram_method = self.histogram_bin_method_names[0]
         if self.histogram_selection is not None:
             histogram_method = self.histogram_selection
-            
+
+        def np_type_to_type(val):
+            if isinstance(val, np.integer):
+                return int(val)
+            if isinstance(val, np.float):
+                return float(val)
+            return val
+        
         profile = dict(
-            min=self.min,
-            max=self.max,
-            mean=self.mean,
-            variance=self.variance,
-            stddev=self.stddev,
+            min=np_type_to_type(self.min),
+            max=np_type_to_type(self.max),
+            mean=np_type_to_type(self.mean),
+            variance=np_type_to_type(self.variance),
+            stddev=np_type_to_type(self.stddev),
             histogram=self.histogram_methods[histogram_method]['histogram'],
             quantiles=self.quantiles,
             times=self.times,
             precision=dict(
-                min=self.precision['min'],
-                max=self.precision['max'],
-                mean=self.precision['mean'],
-                var=self.precision['var'],
-                std=self.precision['std'],
-                sample_size=self.precision['sample_size'],
-                margin_of_error=self.precision['margin_of_error'],
-                confidence_level=self.precision['confidence_level']
+                min=np_type_to_type(self.precision['min']),
+                max=np_type_to_type(self.precision['max']),
+                mean=np_type_to_type(self.precision['mean']),
+                var=np_type_to_type(self.precision['var']),
+                std=np_type_to_type(self.precision['std']),
+                sample_size=np_type_to_type(self.precision['sample_size']),
+                margin_of_error=np_type_to_type(self.precision['margin_of_error']),
+                confidence_level=np_type_to_type(self.precision['confidence_level'])
             )
         )
+        
         return profile
 
     @property

@@ -63,13 +63,20 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         histogram_method = self.histogram_bin_method_names[0]
         if self.histogram_selection is not None:
             histogram_method = self.histogram_selection
+
+        def np_type_to_type(val):
+            if isinstance(val, np.integer):
+                return int(val)
+            if isinstance(val, np.float):
+                return float(val)
+            return val
             
         profile = dict(
-            min=self.min,
-            max=self.max,
-            mean=self.mean,
-            variance=self.variance,
-            stddev=self.stddev,
+            min=np_type_to_type(self.min),
+            max=np_type_to_type(self.max),
+            mean=np_type_to_type(self.mean),
+            variance=np_type_to_type(self.variance),
+            stddev=np_type_to_type(self.stddev),
             histogram=self.histogram_methods[histogram_method]['histogram'],
             quantiles=self.quantiles,
             times=self.times

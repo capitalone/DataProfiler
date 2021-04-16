@@ -403,7 +403,7 @@ class PrecisionOptions(BooleanOption):
         if self.sample_ratio is not None:
             if not isinstance(self.sample_ratio, float) \
                and not isinstance(self.sample_ratio, int):
-                errors.append("{}.sample_ratio must be a float and cannot be a string."
+                errors.append("{}.sample_ratio must be a float."
                               .format(variable_path))                
             if (isinstance(self.sample_ratio, float) \
                or isinstance(self.sample_ratio, int)) \

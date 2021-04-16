@@ -139,7 +139,7 @@ class TestFloatColumn(unittest.TestCase):
                                      '+ 9', '-.3', '-1e-3', '3.2343', '0'])
         float_profiler_order = FloatColumn("Name")
         float_profiler_order.update(df_random)
-        self.assertCountEqual(
+        self.assertDictEqual(
             float_profiler.precision, float_profiler_order.precision
         )
         
@@ -657,8 +657,8 @@ class TestFloatColumn(unittest.TestCase):
             quantiles = profile.pop('quantiles')
             expected_quantiles = expected_profile.pop('quantiles')
             actual_quartiles = {0: quantiles[249], 1: quantiles[499], 2: quantiles[749]}
-            self.assertCountEqual(expected_profile, profile)
-            self.assertCountEqual(expected_profile['precision'], profile['precision'])
+            self.assertDictEqual(expected_profile, profile)
+            self.assertDictEqual(expected_profile['precision'], profile['precision'])
             self.assertCountEqual(expected_histogram['bin_counts'],
                                   histogram['bin_counts'])
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
@@ -705,8 +705,7 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.set({"min.is_enabled": False})
 
-        profiler = FloatColumn(df.name, options=options)
-        
+        profiler = FloatColumn(df.name, options=options)        
 
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
@@ -912,8 +911,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertIsNone(profiler3.min)
         self.assertEqual(None, profiler3.precision['min'])
         self.assertEqual(None, profiler3.precision['max'])
-
-
+        
         # Creating profiler with precision to 0.1
         options = FloatOptions()
         options.max.is_enabled = False
@@ -923,8 +921,7 @@ class TestFloatColumn(unittest.TestCase):
         data = [2, 4, 6, 8]
         df = pd.Series(data).apply(str)
         profiler1 = FloatColumn("Float", options=options)
-        profiler1.update(df)
-        
+        profiler1.update(df)        
 
     def test_float_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,

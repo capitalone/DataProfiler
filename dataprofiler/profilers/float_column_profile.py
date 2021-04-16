@@ -127,8 +127,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         protected_precision = {}
         for key in ['min', 'max']:
             protected_precision[key] = None
-        if self.precision[key] is not None:
-            protected_precision[key] = int(self.precision[key])
+            if self.precision[key] is not None:
+                protected_precision[key] = int(self.precision[key])
             
         profile = dict(
             min=self.min,

@@ -42,7 +42,7 @@ class TestPrecisionOptions(TestBooleanOption):
 
         # Option sample_ratio cannot be a string, must be a float
         option = self.get_options(sample_ratio="Hello World")
-        expected_error = ["{}.sample_ratio must be a float and cannot be a string."
+        expected_error = ["{}.sample_ratio must be a float."
                           .format(optpth)]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 
@@ -78,7 +78,7 @@ class TestPrecisionOptions(TestBooleanOption):
 
         # Option sample_ratio cannot be a string, must be a float
         option = self.get_options(sample_ratio="Hello World")
-        expected_error = ["{}.sample_ratio must be a float and cannot be a string."
+        expected_error = ["{}.sample_ratio must be a float."
                           .format(optpth)]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 

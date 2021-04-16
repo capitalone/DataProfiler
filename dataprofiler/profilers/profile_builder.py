@@ -315,7 +315,7 @@ class StructuredDataProfile(object):
             reg_ex_na = f"^{(query)}$"
             matching_na_elements = df_series_subset.str.contains(
                 reg_ex_na, flags=re.IGNORECASE)
-
+            
             for row, elem in matching_na_elements.items():
                 if elem:
                     # Since df_series_subset[row] is mutable,
@@ -331,8 +331,9 @@ class StructuredDataProfile(object):
         # close the generator in case it is not exhausted.
         if sample_ids is None:
             sample_ind_generator.close()
-            
-        df_series = df_series.iloc[sorted(true_sample_list)]
+
+        # iloc should work here, there appears to be a bug
+        df_series = df_series.loc[sorted(true_sample_list)]
         non_na = len(df_series)
         total_na = total_sample_size - non_na
 

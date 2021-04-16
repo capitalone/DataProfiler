@@ -632,8 +632,8 @@ class TestFloatColumn(unittest.TestCase):
                                       'precision': 1.0, 'max': 1.0, 'min': 1.0,\
                                       'sum': 1.0, 'variance': 1.0}),
             precision={
-                'min': 1.0,
-                'max': 3.0,
+                'min': 1,
+                'max': 3,
                 'mean': 2.0,
                 'var': 1.0,
                 'std': 1.0,
@@ -648,7 +648,6 @@ class TestFloatColumn(unittest.TestCase):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
-
             profile = profiler.profile
             # pop out the histogram to test separately from the rest of the dict
             # as we need comparison with some precision

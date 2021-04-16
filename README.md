@@ -619,8 +619,8 @@ Possible `options`:
   * "flattened_dataframe" is best used for JSON structure typically found in data streams that contain
 nested lists of dictionaries and a payload. For example: `{"data": [ columns ], "response": 200}`
 * selected_keys - columns being selected from the entire dataset, must be a list `["column 1", "ssn"]`
-* payload_key - The dictionary key for the payload of the JSON, typically called "data"
-or "payload". Defaults to "data".
+* payload_keys - The dictionary keys for the payload of the JSON, typically called "data"
+or "payload". Defaults to ["data", "payload", "response"].
 
 
 ##### AVROData

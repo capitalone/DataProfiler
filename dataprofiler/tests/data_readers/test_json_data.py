@@ -141,14 +141,14 @@ class TestJSONDataClass(unittest.TestCase):
         input_file_name = os.path.join(test_dir, 'json/simple.json')
 
         simple = Data(input_file_name, options={"data_format": "flattened_dataframe", 
-                                                "payload_key": "data"})
+                                                "payload_keys": "data"})
         
         self.assertEqual(3, len(simple.data_and_metadata.columns))
         self.assertEqual(2, len(simple.data.columns))
         self.assertEqual(1, len(simple.metadata.columns))
 
         simple = Data(input_file_name, options={"data_format": "flattened_dataframe", 
-                                                "payload_key": "no_data_key_test"})
+                                                "payload_keys": "no_data_key_test"})
 
         self.assertEqual(3, len(simple.data_and_metadata.columns))
         self.assertEqual(3, len(simple.data.columns))
@@ -204,7 +204,7 @@ class TestJSONDataClass(unittest.TestCase):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/hits.json')
 
-        hits = Data(input_file_name, options={"payload_key": "hits"})
+        hits = Data(input_file_name, options={"payload_keys": "hits"})
         self.assertIn("hits._highlightResult.story_url.value",
                       hits.data.columns)
         self.assertNotIn("hits._highlightResult.story_url.value",
@@ -215,6 +215,31 @@ class TestJSONDataClass(unittest.TestCase):
         self.assertIn("processingTimeMS", hits.data_and_metadata.columns)
         self.assertIn("hits._highlightResult.story_url.value",
                       hits.data_and_metadata.columns)
+
+    def test_find_data(self):
+        JSONDataObject = json_data.JSONData()
+        
+        data = {
+                    "Top_level":
+                        [
+                            {"mid_level_one": {
+                                "third_level_one": "badabing",
+                                "third_level_two": "badaboom",
+                                "third_level_three": "hello",
+                                }
+                            },
+                            {"mid_level_two": "hello1"},
+                            {"mid_level_three": "hello2"}
+                        ]
+                }
+        expected_list = [
+            {'Top_level.mid_level_one.third_level_one': 'badabing'}, 
+            {'Top_level.mid_level_one.third_level_two': 'badaboom'}, 
+            {'Top_level.mid_level_one.third_level_three': 'hello'}, 
+            {'Top_level.mid_level_two': 'hello1'}, 
+            {'Top_level.mid_level_three': 'hello2'}]
+
+        self.assertListEqual(expected_list, JSONDataObject._find_data(data))
 
 if __name__ == '__main__':
     unittest.main()

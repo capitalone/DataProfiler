@@ -56,15 +56,15 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         #  _selected_data_format: user selected format in which to return data
         #                         can only be of types in _data_formats
         #  _selected_keys: keys being selected from the entire dataset
-        #  _payload_key: dictionary key that determines the payload
+        #  _payload_keys: dictionary key that determines the payload
 
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
         self._data_formats["flattened_dataframe"] = self._get_data_as_flattened_dataframe
         self._selected_data_format = options.get("data_format", "flattened_dataframe")
-        self._payload_key = options.get("payload_key", ["data", "payload"])
-        if not isinstance(self._payload_key, list):
-            self._payload_key = [self._payload_key]
+        self._payload_keys = options.get("payload_keys", ["data", "payload", "response"])
+        if not isinstance(self._payload_keys, list):
+            self._payload_keys = [self._payload_keys]
         self._key_separator = options.get("key_separator", ".")
         self._selected_keys = options.get("selected_keys", list())
         self._metadata = None
@@ -160,7 +160,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         if isinstance(json_lines, dict):
             # Glean Payload Data
             found_payload_key = None
-            for payload_key in self._payload_key:
+            for payload_key in self._payload_keys:
                 if payload_key in json_lines.keys():
                     payload_data = json_lines[payload_key]
                     if isinstance(payload_data, dict):

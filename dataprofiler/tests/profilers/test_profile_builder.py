@@ -471,7 +471,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertEqual(10, profile.null_count)
 
 
-    def test_generating_report_for_floats(self):
+    def test_generating_report_ensure_no_error(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/diamonds.csv')
         data = pd.read_csv(file_path)
         profile = dp.Profiler(data[:1000])

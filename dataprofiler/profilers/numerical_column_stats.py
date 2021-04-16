@@ -592,3 +592,19 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             return False
         else:
             return a == b
+
+    @staticmethod
+    def np_type_to_type(val):
+        """
+        Converts numpy variables to base python type variables
+        
+        :param val: value to check & change
+        :type val: numpy type or base type
+        :return val: base python type
+        :rtype val: int or float
+        """
+        if isinstance(val, np.integer):
+            return int(val)
+        if isinstance(val, np.float):
+            return float(val)
+        return val

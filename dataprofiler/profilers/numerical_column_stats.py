@@ -175,7 +175,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 other1.match_count, other1.variance, other1.mean,
                 other2.match_count, other2.variance, other2.mean)
         if "histogram_and_quantiles" in self.__calculations.keys():
-            self._profile_histogram = None
             if other1.histogram_selection is not None and \
                     other2.histogram_selection is not None:
                 self._add_helper_merge_profile_histograms(other1, other2)

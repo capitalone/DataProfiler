@@ -28,14 +28,14 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 data_format= type: str, choices: "dataframe", "records", "json",
                  "data_stream"
                 selected_keys= type: list(str)
-                data_key= type: str
+                payload_keys= type: str
             )
 
         
         data_format: user selected format in which to return data
         can only be of specified types
         selected_keys: keys being selected from the entire dataset
-        data_key: dictionary key that determines the payload
+        payload_keys: list of dictionary keys that determine the payload
 
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str

@@ -305,45 +305,46 @@ class StructuredDataProfile(object):
             
         na_columns = dict()
         true_sample_list = set()
+        none_sample_dict = dict()
         total_sample_size = 0
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
 
-            df_series_subset = df_series.iloc[chunked_sample_ids]
+            # Find subset of series based on randomly selected ids
+            df_subset = df_series.iloc[chunked_sample_ids]
 
-            query = '(' + '|'.join(null_values_and_flags.keys()) + ')'
-            reg_ex_na = f"^{(query)}$"
-            matching_na_elements = df_series_subset.str.contains(
-                reg_ex_na, flags=re.IGNORECASE)
+            # Query should search entire cell for all elements at once
+            query = '|'.join(null_values_and_flags.keys())
+            regex = f"^(?:{(query)})$"            
+            matches = df_subset.str.match(regex, flags=re.IGNORECASE)
+                                    
+            # Split series into None samples and true samples
+            true_sample_list.update(df_subset[~matches].index)
+            none_sample_dict.update(df_subset[matches].to_dict())
             
-            for row, elem in matching_na_elements.items():
-                if elem:
-                    # Since df_series_subset[row] is mutable,
-                    # need to make new var
-                    row_value = str(df_series_subset[row])
-                    na_columns.setdefault(row_value, list()).append(row)
-                else:
-                    true_sample_list.add(row)
-
-            if len(true_sample_list) >= min_true_samples and total_sample_size:
+            # Ensure minimum number of true samples met
+            # and if total_sample_size > samplesize exit
+            if len(true_sample_list) >= min_true_samples \
+               and total_sample_size > sample_size:                
                 break
+
+        # Iterate over all the Nones
+        for row, row_value in none_sample_dict.items():
+            na_columns.setdefault(row_value, list()).append(row)
             
         # close the generator in case it is not exhausted.
         if sample_ids is None:
             sample_ind_generator.close()
-
+            
         # If min_true_samples exists, sort
         if min_true_samples is not None and min_true_samples > 0:
             true_sample_list = sorted(true_sample_list)
-        
-        # iloc should work here, there appears to be a bug
+
+        # Split out true values for later utilization
         df_series = df_series.loc[true_sample_list]
-        non_na = len(df_series)
-        total_na = total_sample_size - non_na
+        total_na = total_sample_size - len(true_sample_list)
 
         base_stats = {
-            # TODO: Is this correct? used to be actual sample size, including
-            #  NANs, what now?
             "sample_size": total_sample_size,
             "null_count": total_na,
             "null_types": na_columns,

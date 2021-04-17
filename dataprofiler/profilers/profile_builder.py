@@ -305,8 +305,9 @@ class StructuredDataProfile(object):
             
         na_columns = dict()
         true_sample_list = set()
-        none_sample_dict = dict()
         total_sample_size = 0
+        query = '|'.join(null_values_and_flags.keys())
+        regex = f"^(?:{(query)})$"        
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
 
@@ -314,23 +315,20 @@ class StructuredDataProfile(object):
             df_subset = df_series.iloc[chunked_sample_ids]
 
             # Query should search entire cell for all elements at once
-            query = '|'.join(null_values_and_flags.keys())
-            regex = f"^(?:{(query)})$"            
             matches = df_subset.str.match(regex, flags=re.IGNORECASE)
                                     
             # Split series into None samples and true samples
             true_sample_list.update(df_subset[~matches].index)
-            none_sample_dict.update(df_subset[matches].to_dict())
+            
+            # Iterate over all the Nones
+            for index, cell in df_subset[matches].items():
+                na_columns.setdefault(cell, list()).append(index)
             
             # Ensure minimum number of true samples met
             # and if total_sample_size > samplesize exit
             if len(true_sample_list) >= min_true_samples \
                and total_sample_size > sample_size:                
                 break
-
-        # Iterate over all the Nones
-        for row, row_value in none_sample_dict.items():
-            na_columns.setdefault(row_value, list()).append(row)
             
         # close the generator in case it is not exhausted.
         if sample_ids is None:

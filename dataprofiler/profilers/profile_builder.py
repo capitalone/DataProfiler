@@ -310,16 +310,16 @@ class StructuredDataProfile(object):
         regex = f"^(?:{(query)})$"        
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
-
+            
             # Find subset of series based on randomly selected ids
             df_subset = df_series.iloc[chunked_sample_ids]
 
             # Query should search entire cell for all elements at once
             matches = df_subset.str.match(regex, flags=re.IGNORECASE)
-                                    
+            
             # Split series into None samples and true samples
             true_sample_list.update(df_subset[~matches].index)
-            
+
             # Iterate over all the Nones
             for index, cell in df_subset[matches].items():
                 na_columns.setdefault(cell, list()).append(index)
@@ -333,7 +333,7 @@ class StructuredDataProfile(object):
         # close the generator in case it is not exhausted.
         if sample_ids is None:
             sample_ind_generator.close()
-            
+
         # If min_true_samples exists, sort
         if min_true_samples is not None and min_true_samples > 0:
             true_sample_list = sorted(true_sample_list)

@@ -435,13 +435,12 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         # which caused errors
         df_series, base_stats = \
             StructuredDataProfile.get_base_props_and_clean_null_params(
-                self=None, df_series=data[1:], sample_size=6,
-                min_true_samples=0)
+                df_series=data[1:], sample_size=6, min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
                                'sample_size': 5, 'null_count': 2,
-                               'null_types': dict(nan=['e', 'b'])}, base_stats)            
+                               'null_types': dict(nan=['e', 'b'])}, base_stats)
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
@@ -559,9 +558,10 @@ class TestProfilerNullValues(unittest.TestCase):
             # Profile Once
             profile = dp.Profiler(data, profiler_options=profiler_options,
                                   samples_per_update=2)
+
             # Profile Twice
             profile.update_profile(data)
-            
+
             self.assertEqual(16, profile.total_samples)
             self.assertEqual(4, profile._max_col_samples_used)
             self.assertEqual(2, profile.row_has_null_count)
@@ -570,7 +570,7 @@ class TestProfilerNullValues(unittest.TestCase):
             self.assertEqual(0.5, profile._get_row_is_null_ratio())
             self.assertEqual(0.4375, profile._get_unique_row_ratio())
             self.assertEqual(9, profile._get_duplicate_row_count())
-        
+            
         self.assertEqual(col_one_len, len(data['NAME']))
         self.assertEqual(col_two_len, len(data[' VALUE']))
 

@@ -63,28 +63,35 @@ class StructuredDataProfile(object):
         self.null_count = 0
         self.null_types = list()
         self.null_types_index = {}
+        self.profiles = {
+            'data_type_profile': None,
+            'data_stats_profile': None
+        }
 
         if df_series is not None and len(df_series) > 0:
-            clean_sampled_df, base_stats = self.format_data_and_collect_nones(
-                df_series, sample_size, sample_ids, pool)
+            
+            clean_sampled_df = self.format_data_and_null_statistics(
+                df_series=df_series, sample_size=sample_size,
+                min_true_samples=min_true_samples, sample_ids=sample_ids)
 
-            self.calc_type_statistics(clean_sampled_df, base_stats)
+            self.type_statistics(clean_sampled_df, pool)
 
-    def format_data_and_collect_nones(
-            self, df_series, sample_size=None, sample_ids=None):
+    def format_data_and_null_statistics(
+            self, df_series, sample_size=None,
+            min_true_samples=None, sample_ids=None):
         """
         Method cleans the dataset and calculates statitics around none values
         
         :param df_series: series containing data needing to be cleaned
         :type df_series: Pandas.Series
-        :param sample_size: number of samples required in returned array
+        :param sample_size: number of samples required in returned series
         :type sample_size: int
+        :param min_true_samples: minimum number of valid values in list
+        :type min_true_samples: int
         :param sample_ids: List containing samples to pull from
         :type sample_ids: list()
         :return clean_sampled_df: sampled series with none types dropped
         :rtype clean_sampled_df: Pandas.Series
-        :return base_stats: statistics around nones 
-        :rtype base_stats: dict()
         """
         # if you create your own DF without giving the column name,
         # it labels the name as an int64, however, if you try to
@@ -99,15 +106,18 @@ class StructuredDataProfile(object):
         if sample_size < len(df_series):
             warnings.warn("The data will be profiled with a sample size of {}. "
                           "All statistics will be based on this subsample and "
-                          "not the whole dataset.".format(sample_size))            
+                          "not the whole dataset.".format(sample_size))
+            
         clean_sampled_df, base_stats = \
             self.get_base_props_and_clean_null_params(
-                df_series, sample_size, sample_ids=sample_ids)
+                df_series=df_series, sample_size=sample_size,
+                min_true_samples=min_true_samples, sample_ids=sample_ids)
+        
         self._update_base_stats(base_stats)
 
-        return clean_sampled_df, base_stats
+        return clean_sampled_df
 
-    def calc_type_statistics(self, clean_sampled_df, pool):
+    def type_statistics(self, clean_sampled_df, pool):
         """
         Calculates type statistics and labels dataset
 
@@ -257,14 +267,11 @@ class StructuredDataProfile(object):
             sample_size = len(df_series)
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
-        clean_sampled_df, base_stats = \
-            self.get_base_props_and_clean_null_params(
-                df_series, sample_size,
-                min_true_samples=min_true_samples,
-                sample_ids=sample_ids
-            )
-        self._update_base_stats(base_stats)
-
+        
+        clean_sampled_df = self.format_data_and_null_statistics(
+            df_series=df_series, sample_size=sample_size,
+            min_true_samples=min_true_samples, sample_ids=sample_ids)
+        
         # Profile compilers being updated
         for profile in self.profiles.values():
             profile.update_profile(clean_sampled_df, pool)
@@ -696,30 +703,46 @@ class Profiler(object):
                         ' start method, via: multiprocessing.set_start_method(<method>)'+
                         ' Possible methods include: fork, spawn, forkserver, None'
                     )
+
+        # Create column profiles if they don't exist
+        new_cols = set()
+        for col in df.columns:
+            if col not in profile:
+                structured_options = None
+                if options and options.structured_options:
+                    structured_options = options.structured_options
+                profile[col] = StructuredDataProfile(
+                    sample_size=sample_size,
+                    min_true_samples=min_true_samples,
+                    sample_ids=sample_ids,
+                    options=structured_options
+                )
+                new_cols.add(col)
+
         
+        # Format the data
+        clean_sampled_dict = {}
+        print("Finding the Null values in the columns...")
         for col in tqdm(df.columns):
-            if col in profile:
-                column_profile = profile[col]
-                column_profile.update_profile(
+            clean_sampled_dict[col] = profile[col].format_data_and_null_statistics(
+                df_series=df[col], sample_size=sample_size,
+                min_true_values=min_true_values, sample_ids=sample_ids)
+
+        
+        # Process and label the data
+        print("Calculating the statistics...")
+        for col in tqdm(df.columns):
+            if col in new_cols:
+                profile[col].type_statistics(clean_sampled_dict[col], pool)
+            else:
+                profile[col].update_profile(
                     df[col],
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,
                     pool=pool
                 )
-            else:
-                structured_options = None
-                if options and options.structured_options:
-                    structured_options = options.structured_options
-                profile[col] = StructuredDataProfile(
-                    df[col],
-                    sample_size=sample_size,
-                    min_true_samples=min_true_samples,
-                    sample_ids=sample_ids,
-                    pool=pool,
-                    options=structured_options
-                )
-
+                
         if pool is not None:
             pool.close() # Close pool for new tasks
             pool.join() # Wait for all workers to complete

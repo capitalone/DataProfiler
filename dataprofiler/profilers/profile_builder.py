@@ -31,7 +31,7 @@ from .profiler_options import ProfilerOptions, StructuredOptions, \
 
 class StructuredDataProfile(object):
 
-    def __init__(self, df_series, sample_size=None, min_sample_size=5000,
+    def __init__(self, df_series=None, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
                  sample_ids=None, pool=None, options=None):
         """
@@ -58,6 +58,34 @@ class StructuredDataProfile(object):
         if self._min_true_samples is None:
             self._min_true_samples = 0
 
+        self.sample_size = 0
+        self.sample = list()
+        self.null_count = 0
+        self.null_types = list()
+        self.null_types_index = {}
+
+        if df_series is not None and len(df_series) > 0:
+            clean_sampled_df, base_stats = self.format_data_and_collect_nones(
+                df_series, sample_size, sample_ids, pool)
+
+            self.calc_type_statistics(clean_sampled_df, base_stats)
+
+    def format_data_and_collect_nones(
+            self, df_series, sample_size=None, sample_ids=None):
+        """
+        Method cleans the dataset and calculates statitics around none values
+        
+        :param df_series: series containing data needing to be cleaned
+        :type df_series: Pandas.Series
+        :param sample_size: number of samples required in returned array
+        :type sample_size: int
+        :param sample_ids: List containing samples to pull from
+        :type sample_ids: list()
+        :return clean_sampled_df: sampled series with none types dropped
+        :rtype clean_sampled_df: Pandas.Series
+        :return base_stats: statistics around nones 
+        :rtype base_stats: dict()
+        """
         # if you create your own DF without giving the column name,
         # it labels the name as an int64, however, if you try to
         # `json.dump` an int64, it errors.
@@ -65,24 +93,30 @@ class StructuredDataProfile(object):
             self.name = df_series.name
         else:
             self.name = int(df_series.name)
-
-        self.sample_size = 0
-        self.sample = list()
-        self.null_count = 0
-        self.null_types = list()
-        self.null_types_index = {}
-                
+        
         if not sample_size:
             sample_size = self._get_sample_size(df_series)
         if sample_size < len(df_series):
             warnings.warn("The data will be profiled with a sample size of {}. "
                           "All statistics will be based on this subsample and "
-                          "not the whole dataset.".format(sample_size))
+                          "not the whole dataset.".format(sample_size))            
         clean_sampled_df, base_stats = \
             self.get_base_props_and_clean_null_params(
                 df_series, sample_size, sample_ids=sample_ids)
         self._update_base_stats(base_stats)
 
+        return clean_sampled_df, base_stats
+
+    def calc_type_statistics(self, clean_sampled_df, pool):
+        """
+        Calculates type statistics and labels dataset
+
+        :return clean_sampled_df: sampled series with none types dropped
+        :type clean_sampled_df: Pandas.Series
+        :param pool: pool utilized for multiprocessing
+        :type pool: multiprocessing.pool
+        """
+        
         self.profiles = {
             'data_type_profile':
             ColumnPrimitiveTypeProfileCompiler(
@@ -91,10 +125,10 @@ class StructuredDataProfile(object):
             ColumnStatsProfileCompiler(
                 clean_sampled_df, self.options, pool)
         }
-
+        
         use_data_labeler = True
-        if options and isinstance(options, StructuredOptions):
-            use_data_labeler = options.data_labeler.is_enabled
+        if self.options and isinstance(self.options, StructuredOptions):
+            use_data_labeler = self.options.data_labeler.is_enabled
 
         if use_data_labeler:
             self.profiles.update({

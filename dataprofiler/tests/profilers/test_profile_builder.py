@@ -441,7 +441,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
                                'sample_size': 5, 'null_count': 2,
-                               'null_types': dict(nan=['e', 'b'])}, base_stats)            
+                               'null_types': dict(nan=['e', 'b']),
+                               'sample_ids': [1, 2, 3, 4, 5]}, base_stats)
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(

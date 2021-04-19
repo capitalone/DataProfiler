@@ -67,6 +67,7 @@ class StructuredDataProfile(object):
             self.name = int(df_series.name)
 
         self.sample_size = 0
+        self.sample_ids = list()
         self.sample = list()
         self.null_count = 0
         self.null_types = list()
@@ -190,6 +191,7 @@ class StructuredDataProfile(object):
     
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
+        self.sample_ids += base_stats["sample_ids"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
         self.null_types = utils._combine_unique_sets(
@@ -305,8 +307,10 @@ class StructuredDataProfile(object):
         na_columns = dict()
         true_sample_list = list()
         total_sample_size = 0
+        sampled_ids = []
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
+            sampled_ids += chunked_sample_ids
 
             df_series_subset = df_series.iloc[chunked_sample_ids]
 
@@ -342,6 +346,7 @@ class StructuredDataProfile(object):
             # TODO: Is this correct? used to be actual sample size, including
             #  NANs, what now?
             "sample_size": total_sample_size,
+            "sample_ids": sampled_ids,
             "null_count": total_na,
             "null_types": na_columns,
             "sample": random.sample(list(df_series.values),
@@ -533,6 +538,9 @@ class Profiler(object):
         self.hashed_row_dict = dict.fromkeys(
             pd.util.hash_pandas_object(data, index=False), True
         )
+
+        min_sample_id = min([self._profile[col].sample_ids[-1]
+                             for col in self._profile])
 
         # Calculate Null Column Count
         null_rows = set()

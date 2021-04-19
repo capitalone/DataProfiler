@@ -62,7 +62,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         self._data_formats["json"] = self._get_data_as_json
         self._data_formats["flattened_dataframe"] = self._get_data_as_flattened_dataframe
         self._selected_data_format = options.get("data_format", "flattened_dataframe")
-        self._payload_keys = options.get("payload_keys", ["data", "payload", "response"])
+        self._payload_keys = options.get("payload_keys", ["data", "payload"])
         if not isinstance(self._payload_keys, list):
             self._payload_keys = [self._payload_keys]
         self._key_separator = options.get("key_separator", ".")
@@ -162,6 +162,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         if isinstance(json_lines, dict):
             # Glean Payload Data
             found_payload_key = None
+            payloads = {}
             for payload_key in self._payload_keys:
                 if payload_key in json_lines.keys():
                     payload_data = json_lines[payload_key]
@@ -177,9 +178,15 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                         payload_data.rename(
                             columns={column: payload_key + self._key_separator + str(column)},
                             inplace=True)
-                    found_payload_key = payload_key
-                    break
-                        
+                    payloads[payload_key] = payload_data
+                    
+            max_payload_length = 0
+            for payload in payloads:
+                if len(payloads[payload]) > max_payload_length:
+                    payload_data = payloads[payload]
+                    max_payload_length = len(payloads[payload])
+                    found_payload_key = payload
+                    
             # Get the non-payload data
             flattened_json = []
             for key in json_lines:

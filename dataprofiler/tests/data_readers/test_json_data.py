@@ -241,5 +241,16 @@ class TestJSONDataClass(unittest.TestCase):
 
         self.assertListEqual(expected_list, JSONDataObject._find_data(data))
 
+    def test_flattened_dataframe_format_with_dual_payload(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/dual_payloads.json')
+
+        dual_payload = Data(input_file_name,
+                      options={"data_format": "flattened_dataframe"})
+        # Make sure the larger payload is selected
+        self.assertIn("payload.bigger_list_of_things.id", dual_payload.data.columns)
+        self.assertEqual(2, len(dual_payload.data.columns))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -34,7 +34,7 @@ class StructuredDataProfile(object):
 
     def __init__(self, df_series=None, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
-                 sample_ids=None, pool=None, options=None):
+                 sample_ids=None, pool=None, options=None, col_name=None):
         """
         Instantiate the Structured Profiler class for a given column.
         
@@ -52,7 +52,7 @@ class StructuredDataProfile(object):
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
-        self.name = None
+        self.name = col_name
         self.options = options
         self._min_sample_size = min_sample_size
         self._sampling_ratio = sampling_ratio
@@ -71,7 +71,7 @@ class StructuredDataProfile(object):
         }
 
         if df_series is not None and len(df_series) > 0:
-
+            
             if not sample_size:
                 sample_size = self._get_sample_size(df_series)
             if sample_size < len(df_series):
@@ -80,13 +80,13 @@ class StructuredDataProfile(object):
                               "not the whole dataset.".format(sample_size))
                 
             clean_sampled_df, base_stats  = \
-                self.get_base_props_and_clean_null_params(
+                self.clean_data_and_get_base_stats(
                     df_series=df_series, sample_size=sample_size,
                     min_true_samples=self._min_true_samples, sample_ids=sample_ids)
+            self.update_type_statistics(clean_sampled_df, pool)
             self._update_base_stats(base_stats)
-            self.type_statistics(clean_sampled_df, pool)
 
-    def type_statistics(self, clean_sampled_df, pool):
+    def update_type_statistics(self, clean_sampled_df, pool):
         """
         Calculates type statistics and labels dataset
         :param clean_sampled_df: sampled series with none types dropped
@@ -95,6 +95,11 @@ class StructuredDataProfile(object):
         :type pool: multiprocessing.pool
         """
 
+        if self.name is None:
+            self.name = clean_sampled_df.name
+        if self.name != clean_sampled_df.name:
+            raise ValueError('Column names have changed!')
+        
         # First run, create the compilers
         if self.profiles is None or self.profiles['data_type_profile'] is None:
             self.profiles = {
@@ -190,7 +195,7 @@ class StructuredDataProfile(object):
                 "null_types": self.null_types,
                 "null_types_index": self.null_types_index,
                 "data_type_representation":
-                    unordered_profile["data_type_representation"]
+                unordered_profile["data_type_representation"]
             })
 
         dict_order = [
@@ -251,12 +256,12 @@ class StructuredDataProfile(object):
         if not min_true_samples:
             min_true_samples = self._min_true_samples
         
-        clean_sampled_df, base_stats = self.get_base_props_and_clean_null_params(
+        clean_sampled_df, base_stats = self.clean_data_and_get_base_stats(
             df_series=df_series, sample_size=sample_size,
             min_true_samples=min_true_samples, sample_ids=sample_ids)
 
         self._update_base_stats(base_stats)
-        self.type_statistics(clean_sampled_df, pool)
+        self.update_type_statistics(clean_sampled_df, pool)
 
     def _get_sample_size(self, df_series):
         """
@@ -275,7 +280,7 @@ class StructuredDataProfile(object):
     # TODO: flag column name with null values and potentially return row
     #  index number in the error as well
     @staticmethod
-    def get_base_props_and_clean_null_params(df_series, sample_size,
+    def clean_data_and_get_base_stats(df_series, sample_size,
                                              min_true_samples=0,
                                              sample_ids=None):
         """
@@ -706,7 +711,7 @@ class Profiler(object):
                     min_true_samples = profile[col]._min_true_samples
                 try:
                     multi_process_dict[col] = pool.apply_async(
-                        profile[col].get_base_props_and_clean_null_params,
+                        profile[col].clean_data_and_get_base_stats,
                         (df[col], sample_size, min_true_samples, sample_ids))
                 except Exception as e:
                     print(e)
@@ -731,7 +736,7 @@ class Profiler(object):
                     if min_true_samples is None:
                         min_true_samples = profile[col]._min_true_samples
                     clean_sampled_dict[col], base_stats = \
-                        profile[col].get_base_props_and_clean_null_params(
+                        profile[col].clean_data_and_get_base_stats(
                             df[col], sample_size, min_true_samples, sample_ids)
                     profile[col]._update_base_stats(base_stats)
             
@@ -745,7 +750,7 @@ class Profiler(object):
                 if min_true_samples is None:
                     min_true_samples = profile[col]._min_true_samples
                 clean_sampled_dict[col], base_stats = \
-                    profile[col].get_base_props_and_clean_null_params(
+                    profile[col].clean_data_and_get_base_stats(
                         df_series=df[col], sample_size=sample_size,
                         min_true_samples=min_true_samples, sample_ids=sample_ids)
                 profile[col]._update_base_stats(base_stats)
@@ -760,7 +765,7 @@ class Profiler(object):
         print(notification_str)
         
         for col in tqdm(df.columns):
-            profile[col].type_statistics(clean_sampled_dict[col], pool)                
+            profile[col].update_type_statistics(clean_sampled_dict[col], pool)
         if pool is not None:
             pool.close() # Close pool for new tasks
             pool.join() # Wait for all workers to complete

@@ -424,7 +424,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
                                     'added together.'):
             profile1 + profile2
 
-    def test_get_base_props_and_clean_null_params(self):
+    def test_clean_data_and_get_base_stats(self):
         data = pd.Series([1, None, 3, 4, None, 6],
                          index=['a', 'b', 'c', 'd', 'e', 'f'])
 
@@ -433,13 +433,26 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         # `df_series = df_series.loc[sorted(true_sample_list)]`
         # which caused errors
         df_series, base_stats = \
-            StructuredDataProfile.get_base_props_and_clean_null_params(
+            StructuredDataProfile.clean_data_and_get_base_stats(
                 df_series=data[1:], sample_size=6, min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
                                'sample_size': 5, 'null_count': 2,
                                'null_types': dict(nan=['e', 'b'])}, base_stats)
+
+    def test_column_names(self):
+        data = [['a', 1], ['b', 2], ['c', 3]]
+        df = pd.DataFrame(data, columns=['letter', 'number'])
+        profile1 = StructuredDataProfile(df['letter'])
+        profile2 = StructuredDataProfile(df['number'])
+        self.assertEqual(profile1.name, 'letter')
+        self.assertEqual(profile2.name, 'number')
+
+        df_series = pd.Series([1, 2, 3, 4, 5])
+        profile = StructuredDataProfile(df_series)
+        self.assertEqual(profile.name, df_series.name)
+        
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(

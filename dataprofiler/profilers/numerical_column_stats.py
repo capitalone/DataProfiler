@@ -139,8 +139,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             }
 
         for i, method in enumerate(self.histogram_bin_method_names):
-            combined_values = other1._histogram_to_array(
-                method) + other2._histogram_to_array(method)
+            combined_values = np.concatenate([other1._histogram_to_array(
+                method), other2._histogram_to_array(method)])
             bin_counts, bin_edges, suggested_bin_count = self._get_histogram(
                 combined_values, method)
             self.histogram_methods[method]['histogram']['bin_counts'] = \
@@ -273,6 +273,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         # calculate total variance over all bins of a histogram
         bin_counts = self.histogram_methods[method]['histogram']['bin_counts']
         bin_edges = self.histogram_methods[method]['histogram']['bin_edges']
+
+        # account ofr digitize which is exclusive
+        bin_edges = bin_edges.copy()
+        bin_edges[-1] += 1e-3
+
         inds = np.digitize(input_array, bin_edges)
         sum_var = 0
         non_zero_bins = np.where(bin_counts)[0] + 1
@@ -334,13 +339,22 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         # Extend histogram to array format
         bin_counts = self.histogram_methods[bins]['histogram']['bin_counts']
         bin_edges = self.histogram_methods[bins]['histogram']['bin_edges']
-        hist_to_array = [[bin_edge] * bin_count for bin_count, bin_edge in
-                         zip(bin_counts[:-1], bin_edges[:-2])]
-        hist_to_array.append([bin_edges[-2]] * int(bin_counts[-1] / 2))
-        hist_to_array.append([bin_edges[-1]] *
-                             (bin_counts[-1] - int(bin_counts[-1] / 2)))
-        array_flatten = [element for sublist in hist_to_array for
-                         element in sublist]
+        is_bin_non_zero = bin_counts > 0
+        bin_midpoints = (bin_edges[1:][is_bin_non_zero]
+                         + bin_edges[:-1][is_bin_non_zero]) / 2
+        hist_to_array = [[midpoint] * count for midpoint, count
+                         in zip(bin_midpoints, bin_counts[is_bin_non_zero])]
+        array_flatten = np.concatenate(hist_to_array)
+
+        # the min/max must be preserved
+        array_flatten[0] = bin_edges[0]
+        array_flatten[-1] = bin_edges[-1]
+
+        # If we know they are integers, we can limit the data to be as such
+        # during conversion
+        if not self.__class__.__name__ == 'FloatColumn':
+            array_flatten = array_flatten.astype(int)
+
         return array_flatten
 
     def _get_histogram(self, values, bin_method):
@@ -363,8 +377,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         else:
             n_equal_bins = suggested_bin_count = self.user_set_histogram_bin
             if n_equal_bins is None:
-                values, weights = histogram_utils._ravel_and_check_weights(
-                    values, None)
                 _, n_equal_bins = histogram_utils._get_bin_edges(
                     values, bin_method, None, None)
                 suggested_bin_count = min(n_equal_bins, self.max_histogram_bin)

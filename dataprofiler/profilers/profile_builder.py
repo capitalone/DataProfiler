@@ -545,7 +545,7 @@ class Profiler(object):
         )
 
         min_sample_id = min([self._profile[col].sample_ids[-1]
-                             for col in self._profile])
+                             for col in self._profile], default=None)
 
         # Calculate Null Column Count
         null_rows = set()

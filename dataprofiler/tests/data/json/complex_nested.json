@@ -1,0 +1,49 @@
+{ 
+  "meta": {
+    "date": "January",
+    "size": "300 Mb",
+    "creator": "Frodo"
+  },
+  "payload": 
+  {
+    "Octopus": [
+      {
+        "Blue-ringed": [
+          {
+            "name": "Socrates",
+            "number_of_legs": 8,
+            "fav_ocean": "Atlantic"
+          },
+          {
+            "name": "Aristotle",
+            "number_of_legs": 8,
+            "fav_ocean": "Pacific"
+          },
+          {
+            "name": "Plato",
+            "number_of_legs": 7,
+            "fav_ocean": "Indian",
+            "medical_condition": "Missing a leg"
+          }
+        ],
+        "Giant": [
+          {
+            "name": "Godzilla",
+            "size": "600 Kg"
+          },
+          {
+            "name": "Ultraman",
+            "size": "1000 Kg"
+          }
+        ]
+      }
+    ],
+    "Lion": [
+      {
+        "name": "Mark",
+        "medical_condition": "Depression"
+      }
+    ]
+  }
+}
+          

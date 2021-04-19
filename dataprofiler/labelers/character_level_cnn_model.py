@@ -323,7 +323,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                 self.__dict__ = model.__dict__
                         
 
-            cls = tf.keras.models.BaseModel
+            cls = tf.keras.models.Model
             cls.__getstate__ = __getstate__
             cls.__setstate__ = __setstate__
 

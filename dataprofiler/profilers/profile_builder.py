@@ -328,7 +328,8 @@ class StructuredDataProfile(object):
         true_sample_list = set()
         total_sample_size = 0
         query = '|'.join(null_values_and_flags.keys())
-        regex = f"^(?:{(query)})$"        
+        regex = f"^(?:{(query)})$"
+        
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
             
@@ -728,6 +729,7 @@ class Profiler(object):
                         profile[col].get_base_props_and_clean_null_params,
                         (df[col], sample_size, min_true_samples, sample_ids,))
                 except Exception as e:
+                    print(e)
                     single_process_list.add(col)
                     
             # Iterate through multiprocessed columns collecting results
@@ -736,6 +738,7 @@ class Profiler(object):
                     clean_sampled_dict[col], base_stats = multi_process_dict[col].get()
                     profile[col]._update_base_stats(base_stats)
                 except Exception as e:
+                    print(e)
                     single_process_list.add(col)
 
             # Clean up any columns which errored
@@ -744,8 +747,7 @@ class Profiler(object):
                     min_true_samples = profile[col]._min_true_samples
                 clean_sampled_dict[col], base_stats = \
                     profile[col].get_base_props_and_clean_null_params(
-                        df_series=df[col], sample_size=sample_size,
-                        min_true_samples=min_true_samples, sample_ids=sample_ids)
+                        df[col], sample_size, min_true_samples, sample_ids)
                 profile[col]._update_base_stats(base_stats)
             
             pool.close() # Close pool for new tasks

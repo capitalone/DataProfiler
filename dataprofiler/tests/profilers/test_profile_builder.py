@@ -262,8 +262,7 @@ class TestProfiler(unittest.TestCase):
             self.fail(
                 "Dataset tested did not have a non-null column and therefore "
                 "could not validate the test.")
-
-    @mock.patch('dataprofiler.profilers.profile_builder.StructuredDataProfile')
+    
     @mock.patch('dataprofiler.profilers.profile_builder.Profiler._update_row_statistics')
     def test_duplicate_column_names(self, *mocks):
         # validate works first

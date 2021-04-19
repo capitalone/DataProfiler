@@ -452,6 +452,11 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         df_series = pd.Series([1, 2, 3, 4, 5])
         profile = StructuredDataProfile(df_series)
         self.assertEqual(profile.name, df_series.name)
+
+        # Ensure issue raised
+        profile = StructuredDataProfile(df['letter'])
+        with self.assertRaises(ValueError):
+            profile.update_profile(df['number'])
         
 
     def test_update_match_are_abstract(self):

@@ -180,6 +180,57 @@ def read_json_df(data_generator, selected_columns=None, read_in_string=False):
     return json_to_dataframe(lines, selected_columns, read_in_string)
 
 
+def read_json(data_generator, selected_columns=None, read_in_string=False):
+    """
+    This function returns the lines of a json. The source of input to this 
+    function is either a file or a list of JSON structured strings. If the 
+    file path is given as input, the file is expected to have one JSON 
+    structures in each line. The lines that are not valid json will be ignored. 
+    Therefore, a file with pretty printed JSON objects will not be considered 
+    valid JSON. If the input is a data list, it is expected to be a list of 
+    strings where each string is a valid JSON object. if the individual object 
+    is not valid JSON, it will be ignored.
+
+    NOTE: both data_list and file_path cannot be passed at the same time.
+
+    :param data_generator: The generator you want to read.
+    :type data_generator: generator
+    :param selected_columns: a list of keys to be processed
+    :type selected_columns: list(str)
+    :param read_in_string: if True, all the values in dataframe will be
+        converted to string
+    :type read_in_string: bool
+    :return: returns the lines of a json file
+    :rtype: list(dict)
+    """
+
+    lines = list()
+    k = 0
+    while True:
+        try:
+            raw_line = next(data_generator)
+        except StopIteration:
+            raw_line = None
+
+        if not raw_line:
+            break
+        try:
+            obj = unicode_to_str(
+                json.loads(raw_line,
+                           object_hook=unicode_to_str,
+                           object_pairs_hook=OrderedDict),
+                ignore_dicts=True
+            )
+            lines.append(obj)
+        except ValueError:
+            pass
+            # To ignore malformatted lines.
+        k += 1
+    if not lines and k:
+        raise ValueError('No JSON data could be read from these data.')
+    return lines
+
+
 def read_csv_df(file_path, delimiter, header, selected_columns=[],
                 read_in_string=False, encoding='utf-8'):
     """

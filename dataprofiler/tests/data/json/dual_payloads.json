@@ -1,0 +1,51 @@
+{ 
+    "data": {
+      "list_of_things": [
+        {
+          "id": 1,
+          "tags": [
+            "test 1",
+            "test 2",
+            "test 3"
+          ]
+        },
+        {
+          "id": 2,
+          "tags": [
+            "test 4",
+            "test 5",
+            "test 6"
+          ]
+        }
+      ]
+    },
+    "meta": "Hey friends!",
+    "payload": {
+      "bigger_list_of_things": [
+        {
+          "id": 12,
+          "tags": [
+            "test 1",
+            "test 2",
+            "test 3"
+          ]
+        },
+        {
+          "id": 122,
+          "tags": [
+            "test 4",
+            "test 5",
+            "test 6"
+          ]
+        },
+        {
+          "id": 24,
+          "tags": [
+            "test 7",
+            "test 8",
+            "test 9"
+          ]
+        }
+      ]
+    }
+}

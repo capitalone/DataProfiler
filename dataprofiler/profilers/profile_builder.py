@@ -305,7 +305,7 @@ class StructuredDataProfile(object):
             "--*": NO_FLAG,
             "__*": NO_FLAG,
         }
-        
+                
         len_df = len(df_series)
         if not len_df:
             return df_series, {
@@ -614,7 +614,7 @@ class Profiler(object):
                 "Data must either be imported using the data_readers or "
                 "pd.DataFrame."
             )
-
+   
     @staticmethod
     def _update_profile_from_chunk(df, profile=None, sample_size=None,
                                    min_true_samples=0, options=None):
@@ -634,6 +634,7 @@ class Profiler(object):
         :return: list of column profile base subclasses
         :rtype: list(BaseColumnProfiler)
         """
+        
         if not profile:
             profile = OrderedDict()
 
@@ -647,21 +648,8 @@ class Profiler(object):
             def tqdm(l):
                 for i, e in enumerate(l):
                     print("Processing Column {}/{}".format(i+1, len(l)))
-                    yield e                    
-
-        # Shuffle indices ones and share with columns
-        sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
-
-        # If there are no minimum true samples, you can sort to save time
-        if (min_true_samples is None or min_true_samples == 0) \
-           and len(sample_ids) > 0:
-            # If there's a sample size, truncate
-            if sample_size is not None:
-                sample_ids[0] = sample_ids[0][:sample_size]
-            # Sort the sample_ids anre replace prior
-            sample_ids[0] = sorted(sample_ids[0])
-
-
+                    yield e
+        
         def generate_pool(max_pool_size=4):
             pool = None
             cpu_count = 1
@@ -672,7 +660,6 @@ class Profiler(object):
 
             # No additional advantage beyond 4 processes
             # Always leave 1 cores free
-            # https://docs.python.org/3/library/multiprocessing.html#multiprocessing.set_start_method            
             if cpu_count > 2:
                 cpu_count = min(cpu_count-1, max_pool_size)
                 try: 
@@ -686,7 +673,26 @@ class Profiler(object):
                         ' Possible methods include: fork, spawn, forkserver, None'
                     )
             return pool, cpu_count
-            
+                    
+
+        # Shuffle indices ones and share with columns
+        sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
+        
+        # If there are no minimum true samples, you can sort to save time
+        if (min_true_samples is None or min_true_samples == 0) \
+           and len(sample_ids) > 0:
+            # If there's a sample size, truncate
+            if sample_size is not None:
+                sample_ids[0] = sample_ids[0][:sample_size]
+            # Sort the sample_ids anre replace prior
+            sample_ids[0] = sorted(sample_ids[0])
+        # Numpy arrays allocate to heap and can be shared between processes
+        # Non-locking multiprocessing fails on machines without POSIX (windows)
+        # The function handles that situation, but will be single process
+        # Newly introduced features (python3.8) improves the situation
+        sample_ids = np.array(sample_ids)        
+
+        # Create structured profile objects
         new_cols = set()
         for col in df.columns:
             if col not in profile:
@@ -700,15 +706,14 @@ class Profiler(object):
                     options=structured_options
                 )
                 new_cols.add(col)
-        
-
+                        
         # Format the data
         notification_str = "Finding the Null values in the columns..."
-        pool, cpu_count = None, 1
-        if len(new_cols) > 0:
-            pool, pool_size = generate_pool(max_pool_size=len(new_cols))
-            notification_str += " (with " + str(pool_size) + " processes)"
-        print(notification_str)
+        pool = None
+        if options.structured_options.multiprocess.is_enabled:
+            if len(new_cols) > 0:
+                pool, pool_size = generate_pool(max_pool_size=len(new_cols))
+                notification_str += " (with " + str(pool_size) + " processes)"
         
         clean_sampled_dict = {}
         multi_process_dict = {}
@@ -724,37 +729,43 @@ class Profiler(object):
             for col in df.columns:
                 if min_true_samples is None:
                     min_true_samples = profile[col]._min_true_samples
-                try:        
+                try:
                     multi_process_dict[col] = pool.apply_async(
                         profile[col].get_base_props_and_clean_null_params,
-                        (df[col], sample_size, min_true_samples, sample_ids,))
+                        (df[col], sample_size, min_true_samples, sample_ids))
                 except Exception as e:
                     print(e)
                     single_process_list.add(col)
                     
             # Iterate through multiprocessed columns collecting results
-            for col in multi_process_dict.keys():
+            print(notification_str)
+            for col in tqdm(multi_process_dict.keys()):
                 try:
-                    clean_sampled_dict[col], base_stats = multi_process_dict[col].get()
+                    clean_sampled_dict[col], base_stats = \
+                        multi_process_dict[col].get()
                     profile[col]._update_base_stats(base_stats)
                 except Exception as e:
                     print(e)
                     single_process_list.add(col)
 
             # Clean up any columns which errored
-            for col in single_process_list:
-                if min_true_samples is None:
-                    min_true_samples = profile[col]._min_true_samples
-                clean_sampled_dict[col], base_stats = \
-                    profile[col].get_base_props_and_clean_null_params(
-                        df[col], sample_size, min_true_samples, sample_ids)
-                profile[col]._update_base_stats(base_stats)
+            if len(single_process_list) > 0:
+                print("Errors in multiprocessing occured:",
+                      len(single_process_list), "errors, reprocessing...")
+                for col in tqdm(single_process_list):
+                    if min_true_samples is None:
+                        min_true_samples = profile[col]._min_true_samples
+                    clean_sampled_dict[col], base_stats = \
+                        profile[col].get_base_props_and_clean_null_params(
+                            df[col], sample_size, min_true_samples, sample_ids)
+                    profile[col]._update_base_stats(base_stats)
             
             pool.close() # Close pool for new tasks
             pool.join() # Wait for all workers to complete
 
         else: # No pool
-            
+
+            print(notification_str)
             for col in tqdm(df.columns):
                 if min_true_samples is None:
                     min_true_samples = profile[col]._min_true_samples
@@ -765,10 +776,12 @@ class Profiler(object):
                 profile[col]._update_base_stats(base_stats)
             
         # Process and label the data
-        notification_str = "Calculating the statistics... " 
-        pool, pool_size = generate_pool(max_pool_size=4)        
-        if pool:
-            notification_str += " (with " + str(pool_size) + " processes)"
+        notification_str = "Calculating the statistics... "
+        pool = None
+        if options.structured_options.multiprocess.is_enabled:
+            pool, pool_size = generate_pool(max_pool_size=4)
+            if pool:
+                notification_str += " (with " + str(pool_size) + " processes)"
         print(notification_str)
         
         for col in tqdm(df.columns):
@@ -778,4 +791,3 @@ class Profiler(object):
             pool.join() # Wait for all workers to complete
             
         return profile
-

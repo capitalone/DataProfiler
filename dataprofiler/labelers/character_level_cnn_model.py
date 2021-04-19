@@ -321,7 +321,6 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                     fd.flush()
                 model = tf.keras.models.load_model(fd.name)
                 self.__dict__ = model.__dict__
-                        
 
             cls = tf.keras.models.Model
             cls.__getstate__ = __getstate__

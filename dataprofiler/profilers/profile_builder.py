@@ -132,12 +132,14 @@ class StructuredDataProfile(object):
 
         merged_profile.name = self.name
         merged_profile._update_base_stats(
-            {"sample": self.sample, 'sample_size': self.sample_size,
+            {"sample": self.sample, "sample_ids": self.sample_ids,
+             "sample_size": self.sample_size,
              "null_count": self.null_count,
              "null_types": copy.deepcopy(self.null_types_index)}
         )
         merged_profile._update_base_stats(
-            {"sample": other.sample, 'sample_size': other.sample_size,
+            {"sample": other.sample, "sample_ids": other.sample_ids,
+             "sample_size": other.sample_size,
              "null_count": other.null_count,
              "null_types": copy.deepcopy(other.null_types_index)}
         )

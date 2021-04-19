@@ -305,7 +305,7 @@ class StructuredDataProfile(object):
             "--*": NO_FLAG,
             "__*": NO_FLAG,
         }
-                
+        
         len_df = len(df_series)
         if not len_df:
             return df_series, {
@@ -649,31 +649,6 @@ class Profiler(object):
                 for i, e in enumerate(l):
                     print("Processing Column {}/{}".format(i+1, len(l)))
                     yield e
-        
-        def generate_pool(max_pool_size=4):
-            pool = None
-            cpu_count = 1
-            try:
-                cpu_count = mp.cpu_count()
-            except NotImplementedError as e:
-                cpu_count = 1
-
-            # No additional advantage beyond 4 processes
-            # Always leave 1 cores free
-            if cpu_count > 2:
-                cpu_count = min(cpu_count-1, max_pool_size)
-                try: 
-                    pool = mp.Pool(cpu_count)
-                    print("Utilizing",cpu_count, "processes for profiling")
-                except Exception as e:
-                    pool = None
-                    warnings.warn(
-                        'Multiprocessing disabled, please change the multiprocessing'+
-                        ' start method, via: multiprocessing.set_start_method(<method>)'+
-                        ' Possible methods include: fork, spawn, forkserver, None'
-                    )
-            return pool, cpu_count
-                    
 
         # Shuffle indices ones and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
@@ -712,7 +687,7 @@ class Profiler(object):
         pool = None
         if options.structured_options.multiprocess.is_enabled:
             if len(new_cols) > 0:
-                pool, pool_size = generate_pool(max_pool_size=len(new_cols))
+                pool, pool_size = utils.generate_pool(max_pool_size=len(new_cols))
                 notification_str += " (with " + str(pool_size) + " processes)"
         
         clean_sampled_dict = {}
@@ -779,7 +754,7 @@ class Profiler(object):
         notification_str = "Calculating the statistics... "
         pool = None
         if options.structured_options.multiprocess.is_enabled:
-            pool, pool_size = generate_pool(max_pool_size=4)
+            pool, pool_size = utils.generate_pool(max_pool_size=4)
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"
         print(notification_str)

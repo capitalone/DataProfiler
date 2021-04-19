@@ -471,6 +471,12 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertEqual(10, profile.null_count)
 
 
+    def test_generating_report_ensure_no_error(self):
+        file_path = os.path.join(test_root_path, 'data', 'csv/diamonds.csv')
+        data = pd.read_csv(file_path)
+        profile = dp.Profiler(data[:1000])
+        readable_report = profile.report(report_options={"output_format":"compact"})
+
 class TestProfilerNullValues(unittest.TestCase):
 
     def setUp(self):
@@ -537,7 +543,7 @@ class TestProfilerNullValues(unittest.TestCase):
             report['data_stats'][' NUMBERS']['statistics']['null_types_index'],
             {'': '[5, 6, 8]', ' ': '[2, 4]'}
         )
-
+       
     def test_correct_total_sample_size_and_counts_and_mutability(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
         data = pd.read_csv(file_path)

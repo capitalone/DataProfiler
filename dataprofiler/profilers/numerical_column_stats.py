@@ -271,12 +271,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _total_histogram_bin_variance(self, input_array, method):
         # calculate total variance over all bins of a histogram
+        bin_counts = self.histogram_methods[method]['histogram']['bin_counts']
         bin_edges = self.histogram_methods[method]['histogram']['bin_edges']
         inds = np.digitize(input_array, bin_edges)
         sum_var = 0
-        for i in range(1, len(bin_edges)):
+        non_zero_bins = np.where(bin_counts)[0] + 1
+        for i in non_zero_bins:
             elements_in_bin = input_array[inds == i]
-            bin_var = elements_in_bin.var() if len(elements_in_bin) > 0 else 0
+            bin_var = elements_in_bin.var()
             sum_var += bin_var
         return sum_var
 

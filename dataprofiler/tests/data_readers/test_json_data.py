@@ -136,7 +136,7 @@ class TestJSONDataClass(unittest.TestCase):
                              data.length,
                              msg=input_file['path'])
 
-    def test_data_stream_format_with_no_payload(self):
+    def test_flattened_dataframe_format_with_no_payload(self):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/simple.json')
 
@@ -155,7 +155,7 @@ class TestJSONDataClass(unittest.TestCase):
         with self.assertWarnsRegex(UserWarning,"No metadata was detected."):
             self.assertIsNone(simple.metadata)
 
-    def test_key_separator_in_payload_format(self):
+    def test_key_separator_in_flattened_dataframe_format(self):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/simple.json')
 
@@ -165,7 +165,7 @@ class TestJSONDataClass(unittest.TestCase):
 
         self.assertListEqual(expected_columns, list(simple.data.columns))
 
-    def test_complex_nested_json_in_payload_format(self):
+    def test_complex_nested_json_in_flattened_dataframe_format(self):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/complex_nested.json')
 
@@ -180,7 +180,7 @@ class TestJSONDataClass(unittest.TestCase):
         self.assertEqual("Frodo", complex.data_and_metadata["meta.creator"][0])
 
 
-    def test_list_of_dictionaries_in_payload_format(self):
+    def test_list_of_dictionaries_in_flattened_dataframe_format(self):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/iris-utf-8.json')
 
@@ -188,7 +188,7 @@ class TestJSONDataClass(unittest.TestCase):
         self.assertEqual(6, len(simple.data.columns))
         self.assertEqual(150, len(simple.data))
         
-    def test_data_stream_format(self):
+    def test_flattened_dataframe_format(self):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/math.json')
 

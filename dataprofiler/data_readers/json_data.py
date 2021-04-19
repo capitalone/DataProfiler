@@ -28,7 +28,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 data_format= type: str, choices: "dataframe", "records", "json",
                  "data_stream"
                 selected_keys= type: list(str)
-                payload_keys= type: str
+                payload_keys= type: Union[str, list(str)]
             )
 
         
@@ -56,7 +56,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         #  _selected_data_format: user selected format in which to return data
         #                         can only be of types in _data_formats
         #  _selected_keys: keys being selected from the entire dataset
-        #  _payload_keys: dictionary key that determines the payload
+        #  _payload_keys: (list of) dictionary key(s) that determines the payload
 
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
@@ -130,7 +130,8 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         """
         Merges all the dictionaries into as few dictionaries as possible.
 
-        :param list_of_dicts: the list of dictionaries to be coalesced
+        :param list_of_dicts: the list of dictionaries with one item in each dict
+        to be coalesced
         :type list_of_dicts: list(dict)
         :return: Coalesced list of dictionaries
         """
@@ -149,10 +150,11 @@ class JSONData(SpreadSheetDataMixin, BaseData):
     def _get_data_as_flattened_dataframe(self, json_lines):
         """
         Loads the data when in a JSON format from a data stream (nested
-        lists of dictionaries and a key value for a payload.
+        lists of dictionaries and a key value for a payload).
 
         :param json_lines: json format list of dicts or dict
-        :return:
+        :type json_lines: Union[dict, list(dict)]
+        :return: Pandas.DataFrame from a flattened json
         """
         if isinstance(json_lines, pd.DataFrame):
             return json_lines

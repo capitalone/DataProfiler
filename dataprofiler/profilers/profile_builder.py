@@ -34,7 +34,7 @@ class StructuredDataProfile(object):
 
     def __init__(self, df_series=None, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
-                 sample_ids=None, pool=None, options=None, col_name=None):
+                 sample_ids=None, pool=None, options=None):
         """
         Instantiate the Structured Profiler class for a given column.
         
@@ -52,7 +52,7 @@ class StructuredDataProfile(object):
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
-        self.name = col_name
+        self.name = None
         self.options = options
         self._min_sample_size = min_sample_size
         self._sampling_ratio = sampling_ratio

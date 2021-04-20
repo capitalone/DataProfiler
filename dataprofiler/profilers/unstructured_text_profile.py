@@ -6,7 +6,14 @@ class TextProfiler(object):
     type = 'unstructured_text'
 
     def __init__(self, name, options=None):
+        """
+        Initialization of Text Profiler.
 
+        :param name: Name of the data
+        :type name: String
+        :param options: Options for the Text Profiler
+        :type options: UnstructuredTextOptions
+        """
         self.name = name
         self.sample_size = 0
         self.times = defaultdict(float)
@@ -91,12 +98,38 @@ class TextProfiler(object):
     @BaseColumnProfiler._timeit(name='vocab')
     def _update_vocab(self, data, prev_dependent_properties=None,
                       subset_properties=None):
+        """
+        Finds the unique vocabulary used in the text samples.
+
+        :param data: list or array of data from which to extract vocab
+        :type data: Union[list, numpy.array, pandas.DataFrame]
+        :param prev_dependent_properties: Contains all the previous properties
+            that the calculations depend on.
+        :type prev_dependent_properties: dict
+        :param subset_properties: Contains the results of the properties of the
+            subset before they are merged into the main data profile.
+        :type subset_properties: dict
+        :return: None
+        """
         data_flat = list(itertools.chain(*data))
         self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
 
     @BaseColumnProfiler._timeit(name='words')
     def _update_words(self, data, prev_dependent_properties=None,
                       subset_properties=None):
+        """
+        Finds the unique words and word count used in the text samples.
+
+        :param data: list or array of data from which to extract vocab
+        :type data: Union[list, numpy.array, pandas.DataFrame]
+        :param prev_dependent_properties: Contains all the previous properties
+            that the calculations depend on.
+        :type prev_dependent_properties: dict
+        :param subset_properties: Contains the results of the properties of the
+            subset before they are merged into the main data profile.
+        :type subset_properties: dict
+        :return: None
+        """
         for word in list(" ".join(data).split(" ")):
             if word in self.word_count:
                 self.word_count[word] += 1

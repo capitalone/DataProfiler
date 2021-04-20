@@ -126,7 +126,6 @@ class StructuredDataProfile(object):
             for profile in self.profiles.values():
                 profile.update_profile(clean_sampled_df, pool)
 
-
     def __add__(self, other):
         """
         Merges two Structured profiles together overriding the `+` operator.
@@ -441,7 +440,8 @@ class Profiler(object):
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
-        self.update_profile(data)
+        if len(data):
+            self.update_profile(data)
 
     def __add__(self, other):
         """

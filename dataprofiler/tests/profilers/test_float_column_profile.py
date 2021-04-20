@@ -428,8 +428,9 @@ class TestFloatColumn(unittest.TestCase):
         }
         list_data_test.append([df1, expected_histogram1])
 
-        # this data has 4 bins, range of 12
-        # with equal bin size, each bin has the width of 3.0
+        # this data will be the second update of the profile.
+        # this results in the combination of the previous data and this data.
+        # the range should update to 12 from 3.
         df2 = pd.Series(["1.0", "5.0", "8.0", "13.0"])
         expected_histogram2 = {
             'bin_counts': np.array([4, 1, 1, 1, 0, 1]),

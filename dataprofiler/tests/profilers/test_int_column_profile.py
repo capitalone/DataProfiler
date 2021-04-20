@@ -230,7 +230,7 @@ class TestIntColumn(unittest.TestCase):
         # with equal bin size, each bin has the width of 1
         data3 = ["1", "1", "3", "4"]  # 3 bins, range of 3
         expected_histogram3 = {
-            'bin_counts': np.array([1, 1, 0, 2]),
+            'bin_counts': np.array([2, 0, 1, 1]),
             'bin_edges': np.array([1.0, 1.75, 2.5, 3.25, 4.0]),
         }
         list_data_test.append([data3, expected_histogram3])
@@ -243,8 +243,8 @@ class TestIntColumn(unittest.TestCase):
             profile = profiler.profile
             histogram = profile['histogram']
 
-            self.assertCountEqual(expected_histogram['bin_counts'],
-                                  histogram['bin_counts'])
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
 

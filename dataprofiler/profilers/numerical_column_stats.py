@@ -354,6 +354,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 self.histogram_methods[method]['current_loss']
 
             if min_total_loss >= self.histogram_methods[method]['total_loss']:
+                # if same loss and less bins, don't save bc higher resolution
                 if (self.histogram_methods[method]['suggested_bin_count']
                         <= selected_suggested_bin_count
                         and min_total_loss ==
@@ -371,10 +372,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
         is_bin_non_zero = bin_counts[:-1] > 0
-        bin_midpoints = bin_edges[:-2][is_bin_non_zero]
+        bin_left_edge = bin_edges[:-2][is_bin_non_zero]
         hist_to_array = [
-            [midpoint] * count for midpoint, count
-            in zip(bin_midpoints, bin_counts[:-1][is_bin_non_zero])
+            [left_edge] * count for left_edge, count
+            in zip(bin_left_edge, bin_counts[:-1][is_bin_non_zero])
         ]
         if not hist_to_array:
             hist_to_array = [[]]

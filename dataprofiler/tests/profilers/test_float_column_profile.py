@@ -478,7 +478,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler1.max_histogram_bin = 50
         profiler1.update(df1)
         num_bins = len(profiler1.profile['histogram']['bin_counts'])
-        self.assertEqual(num_bins, 4)
+        self.assertEqual(4, num_bins)
 
         # this data uses large number of bins, which will be set to
         # the max limit
@@ -488,14 +488,26 @@ class TestFloatColumn(unittest.TestCase):
         profiler2.max_histogram_bin = 50
         profiler2.update(df2)
         num_bins = len(profiler2.profile['histogram']['bin_counts'])
-        self.assertEqual(num_bins, 50)
+        self.assertEqual(50, num_bins)
 
         # max number of bin is increased to 10000
         profiler2 = FloatColumn(df2.name)
         profiler2.max_histogram_bin = 10000
+        profiler2.histogram_methods = dict()
+        # set method to auto which uses 10000 bins
+        profiler2.histogram_bin_method_names = ['auto']
+        profiler2.histogram_methods['auto'] = {
+            'total_loss': 0,
+            'current_loss': 0,
+            'suggested_bin_count': 10,
+            'histogram': {
+                'bin_counts': None,
+                'bin_edges': None
+            }
+        }
         profiler2.update(df2)
         num_bins = len(profiler2.profile['histogram']['bin_counts'])
-        self.assertEqual(num_bins, 6)
+        self.assertEqual(10000, num_bins)
 
     def test_estimate_stats_from_histogram(self):
         data = pd.Series([], dtype=object)

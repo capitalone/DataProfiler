@@ -9,7 +9,6 @@ from __future__ import division
 
 from future.utils import with_metaclass
 import copy
-import time
 import abc
 import warnings
 

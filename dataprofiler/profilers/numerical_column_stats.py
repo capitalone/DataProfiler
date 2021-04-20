@@ -340,23 +340,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         # Extend histogram to array format
         bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
-        # is_bin_non_zero = bin_counts > 0
-        # bin_midpoints = (bin_edges[1:][is_bin_non_zero]
-        #                  + bin_edges[:-1][is_bin_non_zero]) / 2
         is_bin_non_zero = bin_counts[:-1] > 0
         bin_midpoints = bin_edges[:-2][is_bin_non_zero]
-        hist_to_array = [[midpoint] * count for midpoint, count
-                         in zip(bin_midpoints, bin_counts[:-1][is_bin_non_zero])]
+        hist_to_array = [
+            [midpoint] * count for midpoint, count
+            in zip(bin_midpoints, bin_counts[:-1][is_bin_non_zero])
+        ]
         if not hist_to_array:
             hist_to_array = [[]]
-        # array_flatten = np.concatenate(hist_to_array)
+
         array_flatten = np.concatenate(
             (hist_to_array + [[bin_edges[-2]] * int(bin_counts[-1] / 2)] +
             [[bin_edges[-1]] * (bin_counts[-1] - int(bin_counts[-1] / 2))]))
-
-        # # the min/max must be preserved
-        # array_flatten[0] = bin_edges[0]
-        # array_flatten[-1] = bin_edges[-1]
 
         # If we know they are integers, we can limit the data to be as such
         # during conversion

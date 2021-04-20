@@ -230,8 +230,8 @@ class TestIntColumn(unittest.TestCase):
         # with equal bin size, each bin has the width of 1
         data3 = ["1", "1", "3", "4"]  # 3 bins, range of 3
         expected_histogram3 = {
-            'bin_counts': np.array([2, 0, 2]),
-            'bin_edges': np.array([1.0, 2.0, 3.0, 4.0]),
+            'bin_counts': np.array([2, 0, 1, 1]),
+            'bin_edges': np.array([1.0, 1.75, 2.5, 3.25, 4.0]),
         }
         list_data_test.append([data3, expected_histogram3])
 
@@ -243,8 +243,8 @@ class TestIntColumn(unittest.TestCase):
             profile = profiler.profile
             histogram = profile['histogram']
 
-            self.assertCountEqual(expected_histogram['bin_counts'],
-                                  histogram['bin_counts'])
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
 
@@ -277,12 +277,12 @@ class TestIntColumn(unittest.TestCase):
                 'bin_edges': np.array([2.0, 10.0/3.0, 14.0/3.0, 6.0])
             },
             quantiles={
-                0: 8.0/3.0,
-                1: 8.0/3.0,
-                2: 4.0
+                0: 2.002,
+                1: 4,
+                2: 5.998,
             },
             times=defaultdict(
-                float, {'histogram_and_quantiles': 15.0, 'max': 1.0, 'min': 1.0,
+                float, {'histogram_and_quantiles': 1.0, 'max': 1.0, 'min': 1.0,
                         'sum': 1.0, 'variance': 1.0})
             
         )
@@ -294,34 +294,34 @@ class TestIntColumn(unittest.TestCase):
 
             # Validate the time in the datetime class has the expected time.
             profile = profiler.profile
-            # pop out the histogram and quartiles to test separately from the rest
-            # of the dict as we need comparison with some precision
+            # pop out the histogram and quartiles to test separately from the
+            # rest of the dict as we need comparison with some precision
             histogram = profile.pop('histogram')
             expected_histogram = expected_profile.pop('histogram')
             quartiles = profile.pop('quantiles')
             expected_quartiles = expected_profile.pop('quantiles')
 
             self.assertDictEqual(expected_profile, profile)
-            self.assertCountEqual(expected_histogram['bin_counts'],
-                                  histogram['bin_counts'])
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
 
-            self.assertEqual(round(expected_quartiles[0], 12),
-                             round(quartiles[249], 12))
-            self.assertEqual(round(expected_quartiles[1], 12),
-                             round(quartiles[499], 12))
-            self.assertEqual(round(expected_quartiles[2], 12),
-                             round(quartiles[724], 12))
+            self.assertAlmostEqual(expected_quartiles[0], quartiles[249])
+            self.assertAlmostEqual(expected_quartiles[1], quartiles[499])
+            self.assertAlmostEqual(expected_quartiles[2], quartiles[749])
 
-            expected = defaultdict(float, {'min': 1.0, 'max': 1.0, 'sum': 1.0, 'variance': 1.0, \
-                                           'histogram_and_quantiles': 15.0})
+            expected = defaultdict(
+                float, {'min': 1.0, 'max': 1.0, 'sum': 1.0, 'variance': 1.0,
+                        'histogram_and_quantiles': 1.0})
             self.assertEqual(expected, profile['times'])
 
-            # Validate time in datetime class has expected time after second update
+            # Validate time in datetime class has expected time after second
+            # update
             profiler.update(df)
-            expected = defaultdict(float, {'min': 2.0, 'max': 2.0, 'sum': 2.0, 'variance': 2.0, \
-                                           'histogram_and_quantiles': 30.0})
+            expected = defaultdict(
+                float, {'min': 2.0, 'max': 2.0, 'sum': 2.0, 'variance': 2.0,
+                        'histogram_and_quantiles': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
 
     def test_option_timing(self):
@@ -343,13 +343,13 @@ class TestIntColumn(unittest.TestCase):
             profile = profiler.profile
 
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0, 'variance': 1.0, \
-                                           'histogram_and_quantiles': 15.0})
+                                           'histogram_and_quantiles': 1.0})
             self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0, 'variance': 2.0, \
-                                           'histogram_and_quantiles': 30.0})
+                                           'histogram_and_quantiles': 2.0})
             self.assertCountEqual(expected, profiler.profile['times'])
 
     def test_profile_merge(self):
@@ -371,7 +371,7 @@ class TestIntColumn(unittest.TestCase):
             stddev=np.sqrt(30.916),
             histogram={
                 'bin_counts': np.array([1, 1, 1, 1]),
-                'bin_edges': np.array([2.,5.25,8.5,11.75,15.])
+                'bin_edges': np.array([2., 5.25, 8.5, 11.75, 15.])
             },
         )
 
@@ -386,11 +386,11 @@ class TestIntColumn(unittest.TestCase):
         self.assertAlmostEqual(profiler3.variance,
                                expected_profile.pop('variance'), places=3)
         self.assertEqual(profiler3.mean,expected_profile.pop('mean'))
-        self.assertEqual(profiler3.histogram_selection, 'rice')
+        self.assertEqual(profiler3.histogram_selection, 'doane')
         self.assertEqual(profiler3.min,expected_profile.pop('min'))
         self.assertEqual(profiler3.max,expected_profile.pop('max'))
-        self.assertCountEqual(histogram['bin_counts'],
-                              expected_histogram['bin_counts'])
+        self.assertEqual(histogram['bin_counts'].tolist(),
+                         expected_histogram['bin_counts'].tolist())
         self.assertCountEqual(histogram['bin_edges'],
                               expected_histogram['bin_edges'])
 
@@ -518,8 +518,9 @@ class TestIntColumn(unittest.TestCase):
             profiler3 = profiler1 + profiler2
         
         # Assert that these features are still merged
+        profile = profiler3.profile
         self.assertIsNotNone(profiler3.histogram_selection)
-        self.assertIsNotNone(profiler3.variance)
+        self.assertIsNotNone(profile['variance'])
         self.assertIsNotNone(profiler3.sum)
         
         # Assert that these features are not calculated
@@ -563,7 +564,7 @@ class TestIntColumn(unittest.TestCase):
         # case when more than 1 unique value, by virtue of a streaming update
         num_profiler.update(pd.Series(['2']))
         self.assertEqual(
-            100,
-            len(num_profiler.histogram_methods['custom']['histogram'][
-                    'bin_counts'])
-        )
+            100, len(num_profiler._stored_histogram['histogram']['bin_counts']))
+
+        histogram, _ = num_profiler._histogram_for_profile('custom')
+        self.assertEqual(100, len(histogram['bin_counts']))

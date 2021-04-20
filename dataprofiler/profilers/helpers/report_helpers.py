@@ -5,9 +5,9 @@ import numpy as np
 
 def calculate_quantiles(num_quantile_groups, quantiles):
     len_quant = len(quantiles)
-    if not (num_quantile_groups and 0 < num_quantile_groups <= len_quant):
+    if not (num_quantile_groups and 0 < num_quantile_groups <= (len_quant + 1)):
         num_quantile_groups = 4
-    quant_multiplier = len_quant/num_quantile_groups
+    quant_multiplier = (len_quant + 1) / num_quantile_groups
     # quantile is one less than group
     # Goes from zero (inclusive) to number of groups (exclusive)
     # +1 because 0 + 1 * multiplier = correct first quantile

@@ -477,7 +477,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                * bin_count_or_method - (String/List[String]) Designates preferred method for calculating histogram bins or the number of bins to use.  
                 If left unspecified (None) the optimal method will be chosen by attempting all methods.  
                 If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
@@ -498,7 +498,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                * bin_count_or_method - (String/List[String]) Designates preferred method for calculating histogram bins or the number of bins to use.  
                 If left unspecified (None) the optimal method will be chosen by attempting all methods.  
                 If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
@@ -518,7 +518,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                * bin_count_or_method - (String/List[String]) Designates preferred method for calculating histogram bins or the number of bins to use.  
                 If left unspecified (None) the optimal method will be chosen by attempting all methods.  
                 If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  

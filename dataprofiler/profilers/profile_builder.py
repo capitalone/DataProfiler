@@ -170,10 +170,9 @@ class StructuredDataProfile(object):
         samples = list(dict.fromkeys(self.sample + other.sample))
         merged_profile.sample = random.sample(samples, min(len(samples), 5))
         for profile_name in self.profiles:
-            if profile_name in other.profiles:
-                merged_profile.profiles[profile_name] = (
-                    self.profiles[profile_name] + other.profiles[profile_name]
-                )
+            merged_profile.profiles[profile_name] = (
+                self.profiles[profile_name] + other.profiles[profile_name]
+            )
         return merged_profile
 
     @property
@@ -284,7 +283,7 @@ class StructuredDataProfile(object):
     #  index number in the error as well
     @staticmethod
     def clean_data_and_get_base_stats(df_series, sample_size,
-                                             min_true_samples=0,
+                                             min_true_samples=None,
                                              sample_ids=None):
         """
         Identify null characters and return them in a dictionary as well as
@@ -313,6 +312,9 @@ class StructuredDataProfile(object):
             "--*": NO_FLAG,
             "__*": NO_FLAG,
         }
+        
+        if min_true_samples is None:
+            min_true_samples = 0
         
         len_df = len(df_series)
         if not len_df:
@@ -365,7 +367,7 @@ class StructuredDataProfile(object):
             sample_ind_generator.close()
 
         # If min_true_samples exists, sort
-        if min_true_samples is not None and min_true_samples > 0:
+        if min_true_samples > 0:
             true_sample_list = sorted(true_sample_list)
 
         # Split out true values for later utilization

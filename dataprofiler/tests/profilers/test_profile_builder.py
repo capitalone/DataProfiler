@@ -353,7 +353,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
 
         self.assertEqual(3*3, src_profile.null_count)
         self.assertEqual(2999*3, src_profile.sample_size)
-        
+
     @mock.patch('dataprofiler.profilers.column_profile_compilers.'
                 'ColumnPrimitiveTypeProfileCompiler')
     @mock.patch('dataprofiler.profilers.column_profile_compilers.'

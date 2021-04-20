@@ -493,12 +493,31 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile = StructuredDataProfile(column, sample_size=len(column))
         self.assertEqual(10, profile.null_count)
 
-
     def test_generating_report_ensure_no_error(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/diamonds.csv')
         data = pd.read_csv(file_path)
         profile = dp.Profiler(data[:1000])
-        readable_report = profile.report(report_options={"output_format":"compact"})
+        readable_report = profile.report(
+            report_options={"output_format": "compact"})
+
+    def test_get_sample_size(self):
+        data = pd.DataFrame([0] * int(50e3))
+
+        # test data size < min_sample_size = 5000 by default
+        profile = dp.Profiler(pd.DataFrame([]))
+        sample_size = profile._get_sample_size(data[:1000])
+        self.assertEqual(1000, sample_size)
+
+        # test data size * 0.20 < min_sample_size < data size
+        profile = dp.Profiler(pd.DataFrame([]))
+        sample_size = profile._get_sample_size(data[:10000])
+        self.assertEqual(5000, sample_size)
+
+        # test min_sample_size > data size * 0.20
+        profile = dp.Profiler(pd.DataFrame([]))
+        sample_size = profile._get_sample_size(data)
+        self.assertEqual(10000, sample_size)
+
 
 class TestProfilerNullValues(unittest.TestCase):
 
@@ -596,6 +615,7 @@ class TestProfilerNullValues(unittest.TestCase):
             
         self.assertEqual(col_one_len, len(data['NAME']))
         self.assertEqual(col_two_len, len(data[' VALUE']))
+
 
 if __name__ == '__main__':
     unittest.main()

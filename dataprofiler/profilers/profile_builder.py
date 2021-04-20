@@ -11,7 +11,6 @@ from __future__ import division
 import copy
 import random
 import re
-import hashlib
 from collections import OrderedDict
 import warnings
 
@@ -26,8 +25,7 @@ from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
     ColumnStatsProfileCompiler, ColumnDataLabelerCompiler
 from ..labelers.data_labelers import DataLabeler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
-from .profiler_options import ProfilerOptions, StructuredOptions, \
-    DataLabelerOptions
+from .profiler_options import ProfilerOptions, StructuredOptions
 
 
 class StructuredDataProfile(object):

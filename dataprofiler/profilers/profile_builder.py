@@ -627,7 +627,7 @@ class Profiler(object):
    
     @staticmethod
     def _update_profile_from_chunk(df, profile=None, sample_size=None,
-                                   min_true_samples=0, options=None):
+                                   min_true_samples=None, options=None):
         """
         Iterate over the columns of a dataset and identify its parameters.
         

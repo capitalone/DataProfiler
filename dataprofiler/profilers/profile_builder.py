@@ -129,7 +129,6 @@ class StructuredDataProfile(object):
             for profile in self.profiles.values():
                 profile.update_profile(clean_sampled_df, pool)
 
-
     def __add__(self, other):
         """
         Merges two Structured profiles together overriding the `+` operator.
@@ -329,6 +328,7 @@ class StructuredDataProfile(object):
 
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
+        original_index = df_series.index
 
         # Select generator depending if sample_ids availablity
         if sample_ids is None:
@@ -384,7 +384,7 @@ class StructuredDataProfile(object):
 
         base_stats = {
             "sample_size": total_sample_size,
-            "sample_ids": sample_ids_used,
+            "sample_ids": original_index[sample_ids_used].tolist(),
             "null_count": total_na,
             "null_types": na_columns,
             "sample": random.sample(list(df_series.values),

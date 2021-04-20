@@ -289,7 +289,7 @@ class StructuredDataProfile(object):
         len_df = len(df_series)
         if not len_df:
             return df_series, {
-                "sample_size": 0, "null_count": 0,
+                "sample_size": 0, "sample_ids": [], "null_count": 0,
                 "null_types": dict(), "sample": []
             }
 
@@ -665,7 +665,7 @@ class Profiler(object):
                 cpu_count = min(cpu_count-1, 4)
                 try: 
                     pool = mp.Pool(cpu_count)
-                    print("Utilizing",cpu_count, "processes for profiling")
+                    print("Utilizing", cpu_count, "processes for profiling")
                 except Exception as e:
                     pool = None
                     warnings.warn(

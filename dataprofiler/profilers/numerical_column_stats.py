@@ -51,7 +51,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.max = None
         self.sum = 0
         self.variance = 0
-        self.max_histogram_bin = 10000
+        self.max_histogram_bin = 100000
         self.min_histogram_bin = 1000
         self.histogram_bin_method_names = [
             'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'

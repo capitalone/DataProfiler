@@ -5,7 +5,7 @@ import random
 import math
 import warnings
 import numpy as np
-
+import multiprocessing as mp
 
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
@@ -159,3 +159,35 @@ def partition(data, chunk_size):
     for idx in range(0, len(data), chunk_size):
         yield data[idx:idx+chunk_size]
 
+
+def generate_pool(max_pool_size=4):
+    """
+    Generate a multiprocessing pool to allocate functions too
+
+    :param max_pool_size: Max number of processes assigned to the pool
+    :type max_pool_size: int
+    :return pool: Multiprocessing pool to allocate processes to
+    :rtype pool: Multiproessing.Pool
+    :return cpu_count: Number of processes (cpu bound) to utilize
+    :rtype cpu_count: int
+    """
+    pool, cpu_count = None, 1
+    try:
+        cpu_count = mp.cpu_count()
+    except NotImplementedError as e:
+        cpu_count = 1
+
+    # Always leave 1 cores free 
+    if cpu_count > 2:
+        cpu_count = min(cpu_count-1, max_pool_size)
+        try:
+            pool = mp.Pool(cpu_count)
+            print("Utilizing",cpu_count, "processes for profiling")
+        except Exception as e:
+            pool = None
+            warnings.warn(
+                'Multiprocessing disabled, please change the multiprocessing'+
+                ' start method, via: multiprocessing.set_start_method(<method>)'+
+                ' Possible methods include: fork, spawn, forkserver, None'
+            )            
+    return pool, cpu_count

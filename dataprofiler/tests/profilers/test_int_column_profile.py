@@ -302,8 +302,8 @@ class TestIntColumn(unittest.TestCase):
             expected_quartiles = expected_profile.pop('quantiles')
 
             self.assertDictEqual(expected_profile, profile)
-            self.assertCountEqual(expected_histogram['bin_counts'],
-                                  histogram['bin_counts'])
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
 
@@ -389,8 +389,8 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler3.histogram_selection, 'doane')
         self.assertEqual(profiler3.min,expected_profile.pop('min'))
         self.assertEqual(profiler3.max,expected_profile.pop('max'))
-        self.assertCountEqual(histogram['bin_counts'],
-                              expected_histogram['bin_counts'])
+        self.assertEqual(histogram['bin_counts'].tolist(),
+                         expected_histogram['bin_counts'].tolist())
         self.assertCountEqual(histogram['bin_edges'],
                               expected_histogram['bin_edges'])
 

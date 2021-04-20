@@ -343,8 +343,10 @@ class TestFloatColumn(unittest.TestCase):
             'bin_edges': np.array([-2., -1.,  0.,  1.,  2.]),
         }
 
-        self.assertCountEqual(histogram['bin_counts'], expected_histogram['bin_counts'])
-        self.assertCountEqual(histogram['bin_edges'], expected_histogram['bin_edges'])
+        self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                         histogram['bin_counts'].tolist())
+        self.assertCountEqual(expected_histogram['bin_edges'],
+                              histogram['bin_edges'])
 
     def test_profiled_histogram(self):
         """
@@ -403,8 +405,8 @@ class TestFloatColumn(unittest.TestCase):
             profile = profiler.profile
             histogram = profile['histogram']
 
-            self.assertCountEqual(expected_histogram['bin_counts'],
-                                  histogram['bin_counts'])
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                                  histogram['bin_counts'].tolist())
             if i != 4:
                 self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
@@ -447,8 +449,8 @@ class TestFloatColumn(unittest.TestCase):
             self.assertIsNotNone(profiler.histogram_selection)
             histogram = profile['histogram']
 
-            self.assertCountEqual(expected_histogram['bin_counts'],
-                                  histogram['bin_counts'])
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
 
@@ -464,8 +466,8 @@ class TestFloatColumn(unittest.TestCase):
         profile = merged_profiler.profile
         self.assertIsNotNone(merged_profiler.histogram_selection)
         histogram = profile['histogram']
-        self.assertCountEqual(expected_histogram['bin_counts'],
-                              histogram['bin_counts'])
+        self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                         histogram['bin_counts'].tolist())
         self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                               np.round(histogram['bin_edges'], 12))
 
@@ -597,7 +599,7 @@ class TestFloatColumn(unittest.TestCase):
             np.array([1.0, 3.0, 5.0, 7.0])
         array_from_histogram = profiler._histogram_to_array()
         expected_array = [1.0, 1.0, 1.0, 3.0, 3.0, 7.0]
-        self.assertCountEqual(array_from_histogram, expected_array)
+        self.assertEqual(expected_array, array_from_histogram.tolist())
 
     def test_merge_histogram(self):
         data = pd.Series([], dtype=object)
@@ -613,7 +615,8 @@ class TestFloatColumn(unittest.TestCase):
 
         expected_bin_counts, expected_bin_edges = \
             [5, 2, 2], [0.5, 2.0, 3.5, 5.0]
-        self.assertCountEqual(expected_bin_counts, merged_hist['bin_counts'])
+        self.assertEqual(expected_bin_counts,
+                         merged_hist['bin_counts'].tolist())
         self.assertCountEqual(expected_bin_edges, merged_hist['bin_edges'])
 
     def test_profiled_quantiles(self):
@@ -707,8 +710,8 @@ class TestFloatColumn(unittest.TestCase):
             print(profile['times'])
             self.assertDictEqual(expected_profile, profile)
             self.assertDictEqual(expected_profile['precision'], profile['precision'])
-            self.assertCountEqual(expected_histogram['bin_counts'],
-                                  histogram['bin_counts'])
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
 
@@ -815,8 +818,8 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler3.histogram_selection, 'doane')
         self.assertEqual(profiler3.min, expected_profile.pop('min'))
         self.assertEqual(profiler3.max, expected_profile.pop('max'))
-        self.assertCountEqual(histogram['bin_counts'],
-                              expected_histogram['bin_counts'])
+        self.assertEqual(histogram['bin_counts'].tolist(),
+                         expected_histogram['bin_counts'].tolist())
         self.assertCountEqual(histogram['bin_edges'],
                               expected_histogram['bin_edges'])
 

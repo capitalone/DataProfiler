@@ -362,9 +362,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _get_histogram(self, values):
         """
-        Get histogram from values and bin method, using np.histogram
-        :param values: input values
-        :type values: np.array or pd.Series
+        Calculates the stored histogram the suggested bin counts for each
+        histogram method, uses np.histogram
+        
+        :param values: input data values
+        :type values: Union[np.array, pd.Series]
         :return: bin edges and bin counts
         """
         if len(np.unique(values)) == 1:
@@ -375,8 +377,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 unique_value = values.iloc[0]
             bin_edges = np.array([unique_value, unique_value])
             for i, bin_method in enumerate(self.histogram_bin_method_names):
-                self.histogram_methods[bin_method]['histogram']['bin_counts'] = \
-                    bin_counts
+                self.histogram_methods[bin_method]['histogram'][
+                    'bin_counts'] = bin_counts
                 self.histogram_methods[bin_method]['histogram'][
                     'bin_edges'] = bin_edges
                 self.histogram_methods[bin_method]['suggested_bin_count'] = 1

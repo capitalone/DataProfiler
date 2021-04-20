@@ -5,6 +5,7 @@ from .profiler_options import TextOptions
 from . import utils
 import itertools
 
+
 class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     """
     Text column profile subclass of BaseColumnProfiler. Represents a column in
@@ -63,9 +64,6 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         
         :return:
         """
-        histogram_method = self.histogram_bin_method_names[0]
-        if self.histogram_selection is not None:
-            histogram_method = self.histogram_selection
 
         profile = dict(
             min=self.min,
@@ -73,7 +71,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             mean=self.mean,
             variance=self.variance,
             stddev=self.stddev,
-            histogram=self.histogram_methods[histogram_method]['histogram'],
+            histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             vocab=self.vocab,
             times=self.times
@@ -91,7 +89,6 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :rtype: float
         """
         return 1.0 if self.sample_size else None
-
     
     @BaseColumnProfiler._timeit(name='vocab')
     def _update_vocab(self, data, prev_dependent_properties=None,

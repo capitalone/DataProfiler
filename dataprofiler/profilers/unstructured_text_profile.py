@@ -57,6 +57,31 @@ class TextProfiler(object):
         }
         BaseColumnProfiler._filter_properties_w_options(self.__calculations, options)
 
+    def _add_helper(self, other1, other2):
+        """
+        Merges the properties of two BaseColumnProfile objects
+
+        :param other1: first profile
+        :param other2: second profile
+        :type other1: BaseColumnProfiler
+        :type other2: BaseColumnProfiler
+        """
+        if other1.name == other2.name:
+            self.name = other1.name
+        else:
+            raise ValueError("Text names unmatched: {} != {}"
+                             .format(other1.name, other2.name))
+
+        self.times = defaultdict(
+            float, {key: (other1.times.get(key, 0)
+                          + other2.times.get(key, 0)
+                          + self.times.get(key, 0))
+                    for key in (set(other1.times) | set(other2.times)
+                                | set(self.times))}
+        )
+
+        self.sample_size = other1.sample_size + other2.sample_size
+
     def __add__(self, other):
         """
         Merges the properties of two TextProfiler profiles
@@ -72,12 +97,37 @@ class TextProfiler(object):
                             "'TextProfiler' and '{}'".format(
                 other.__class__.__name__))
         merged_profile = TextProfiler(None)
+        
+        if self.name == other.name:
+            merged_profile.name = self.name
+        else:
+            raise ValueError("Text names unmatched: {} != {}"
+                             .format(self.name, other.name))
 
-        self._merge_calculations(merged_profile.__calculations,
+        merged_profile.times = defaultdict(
+            float, {key: (self.times.get(key, 0)
+                          + other.times.get(key, 0))
+                    for key in (set(self.times) | set(other.times))}
+        )
+        
+        BaseColumnProfiler._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,
                                  other.__calculations)
 
-        raise NotImplementedError()
+        if "vocab" in merged_profile.__calculations:
+            merged_profile.vocab = self.vocab.copy()
+            merged_profile._update_vocab(other.vocab)
+            
+        if "words" in merged_profile.__calculations:
+            merged_profile.word_count = self.word_count.copy()
+            for word in other.word_count:
+                if word in merged_profile.word_count:
+                    merged_profile.word_count[word] += other.word_count[word]
+                elif word not in self._stop_words:
+                    merged_profile.word_count[word] = other.word_count[word]
+                    
+        merged_profile.sample_size = self.sample_size + other.sample_size
+
         return merged_profile
 
     @property

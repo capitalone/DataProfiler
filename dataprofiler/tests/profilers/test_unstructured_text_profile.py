@@ -103,3 +103,39 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         # Assert timing is occurring
         self.assertIn("vocab", profile["times"])
         self.assertIn("words", profile["times"])
+        
+    def test_merge_profiles(self):
+        text_profile1 = TextProfiler("Name")
+        sample = pd.Series(["Hello my name is Grant"])
+        text_profile1.update(sample)
+        
+        text_profile2 = TextProfiler("Name")
+        sample = pd.Series(["Bob and Grant are friends"])
+        text_profile2.update(sample)
+        
+        text_profile3 = text_profile1 + text_profile2
+        profile = text_profile3.profile
+        
+        self.assertEqual("Name", text_profile3.name)
+        
+        # Assert sample size is accurate
+        self.assertEqual(2, text_profile3.sample_size)
+        
+        # Assert vocab is correct
+        expected_vocab = ['y', 'e', 'G', 'H', 'r', 'b', 'l', 's', 'm',
+                          't', 'i', 'B', 'd', 'f', 'o', ' ', 'n', 'a']
+        self.assertListEqual(sorted(expected_vocab), sorted(profile['vocab']))
+        
+        # Assert words is correct and stop words are not present
+        expected_words = ['Hello', 'name', 'Grant', 'Bob', 'friends']
+        self.assertListEqual(expected_words, profile['words'])
+        self.assertNotIn("is", profile['words'])
+
+        # Assert word counts are correct
+        expected_word_count = {'Hello': 1, 'name': 1, 'Grant': 2, 'Bob': 1,
+                               'friends': 1}
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+        
+        # Assert timing is occurring
+        self.assertIn("vocab", profile["times"])
+        self.assertIn("words", profile["times"])

@@ -440,16 +440,16 @@ class TestFloatColumn(unittest.TestCase):
         profiler = FloatColumn("test")
         for i, (df, expected_histogram) in enumerate(list_data_test):
             profiler.update(df)
-            self.assertIsNone(profiler._profile_histogram)
+            self.assertIsNone(profiler.histogram_selection)
 
             profile = profiler.profile
-            self.assertIsNotNone(profiler._profile_histogram)
+            self.assertIsNotNone(profiler.histogram_selection)
             histogram = profile['histogram']
 
             self.assertCountEqual(expected_histogram['bin_counts'],
                                   histogram['bin_counts'])
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
-                              np.round(histogram['bin_edges'], 12))
+                                  np.round(histogram['bin_edges'], 12))
 
         # apply test to merging profiles
         expected_histogram = {
@@ -458,16 +458,15 @@ class TestFloatColumn(unittest.TestCase):
             'bin_counts': np.array([6, 4, 2, 0, 2, 0, 2])
         }
         merged_profiler = profiler + profiler
-        self.assertIsNone(merged_profiler._profile_histogram)
+        self.assertIsNone(merged_profiler.histogram_selection)
 
         profile = merged_profiler.profile
-        self.assertIsNotNone(merged_profiler._profile_histogram)
+        self.assertIsNotNone(merged_profiler.histogram_selection)
         histogram = profile['histogram']
         self.assertCountEqual(expected_histogram['bin_counts'],
                               histogram['bin_counts'])
         self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                               np.round(histogram['bin_edges'], 12))
-
 
     def test_histogram_with_varying_number_of_bin(self):
         """
@@ -496,41 +495,37 @@ class TestFloatColumn(unittest.TestCase):
         profiler2.max_histogram_bin = 10000
         profiler2.update(df2)
         num_bins = len(profiler2.profile['histogram']['bin_counts'])
-        self.assertEqual(num_bins, 10000)
+        self.assertEqual(num_bins, 6)
 
     def test_estimate_stats_from_histogram(self):
         data = pd.Series([], dtype=object)
         profiler = FloatColumn(data.name)
         profiler.update(data)
-        profiler.histogram_methods['auto']['histogram']['bin_counts'] = \
+        profiler._stored_histogram['histogram']['bin_counts'] = \
             np.array([1, 2, 1])
-        profiler.histogram_methods['auto']['histogram']['bin_edges'] = \
+        profiler._stored_histogram['histogram']['bin_edges'] = \
             np.array([1.0, 3.0, 5.0, 7.0])
         expected_mean = (2.0 * 1 + 4.0 * 2 + 6.0 * 1) / 4
         expected_var = (1 * (2.0 - expected_mean) ** 2
                         + 2 * (4.0 - expected_mean) ** 2
                         + 1 * (6.0 - expected_mean) ** 2) / 4
         expected_std = np.sqrt(expected_var)
-        est_mean, est_var, est_std = profiler._estimate_stats_from_histogram(
-            method='auto')
-        self.assertEqual(expected_mean, est_mean)
+        est_var = profiler._estimate_stats_from_histogram()
         self.assertEqual(expected_var, est_var)
-        self.assertEqual(expected_std, est_std)
 
     def test_total_histogram_bin_variance(self):
         data = pd.Series([], dtype=object)
         profiler = FloatColumn(data.name)
         profiler.update(data)
-        profiler.histogram_methods['auto']['histogram']['bin_counts'] = \
+        profiler._stored_histogram['histogram']['bin_counts'] = \
             np.array([3, 2, 1])
-        profiler.histogram_methods['auto']['histogram']['bin_edges'] = \
+        profiler._stored_histogram['histogram']['bin_edges'] = \
             np.array([1.0, 3.0, 5.0, 7.0])
         input_array = np.array([1.1, 1.5, 2.3, 3.5, 4.0, 6.5])
         expected_total_var = np.array([1.1, 1.5, 2.3]).var() \
                              + np.array([3.5, 4.0]).var() \
                              + np.array([6.5]).var()
-        est_total_var = profiler._total_histogram_bin_variance(
-            input_array, method='auto')
+        est_total_var = profiler._total_histogram_bin_variance(input_array)
         self.assertEqual(expected_total_var, est_total_var)
 
     def test_histogram_loss(self):
@@ -595,11 +590,11 @@ class TestFloatColumn(unittest.TestCase):
         data = pd.Series([], dtype=object)
         profiler = FloatColumn(data.name)
         profiler.update(data)
-        profiler.histogram_methods['auto']['histogram']['bin_counts'] = \
+        profiler._stored_histogram['histogram']['bin_counts'] = \
             np.array([3, 2, 1])
-        profiler.histogram_methods['auto']['histogram']['bin_edges'] = \
+        profiler._stored_histogram['histogram']['bin_edges'] = \
             np.array([1.0, 3.0, 5.0, 7.0])
-        array_from_histogram = profiler._histogram_to_array('auto')
+        array_from_histogram = profiler._histogram_to_array()
         expected_array = [1.0, 1.0, 1.0, 3.0, 3.0, 7.0]
         self.assertCountEqual(array_from_histogram, expected_array)
 
@@ -607,13 +602,12 @@ class TestFloatColumn(unittest.TestCase):
         data = pd.Series([], dtype=object)
         profiler = FloatColumn(data.name)
         profiler.update(data)
-        profiler.histogram_methods['sqrt']['histogram']['bin_counts'] = \
-            np.array([3, 2])
-        profiler.histogram_methods['sqrt']['histogram']['bin_edges'] = \
+        profiler._stored_histogram['histogram']['bin_counts'] = np.array([3, 2])
+        profiler._stored_histogram['histogram']['bin_edges'] = \
             np.array([1.0, 3.0, 5.0])
         input_array = [0.5, 1.0, 2.0, 5.0]
 
-        profiler._merge_histogram(input_array, 'sqrt')
+        profiler._merge_histogram(input_array)
         merged_hist = profiler._histogram_for_profile('sqrt')[0]
 
         expected_bin_counts, expected_bin_edges = \
@@ -681,7 +675,7 @@ class TestFloatColumn(unittest.TestCase):
                 1: 5.005 ,
                 2: 12.4925,
             },
-            times=defaultdict(float, {'histogram_and_quantiles': 15.0,
+            times=defaultdict(float, {'histogram_and_quantiles': 1.0,
                                       'precision': 1.0, 'max': 1.0, 'min': 1.0,
                                       'sum': 1.0, 'variance': 1.0}),
             precision={
@@ -709,6 +703,7 @@ class TestFloatColumn(unittest.TestCase):
             quantiles = profile.pop('quantiles')
             expected_quantiles = expected_profile.pop('quantiles')
 
+            print(profile['times'])
             self.assertDictEqual(expected_profile, profile)
             self.assertDictEqual(expected_profile['precision'], profile['precision'])
             self.assertCountEqual(expected_histogram['bin_counts'],
@@ -724,7 +719,7 @@ class TestFloatColumn(unittest.TestCase):
             profiler.update(df)
             expected = defaultdict(float, {'min': 2.0, 'max': 2.0, 'sum': 2.0,
                                            'variance': 2.0, 'precision': 2.0,
-                                           'histogram_and_quantiles': 30.0})
+                                           'histogram_and_quantiles': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
 
     def test_option_precision(self):
@@ -801,7 +796,7 @@ class TestFloatColumn(unittest.TestCase):
             stddev=np.sqrt(30.916),
             histogram={
                 'bin_counts': np.array([1, 1, 1, 1]),
-                'bin_edges': np.array([2.,5.25,8.5,11.75,15.])
+                'bin_edges': np.array([2., 5.25, 8.5, 11.75, 15.])
             },
         )
 
@@ -816,7 +811,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertAlmostEqual(profiler3.variance,
                                expected_profile.pop('variance'), places=3)
         self.assertEqual(profiler3.mean, expected_profile.pop('mean'))
-        self.assertEqual(profiler3.histogram_selection, 'rice')
+        self.assertEqual(profiler3.histogram_selection, 'doane')
         self.assertEqual(profiler3.min, expected_profile.pop('min'))
         self.assertEqual(profiler3.max, expected_profile.pop('max'))
         self.assertCountEqual(histogram['bin_counts'],
@@ -956,8 +951,9 @@ class TestFloatColumn(unittest.TestCase):
             self.assertIn(warning2, list_of_warning_messages)
 
         # Assert that these features are still merged
-        self.assertEqual("rice", profiler3.histogram_selection)
-        self.assertEqual(21.5, profiler3.variance)
+        profile = profiler3.profile
+        self.assertEqual("doane", profiler3.histogram_selection)
+        self.assertEqual(21.5, profile['variance'])
         self.assertEqual(45.0, profiler3.sum)
 
         # Assert that these features are not calculated
@@ -1015,7 +1011,7 @@ class TestFloatColumn(unittest.TestCase):
         # case when more than 1 unique value, by virtue of a streaming update
         num_profiler.update(pd.Series(['2']))
         self.assertEqual(
-            100,
-            len(num_profiler.histogram_methods['custom']['histogram'][
-                    'bin_counts'])
-        )
+            100, len(num_profiler._stored_histogram['histogram']['bin_counts']))
+
+        histogram, _ = num_profiler._histogram_for_profile('custom')
+        self.assertEqual(100, len(histogram['bin_counts']))

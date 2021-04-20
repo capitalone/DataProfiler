@@ -282,7 +282,7 @@ class TestIntColumn(unittest.TestCase):
                 2: 5.998,  # halfway between between 14 / 3 and 6
             },
             times=defaultdict(
-                float, {'histogram_and_quantiles': 15.0, 'max': 1.0, 'min': 1.0,
+                float, {'histogram_and_quantiles': 1.0, 'max': 1.0, 'min': 1.0,
                         'sum': 1.0, 'variance': 1.0})
             
         )
@@ -313,7 +313,7 @@ class TestIntColumn(unittest.TestCase):
 
             expected = defaultdict(
                 float, {'min': 1.0, 'max': 1.0, 'sum': 1.0, 'variance': 1.0,
-                        'histogram_and_quantiles': 15.0})
+                        'histogram_and_quantiles': 1.0})
             self.assertEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second
@@ -321,7 +321,7 @@ class TestIntColumn(unittest.TestCase):
             profiler.update(df)
             expected = defaultdict(
                 float, {'min': 2.0, 'max': 2.0, 'sum': 2.0, 'variance': 2.0,
-                        'histogram_and_quantiles': 30.0})
+                        'histogram_and_quantiles': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
 
     def test_option_timing(self):
@@ -343,13 +343,13 @@ class TestIntColumn(unittest.TestCase):
             profile = profiler.profile
 
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0, 'variance': 1.0, \
-                                           'histogram_and_quantiles': 15.0})
+                                           'histogram_and_quantiles': 1.0})
             self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0, 'variance': 2.0, \
-                                           'histogram_and_quantiles': 30.0})
+                                           'histogram_and_quantiles': 2.0})
             self.assertCountEqual(expected, profiler.profile['times'])
 
     def test_profile_merge(self):
@@ -386,7 +386,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertAlmostEqual(profiler3.variance,
                                expected_profile.pop('variance'), places=3)
         self.assertEqual(profiler3.mean,expected_profile.pop('mean'))
-        self.assertEqual(profiler3.histogram_selection, 'rice')
+        self.assertEqual(profiler3.histogram_selection, 'doane')
         self.assertEqual(profiler3.min,expected_profile.pop('min'))
         self.assertEqual(profiler3.max,expected_profile.pop('max'))
         self.assertCountEqual(histogram['bin_counts'],
@@ -518,8 +518,9 @@ class TestIntColumn(unittest.TestCase):
             profiler3 = profiler1 + profiler2
         
         # Assert that these features are still merged
+        profile = profiler3.profile
         self.assertIsNotNone(profiler3.histogram_selection)
-        self.assertIsNotNone(profiler3.variance)
+        self.assertIsNotNone(profile['variance'])
         self.assertIsNotNone(profiler3.sum)
         
         # Assert that these features are not calculated
@@ -563,7 +564,7 @@ class TestIntColumn(unittest.TestCase):
         # case when more than 1 unique value, by virtue of a streaming update
         num_profiler.update(pd.Series(['2']))
         self.assertEqual(
-            100,
-            len(num_profiler.histogram_methods['custom']['histogram'][
-                    'bin_counts'])
-        )
+            100, len(num_profiler._stored_histogram['histogram']['bin_counts']))
+
+        histogram, _ = num_profiler._histogram_for_profile('custom')
+        self.assertEqual(100, len(histogram['bin_counts']))

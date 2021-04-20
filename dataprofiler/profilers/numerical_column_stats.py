@@ -361,7 +361,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         # If we know they are integers, we can limit the data to be as such
         # during conversion
         if not self.__class__.__name__ == 'FloatColumn':
-            array_flatten = array_flatten.astype(int)
+            array_flatten = np.round(array_flatten)
 
         return array_flatten
 

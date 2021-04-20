@@ -89,7 +89,6 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :rtype: float
         """
         return 1.0 if self.sample_size else None
-
     
     @BaseColumnProfiler._timeit(name='vocab')
     def _update_vocab(self, data, prev_dependent_properties=None,

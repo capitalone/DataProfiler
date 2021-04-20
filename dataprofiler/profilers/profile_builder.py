@@ -545,7 +545,7 @@ class Profiler(object):
         )
 
         min_id = min([self._profile[col].sample_ids[-1]
-                      for col in self._profile])
+                      for col in self._profile], default=None)
 
         # Calculate Null Column Count
         null_rows = set()
@@ -557,9 +557,10 @@ class Profiler(object):
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
 
-            # Take null indices up to minimum samples taken across all columns
-            trimmed_sample_ids = self._profile[column].sample_ids[:min_id + 1]
-            null_row_indices = null_row_indices.intersection(trimmed_sample_ids)
+            if min_id is not None:
+                # Take null indices up to minimum samples taken across columns
+                truncated_ids = self._profile[column].sample_ids[:min_id + 1]
+                null_row_indices = null_row_indices.intersection(truncated_ids)
 
             # Find the common null indices between the columns
             if first_col_flag:

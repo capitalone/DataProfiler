@@ -4,7 +4,6 @@ import os
 import sys
 import time
 import logging
-import tempfile
 from collections import defaultdict
 
 import tensorflow as tf

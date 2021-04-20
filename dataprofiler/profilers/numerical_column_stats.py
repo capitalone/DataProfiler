@@ -313,7 +313,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         # reset the edge
         bin_edges[-1] -= 1e-3
 
-        sum_error = (input_array - (bin_edges[inds] + bin_edges[inds - 1])/2) ** 2
+        sum_error = sum(
+            (input_array - (bin_edges[inds] + bin_edges[inds - 1])/2) ** 2
+        )
         return sum_error
 
     @staticmethod

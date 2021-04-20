@@ -341,13 +341,15 @@ class StructuredDataProfile(object):
         na_columns = dict()
         true_sample_list = set()
         total_sample_size = 0
-        sampled_ids = []
+        sample_ids_used = []
         query = '|'.join(null_values_and_flags.keys())
         regex = f"^(?:{(query)})$"
         
         for chunked_sample_ids in sample_ind_generator:
+            if isinstance(chunked_sample_ids, np.ndarray):
+                chunked_sample_ids = chunked_sample_ids.tolist()
             total_sample_size += len(chunked_sample_ids)
-            sampled_ids += chunked_sample_ids
+            sample_ids_used += chunked_sample_ids
             
             # Find subset of series based on randomly selected ids
             df_subset = df_series.iloc[chunked_sample_ids]
@@ -382,7 +384,7 @@ class StructuredDataProfile(object):
 
         base_stats = {
             "sample_size": total_sample_size,
-            "sample_ids": sampled_ids,
+            "sample_ids": sample_ids_used,
             "null_count": total_na,
             "null_types": na_columns,
             "sample": random.sample(list(df_series.values),

@@ -60,10 +60,6 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         
         :return:
         """
-        histogram_method = self.histogram_bin_method_names[0]
-        if self.histogram_selection is not None:
-            histogram_method = self.histogram_selection
-
         profile = dict(
             min=self.np_type_to_type(self.min),
             max=self.np_type_to_type(self.max),

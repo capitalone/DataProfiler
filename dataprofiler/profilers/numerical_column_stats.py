@@ -124,8 +124,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: None
         """
         # get available bin methods and set to current
-        bin_methods = list(set(other1.histogram_bin_method_names) &
-                           set(other2.histogram_bin_method_names))
+        bin_methods = [x for x in other1.histogram_bin_method_names
+                       if x in other2.histogram_bin_method_names]
         if not bin_methods:
             raise ValueError('Profiles have no overlapping bin methods and '
                              'therefore cannot be added together.')
@@ -370,13 +370,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         Get histogram from values and bin method, using np.histogram
         :param values: input values
         :type values: np.array or pd.Series
-        :param bin_method: bin method, e.g., sqrt, rice, etc
-        :type bin_method: str
         :return: bin edges and bin counts
         """
         if len(np.unique(values)) == 1:
             bin_counts = np.array([len(values)])
-            suggested_bin_count = 1
             if isinstance(values, (np.ndarray, list)):
                 unique_value = values[0]
             else:
@@ -387,8 +384,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                     bin_counts
                 self.histogram_methods[bin_method]['histogram'][
                     'bin_edges'] = bin_edges
-                self.histogram_methods[bin_method]['suggested_bin_count'] = \
-                    suggested_bin_count
+                self.histogram_methods[bin_method]['suggested_bin_count'] = 1
         else:
             # if user set the bin count, then use the user set count to
             n_equal_bins = suggested_bin_count = self.min_histogram_bin

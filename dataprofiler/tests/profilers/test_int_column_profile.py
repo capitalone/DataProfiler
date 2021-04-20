@@ -371,7 +371,7 @@ class TestIntColumn(unittest.TestCase):
             stddev=np.sqrt(30.916),
             histogram={
                 'bin_counts': np.array([1, 1, 1, 1]),
-                'bin_edges': np.array([2.,5.25,8.5,11.75,15.])
+                'bin_edges': np.array([2., 5.25, 8.5, 11.75, 15.])
             },
         )
 

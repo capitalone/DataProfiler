@@ -17,7 +17,9 @@ from dataprofiler.profilers.profile_builder import StructuredDataProfile
 from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
-    ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler
+    ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler, \
+    ColumnDataLabelerCompiler
+
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -226,8 +228,7 @@ class TestProfiler(unittest.TestCase):
             report_options={"output_format": "compact" })
 
         self.assertEqual(report, report_compact)        
-        
-        
+                
 
     def test_profile_key_name_without_space(self):
 
@@ -262,8 +263,7 @@ class TestProfiler(unittest.TestCase):
             self.fail(
                 "Dataset tested did not have a non-null column and therefore "
                 "could not validate the test.")
-
-    @mock.patch('dataprofiler.profilers.profile_builder.StructuredDataProfile')
+    
     @mock.patch('dataprofiler.profilers.profile_builder.Profiler._update_row_statistics')
     def test_duplicate_column_names(self, *mocks):
         # validate works first
@@ -324,6 +324,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
                               ColumnPrimitiveTypeProfileCompiler)
         self.assertIsInstance(src_profile.profiles['data_stats_profile'],
                               ColumnStatsProfileCompiler)
+        self.assertIsInstance(src_profile.profiles['data_label_profile'],
+                              ColumnDataLabelerCompiler)
 
         data_types = ['int', 'float', 'datetime', 'text']
         six.assertCountEqual(
@@ -425,7 +427,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
                                     'added together.'):
             profile1 + profile2
 
-    def test_get_base_props_and_clean_null_params(self):
+    def test_clean_data_and_get_base_stats(self):
         data = pd.Series([1, None, 3, 4, None, 6],
                          index=['a', 'b', 'c', 'd', 'e', 'f'])
 
@@ -434,14 +436,35 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         # `df_series = df_series.loc[sorted(true_sample_list)]`
         # which caused errors
         df_series, base_stats = \
-            StructuredDataProfile.get_base_props_and_clean_null_params(
-                self=None, df_series=data[1:], sample_size=6,
-                min_true_samples=0)
+            StructuredDataProfile.clean_data_and_get_base_stats(
+                df_series=data[1:], sample_size=6, min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
                                'sample_size': 5, 'null_count': 2,
-                               'null_types': dict(nan=['e', 'b'])}, base_stats)            
+                               'null_types': dict(nan=['e', 'b'])}, base_stats)
+
+    def test_column_names(self):
+        data = [['a', 1], ['b', 2], ['c', 3]]
+        df = pd.DataFrame(data, columns=['letter', 'number'])
+        profile1 = StructuredDataProfile(df['letter'])
+        profile2 = StructuredDataProfile(df['number'])
+        self.assertEqual(profile1.name, 'letter')
+        self.assertEqual(profile2.name, 'number')
+
+        df_series = pd.Series([1, 2, 3, 4, 5])
+        profile = StructuredDataProfile(df_series)
+        self.assertEqual(profile.name, df_series.name)
+
+        # Ensure issue raised
+        profile = StructuredDataProfile(df['letter'])
+        with self.assertRaises(ValueError) as context:
+            profile.update_profile(df['number'])
+        self.assertTrue(
+            'Column names have changed, col number does not match prior name letter',
+            context
+        )
+        
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
@@ -523,7 +546,6 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(3/24, profile._get_row_is_null_ratio())
 
-
     def test_null_in_file(self):
         filename_null_in_file = os.path.join(
             test_root_path, 'data', 'csv/sparse-first-and-last-column.txt')
@@ -559,9 +581,10 @@ class TestProfilerNullValues(unittest.TestCase):
             # Profile Once
             profile = dp.Profiler(data, profiler_options=profiler_options,
                                   samples_per_update=2)
+
             # Profile Twice
             profile.update_profile(data)
-            
+
             self.assertEqual(16, profile.total_samples)
             self.assertEqual(4, profile._max_col_samples_used)
             self.assertEqual(2, profile.row_has_null_count)
@@ -570,7 +593,7 @@ class TestProfilerNullValues(unittest.TestCase):
             self.assertEqual(0.5, profile._get_row_is_null_ratio())
             self.assertEqual(0.4375, profile._get_unique_row_ratio())
             self.assertEqual(9, profile._get_duplicate_row_count())
-        
+            
         self.assertEqual(col_one_len, len(data['NAME']))
         self.assertEqual(col_two_len, len(data[' VALUE']))
 

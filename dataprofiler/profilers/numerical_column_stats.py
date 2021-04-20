@@ -155,6 +155,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self._stored_histogram['histogram']['bin_counts'] = bin_counts
         self._stored_histogram['histogram']['bin_edges'] = bin_edges
 
+        histogram_loss = self._histogram_bin_error(combined_values)
+        self._stored_histogram['histogram']['current_loss'] = histogram_loss
+        self._stored_histogram['histogram']['total_loss'] = histogram_loss
+
         self._get_quantiles()
 
     def _add_helper(self, other1, other2):
@@ -286,6 +290,36 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             bin_var = elements_in_bin.var()
             sum_var += bin_var
         return sum_var
+
+    def _histogram_bin_error(self, input_array):
+        """
+        Calculate the error of each value from the bin of the histogram it
+        falls within.
+
+        :param input_array: input data used to calculate the histogram
+        :type input_array: Union[np.array, pd.Series]
+        :return: binning error
+        :rtype: float
+        """
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
+
+        # account ofr digitize which is exclusive
+        bin_edges = bin_edges.copy()
+        bin_edges[-1] += 1e-3
+
+        inds = np.digitize(input_array, bin_edges)
+
+        # reset the edge
+        bin_edges[-1] -= 1e-3
+
+        sum_error = 0
+        non_zero_bins = np.where(bin_counts)[0] + 1
+        for i in non_zero_bins:
+            elements_in_bin = input_array[inds == i]
+            bin_error = sum((elements_in_bin - (bin_edges[i] + bin_edges[i-1])/2) ** 2)
+            sum_error += bin_error
+        return sum_error
 
     @staticmethod
     def _histogram_loss(diff_var, avg_diffvar, total_var,
@@ -449,7 +483,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self._stored_histogram['histogram']['bin_edges'] = bin_edges
 
         # update loss for the stored bins
-        histogram_loss = self._estimate_stats_from_histogram()
+        histogram_loss = self._histogram_bin_error(df_series)
         self._stored_histogram['current_loss'] = histogram_loss
         self._stored_histogram['total_loss'] += histogram_loss
         

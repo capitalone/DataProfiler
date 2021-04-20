@@ -17,7 +17,9 @@ from dataprofiler.profilers.profile_builder import StructuredDataProfile
 from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
-    ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler
+    ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler, \
+    ColumnDataLabelerCompiler
+
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -226,8 +228,7 @@ class TestProfiler(unittest.TestCase):
             report_options={"output_format": "compact" })
 
         self.assertEqual(report, report_compact)        
-        
-        
+                
 
     def test_profile_key_name_without_space(self):
 
@@ -323,6 +324,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
                               ColumnPrimitiveTypeProfileCompiler)
         self.assertIsInstance(src_profile.profiles['data_stats_profile'],
                               ColumnStatsProfileCompiler)
+        self.assertIsInstance(src_profile.profiles['data_label_profile'],
+                              ColumnDataLabelerCompiler)
 
         data_types = ['int', 'float', 'datetime', 'text']
         six.assertCountEqual(
@@ -350,7 +353,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
 
         self.assertEqual(3*3, src_profile.null_count)
         self.assertEqual(2999*3, src_profile.sample_size)
-
+        
     @mock.patch('dataprofiler.profilers.column_profile_compilers.'
                 'ColumnPrimitiveTypeProfileCompiler')
     @mock.patch('dataprofiler.profilers.column_profile_compilers.'
@@ -455,8 +458,12 @@ class TestStructuredDataProfileClass(unittest.TestCase):
 
         # Ensure issue raised
         profile = StructuredDataProfile(df['letter'])
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as context:
             profile.update_profile(df['number'])
+        self.assertTrue(
+            'Column names have changed, col number does not match prior name letter',
+            context
+        )
         
 
     def test_update_match_are_abstract(self):
@@ -538,7 +545,6 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(13/24, profile._get_row_has_null_ratio())
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(3/24, profile._get_row_is_null_ratio())
-
 
     def test_null_in_file(self):
         filename_null_in_file = os.path.join(

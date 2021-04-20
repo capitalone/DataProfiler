@@ -65,11 +65,8 @@ class StructuredDataProfile(object):
         self.null_count = 0
         self.null_types = list()
         self.null_types_index = {}
-        self.profiles = {
-            'data_type_profile': None,
-            'data_stats_profile': None
-        }
-
+        self.profiles = {}
+                         
         if df_series is not None and len(df_series) > 0:
             
             if not sample_size:
@@ -89,6 +86,7 @@ class StructuredDataProfile(object):
     def update_type_statistics(self, clean_sampled_df, pool):
         """
         Calculates type statistics and labels dataset
+        
         :param clean_sampled_df: sampled series with none types dropped
         :type clean_sampled_df: Pandas.Series
         :param pool: pool utilized for multiprocessing
@@ -98,10 +96,13 @@ class StructuredDataProfile(object):
         if self.name is None:
             self.name = clean_sampled_df.name
         if self.name != clean_sampled_df.name:
-            raise ValueError('Column names have changed!')
+            raise ValueError(
+                'Column names have changed, col {} does not match prior name {}',
+                clean_sampled_df.name, self.name
+            )
         
         # First run, create the compilers
-        if self.profiles is None or self.profiles['data_type_profile'] is None:
+        if self.profiles is None or len(self.profiles) == 0:
             self.profiles = {
                 'data_type_profile':
                 ColumnPrimitiveTypeProfileCompiler(
@@ -168,9 +169,10 @@ class StructuredDataProfile(object):
         samples = list(dict.fromkeys(self.sample + other.sample))
         merged_profile.sample = random.sample(samples, min(len(samples), 5))
         for profile_name in self.profiles:
-            merged_profile.profiles[profile_name] = (
-                self.profiles[profile_name] + other.profiles[profile_name]
-            )
+            if profile_name in other.profiles:
+                merged_profile.profiles[profile_name] = (
+                    self.profiles[profile_name] + other.profiles[profile_name]
+                )
         return merged_profile
 
     @property

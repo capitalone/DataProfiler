@@ -80,10 +80,10 @@ class StructuredDataProfile(object):
                 self.clean_data_and_get_base_stats(
                     df_series=df_series, sample_size=sample_size,
                     min_true_samples=self._min_true_samples, sample_ids=sample_ids)
-            self.update_type_statistics(clean_sampled_df, pool)
+            self.update_column_profilers(clean_sampled_df, pool)
             self._update_base_stats(base_stats)
 
-    def update_type_statistics(self, clean_sampled_df, pool):
+    def update_column_profilers(self, clean_sampled_df, pool):
         """
         Calculates type statistics and labels dataset
         
@@ -119,7 +119,8 @@ class StructuredDataProfile(object):
             if use_data_labeler:
                 self.profiles.update({
                     'data_label_profile':
-                    ColumnDataLabelerCompiler(clean_sampled_df, self.options)
+                    ColumnDataLabelerCompiler(
+                        clean_sampled_df, self.options, pool)
                 })
         else:
 
@@ -263,7 +264,7 @@ class StructuredDataProfile(object):
             min_true_samples=min_true_samples, sample_ids=sample_ids)
 
         self._update_base_stats(base_stats)
-        self.update_type_statistics(clean_sampled_df, pool)
+        self.update_column_profilers(clean_sampled_df, pool)
 
     def _get_sample_size(self, df_series):
         """
@@ -718,7 +719,7 @@ class Profiler(object):
                 except Exception as e:
                     print(e)
                     single_process_list.add(col)
-                    
+                
             # Iterate through multiprocessed columns collecting results
             print(notification_str)
             for col in tqdm(multi_process_dict.keys()):
@@ -767,7 +768,7 @@ class Profiler(object):
         print(notification_str)
         
         for col in tqdm(df.columns):
-            profile[col].update_type_statistics(clean_sampled_dict[col], pool)
+            profile[col].update_column_profilers(clean_sampled_dict[col], pool)
         if pool is not None:
             pool.close() # Close pool for new tasks
             pool.join() # Wait for all workers to complete

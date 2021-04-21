@@ -57,7 +57,6 @@ class StructuredDataProfile(object):
             self._min_true_samples = 0
 
         self.sample_size = 0
-        self.sample_ids = list()
         self.sample = list()
         self.null_count = 0
         self.null_types = list()
@@ -154,13 +153,13 @@ class StructuredDataProfile(object):
 
         merged_profile.name = self.name
         merged_profile._update_base_stats(
-            {"sample": self.sample, "sample_ids": self.sample_ids,
+            {"sample": self.sample,
              "sample_size": self.sample_size,
              "null_count": self.null_count,
              "null_types": copy.deepcopy(self.null_types_index)}
         )
         merged_profile._update_base_stats(
-            {"sample": other.sample, "sample_ids": other.sample_ids,
+            {"sample": other.sample,
              "sample_size": other.sample_size,
              "null_count": other.null_count,
              "null_types": copy.deepcopy(other.null_types_index)}
@@ -220,7 +219,6 @@ class StructuredDataProfile(object):
     
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
-        self.sample_ids += base_stats["sample_ids"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
         self.null_types = utils._combine_unique_sets(
@@ -318,13 +316,12 @@ class StructuredDataProfile(object):
         len_df = len(df_series)
         if not len_df:
             return df_series, {
-                "sample_size": 0, "sample_ids": [], "null_count": 0,
+                "sample_size": 0, "null_count": 0,
                 "null_types": dict(), "sample": []
             }
 
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
-        original_index = df_series.index
 
         # Select generator depending if sample_ids availability
         if sample_ids is None:
@@ -337,15 +334,11 @@ class StructuredDataProfile(object):
         na_columns = dict()
         true_sample_list = set()
         total_sample_size = 0
-        sample_ids_used = []
         query = '|'.join(null_values_and_flags.keys())
         regex = f"^(?:{(query)})$"
         
         for chunked_sample_ids in sample_ind_generator:
-            if isinstance(chunked_sample_ids, np.ndarray):
-                chunked_sample_ids = chunked_sample_ids.tolist()
             total_sample_size += len(chunked_sample_ids)
-            sample_ids_used += chunked_sample_ids
             
             # Find subset of series based on randomly selected ids
             df_subset = df_series.iloc[chunked_sample_ids]
@@ -380,7 +373,6 @@ class StructuredDataProfile(object):
 
         base_stats = {
             "sample_size": total_sample_size,
-            "sample_ids": original_index[sample_ids_used].tolist(),
             "null_count": total_na,
             "null_types": na_columns,
             "sample": random.sample(list(df_series.values),
@@ -538,7 +530,7 @@ class Profiler(object):
         i.e. every column in the Profile was read up to this row (possibly
         further in some cols)
         """
-        return min([self._profile[col].sample_ids[-1]
+        return min([self._profile[col].sample_size
                     for col in self._profile], default=None)
 
     def report(self, report_options=None):
@@ -607,8 +599,6 @@ class Profiler(object):
             pd.util.hash_pandas_object(data, index=False), True
         )
 
-        min_id = self._complete_rows_sampled
-
         # Calculate Null Column Count
         null_rows = set()
         null_in_row_count = set()
@@ -619,10 +609,9 @@ class Profiler(object):
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
 
-            if min_id is not None:
-                # Take null indices up to minimum samples taken across columns
-                truncated_ids = self._profile[column].sample_ids[:min_id + 1]
-                null_row_indices = null_row_indices.intersection(truncated_ids)
+            if self.complete_row_ids is not None:
+                null_row_indices = \
+                    null_row_indices.intersection(self.complete_row_ids)
 
             # Find the common null indices between the columns
             if first_col_flag:
@@ -795,7 +784,6 @@ class Profiler(object):
             pool.join()  # Wait for all workers to complete
 
         else:  # No pool
-
             print(notification_str)
             for col in tqdm(df.columns):
                 if min_true_samples is None:
@@ -819,6 +807,13 @@ class Profiler(object):
         for col in tqdm(df.columns):
             self._profile[col].update_column_profilers(
                 clean_sampled_dict[col], pool)
+
+        # Calculate complete rows read and store ids for them
+        last_full_row = self._complete_rows_sampled
+        self.complete_row_ids = None
+        if last_full_row is not None:
+            self.complete_row_ids = sample_ids[:last_full_row + 1]
+
         if pool is not None:
-            pool.close() # Close pool for new tasks
-            pool.join() # Wait for all workers to complete
+            pool.close()  # Close pool for new tasks
+            pool.join()  # Wait for all workers to complete

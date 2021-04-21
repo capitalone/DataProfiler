@@ -203,13 +203,12 @@ class TestProfiler(unittest.TestCase):
         })
 
     def test_report_omit_keys(self):
-        omit_keys = [ 'global_stats', 'data_stats' ]
+        omit_keys = ['global_stats', 'data_stats']
                 
         report_omit_keys = self.trained_schema.report(
             report_options={ "omit_keys": omit_keys })
         
         self.assertCountEqual({}, report_omit_keys)
-
 
     def test_report_compact(self):
         report = self.trained_schema.report(
@@ -225,10 +224,9 @@ class TestProfiler(unittest.TestCase):
         report = _prepare_report(report, 'pretty', omit_keys)
         
         report_compact = self.trained_schema.report(
-            report_options={"output_format": "compact" })
+            report_options={"output_format": "compact"})
 
-        self.assertEqual(report, report_compact)        
-                
+        self.assertEqual(report, report_compact)
 
     def test_profile_key_name_without_space(self):
 
@@ -288,13 +286,16 @@ class TestProfiler(unittest.TestCase):
                                                ' to Profiler'):
             profile = dp.Profiler(dp.Data(text_file_path))
 
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
-                'ColumnPrimitiveTypeProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
-                'ColumnStatsProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
-                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch('dataprofiler.profilers.profile_builder.Profiler.'
+                '_update_row_statistics')
+    @mock.patch('dataprofiler.profilers.profile_builder.StructuredDataProfile')
     def test_sample_size_warning_in_the_profiler(self, *mocks):
+        # structure data profile mock
+        sdp_mock = mock.Mock()
+        sdp_mock.clean_data_and_get_base_stats.return_value = (None, None)
+        mocks[0].return_value = sdp_mock
+
         data = pd.DataFrame([1, None, 3, 4, 5, None])
         with self.assertWarnsRegex(UserWarning,
                                    "The data will be profiled with a sample "
@@ -464,7 +465,6 @@ class TestStructuredDataProfileClass(unittest.TestCase):
             'Column names have changed, col number does not match prior name letter',
             context
         )
-        
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
@@ -493,12 +493,68 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile = StructuredDataProfile(column, sample_size=len(column))
         self.assertEqual(10, profile.null_count)
 
-
     def test_generating_report_ensure_no_error(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/diamonds.csv')
         data = pd.read_csv(file_path)
         profile = dp.Profiler(data[:1000])
-        readable_report = profile.report(report_options={"output_format":"compact"})
+        readable_report = profile.report(
+            report_options={"output_format": "compact"})
+
+    def test_get_sample_size(self):
+        data = pd.DataFrame([0] * int(50e3))
+
+        # test data size < min_sample_size = 5000 by default
+        profiler = dp.Profiler(pd.DataFrame([]))
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        sample_size = profiler._get_sample_size(data[:1000])
+        self.assertEqual(1000, sample_size)
+
+        # test data size * 0.20 < min_sample_size < data size
+        sample_size = profiler._get_sample_size(data[:10000])
+        self.assertEqual(5000, sample_size)
+
+        # test min_sample_size > data size * 0.20
+        sample_size = profiler._get_sample_size(data)
+        self.assertEqual(10000, sample_size)
+
+        # test min_sample_size > data size * 0.10
+        profiler._sampling_ratio = 0.5
+        sample_size = profiler._get_sample_size(data)
+        self.assertEqual(25000, sample_size)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.Profiler.'
+                '_update_profile_from_chunk')
+    def test_sample_size_passed_to_profile(self, *mocks):
+
+        update_mock = mocks[0]
+
+        # data setup
+        data = pd.DataFrame([0] * int(50e3))
+
+        # option setup
+        profiler_options = ProfilerOptions()
+        profiler_options.structured_options.multiprocess.is_enabled = False
+        profiler_options.set({'data_labeler.is_enabled': False})
+
+        # test data size < min_sample_size = 5000 by default
+        profiler = dp.Profiler(data[:1000], profiler_options=profiler_options)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        self.assertEqual(1000, update_mock.call_args[0][1])
+
+        # test data size * 0.20 < min_sample_size < data size
+        profiler = dp.Profiler(data[:10000], profiler_options=profiler_options)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        self.assertEqual(5000, update_mock.call_args[0][1])
+
+        # test min_sample_size > data size * 0.20
+        profiler = dp.Profiler(data, profiler_options=profiler_options)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        self.assertEqual(10000, update_mock.call_args[0][1])
+
 
 class TestProfilerNullValues(unittest.TestCase):
 
@@ -596,6 +652,7 @@ class TestProfilerNullValues(unittest.TestCase):
             
         self.assertEqual(col_one_len, len(data['NAME']))
         self.assertEqual(col_two_len, len(data[' VALUE']))
+
 
 if __name__ == '__main__':
     unittest.main()

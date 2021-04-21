@@ -418,6 +418,7 @@ class Profiler(object):
         self.hashed_row_dict = dict()
         self._samples_per_update = samples_per_update
         self._min_true_samples = min_true_samples
+        self.complete_row_ids = None
         self._profile = dict()
 
         # matches structured data profile
@@ -810,7 +811,6 @@ class Profiler(object):
 
         # Calculate complete rows read and store ids for them
         last_full_row = self._complete_rows_sampled
-        self.complete_row_ids = None
         if last_full_row is not None:
             self.complete_row_ids = sample_ids[:last_full_row + 1].tolist()
 

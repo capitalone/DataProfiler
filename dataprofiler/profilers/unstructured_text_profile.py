@@ -1,6 +1,8 @@
 from collections import defaultdict
-from . import utils, BaseColumnProfiler
 import itertools
+
+from . import utils, BaseColumnProfiler
+
 
 class TextProfiler(object):
     type = 'unstructured_text'
@@ -20,6 +22,7 @@ class TextProfiler(object):
         self.vocab = set()
         self.word_count = defaultdict(int)
         self.metadata = dict()
+        self.case_sensitive = True
 
         # TODO: Add line length
         #self.line_length = {'max': None, 'min': None,...} #numeric stats mixin?
@@ -121,10 +124,8 @@ class TextProfiler(object):
         if "words" in merged_profile.__calculations:
             merged_profile.word_count = self.word_count.copy()
             for word in other.word_count:
-                if word in merged_profile.word_count:
+                if word.lower() not in self._stop_words:
                     merged_profile.word_count[word] += other.word_count[word]
-                elif word not in self._stop_words:
-                    merged_profile.word_count[word] = other.word_count[word]
                     
         merged_profile.sample_size = self.sample_size + other.sample_size
 
@@ -180,11 +181,10 @@ class TextProfiler(object):
         :type subset_properties: dict
         :return: None
         """
-        for word in list(" ".join(data).split(" ")):
-            if word in self.word_count:
-                self.word_count[word] += 1
-            elif word not in self._stop_words:
-                self.word_count[word] = 1
+        for row in data:
+            for word in row.split(" "):
+                if word.lower() not in self._stop_words:
+                    self.word_count[word] += 1
 
     def _update_helper(self, data, profile):
         """

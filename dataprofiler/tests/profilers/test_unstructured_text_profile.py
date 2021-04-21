@@ -1,13 +1,11 @@
 import unittest
-from unittest import mock
-from collections import defaultdict
 
 import pandas as pd
 
 from dataprofiler.profilers.unstructured_text_profile import TextProfiler
 
+
 class TestUnstructuredTextProfile(unittest.TestCase):
-    
     
     def test_text_profile_update_and_name(self):
         text_profile = TextProfiler("Name")
@@ -15,8 +13,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                             "Bob and Grant are friends"])
         text_profile.update(sample)
         self.assertEqual("Name", text_profile.name)
-
-        
+      
     def test_vocab(self):
         text_profile = TextProfiler("Name")
         sample = pd.Series(["Hello my name is Grant",
@@ -41,7 +38,6 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                           's', 't', 'w', 'y']
         self.assertListEqual(sorted(expected_vocab), sorted(profile['vocab']))
 
- 
     def test_words_and_word_count(self):
         text_profile = TextProfiler("Name")
         sample = pd.Series(["Hello my name is Grant",

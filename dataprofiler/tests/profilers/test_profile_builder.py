@@ -310,8 +310,8 @@ class TestProfiler(unittest.TestCase):
                               profiler_options=opts)
         # Rows 2, 4, 5, 6, 7 are sampled in first column
         # Therefore only those rows should be considered for null calculations
-        # The only null in those rows in second column in that subset is row 1
-        # Therefore only 1 row has null according to row_has_null_count
+        # The only null in those rows in second column in that subset are 5, 7
+        # Therefore only 2 rows have null according to row_has_null_count
         self.assertEqual(0, profile.row_is_null_count)
         self.assertEqual(2, profile.row_has_null_count)
 

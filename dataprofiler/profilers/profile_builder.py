@@ -426,6 +426,24 @@ class Profiler(object):
         if isinstance(data, data_readers.text_data.TextData):
             raise TypeError("Cannot provide TextData object to Profiler")
 
+        # assign data labeler
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+
+            try:
+
+                data_labeler = DataLabeler(
+                    labeler_type='structured',
+                    dirpath=data_labeler_options.data_labeler_dirpath,
+                    load_options=None)
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
+
         if len(data):
             self.update_profile(data)
 
@@ -646,24 +664,6 @@ class Profiler(object):
         if len(df.columns) != len(df.columns.unique()):
             raise ValueError('`Profiler` does not currently support data which '
                              'contains columns with duplicate names.')
-
-        # assign data labeler
-        data_labeler_options = self.options.structured_options.data_labeler
-        if data_labeler_options.is_enabled \
-                and data_labeler_options.data_labeler_object is None:
-
-            try:
-
-                data_labeler = DataLabeler(
-                    labeler_type='structured',
-                    dirpath=data_labeler_options.data_labeler_dirpath,
-                    load_options=None)
-                self.options.set(
-                    {'data_labeler.data_labeler_object': data_labeler})
-
-            except Exception as e:
-                utils.warn_on_profile('data_labeler', e)
-                self.options.set({'data_labeler.is_enabled': False})
 
         try:
             from tqdm import tqdm

@@ -218,6 +218,7 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
     :return cpu_count: Number of processes (cpu bound) to utilize
     :rtype cpu_count: int
     """
+
     suggested_pool_size = suggest_pool_size(data_size, cols)
     if max_pool_size is None: # generate estimate
         max_pool_size = suggested_pool_size
@@ -234,4 +235,5 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
                 ' start method, via: multiprocessing.set_start_method(<method>)'+
                 ' Possible methods include: fork, spawn, forkserver, None'
             )            
+
     return pool, max_pool_size

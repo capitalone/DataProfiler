@@ -689,8 +689,7 @@ class Profiler(object):
                     options=structured_options
                 )
                 new_cols.add(col)
-                        
-
+                
         # Generate pool and estimate datasize
         pool = None
         est_data_size = df[:50000].memory_usage(index=False, deep=True).sum()
@@ -712,6 +711,7 @@ class Profiler(object):
             warnings.warn("The data will be profiled with a sample size of {}. "
                           "All statistics will be based on this subsample and "
                           "not the whole dataset.".format(sample_size))
+
         if pool is not None:
 
             # Create a bunch of simultaneous column conversions

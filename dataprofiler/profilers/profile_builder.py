@@ -812,7 +812,7 @@ class Profiler(object):
         last_full_row = self._complete_rows_sampled
         self.complete_row_ids = None
         if last_full_row is not None:
-            self.complete_row_ids = sample_ids[:last_full_row + 1]
+            self.complete_row_ids = sample_ids[:last_full_row + 1].tolist()
 
         if pool is not None:
             pool.close()  # Close pool for new tasks

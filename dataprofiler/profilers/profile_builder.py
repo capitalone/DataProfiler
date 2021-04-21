@@ -707,16 +707,16 @@ class Profiler(object):
                 
         # Generate pool and estimate datasize
         pool = None
-        est_data_size = df[:50000].memory_usage(index=False, deep=True).sum()
-        est_data_size = (est_data_size / min(50000, len(df))) * len(df)
-        pool, pool_size = utils.generate_pool(
-            max_pool_size=None, data_size=est_data_size, cols=len(df.columns))
+        if options.structured_options.multiprocess.is_enabled:
+            est_data_size = df[:50000].memory_usage(index=False, deep=True).sum()
+            est_data_size = (est_data_size / min(50000, len(df))) * len(df)
+            pool, pool_size = utils.generate_pool(
+                max_pool_size=None, data_size=est_data_size, cols=len(df.columns))
 
         # Format the data
         notification_str = "Finding the Null values in the columns..."        
-        if options.structured_options.multiprocess.is_enabled:
-            if pool and len(new_cols) > 0:
-                notification_str += " (with " + str(pool_size) + " processes)"
+        if pool and len(new_cols) > 0:
+            notification_str += " (with " + str(pool_size) + " processes)"
         
         clean_sampled_dict = {}
         multi_process_dict = {}

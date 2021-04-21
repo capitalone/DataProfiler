@@ -568,7 +568,6 @@ class TestProfilerNullValues(unittest.TestCase):
         }
         test_dataset = pd.DataFrame(data=test_dict)
         profiler_options = ProfilerOptions()
-        profiler_options.structured_options.multiprocess.is_enabled = False
         profiler_options.set({'data_labeler.is_enabled': False})
         trained_schema = dp.Profiler(test_dataset, len(test_dataset),
                                      profiler_options=profiler_options)
@@ -588,7 +587,6 @@ class TestProfilerNullValues(unittest.TestCase):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
         data = pd.read_csv(file_path)
         profiler_options = ProfilerOptions()
-        profiler_options.structured_options.multiprocess.is_enabled = False
         profiler_options.set({'data_labeler.is_enabled': False})
         profile = dp.Profiler(data, profiler_options=profiler_options)
         self.assertEqual(2, profile.row_has_null_count)
@@ -608,7 +606,6 @@ class TestProfilerNullValues(unittest.TestCase):
         filename_null_in_file = os.path.join(
             test_root_path, 'data', 'csv/sparse-first-and-last-column.txt')
         profiler_options = ProfilerOptions()
-        profiler_options.structured_options.multiprocess.is_enabled = False
         profiler_options.set({'data_labeler.is_enabled': False})
         data = dp.Data(filename_null_in_file)
         profile = dp.Profiler(data, profiler_options=profiler_options)
@@ -629,7 +626,6 @@ class TestProfilerNullValues(unittest.TestCase):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
         data = pd.read_csv(file_path)
         profiler_options = ProfilerOptions()
-        profiler_options.structured_options.multiprocess.is_enabled = False
         profiler_options.set({'data_labeler.is_enabled': False})
 
         col_one_len = len(data['NAME'])

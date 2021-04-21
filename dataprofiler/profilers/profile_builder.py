@@ -75,7 +75,7 @@ class StructuredDataProfile(object):
                               "All statistics will be based on this subsample and "
                               "not the whole dataset.".format(sample_size))
                 
-            clean_sampled_df, base_stats  = \
+            clean_sampled_df, base_stats = \
                 self.clean_data_and_get_base_stats(
                     df_series=df_series, sample_size=sample_size,
                     min_true_samples=self._min_true_samples, sample_ids=sample_ids)
@@ -328,7 +328,7 @@ class StructuredDataProfile(object):
         df_series = df_series.apply(str)
         original_index = df_series.index
 
-        # Select generator depending if sample_ids availablity
+        # Select generator depending if sample_ids availability
         if sample_ids is None:
             sample_ind_generator = utils.shuffle_in_chunks(
                 len_df, chunk_size=sample_size)
@@ -363,7 +363,7 @@ class StructuredDataProfile(object):
                 na_columns.setdefault(cell, list()).append(index)
             
             # Ensure minimum number of true samples met
-            # and if total_sample_size > samplesize exit
+            # and if total_sample_size >= sample size, exit
             if len(true_sample_list) >= min_true_samples \
                     and total_sample_size >= sample_size:
                 break
@@ -509,6 +509,16 @@ class Profiler(object):
             samples_used = max(samples_used, col.sample_size)
         return samples_used
 
+    @property
+    def _complete_rows_sampled(self):
+        """
+        Calculates and returns the number of rows that were completely sampled
+        i.e. every column in the Profile was read up to this row (possibly
+        further in some cols)
+        """
+        return min([self._profile[col].sample_ids[-1]
+                    for col in self._profile], default=None)
+
     def report(self, report_options=None):
         if not report_options:
             report_options = {
@@ -575,8 +585,7 @@ class Profiler(object):
             pd.util.hash_pandas_object(data, index=False), True
         )
 
-        min_id = min([self._profile[col].sample_ids[-1]
-                      for col in self._profile], default=None)
+        min_id = self._complete_rows_sampled
 
         # Calculate Null Column Count
         null_rows = set()
@@ -684,14 +693,14 @@ class Profiler(object):
             # If there's a sample size, truncate
             if sample_size is not None:
                 sample_ids[0] = sample_ids[0][:sample_size]
-            # Sort the sample_ids anre replace prior
+            # Sort the sample_ids and replace prior
             sample_ids[0] = sorted(sample_ids[0])
 
         # Numpy arrays allocate to heap and can be shared between processes
         # Non-locking multiprocessing fails on machines without POSIX (windows)
         # The function handles that situation, but will be single process
         # Newly introduced features (python3.8) improves the situation
-        sample_ids = np.array(sample_ids)        
+        sample_ids = np.array(sample_ids)
 
         # Create structured profile objects
         new_cols = set()
@@ -760,10 +769,10 @@ class Profiler(object):
                             df[col], sample_size, min_true_samples, sample_ids)
                     profile[col]._update_base_stats(base_stats)
             
-            pool.close() # Close pool for new tasks
-            pool.join() # Wait for all workers to complete
+            pool.close()  # Close pool for new tasks
+            pool.join()  # Wait for all workers to complete
 
-        else: # No pool
+        else:  # No pool
 
             print(notification_str)
             for col in tqdm(df.columns):

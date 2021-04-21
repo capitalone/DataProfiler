@@ -37,7 +37,7 @@ class TextProfiler(object):
             'shouldn', "shouldnt", 'yourself', 'also', 'be', 'wouldnt', 
             'thereby', 'eight', 'hence', 'who', 'might', 'to', 'o',
             'everyone', 'hereafter', "she's", "should've", 'therein', 'm', 
-            'youve', 'no', "wontcouldn't", 'sometime', 'next', "you've", 
+            'youve', 'no', "wont", "couldn't", 'sometime', 'next', "you've", 
             "isn't", 'without', 'whereas', 'while', 'aren', 'doesn', 'three', 
             "wasn't", "needn't", 'sometimes', 'whenever', 'amongst', 'become',
             'via', 'four', 'say', 'won', 'enough', 'fifty', 'full', 'neednt', 

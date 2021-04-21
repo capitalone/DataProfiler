@@ -160,3 +160,4 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         expected_word_count = {'hello': 1, 'name': 1, 'grant': 2, 'bob': 1,
                                'friends': 1}
         self.assertDictEqual(expected_word_count, profile['word_count'])
+        

@@ -323,7 +323,6 @@ class TestProfilerOptions(unittest.TestCase):
                                     "TextOptions."):
             options.structured_options.text.is_prop_enabled("Invalid")
 
-
         # This test is to ensure is_prop_enabled works for BooleanOption objects
         options.structured_options.int.min.is_enabled = True
         self.assertTrue(options.structured_options.int.is_prop_enabled("min"))
@@ -351,6 +350,7 @@ class TestDataLabelerCallWithOptions(unittest.TestCase):
         options.structured_options.data_labeler.data_labeler_dirpath \
             = "Test_Dirpath"
         options.structured_options.data_labeler.max_sample_size = 50
+        options.structured_options.multiprocess.is_enabled = False
 
         profile = Profiler(self.data,
                            profiler_options=options)

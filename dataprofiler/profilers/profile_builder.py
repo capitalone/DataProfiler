@@ -336,7 +336,6 @@ class StructuredDataProfile(object):
         total_sample_size = 0
         query = '|'.join(null_values_and_flags.keys())
         regex = f"^(?:{(query)})$"
-        
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
             
@@ -812,7 +811,7 @@ class Profiler(object):
         # Calculate complete rows read and store ids for them
         last_full_row = self._complete_rows_sampled
         if last_full_row is not None:
-            self.complete_row_ids = sample_ids[:last_full_row + 1].tolist()
+            self.complete_row_ids = sample_ids[0][:last_full_row]
 
         if pool is not None:
             pool.close()  # Close pool for new tasks

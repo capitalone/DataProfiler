@@ -28,6 +28,8 @@ class TextProfiler(object):
         #self.line_length = {'max': None, 'min': None,...} #numeric stats mixin?
 
         self._case_sensitive = True
+        if options:
+            self._case_sensitive = options.case_sensitive
 
         # these stop words are from nltk
         self._stop_words = {

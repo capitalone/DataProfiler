@@ -237,7 +237,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         cv_gen = data_gen
 
         cnn_model._construct_model()
-
+        
         # fit with new labels
         history, f1, f1_report = cnn_model.fit(
             data_gen, cv_gen, label_mapping=self.label_mapping)
@@ -428,7 +428,6 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         model_layers = [layer.name for layer in cnn_model._model.layers]
         self.assertEqual(len(expected_layers), len(model_layers))
         self.assertEqual(17, cnn_model.num_labels)
-
-
+        
 if __name__ == '__main__':
     unittest.main()

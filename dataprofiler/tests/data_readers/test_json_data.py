@@ -98,7 +98,7 @@ class TestJSONDataClass(unittest.TestCase):
         for json_string in failing_json_strings:
             # in memory data must specify the data_type category
             with self.assertRaises(ValueError) as assert_raised:
-                Data(data=json_string['value'], data_type='json')
+                Data(data=json_string['value'], data_type='json').data
             self.assertEqual(
                 str(assert_raised.exception),
                 json_string['error']
@@ -135,6 +135,121 @@ class TestJSONDataClass(unittest.TestCase):
             self.assertEqual(input_file['count'],
                              data.length,
                              msg=input_file['path'])
+
+    def test_flattened_dataframe_format_with_no_payload(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/simple.json')
+
+        simple = Data(input_file_name, options={"data_format": "flattened_dataframe", 
+                                                "payload_keys": "data"})
+        
+        self.assertEqual(3, len(simple.data_and_metadata.columns))
+        self.assertEqual(2, len(simple.data.columns))
+        self.assertEqual(1, len(simple.metadata.columns))
+
+        simple = Data(input_file_name, options={"data_format": "flattened_dataframe", 
+                                                "payload_keys": "no_data_key_test"})
+
+        self.assertEqual(3, len(simple.data_and_metadata.columns))
+        self.assertEqual(3, len(simple.data.columns))
+        with self.assertWarnsRegex(UserWarning,"No metadata was detected."):
+            self.assertIsNone(simple.metadata)
+
+    def test_key_separator_in_flattened_dataframe_format(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/simple.json')
+
+        simple = Data(input_file_name, options={"key_separator": "~~~"})
+        expected_columns = ["data~~~list_of_things~~~id",
+                            "data~~~list_of_things~~~tags"]
+
+        self.assertListEqual(expected_columns, list(simple.data.columns))
+
+    def test_complex_nested_json_in_flattened_dataframe_format(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/complex_nested.json')
+
+        complex = Data(input_file_name)
+        self.assertEqual(8, len(complex.data.columns))
+        self.assertEqual("Depression", complex.data["payload.Lion.medical_condition"][0])
+        
+        self.assertEqual(11, len(complex.data_and_metadata.columns))
+        self.assertEqual("Frodo", complex.data_and_metadata["meta.creator"][0])
+
+        self.assertEqual(3, len(complex.metadata.columns))
+        self.assertEqual("Frodo", complex.data_and_metadata["meta.creator"][0])
+
+
+    def test_list_of_dictionaries_in_flattened_dataframe_format(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/iris-utf-8.json')
+
+        simple = Data(input_file_name)
+        self.assertEqual(6, len(simple.data.columns))
+        self.assertEqual(150, len(simple.data))
+        
+    def test_flattened_dataframe_format(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/math.json')
+
+        math = Data(input_file_name)
+        self.assertIn("meta.view.columns.cachedContents.largest",
+                      math.data_and_metadata.columns)
+        self.assertEqual(math.metadata["meta.view.columns.cachedContents.largest"][9]
+                         ,"102188")
+        self.assertIn("data.22", math.data.columns)
+        self.assertEqual(math.data["data.22"][167], "77.9")
+        
+    def test_payload_key(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/hits.json')
+
+        hits = Data(input_file_name, options={"payload_keys": "hits"})
+        self.assertIn("hits._highlightResult.story_url.value",
+                      hits.data.columns)
+        self.assertNotIn("hits._highlightResult.story_url.value",
+                      hits.metadata.columns)
+        self.assertNotIn("processingTimeMS", hits.data.columns)
+        self.assertIn("processingTimeMS", hits.metadata.columns)
+
+        self.assertIn("processingTimeMS", hits.data_and_metadata.columns)
+        self.assertIn("hits._highlightResult.story_url.value",
+                      hits.data_and_metadata.columns)
+
+    def test_find_data(self):
+        JSONDataObject = json_data.JSONData()
+        
+        data = {
+                    "Top_level":
+                        [
+                            {"mid_level_one": {
+                                "third_level_one": "badabing",
+                                "third_level_two": "badaboom",
+                                "third_level_three": "hello",
+                                }
+                            },
+                            {"mid_level_two": "hello1"},
+                            {"mid_level_three": "hello2"}
+                        ]
+                }
+        expected_list = [
+            {'Top_level.mid_level_one.third_level_one': 'badabing'}, 
+            {'Top_level.mid_level_one.third_level_two': 'badaboom'}, 
+            {'Top_level.mid_level_one.third_level_three': 'hello'}, 
+            {'Top_level.mid_level_two': 'hello1'}, 
+            {'Top_level.mid_level_three': 'hello2'}]
+
+        self.assertListEqual(expected_list, JSONDataObject._find_data(data))
+
+    def test_flattened_dataframe_format_with_dual_payload(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        input_file_name = os.path.join(test_dir, 'json/dual_payloads.json')
+
+        dual_payload = Data(input_file_name,
+                      options={"data_format": "flattened_dataframe"})
+        # Make sure the larger payload is selected
+        self.assertIn("payload.bigger_list_of_things.id", dual_payload.data.columns)
+        self.assertEqual(2, len(dual_payload.data.columns))
 
 
 if __name__ == '__main__':

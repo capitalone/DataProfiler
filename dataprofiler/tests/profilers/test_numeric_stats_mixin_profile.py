@@ -200,8 +200,8 @@ class TestNumericStatsMixin(unittest.TestCase):
         other2.histogram_selection = "auto"
         other1.histogram_bin_method_names = ['auto']
         other2.histogram_bin_method_names = ['auto']
-        other1.histogram_methods['auto']['histogram'] = mock_histogram
-        other2.histogram_methods['auto']['histogram'] = mock_histogram
+        other1._stored_histogram['histogram'] = mock_histogram
+        other2._stored_histogram['histogram'] = mock_histogram
         other1.histogram_selection = 'auto'
 
         time_array = [float(i) for i in range(2, 0, -1)]
@@ -266,7 +266,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             self.assertEqual(expected, num_profiler.times)
 
             # Validate _get_histogram_and_quantiles is timed.
-            expected['histogram_and_quantiles'] = 15.0
+            expected['histogram_and_quantiles'] = 1.0
             num_profiler._get_histogram_and_quantiles(
                 df_series, prev_dependent_properties, subset_properties)
             self.assertEqual(expected, num_profiler.times)

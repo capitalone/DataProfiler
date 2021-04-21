@@ -332,8 +332,9 @@ class TestTextColumnProfiler(unittest.TestCase):
             profiler3 = profiler1 + profiler2
 
         # Assert that these features are still merged
+        profile = profiler3.profile
         self.assertEqual("doane", profiler3.histogram_selection)
-        self.assertAlmostEqual(6.20467836, profiler3.variance)
+        self.assertAlmostEqual(6.20467836, profile['variance'])
         self.assertEqual(62.0, profiler3.sum)
 
         # Assert that these features are not calculated
@@ -406,8 +407,8 @@ class TestTextColumnProfiler(unittest.TestCase):
         # case when more than 1 unique value, by virtue of a streaming update
         num_profiler.update(pd.Series(['22']))
         self.assertEqual(
-            100,
-            len(num_profiler.histogram_methods['custom']['histogram'][
-                    'bin_counts'])
-        )
+            100, len(num_profiler._stored_histogram['histogram']['bin_counts']))
+
+        histogram, _ = num_profiler._histogram_for_profile('custom')
+        self.assertEqual(100, len(histogram['bin_counts']))
 

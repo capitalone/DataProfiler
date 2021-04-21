@@ -463,7 +463,7 @@ Below is an breakdown of all the options.
 
 * **ProfilerOptions** - The top-level options class that contains options for the Profiler class
     * **structured_options** - Options responsible for all structured data
-      	* **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on the dataset and system constraints.
+      	* **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.
             * is_enabled - (Boolean) Enables or disables multiprocessing
         * **int** - Options for the integer columns
             * is_enabled - (Boolean) Enables or disables the integer operations

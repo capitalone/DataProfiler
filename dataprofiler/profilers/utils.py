@@ -176,9 +176,8 @@ def suggest_pool_size(data_size=None, cols=None):
     :rtype suggested_pool_size: int
     """
     
-    # Return if there's no df_size
-    # Only do multiprocessing is over 1Mb
-    if data_size is None or data_size < 1000000:
+    # Return if there's no data_size
+    if data_size is None:
         return None
 
     try:

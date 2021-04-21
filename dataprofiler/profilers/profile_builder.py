@@ -14,8 +14,6 @@ import re
 from collections import OrderedDict
 import warnings
 
-import multiprocessing as mp
-
 import pandas as pd
 import numpy as np
 
@@ -610,13 +608,13 @@ class Profiler(object):
             min_true_samples = self._min_true_samples
         if isinstance(data, data_readers.base_data.BaseData):
             self._update_profile_from_chunk(
-                data.data, self._profile, sample_size, min_true_samples, self.options)
+                data.data, sample_size, min_true_samples, self.options)
             self._update_row_statistics(data.data)
             self.encoding = data.file_encoding
             self.file_type = data.data_type
         elif isinstance(data, pd.DataFrame):
             self._update_profile_from_chunk(
-                data, self._profile, sample_size, min_true_samples, self.options)
+                data, sample_size, min_true_samples, self.options)
             self._update_row_statistics(data)
             self.file_type = str(data.__class__)
         else:
@@ -632,8 +630,6 @@ class Profiler(object):
         
         :param df: a dataset
         :type df: pandas.DataFrame
-        :param profile: list of profiled columns [BaseColumnProfiler subclasses]
-        :type profile: list
         :param sample_size: number of samples for df to use for profiling
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
@@ -648,6 +644,24 @@ class Profiler(object):
             raise ValueError('`Profiler` does not currently support data which '
                              'contains columns with duplicate names.')
 
+        # assign data labeler
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+
+            try:
+
+                data_labeler = DataLabeler(
+                    labeler_type='structured',
+                    dirpath=data_labeler_options.data_labeler_dirpath,
+                    load_options=None)
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
+
         try:
             from tqdm import tqdm
         except:
@@ -657,7 +671,7 @@ class Profiler(object):
                     yield e
 
         if not sample_size:
-            self._get_sample_size(df)
+            sample_size = self._get_sample_size(df)
 
         # Shuffle indices ones and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]

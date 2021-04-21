@@ -178,7 +178,7 @@ def suggest_pool_size(data_size=None, cols=None):
     
     # Return if there's no df_size
     # Only do multiprocessing is over 1Mb
-    if data_size is None and data_size < 1000000:
+    if data_size is None or data_size < 1000000:
         return None
 
     try:
@@ -220,9 +220,9 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
     """
 
     suggested_pool_size = suggest_pool_size(data_size, cols)
-    if max_pool_size is None: # generate estimate
+    if max_pool_size is None or suggested_pool_size is None: 
         max_pool_size = suggested_pool_size
-
+        
     # Always leave 1 cores free
     pool = None
     if max_pool_size is not None and max_pool_size > 2:        

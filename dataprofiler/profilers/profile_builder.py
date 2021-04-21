@@ -700,7 +700,7 @@ class Profiler(object):
         # Format the data
         notification_str = "Finding the Null values in the columns..."        
         if options.structured_options.multiprocess.is_enabled:
-            if len(new_cols) > 0:
+            if pool and len(new_cols) > 0:
                 notification_str += " (with " + str(pool_size) + " processes)"
         
         clean_sampled_dict = {}

@@ -518,6 +518,39 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         sample_size = profile._get_sample_size(data)
         self.assertEqual(10000, sample_size)
 
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch('dataprofiler.profilers.profile_builder.Profiler.'
+                '_update_row_statistics')
+    @mock.patch('dataprofiler.profilers.profile_builder.StructuredDataProfile')
+    def test_sample_size_passed_to_profile(self, *mocks):
+        # structure data profile mock
+        sdp_mock = mock.Mock()
+        sdp_mock.clean_data_and_get_base_stats.return_value = (dict(a=1), None)
+        mocks[0].return_value = sdp_mock
+
+        # data setup
+        data = pd.DataFrame([0] * int(50e3))
+
+        # option setup
+        profiler_options = ProfilerOptions()
+        profiler_options.structured_options.multiprocess.is_enabled = False
+        profiler_options.set({'data_labeler.is_enabled': False})
+
+        # test data size < min_sample_size = 5000 by default
+        profile = dp.Profiler(data[:1000], profiler_options=profiler_options)
+        self.assertIn('sample_size', mocks[0].call_args[1])
+        self.assertEqual(1000, mocks[0].call_args[1]['sample_size'])
+
+        # test data size * 0.20 < min_sample_size < data size
+        profile = dp.Profiler(data[:10000], profiler_options=profiler_options)
+        self.assertIn('sample_size', mocks[0].call_args[1])
+        self.assertEqual(5000, mocks[0].call_args[1]['sample_size'])
+
+        # test min_sample_size > data size * 0.20
+        profile = dp.Profiler(data, profiler_options=profiler_options)
+        self.assertIn('sample_size', mocks[0].call_args[1])
+        self.assertEqual(10000, mocks[0].call_args[1]['sample_size'])
+
 
 class TestProfilerNullValues(unittest.TestCase):
 

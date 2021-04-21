@@ -573,12 +573,12 @@ class Profiler(object):
         return len(self.hashed_row_dict) / self.total_samples
 
     def _get_row_is_null_ratio(self):
-        return 0 if self._max_col_samples_used == 0 \
-            else self.row_is_null_count / self._max_col_samples_used
+        return 0 if self._complete_rows_sampled in {0, None} \
+            else self.row_is_null_count / self._complete_rows_sampled
 
     def _get_row_has_null_ratio(self):
-        return 0 if self._max_col_samples_used == 0 \
-            else self.row_has_null_count / self._max_col_samples_used
+        return 0 if self._complete_rows_sampled in {0, None} \
+            else self.row_has_null_count / self._complete_rows_sampled
 
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)

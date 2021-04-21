@@ -303,20 +303,6 @@ class TestProfiler(unittest.TestCase):
                                    "this subsample and not the whole dataset."):
             profile1 = dp.Profiler(data, samples_per_update=3)
 
-    def test_null_calculation_with_differently_sampled_cols(self):
-        opts = ProfilerOptions()
-        opts.structured_options.multiprocess.is_enabled = False
-        data = pd.DataFrame({"full": [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                             "sparse": [1, None, 3, None, 5, None, 7, None, 9]})
-        profile = dp.Profiler(data, samples_per_update=5, min_true_samples=5,
-                              profiler_options=opts)
-        # Rows 2, 4, 5, 6, 7 are sampled in first column
-        # Therefore only those rows should be considered for null calculations
-        # The only null in those rows in second column in that subset are 5, 7
-        # Therefore only 2 rows have null according to row_has_null_count
-        self.assertEqual(0, profile.row_is_null_count)
-        self.assertEqual(2, profile.row_has_null_count)
-
 
 class TestStructuredDataProfileClass(unittest.TestCase):
 
@@ -666,6 +652,24 @@ class TestProfilerNullValues(unittest.TestCase):
             
         self.assertEqual(col_one_len, len(data['NAME']))
         self.assertEqual(col_two_len, len(data[' VALUE']))
+
+    def test_null_calculation_with_differently_sampled_cols(self):
+        opts = ProfilerOptions()
+        opts.structured_options.multiprocess.is_enabled = False
+        data = pd.DataFrame({"full": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                             "sparse": [1, None, 3, None, 5, None, 7, None, 9]})
+        profile = dp.Profiler(data, samples_per_update=5, min_true_samples=5,
+                              profiler_options=opts)
+        # Rows 2, 4, 5, 6, 7 are sampled in first column
+        # Therefore only those rows should be considered for null calculations
+        # The only null in those rows in second column in that subset are 5, 7
+        # Therefore only 2 rows have null according to row_has_null_count
+        self.assertEqual(0, profile.row_is_null_count)
+        self.assertEqual(2, profile.row_has_null_count)
+        # Accordingly, make sure ratio of null rows accounts for the fact that
+        # Only 5 total rows were sampled (5 in col 1, 9 in col 2)
+        self.assertEqual(0, profile._get_row_is_null_ratio())
+        self.assertEqual(0.4, profile._get_row_has_null_ratio())
 
 
 if __name__ == '__main__':

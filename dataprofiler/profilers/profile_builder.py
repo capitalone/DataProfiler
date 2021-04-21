@@ -14,8 +14,6 @@ import re
 from collections import OrderedDict
 import warnings
 
-import multiprocessing as mp
-
 import pandas as pd
 import numpy as np
 
@@ -430,6 +428,11 @@ class Profiler(object):
         self._min_true_samples = min_true_samples
         self._profile = dict()
 
+        # matches structured data profile
+        # TODO: allow set via options
+        self._sampling_ratio = 0.2
+        self._min_sample_size = 5000
+
         if isinstance(data, data_readers.text_data.TextData):
             raise TypeError("Cannot provide TextData object to Profiler")
 
@@ -437,20 +440,22 @@ class Profiler(object):
         data_labeler_options = self.options.structured_options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:
-            
+
             try:
-                
+
                 data_labeler = DataLabeler(
                     labeler_type='structured',
                     dirpath=data_labeler_options.data_labeler_dirpath,
                     load_options=None)
-                self.options.set({'data_labeler.data_labeler_object': data_labeler})
-                
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+
             except Exception as e:
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
-        self.update_profile(data)
+        if len(data):
+            self.update_profile(data)
 
     def __add__(self, other):
         """
@@ -497,6 +502,23 @@ class Profiler(object):
     @property
     def profile(self):
         return self._profile
+
+    def _get_sample_size(self, data):
+        """
+        Determines the minimum sampling size for detecting column type.
+
+        :param data: data to be profiled
+        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
+        :return: integer sampling size
+        :rtype: int
+        """
+        if self._samples_per_update:
+            return self._samples_per_update
+
+        len_data = len(data)
+        if len_data <= self._min_sample_size:
+            return int(len_data)
+        return max(int(self._sampling_ratio * len_data), self._min_sample_size)
 
     @property
     def _max_col_samples_used(self):
@@ -613,7 +635,7 @@ class Profiler(object):
 
         self.row_has_null_count += len(null_in_row_count)
         self.row_is_null_count += len(null_rows)
-        
+
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """
         Update the profile for data provided. User can specify the sample
@@ -628,37 +650,34 @@ class Profiler(object):
         :type min_true_samples
         :return: None
         """
-        if not sample_size:
-            sample_size = self._samples_per_update
-        if not min_true_samples:
-            min_true_samples = self._min_true_samples
         if isinstance(data, data_readers.base_data.BaseData):
-            self._profile = self._update_profile_from_chunk(
-                data.data, self._profile, sample_size, min_true_samples, self.options)
-            self._update_row_statistics(data.data)
             self.encoding = data.file_encoding
             self.file_type = data.data_type
+            data = data.data
         elif isinstance(data, pd.DataFrame):
-            self._profile = self._update_profile_from_chunk(
-                data, self._profile, sample_size, min_true_samples, self.options)
-            self._update_row_statistics(data)
             self.file_type = str(data.__class__)
         else:
             raise ValueError(
                 "Data must either be imported using the data_readers or "
                 "pd.DataFrame."
             )
-   
-    @staticmethod
-    def _update_profile_from_chunk(df, profile=None, sample_size=None,
+
+        if not min_true_samples:
+            min_true_samples = self._min_true_samples
+        if not sample_size:
+            sample_size = self._get_sample_size(data)
+
+        self._update_profile_from_chunk(
+            data, sample_size, min_true_samples, self.options)
+        self._update_row_statistics(data)
+
+    def _update_profile_from_chunk(self, df, sample_size=None,
                                    min_true_samples=None, options=None):
         """
         Iterate over the columns of a dataset and identify its parameters.
         
         :param df: a dataset
         :type df: pandas.DataFrame
-        :param profile: list of profiled columns [BaseColumnProfiler subclasses]
-        :type profile: list
         :param sample_size: number of samples for df to use for profiling
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
@@ -668,9 +687,6 @@ class Profiler(object):
         :return: list of column profile base subclasses
         :rtype: list(BaseColumnProfiler)
         """
-        
-        if not profile:
-            profile = OrderedDict()
 
         if len(df.columns) != len(df.columns.unique()):
             raise ValueError('`Profiler` does not currently support data which '
@@ -705,25 +721,30 @@ class Profiler(object):
         # Create structured profile objects
         new_cols = set()
         for col in df.columns:
-            if col not in profile:
+            if col not in self._profile:
                 structured_options = None
                 if options and options.structured_options:
                     structured_options = options.structured_options
-                profile[col] = StructuredDataProfile(
+                self._profile[col] = StructuredDataProfile(
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,
                     options=structured_options
                 )
                 new_cols.add(col)
-                        
-        # Format the data
-        notification_str = "Finding the Null values in the columns..."
+                
+        # Generate pool and estimate datasize
         pool = None
         if options.structured_options.multiprocess.is_enabled:
-            if len(new_cols) > 0:
-                pool, pool_size = utils.generate_pool(max_pool_size=len(new_cols))
-                notification_str += " (with " + str(pool_size) + " processes)"
+            est_data_size = df[:50000].memory_usage(index=False, deep=True).sum()
+            est_data_size = (est_data_size / min(50000, len(df))) * len(df)
+            pool, pool_size = utils.generate_pool(
+                max_pool_size=None, data_size=est_data_size, cols=len(df.columns))
+
+        # Format the data
+        notification_str = "Finding the Null values in the columns..."        
+        if pool and len(new_cols) > 0:
+            notification_str += " (with " + str(pool_size) + " processes)"
         
         clean_sampled_dict = {}
         multi_process_dict = {}
@@ -733,14 +754,15 @@ class Profiler(object):
             warnings.warn("The data will be profiled with a sample size of {}. "
                           "All statistics will be based on this subsample and "
                           "not the whole dataset.".format(sample_size))
+
         if pool is not None:
             # Create a bunch of simultaneous column conversions
             for col in df.columns:
                 if min_true_samples is None:
-                    min_true_samples = profile[col]._min_true_samples
+                    min_true_samples = self._profile[col]._min_true_samples
                 try:
                     multi_process_dict[col] = pool.apply_async(
-                        profile[col].clean_data_and_get_base_stats,
+                        self._profile[col].clean_data_and_get_base_stats,
                         (df[col], sample_size, min_true_samples, sample_ids))
                 except Exception as e:
                     print(e)
@@ -752,7 +774,7 @@ class Profiler(object):
                 try:
                     clean_sampled_dict[col], base_stats = \
                         multi_process_dict[col].get()
-                    profile[col]._update_base_stats(base_stats)
+                    self._profile[col]._update_base_stats(base_stats)
                 except Exception as e:
                     print(e)
                     single_process_list.add(col)
@@ -763,11 +785,11 @@ class Profiler(object):
                       len(single_process_list), "errors, reprocessing...")
                 for col in tqdm(single_process_list):
                     if min_true_samples is None:
-                        min_true_samples = profile[col]._min_true_samples
+                        min_true_samples = self._profile[col]._min_true_samples
                     clean_sampled_dict[col], base_stats = \
-                        profile[col].clean_data_and_get_base_stats(
+                        self._profile[col].clean_data_and_get_base_stats(
                             df[col], sample_size, min_true_samples, sample_ids)
-                    profile[col]._update_base_stats(base_stats)
+                    self._profile[col]._update_base_stats(base_stats)
             
             pool.close()  # Close pool for new tasks
             pool.join()  # Wait for all workers to complete
@@ -777,26 +799,26 @@ class Profiler(object):
             print(notification_str)
             for col in tqdm(df.columns):
                 if min_true_samples is None:
-                    min_true_samples = profile[col]._min_true_samples
+                    min_true_samples = self._profile[col]._min_true_samples
                 clean_sampled_dict[col], base_stats = \
-                    profile[col].clean_data_and_get_base_stats(
+                    self._profile[col].clean_data_and_get_base_stats(
                         df_series=df[col], sample_size=sample_size,
-                        min_true_samples=min_true_samples, sample_ids=sample_ids)
-                profile[col]._update_base_stats(base_stats)
+                        min_true_samples=min_true_samples, sample_ids=sample_ids
+                    )
+                self._profile[col]._update_base_stats(base_stats)
             
         # Process and label the data
         notification_str = "Calculating the statistics... "
         pool = None
         if options.structured_options.multiprocess.is_enabled:
-            pool, pool_size = utils.generate_pool(max_pool_size=4)
+            pool, pool_size = utils.generate_pool(4, est_data_size)
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"
         print(notification_str)
         
         for col in tqdm(df.columns):
-            profile[col].update_column_profilers(clean_sampled_dict[col], pool)
+            self._profile[col].update_column_profilers(
+                clean_sampled_dict[col], pool)
         if pool is not None:
-            pool.close()  # Close pool for new tasks
-            pool.join()  # Wait for all workers to complete
-            
-        return profile
+            pool.close() # Close pool for new tasks
+            pool.join() # Wait for all workers to complete

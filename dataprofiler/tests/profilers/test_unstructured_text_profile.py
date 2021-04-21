@@ -9,21 +9,22 @@ class TestUnstructuredTextProfile(unittest.TestCase):
     
     def test_text_profile_update_and_name(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(["Hello my name is Grant",
-                            "Bob and Grant are friends"])
+        sample = pd.Series(["Hello my name is: Grant.!!!",
+                            "Bob and \"Grant\", 'are' friends"])
         text_profile.update(sample)
         self.assertEqual("Name", text_profile.name)
       
     def test_vocab(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(["Hello my name is Grant",
-                            "Bob and Grant are friends"])
+        sample = pd.Series(["Hello my name is: Grant.!!!",
+                            "Bob and \"Grant\", 'are' friends"])
         text_profile.update(sample)
         profile = text_profile.profile
 
         # Assert vocab is correct
-        expected_vocab = ['y', 'e', 'G', 'H', 'r', 'b', 'l', 's', 'm',
-                          't', 'i', 'B', 'd', 'f', 'o', ' ', 'n', 'a']
+        expected_vocab = [' ', '!', '"', "'", ',', '.', ':', 'B', 'G', 'H', 
+                          'a', 'b', 'd', 'e', 'f', 'i', 'l', 'm', 'n', 'o', 
+                          'r', 's', 't', 'y']
         self.assertListEqual(sorted(expected_vocab), sorted(profile['vocab']))
 
         # Update the data again
@@ -33,15 +34,15 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         profile = text_profile.profile
 
         # Assert vocab is correct
-        expected_vocab = [' ', 'B', 'G', 'H', 'a', 'b', 'c', 'd', 'e',
-                          'f', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'r',
-                          's', 't', 'w', 'y']
+        expected_vocab = [' ', '!', '"', "'", ',', '.', ':', 'B', 'G', 'H',
+                          'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'k', 'l', 
+                          'm', 'n', 'o', 'r', 's', 't', 'w', 'y']
         self.assertListEqual(sorted(expected_vocab), sorted(profile['vocab']))
 
     def test_words_and_word_count(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(["Hello my name is Grant",
-                            "Bob and Grant are friends"])
+        sample = pd.Series(["Hello my name is: Grant.!!!",
+                            "Bob and \"Grant\", 'are' friends"])
         text_profile.update(sample)
         profile = text_profile.profile
 
@@ -74,8 +75,8 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         
     def test_sample_size(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(["Hello my name is Grant",
-                            "Bob and Grant are friends"])
+        sample = pd.Series(["Hello my name is: Grant.!!!",
+                            "Bob and \"Grant\", 'are' friends"])
         text_profile.update(sample)
 
         # Assert sample size is accurate
@@ -91,8 +92,8 @@ class TestUnstructuredTextProfile(unittest.TestCase):
     
     def test_timing(self):
         text_profile = TextProfiler("Name")
-        sample = pd.Series(["Hello my name is Grant",
-                            "Bob and Grant are friends"])
+        sample = pd.Series(["Hello my name is: Grant.!!!",
+                            "Bob and \"Grant\", 'are' friends"])
         text_profile.update(sample)
         profile = text_profile.profile
 
@@ -102,11 +103,11 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         
     def test_merge_profiles(self):
         text_profile1 = TextProfiler("Name")
-        sample = pd.Series(["Hello my name is Grant"])
+        sample = pd.Series(["Hello my name is: Grant.!!!"])
         text_profile1.update(sample)
         
         text_profile2 = TextProfiler("Name")
-        sample = pd.Series(["Bob and Grant are friends"])
+        sample = pd.Series(["Bob and \"Grant\", 'are' friends"])
         text_profile2.update(sample)
         
         text_profile3 = text_profile1 + text_profile2
@@ -118,12 +119,13 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertEqual(2, text_profile3.sample_size)
         
         # Assert vocab is correct
-        expected_vocab = ['y', 'e', 'G', 'H', 'r', 'b', 'l', 's', 'm',
-                          't', 'i', 'B', 'd', 'f', 'o', ' ', 'n', 'a']
+        expected_vocab = [' ', '!', '"', "'", ',', '.', ':', 'B', 'G', 'H',
+                          'a', 'b', 'd', 'e', 'f', 'i', 'l', 'm', 'n', 'o',
+                          'r', 's', 't', 'y']
         self.assertListEqual(sorted(expected_vocab), sorted(profile['vocab']))
         
         # Assert words is correct and stop words are not present
-        expected_words = ['Hello', 'name', 'Grant', 'Bob', 'friends']
+        expected_words = ['Bob', 'Grant', 'friends', 'Hello', 'name']
         self.assertListEqual(expected_words, profile['words'])
         self.assertNotIn("is", profile['words'])
 
@@ -135,3 +137,26 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         # Assert timing is occurring
         self.assertIn("vocab", profile["times"])
         self.assertIn("words", profile["times"])
+        
+    def test_case_sensitivity(self):
+        text_profile1 = TextProfiler("Name")
+        text_profile1._case_sensitive = False
+        sample = pd.Series(["Hello my name is: Grant.!!!"])
+        text_profile1.update(sample)
+        profile = text_profile1.profile
+        expected_word_count = {'grant': 1, 'hello': 1, 'name': 1}
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+
+        text_profile2 = TextProfiler("Name")
+        sample = pd.Series(["Bob and \"Grant\", 'are' friends"])
+        text_profile2.update(sample)
+        profile = text_profile2.profile
+        expected_word_count = {'Grant': 1, 'Bob': 1, 'friends': 1}
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+        
+        text_profile3 = text_profile1 + text_profile2
+        profile = text_profile3.profile
+        # Assert word counts are correct
+        expected_word_count = {'hello': 1, 'name': 1, 'grant': 2, 'bob': 1,
+                               'friends': 1}
+        self.assertDictEqual(expected_word_count, profile['word_count'])

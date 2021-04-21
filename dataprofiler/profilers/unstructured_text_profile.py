@@ -1,5 +1,6 @@
 from collections import defaultdict
 import itertools
+import re
 
 from . import utils, BaseColumnProfiler
 
@@ -22,10 +23,11 @@ class TextProfiler(object):
         self.vocab = set()
         self.word_count = defaultdict(int)
         self.metadata = dict()
-        self.case_sensitive = True
 
         # TODO: Add line length
         #self.line_length = {'max': None, 'min': None,...} #numeric stats mixin?
+
+        self._case_sensitive = True
 
         # these stop words are from nltk
         self._stop_words = {
@@ -60,31 +62,35 @@ class TextProfiler(object):
         }
         BaseColumnProfiler._filter_properties_w_options(self.__calculations, options)
 
-    def _add_helper(self, other1, other2):
+    def _merge_words(self, other, merged_profile):
         """
-        Merges the properties of two BaseColumnProfile objects
+        Merges the words of two TextProfiler profiles
 
-        :param other1: first profile
-        :param other2: second profile
-        :type other1: BaseColumnProfiler
-        :type other2: BaseColumnProfiler
+        :param self: first profile
+        :param other: second profile
+        :param merged_profile: merged profile
+        :type self: TextProfiler
+        :type other: TextProfiler
+        :type merged_profile: TextProfiler
+        :return:
         """
-        if other1.name == other2.name:
-            self.name = other1.name
+        if not self._case_sensitive:
+            merged_profile.word_count = self.word_count.copy()
+            additive_words = other.word_count
         else:
-            raise ValueError("Text names unmatched: {} != {}"
-                             .format(other1.name, other2.name))
-
-        self.times = defaultdict(
-            float, {key: (other1.times.get(key, 0)
-                          + other2.times.get(key, 0)
-                          + self.times.get(key, 0))
-                    for key in (set(other1.times) | set(other2.times)
-                                | set(self.times))}
-        )
-
-        self.sample_size = other1.sample_size + other2.sample_size
-
+            merged_profile.word_count = other.word_count.copy()
+            additive_words = self.word_count
+            
+        if merged_profile._case_sensitive:
+            for word in additive_words:
+                if word.lower() not in self._stop_words:
+                    merged_profile.word_count[word] += additive_words[word]
+        else:
+            for word in additive_words:
+                if word.lower() not in self._stop_words:
+                    merged_profile.word_count[word.lower()] += additive_words[
+                            word]
+    
     def __add__(self, other):
         """
         Merges the properties of two TextProfiler profiles
@@ -113,6 +119,10 @@ class TextProfiler(object):
                     for key in (set(self.times) | set(other.times))}
         )
         
+        merged_profile._case_sensitive = False
+        if self._case_sensitive and other._case_sensitive:
+            merged_profile._case_sensitive = True
+        
         BaseColumnProfiler._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,
                                  other.__calculations)
@@ -122,11 +132,8 @@ class TextProfiler(object):
             merged_profile._update_vocab(other.vocab)
             
         if "words" in merged_profile.__calculations:
-            merged_profile.word_count = self.word_count.copy()
-            for word in other.word_count:
-                if word.lower() not in self._stop_words:
-                    merged_profile.word_count[word] += other.word_count[word]
-                    
+            self._merge_words(other, merged_profile)
+
         merged_profile.sample_size = self.sample_size + other.sample_size
 
         return merged_profile
@@ -138,10 +145,13 @@ class TextProfiler(object):
 
         :return:
         """
+        word_count = sorted(self.word_count.items(),
+                            key=lambda x: x[1],
+                            reverse=True)
         profile = dict(
             vocab=self.vocab,
             words=list(self.word_count.keys()),
-            word_count=dict(self.word_count),
+            word_count=dict(word_count),
             times=self.times,
         )
         return profile
@@ -181,10 +191,17 @@ class TextProfiler(object):
         :type subset_properties: dict
         :return: None
         """
-        for row in data:
-            for word in row.split(" "):
-                if word.lower() not in self._stop_words:
-                    self.word_count[word] += 1
+        if self._case_sensitive:
+            for row in data:
+                for word in re.findall(r'\w+', row):
+                    if word.lower() not in self._stop_words:
+                            self.word_count[word] += 1
+        else:
+            for row in data:
+                for word in re.findall(r'\w+', row):
+                    if word.lower() not in self._stop_words:
+                        self.word_count[word.lower()] += 1
+
 
     def _update_helper(self, data, profile):
         """

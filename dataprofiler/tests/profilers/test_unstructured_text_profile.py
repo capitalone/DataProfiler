@@ -154,10 +154,14 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         expected_word_count = {'Grant': 1, 'Bob': 1, 'friends': 1}
         self.assertDictEqual(expected_word_count, profile['word_count'])
         
-        text_profile3 = text_profile1 + text_profile2
-        profile = text_profile3.profile
-        # Assert word counts are correct
-        expected_word_count = {'hello': 1, 'name': 1, 'grant': 2, 'bob': 1,
-                               'friends': 1}
-        self.assertDictEqual(expected_word_count, profile['word_count'])
+        with self.assertWarnsRegex(UserWarning,
+                "The merged Text Profile will not be case sensitive since there"
+                " were conflicting values for case sensitivity between the two "
+                "profiles being merged."):
+            text_profile3 = text_profile1 + text_profile2
+            profile = text_profile3.profile
+            # Assert word counts are correct
+            expected_word_count = {'hello': 1, 'name': 1, 'grant': 2, 'bob': 1,
+                                   'friends': 1}
+            self.assertDictEqual(expected_word_count, profile['word_count'])
         

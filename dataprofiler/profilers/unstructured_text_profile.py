@@ -1,6 +1,7 @@
 from collections import defaultdict
 import itertools
 import re
+import warnings
 
 from . import utils, BaseColumnProfiler
 
@@ -120,10 +121,10 @@ class TextProfiler(object):
         for word in additive_words:
             word_lower = word.lower()
             if word_lower not in self._stop_words:
-                if not self._is_case_sensitive:
-                    merged_profile.word_count[word_lower] += additive_words[word]
-                else:
+                if self._is_case_sensitive:
                     merged_profile.word_count[word] += additive_words[word]
+                else:
+                    merged_profile.word_count[word_lower] += additive_words[word]
     
     def __add__(self, other):
         """
@@ -156,6 +157,11 @@ class TextProfiler(object):
         merged_profile._is_case_sensitive = False
         if self._is_case_sensitive and other._is_case_sensitive:
             merged_profile._is_case_sensitive = True
+        elif self._is_case_sensitive or other._is_case_sensitive:
+            warnings.warn("The merged Text Profile will not be case sensitive "
+                          "since there were conflicting values for case "
+                          "sensitivity between the two profiles being merged.")
+
         
         BaseColumnProfiler._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,

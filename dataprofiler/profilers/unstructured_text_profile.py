@@ -27,36 +27,108 @@ class TextProfiler(object):
         # TODO: Add line length
         #self.line_length = {'max': None, 'min': None,...} #numeric stats mixin?
 
-        self._case_sensitive = True
+        self._is_case_sensitive = True
         if options:
-            self._case_sensitive = options.case_sensitive
+            self._is_case_sensitive = options.is_case_sensitive
 
         # these stop words are from nltk
         self._stop_words = {
-            'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you',
-            "you're", "you've", "you'll", "you'd", 'your', 'yours', 'yourself',
-            'yourselves', 'he', 'him', 'his', 'himself', 'she', "she's", 'her',
-            'hers', 'herself', 'it', "it's", 'its', 'itself', 'they', 'them',
-            'their', 'theirs', 'themselves', 'what', 'which', 'who', 'whom',
-            'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are',
-            'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
-            'having', 'do', 'does', 'did', 'doing', 'a', 'an', 'the', 'and',
-            'but', 'if', 'or', 'because', 'as', 'until', 'while', 'of', 'at',
-            'by', 'for', 'with', 'about', 'against', 'between', 'into',
-            'through', 'during', 'before', 'after', 'above', 'below', 'to',
-            'from', 'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under',
-            'again', 'further', 'then', 'once', 'here', 'there', 'when',
-            'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more',
-            'most', 'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own',
-            'same', 'so', 'than', 'too', 'very', 's', 't', 'can', 'will',
-            'just', 'don', "don't", 'should', "should've", 'now', 'd', 'll',
-            'm', 'o', 're', 've', 'y', 'ain', 'aren', "aren't", 'couldn',
-            "couldn't", 'didn', "didn't", 'doesn', "doesn't", 'hadn', "hadn't",
-            'hasn', "hasn't", 'haven', "haven't", 'isn', "isn't", 'ma',
-            'mightn', "mightn't", 'mustn', "mustn't", 'needn', "needn't",
-            'shan', "shan't", 'shouldn', "shouldn't", 'wasn', "wasn't",
-            'weren', "weren't", 'won', "won't", 'wouldn', "wouldn't"
-        }
+            'thereafter', 'several', 'whenever', 'round', "she'd", 'shall', 
+            'adj', 'front', 'abroad', 'specify', 'namely', 'lest', 'among', 
+            'other', "wont", "couldn't", "i've", 'notwithstanding', 'isn', 
+            'recently', 'seemed', 'therefore', 'believe', 'twenty', "c'mon", 
+            'enough', 'fifth', 'otherwise', 'necessary', "weren't", '‘d', 
+            'all', 'thereupon', 'becomes', 'et', 'different', 'top', 'forty', 
+            'past', "daren't", 'rd', 'although', 'edu', 'again', 'it', 'three', 
+            'hadn', 'my', "you'll", 'makes', 'though', 'fewer', 'four', '’d', 
+            'neednt', 'isnt', 'meantime', 'hes', 'qv', 'wasn', 'very', 
+            'perhaps', 'who', 'meanwhile', 'sent', 'fifteen', 'has', 'plus', 
+            'ago', 'respectively', 'considering', 'provided', 'at', 'few', 
+            'elsewhere', 'ten', 'new', 'seven', 'unless', "i'm", 'how', 
+            'nothing', 'each', 'hence', 'are', 'some', 'selves', 'already', 
+            'behind', 'thanx', 'apart', "he'll", 'in', 'sometime', 'yours', 
+            'looks', 'always', 'five', 'with', 'need', 'most', "'ll", "'ve", 
+            'com', 'k', 'cause', 'those', 'or', 'toward', 'afterwards', 'ex', 
+            'wouldn', 'let', 'out', 'gives', 'there', 'alongside', 'own', 
+            'himself', 'mightve', 'her', 'wherein', 'both', 'caption', 'than', 
+            'nearly', 'better', 'thereby', 'anyhow', 'itself', 'without', 
+            'bottom', "mustn't", 'look', 'shouldn', 'show', 'wasnt', 'mightn', 
+            'whose', 'herself', 'hasnt', 'definitely', 'if', 'neverf', 'th', 
+            'whence', 'doesn', 'inner', '‘s', 'concerning', 'n’t', 'amid', 
+            'ending', '‘m', 'wouldnt', 'appear', 'within', 'greetings', 
+            'associated', 'clearly', "shouldn't", 'corresponding', 'o', 'first',
+            'novel', 'right', "didn't", "can't", 'non', 'latter', 'whereas', 
+            'and', 'under', 'comes', 'mainly', 'these', 've', 'dare', 'towards',
+            'yourselves', 'll', 'goes', 'myself', 'whither', 'furthermore', 
+            'didn', 'help', 'third', '’ll', 'farther', 'hopefully', 'thanks', 
+            'where', 'neverless', 'hereupon', 'anyways', 'done', 'mine', 
+            'later', 'about', 'former', "should've", "he's", 'thats', 'sorry', 
+            'recent', 'insofar', 'aside', 'changes', 'weren', 'ought', 'ever', 
+            'ourselves', 'even', 'specifying', "shan't", 'saw', 'couldn', 
+            'whereafter', 'become', 'shan', 'more', "ain't", 'could', "that'll",
+            "oughtn't", 'move', 'co', 'many', "'d", 'but', 'however', 'another',
+            '’s', 'awfully', 'second', 'fairly', 'thence', "doesn't", 'get', 
+            'thus', 'hasn', "you'd", 'see', 'directly', "here's", 'being', 
+            'gotten', "it'll", 'seeing', 'now', 'none', 'something', 'begin', 
+            'youre', 'dont', 'eighty', 'whatever', 'they', 'secondly', 'ones', 
+            'regardless', 'whereby', 'eight', 'she', 'maybe', 'looking', 
+            'thatllwas', 'needn', 'sometimes', 'put', 'others', 'amidst', 
+            'empty', 'next', 'tell', 'must', 'consider', 'backward', 'any', 
+            'into', 'don', 'happens', 'ours', 'side', 'especially', 'follows', 
+            'throughout', "'m", 'forth', 'were', "don't", 'much', 'amount', 
+            'taken', 'mustn', 'may', 'make', 'miss', 'sup', 'becoming', 'still',
+            "a's", 'certain', 'eg', 'never', 'course', 'inside', 'same', 
+            'backwards', 'actually', "n't", '‘ve', "needn't", 'contains', 
+            'somebody', 'm', 'probably', 'onto', 'just', 'two', 'known', 
+            'werent', 'brief', 'getting', "aren't", 'various', 'rather', 'old', 
+            'shes', 'while', 'along', 'else', 'sixty', 'particularly', 'hers', 
+            'either', 'every', 'alone', 'found', 'placed', 'which', 
+            'anyone', 'consequently', 'regards', 'because', 'ltd', 'ain', 'is', 
+            'their', 'causes', "i'd", 'immediate', 'somehow', 'gets', 'i', 
+            'near', 'lower', 'eleven', 'having', "isn't", 'inc.', 'your', 'so',
+            'part', 'ninety', "mightn't", 're', 'available', "it's", 'half', 
+            'back', 'over', 'evermore', 'regarding', 'followed', 'entirely', 
+            'nonetheless', 's', 'said', 'sub', 'noone', 'soon', 'youve', 
+            'seriously', 'keeps', 'you', 'everyone', 'normally', 'away', 'an', 
+            'appreciate', 'this', 'across', 'hardly', 'ignored', 'he', 
+            'likewise', "that've", 'described', '’re', 'particular', 'its', 
+            'hundred', 'sure', 'theirs', 'anyway', 'from', "hadn't", 'says', 
+            'like', 'been', 'everywhere', "you've", 'indicate', 'obviously', 
+            'saying', 'needs', 'won', 'beforehand', 'whole', 'mrs', 'aren', 
+            'twelve', 'often', 'thank', 'used', '’ve', "one's", 'currently', 
+            'say', 'on', "'re", 'couldnt', "'s", 'give', 'sensible', 'mean', 
+            "i'll", 'taking', 'whom', 'come', 'too', 'gone', "that's", 'became',
+            'instead', 'que', 'please', 'since', 'themselves', 'yourself', 
+            'haven', 'self', 'them', 'what', 'appropriate', 'liked', 
+            'anybody', 'made', 'nobody', "c's", 'call', 'somewhere', 'cant', 
+            'for', "won't", 'anything', 'be', 'that', 'the', 'does', 'was', 
+            'up', 'reasonably', 'also', 'low', 'whoever', 'asking',  
+            'me', 'to', 'inc', 'tends', 'until', 'howbeit', 'havent', 'lately', 
+            'someone', 'downwards', 'seems', 'following', 'allows', 'beside', 
+            'below', 'thru', 'outside', 'inasmuch', 'would', "let's", 'as', 
+            'one', 'hi', 'his', 'nine', 'should', "she'll", 'further', 'when', 
+            "hasn't", 'keep', 'according', 'okay', 'had', 'neither', 'might', 
+            'nowhere', 'contain', 'y', 'of', 'formerly', 'once', 'mostly', 
+            'upon', 'a', 'inward', 'hereafter', 'why', 'whether', 'co.', 
+            'herein', 'specified', 'whereupon', 'ok', 'per', 'end', 'around', 
+            'relatively', 'hereby', 'd', 'mightnt', 'indicated', "haven't", 
+            'certainly', 'indicates', 'except', "wasn't", 'above', 'shouldve', 
+            'likely', 'etc', 'presumably', 'beyond', 'no', 'allow', 
+            'accordingly', 't', 'ca', 'therein', 'moreover', 'last', 'least', 
+            'not', 'we', 'after', 'only', 'together', 'go', 'nevertheless', 
+            'do', 'him', 'quite', 'kept', 'everything', 'minus', 'am', 
+            'despite', 'six', 'before', "couldn't", 'forever', 'anywhere', 
+            'nd', 'little', 'us', 'can', 'containing', 'exactly', 'hither', 
+            'seem', 'due', 'someday', 'well', 'during', 'no-one', 'ask', '‘ll',
+            'using', 'seen', 'against', 'almost', 'full', 'here', 'example', 
+            'fifty', 'did', 'via', 'n‘t', 'everybody', 'mr', 'by', 'off', 
+            'indeed', 'such', "she's", 'down', 'ahead', 'far', 'doing', 'less',
+            'will', 'came', 'amongst', "it'd", 'our', 'then', 'ma', 'going', 
+            'somewhat', 'serious', '’m', 'besides', 'really',
+            "wouldn't", 'overall', 'given', "he'd", 'provides', 'got', 'have', 
+            "you're", 'possible', 'ie', 'through', "mayn't", 'opposite', 
+            'cannot', 'forward', 'oh', 'yet', 'between', 'latterly', 'seeming',
+            'best', 'wherever', '‘re', 'merely', 'take', 'nor', 'able'}
 
         self.__calculations = {
             "vocab": TextProfiler._update_vocab,
@@ -76,14 +148,14 @@ class TextProfiler(object):
         :type merged_profile: TextProfiler
         :return:
         """
-        if not self._case_sensitive:
+        if not self._is_case_sensitive:
             merged_profile.word_count = self.word_count.copy()
             additive_words = other.word_count
         else:
             merged_profile.word_count = other.word_count.copy()
             additive_words = self.word_count
             
-        if merged_profile._case_sensitive:
+        if merged_profile._is_case_sensitive:
             for word in additive_words:
                 if word.lower() not in self._stop_words:
                     merged_profile.word_count[word] += additive_words[word]
@@ -121,9 +193,9 @@ class TextProfiler(object):
                     for key in (set(self.times) | set(other.times))}
         )
         
-        merged_profile._case_sensitive = False
-        if self._case_sensitive and other._case_sensitive:
-            merged_profile._case_sensitive = True
+        merged_profile._is_case_sensitive = False
+        if self._is_case_sensitive and other._is_case_sensitive:
+            merged_profile._is_case_sensitive = True
         
         BaseColumnProfiler._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,
@@ -193,7 +265,7 @@ class TextProfiler(object):
         :type subset_properties: dict
         :return: None
         """
-        if self._case_sensitive:
+        if self._is_case_sensitive:
             for row in data:
                 for word in re.findall(r'\w+', row):
                     if word.lower() not in self._stop_words:

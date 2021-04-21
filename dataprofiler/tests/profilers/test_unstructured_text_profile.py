@@ -140,7 +140,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         
     def test_case_sensitivity(self):
         text_profile1 = TextProfiler("Name")
-        text_profile1._case_sensitive = False
+        text_profile1._is_case_sensitive = False
         sample = pd.Series(["Hello my name is: Grant.!!!"])
         text_profile1.update(sample)
         profile = text_profile1.profile

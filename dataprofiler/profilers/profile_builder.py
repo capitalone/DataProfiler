@@ -610,8 +610,8 @@ class Profiler(object):
                 null_row_indices = set.union(*null_type_dict.values())
 
             if self.complete_row_ids is not None:
-                null_row_indices = \
-                    null_row_indices.intersection(self.complete_row_ids)
+                null_row_indices = null_row_indices.intersection(
+                    data.index[self.complete_row_ids])
 
             # Find the common null indices between the columns
             if first_col_flag:

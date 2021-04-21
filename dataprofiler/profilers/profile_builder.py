@@ -704,14 +704,19 @@ class Profiler(object):
                     options=structured_options
                 )
                 new_cols.add(col)
-                        
-        # Format the data
-        notification_str = "Finding the Null values in the columns..."
+                
+        # Generate pool and estimate datasize
         pool = None
         if options.structured_options.multiprocess.is_enabled:
-            if len(new_cols) > 0:
-                pool, pool_size = utils.generate_pool(max_pool_size=len(new_cols))
-                notification_str += " (with " + str(pool_size) + " processes)"
+            est_data_size = df[:50000].memory_usage(index=False, deep=True).sum()
+            est_data_size = (est_data_size / min(50000, len(df))) * len(df)
+            pool, pool_size = utils.generate_pool(
+                max_pool_size=None, data_size=est_data_size, cols=len(df.columns))
+
+        # Format the data
+        notification_str = "Finding the Null values in the columns..."        
+        if pool and len(new_cols) > 0:
+            notification_str += " (with " + str(pool_size) + " processes)"
         
         clean_sampled_dict = {}
         multi_process_dict = {}
@@ -721,6 +726,7 @@ class Profiler(object):
             warnings.warn("The data will be profiled with a sample size of {}. "
                           "All statistics will be based on this subsample and "
                           "not the whole dataset.".format(sample_size))
+
         if pool is not None:
 
             # Create a bunch of simultaneous column conversions
@@ -778,7 +784,7 @@ class Profiler(object):
         notification_str = "Calculating the statistics... "
         pool = None
         if options.structured_options.multiprocess.is_enabled:
-            pool, pool_size = utils.generate_pool(max_pool_size=4)
+            pool, pool_size = utils.generate_pool(4, est_data_size)
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"
         print(notification_str)

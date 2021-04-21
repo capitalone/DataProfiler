@@ -484,9 +484,10 @@ class Profiler(object):
         :return: integer sampling size
         :rtype: int
         """
-        len_data = len(data)
         if self._samples_per_update:
             return self._samples_per_update
+
+        len_data = len(data)
         if len_data <= self._min_sample_size:
             return int(len_data)
         return max(int(self._sampling_ratio * len_data), self._min_sample_size)
@@ -604,24 +605,26 @@ class Profiler(object):
         :type min_true_samples
         :return: None
         """
-        if not min_true_samples:
-            min_true_samples = self._min_true_samples
         if isinstance(data, data_readers.base_data.BaseData):
-            self._update_profile_from_chunk(
-                data.data, sample_size, min_true_samples, self.options)
-            self._update_row_statistics(data.data)
             self.encoding = data.file_encoding
             self.file_type = data.data_type
+            data = data.data
         elif isinstance(data, pd.DataFrame):
-            self._update_profile_from_chunk(
-                data, sample_size, min_true_samples, self.options)
-            self._update_row_statistics(data)
             self.file_type = str(data.__class__)
         else:
             raise ValueError(
                 "Data must either be imported using the data_readers or "
                 "pd.DataFrame."
             )
+
+        if not min_true_samples:
+            min_true_samples = self._min_true_samples
+        if not sample_size:
+            sample_size = self._get_sample_size(data)
+
+        self._update_profile_from_chunk(
+            data, sample_size, min_true_samples, self.options)
+        self._update_row_statistics(data)
 
     def _update_profile_from_chunk(self, df, sample_size=None,
                                    min_true_samples=None, options=None):
@@ -669,9 +672,6 @@ class Profiler(object):
                 for i, e in enumerate(l):
                     print("Processing Column {}/{}".format(i+1, len(l)))
                     yield e
-
-        if not sample_size:
-            sample_size = self._get_sample_size(df)
 
         # Shuffle indices ones and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]

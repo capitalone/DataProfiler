@@ -504,29 +504,30 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         data = pd.DataFrame([0] * int(50e3))
 
         # test data size < min_sample_size = 5000 by default
-        profile = dp.Profiler(pd.DataFrame([]))
-        sample_size = profile._get_sample_size(data[:1000])
+        profiler = dp.Profiler(pd.DataFrame([]))
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        sample_size = profiler._get_sample_size(data[:1000])
         self.assertEqual(1000, sample_size)
 
         # test data size * 0.20 < min_sample_size < data size
-        profile = dp.Profiler(pd.DataFrame([]))
-        sample_size = profile._get_sample_size(data[:10000])
+        sample_size = profiler._get_sample_size(data[:10000])
         self.assertEqual(5000, sample_size)
 
         # test min_sample_size > data size * 0.20
-        profile = dp.Profiler(pd.DataFrame([]))
-        sample_size = profile._get_sample_size(data)
+        sample_size = profiler._get_sample_size(data)
         self.assertEqual(10000, sample_size)
 
-    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+        # test min_sample_size > data size * 0.10
+        profiler._sampling_ratio = 0.5
+        sample_size = profiler._get_sample_size(data)
+        self.assertEqual(25000, sample_size)
+
     @mock.patch('dataprofiler.profilers.profile_builder.Profiler.'
-                '_update_row_statistics')
-    @mock.patch('dataprofiler.profilers.profile_builder.StructuredDataProfile')
+                '_update_profile_from_chunk')
     def test_sample_size_passed_to_profile(self, *mocks):
-        # structure data profile mock
-        sdp_mock = mock.Mock()
-        sdp_mock.clean_data_and_get_base_stats.return_value = (dict(a=1), None)
-        mocks[0].return_value = sdp_mock
+
+        update_mock = mocks[0]
 
         # data setup
         data = pd.DataFrame([0] * int(50e3))
@@ -537,19 +538,22 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profiler_options.set({'data_labeler.is_enabled': False})
 
         # test data size < min_sample_size = 5000 by default
-        profile = dp.Profiler(data[:1000], profiler_options=profiler_options)
-        self.assertIn('sample_size', mocks[0].call_args[1])
-        self.assertEqual(1000, mocks[0].call_args[1]['sample_size'])
+        profiler = dp.Profiler(data[:1000], profiler_options=profiler_options)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        self.assertEqual(1000, update_mock.call_args[0][1])
 
         # test data size * 0.20 < min_sample_size < data size
-        profile = dp.Profiler(data[:10000], profiler_options=profiler_options)
-        self.assertIn('sample_size', mocks[0].call_args[1])
-        self.assertEqual(5000, mocks[0].call_args[1]['sample_size'])
+        profiler = dp.Profiler(data[:10000], profiler_options=profiler_options)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        self.assertEqual(5000, update_mock.call_args[0][1])
 
         # test min_sample_size > data size * 0.20
-        profile = dp.Profiler(data, profiler_options=profiler_options)
-        self.assertIn('sample_size', mocks[0].call_args[1])
-        self.assertEqual(10000, mocks[0].call_args[1]['sample_size'])
+        profiler = dp.Profiler(data, profiler_options=profiler_options)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        self.assertEqual(10000, update_mock.call_args[0][1])
 
 
 class TestProfilerNullValues(unittest.TestCase):

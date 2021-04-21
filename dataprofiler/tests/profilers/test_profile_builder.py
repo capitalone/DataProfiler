@@ -228,7 +228,6 @@ class TestProfiler(unittest.TestCase):
             report_options={"output_format": "compact" })
 
         self.assertEqual(report, report_compact)        
-                
 
     def test_profile_key_name_without_space(self):
 
@@ -301,6 +300,20 @@ class TestProfiler(unittest.TestCase):
                                    "size of 3. All statistics will be based on "
                                    "this subsample and not the whole dataset."):
             profile1 = dp.Profiler(data, samples_per_update=3)
+
+    def test_null_calculation_with_differently_sampled_cols(self):
+        opts = ProfilerOptions()
+        opts.structured_options.multiprocess.is_enabled = False
+        data = pd.DataFrame({"full": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                             "sparse": [1, None, 3, None, 5, None, 7, None, 9]})
+        profile = dp.Profiler(data, samples_per_update=5, min_true_samples=5,
+                              profiler_options=opts)
+        # Rows 2, 4, 5, 6, 7 are sampled in first column
+        # Therefore only those rows should be considered for null calculations
+        # The only null in those rows in second column in that subset is row 1
+        # Therefore only 1 row has null according to row_has_null_count
+        self.assertEqual(0, profile.row_is_null_count)
+        self.assertEqual(2, profile.row_has_null_count)
 
 
 class TestStructuredDataProfileClass(unittest.TestCase):

@@ -284,8 +284,8 @@ class StructuredDataProfile(object):
     #  index number in the error as well
     @staticmethod
     def clean_data_and_get_base_stats(df_series, sample_size,
-                                             min_true_samples=None,
-                                             sample_ids=None):
+                                      min_true_samples=None,
+                                      sample_ids=None):
         """
         Identify null characters and return them in a dictionary as well as
         remove any nulls in column.
@@ -365,7 +365,7 @@ class StructuredDataProfile(object):
             # Ensure minimum number of true samples met
             # and if total_sample_size > samplesize exit
             if len(true_sample_list) >= min_true_samples \
-               and total_sample_size > sample_size:                
+                    and total_sample_size >= sample_size:
                 break
             
         # close the generator in case it is not exhausted.
@@ -725,7 +725,6 @@ class Profiler(object):
                           "All statistics will be based on this subsample and "
                           "not the whole dataset.".format(sample_size))
         if pool is not None:
-
             # Create a bunch of simultaneous column conversions
             for col in df.columns:
                 if min_true_samples is None:

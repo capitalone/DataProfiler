@@ -604,12 +604,6 @@ class Profiler(object):
             pd.util.hash_pandas_object(data, index=False), True
         )
 
-        # Calculate complete rows read
-        # Only consider nulls in fully sampled rows for calculations
-        complete_row_ids = None
-        if sample_ids is not None:
-            complete_row_ids = sample_ids[:self._min_col_samples_used]
-
         # Calculate Null Column Count
         null_rows = set()
         null_in_row_count = set()
@@ -620,9 +614,11 @@ class Profiler(object):
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
 
-            if complete_row_ids is not None:
+            if sample_ids is not None:
+                # If sample ids provided, only consider nulls in rows that
+                # were fully sampled
                 null_row_indices = null_row_indices.intersection(
-                    data.index[complete_row_ids])
+                    data.index[sample_ids[:self._min_col_samples_used]])
 
             # Find the common null indices between the columns
             if first_col_flag:

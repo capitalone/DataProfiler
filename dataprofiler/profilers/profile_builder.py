@@ -153,12 +153,14 @@ class StructuredDataProfile(object):
 
         merged_profile.name = self.name
         merged_profile._update_base_stats(
-            {"sample": self.sample, 'sample_size': self.sample_size,
+            {"sample": self.sample,
+             "sample_size": self.sample_size,
              "null_count": self.null_count,
              "null_types": copy.deepcopy(self.null_types_index)}
         )
         merged_profile._update_base_stats(
-            {"sample": other.sample, 'sample_size': other.sample_size,
+            {"sample": other.sample,
+             "sample_size": other.sample_size,
              "null_count": other.null_count,
              "null_types": copy.deepcopy(other.null_types_index)}
         )
@@ -278,8 +280,8 @@ class StructuredDataProfile(object):
     #  index number in the error as well
     @staticmethod
     def clean_data_and_get_base_stats(df_series, sample_size,
-                                             min_true_samples=None,
-                                             sample_ids=None):
+                                      min_true_samples=None,
+                                      sample_ids=None):
         """
         Identify null characters and return them in a dictionary as well as
         remove any nulls in column.
@@ -321,7 +323,7 @@ class StructuredDataProfile(object):
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
 
-        # Select generator depending if sample_ids availablity
+        # Select generator depending if sample_ids availability
         if sample_ids is None:
             sample_ind_generator = utils.shuffle_in_chunks(
                 len_df, chunk_size=sample_size)
@@ -334,7 +336,6 @@ class StructuredDataProfile(object):
         total_sample_size = 0
         query = '|'.join(null_values_and_flags.keys())
         regex = f"^(?:{(query)})$"
-        
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
             
@@ -352,9 +353,9 @@ class StructuredDataProfile(object):
                 na_columns.setdefault(cell, list()).append(index)
             
             # Ensure minimum number of true samples met
-            # and if total_sample_size > samplesize exit
+            # and if total_sample_size >= sample size, exit
             if len(true_sample_list) >= min_true_samples \
-               and total_sample_size > sample_size:                
+                    and total_sample_size >= sample_size:
                 break
             
         # close the generator in case it is not exhausted.
@@ -521,6 +522,16 @@ class Profiler(object):
             samples_used = max(samples_used, col.sample_size)
         return samples_used
 
+    @property
+    def _min_col_samples_used(self):
+        """
+        Calculates and returns the number of rows that were completely sampled
+        i.e. every column in the Profile was read up to this row (possibly
+        further in some cols)
+        """
+        return min([self._profile[col].sample_size
+                    for col in self._profile], default=0)
+
     def report(self, report_options=None):
         if not report_options:
             report_options = {
@@ -561,17 +572,17 @@ class Profiler(object):
         return len(self.hashed_row_dict) / self.total_samples
 
     def _get_row_is_null_ratio(self):
-        return 0 if self._max_col_samples_used == 0 \
-            else self.row_is_null_count / self._max_col_samples_used
+        return 0 if self._min_col_samples_used in {0, None} \
+            else self.row_is_null_count / self._min_col_samples_used
 
     def _get_row_has_null_ratio(self):
-        return 0 if self._max_col_samples_used == 0 \
-            else self.row_has_null_count / self._max_col_samples_used
+        return 0 if self._min_col_samples_used in {0, None} \
+            else self.row_has_null_count / self._min_col_samples_used
 
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)
 
-    def _update_row_statistics(self, data):
+    def _update_row_statistics(self, data, sample_ids=None):
         """
         Iterate over the provided dataset row by row and calculate
         the row statistics. Specifically, number of unique rows,
@@ -580,7 +591,13 @@ class Profiler(object):
 
         :param data: a dataset
         :type data: pandas.DataFrame
+        :param sample_ids: list of indices in order they were sampled in data
+        :type sample_ids: list(int)
         """
+
+        if not isinstance(data, pd.DataFrame):
+            raise ValueError("Cannot calculate row statistics on data that is"
+                             "not a DataFrame")
         
         self.total_samples += len(data)
         self.hashed_row_dict = dict.fromkeys(
@@ -596,6 +613,12 @@ class Profiler(object):
             null_row_indices = set()
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
+
+            if sample_ids is not None:
+                # If sample ids provided, only consider nulls in rows that
+                # were fully sampled
+                null_row_indices = null_row_indices.intersection(
+                    data.index[sample_ids[:self._min_col_samples_used]])
 
             # Find the common null indices between the columns
             if first_col_flag:
@@ -642,7 +665,6 @@ class Profiler(object):
 
         self._update_profile_from_chunk(
             data, sample_size, min_true_samples, self.options)
-        self._update_row_statistics(data)
 
     def _update_profile_from_chunk(self, df, sample_size=None,
                                    min_true_samples=None, options=None):
@@ -673,22 +695,22 @@ class Profiler(object):
                     print("Processing Column {}/{}".format(i+1, len(l)))
                     yield e
 
-        # Shuffle indices ones and share with columns
+        # Shuffle indices once and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
         
         # If there are no minimum true samples, you can sort to save time
-        if (min_true_samples is None or min_true_samples == 0) \
-           and len(sample_ids) > 0:
+        if min_true_samples in [None, 0]:
             # If there's a sample size, truncate
             if sample_size is not None:
                 sample_ids[0] = sample_ids[0][:sample_size]
-            # Sort the sample_ids anre replace prior
+            # Sort the sample_ids and replace prior
             sample_ids[0] = sorted(sample_ids[0])
+
         # Numpy arrays allocate to heap and can be shared between processes
         # Non-locking multiprocessing fails on machines without POSIX (windows)
         # The function handles that situation, but will be single process
         # Newly introduced features (python3.8) improves the situation
-        sample_ids = np.array(sample_ids)        
+        sample_ids = np.array(sample_ids)
 
         # Create structured profile objects
         new_cols = set()
@@ -728,7 +750,6 @@ class Profiler(object):
                           "not the whole dataset.".format(sample_size))
 
         if pool is not None:
-
             # Create a bunch of simultaneous column conversions
             for col in df.columns:
                 if min_true_samples is None:
@@ -764,11 +785,10 @@ class Profiler(object):
                             df[col], sample_size, min_true_samples, sample_ids)
                     self._profile[col]._update_base_stats(base_stats)
             
-            pool.close() # Close pool for new tasks
-            pool.join() # Wait for all workers to complete
+            pool.close()  # Close pool for new tasks
+            pool.join()  # Wait for all workers to complete
 
-        else: # No pool
-
+        else:  # No pool
             print(notification_str)
             for col in tqdm(df.columns):
                 if min_true_samples is None:
@@ -792,6 +812,14 @@ class Profiler(object):
         for col in tqdm(df.columns):
             self._profile[col].update_column_profilers(
                 clean_sampled_dict[col], pool)
+
         if pool is not None:
-            pool.close() # Close pool for new tasks
-            pool.join() # Wait for all workers to complete
+            pool.close()  # Close pool for new tasks
+            pool.join()  # Wait for all workers to complete
+
+        # Only pass along sample ids if necessary
+        samples_for_row_stats = None
+        if min_true_samples not in [None, 0]:
+            samples_for_row_stats = sample_ids[0]
+
+        self._update_row_statistics(df, samples_for_row_stats)

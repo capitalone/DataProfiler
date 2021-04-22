@@ -303,11 +303,11 @@ class TestProfiler(unittest.TestCase):
                                    "this subsample and not the whole dataset."):
             profile1 = dp.Profiler(data, samples_per_update=3)
 
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+    @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+    @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnStatsProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+    @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_min_col_samples_used(self, *mocks):

@@ -252,9 +252,9 @@ class AbstractTestColumnProfiler(object):
         for profiler in self.profilers:
             mock_object = MagicMock(spec=profiler)
             mock_object.update.return_value = dict(test=1)
-            mock_object.col_type = profiler.col_type
+            mock_object.type = profiler.type
             mock_object.return_value.profile = {
-                "data type": profiler.col_type,
+                "data type": profiler.type,
                 "statistics": dict()
             }
             mock_object.return_value.data_type_ratio = 1.0

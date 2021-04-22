@@ -7,7 +7,7 @@ class OrderColumn(BaseColumnProfiler):
     Index column profile subclass of BaseColumnProfiler. Represents a column in
     the dataset which is an index column.
     """
-    col_type = "order"
+    type = "order"
 
     def __init__(self, name, options=None):
         """

@@ -7,6 +7,8 @@ from ..labelers.data_processing import CharPostprocessor
 
 class UnstructuredDataLabelerProfile(object):
 
+    type = 'text_labeling'
+
     def __init__(self, data_labeler_dirpath=None, options=None):
         """
         Initialization of Data Label profiling for unstructured datasets.

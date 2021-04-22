@@ -417,7 +417,6 @@ class Profiler(object):
         self.hashed_row_dict = dict()
         self._samples_per_update = samples_per_update
         self._min_true_samples = min_true_samples
-        self.complete_row_ids = None
         self._profile = dict()
 
         # matches structured data profile
@@ -531,7 +530,7 @@ class Profiler(object):
         further in some cols)
         """
         return min([self._profile[col].sample_size
-                    for col in self._profile], default=None)
+                    for col in self._profile], default=0)
 
     def report(self, report_options=None):
         if not report_options:
@@ -583,7 +582,7 @@ class Profiler(object):
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)
 
-    def _update_row_statistics(self, data):
+    def _update_row_statistics(self, data, sample_ids):
         """
         Iterate over the provided dataset row by row and calculate
         the row statistics. Specifically, number of unique rows,
@@ -592,6 +591,8 @@ class Profiler(object):
 
         :param data: a dataset
         :type data: pandas.DataFrame
+        :param sample_ids: list of indices in order they were sampled in data
+        :type sample_ids: list(int)
         """
 
         if not isinstance(data, pd.DataFrame):
@@ -603,6 +604,10 @@ class Profiler(object):
             pd.util.hash_pandas_object(data, index=False), True
         )
 
+        # Calculate complete rows read
+        # Only consider nulls in fully sampled rows for calculations
+        complete_row_ids = sample_ids[:self._min_col_samples_used]
+
         # Calculate Null Column Count
         null_rows = set()
         null_in_row_count = set()
@@ -613,9 +618,8 @@ class Profiler(object):
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
 
-            if self.complete_row_ids is not None:
-                null_row_indices = null_row_indices.intersection(
-                    data.index[self.complete_row_ids])
+            null_row_indices = null_row_indices.intersection(
+                data.index[complete_row_ids])
 
             # Find the common null indices between the columns
             if first_col_flag:
@@ -662,7 +666,6 @@ class Profiler(object):
 
         self._update_profile_from_chunk(
             data, sample_size, min_true_samples, self.options)
-        self._update_row_statistics(data)
 
     def _update_profile_from_chunk(self, df, sample_size=None,
                                    min_true_samples=None, options=None):
@@ -812,11 +815,8 @@ class Profiler(object):
             self._profile[col].update_column_profilers(
                 clean_sampled_dict[col], pool)
 
-        # Calculate complete rows read and store ids for them
-        last_full_row = self._min_col_samples_used
-        if last_full_row is not None:
-            self.complete_row_ids = sample_ids[0][:last_full_row]
-
         if pool is not None:
             pool.close()  # Close pool for new tasks
             pool.join()  # Wait for all workers to complete
+
+        self._update_row_statistics(df, sample_ids[0])

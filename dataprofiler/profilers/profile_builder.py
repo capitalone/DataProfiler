@@ -582,7 +582,7 @@ class Profiler(object):
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)
 
-    def _update_row_statistics(self, data, sample_ids):
+    def _update_row_statistics(self, data, sample_ids=None):
         """
         Iterate over the provided dataset row by row and calculate
         the row statistics. Specifically, number of unique rows,
@@ -606,7 +606,9 @@ class Profiler(object):
 
         # Calculate complete rows read
         # Only consider nulls in fully sampled rows for calculations
-        complete_row_ids = sample_ids[:self._min_col_samples_used]
+        complete_row_ids = None
+        if sample_ids is not None:
+            complete_row_ids = sample_ids[:self._min_col_samples_used]
 
         # Calculate Null Column Count
         null_rows = set()
@@ -618,8 +620,9 @@ class Profiler(object):
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
 
-            null_row_indices = null_row_indices.intersection(
-                data.index[complete_row_ids])
+            if complete_row_ids is not None:
+                null_row_indices = null_row_indices.intersection(
+                    data.index[complete_row_ids])
 
             # Find the common null indices between the columns
             if first_col_flag:

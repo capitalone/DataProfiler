@@ -303,7 +303,13 @@ class TestProfiler(unittest.TestCase):
                                    "this subsample and not the whole dataset."):
             profile1 = dp.Profiler(data, samples_per_update=3)
 
-    def test_min_col_samples_used(self):
+    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+                'ColumnDataLabelerCompiler')
+    def test_min_col_samples_used(self, *mocks):
         # No cols sampled since no cols to sample
         empty_df = pd.DataFrame([])
         empty_profile = dp.Profiler(empty_df)
@@ -315,7 +321,9 @@ class TestProfiler(unittest.TestCase):
         self.assertEqual(3, full_profile._min_col_samples_used)
 
         # First col sampled only twice, so that is min
-        sparse_df = pd.DataFrame([[1, None, None], [1, 1, None], [1, None, 1]])
+        sparse_df = pd.DataFrame([[1, None, None],
+                                  [1, 1, None],
+                                  [1, None, 1]])
         sparse_profile = dp.Profiler(sparse_df, min_true_samples=2,
                                      samples_per_update=1)
         self.assertEqual(2, sparse_profile._min_col_samples_used)

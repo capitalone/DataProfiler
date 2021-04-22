@@ -303,6 +303,32 @@ class TestProfiler(unittest.TestCase):
                                    "this subsample and not the whole dataset."):
             profile1 = dp.Profiler(data, samples_per_update=3)
 
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_min_col_samples_used(self, *mocks):
+        # No cols sampled since no cols to sample
+        empty_df = pd.DataFrame([])
+        empty_profile = dp.Profiler(empty_df)
+        self.assertEqual(0, empty_profile._min_col_samples_used)
+
+        # Every column fully sampled
+        full_df = pd.DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        full_profile = dp.Profiler(full_df)
+        self.assertEqual(3, full_profile._min_col_samples_used)
+
+        # First col sampled only twice, so that is min
+        sparse_df = pd.DataFrame([[1, None, None],
+                                  [1, 1, None],
+                                  [1, None, 1]])
+        sparse_profile = dp.Profiler(sparse_df, min_true_samples=2,
+                                     samples_per_update=1)
+        self.assertEqual(2, sparse_profile._min_col_samples_used)
+
 
 class TestStructuredDataProfileClass(unittest.TestCase):
 
@@ -652,6 +678,40 @@ class TestProfilerNullValues(unittest.TestCase):
             
         self.assertEqual(col_one_len, len(data['NAME']))
         self.assertEqual(col_two_len, len(data[' VALUE']))
+
+    def test_null_calculation_with_differently_sampled_cols(self):
+        opts = ProfilerOptions()
+        opts.structured_options.multiprocess.is_enabled = False
+        data = pd.DataFrame({"full": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                             "sparse": [1, None, 3, None, 5, None, 7, None, 9]})
+        profile = dp.Profiler(data, samples_per_update=5, min_true_samples=5,
+                              profiler_options=opts)
+        # Rows 2, 4, 5, 6, 7 are sampled in first column
+        # Therefore only those rows should be considered for null calculations
+        # The only null in those rows in second column in that subset are 5, 7
+        # Therefore only 2 rows have null according to row_has_null_count
+        self.assertEqual(0, profile.row_is_null_count)
+        self.assertEqual(2, profile.row_has_null_count)
+        # Accordingly, make sure ratio of null rows accounts for the fact that
+        # Only 5 total rows were sampled (5 in col 1, 9 in col 2)
+        self.assertEqual(0, profile._get_row_is_null_ratio())
+        self.assertEqual(0.4, profile._get_row_has_null_ratio())
+
+        data2 = pd.DataFrame(
+            {"sparse": [1, None, 3, None, 5, None, 7, None],
+             "sparser": [1, None, None, None, None, None, None, 8]})
+        profile2 = dp.Profiler(data2, samples_per_update=2, min_true_samples=2,
+                               profiler_options=opts)
+        # Rows are sampled as follows: [6, 5], [1, 4], [2, 3], [0, 7]
+        # First column gets min true samples from ids 1, 4, 5, 6
+        # Second column gets completely sampled (has a null in 1, 4, 5, 6)
+        # rows 1 and 5 are completely null, 4 and 6 only null in col 2
+        self.assertEqual(2, profile2.row_is_null_count)
+        self.assertEqual(4, profile2.row_has_null_count)
+        # Only 4 total rows sampled, ratio accordingly
+        self.assertEqual(0.5, profile2._get_row_is_null_ratio())
+        self.assertEqual(1, profile2._get_row_has_null_ratio())
+
 
 
 if __name__ == '__main__':

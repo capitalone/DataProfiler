@@ -463,7 +463,7 @@ Below is an breakdown of all the options.
 
 * **ProfilerOptions** - The top-level options class that contains options for the Profiler class
     * **structured_options** - Options responsible for all structured data
-      	* **multiprocess** - Option to enable multiprocessing, pool size is determined via the following formulation: `min(cpu_count - 1, 8)`
+      	* **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.
             * is_enabled - (Boolean) Enables or disables multiprocessing
         * **int** - Options for the integer columns
             * is_enabled - (Boolean) Enables or disables the integer operations
@@ -477,7 +477,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                * bin_count_or_method - (String/List[String]) Designates preferred method for calculating histogram bins or the number of bins to use.  
                 If left unspecified (None) the optimal method will be chosen by attempting all methods.  
                 If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
@@ -498,7 +498,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                * bin_count_or_method - (String/List[String]) Designates preferred method for calculating histogram bins or the number of bins to use.  
                 If left unspecified (None) the optimal method will be chosen by attempting all methods.  
                 If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
@@ -518,7 +518,7 @@ Below is an breakdown of all the options.
                 * is_enabled - (Boolean) Enables or disables variance
             * histogram_and_quantiles - Generates a histogram and quantiles
             from the column values
-                * method - (String/List[String]) Designates preferred method for calculating histogram bins.  
+                * bin_count_or_method - (String/List[String]) Designates preferred method for calculating histogram bins or the number of bins to use.  
                 If left unspecified (None) the optimal method will be chosen by attempting all methods.  
                 If multiple specified (list) the optimal method will be chosen by attempting the provided ones.  
                 methods: 'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'  
@@ -624,8 +624,12 @@ may also be specified using the options dict parameter.
 
 Possible `options`:
 
-* data_format - must be a string, choices: "dataframe", "records", "json"
+* data_format - must be a string, choices: "dataframe", "records", "json", "flattened_dataframe"
+  * "flattened_dataframe" is best used for JSON structure typically found in data streams that contain
+nested lists of dictionaries and a payload. For example: `{"data": [ columns ], "response": 200}`
 * selected_keys - columns being selected from the entire dataset, must be a list `["column 1", "ssn"]`
+* payload_keys - The dictionary keys for the payload of the JSON, typically called "data"
+or "payload". Defaults to ["data", "payload", "response"].
 
 
 ##### AVROData

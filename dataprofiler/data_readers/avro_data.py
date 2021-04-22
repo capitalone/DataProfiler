@@ -47,13 +47,7 @@ class AVROData(JSONData, BaseData):
             lines = list()
             for line in df_reader:
                 lines.append(line)
-            df, original_df_dtypes = data_utils.json_to_dataframe(
-                    json_lines=lines,
-                    selected_columns=self.selected_keys,
-                    read_in_string=True
-            )
-            self._original_df_dtypes = original_df_dtypes
-            return df
+            return lines
 
     @classmethod
     def is_match(cls, file_path, options=None):

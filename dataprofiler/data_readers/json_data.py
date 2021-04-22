@@ -1,8 +1,10 @@
 from collections import OrderedDict
 import json
+import warnings
+import types
 
 import numpy as np
-
+import pandas as pd
 from . import data_utils
 from .base_data import BaseData
 from .structured_mixins import SpreadSheetDataMixin
@@ -23,14 +25,17 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         Possible Options::
         
             options = dict(
-                data_format= type: str, choices: "dataframe", "records", "json"
+                data_format= type: str, choices: "dataframe", "records", "json",
+                 "data_stream"
                 selected_keys= type: list(str)
+                payload_keys= type: Union[str, list(str)]
             )
 
         
         data_format: user selected format in which to return data
         can only be of specified types
         selected_keys: keys being selected from the entire dataset
+        payload_keys: list of dictionary keys that determine the payload
 
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str
@@ -51,11 +56,18 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         #  _selected_data_format: user selected format in which to return data
         #                         can only be of types in _data_formats
         #  _selected_keys: keys being selected from the entire dataset
+        #  _payload_keys: (list of) dictionary key(s) that determines the payload
+
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
-        self._selected_data_format = options.get("data_format", "dataframe")
+        self._data_formats["flattened_dataframe"] = self._get_data_as_flattened_dataframe
+        self._selected_data_format = options.get("data_format", "flattened_dataframe")
+        self._payload_keys = options.get("payload_keys", ["data", "payload"])
+        if not isinstance(self._payload_keys, list):
+            self._payload_keys = [self._payload_keys]
+        self._key_separator = options.get("key_separator", ".")
         self._selected_keys = options.get("selected_keys", list())
-
+        self._metadata = None
         if data is not None:
             self._load_data(data)
 
@@ -63,49 +75,163 @@ class JSONData(SpreadSheetDataMixin, BaseData):
     def selected_keys(self):
         return self._selected_keys
 
-    def _load_data_from_json_format(self, json_lines):
+    @property
+    def metadata(self):
         """
-        Loads the data when in a JSON format such as
-        `json_lines = [dict(a=1), dict(a=2)]`
-        
+        Returns a data frame that contains the metadata
+        """
+        if self._metadata is None or self._metadata.empty:
+            warnings.warn("No metadata was detected.")
+        return self._metadata
+
+    @property
+    def data_and_metadata(self):
+        """
+        Returns a data frame that joins the data and the metadata.
+        """
+        data = self.data
+        if self._metadata is not None and not self._metadata.empty:
+            data = [self._metadata, data]
+            data = pd.concat(data, axis=1)
+        return data
+
+    def _find_data(self, json_data, path=""):
+        """
+        Finds all the column headers/data in a Json and returns them as a 
+        list.
+
+        :param json_data: the json data or a subset of the json data
+        :type json_data: Union[list, dict, str]
+        :param path: path of keys to the json_data
+        :type path: str
+        :return: list of dicts of {column headers: values}
+        """
+        if path != "" and path[-len(self._key_separator):] != self._key_separator:
+            path = path + self._key_separator
+
+        list_of_dict = []
+        if isinstance(json_data, dict):
+            for key in json_data:
+                if isinstance(json_data[key], dict) or isinstance(json_data[key], list):
+                    list_of_dict = list_of_dict + self._find_data(json_data[key], path + key)
+                else:
+                    list_of_dict = list_of_dict + [{path + key: json_data[key]}]
+        elif isinstance(json_data, list):
+            if all(isinstance(x, dict) for x in json_data):
+                for key in json_data:
+                    list_of_dict = list_of_dict + self._find_data(key, path)
+            else:
+                list_of_dict = list_of_dict + [{path[:-len(self._key_separator)]: json_data}]
+        else:
+            list_of_dict = list_of_dict + [{path[:-len(self._key_separator)]: json_data}]
+        return list_of_dict
+    
+    def _coalesce_dicts(self, list_of_dicts):
+        """
+        Merges all the dictionaries into as few dictionaries as possible.
+
+        :param list_of_dicts: the list of dictionaries with one item in each dict
+        to be coalesced
+        :type list_of_dicts: list(dict)
+        :return: Coalesced list of dictionaries
+        """
+        coalesced_list_of_dicts = [{}]
+        for item in list_of_dicts:
+            found = False
+            for dict_items in coalesced_list_of_dicts:
+                if list(item.keys())[0] not in dict_items:
+                    dict_items.update(item)
+                    found = True
+                    break
+            if not found:
+                coalesced_list_of_dicts.append(item)
+        return coalesced_list_of_dicts
+
+    def _get_data_as_flattened_dataframe(self, json_lines):
+        """
+        Loads the data when in a JSON format from a data stream (nested
+        lists of dictionaries and a key value for a payload).
+
         :param json_lines: json format list of dicts or dict
-        :return:
+        :type json_lines: Union[dict, list(dict)]
+        :return: Pandas.DataFrame from a flattened json
         """
+        if isinstance(json_lines, pd.DataFrame):
+            return json_lines
+        payload_data = None
         if isinstance(json_lines, dict):
-            json_lines = [json_lines]
+            # Glean Payload Data
+            found_payload_key = None
+            payloads = {}
+            for payload_key in self._payload_keys:
+                if payload_key in json_lines.keys():
+                    payload_data = json_lines[payload_key]
+                    if isinstance(payload_data, dict):
+                        payload_data = self._find_data(payload_data)
+                        payload_data = self._coalesce_dicts(payload_data)
+                    payload_data, original_df_dtypes = data_utils.json_to_dataframe(
+                        json_lines=payload_data,
+                        selected_columns=self.selected_keys,
+                        read_in_string=False
+                    )
+                    for column in payload_data.columns:
+                        payload_data.rename(
+                            columns={column: payload_key + self._key_separator + str(column)},
+                            inplace=True)
+                    payloads[payload_key] = payload_data
+                    
+            max_payload_length = 0
+            for payload in payloads:
+                if len(payloads[payload]) > max_payload_length:
+                    payload_data = payloads[payload]
+                    max_payload_length = len(payloads[payload])
+                    found_payload_key = payload
+                    
+            # Get the non-payload data
+            flattened_json = []
+            for key in json_lines:
+                if key != found_payload_key:
+                    flattened_json = flattened_json + self._find_data(json_lines[key], path=key)
+
+            # Coalesce the data together
+            json_lines = self._coalesce_dicts(flattened_json)
+
         data, original_df_dtypes = data_utils.json_to_dataframe(
             json_lines=json_lines,
             selected_columns=self.selected_keys,
             read_in_string=False
         )
-        return data, original_df_dtypes
+        self._original_df_dtypes = original_df_dtypes
+
+        if payload_data is not None:
+            self._metadata = data
+            data = payload_data
+
+        return data
 
     def _load_data_from_str(self, data_as_str):
         """
         Loads the data from a string.
-        
+
         :param data_as_str: data in string format.
         :type data_as_str: str
         :return:
         """
         try:
-            json_lines = json.loads(data_as_str)
-            data, original_df_dtypes = \
-                self._load_data_from_json_format(json_lines)
+            data = json.loads(data_as_str)
         except json.JSONDecodeError:
-            data_generator = data_utils.data_generator(data_as_str.splitlines())
-            data, original_df_dtypes = data_utils.read_json_df(
-                data_generator=data_generator,
+            data = data_utils.data_generator(data_as_str.splitlines())
+            data = data_utils.read_json(
+                data_generator=data,
                 selected_columns=self.selected_keys,
                 read_in_string=False
             )
-        self._original_df_dtypes = original_df_dtypes
         return data
 
     def _load_data_from_file(self, input_file_path):
         """
         Loads the data from a file.
-        
+
         :param input_file_path: file path to file being loaded.
         :type input_file_path: str
         :return:
@@ -113,21 +239,27 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         self._file_encoding = data_utils.detect_file_encoding(input_file_path)
         with open(input_file_path, encoding=self.file_encoding) as input_file:
             try:
-                json_lines = json.load(input_file)
-                data, original_df_dtypes = \
-                    self._load_data_from_json_format(json_lines)
+                data = json.load(input_file)
             except (json.JSONDecodeError, UnicodeDecodeError):
                 input_file.seek(0)
-                data_generator = data_utils.generator_on_file(input_file)
-                data, original_df_dtypes = data_utils.read_json_df(
-                    data_generator=data_generator,
+                data = data_utils.generator_on_file(input_file)
+                data = data_utils.read_json(
+                    data_generator=data,
                     selected_columns=self.selected_keys,
                     read_in_string=False
                 )
-            self._original_df_dtypes = original_df_dtypes
             return data
 
+
     def _get_data_as_records(self, data):
+        """
+        Extracts the data as a record format.
+        
+        :param data: raw data
+        :type data: list
+        :return: dataframe in record format
+        """
+        data = self._get_data_as_df(data)
         data = data.to_dict(orient="records", into=OrderedDict)
         for i, sample in enumerate(data):
             data[i] = json.dumps(
@@ -136,9 +268,38 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         return super(JSONData, self)._get_data_as_records(data)
 
     def _get_data_as_json(self, data):
+        """
+        Extracts the data as a json format.
+
+        :param data: raw data
+        :type data: list
+        :return: dataframe in json format
+        """
+        data = self._get_data_as_df(data)
         data = data.to_json(orient="records")
         char_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
         return list(map(''.join, zip(*[iter(data)] * char_per_line)))
+
+
+    def _get_data_as_df(self, data):
+        """
+        Extracts the data as pandas formats it.
+
+        :param data: raw data
+        :type data: list
+        :return: pandas dataframe
+        """
+        if isinstance(data, pd.DataFrame):
+            return data
+        if isinstance(data, dict):
+            data = [data]
+        data, original_df_dtypes = data_utils.json_to_dataframe(
+            json_lines=data,
+            selected_columns=self.selected_keys,
+            read_in_string=False
+        )
+        self._original_df_dtypes = original_df_dtypes
+        return data
 
     @classmethod
     def _convert_flat_to_nested_cols(cls, dic, separator='.'):

@@ -4,8 +4,9 @@ import collections
 import random
 import math
 import warnings
+import psutil
 import numpy as np
-
+import multiprocessing as mp
 
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
@@ -94,7 +95,6 @@ def shuffle_in_chunks(data_length, chunk_size):
         except ValueError as e:
             warnings.warn("Seed should be an integer", RuntimeWarning)
 
-
     indices = KeyDict()
     j = 0
     
@@ -104,12 +104,10 @@ def shuffle_in_chunks(data_length, chunk_size):
         # determine the chunk size and preallocate an array
         true_chunk_size = min(chunk_size, data_length - chunk_size * chunk_ind)
         values = [-1] * true_chunk_size
-
         
-        # Generate random list of indicies         
+        # Generate random list of indices
         lower_bound_list = np.array(range(j, j + true_chunk_size))
         random_list = rng.integers(lower_bound_list, data_length)
-
 
         # shuffle the indexes
         for count in range(true_chunk_size):
@@ -162,3 +160,76 @@ def partition(data, chunk_size):
     for idx in range(0, len(data), chunk_size):
         yield data[idx:idx+chunk_size]
 
+
+def suggest_pool_size(data_size=None, cols=None):
+    """
+    Suggest the pool size based on resources
+
+    :param data_size: size of the dataset
+    :type data_size: int
+    :param cols: columns of the dataset
+    :type cols: int
+    :return suggested_pool_size: suggeseted pool size 
+    :rtype suggested_pool_size: int
+    """
+    
+    # Return if there's no data_size
+    if data_size is None:
+        return None
+
+    try:
+        # Determine safest level of processes based on memory
+        mb = 1000000
+        svmem = psutil.virtual_memory()
+        max_pool_mem = (data_size * 50) / (svmem.available / mb)
+    except NotImplementedError:
+        max_pool_mem = 4
+
+    try:
+        # Determine safest level of processes based on CPUs
+        max_pool_cpu = psutil.cpu_count() - 1
+    except NotImplementedError:
+        max_pool_cpu = 1
+
+    # Limit to cols if less than threads
+    suggested_pool_size = min(max_pool_mem, max_pool_cpu)
+    if cols is not None:
+        suggested_pool_size = min(suggested_pool_size, cols)
+    
+    return suggested_pool_size
+
+        
+def generate_pool(max_pool_size=None, data_size=None, cols=None):
+    """
+    Generate a multiprocessing pool to allocate functions too
+
+    :param max_pool_size: Max number of processes assigned to the pool
+    :type max_pool_size: int
+    :param data_size: size of the dataset
+    :type data_size: int
+    :param cols: columns of the dataset
+    :type cols: int
+    :return pool: Multiprocessing pool to allocate processes to
+    :rtype pool: Multiproessing.Pool
+    :return cpu_count: Number of processes (cpu bound) to utilize
+    :rtype cpu_count: int
+    """
+
+    suggested_pool_size = suggest_pool_size(data_size, cols)
+    if max_pool_size is None or suggested_pool_size is None: 
+        max_pool_size = suggested_pool_size
+        
+    # Always leave 1 cores free
+    pool = None
+    if max_pool_size is not None and max_pool_size > 2:        
+        try:
+            pool = mp.Pool(max_pool_size)
+        except Exception as e:
+            pool = None
+            warnings.warn(
+                'Multiprocessing disabled, please change the multiprocessing'+
+                ' start method, via: multiprocessing.set_start_method(<method>)'+
+                ' Possible methods include: fork, spawn, forkserver, None'
+            )            
+
+    return pool, max_pool_size

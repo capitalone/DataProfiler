@@ -524,7 +524,7 @@ class Profiler(object):
         return samples_used
 
     @property
-    def _complete_rows_sampled(self):
+    def _min_col_samples_used(self):
         """
         Calculates and returns the number of rows that were completely sampled
         i.e. every column in the Profile was read up to this row (possibly
@@ -573,12 +573,12 @@ class Profiler(object):
         return len(self.hashed_row_dict) / self.total_samples
 
     def _get_row_is_null_ratio(self):
-        return 0 if self._complete_rows_sampled in {0, None} \
-            else self.row_is_null_count / self._complete_rows_sampled
+        return 0 if self._min_col_samples_used in {0, None} \
+            else self.row_is_null_count / self._min_col_samples_used
 
     def _get_row_has_null_ratio(self):
-        return 0 if self._complete_rows_sampled in {0, None} \
-            else self.row_has_null_count / self._complete_rows_sampled
+        return 0 if self._min_col_samples_used in {0, None} \
+            else self.row_has_null_count / self._min_col_samples_used
 
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)
@@ -593,6 +593,10 @@ class Profiler(object):
         :param data: a dataset
         :type data: pandas.DataFrame
         """
+
+        if not isinstance(data, pd.DataFrame):
+            raise ValueError("Cannot calculate row statistics on data that is"
+                             "not a DataFrame")
         
         self.total_samples += len(data)
         self.hashed_row_dict = dict.fromkeys(
@@ -809,7 +813,7 @@ class Profiler(object):
                 clean_sampled_dict[col], pool)
 
         # Calculate complete rows read and store ids for them
-        last_full_row = self._complete_rows_sampled
+        last_full_row = self._min_col_samples_used
         if last_full_row is not None:
             self.complete_row_ids = sample_ids[0][:last_full_row]
 

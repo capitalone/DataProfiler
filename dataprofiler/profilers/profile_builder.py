@@ -818,9 +818,9 @@ class Profiler(object):
             pool.close()  # Close pool for new tasks
             pool.join()  # Wait for all workers to complete
 
-        # Only pass along sample ids if min col samples exists
+        # Only pass along sample ids if necessary
         samples_for_row_stats = None
-        if self._min_col_samples_used > 0:
+        if min_true_samples not in [None, 0] and len(sample_ids) > 0:
             samples_for_row_stats = sample_ids[0]
 
         self._update_row_statistics(df, samples_for_row_stats)

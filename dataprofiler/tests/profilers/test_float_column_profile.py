@@ -28,7 +28,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.variance, 0)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
-        self.assertEqual(len(profiler.quantiles), 1000)
+        self.assertEqual(len(profiler.quantiles), 999)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
@@ -57,52 +57,95 @@ class TestFloatColumn(unittest.TestCase):
 
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_3)
-        self.assertEqual(4, float_profiler.precision)
-
+        self.assertEqual(4, float_profiler.precision['min'])
+        self.assertEqual(4, float_profiler.precision['max'])
+        
         float_profiler.update(df_2)
-        self.assertEqual(2, float_profiler.precision)
+        self.assertEqual(2, float_profiler.precision['min'])
+        self.assertEqual(4, float_profiler.precision['max'])
 
         float_profiler.update(df_1)
-        self.assertEqual(1, float_profiler.precision)
+        self.assertEqual(1, float_profiler.precision['min'])
+        self.assertEqual(4, float_profiler.precision['max'])
 
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_mix)
-        self.assertEqual(1, float_profiler.precision)
+        self.assertEqual(1, float_profiler.precision['min'])
+        self.assertEqual(6, float_profiler.precision['max'])
 
         # edge cases #
         # integer with 0s on right and left side
         df_ints = pd.Series(['0013245678', '123456700', '0012345600'])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_ints)
-        self.assertEqual(6, float_profiler.precision)
+        self.assertEqual(6, float_profiler.precision['min'])
+        self.assertEqual(8, float_profiler.precision['max'])
 
         # scientific
         df_scientific = pd.Series(['1.23e-3', '2.2344', '1.244e4'])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_scientific)
-        self.assertEqual(3, float_profiler.precision)
+        self.assertEqual(3, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
 
         # plus
         df_plus = pd.Series(['+1.3e-3', '+2.244', '+1.3324e4'])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_plus)
-        self.assertEqual(2, float_profiler.precision)
+        self.assertEqual(2, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
 
         # minus
         df_minus = pd.Series(['-1.3234e-3', '-0.244', '-1.3324e4'])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_minus)
-        self.assertEqual(3, float_profiler.precision)
+        self.assertEqual(3, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
 
         # spaces around values
         df_spaces = pd.Series(['  -1.3234e-3  ', '  -0.244  '])
         float_profiler = FloatColumn("Name")
         float_profiler.update(df_spaces)
-        self.assertEqual(3, float_profiler.precision)
+        self.assertEqual(3, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
 
+        # constant precision
+        df_constant = pd.Series(['1.34', '+1.23e-4', '00101',
+                                 '+100.', '0.234', '-432', '.954',
+                                 '+.342', '-123e1', '23.1'])
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(df_constant)
+        self.assertEqual(3, float_profiler.precision['min'])
+        self.assertEqual(3, float_profiler.precision['max'])
+        self.assertEqual(3, float_profiler.precision['mean'])
+        self.assertEqual(10, float_profiler.precision['sample_size'])
+        self.assertEqual(0, float_profiler.precision['var'])
+        self.assertEqual(0, float_profiler.precision['std'])
+
+        # random precision
+        df_random = pd.Series(['+ 9', '-.3', '-1e-3', '3.2343', '0',
+                               '1230', '0.33', '4.3', '302.1', '-4.322'])
+        float_profiler = FloatColumn("Name")
+        float_profiler.update(df_random)
+        self.assertEqual(0, float_profiler.precision['min'])
+        self.assertEqual(5, float_profiler.precision['max'])
+        self.assertEqual(2.4444, float_profiler.precision['mean'])
+        self.assertEqual(9, float_profiler.precision['sample_size'])
+        self.assertEqual(2.7778, float_profiler.precision['var'])
+        self.assertEqual(1.6667, float_profiler.precision['std'])
+
+        # Ensure order doesn't change anything
+        df_random_order = pd.Series(['1230', '0.33', '4.3', '302.1', '-4.322',
+                                     '+ 9', '-.3', '-1e-3', '3.2343', '0'])
+        float_profiler_order = FloatColumn("Name")
+        float_profiler_order.update(df_random)
+        self.assertDictEqual(
+            float_profiler.precision, float_profiler_order.precision
+        )
+        
         # check to make sure all formats of precision are correctly predicted
         samples = [
-            # value, expected precision
+            # value, min expected precision
             ['10.01', 4],
             ['.01', 1],
             ['0.01', 1],
@@ -114,11 +157,12 @@ class TestFloatColumn(unittest.TestCase):
             ['  0012345600.  ', 8],
             ['  -0012345600.  ', 8],
         ]
+        
         for sample in samples:
             df_series = pd.Series([sample[0]])
-            expected_precision = sample[1]
+            min_expected_precision = sample[1]
             precision = FloatColumn._get_float_precision(df_series)
-            self.assertEqual(expected_precision, precision,
+            self.assertEqual(min_expected_precision, precision['min'],
                              msg='Errored for: {}'.format(sample[0]))
 
     def test_profiled_min(self):
@@ -299,8 +343,10 @@ class TestFloatColumn(unittest.TestCase):
             'bin_edges': np.array([-2., -1.,  0.,  1.,  2.]),
         }
 
-        self.assertCountEqual(histogram['bin_counts'], expected_histogram['bin_counts'])
-        self.assertCountEqual(histogram['bin_edges'], expected_histogram['bin_edges'])
+        self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                         histogram['bin_counts'].tolist())
+        self.assertCountEqual(expected_histogram['bin_edges'],
+                              histogram['bin_edges'])
 
     def test_profiled_histogram(self):
         """
@@ -331,8 +377,8 @@ class TestFloatColumn(unittest.TestCase):
         # with equal bin size, each bin has the width of 1
         df3 = pd.Series(["1.0", "1.0", "3.0", "4.0"])
         expected_histogram3 = {
-            'bin_counts': np.array([2, 0, 2]),
-            'bin_edges': np.array([1.0, 2.0, 3.0, 4.0]),
+            'bin_counts': np.array([2, 0, 1, 1]),
+            'bin_edges': np.array([1.0, 1.75, 2.5, 3.25, 4.0]),
         }
         list_data_test.append([df3, expected_histogram3])
 
@@ -359,14 +405,71 @@ class TestFloatColumn(unittest.TestCase):
             profile = profiler.profile
             histogram = profile['histogram']
 
-            self.assertCountEqual(expected_histogram['bin_counts'],
-                                  histogram['bin_counts'])
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                                  histogram['bin_counts'].tolist())
             if i != 4:
                 self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
             else: # for overflow, dont use np.round
                 self.assertCountEqual(expected_histogram['bin_edges'],
                                       histogram['bin_edges'])
+
+    def test_profile_histogram_w_updates(self):
+        """
+        Checks if histogram properly resets the _profiled histogram after
+        merge or update.
+        :return:
+        """
+        list_data_test = []
+        # this data has 4 bins, range of 3
+        # with equal bin size, each bin has the width of 0.75
+        df1 = pd.Series(["1.0", "2.0", "3.0", "4.0"])
+        expected_histogram1 = {
+            'bin_counts': np.array([1, 1, 1, 1]),
+            'bin_edges': np.array([1.0, 1.75, 2.5, 3.25, 4.0]),
+        }
+        list_data_test.append([df1, expected_histogram1])
+
+        # this data will be the second update of the profile.
+        # this results in the combination of the previous data and this data.
+        # the range should update to 12 from 3.
+        df2 = pd.Series(["1.0", "5.0", "8.0", "13.0"])
+        expected_histogram2 = {
+            'bin_counts': np.array([4, 1, 1, 1, 0, 1]),
+            'bin_edges': np.array([1.0, 3.0, 5.0, 7.0, 9.0, 11.0, 13.0]),
+        }
+        list_data_test.append([df2, expected_histogram2])
+
+        profiler = FloatColumn("test")
+        for i, (df, expected_histogram) in enumerate(list_data_test):
+            profiler.update(df)
+            self.assertIsNone(profiler.histogram_selection)
+
+            profile = profiler.profile
+            self.assertIsNotNone(profiler.histogram_selection)
+            histogram = profile['histogram']
+
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
+            self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
+                                  np.round(histogram['bin_edges'], 12))
+
+        # apply test to merging profiles
+        expected_histogram = {
+            'bin_edges': np.array([1., 19/7, 31/7, 43/7, 55/7, 67/7, 79/7,
+                                   13.]),
+            'bin_counts': np.array([6, 4, 2, 0, 2, 0, 2])
+        }
+        merged_profiler = profiler + profiler
+        self.assertIsNone(merged_profiler.histogram_selection)
+
+        profile = merged_profiler.profile
+        self.assertIsNotNone(merged_profiler.histogram_selection)
+        histogram = profile['histogram']
+        self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                         histogram['bin_counts'].tolist())
+        self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
+                              np.round(histogram['bin_edges'], 12))
 
     def test_histogram_with_varying_number_of_bin(self):
         """
@@ -378,7 +481,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler1.max_histogram_bin = 50
         profiler1.update(df1)
         num_bins = len(profiler1.profile['histogram']['bin_counts'])
-        self.assertEqual(num_bins, 4)
+        self.assertEqual(4, num_bins)
 
         # this data uses large number of bins, which will be set to
         # the max limit
@@ -388,48 +491,44 @@ class TestFloatColumn(unittest.TestCase):
         profiler2.max_histogram_bin = 50
         profiler2.update(df2)
         num_bins = len(profiler2.profile['histogram']['bin_counts'])
-        self.assertEqual(num_bins, 50)
+        self.assertEqual(50, num_bins)
 
         # max number of bin is increased to 10000
         profiler2 = FloatColumn(df2.name)
         profiler2.max_histogram_bin = 10000
         profiler2.update(df2)
         num_bins = len(profiler2.profile['histogram']['bin_counts'])
-        self.assertEqual(num_bins, 10000)
+        self.assertEqual(10000, num_bins)
 
     def test_estimate_stats_from_histogram(self):
         data = pd.Series([], dtype=object)
         profiler = FloatColumn(data.name)
         profiler.update(data)
-        profiler.histogram_methods['auto']['histogram']['bin_counts'] = \
+        profiler._stored_histogram['histogram']['bin_counts'] = \
             np.array([1, 2, 1])
-        profiler.histogram_methods['auto']['histogram']['bin_edges'] = \
+        profiler._stored_histogram['histogram']['bin_edges'] = \
             np.array([1.0, 3.0, 5.0, 7.0])
         expected_mean = (2.0 * 1 + 4.0 * 2 + 6.0 * 1) / 4
         expected_var = (1 * (2.0 - expected_mean) ** 2
                         + 2 * (4.0 - expected_mean) ** 2
                         + 1 * (6.0 - expected_mean) ** 2) / 4
         expected_std = np.sqrt(expected_var)
-        est_mean, est_var, est_std = profiler._estimate_stats_from_histogram(
-            method='auto')
-        self.assertEqual(expected_mean, est_mean)
+        est_var = profiler._estimate_stats_from_histogram()
         self.assertEqual(expected_var, est_var)
-        self.assertEqual(expected_std, est_std)
 
     def test_total_histogram_bin_variance(self):
         data = pd.Series([], dtype=object)
         profiler = FloatColumn(data.name)
         profiler.update(data)
-        profiler.histogram_methods['auto']['histogram']['bin_counts'] = \
+        profiler._stored_histogram['histogram']['bin_counts'] = \
             np.array([3, 2, 1])
-        profiler.histogram_methods['auto']['histogram']['bin_edges'] = \
+        profiler._stored_histogram['histogram']['bin_edges'] = \
             np.array([1.0, 3.0, 5.0, 7.0])
         input_array = np.array([1.1, 1.5, 2.3, 3.5, 4.0, 6.5])
         expected_total_var = np.array([1.1, 1.5, 2.3]).var() \
                              + np.array([3.5, 4.0]).var() \
                              + np.array([6.5]).var()
-        est_total_var = profiler._total_histogram_bin_variance(
-            input_array, method='auto')
+        est_total_var = profiler._total_histogram_bin_variance(input_array)
         self.assertEqual(expected_total_var, est_total_var)
 
     def test_histogram_loss(self):
@@ -494,33 +593,31 @@ class TestFloatColumn(unittest.TestCase):
         data = pd.Series([], dtype=object)
         profiler = FloatColumn(data.name)
         profiler.update(data)
-        profiler.histogram_methods['auto']['histogram']['bin_counts'] = \
+        profiler._stored_histogram['histogram']['bin_counts'] = \
             np.array([3, 2, 1])
-        profiler.histogram_methods['auto']['histogram']['bin_edges'] = \
+        profiler._stored_histogram['histogram']['bin_edges'] = \
             np.array([1.0, 3.0, 5.0, 7.0])
-        array_from_histogram = profiler._histogram_to_array('auto')
+        array_from_histogram = profiler._histogram_to_array()
         expected_array = [1.0, 1.0, 1.0, 3.0, 3.0, 7.0]
-        self.assertCountEqual(array_from_histogram, expected_array)
+        self.assertEqual(expected_array, array_from_histogram.tolist())
 
     def test_merge_histogram(self):
         data = pd.Series([], dtype=object)
         profiler = FloatColumn(data.name)
         profiler.update(data)
-        profiler.histogram_methods['sqrt']['histogram']['bin_counts'] = \
-            np.array([3, 2])
-        profiler.histogram_methods['sqrt']['histogram']['bin_edges'] = \
+        profiler._stored_histogram['histogram']['bin_counts'] = np.array([3, 2])
+        profiler._stored_histogram['histogram']['bin_edges'] = \
             np.array([1.0, 3.0, 5.0])
         input_array = [0.5, 1.0, 2.0, 5.0]
 
-        profiler._merge_histogram(input_array, 'sqrt')
-        merged_bin_counts = \
-            profiler.histogram_methods['sqrt']['histogram']['bin_counts']
-        merged_bin_edges = \
-            profiler.histogram_methods['sqrt']['histogram']['bin_edges']
+        profiler._merge_histogram(input_array)
+        merged_hist = profiler._histogram_for_profile('sqrt')[0]
+
         expected_bin_counts, expected_bin_edges = \
             [5, 2, 2], [0.5, 2.0, 3.5, 5.0]
-        self.assertCountEqual(merged_bin_counts, expected_bin_counts)
-        self.assertCountEqual(merged_bin_edges, expected_bin_edges)
+        self.assertEqual(expected_bin_counts,
+                         merged_hist['bin_counts'].tolist())
+        self.assertCountEqual(expected_bin_edges, merged_hist['bin_edges'])
 
     def test_profiled_quantiles(self):
         """
@@ -537,19 +634,17 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df)
         profile = profiler.profile
 
-        est_quartiles = profile['quantiles']
-        est_Q1 = est_quartiles[249]
-        est_Q2 = est_quartiles[499]
-        est_Q3 = est_quartiles[749]
+        est_quantiles = profile['quantiles']
+        est_Q1 = est_quantiles[249]
+        est_Q2 = est_quantiles[499]
+        est_Q3 = est_quantiles[749]
 
-        data_to_num = [float(item) for item in data]
-        exact_Q1 = np.percentile(data_to_num, 25)
-        exact_Q2 = np.percentile(data_to_num, 50)
-        exact_Q3 = np.percentile(data_to_num, 75)
-
-        self.assertEqual(est_Q1, exact_Q1)
-        self.assertEqual(est_Q2, exact_Q2)
-        self.assertEqual(est_Q3, exact_Q3)
+        self.assertEqual(999, len(est_quantiles))
+        self.assertAlmostEqual(1.000012, est_quantiles[0])
+        self.assertEqual(est_Q1, 1.003)
+        self.assertEqual(est_Q2, 2.5)
+        self.assertEqual(est_Q3, 3.001)
+        self.assertAlmostEqual(3.999988, est_quantiles[-1])
 
     def test_data_type_ratio(self):
         data = np.linspace(-5, 5, 4)
@@ -569,7 +664,7 @@ class TestFloatColumn(unittest.TestCase):
 
         profiler = FloatColumn(df.name)
 
-        expected_profile = dict(
+        expected_profile = dict(            
             min=2.5,
             max=12.5,
             mean=20/3.0,
@@ -580,21 +675,30 @@ class TestFloatColumn(unittest.TestCase):
                 'bin_edges': np.array([2.5, 5.0, 7.5, 10.0, 12.5]),
             },
             quantiles={
-                0: 3.75,
-                1: 5.0,
-                2: 10.0
+                0: 2.5075,
+                1: 5.005 ,
+                2: 12.4925,
             },
-            times=defaultdict(float, {'histogram_and_quantiles': 15.0,\
-                                      'precision': 1.0, 'max': 1.0, 'min': 1.0,\
+            times=defaultdict(float, {'histogram_and_quantiles': 1.0,
+                                      'precision': 1.0, 'max': 1.0, 'min': 1.0,
                                       'sum': 1.0, 'variance': 1.0}),
-            precision=1.0
+            precision={
+                'min': 1,
+                'max': 3,
+                'mean': 2.0,
+                'var': 1.0,
+                'std': 1.0,
+                'sample_size': 3,
+                'margin_of_error': 1.9,
+                'confidence_level': 0.999
+            }
         )
+        
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
-
             profile = profiler.profile
             # pop out the histogram to test separately from the rest of the dict
             # as we need comparison with some precision
@@ -602,24 +706,51 @@ class TestFloatColumn(unittest.TestCase):
             expected_histogram = expected_profile.pop('histogram')
             quantiles = profile.pop('quantiles')
             expected_quantiles = expected_profile.pop('quantiles')
-            actual_quartiles = {0: quantiles[249], 1: quantiles[499], 2: quantiles[749]}
 
+            print(profile['times'])
             self.assertDictEqual(expected_profile, profile)
-            self.assertEqual(expected_profile['precision'], 1.0)
-            self.assertCountEqual(expected_histogram['bin_counts'],
-                                  histogram['bin_counts'])
+            self.assertDictEqual(expected_profile['precision'], profile['precision'])
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
             self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
                                   np.round(histogram['bin_edges'], 12))
 
-            self.assertDictEqual(actual_quartiles, expected_quantiles)
+            self.assertAlmostEqual(expected_quantiles[0], quantiles[249])
+            self.assertAlmostEqual(expected_quantiles[1], quantiles[499])
+            self.assertAlmostEqual(expected_quantiles[2], quantiles[749])
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
-            expected = defaultdict(float, {'min': 2.0, 'max': 2.0, 'sum': 2.0,\
-                                           'variance': 2.0, 'precision': 2.0,\
-                                           'histogram_and_quantiles': 30.0})
+            expected = defaultdict(float, {'min': 2.0, 'max': 2.0, 'sum': 2.0,
+                                           'variance': 2.0, 'precision': 2.0,
+                                           'histogram_and_quantiles': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
 
+    def test_option_precision(self):
+        data = [1.1, 2.2, 3.3, 4.4]
+        df = pd.Series(data).apply(str)
+
+        # Turn off precision
+        options = FloatOptions()
+        options.set({"precision.is_enabled": False})
+        profiler = FloatColumn(df.name, options=options)
+        profiler.update(df)        
+        self.assertEqual(None, profiler.precision['sample_size'])
+
+        # Turn on precision, check sample_size
+        options = FloatOptions()
+        options.set({"precision.is_enabled": True})
+        profiler = FloatColumn(df.name, options=options)
+        profiler.update(df)        
+        self.assertEqual(4, profiler.precision['sample_size'])
+
+        # Trun on precision, set 0.5 sample_size
+        options = FloatOptions()
+        options.set({"precision.sample_ratio": 0.5})
+        profiler = FloatColumn(df.name, options=options)
+        profiler.update(df)        
+        self.assertEqual(2, profiler.precision['sample_size'])
+            
     def test_option_timing(self):
         data = [2.0, 12.5, 'not a float', 6.0, 'not a float']
         df = pd.Series(data).apply(str)
@@ -669,7 +800,7 @@ class TestFloatColumn(unittest.TestCase):
             stddev=np.sqrt(30.916),
             histogram={
                 'bin_counts': np.array([1, 1, 1, 1]),
-                'bin_edges': np.array([2.,5.25,8.5,11.75,15.])
+                'bin_edges': np.array([2., 5.25, 8.5, 11.75, 15.])
             },
         )
 
@@ -684,11 +815,11 @@ class TestFloatColumn(unittest.TestCase):
         self.assertAlmostEqual(profiler3.variance,
                                expected_profile.pop('variance'), places=3)
         self.assertEqual(profiler3.mean, expected_profile.pop('mean'))
-        self.assertEqual(profiler3.histogram_selection, 'rice')
+        self.assertEqual(profiler3.histogram_selection, 'doane')
         self.assertEqual(profiler3.min, expected_profile.pop('min'))
         self.assertEqual(profiler3.max, expected_profile.pop('max'))
-        self.assertCountEqual(histogram['bin_counts'],
-                              expected_histogram['bin_counts'])
+        self.assertEqual(histogram['bin_counts'].tolist(),
+                         expected_histogram['bin_counts'].tolist())
         self.assertCountEqual(histogram['bin_edges'],
                               expected_histogram['bin_edges'])
 
@@ -824,14 +955,27 @@ class TestFloatColumn(unittest.TestCase):
             self.assertIn(warning2, list_of_warning_messages)
 
         # Assert that these features are still merged
-        self.assertEqual("rice", profiler3.histogram_selection)
-        self.assertEqual(21.5, profiler3.variance)
+        profile = profiler3.profile
+        self.assertEqual("doane", profiler3.histogram_selection)
+        self.assertEqual(21.5, profile['variance'])
         self.assertEqual(45.0, profiler3.sum)
 
         # Assert that these features are not calculated
         self.assertIsNone(profiler3.max)
         self.assertIsNone(profiler3.min)
-        self.assertEqual(0, profiler3.precision)
+        self.assertEqual(None, profiler3.precision['min'])
+        self.assertEqual(None, profiler3.precision['max'])
+        
+        # Creating profiler with precision to 0.1
+        options = FloatOptions()
+        options.max.is_enabled = False
+        options.min.is_enabled = False
+        options.histogram_and_quantiles.method = None
+
+        data = [2, 4, 6, 8]
+        df = pd.Series(data).apply(str)
+        profiler1 = FloatColumn("Float", options=options)
+        profiler1.update(df)        
 
     def test_float_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
@@ -871,7 +1015,7 @@ class TestFloatColumn(unittest.TestCase):
         # case when more than 1 unique value, by virtue of a streaming update
         num_profiler.update(pd.Series(['2']))
         self.assertEqual(
-            100,
-            len(num_profiler.histogram_methods['custom']['histogram'][
-                    'bin_counts'])
-        )
+            100, len(num_profiler._stored_histogram['histogram']['bin_counts']))
+
+        histogram, _ = num_profiler._histogram_for_profile('custom')
+        self.assertEqual(100, len(histogram['bin_counts']))

@@ -699,8 +699,7 @@ class Profiler(object):
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
         
         # If there are no minimum true samples, you can sort to save time
-        if (min_true_samples is None or min_true_samples == 0) \
-           and len(sample_ids) > 0:
+        if min_true_samples in [None, 0]:
             # If there's a sample size, truncate
             if sample_size is not None:
                 sample_ids[0] = sample_ids[0][:sample_size]
@@ -820,7 +819,7 @@ class Profiler(object):
 
         # Only pass along sample ids if necessary
         samples_for_row_stats = None
-        if min_true_samples not in [None, 0] and len(sample_ids) > 0:
+        if min_true_samples not in [None, 0]:
             samples_for_row_stats = sample_ids[0]
 
         self._update_row_statistics(df, samples_for_row_stats)

@@ -672,6 +672,22 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(0, profile._get_row_is_null_ratio())
         self.assertEqual(0.4, profile._get_row_has_null_ratio())
 
+        data2 = pd.DataFrame(
+            {"sparse": [1, None, 3, None, 5, None, 7, None],
+             "sparser": [1, None, None, None, None, None, None, 8]})
+        profile2 = dp.Profiler(data2, samples_per_update=2, min_true_samples=2,
+                               profiler_options=opts)
+        # Rows are sampled as follows: [6, 5], [1, 4], [2, 3], [0, 7]
+        # First column gets min true samples from ids 1, 4, 5, 6
+        # Second column gets completely sampled (has a null in 1, 4, 5, 6)
+        # rows 1 and 5 are completely null, 4 and 6 only null in col 2
+        self.assertEqual(2, profile2.row_is_null_count)
+        self.assertEqual(4, profile2.row_has_null_count)
+        # Only 4 total rows sampled, ratio accordingly
+        self.assertEqual(0.5, profile2._get_row_is_null_ratio())
+        self.assertEqual(1, profile2._get_row_has_null_ratio())
+
+
 
 if __name__ == '__main__':
     unittest.main()

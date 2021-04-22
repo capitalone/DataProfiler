@@ -232,3 +232,23 @@ class ColumnDataLabelerCompiler(BaseCompiler):
             profile["data_label"] = profiler.data_label
             profile["statistics"].update(profiler.profile)
         return profile
+
+
+class UnstructuredCompiler(BaseCompiler):
+
+    # NOTE: these profilers are ordered. Test functionality if changed.
+    _profilers = [
+        TextProfiler,
+        UnstructuredDataLabelerProfile,
+    ]
+    _option_class = BaseOption
+
+    @property
+    def profile(self):
+        profile = {
+            "data_label":
+                self._profiles[UnstructuredDataLabelerProfile.type].profile,
+            "statistics":
+                self._profiles[TextProfiler.type].profile
+        }
+        return profile

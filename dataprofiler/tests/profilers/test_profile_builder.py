@@ -309,6 +309,7 @@ class TestProfiler(unittest.TestCase):
                 'ColumnStatsProfileCompiler')
     @mock.patch('dataprofiler.profilers.column_profile_compilers.'
                 'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_min_col_samples_used(self, *mocks):
         # No cols sampled since no cols to sample
         empty_df = pd.DataFrame([])

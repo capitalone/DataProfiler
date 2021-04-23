@@ -6,6 +6,7 @@ from unittest import mock
 
 from dataprofiler.profilers import column_profile_compilers as \
     col_pro_compilers
+from dataprofiler.profilers.profiler_options import BaseOption
 
 
 class TestBaseProfileCompilerClass(unittest.TestCase):
@@ -22,7 +23,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
 
     @mock.patch.multiple(
         col_pro_compilers.BaseCompiler, __abstractmethods__=set(),
-        _profilers=[mock.Mock()])
+        _profilers=[mock.Mock()], _option_class=mock.Mock(spec=BaseOption))
     @mock.patch.multiple(
         col_pro_compilers.ColumnStatsProfileCompiler, _profilers=[mock.Mock()])
     def test_add_profilers(self):
@@ -73,8 +74,16 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         col_pro_compilers.BaseCompiler, __abstractmethods__=set())
     def test_no_profilers_error(self):
         with self.assertRaises(NotImplementedError) as e:
-            col_pro_compilers.BaseCompiler(None)
+            col_pro_compilers.BaseCompiler()
         self.assertEqual("Must add profilers.", str(e.exception))
+
+    @mock.patch.multiple(
+        col_pro_compilers.BaseCompiler, __abstractmethods__=set(),
+        _profilers='mock')
+    def test_no_options_error(self):
+        with self.assertRaisesRegex(NotImplementedError,
+                                    "Must set the expected OptionClass."):
+            col_pro_compilers.BaseCompiler()
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(

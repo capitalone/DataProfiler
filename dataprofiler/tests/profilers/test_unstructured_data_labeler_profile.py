@@ -4,7 +4,7 @@ from collections import defaultdict
 
 import pandas as pd
 
-from dataprofiler.profilers.unstructured_data_labeler_column_profile import \
+from dataprofiler.profilers.unstructured_data_labeler_profile import \
     UnstructuredDataLabelerProfile
 
 

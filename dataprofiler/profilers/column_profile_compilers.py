@@ -5,8 +5,7 @@ from collections import OrderedDict
 from . import utils
 from . import DateTimeColumn, IntColumn, FloatColumn, TextColumn
 from . import OrderColumn, CategoricalColumn
-from . import DataLabelerColumn
-from .unstructured_data_labeler_column_profile import UnstructuredDataLabelerProfile
+from . import DataLabelerColumn, UnstructuredDataLabelerProfile
 from .unstructured_text_profile import TextProfiler
 from .profiler_options import BaseOption, StructuredOptions
 

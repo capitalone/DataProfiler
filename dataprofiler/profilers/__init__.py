@@ -9,6 +9,7 @@ from .categorical_column_profile import CategoricalColumn
 from .order_column_profile import OrderColumn
 
 from .data_labeler_column_profile import DataLabelerColumn
+from .unstructured_data_labeler_profile import UnstructuredDataLabelerProfile
 
 from .profile_builder import Profiler
 """

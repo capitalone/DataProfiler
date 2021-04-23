@@ -93,5 +93,49 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         )
 
 
+class TestUnstructuredCompiler(unittest.TestCase):
+
+    @mock.patch('dataprofiler.profilers.unstructured_data_labeler_profile.'
+                'DataLabeler')
+    @mock.patch('dataprofiler.profilers.unstructured_data_labeler_profile.'
+                'CharPostprocessor')
+    def test_base(self, *mocks):
+        import pandas as pd
+        from collections import defaultdict
+        df_series = pd.Series(['test', 'hi my name is John Doe. 123-432-1234'])
+
+        time_array = [float(i) for i in range(100, 0, -1)]
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+            compiler = col_pro_compilers.UnstructuredCompiler(df_series)
+
+        expected_dict = {
+            'data_label': {
+                'entity_counts': {
+                    'postprocess_char_level': defaultdict(int),
+                    'true_char_level': defaultdict(int),
+                    'word_level': defaultdict(int)},
+                'times': {'data_labeler_predict': 1.0}},
+            'statistics': {
+                'times': {'vocab': 1.0, 'words': 1.0},
+                'vocab': [' ', '-', '.', '1', '2', '3', '4', 'D', 'J', 'a', 'e',
+                          'h', 'i', 'm', 'n', 'o', 's', 't', 'y'],
+                'word_count': {'123': 1, '1234': 1, '432': 1, 'Doe': 1,
+                               'John': 1, 'hi': 1, 'name': 1, 'test': 1},
+                'words': ['test', 'hi', 'name', 'John', 'Doe', '123', '432',
+                          '1234']}}
+
+        output_profile = compiler.profile
+
+        # because vocab uses a set, it will be random order every time, hence
+        # we need to sort to check exact match between profiles
+        if ('statistics' in output_profile
+                and 'vocab' in output_profile['statistics']):
+            output_profile['statistics']['vocab'] = \
+                sorted(output_profile['statistics']['vocab'])
+
+        self.maxDiff = None
+        self.assertDictEqual(expected_dict, output_profile)
+
+
 if __name__ == '__main__':
     unittest.main()

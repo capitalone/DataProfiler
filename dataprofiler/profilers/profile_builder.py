@@ -445,7 +445,8 @@ class Profiler(object):
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
-        self.update_profile(data)
+        if data is not None:
+            self.update_profile(data)
 
     def __add__(self, other):
         """

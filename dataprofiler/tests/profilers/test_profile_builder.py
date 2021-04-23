@@ -753,11 +753,13 @@ class TestProfilerNullValues(unittest.TestCase):
             save_profile = dp.Profiler(data)
             
             # Save and Load profile with Mock IO
-            with mock.patch('builtins.open', mock.mock_open()) as m: 
-                save_profile.save()
-            with mock.patch('builtins.open', mock.mock_open(
-                read_data = m().write.call_args[0][0])) as m:
-                load_profile = dp.Profiler.load()
+            save_profile.save()
+            load_profile = dp.Profiler.load()
+            #with mock.patch('builtins.open', mock.mock_open()) as m: 
+            #    save_profile.save()
+            #with mock.patch('builtins.open', mock.mock_open(
+            #    read_data = m().write.call_args[0][0])) as m:
+            #    load_profile = dp.Profiler.load()
 
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())

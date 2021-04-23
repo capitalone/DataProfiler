@@ -80,7 +80,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
         Merges two profile compilers together overriding the `+` operator.
 
         :param other: profile compiler being add to this one.
-        :type other: BaseColumnProfileCompiler
+        :type other: BaseCompiler
         :return: merger of the two column profilers
         """
         if type(other) is not type(self):
@@ -111,7 +111,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
         :param pool: pool to utilized for multiprocessing
         :type pool: multiprocessing.Pool
         :return: Self
-        :rtype: BaseColumnProfileCompiler
+        :rtype: BaseCompiler
         """
 
         if not self._profilers:

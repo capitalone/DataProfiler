@@ -8,37 +8,37 @@ from dataprofiler.profilers import column_profile_compilers as \
     col_pro_compilers
 
 
-class TestBaseColumnProfileCompilerClass(unittest.TestCase):
+class TestBaseProfileCompilerClass(unittest.TestCase):
 
     def test_cannot_instantiate(self):
         """showing we normally can't instantiate an abstract class"""
         with self.assertRaises(TypeError) as e:
-            col_pro_compilers.BaseColumnProfileCompiler()
+            col_pro_compilers.BaseCompiler()
         self.assertEqual(
-            "Can't instantiate abstract class BaseColumnProfileCompiler with "
+            "Can't instantiate abstract class BaseCompiler with "
             "abstract methods profile",
             str(e.exception)
         )
 
     @mock.patch.multiple(
-        col_pro_compilers.BaseColumnProfileCompiler, __abstractmethods__=set(),
+        col_pro_compilers.BaseCompiler, __abstractmethods__=set(),
         _profilers=[mock.Mock()])
     @mock.patch.multiple(
         col_pro_compilers.ColumnStatsProfileCompiler, _profilers=[mock.Mock()])
     def test_add_profilers(self):
-        compiler1 = col_pro_compilers.BaseColumnProfileCompiler(mock.Mock())
-        compiler2 = col_pro_compilers.BaseColumnProfileCompiler(mock.Mock())
+        compiler1 = col_pro_compilers.BaseCompiler(mock.Mock())
+        compiler2 = col_pro_compilers.BaseCompiler(mock.Mock())
 
         # test incorrect type
         with self.assertRaisesRegex(TypeError,
-                                    '`BaseColumnProfileCompiler` and `int` are '
+                                    '`BaseCompiler` and `int` are '
                                     'not of the same profile compiler type.'):
             compiler1 + 3
 
         compiler3 = col_pro_compilers.ColumnStatsProfileCompiler(mock.Mock())
         compiler3._profiles = [mock.Mock()]
         with self.assertRaisesRegex(TypeError,
-                                    '`BaseColumnProfileCompiler` and '
+                                    '`BaseCompiler` and '
                                     '`ColumnStatsProfileCompiler` are '
                                     'not of the same profile compiler type.'):
             compiler1 + compiler3
@@ -70,17 +70,17 @@ class TestBaseColumnProfileCompilerClass(unittest.TestCase):
         self.assertEqual('compiler1', merged_compiler.name)
 
     @mock.patch.multiple(
-        col_pro_compilers.BaseColumnProfileCompiler, __abstractmethods__=set())
+        col_pro_compilers.BaseCompiler, __abstractmethods__=set())
     def test_no_profilers_error(self):
         with self.assertRaises(NotImplementedError) as e:
-            col_pro_compilers.BaseColumnProfileCompiler(None)
+            col_pro_compilers.BaseCompiler(None)
         self.assertEqual("Must add profilers.", str(e.exception))
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
             self,
             {'profile'},
-            col_pro_compilers.BaseColumnProfileCompiler.__abstractmethods__
+            col_pro_compilers.BaseCompiler.__abstractmethods__
         )
 
 

@@ -5,7 +5,7 @@ from ..labelers.data_labelers import DataLabeler
 from ..labelers.data_processing import CharPostprocessor
 
 
-class UnstructuredDataLabelerProfile(object):
+class UnstructuredLabelerProfile(object):
 
     type = 'text_labeling'
 

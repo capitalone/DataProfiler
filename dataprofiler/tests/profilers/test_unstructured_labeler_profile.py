@@ -5,14 +5,14 @@ from collections import defaultdict
 import pandas as pd
 
 from dataprofiler.profilers.unstructured_labeler_profile import \
-    UnstructuredDataLabelerProfile
+    UnstructuredLabelerProfile
 
 
-class TestUnstructuredDataLabelerProfile(unittest.TestCase):
+class TestUnstructuredLabelerProfile(unittest.TestCase):
 
     def test_char_level_counts(self):
         # setting up objects/profile
-        default = UnstructuredDataLabelerProfile()
+        default = UnstructuredLabelerProfile()
 
         sample = pd.Series(["abc123", "Bob", "!@##$%"])
 
@@ -33,7 +33,7 @@ class TestUnstructuredDataLabelerProfile(unittest.TestCase):
 
     def test_advanced_sample(self):
         # setting up objects/profile
-        default = UnstructuredDataLabelerProfile()
+        default = UnstructuredLabelerProfile()
 
         sample = pd.Series(
             ["Help\tJohn Macklemore\tneeds\tfood.\tPlease\tCall\t555-301-1234."
@@ -52,7 +52,7 @@ class TestUnstructuredDataLabelerProfile(unittest.TestCase):
 
     def test_word_level_NER_label_counts(self):
         # setting up objects/profile
-        default = UnstructuredDataLabelerProfile()
+        default = UnstructuredLabelerProfile()
 
         sample = pd.Series(
             ["Help\tJohn Macklemore\tneeds\tfood.\tPlease\tCall\t555-301-1234."
@@ -70,7 +70,7 @@ class TestUnstructuredDataLabelerProfile(unittest.TestCase):
 
     def test_statistics(self):
         # setting up objects/profile
-        default = UnstructuredDataLabelerProfile()
+        default = UnstructuredLabelerProfile()
 
         sample = pd.Series(
             ["Help\tJohn Macklemore\tneeds\tfood.\tPlease\tCall\t555-301-1234."
@@ -112,7 +112,7 @@ class TestUnstructuredDataLabelerProfile(unittest.TestCase):
         processor_class_mock.return_value = processor_mock
 
         # initialize labeler profile
-        default = UnstructuredDataLabelerProfile()
+        default = UnstructuredLabelerProfile()
 
         sample = pd.Series(["a"])
         expected_profile = dict(

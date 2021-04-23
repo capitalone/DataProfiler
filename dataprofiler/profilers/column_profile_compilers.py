@@ -5,7 +5,7 @@ from collections import OrderedDict
 from . import utils
 from . import DateTimeColumn, IntColumn, FloatColumn, TextColumn
 from . import OrderColumn, CategoricalColumn
-from . import DataLabelerColumn, UnstructuredDataLabelerProfile
+from . import DataLabelerColumn, UnstructuredLabelerProfile
 from .unstructured_text_profile import TextProfiler
 from .profiler_options import BaseOption, StructuredOptions
 
@@ -238,7 +238,7 @@ class UnstructuredCompiler(BaseCompiler):
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
         TextProfiler,
-        UnstructuredDataLabelerProfile,
+        UnstructuredLabelerProfile,
     ]
     _option_class = BaseOption
 
@@ -246,7 +246,7 @@ class UnstructuredCompiler(BaseCompiler):
     def profile(self):
         profile = {
             "data_label":
-                self._profiles[UnstructuredDataLabelerProfile.type].profile,
+                self._profiles[UnstructuredLabelerProfile.type].profile,
             "statistics":
                 self._profiles[TextProfiler.type].profile
         }

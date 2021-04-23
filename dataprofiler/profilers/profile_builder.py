@@ -13,13 +13,12 @@ import random
 import re
 from collections import OrderedDict
 import warnings
+import pickle
 
 import multiprocessing as mp
 
 import pandas as pd
 import numpy as np
-
-import pickle
 
 from . import utils
 from .. import data_readers
@@ -777,7 +776,6 @@ class Profiler(object):
             
         return profile
 
-
     def _delete_data_labelers(self):
         """
         Helper method for deleting all data labelers before saving to disk.
@@ -843,7 +841,6 @@ class Profiler(object):
                         labeler_type='structured',
                         dirpath=data_labeler_dirpath,
                         load_options=None)
-
 
     def save(self, filepath="profile.pkl"):
         """

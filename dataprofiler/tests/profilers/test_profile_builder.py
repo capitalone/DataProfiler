@@ -628,5 +628,6 @@ class TestProfilerNullValues(unittest.TestCase):
             load_report = _clean_report(load_profile.report())
             self.assertDictEqual(save_report, load_report)       
 
+
 if __name__ == '__main__':
     unittest.main()

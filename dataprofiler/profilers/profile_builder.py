@@ -965,6 +965,7 @@ class Profiler(object):
 
         # Load profile from disk
         with open(filepath, "rb") as infile:
+            infile.seek(0)
             data = pickle.load(infile)
 
             profile.total_samples = data["total_samples"]

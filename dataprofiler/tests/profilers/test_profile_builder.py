@@ -203,13 +203,12 @@ class TestProfiler(unittest.TestCase):
         })
 
     def test_report_omit_keys(self):
-        omit_keys = [ 'global_stats', 'data_stats' ]
+        omit_keys = ['global_stats', 'data_stats']
                 
         report_omit_keys = self.trained_schema.report(
             report_options={ "omit_keys": omit_keys })
         
         self.assertCountEqual({}, report_omit_keys)
-
 
     def test_report_compact(self):
         report = self.trained_schema.report(
@@ -225,10 +224,9 @@ class TestProfiler(unittest.TestCase):
         report = _prepare_report(report, 'pretty', omit_keys)
         
         report_compact = self.trained_schema.report(
-            report_options={"output_format": "compact" })
+            report_options={"output_format": "compact"})
 
-        self.assertEqual(report, report_compact)        
-                
+        self.assertEqual(report, report_compact)
 
     def test_profile_key_name_without_space(self):
 
@@ -288,19 +286,48 @@ class TestProfiler(unittest.TestCase):
                                                ' to Profiler'):
             profile = dp.Profiler(dp.Data(text_file_path))
 
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
-                'ColumnPrimitiveTypeProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
-                'ColumnStatsProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
-                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch('dataprofiler.profilers.profile_builder.Profiler.'
+                '_update_row_statistics')
+    @mock.patch('dataprofiler.profilers.profile_builder.StructuredDataProfile')
     def test_sample_size_warning_in_the_profiler(self, *mocks):
+        # structure data profile mock
+        sdp_mock = mock.Mock()
+        sdp_mock.clean_data_and_get_base_stats.return_value = (None, None)
+        mocks[0].return_value = sdp_mock
+
         data = pd.DataFrame([1, None, 3, 4, 5, None])
         with self.assertWarnsRegex(UserWarning,
                                    "The data will be profiled with a sample "
                                    "size of 3. All statistics will be based on "
                                    "this subsample and not the whole dataset."):
             profile1 = dp.Profiler(data, samples_per_update=3)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_min_col_samples_used(self, *mocks):
+        # No cols sampled since no cols to sample
+        empty_df = pd.DataFrame([])
+        empty_profile = dp.Profiler(empty_df)
+        self.assertEqual(0, empty_profile._min_col_samples_used)
+
+        # Every column fully sampled
+        full_df = pd.DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        full_profile = dp.Profiler(full_df)
+        self.assertEqual(3, full_profile._min_col_samples_used)
+
+        # First col sampled only twice, so that is min
+        sparse_df = pd.DataFrame([[1, None, None],
+                                  [1, 1, None],
+                                  [1, None, 1]])
+        sparse_profile = dp.Profiler(sparse_df, min_true_samples=2,
+                                     samples_per_update=1)
+        self.assertEqual(2, sparse_profile._min_col_samples_used)
 
 
 class TestStructuredDataProfileClass(unittest.TestCase):
@@ -464,7 +491,6 @@ class TestStructuredDataProfileClass(unittest.TestCase):
             'Column names have changed, col number does not match prior name letter',
             context
         )
-        
 
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
@@ -493,12 +519,68 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile = StructuredDataProfile(column, sample_size=len(column))
         self.assertEqual(10, profile.null_count)
 
-
     def test_generating_report_ensure_no_error(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/diamonds.csv')
         data = pd.read_csv(file_path)
         profile = dp.Profiler(data[:1000])
-        readable_report = profile.report(report_options={"output_format":"compact"})
+        readable_report = profile.report(
+            report_options={"output_format": "compact"})
+
+    def test_get_sample_size(self):
+        data = pd.DataFrame([0] * int(50e3))
+
+        # test data size < min_sample_size = 5000 by default
+        profiler = dp.Profiler(pd.DataFrame([]))
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        sample_size = profiler._get_sample_size(data[:1000])
+        self.assertEqual(1000, sample_size)
+
+        # test data size * 0.20 < min_sample_size < data size
+        sample_size = profiler._get_sample_size(data[:10000])
+        self.assertEqual(5000, sample_size)
+
+        # test min_sample_size > data size * 0.20
+        sample_size = profiler._get_sample_size(data)
+        self.assertEqual(10000, sample_size)
+
+        # test min_sample_size > data size * 0.10
+        profiler._sampling_ratio = 0.5
+        sample_size = profiler._get_sample_size(data)
+        self.assertEqual(25000, sample_size)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.Profiler.'
+                '_update_profile_from_chunk')
+    def test_sample_size_passed_to_profile(self, *mocks):
+
+        update_mock = mocks[0]
+
+        # data setup
+        data = pd.DataFrame([0] * int(50e3))
+
+        # option setup
+        profiler_options = ProfilerOptions()
+        profiler_options.structured_options.multiprocess.is_enabled = False
+        profiler_options.set({'data_labeler.is_enabled': False})
+
+        # test data size < min_sample_size = 5000 by default
+        profiler = dp.Profiler(data[:1000], profiler_options=profiler_options)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        self.assertEqual(1000, update_mock.call_args[0][1])
+
+        # test data size * 0.20 < min_sample_size < data size
+        profiler = dp.Profiler(data[:10000], profiler_options=profiler_options)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        self.assertEqual(5000, update_mock.call_args[0][1])
+
+        # test min_sample_size > data size * 0.20
+        profiler = dp.Profiler(data, profiler_options=profiler_options)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        self.assertEqual(10000, update_mock.call_args[0][1])
+
 
 class TestProfilerNullValues(unittest.TestCase):
 
@@ -627,6 +709,39 @@ class TestProfilerNullValues(unittest.TestCase):
             save_report = _clean_report(save_profile.report())
             load_report = _clean_report(load_profile.report())
             self.assertDictEqual(save_report, load_report)       
+
+    def test_null_calculation_with_differently_sampled_cols(self):
+        opts = ProfilerOptions()
+        opts.structured_options.multiprocess.is_enabled = False
+        data = pd.DataFrame({"full": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                             "sparse": [1, None, 3, None, 5, None, 7, None, 9]})
+        profile = dp.Profiler(data, samples_per_update=5, min_true_samples=5,
+                              profiler_options=opts)
+        # Rows 2, 4, 5, 6, 7 are sampled in first column
+        # Therefore only those rows should be considered for null calculations
+        # The only null in those rows in second column in that subset are 5, 7
+        # Therefore only 2 rows have null according to row_has_null_count
+        self.assertEqual(0, profile.row_is_null_count)
+        self.assertEqual(2, profile.row_has_null_count)
+        # Accordingly, make sure ratio of null rows accounts for the fact that
+        # Only 5 total rows were sampled (5 in col 1, 9 in col 2)
+        self.assertEqual(0, profile._get_row_is_null_ratio())
+        self.assertEqual(0.4, profile._get_row_has_null_ratio())
+
+        data2 = pd.DataFrame(
+            {"sparse": [1, None, 3, None, 5, None, 7, None],
+             "sparser": [1, None, None, None, None, None, None, 8]})
+        profile2 = dp.Profiler(data2, samples_per_update=2, min_true_samples=2,
+                               profiler_options=opts)
+        # Rows are sampled as follows: [6, 5], [1, 4], [2, 3], [0, 7]
+        # First column gets min true samples from ids 1, 4, 5, 6
+        # Second column gets completely sampled (has a null in 1, 4, 5, 6)
+        # rows 1 and 5 are completely null, 4 and 6 only null in col 2
+        self.assertEqual(2, profile2.row_is_null_count)
+        self.assertEqual(4, profile2.row_has_null_count)
+        # Only 4 total rows sampled, ratio accordingly
+        self.assertEqual(0.5, profile2._get_row_is_null_ratio())
+        self.assertEqual(1, profile2._get_row_has_null_ratio())
 
 
 if __name__ == '__main__':

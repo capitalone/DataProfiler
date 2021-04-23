@@ -240,6 +240,7 @@ class UnstructuredCompiler(BaseCompiler):
         TextProfiler,
         UnstructuredLabelerProfile,
     ]
+    # TODO: replace with UnstructuredOptions when created
     _option_class = BaseOption
 
     @property

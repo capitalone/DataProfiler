@@ -445,7 +445,7 @@ class Profiler(object):
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
-        if len(data):
+        if data is not None:
             self.update_profile(data)
 
     def __add__(self, other):
@@ -658,6 +658,8 @@ class Profiler(object):
                 "pd.DataFrame."
             )
 
+        if not len(data):
+            return
         if not min_true_samples:
             min_true_samples = self._min_true_samples
         if not sample_size:

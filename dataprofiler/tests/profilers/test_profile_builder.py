@@ -19,6 +19,7 @@ from dataprofiler.profilers.profiler_options import ProfilerOptions, \
 from dataprofiler.profilers.column_profile_compilers import \
     ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler, \
     ColumnDataLabelerCompiler
+from dataprofiler import StructuredDataLabeler
 
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
@@ -43,15 +44,16 @@ class TestProfiler(unittest.TestCase):
         cls.trained_schema = dp.Profiler(cls.aws_dataset, len(cls.aws_dataset),
                                          profiler_options=profiler_options)
 
-
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+    @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+    @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnStatsProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+    @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
     def test_add_profilers(self, *mocks):
-        data = pd.DataFrame([1, None, 3, 4, 5, None])
+        data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
         profile1 = dp.Profiler(data[:2])
         profile2 = dp.Profiler(data[2:])
 
@@ -86,7 +88,7 @@ class TestProfiler(unittest.TestCase):
             "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type)
         self.assertEqual(2, merged_profile.row_has_null_count)
         self.assertEqual(2, merged_profile.row_is_null_count)
-        self.assertEqual(6, merged_profile.total_samples)
+        self.assertEqual(7, merged_profile.total_samples)
         self.assertEqual(5, len(merged_profile.hashed_row_dict))
 
         # test success if drawn from multiple files
@@ -95,6 +97,42 @@ class TestProfiler(unittest.TestCase):
         merged_profile = profile1 + profile2
         self.assertEqual('multiple files', merged_profile.encoding)
         self.assertEqual('multiple files', merged_profile.file_type)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_stream_profilers(self, *mocks):
+        data = pd.DataFrame([
+            ['test1', 1.0],
+            ['test2', None],
+            ['test1', 1.0],
+            [None, None],
+            [None, 5.0],
+            [None, 5.0],
+            [None, None],
+            ['test3', 7.0]])
+
+        # check prior to update
+        profiler = dp.Profiler(data[:3])
+        self.assertEqual(1, profiler.row_has_null_count)
+        self.assertEqual(0, profiler.row_is_null_count)
+        self.assertEqual(3, profiler.total_samples)
+        self.assertEqual(2, len(profiler.hashed_row_dict))
+
+        # check after update
+        profiler.update_profile(data[3:])
+
+        self.assertIsNone(profiler.encoding)
+        self.assertEqual(
+            "<class 'pandas.core.frame.DataFrame'>", profiler.file_type)
+        self.assertEqual(5, profiler.row_has_null_count)
+        self.assertEqual(2, profiler.row_is_null_count)
+        self.assertEqual(8, profiler.total_samples)
+        self.assertEqual(5, len(profiler.hashed_row_dict))
 
     def test_correct_unique_row_ratio_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))

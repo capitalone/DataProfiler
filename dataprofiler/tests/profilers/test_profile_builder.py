@@ -706,19 +706,23 @@ class TestProfilerNullValues(unittest.TestCase):
         for i in range(2):
             
             # Profile Once
+            # TODO: bc currently don't handle overlapping indexes
+            data.index = pd.RangeIndex(0, 8)
             profile = dp.Profiler(data, profiler_options=profiler_options,
                                   samples_per_update=2)
 
             # Profile Twice
+            # TODO: bc currently don't handle overlapping indexes
+            data.index = pd.RangeIndex(8, 16)
             profile.update_profile(data)
 
             # rows sampled are [5, 6] (0 index)
             self.assertEqual(16, profile.total_samples)
             self.assertEqual(4, profile._max_col_samples_used)
-            self.assertEqual(1, profile.row_has_null_count)
-            self.assertEqual(0.25, profile._get_row_has_null_ratio())
-            self.assertEqual(1, profile.row_is_null_count)
-            self.assertEqual(0.25, profile._get_row_is_null_ratio())
+            self.assertEqual(2, profile.row_has_null_count)
+            self.assertEqual(0.5, profile._get_row_has_null_ratio())
+            self.assertEqual(2, profile.row_is_null_count)
+            self.assertEqual(0.5, profile._get_row_is_null_ratio())
             self.assertEqual(0.4375, profile._get_unique_row_ratio())
             self.assertEqual(9, profile._get_duplicate_row_count())
             

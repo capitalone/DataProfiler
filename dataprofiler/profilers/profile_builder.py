@@ -820,6 +820,6 @@ class Profiler(object):
         # Only pass along sample ids if necessary
         samples_for_row_stats = None
         if min_true_samples not in [None, 0]:
-            samples_for_row_stats = sample_ids[0]
+            samples_for_row_stats = np.concatenate(sample_ids)
 
         self._update_row_statistics(df, samples_for_row_stats)

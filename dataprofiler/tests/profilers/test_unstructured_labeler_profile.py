@@ -4,7 +4,7 @@ from collections import defaultdict
 
 import pandas as pd
 
-from dataprofiler.profilers.unstructured_data_labeler_profile import \
+from dataprofiler.profilers.unstructured_labeler_profile import \
     UnstructuredDataLabelerProfile
 
 
@@ -97,9 +97,9 @@ class TestUnstructuredDataLabelerProfile(unittest.TestCase):
         self.assertNotEqual(current_char_sample_size, default.char_sample_size)
 
     @mock.patch('dataprofiler.profilers.'
-                'unstructured_data_labeler_profile.DataLabeler')
+                'unstructured_labeler_profile.DataLabeler')
     @mock.patch('dataprofiler.profilers.'
-                'unstructured_data_labeler_profile.'
+                'unstructured_labeler_profile.'
                 'CharPostprocessor')
     def test_profile(self, processor_class_mock, model_class_mock):
         # setup mocks

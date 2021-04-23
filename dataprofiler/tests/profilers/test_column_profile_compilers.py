@@ -95,9 +95,9 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
 
 class TestUnstructuredCompiler(unittest.TestCase):
 
-    @mock.patch('dataprofiler.profilers.unstructured_data_labeler_profile.'
+    @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
                 'DataLabeler')
-    @mock.patch('dataprofiler.profilers.unstructured_data_labeler_profile.'
+    @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
                 'CharPostprocessor')
     def test_base(self, *mocks):
         import pandas as pd

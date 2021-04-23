@@ -600,9 +600,9 @@ class Profiler(object):
                              "not a DataFrame")
         
         self.total_samples += len(data)
-        self.hashed_row_dict = dict.fromkeys(
+        self.hashed_row_dict.update(dict.fromkeys(
             pd.util.hash_pandas_object(data, index=False), True
-        )
+        ))
 
         # Calculate Null Column Count
         null_rows = set()

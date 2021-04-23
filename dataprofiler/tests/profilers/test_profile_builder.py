@@ -687,15 +687,22 @@ class TestProfilerNullValues(unittest.TestCase):
         )
        
     def test_correct_total_sample_size_and_counts_and_mutability(self):
-        file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
-        data = pd.read_csv(file_path)
+        data = [['test1', 1.0],
+                ['test2', 2.0],
+                ['test3', 3.0],
+                [None, None],
+                ['test5', 5.0],
+                ['test6', 6.0],
+                [None, None],
+                ['test7', 7.0]]
+        data = pd.DataFrame(data, columns=['NAME', 'VALUE'])
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
 
         col_one_len = len(data['NAME'])
-        col_two_len = len(data[' VALUE'])
+        col_two_len = len(data['VALUE'])
 
-        # Test reloading data, ensuring unmutable 
+        # Test reloading data, ensuring immutable
         for i in range(2):
             
             # Profile Once
@@ -705,17 +712,18 @@ class TestProfilerNullValues(unittest.TestCase):
             # Profile Twice
             profile.update_profile(data)
 
+            # rows sampled are [5, 6] (0 index)
             self.assertEqual(16, profile.total_samples)
             self.assertEqual(4, profile._max_col_samples_used)
-            self.assertEqual(2, profile.row_has_null_count)
-            self.assertEqual(0.5, profile._get_row_has_null_ratio())
-            self.assertEqual(2, profile.row_is_null_count)
-            self.assertEqual(0.5, profile._get_row_is_null_ratio())
+            self.assertEqual(1, profile.row_has_null_count)
+            self.assertEqual(0.25, profile._get_row_has_null_ratio())
+            self.assertEqual(1, profile.row_is_null_count)
+            self.assertEqual(0.25, profile._get_row_is_null_ratio())
             self.assertEqual(0.4375, profile._get_unique_row_ratio())
             self.assertEqual(9, profile._get_duplicate_row_count())
             
         self.assertEqual(col_one_len, len(data['NAME']))
-        self.assertEqual(col_two_len, len(data[' VALUE']))
+        self.assertEqual(col_two_len, len(data['VALUE']))
 
     def test_null_calculation_with_differently_sampled_cols(self):
         opts = ProfilerOptions()
@@ -749,7 +757,6 @@ class TestProfilerNullValues(unittest.TestCase):
         # Only 4 total rows sampled, ratio accordingly
         self.assertEqual(0.5, profile2._get_row_is_null_ratio())
         self.assertEqual(1, profile2._get_row_has_null_ratio())
-
 
 
 if __name__ == '__main__':

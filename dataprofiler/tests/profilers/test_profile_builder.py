@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import unittest
 from unittest import mock
+import builtins
 import random
 import six
 import os
@@ -701,15 +702,18 @@ class TestProfilerNullValues(unittest.TestCase):
             data = dp.Data(os.path.join(datapth, test_file))
             save_profile = dp.Profiler(data)
             
-            # Save and Load profile
-            save_profile.save()
-            load_profile = dp.Profiler.load()
+            # Save and Load profile with Mock IO
+            with mock.patch('builtins.open', mock.mock_open()) as m: 
+                save_profile.save()
+            with mock.patch('builtins.open', mock.mock_open(
+                read_data = m().write.call_args[0][0])) as m:
+                load_profile = dp.Profiler.load()
 
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
             load_report = _clean_report(load_profile.report())
             self.assertDictEqual(save_report, load_report)       
-
+           
     def test_null_calculation_with_differently_sampled_cols(self):
         opts = ProfilerOptions()
         opts.structured_options.multiprocess.is_enabled = False

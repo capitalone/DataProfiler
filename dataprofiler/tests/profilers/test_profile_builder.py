@@ -716,7 +716,7 @@ class TestProfilerNullValues(unittest.TestCase):
             data.index = pd.RangeIndex(8, 16)
             profile.update_profile(data)
 
-            # rows sampled are [5, 6] (0 index)
+            # rows sampled are [5, 6], [13, 14] (0 index)
             self.assertEqual(16, profile.total_samples)
             self.assertEqual(4, profile._max_col_samples_used)
             self.assertEqual(2, profile.row_has_null_count)

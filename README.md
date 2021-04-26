@@ -24,7 +24,6 @@ readable_report = profile.report(report_options={"output_format":"compact"})
 
 print(json.dumps(readable_report, indent=4))
 ```
-
 Note: The Data Profiler comes with a pre-trained deep learning model, used to efficiently identify **sensitive data** (PII / NPI). If desired, it's easy to add new entities to the existing pre-trained model or insert an entire new pipeline for entity recognition.
 
 **To install the full package from pypi**: `pip install DataProfiler[ml]`
@@ -35,7 +34,9 @@ Install from pypi: `pip install DataProfiler`
 
 For API documentation, visit the [documentation page](https://capitalone.github.io/DataProfiler/).
 
+
 If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/dataprofiler/issues/new/choose).
+
 
 ------------------
 
@@ -154,81 +155,6 @@ The format for a profile is below:
 * FLOAT
 * QUANTITY
 * ORDINAL
-
-# Installation
-
-### Snappy Installation
-
-This is required to profile parquet/avro datasets
-
-MacOS with homebrew:
-```
-brew install snappy
-```
-
-Linux install:
-```
-sudo apt-get -y install libsnappy-dev
-```
-
-### Data Profiler Installation
-
-NOTE: Installation for python3
-
-virtualenv install:
-```
-python3 -m pip install virtualenv
-```
-
-Setup virtual env:
-```
-python3 -m virtualenv --python=python3 venv3
-source venv3/bin/activate
-```
-
-Install requirements:
-```
-pip3 install -r requirements.txt
-```
-
-Install labeler dependencies:
-```
-pip3 install -r requirements-ml.txt
-```
-
-Install via the repo -- Build setup.py and install locally:
-```
-python3 setup.py sdist bdist bdist_wheel
-pip3 install dist/DataProfiler*-py3-none-any.whl
-```
-
-### Testing
-
-For testing, install test requirements:
-```
-pip3 install -r requirements-test.txt
-```
-
-To run all unit tests, use:
-```
-DATAPROFILER_SEED=0 python3 -m unittest discover -p "test*.py"
-```
-
-To run file of unit tests, use form:
-
-```
-DATAPROFILER_SEED=0 python3 -m unittest discover -p test_profile_builder.py
-```
-
-To run a file with Pytest use:
-```
-DATAPROFILER_SEED=0 pytest dataprofiler/tests/data_readers/test_csv_data.py -v
-```
-
-To run individual of unit test, use form:
-```
-DATAPROFILER_SEED=0 python3 -m unittest dataprofiler.tests.profilers.test_profile_builder.TestProfiler
-```
 
 # Get Started
 

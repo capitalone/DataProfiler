@@ -120,7 +120,7 @@ The format for a profile is below:
 
 
 Supported Data Formats
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 * Any delimited file (CSV, TSV, etc.)
 * JSON object
@@ -130,7 +130,7 @@ Supported Data Formats
 
 
 Data Labels
------------
+~~~~~~~~~~~
 
 *Data Labels* are determined per cell for structured data (column/row when the *profiler* is used) or at the character level for unstructured data.
 

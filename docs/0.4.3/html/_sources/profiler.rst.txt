@@ -25,6 +25,149 @@ If the data is structured, the profile will return global statistics as well as
 column by column statistics. The vast amount of statistics are listed on the 
 intro page.
 
+Load a File
+~~~~~~~~~~~
+
+The profiler should automatically identify the file type and load the data into a `Data Class`.
+
+Along with other attributtes the `Data class` enables data to be accessed via a valid Pandas DataFrame.
+
+.. code-block:: python
+
+    # Load a csv file, return a CSVData object
+    csv_data = Data('your_file.csv') 
+
+    # Print the first 10 rows of the csv file
+    print(csv_data.data.head(10))
+
+    # Load a parquet file, return a ParquetData object
+    parquet_data = Data('your_file.parquet')
+
+    # Sort the data by the name column
+    parquet_data.data.sort_values(by='name', inplace=True)
+
+    # Print the sorted first 10 rows of the parquet data
+    print(parquet_data.data.head(10))
+
+
+If the file type is not automatically identified (rare), you can specify them 
+specifically, see section Data Readers.
+
+Profile a File 
+~~~~~~~~~~~~~~
+
+Example uses a CSV file for example, but CSV, JSON, Avro or Parquet should also work.
+
+.. code-block:: python
+
+    import json
+    from dataprofiler import Data, Profiler
+
+    # Load file (CSV should be automatically identified)
+    data = Data("your_file.csv") 
+
+    # Profile the dataset
+    profile = Profiler(data)
+
+    # Generate a report and use json to prettify.
+    report  = profile.report(report_options={"output_format":"pretty"})
+
+    # Print the report
+    print(json.dumps(report, indent=4))
+
+Updating Profiles
+~~~~~~~~~~~~~~~~~
+
+Currently, the data profiler is equipped to update its profile in batches.
+
+.. code-block:: python
+
+    import json
+    from dataprofiler import Data, Profiler
+
+    # Load and profile a CSV file
+    data = Data("your_file.csv")
+    profile = Profiler(data)
+
+    # Update the profile with new data:
+    new_data = Data("new_data.csv")
+    profile.update_profile(new_data)
+
+    # Print the report using json to prettify.
+    report  = profile.report(report_options={"output_format":"pretty"})
+    print(json.dumps(report, indent=4))
+
+
+Merging Profiles
+~~~~~~~~~~~~~~~~
+
+If you have two files with the same schema (but different data), it is possible to merge the two profiles together via an addition operator. 
+
+This also enables profiles to be determined in a distributed manner.
+
+.. code-block:: python
+
+    import json
+    from dataprofiler import Data, Profiler
+
+    # Load a CSV file with a schema
+    data1 = Data("file_a.csv")
+    profile1 = Profiler(data)
+
+    # Load another CSV file with the same schema
+    data2 = Data("file_b.csv")
+    profile2 = Profiler(data)
+
+    profile3 = profile1 + profile2
+
+    # Print the report using json to prettify.
+    report  = profile3.report(report_options={"output_format":"pretty"})
+    print(json.dumps(report, indent=4))
+
+Profile a Pandas DataFrame
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+    import pandas as pd
+    import dataprofiler as dp
+    import json
+
+    my_dataframe = pd.DataFrame([[1, 2.0],[1, 2.2],[-1, 3]])
+    profile = dp.Profiler(my_dataframe)
+
+    # print the report using json to prettify.
+    report = profile.report(report_options={"output_format":"pretty"})
+    print(json.dumps(report, indent=4))
+
+    # read a specified column, in this case it is labeled 0:
+    print(json.dumps(report["data stats"][0], indent=4))
+
+
+Specifying a Filetype or Delimiter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Example of specifying a CSV data type, with a `,` delimiter.
+In addition, it utilizes only the first 10,000 rows.
+
+.. code-block:: python
+
+    import json
+    import os
+    from dataprofiler import Data, Profiler
+    from dataprofiler.data_readers.csv_data import CSVData
+
+    # Load a CSV file, with "," as the delimiter
+    data = CSVData("your_file.csv", options={"delimiter": ","})
+
+    # Split the data, such that only the first 10,000 rows are used
+    data = data.data[0:10000]
+
+    # Read in profile and print results
+    profile = Profiler(data)
+    print(json.dumps(profile.report(report_options={"output_format":"pretty"}), indent=4))
+
+
 
 Profile Options
 ===============

@@ -2,7 +2,7 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Labeler (Sensitive Data Detection)" href="data_labeling.html" /><link rel="prev" title="Data Readers" href="data_readers.html" />
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Labeler (Sensitive Data)" href="data_labeling.html" /><link rel="prev" title="Data Readers" href="data_readers.html" />
 
     <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Profiler - Data Profiler v0.4.3</title>
@@ -118,7 +118,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Profiler</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data Detection)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide:</span></p>
 <ul>
@@ -219,6 +219,131 @@ profiler, and print out the report.</p>
 <p>If the data is structured, the profile will return global statistics as well as
 column by column statistics. The vast amount of statistics are listed on the
 intro page.</p>
+<div class="section" id="load-a-file">
+<h3>Load a File<a class="headerlink" href="#load-a-file" title="Permalink to this headline">¶</a></h3>
+<p>The profiler should automatically identify the file type and load the data into a <cite>Data Class</cite>.</p>
+<p>Along with other attributtes the <cite>Data class</cite> enables data to be accessed via a valid Pandas DataFrame.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load a csv file, return a CSVData object</span>
+<span class="n">csv_data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s1">'your_file.csv'</span><span class="p">)</span>
+
+<span class="c1"># Print the first 10 rows of the csv file</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">csv_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># Load a parquet file, return a ParquetData object</span>
+<span class="n">parquet_data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s1">'your_file.parquet'</span><span class="p">)</span>
+
+<span class="c1"># Sort the data by the name column</span>
+<span class="n">parquet_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">'name'</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Print the sorted first 10 rows of the parquet data</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>If the file type is not automatically identified (rare), you can specify them
+specifically, see section Data Readers.</p>
+</div>
+<div class="section" id="profile-a-file">
+<h3>Profile a File<a class="headerlink" href="#profile-a-file" title="Permalink to this headline">¶</a></h3>
+<p>Example uses a CSV file for example, but CSV, JSON, Avro or Parquet should also work.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="c1"># Load file (CSV should be automatically identified)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span>
+
+<span class="c1"># Profile the dataset</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Generate a report and use json to prettify.</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"pretty"</span><span class="p">})</span>
+
+<span class="c1"># Print the report</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="updating-profiles">
+<h3>Updating Profiles<a class="headerlink" href="#updating-profiles" title="Permalink to this headline">¶</a></h3>
+<p>Currently, the data profiler is equipped to update its profile in batches.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="c1"># Load and profile a CSV file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Update the profile with new data:</span>
+<span class="n">new_data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"new_data.csv"</span><span class="p">)</span>
+<span class="n">profile</span><span class="o">.</span><span class="n">update_profile</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+
+<span class="c1"># Print the report using json to prettify.</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="merging-profiles">
+<h3>Merging Profiles<a class="headerlink" href="#merging-profiles" title="Permalink to this headline">¶</a></h3>
+<p>If you have two files with the same schema (but different data), it is possible to merge the two profiles together via an addition operator.</p>
+<p>This also enables profiles to be determined in a distributed manner.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="c1"># Load a CSV file with a schema</span>
+<span class="n">data1</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"file_a.csv"</span><span class="p">)</span>
+<span class="n">profile1</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Load another CSV file with the same schema</span>
+<span class="n">data2</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"file_b.csv"</span><span class="p">)</span>
+<span class="n">profile2</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">profile3</span> <span class="o">=</span> <span class="n">profile1</span> <span class="o">+</span> <span class="n">profile2</span>
+
+<span class="c1"># Print the report using json to prettify.</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile3</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="profile-a-pandas-dataframe">
+<h3>Profile a Pandas DataFrame<a class="headerlink" href="#profile-a-pandas-dataframe" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">my_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">my_dataframe</span><span class="p">)</span>
+
+<span class="c1"># print the report using json to prettify.</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="c1"># read a specified column, in this case it is labeled 0:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s2">"data stats"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="specifying-a-filetype-or-delimiter">
+<h3>Specifying a Filetype or Delimiter<a class="headerlink" href="#specifying-a-filetype-or-delimiter" title="Permalink to this headline">¶</a></h3>
+<p>Example of specifying a CSV data type, with a <cite>,</cite> delimiter.
+In addition, it utilizes only the first 10,000 rows.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+<span class="kn">from</span> <span class="nn">dataprofiler.data_readers.csv_data</span> <span class="kn">import</span> <span class="n">CSVData</span>
+
+<span class="c1"># Load a CSV file, with "," as the delimiter</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">CSVData</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">"delimiter"</span><span class="p">:</span> <span class="s2">","</span><span class="p">})</span>
+
+<span class="c1"># Split the data, such that only the first 10,000 rows are used</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10000</span><span class="p">]</span>
+
+<span class="c1"># Read in profile and print results</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"pretty"</span><span class="p">}),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="profile-options">
 <h2>Profile Options<a class="headerlink" href="#profile-options" title="Permalink to this headline">¶</a></h2>
@@ -496,7 +621,7 @@ previous batch of data.</p>
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Labeler (Sensitive Data Detection)</div>
+                <div class="title">Labeler (Sensitive Data)</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -542,7 +667,15 @@ previous batch of data.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Profiler</a><ul>
-<li><a class="reference internal" href="#profile-your-data">Profile Your Data</a></li>
+<li><a class="reference internal" href="#profile-your-data">Profile Your Data</a><ul>
+<li><a class="reference internal" href="#load-a-file">Load a File</a></li>
+<li><a class="reference internal" href="#profile-a-file">Profile a File</a></li>
+<li><a class="reference internal" href="#updating-profiles">Updating Profiles</a></li>
+<li><a class="reference internal" href="#merging-profiles">Merging Profiles</a></li>
+<li><a class="reference internal" href="#profile-a-pandas-dataframe">Profile a Pandas DataFrame</a></li>
+<li><a class="reference internal" href="#specifying-a-filetype-or-delimiter">Specifying a Filetype or Delimiter</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#profile-options">Profile Options</a></li>
 <li><a class="reference internal" href="#statistical-dependency-on-order-of-updates">Statistical Dependency on Order of Updates</a><ul>
 <li><a class="reference internal" href="#order-profile">Order Profile</a></li>

@@ -1,7 +1,7 @@
 .. _data_labeling:
 
-Labeler (Sensitive Data Detection)
-**********************************
+Labeler (Sensitive Data)
+************************
 
 In this library, the term *data labeling* refers to entity recognition.
 

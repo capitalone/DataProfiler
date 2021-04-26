@@ -118,7 +118,7 @@
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data Detection)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide:</span></p>
 <ul>
@@ -338,6 +338,8 @@
 </div>
 <div class="section" id="get-started">
 <h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="load-a-file">
+<h3>Load a File<a class="headerlink" href="#load-a-file" title="Permalink to this headline">¶</a></h3>
 <p>The profiler should automatically identify the file type and load the data into a <cite>Data Class</cite>.</p>
 <p>Along with other attributtes the <cite>Data class</cite> enables data to be accessed via a valid Pandas DataFrame.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load a csv file, return a CSVData object</span>
@@ -358,6 +360,9 @@
 </div>
 <p>If the file type is not automatically identified (rare), you can specify them
 specifically, see section Data Readers.</p>
+</div>
+<div class="section" id="profile-a-file">
+<h3>Profile a File<a class="headerlink" href="#profile-a-file" title="Permalink to this headline">¶</a></h3>
 <p>Example uses a CSV file for example, but CSV, JSON, Avro or Parquet should also work.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
@@ -375,6 +380,9 @@ specifically, see section Data Readers.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="updating-profiles">
+<h3>Updating Profiles<a class="headerlink" href="#updating-profiles" title="Permalink to this headline">¶</a></h3>
 <p>Currently, the data profiler is equipped to update its profile in batches.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
@@ -392,6 +400,9 @@ specifically, see section Data Readers.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="merging-profiles">
+<h3>Merging Profiles<a class="headerlink" href="#merging-profiles" title="Permalink to this headline">¶</a></h3>
 <p>If you have two files with the same schema (but different data), it is possible to merge the two profiles together via an addition operator.</p>
 <p>This also enables profiles to be determined in a distributed manner.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
@@ -412,6 +423,9 @@ specifically, see section Data Readers.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="profile-a-pandas-dataframe">
+<h3>Profile a Pandas DataFrame<a class="headerlink" href="#profile-a-pandas-dataframe" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -427,6 +441,9 @@ specifically, see section Data Readers.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s2">"data stats"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="specifying-a-filetype-or-delimiter">
+<h3>Specifying a Filetype or Delimiter<a class="headerlink" href="#specifying-a-filetype-or-delimiter" title="Permalink to this headline">¶</a></h3>
 <p>Example of specifying a CSV data type, with a <cite>,</cite> delimiter.
 In addition, it utilizes only the first 10,000 rows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
@@ -450,6 +467,7 @@ In addition, it utilizes only the first 10,000 rows.</p>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
+</div>
 </div>
 </div>
 <div class="section" id="versions">
@@ -513,6 +531,14 @@ In addition, it utilizes only the first 10,000 rows.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#get-started">Get Started</a><ul>
+<li><a class="reference internal" href="#load-a-file">Load a File</a></li>
+<li><a class="reference internal" href="#profile-a-file">Profile a File</a></li>
+<li><a class="reference internal" href="#updating-profiles">Updating Profiles</a></li>
+<li><a class="reference internal" href="#merging-profiles">Merging Profiles</a></li>
+<li><a class="reference internal" href="#profile-a-pandas-dataframe">Profile a Pandas DataFrame</a></li>
+<li><a class="reference internal" href="#specifying-a-filetype-or-delimiter">Specifying a Filetype or Delimiter</a><ul>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#versions">Versions</a></li>

@@ -159,9 +159,8 @@ are not null. For example:
 
     from dataprofiler import Profiler
     
-    sample_size = 2 
     sample_array = [1.0, NULL, 2.0]
-    profile = dp.Profiler(sample_array, samples_per_update=sample_size) 
+    profile = dp.Profiler(sample_array, samples_per_update=2) 
     
 The first two samples (1.0 and NULL) are used for the statistical analysis.
  
@@ -173,16 +172,14 @@ For example:
 
     from dataprofiler import Profiler
     
-    sample_size = 2 
-    min_true = 2
     sample_array = [1.0, NULL, 2.0]
-    profile = dp.Profiler(sample_array, 
-                          samples_per_update=sample_size,
-                          min_true_samples=min_true)
+    profile = dp.Profiler(sample_array, samples_per_update=2, min_true_samples=2)
    
 This will use all samples in the statistical analysis until the number of "true" 
 (non-NULL) values are reached. Both min_true_samples and 
-samples_per_update conditions will be met if possible.
+samples_per_update conditions must be met. In this case, the profile will grab
+"1.0" and "NULL" to satisfy the samples_per_update, and it will grab "1.0" and
+"2.0" to satisfy the min_true_samples.
 
 Profile a Pandas DataFrame
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

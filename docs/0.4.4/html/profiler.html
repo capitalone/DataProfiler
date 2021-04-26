@@ -332,9 +332,8 @@ will be sampled. Min_true_samples will set the minimum amount of samples that
 are not null. For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Profiler</span>
 
-<span class="n">sample_size</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">sample_array</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">NULL</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">sample_array</span><span class="p">,</span> <span class="n">samples_per_update</span><span class="o">=</span><span class="n">sample_size</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">sample_array</span><span class="p">,</span> <span class="n">samples_per_update</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The first two samples (1.0 and NULL) are used for the statistical analysis.</p>
@@ -343,17 +342,15 @@ continue to read until the minimum true samples were found for the given column.
 For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Profiler</span>
 
-<span class="n">sample_size</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">min_true</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">sample_array</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">NULL</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">sample_array</span><span class="p">,</span>
-                      <span class="n">samples_per_update</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span>
-                      <span class="n">min_true_samples</span><span class="o">=</span><span class="n">min_true</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">sample_array</span><span class="p">,</span> <span class="n">samples_per_update</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">min_true_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This will use all samples in the statistical analysis until the number of “true”
 (non-NULL) values are reached. Both min_true_samples and
-samples_per_update conditions will be met if possible.</p>
+samples_per_update conditions must be met. In this case, the profile will grab
+“1.0” and “NULL” to satisfy the samples_per_update, and it will grab “1.0” and
+“2.0” to satisfy the min_true_samples.</p>
 </div>
 <div class="section" id="profile-a-pandas-dataframe">
 <h3>Profile a Pandas DataFrame<a class="headerlink" href="#profile-a-pandas-dataframe" title="Permalink to this headline">¶</a></h3>

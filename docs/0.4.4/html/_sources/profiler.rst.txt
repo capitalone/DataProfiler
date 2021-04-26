@@ -124,6 +124,48 @@ This also enables profiles to be determined in a distributed manner.
     report  = profile3.report(report_options={"output_format":"pretty"})
     print(json.dumps(report, indent=4))
 
+
+Saving and Loading a Profile
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The profiles can easily be saved and loaded as shown below:
+
+.. code-block:: python
+
+    import json
+    from dataprofiler import Data, Profiler
+
+    # Load a CSV file, with "," as the delimiter
+    data = Data("your_file.csv")
+
+    # Read in profile and print results
+    profile = Profiler(data)
+    profile.save(filepath="my_profile.pkl")
+    
+    loaded_profile = dp.Profiler.load("my_profile.pkl")
+    print(json.dumps(loaded_profile.report(report_options={"output_format":"compact"}), 
+                                           indent=4))
+
+
+Setting Sample Size in Profile
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The minimum non-null sample size can easily be set as shown below:
+
+.. code-block:: python
+
+    import json
+    from dataprofiler import Data, Profiler
+
+    # Load a CSV file, with "," as the delimiter
+    data = Data("your_file.csv")
+
+    # Read in profile and print results
+    profile = Profiler(data, min_true_samples=100)
+    print(json.dumps(profile.report(report_options={"output_format":"compact"}), 
+                                           indent=4))
+
+
 Profile a Pandas DataFrame
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -153,7 +195,6 @@ In addition, it utilizes only the first 10,000 rows.
 .. code-block:: python
 
     import json
-    import os
     from dataprofiler import Data, Profiler
     from dataprofiler.data_readers.csv_data import CSVData
 
@@ -167,28 +208,6 @@ In addition, it utilizes only the first 10,000 rows.
     profile = Profiler(data)
     print(json.dumps(profile.report(report_options={"output_format":"pretty"}), indent=4))
 
-
-Saving and Loading a Profile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The profiles can easily be saved and loaded as shown below:
-
-.. code-block:: python
-
-    import json
-    import os
-    from dataprofiler import Data, Profiler
-
-    # Load a CSV file, with "," as the delimiter
-    data = Data("your_file.csv")
-
-    # Read in profile and print results
-    profile = Profiler(data)
-    profile.save(filepath="my_profile.pkl")
-    
-    loaded_profile = dp.Profiler.load("my_profile.pkl")
-    print(json.dumps(loaded_profile.report(report_options={"output_format":"compact"}), 
-                                           indent=4))
 
 
 Profile Options

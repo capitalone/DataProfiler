@@ -1,7 +1,6 @@
-![GitHub last commit](https://img.shields.io/github/last-commit/CapitalOne/DataProfiler)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/DataProfiler)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/DataProfiler)
 ![GitHub](https://img.shields.io/github/license/CapitalOne/DataProfiler)
+![GitHub last commit](https://img.shields.io/github/last-commit/CapitalOne/DataProfiler)
 
 # Data Profiler | What's in your data?
 

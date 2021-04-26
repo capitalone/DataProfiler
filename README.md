@@ -26,16 +26,19 @@ print(json.dumps(readable_report, indent=4))
 ```
 Note: The Data Profiler comes with a pre-trained deep learning model, used to efficiently identify **sensitive data** (PII / NPI). If desired, it's easy to add new entities to the existing pre-trained model or insert an entire new pipeline for entity recognition.
 
+For API documentation, visit the [documentation page](https://capitalone.github.io/DataProfiler/).
+
+If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/dataprofiler/issues/new/choose).
+
+------------------
+
+# Install
+
 **To install the full package from pypi**: `pip install DataProfiler[ml]`
 
 If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package. The slimmer package disables the default sensitive data detection / entity recognition (labler)
 
 Install from pypi: `pip install DataProfiler`
-
-For API documentation, visit the [documentation page](https://capitalone.github.io/DataProfiler/).
-
-
-If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/dataprofiler/issues/new/choose).
 
 
 ------------------

@@ -178,8 +178,9 @@ For example:
 This will use all samples in the statistical analysis until the number of "true" 
 (non-NULL) values are reached. Both min_true_samples and 
 samples_per_update conditions must be met. In this case, the profile will grab
-"1.0" and "NULL" to satisfy the samples_per_update, and it will grab "1.0" and
-"2.0" to satisfy the min_true_samples.
+the first two samples (1.0 and NULL) to satisfy the samples_per_update, and then
+it will grab the first two VALID samples (1.0 and 2.0) to satisfy the 
+min_true_samples.
 
 Profile a Pandas DataFrame
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

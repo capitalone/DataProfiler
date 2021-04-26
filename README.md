@@ -373,6 +373,8 @@ profile = Profiler(data)
 print(json.dumps(profile.report(report_options={"output_format":"pretty"}), indent=4))
 ```
 
+**Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**
+
 # References
 ```
 Sensitive Data Detection with High-Throughput Neural Network Models for Financial Institutions

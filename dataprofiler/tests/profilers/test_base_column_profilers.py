@@ -291,7 +291,7 @@ class AbstractTestColumnProfiler(object):
 
         six.assertCountEqual(
             self,
-            self.profile_keys,
+            self.profile_types,
             report.keys()
         )
         self._delete_profiler_mocks()

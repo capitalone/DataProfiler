@@ -119,8 +119,8 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
 
         # If single process, loop and return
         if pool is None:
-            for profile_key in self._profiles:
-                self._profiles[profile_key].update(df_series)
+            for profile_type in self._profiles:
+                self._profiles[profile_type].update(df_series)
             return self
 
         # If multiprocess, setup pool, etc
@@ -128,37 +128,37 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
         multi_process_dict = {}
 
         # Spin off separate processes, where possible
-        for profile_key in self._profiles:
+        for profile_type in self._profiles:
 
-            if self._profiles[profile_key].thread_safe:
+            if self._profiles[profile_type].thread_safe:
 
                 try:  # Add update function to be applied on the pool
-                    multi_process_dict[profile_key] = pool.apply_async(
-                        self._profiles[profile_key].update, (df_series,))
+                    multi_process_dict[profile_type] = pool.apply_async(
+                        self._profiles[profile_type].update, (df_series,))
                 except Exception as e:  # Attempt again as a single process
-                    self._profiles[profile_key].thread_safe = False
+                    self._profiles[profile_type].thread_safe = False
 
-            if not self._profiles[profile_key].thread_safe:
-                single_process_list.append(profile_key)
+            if not self._profiles[profile_type].thread_safe:
+                single_process_list.append(profile_type)
 
         # Single process thread to loop through any known unsafe
-        for profile_key in single_process_list:
-            self._profiles[profile_key].update(df_series)
+        for profile_type in single_process_list:
+            self._profiles[profile_type].update(df_series)
 
         # Loop through remaining multi-processes and close them out
         single_process_list = []
-        for profile_key in multi_process_dict.keys():
+        for profile_type in multi_process_dict.keys():
             try:
-                returned_profile = multi_process_dict[profile_key].get()
+                returned_profile = multi_process_dict[profile_type].get()
                 if returned_profile is not None:
-                    self._profiles[profile_key] = returned_profile
+                    self._profiles[profile_type] = returned_profile
             except Exception as e:  # Attempt again as a single process
-                self._profiles[profile_key].thread_safe = False
-                single_process_list.append(profile_key)
+                self._profiles[profile_type].thread_safe = False
+                single_process_list.append(profile_type)
 
                 # Single process thread to loop through
-        for profile_key in single_process_list:
-            self._profiles[profile_key].update(df_series)
+        for profile_type in single_process_list:
+            self._profiles[profile_type].update(df_series)
         return self
 
 

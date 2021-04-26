@@ -15,7 +15,7 @@ test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 class TestColumnDataTypeProfiler(AbstractTestColumnProfiler, unittest.TestCase):
 
     column_profiler = ColumnPrimitiveTypeProfileCompiler
-    profile_keys = ['data_type', 'statistics', 'data_type_representation']
+    profile_types = ['data_type', 'statistics', 'data_type_representation']
 
     def setUp(self):
         AbstractTestColumnProfiler.setUp(self)

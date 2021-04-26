@@ -5,7 +5,9 @@ from ..labelers.data_labelers import DataLabeler
 from ..labelers.data_processing import CharPostprocessor
 
 
-class UnstructuredDataLabelerProfile(object):
+class UnstructuredLabelerProfile(object):
+
+    type = 'text_labeling'
 
     def __init__(self, data_labeler_dirpath=None, options=None):
         """
@@ -131,7 +133,8 @@ class UnstructuredDataLabelerProfile(object):
     def _update_true_char_label_counts(self, predictions):
         """
         Updates the true character label counts
-        :param predictions: contains array of samples with predictions on the character level
+        :param predictions: contains array of samples with predictions on the
+            character level
         :type predictions: list
         :return: None
         """
@@ -150,7 +153,8 @@ class UnstructuredDataLabelerProfile(object):
         Updates the postprocess character label counts
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
-        :param format_predictions: contains dict of samples with predictions on the character level in congruence with the word level predictions
+        :param format_predictions: contains dict of samples with predictions on
+            the character level in congruence with the word level predictions
         :type format_predictions: Dict
         :return: None
         """

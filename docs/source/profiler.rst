@@ -184,10 +184,10 @@ The profiles can easily be saved and loaded as shown below:
 
     # Read in profile and print results
     profile = Profiler(data)
-    profile.save("my_profile.pkl")
+    profile.save(filepath="my_profile.pkl")
     
     loaded_profile = dp.Profiler.load("my_profile.pkl")
-    print(json.dumps(loaded_profile.report(report_options={"output_format":"pretty"}), 
+    print(json.dumps(loaded_profile.report(report_options={"output_format":"compact"}), 
                                            indent=4))
 
 

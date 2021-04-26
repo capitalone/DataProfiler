@@ -686,13 +686,13 @@ class StructuredOptions(BaseOption):
         self.data_labeler = DataLabelerOptions()
 
     @property
-    def enabled_columns(self):
-        """Returns a list of the enabled profiler columns."""
-        enabled_columns = list()
+    def enabled_profiles(self):
+        """Returns a list of the enabled profilers for columns."""
+        enabled_profiles = list()
         for key, value in self.properties.items():
             if value.is_enabled:
-                enabled_columns.append(key)
-        return enabled_columns
+                enabled_profiles.append(key)
+        return enabled_profiles
 
     def _validate_helper(self, variable_path='StructuredOptions'):
         """

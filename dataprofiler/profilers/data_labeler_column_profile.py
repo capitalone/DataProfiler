@@ -9,14 +9,14 @@ from .profiler_options import DataLabelerOptions
 
 class DataLabelerColumn(BaseColumnProfiler):
     
-    col_type = "data_labeler"
+    type = "data_labeler"
     
     def __init__(self, name, options=None):
         """
         Initialization of Data Label profiling for structured datasets.
 
-        :param data_labeler_dirpath: Directory path to the data labeler
-        :type data_labeler_dirpath: String
+        :param name: name of column being profiled
+        :type name: String
         :param options: Options for the data labeler column
         :type options: DataLabelerOptions
         """

@@ -2,19 +2,20 @@ from future.utils import with_metaclass
 import abc
 from collections import OrderedDict
 
-import pandas as pd
-
 from . import utils
 from . import DateTimeColumn, IntColumn, FloatColumn, TextColumn
 from . import OrderColumn, CategoricalColumn
-from . import DataLabelerColumn
-from .profiler_options import StructuredOptions
+from . import DataLabelerColumn, UnstructuredLabelerProfile
+from .unstructured_text_profile import TextProfiler
+from .profiler_options import BaseOption, StructuredOptions
 
 
-class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
+class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = list()
+
+    _option_class = None
 
     def __repr__(self):
         return self.__class__.__name__
@@ -23,21 +24,23 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         if not self._profilers:
             raise NotImplementedError("Must add profilers.")
 
+        if self._option_class is None:
+            raise NotImplementedError("Must set the expected OptionClass.")
+
         self._profiles = OrderedDict()
         if df_series is not None:
             self.name = df_series.name
             self._create_profile(df_series, options, pool)
 
-        
     @property
     @abc.abstractmethod
     def profile(self):
         raise NotImplementedError()
-    
+
     def _create_profile(self, df_series, options=None, pool=None):
         """
         Initializes and evaluates all profilers for the given dataframe.
-        
+
         :param df_series: a given column
         :type df_series: pandas.core.series.Series
         :param options: Options for the structured profiler
@@ -46,29 +49,28 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         :rtype: None
         """
 
-        if len(self._profilers) == 0:
+        if not self._profilers:
             return
 
-        selected_col_profiles = None
-        if options and isinstance(options, StructuredOptions):
-            selected_col_profiles = options.enabled_columns
+        enabled_profiles = None
+        if options and isinstance(options, self._option_class):
+            enabled_profiles = options.enabled_profiles
 
         # Create profiles
-        for col_profile_type in self._profilers:
-            
-            # Create profile if options allow for it or if there are no options
-            if selected_col_profiles is None or \
-               col_profile_type.col_type in selected_col_profiles:
+        for profiler in self._profilers:
 
-                col_options = None
-                if options and options.properties[col_profile_type.col_type]:
-                    col_options = options.properties[col_profile_type.col_type]
-                    
+            # Create profile if options allow for it or if there are no options
+            if enabled_profiles is None or profiler.type in enabled_profiles:
+
+                profiler_options = None
+                if options and options.properties[profiler.type]:
+                    profiler_options = options.properties[profiler.type]
+
                 try:
-                    self._profiles[col_profile_type.col_type] = \
-                        col_profile_type(df_series.name, options=col_options)
+                    self._profiles[profiler.type] = profiler(
+                        df_series.name, options=profiler_options)
                 except Exception as e:
-                    utils.warn_on_profile(col_profile_type.col_type, e)
+                    utils.warn_on_profile(profiler.type, e)
 
         # Update profile after creation
         self.update_profile(df_series, pool)
@@ -78,7 +80,7 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
         Merges two profile compilers together overriding the `+` operator.
 
         :param other: profile compiler being add to this one.
-        :type other: BaseColumnProfileCompiler
+        :type other: BaseCompiler
         :return: merger of the two column profilers
         """
         if type(other) is not type(self):
@@ -103,64 +105,64 @@ class BaseColumnProfileCompiler(with_metaclass(abc.ABCMeta, object)):
     def update_profile(self, df_series, pool=None):
         """
         Updates the profiles from the data frames
-        
+
         :param df_series: a given column, assume df_series in str
         :type df_series: pandas.core.series.Series
         :param pool: pool to utilized for multiprocessing
         :type pool: multiprocessing.Pool
         :return: Self
-        :rtype: BaseColumnProfileCompiler
+        :rtype: BaseCompiler
         """
-        
-        if len(self._profilers) == 0:
-            return 
-        
+
+        if not self._profilers:
+            return
+
         # If single process, loop and return
         if pool is None:
-            for col_profile in self._profiles:
-                self._profiles[col_profile].update(df_series)
+            for profile_type in self._profiles:
+                self._profiles[profile_type].update(df_series)
             return self
-        
+
         # If multiprocess, setup pool, etc
         single_process_list = []
         multi_process_dict = {}
-        
-        # Spin off seperate processes, where possible
-        for col_profile in self._profiles:
-            
-            if self._profiles[col_profile].thread_safe:
-                
-                try: # Add update function to be applied on the pool
-                    multi_process_dict[col_profile] = pool.apply_async(
-                        self._profiles[col_profile].update, (df_series,))
-                except Exception as e: # Attempt again as a single process
-                    self._profiles[col_profile].thread_safe = False
-                
-            if not self._profiles[col_profile].thread_safe:                
-                single_process_list.append(col_profile)
+
+        # Spin off separate processes, where possible
+        for profile_type in self._profiles:
+
+            if self._profiles[profile_type].thread_safe:
+
+                try:  # Add update function to be applied on the pool
+                    multi_process_dict[profile_type] = pool.apply_async(
+                        self._profiles[profile_type].update, (df_series,))
+                except Exception as e:  # Attempt again as a single process
+                    self._profiles[profile_type].thread_safe = False
+
+            if not self._profiles[profile_type].thread_safe:
+                single_process_list.append(profile_type)
 
         # Single process thread to loop through any known unsafe
-        for col_profile in single_process_list:
-            self._profiles[col_profile].update(df_series)
-                
-        # Loop through remaining multiprocesses and close them out
+        for profile_type in single_process_list:
+            self._profiles[profile_type].update(df_series)
+
+        # Loop through remaining multi-processes and close them out
         single_process_list = []
-        for col_profile in multi_process_dict.keys():
+        for profile_type in multi_process_dict.keys():
             try:
-                returned_profile = multi_process_dict[col_profile].get()
+                returned_profile = multi_process_dict[profile_type].get()
                 if returned_profile is not None:
-                    self._profiles[col_profile] = returned_profile
-            except Exception as e: # Attempt again as a single process
-                self._profiles[col_profile].thread_safe = False            
-                single_process_list.append(col_profile)                
-        
-        # Single process thread to loop through
-        for col_profile in single_process_list:
-            self._profiles[col_profile].update(df_series)
+                    self._profiles[profile_type] = returned_profile
+            except Exception as e:  # Attempt again as a single process
+                self._profiles[profile_type].thread_safe = False
+                single_process_list.append(profile_type)
+
+                # Single process thread to loop through
+        for profile_type in single_process_list:
+            self._profiles[profile_type].update(df_series)
         return self
 
 
-class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
+class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
     
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
@@ -169,6 +171,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
         FloatColumn,
         TextColumn,
     ]
+    _option_class = StructuredOptions
 
     @property
     def profile(self):
@@ -182,23 +185,24 @@ class ColumnPrimitiveTypeProfileCompiler(BaseColumnProfileCompiler):
         for _, profiler in self._profiles.items():
             if not has_found_match and profiler.data_type_ratio == 1.0:
                 profile.update({
-                    "data_type": profiler.col_type,
+                    "data_type": profiler.type,
                     "statistics": profiler.profile,
                 })
                 has_found_match = True
             profile["data_type_representation"].update(
-                dict([(profiler.col_type, profiler.data_type_ratio)])
+                dict([(profiler.type, profiler.data_type_ratio)])
             )
         return profile
 
 
-class ColumnStatsProfileCompiler(BaseColumnProfileCompiler):
+class ColumnStatsProfileCompiler(BaseCompiler):
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
         OrderColumn,
         CategoricalColumn,
     ]
+    _option_class = StructuredOptions
 
     @property
     def profile(self):
@@ -208,12 +212,13 @@ class ColumnStatsProfileCompiler(BaseColumnProfileCompiler):
         return profile
 
 
-class ColumnDataLabelerCompiler(BaseColumnProfileCompiler):
+class ColumnDataLabelerCompiler(BaseCompiler):
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
         DataLabelerColumn
     ]
+    _option_class = StructuredOptions
 
     @property
     def profile(self):
@@ -225,4 +230,25 @@ class ColumnDataLabelerCompiler(BaseColumnProfileCompiler):
         for _, profiler in self._profiles.items():
             profile["data_label"] = profiler.data_label
             profile["statistics"].update(profiler.profile)
+        return profile
+
+
+class UnstructuredCompiler(BaseCompiler):
+
+    # NOTE: these profilers are ordered. Test functionality if changed.
+    _profilers = [
+        TextProfiler,
+        UnstructuredLabelerProfile,
+    ]
+    # TODO: replace with UnstructuredOptions when created
+    _option_class = BaseOption
+
+    @property
+    def profile(self):
+        profile = {
+            "data_label":
+                self._profiles[UnstructuredLabelerProfile.type].profile,
+            "statistics":
+                self._profiles[TextProfiler.type].profile
+        }
         return profile

@@ -36,7 +36,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     Abstract numerical column profile subclass of BaseColumnProfiler. Represents
     a column in the dataset which is a text column. Has Subclasses itself.
     """
-    col_type = None
+    type = None
 
     def __init__(self, options=None):
         """

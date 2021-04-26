@@ -9,7 +9,7 @@ class CategoricalColumn(BaseColumnProfiler):
     column int the dataset which is a categorical column.
     """
 
-    col_type = "category"
+    type = "category"
 
     # If total number of unique values in a column is less than this value,
     # that column is classified as a categorical column.

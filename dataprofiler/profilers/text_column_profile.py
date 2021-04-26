@@ -11,7 +11,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     Text column profile subclass of BaseColumnProfiler. Represents a column in
     the dataset which is a text column.
     """
-    col_type = "text"
+    type = "text"
     
     def __init__(self, name, options=None):
         """
@@ -109,7 +109,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         
         data_flat = list(itertools.chain(*data))
         self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
-        
+
 
     def _update_helper(self, df_series_clean, profile):
         """
@@ -127,7 +127,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             NumericStatsMixin._update_helper(self, text_lengths, profile)
         self._update_column_base_properties(profile)
         if self.max:
-            self.col_type = 'string' if self.max <= 255 else 'text'
+            self.type = 'string' if self.max <= 255 else 'text'
 
     def update(self, df_series):
         """

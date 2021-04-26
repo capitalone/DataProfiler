@@ -16,7 +16,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
     int the dataset which is a datetime column.
     """
 
-    col_type = "datetime"
+    type = "datetime"
 
     _date_formats = [
         "%Y-%m-%d %H:%M:%S",  # 2013-03-5 15:43:30

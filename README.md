@@ -38,7 +38,7 @@ update the documentation with (probably master).
 
 In /docs run:
 
-    python update_documentation.py [version]
+    python update_documentation.py
 
 where [version] is the name of the version you want like "v0.1". If you make
 adjustments to the code comments, you may rerun the command again to overwrite
@@ -54,5 +54,5 @@ the /docs/source/index.rst file.
 To update the documentation of a feature branch, go to the /docs folder
 and run:
 ```bash
-python update_documentation.py [version]
+python update_documentation.py
 ```

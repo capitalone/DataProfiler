@@ -14,6 +14,7 @@ import re
 from collections import OrderedDict
 import warnings
 import pickle
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
@@ -918,7 +919,7 @@ class Profiler(object):
                             dirpath=data_labeler_dirpath,
                             load_options=None)
 
-    def save(self, filepath="profile.pkl"):
+    def save(self, filepath=None):
         """
         Save profiler to disk
         
@@ -926,7 +927,12 @@ class Profiler(object):
         :type filepath: String
         :return: None
         """
-        # Delete data labelers as they can't be pickled
+        # Set Default filepath
+        if filepath is None:
+            filepath = "profile-{}.pkl".format(
+                        datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f"))
+
+        # Remove data labelers as they can't be pickled
         data_labelers = self._remove_data_labelers()
 
         # Create dictionary for all metadata, options, and profile 
@@ -951,7 +957,7 @@ class Profiler(object):
         self._restore_data_labelers(data_labelers)
 
     @staticmethod
-    def load(filepath="profile.pkl"):
+    def load(filepath):
         """
         Load profiler from disk
         

@@ -402,7 +402,7 @@ class TestProfiler(unittest.TestCase):
                 mock_file = setup_save_mock_open(m)
                 save_profile.save()
                 mock_file.seek(0)
-                load_profile = dp.Profiler.load()
+                load_profile = dp.Profiler.load("mock.pkl")
 
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())

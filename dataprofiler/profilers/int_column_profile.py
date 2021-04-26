@@ -12,7 +12,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     the dataset which is an integer column.
     """
 
-    col_type = "int"
+    type = "int"
 
     def __init__(self, name, options=None):
         """

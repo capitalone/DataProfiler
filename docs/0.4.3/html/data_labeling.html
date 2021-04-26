@@ -2,10 +2,10 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Examples" href="examples.html" /><link rel="prev" title="Data Readers" href="data_readers.html" />
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Examples" href="examples.html" /><link rel="prev" title="Profiler" href="profiler.html" />
 
     <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
-        <title>Labeling (Sensitive Data) - Data Profiler v0.4.3</title>
+        <title>Labeler (Sensitive Data Detection) - Data Profiler v0.4.3</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
     <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css">
@@ -116,15 +116,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Labeling (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Labeler (Sensitive Data Detection)</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding new model to the existing DataLabeler pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive data detection using the Data Labeler component of the Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive Data Detection w/ the Labeler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -199,14 +199,42 @@
         <label class="toc-overlay-icon toc-content-icon" for="__toc">
           <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
         </label>
-        <div class="section" id="labeling-sensitive-data">
-<span id="data-labeling"></span><h1>Labeling (Sensitive Data)<a class="headerlink" href="#labeling-sensitive-data" title="Permalink to this headline">¶</a></h1>
+        <div class="section" id="labeler-sensitive-data-detection">
+<span id="data-labeling"></span><h1>Labeler (Sensitive Data Detection)<a class="headerlink" href="#labeler-sensitive-data-detection" title="Permalink to this headline">¶</a></h1>
 <p>In this library, the term <em>data labeling</em> refers to entity recognition.</p>
 <p>Builtin to the data profiler is a classifier which evaluates the complex data types of the dataset.
 For structured data, it determines the complex data type of each column. When
 running the data profile, it uses the default data labeling model builtin to the
 library. However, the data labeler allows users to train their own data labeler
 as well.</p>
+<p><em>Data Labels</em> are determined per cell for structured data (column/row when
+the <em>profiler</em> is used) or at the character level for unstructured data. This
+is a list of the default labels.</p>
+<ul class="simple">
+<li><p>UNKNOWN</p></li>
+<li><p>ADDRESS</p></li>
+<li><p>BAN (bank account number, 10-18 digits)</p></li>
+<li><p>CREDIT_CARD</p></li>
+<li><p>EMAIL_ADDRESS</p></li>
+<li><p>UUID</p></li>
+<li><p>HASH_OR_KEY (md5, sha1, sha256, random hash, etc.)</p></li>
+<li><p>IPV4</p></li>
+<li><p>IPV6</p></li>
+<li><p>MAC_ADDRESS</p></li>
+<li><p>PERSON</p></li>
+<li><p>PHONE_NUMBER</p></li>
+<li><p>SSN</p></li>
+<li><p>URL</p></li>
+<li><p>US_STATE</p></li>
+<li><p>DRIVERS_LICENSE</p></li>
+<li><p>DATE</p></li>
+<li><p>TIME</p></li>
+<li><p>DATETIME</p></li>
+<li><p>INTEGER</p></li>
+<li><p>FLOAT</p></li>
+<li><p>QUANTITY</p></li>
+<li><p>ORDINAL</p></li>
+</ul>
 <div class="section" id="identify-entities-in-structured-data">
 <h2>Identify Entities in Structured Data<a class="headerlink" href="#identify-entities-in-structured-data" title="Permalink to this headline">¶</a></h2>
 <p>Makes predictions and identifying labels:</p>
@@ -492,14 +520,14 @@ user can override this function to assist in loading the processor</p></li>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="data_readers.html">
+          <a class="prev-page" href="profiler.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Data Readers</div>
+                <div class="title">Profiler</div>
                 
               </div>
             </a>
@@ -533,7 +561,7 @@ user can override this function to assist in loading the processor</p></li>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Labeling (Sensitive Data)</a><ul>
+<li><a class="reference internal" href="#">Labeler (Sensitive Data Detection)</a><ul>
 <li><a class="reference internal" href="#identify-entities-in-structured-data">Identify Entities in Structured Data</a></li>
 <li><a class="reference internal" href="#identify-entities-in-unstructured-data">Identify Entities in Unstructured Data</a></li>
 <li><a class="reference internal" href="#train-a-new-data-labeler">Train a New Data Labeler</a></li>

@@ -115,15 +115,15 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeling (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data Detection)</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding new model to the existing DataLabeler pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive data detection using the Data Labeler component of the Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive Data Detection w/ the Labeler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -366,6 +366,8 @@
 </li>
         </ul></li>
         <li><a href="dataprofiler.labelers.classification_report_utils.html#dataprofiler.labelers.classification_report_utils.classification_report">classification_report() (in module dataprofiler.labelers.classification_report_utils)</a>
+</li>
+        <li><a href="dataprofiler.profilers.profile_builder.html#dataprofiler.profilers.profile_builder.StructuredDataProfile.clean_data_and_get_base_stats">clean_data_and_get_base_stats() (dataprofiler.profilers.profile_builder.StructuredDataProfile static method)</a>
 </li>
         <li><a href="dataprofiler.profilers.utils.html#dataprofiler.profilers.utils.KeyDict.clear">clear() (dataprofiler.profilers.utils.KeyDict method)</a>
 </li>
@@ -928,6 +930,8 @@
   <h2>G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="dataprofiler.profilers.utils.html#dataprofiler.profilers.utils.generate_pool">generate_pool() (in module dataprofiler.profilers.utils)</a>
+</li>
         <li><a href="dataprofiler.data_readers.data_utils.html#dataprofiler.data_readers.data_utils.generator_on_file">generator_on_file() (in module dataprofiler.data_readers.data_utils)</a>
 </li>
         <li><a href="dataprofiler.profilers.utils.html#dataprofiler.profilers.utils.KeyDict.get">get() (dataprofiler.profilers.utils.KeyDict method)</a>
@@ -936,8 +940,6 @@
           <li><a href="dataprofiler.validators.base_validators.html#dataprofiler.validators.base_validators.Validator.get">(dataprofiler.validators.base_validators.Validator method)</a>
 </li>
         </ul></li>
-        <li><a href="dataprofiler.profilers.profile_builder.html#dataprofiler.profilers.profile_builder.StructuredDataProfile.get_base_props_and_clean_null_params">get_base_props_and_clean_null_params() (dataprofiler.profilers.profile_builder.StructuredDataProfile method)</a>
-</li>
         <li><a href="dataprofiler.data_readers.avro_data.html#dataprofiler.data_readers.avro_data.AVROData.get_batch_generator">get_batch_generator() (dataprofiler.data_readers.avro_data.AVROData method)</a>
 
         <ul>
@@ -2169,6 +2171,8 @@
           <li><a href="dataprofiler.labelers.character_level_cnn_model.html#dataprofiler.labelers.character_level_cnn_model.FBetaScore.submodules">(dataprofiler.labelers.character_level_cnn_model.FBetaScore property)</a>
 </li>
         </ul></li>
+        <li><a href="dataprofiler.profilers.utils.html#dataprofiler.profilers.utils.suggest_pool_size">suggest_pool_size() (in module dataprofiler.profilers.utils)</a>
+</li>
         <li><a href="dataprofiler.labelers.character_level_cnn_model.html#dataprofiler.labelers.character_level_cnn_model.F1Score.supports_masking">supports_masking() (dataprofiler.labelers.character_level_cnn_model.F1Score property)</a>
 
         <ul>
@@ -2259,6 +2263,8 @@
         </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="dataprofiler.profilers.profile_builder.html#dataprofiler.profilers.profile_builder.StructuredDataProfile.update_column_profilers">update_column_profilers() (dataprofiler.profilers.profile_builder.StructuredDataProfile method)</a>
+</li>
         <li><a href="dataprofiler.profilers.column_profile_compilers.html#dataprofiler.profilers.column_profile_compilers.BaseColumnProfileCompiler.update_profile">update_profile() (dataprofiler.profilers.column_profile_compilers.BaseColumnProfileCompiler method)</a>
 
         <ul>

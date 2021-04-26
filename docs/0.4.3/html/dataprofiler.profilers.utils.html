@@ -116,15 +116,15 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeling (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data Detection)</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding new model to the existing DataLabeler pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive data detection using the Data Labeler component of the Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive Data Detection w/ the Labeler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="API.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -332,6 +332,51 @@ in the specified chunk size.</p>
 <li><p><strong>data</strong> (<em>list</em><em>, </em><em>dataframe</em><em>, </em><em>etc</em>) – list, dataframe, etc</p></li>
 <li><p><strong>chunk_size</strong> (<em>int</em>) – size of partition to return</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt id="dataprofiler.profilers.utils.suggest_pool_size">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">suggest_pool_size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.suggest_pool_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggest the pool size based on resources</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_size</strong> (<em>int</em>) – size of the dataset</p></li>
+<li><p><strong>cols</strong> (<em>int</em>) – columns of the dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return suggested_pool_size</dt>
+<dd class="field-even"><p>suggeseted pool size</p>
+</dd>
+<dt class="field-odd">Rtype suggested_pool_size</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt id="dataprofiler.profilers.utils.generate_pool">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">generate_pool</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_pool_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.generate_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a multiprocessing pool to allocate functions too</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_pool_size</strong> (<em>int</em>) – Max number of processes assigned to the pool</p></li>
+<li><p><strong>data_size</strong> (<em>int</em>) – size of the dataset</p></li>
+<li><p><strong>cols</strong> (<em>int</em>) – columns of the dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return pool</dt>
+<dd class="field-even"><p>Multiprocessing pool to allocate processes to</p>
+</dd>
+<dt class="field-odd">Rtype pool</dt>
+<dd class="field-odd"><p>Multiproessing.Pool</p>
+</dd>
+<dt class="field-even">Return cpu_count</dt>
+<dd class="field-even"><p>Number of processes (cpu bound) to utilize</p>
+</dd>
+<dt class="field-odd">Rtype cpu_count</dt>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>

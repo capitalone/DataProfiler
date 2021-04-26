@@ -3,7 +3,23 @@
 Data Readers
 ************
 
-The `Data` class itself will identify then output one of the following `Data` class types. It's also possible to specifically call one of these data classes such as the following command:
+The `Data` class itself will identify then output one of the following `Data` class types. 
+Using the data reader is easy, just pass it through the Data object.
+
+.. code-block:: python
+
+    import dataprofiler as dp
+    data = dp.Data("your_file.csv")
+
+The supported file types are: 
+
+* CSV file (or any delimited file)
+* JSON object
+* Avro file
+* Parquet file
+* Pandas DataFrame
+
+It's also possible to specifically call one of the data classes such as the following command:
 
 .. code-block:: python
 

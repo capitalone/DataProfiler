@@ -3,6 +3,29 @@
 Profiler
 ********
 
+Profile Your Data
+=================
+
+Profiling your data is easy. Just use the data reader, send the data to the 
+profiler, and print out the report.
+
+.. code-block:: python
+
+    import json
+    from dataprofiler import Data, Profiler
+    
+    data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, Text
+    
+    profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
+    
+    readable_report = profile.report(report_options={"output_format":"pretty"})
+    print(json.dumps(readable_report, indent=4))
+
+If the data is structured, the profile will return global statistics as well as
+column by column statistics. The vast amount of statistics are listed on the 
+intro page.
+
+
 Profile Options
 ===============
 

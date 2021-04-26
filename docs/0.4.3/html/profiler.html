@@ -2,7 +2,7 @@
 <html class="no-js">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Data Readers" href="data_readers.html" /><link rel="prev" title="Install" href="install.html" />
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Labeler (Sensitive Data Detection)" href="data_labeling.html" /><link rel="prev" title="Data Readers" href="data_readers.html" />
 
     <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Profiler - Data Profiler v0.4.3</title>
@@ -116,15 +116,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Profiler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeling (Sensitive Data)</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data Detection)</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding new model to the existing DataLabeler pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive data detection using the Data Labeler component of the Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive Data Detection w/ the Labeler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -201,6 +201,25 @@
         </label>
         <div class="section" id="profiler">
 <span id="id1"></span><h1>Profiler<a class="headerlink" href="#profiler" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="profile-your-data">
+<h2>Profile Your Data<a class="headerlink" href="#profile-your-data" title="Permalink to this headline">¶</a></h2>
+<p>Profiling your data is easy. Just use the data reader, send the data to the
+profiler, and print out the report.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span> <span class="c1"># Auto-Detect &amp; Load: CSV, AVRO, Parquet, JSON, Text</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="c1"># Calculate Statistics, Entity Recognition, etc</span>
+
+<span class="n">readable_report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">readable_report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>If the data is structured, the profile will return global statistics as well as
+column by column statistics. The vast amount of statistics are listed on the
+intro page.</p>
+</div>
 <div class="section" id="profile-options">
 <h2>Profile Options<a class="headerlink" href="#profile-options" title="Permalink to this headline">¶</a></h2>
 <p>The data profiler accepts several options to toggle on and off
@@ -472,23 +491,23 @@ previous batch of data.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="data_readers.html">
+          <a class="next-page" href="data_labeling.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Data Readers</div>
+                <div class="title">Labeler (Sensitive Data Detection)</div>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="install.html">
+          <a class="prev-page" href="data_readers.html">
               <svg><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Install</div>
+                <div class="title">Data Readers</div>
                 
               </div>
             </a>
@@ -523,6 +542,7 @@ previous batch of data.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Profiler</a><ul>
+<li><a class="reference internal" href="#profile-your-data">Profile Your Data</a></li>
 <li><a class="reference internal" href="#profile-options">Profile Options</a></li>
 <li><a class="reference internal" href="#statistical-dependency-on-order-of-updates">Statistical Dependency on Order of Updates</a><ul>
 <li><a class="reference internal" href="#order-profile">Order Profile</a></li>

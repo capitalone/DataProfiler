@@ -102,23 +102,22 @@ The format for a profile is below:
                 "unique_count": int,
                 "unique_ratio": float,
                 "precision": {
-                'min': int,
-                'max': int,
-                'mean': float,
-                'var': float,
-                'std': float,
-                'sample_size': int,
-                'margin_of_error': float,
-                'confidence_level': float		
-            },
-            "times": dict(float),
-            "format": string
+                    'min': int,
+                    'max': int,
+                    'mean': float,
+                    'var': float,
+                    'std': float,
+                    'sample_size': int,
+                    'margin_of_error': float,
+                    'confidence_level': float		
+                },
+                "times": dict(float),
+                "format": string
             }
         }
     }
 
-Support
-~~~~~~~
+
 
 Supported Data Formats
 ----------------------
@@ -166,14 +165,6 @@ Get Started
 Load a File
 ~~~~~~~~~~~
 
-The Data Profiler can profile the following data/file types:
-
-* CSV file (or any delimited file)
-* JSON object
-* Avro file
-* Parquet file
-* Pandas DataFrame
-
 The profiler should automatically identify the file type and load the data into a `Data Class`.
 
 Along with other attributtes the `Data class` enables data to be accessed via a valid Pandas DataFrame.
@@ -197,7 +188,7 @@ Along with other attributtes the `Data class` enables data to be accessed via a 
 
 
 If the file type is not automatically identified (rare), you can specify them 
-specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-filetype-or-delimiter).
+specifically, see section Data Readers.
 
 Profile a File 
 ~~~~~~~~~~~~~~
@@ -321,8 +312,8 @@ In addition, it utilizes only the first 10,000 rows.
 
    Intro<self>
    install.rst
-   profiler.rst
    data_readers.rst
+   profiler.rst
    data_labeling.rst
 
 .. toctree::

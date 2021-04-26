@@ -116,15 +116,15 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeling (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data Detection)</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide:</span></p>
 <ul class="current">
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding new model to the existing DataLabeler pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive data detection using the Data Labeler component of the Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive Data Detection w/ the Labeler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="API.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -206,7 +206,7 @@
 respective parameters.</p>
 <dl class="py class">
 <dt id="dataprofiler.profilers.profile_builder.StructuredDataProfile">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profile_builder.</span></code><code class="sig-name descname"><span class="pre">StructuredDataProfile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_true_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profile_builder.StructuredDataProfile" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profile_builder.</span></code><code class="sig-name descname"><span class="pre">StructuredDataProfile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_true_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profile_builder.StructuredDataProfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Instantiate the Structured Profiler class for a given column.</p>
 <dl class="field-list simple">
@@ -222,6 +222,19 @@ profiler</p></li>
 </ul>
 </dd>
 </dl>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profile_builder.StructuredDataProfile.update_column_profilers">
+<code class="sig-name descname"><span class="pre">update_column_profilers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clean_sampled_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profile_builder.StructuredDataProfile.update_column_profilers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates type statistics and labels dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>clean_sampled_df</strong> (<em>Pandas.Series</em>) – sampled series with none types dropped</p></li>
+<li><p><strong>pool</strong> (<em>multiprocessing.pool</em>) – pool utilized for multiprocessing</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt id="dataprofiler.profilers.profile_builder.StructuredDataProfile.profile">
 <em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">profile</span></code><a class="headerlink" href="#dataprofiler.profilers.profile_builder.StructuredDataProfile.profile" title="Permalink to this definition">¶</a></dt>
@@ -244,8 +257,8 @@ profiler</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt id="dataprofiler.profilers.profile_builder.StructuredDataProfile.get_base_props_and_clean_null_params">
-<code class="sig-name descname"><span class="pre">get_base_props_and_clean_null_params</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_true_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profile_builder.StructuredDataProfile.get_base_props_and_clean_null_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profile_builder.StructuredDataProfile.clean_data_and_get_base_stats">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">clean_data_and_get_base_stats</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_true_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_ids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profile_builder.StructuredDataProfile.clean_data_and_get_base_stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identify null characters and return them in a dictionary as well as
 remove any nulls in column.</p>
 <dl class="field-list simple">
@@ -270,7 +283,7 @@ parameters</p>
 </dd></dl>
 <dl class="py class">
 <dt id="dataprofiler.profilers.profile_builder.Profiler">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profile_builder.</span></code><code class="sig-name descname"><span class="pre">Profiler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples_per_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_true_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profiler_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profile_builder.Profiler" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profile_builder.</span></code><code class="sig-name descname"><span class="pre">Profiler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples_per_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_true_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profiler_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profile_builder.Profiler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Instantiate the Profiler class</p>
 <dl class="field-list simple">

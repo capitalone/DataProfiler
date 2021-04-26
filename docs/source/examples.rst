@@ -11,5 +11,5 @@ Basics
 .. toctree::
    :maxdepth: 1
 
-   add_new_model_to_data_labeler
-   data_labeler_predict_train
+   Adding Models to a Labeler Pipeline<add_new_model_to_data_labeler>
+   Sensitive Data Detection w/ the Labeler<data_labeler_predict_train>

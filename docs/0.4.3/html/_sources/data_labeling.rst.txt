@@ -1,7 +1,7 @@
 .. _data_labeling:
 
-Labeling (Sensitive Data)
-*************************
+Labeler (Sensitive Data Detection)
+**********************************
 
 In this library, the term *data labeling* refers to entity recognition.
 
@@ -10,6 +10,35 @@ For structured data, it determines the complex data type of each column. When
 running the data profile, it uses the default data labeling model builtin to the
 library. However, the data labeler allows users to train their own data labeler
 as well.
+
+*Data Labels* are determined per cell for structured data (column/row when 
+the *profiler* is used) or at the character level for unstructured data. This
+is a list of the default labels.
+
+* UNKNOWN
+* ADDRESS
+* BAN (bank account number, 10-18 digits)
+* CREDIT_CARD
+* EMAIL_ADDRESS
+* UUID 
+* HASH_OR_KEY (md5, sha1, sha256, random hash, etc.)
+* IPV4
+* IPV6
+* MAC_ADDRESS
+* PERSON
+* PHONE_NUMBER
+* SSN
+* URL
+* US_STATE
+* DRIVERS_LICENSE
+* DATE
+* TIME
+* DATETIME
+* INTEGER
+* FLOAT
+* QUANTITY
+* ORDINAL
+
 
 Identify Entities in Structured Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

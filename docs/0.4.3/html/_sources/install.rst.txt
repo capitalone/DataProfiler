@@ -3,6 +3,21 @@
 Install
 *******
 
+To install the full package from pypi: 
+
+.. code-block:: console
+
+    pip install DataProfiler[ml]
+
+If the ML requirements are too strict (say, you don't want to install 
+tensorflow), you can install a slimmer package. The slimmer package disables 
+the default sensitive data detection / entity recognition (labler)
+
+Install from pypi: 
+
+.. code-block:: console
+
+    pip install DataProfiler
 
 Snappy Installation
 ===================
@@ -23,8 +38,8 @@ Linux install:
     sudo apt-get -y install libsnappy-dev
 
 
-Data Profiler Installation
-==========================
+Build From Scratch
+==================
 
 NOTE: Installation for python3
 

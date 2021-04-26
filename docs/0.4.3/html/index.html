@@ -116,15 +116,15 @@
 <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Intro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
-<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeling (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data Detection)</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding new model to the existing DataLabeler pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive data detection using the Data Labeler component of the Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_labeler_predict_train.html">Sensitive Data Detection w/ the Labeler</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -280,26 +280,24 @@
             <span class="s2">"unique_count"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
             <span class="s2">"unique_ratio"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
             <span class="s2">"precision"</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s1">'min'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s1">'max'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s1">'mean'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="s1">'var'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="s1">'std'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="s1">'sample_size'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="s1">'margin_of_error'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-            <span class="s1">'confidence_level'</span><span class="p">:</span> <span class="nb">float</span>
-        <span class="p">},</span>
-        <span class="s2">"times"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
-        <span class="s2">"format"</span><span class="p">:</span> <span class="n">string</span>
+                <span class="s1">'min'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                <span class="s1">'max'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                <span class="s1">'mean'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="s1">'var'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="s1">'std'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="s1">'sample_size'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                <span class="s1">'margin_of_error'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="s1">'confidence_level'</span><span class="p">:</span> <span class="nb">float</span>
+            <span class="p">},</span>
+            <span class="s2">"times"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span>
+            <span class="s2">"format"</span><span class="p">:</span> <span class="n">string</span>
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="section" id="support">
-<h3>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="supported-data-formats">
-<h4>Supported Data Formats<a class="headerlink" href="#supported-data-formats" title="Permalink to this headline">¶</a></h4>
+<h3>Supported Data Formats<a class="headerlink" href="#supported-data-formats" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Any delimited file (CSV, TSV, etc.)</p></li>
 <li><p>JSON object</p></li>
@@ -309,7 +307,7 @@
 </ul>
 </div>
 <div class="section" id="data-labels">
-<h4>Data Labels<a class="headerlink" href="#data-labels" title="Permalink to this headline">¶</a></h4>
+<h3>Data Labels<a class="headerlink" href="#data-labels" title="Permalink to this headline">¶</a></h3>
 <p><em>Data Labels</em> are determined per cell for structured data (column/row when the <em>profiler</em> is used) or at the character level for unstructured data.</p>
 <ul class="simple">
 <li><p>UNKNOWN</p></li>
@@ -338,19 +336,8 @@
 </ul>
 </div>
 </div>
-</div>
 <div class="section" id="get-started">
 <h2>Get Started<a class="headerlink" href="#get-started" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="load-a-file">
-<h3>Load a File<a class="headerlink" href="#load-a-file" title="Permalink to this headline">¶</a></h3>
-<p>The Data Profiler can profile the following data/file types:</p>
-<ul class="simple">
-<li><p>CSV file (or any delimited file)</p></li>
-<li><p>JSON object</p></li>
-<li><p>Avro file</p></li>
-<li><p>Parquet file</p></li>
-<li><p>Pandas DataFrame</p></li>
-</ul>
 <p>The profiler should automatically identify the file type and load the data into a <cite>Data Class</cite>.</p>
 <p>Along with other attributtes the <cite>Data class</cite> enables data to be accessed via a valid Pandas DataFrame.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load a csv file, return a CSVData object</span>
@@ -370,10 +357,7 @@
 </pre></div>
 </div>
 <p>If the file type is not automatically identified (rare), you can specify them
-specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-filetype-or-delimiter).</p>
-</div>
-<div class="section" id="profile-a-file">
-<h3>Profile a File<a class="headerlink" href="#profile-a-file" title="Permalink to this headline">¶</a></h3>
+specifically, see section Data Readers.</p>
 <p>Example uses a CSV file for example, but CSV, JSON, Avro or Parquet should also work.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
@@ -391,9 +375,6 @@ specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-fil
 <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="updating-profiles">
-<h3>Updating Profiles<a class="headerlink" href="#updating-profiles" title="Permalink to this headline">¶</a></h3>
 <p>Currently, the data profiler is equipped to update its profile in batches.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
@@ -411,9 +392,6 @@ specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-fil
 <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="merging-profiles">
-<h3>Merging Profiles<a class="headerlink" href="#merging-profiles" title="Permalink to this headline">¶</a></h3>
 <p>If you have two files with the same schema (but different data), it is possible to merge the two profiles together via an addition operator.</p>
 <p>This also enables profiles to be determined in a distributed manner.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
@@ -434,9 +412,6 @@ specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-fil
 <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="profile-a-pandas-dataframe">
-<h3>Profile a Pandas DataFrame<a class="headerlink" href="#profile-a-pandas-dataframe" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -452,9 +427,6 @@ specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-fil
 <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s2">"data stats"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="specifying-a-filetype-or-delimiter">
-<h3>Specifying a Filetype or Delimiter<a class="headerlink" href="#specifying-a-filetype-or-delimiter" title="Permalink to this headline">¶</a></h3>
 <p>Example of specifying a CSV data type, with a <cite>,</cite> delimiter.
 In addition, it utilizes only the first 10,000 rows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
@@ -478,7 +450,6 @@ In addition, it utilizes only the first 10,000 rows.</p>
 <div class="toctree-wrapper compound">
 </div>
 <div class="toctree-wrapper compound">
-</div>
 </div>
 </div>
 <div class="section" id="versions">
@@ -537,22 +508,11 @@ In addition, it utilizes only the first 10,000 rows.</p>
 <li><a class="reference internal" href="#">Data Profiler | What’s in your data?</a><ul>
 <li><a class="reference internal" href="#purpose">Purpose</a></li>
 <li><a class="reference internal" href="#what-is-a-data-profile">What is a Data Profile?</a><ul>
-<li><a class="reference internal" href="#support">Support</a><ul>
 <li><a class="reference internal" href="#supported-data-formats">Supported Data Formats</a></li>
 <li><a class="reference internal" href="#data-labels">Data Labels</a></li>
 </ul>
 </li>
-</ul>
-</li>
 <li><a class="reference internal" href="#get-started">Get Started</a><ul>
-<li><a class="reference internal" href="#load-a-file">Load a File</a></li>
-<li><a class="reference internal" href="#profile-a-file">Profile a File</a></li>
-<li><a class="reference internal" href="#updating-profiles">Updating Profiles</a></li>
-<li><a class="reference internal" href="#merging-profiles">Merging Profiles</a></li>
-<li><a class="reference internal" href="#profile-a-pandas-dataframe">Profile a Pandas DataFrame</a></li>
-<li><a class="reference internal" href="#specifying-a-filetype-or-delimiter">Specifying a Filetype or Delimiter</a><ul>
-</ul>
-</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#versions">Versions</a></li>

@@ -26,6 +26,13 @@ from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
+from io import BytesIO
+
+def setup_save_mock_open(mock_open):
+    mock_file = BytesIO()
+    mock_file.close = lambda: None
+    mock_open.side_effect = lambda *args: mock_file
+    return mock_file
 
 class TestProfiler(unittest.TestCase):
 
@@ -753,13 +760,11 @@ class TestProfilerNullValues(unittest.TestCase):
             save_profile = dp.Profiler(data)
             
             # Save and Load profile with Mock IO
-            save_profile.save()
-            load_profile = dp.Profiler.load()
-            #with mock.patch('builtins.open', mock.mock_open()) as m: 
-            #    save_profile.save()
-            #with mock.patch('builtins.open', mock.mock_open(
-            #    read_data = m().write.call_args[0][0])) as m:
-            #    load_profile = dp.Profiler.load()
+            with mock.patch('builtins.open') as m:
+                mock_file = setup_save_mock_open(m)
+                save_profile.save()
+                mock_file.seek(0)
+                load_profile = dp.Profiler.load()
 
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())

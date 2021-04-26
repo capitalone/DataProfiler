@@ -960,12 +960,12 @@ class Profiler(object):
         :return: None
         """
         # Create Empty Profile
-        profile = Profiler(pd.DataFrame([]))
-        profile._remove_data_labelers()
+        profile_options = ProfilerOptions()
+        profile_options.structured_options.data_labeler.is_enabled = False
+        profile = Profiler(pd.DataFrame([]), profiler_options=profile_options)
 
         # Load profile from disk
         with open(filepath, "rb") as infile:
-            infile.seek(0)
             data = pickle.load(infile)
 
             profile.total_samples = data["total_samples"]

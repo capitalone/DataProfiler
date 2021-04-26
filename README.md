@@ -350,29 +350,9 @@ print(json.dumps(report, indent=4))
 print(json.dumps(report["data stats"][0], indent=4))
 ```
 
-### Specifying a Filetype or Delimiter
-
-Example of specifying a CSV data type, with a `,` delimiter.
-In addition, it utilizes only the first 10,000 rows.
-
-```python
-import json
-import os
-from dataprofiler import Data, Profiler
-from dataprofiler.data_readers.csv_data import CSVData
-
-# Load a CSV file, with "," as the delimiter
-data = CSVData("your_file.csv", options={"delimiter": ","})
-
-# Split the data, such that only the first 10,000 rows are used
-data = data.data[0:10000]
-
-# Read in profile and print results
-profile = Profiler(data)
-print(json.dumps(profile.report(report_options={"output_format":"pretty"}), indent=4))
-```
 
 **Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**
+
 
 # References
 ```

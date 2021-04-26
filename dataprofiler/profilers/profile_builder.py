@@ -13,6 +13,8 @@ import random
 import re
 from collections import OrderedDict
 import warnings
+import pickle
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
@@ -825,3 +827,165 @@ class Profiler(object):
             samples_for_row_stats = np.concatenate(sample_ids)
 
         self._update_row_statistics(df, samples_for_row_stats)
+
+    def _remove_data_labelers(self):
+        """
+        Helper method for removing all data labelers before saving to disk.
+
+        :return: dictionary of removed data labeler objects
+        :rtype: dict (string -> data labeler object) 
+        """
+        data_labelers = {}
+
+        # Delete data labeler for profiler
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is not None:
+            data_labelers["data_labeler"] = data_labeler_options \
+                                            .data_labeler_object
+            data_labeler_options.data_labeler_object = None
+                
+        # Delete data labelers for all columns
+        for key in self._profile:
+
+            val = self._profile[key]
+            use_data_labeler = True
+            if val.options and isinstance(val.options, StructuredOptions):
+                use_data_labeler = val.options.data_labeler.is_enabled
+
+            if use_data_labeler:
+                data_labelers[key] = val.profiles['data_label_profile'] \
+                                        ._profiles['data_labeler'].data_labeler
+                val.profiles['data_label_profile']._profiles['data_labeler'] \
+                   .data_labeler = None
+
+        return data_labelers
+
+    def _restore_data_labelers(self, data_labelers={}):
+        """
+        Helper method for restoring all data labelers after saving to or 
+        loading from disk.
+
+        :param data_labelers: data_labelers to restore
+        :type data_labelers: dict (string -> data labeler object)
+        """
+        # Restore data labeler for profiler
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+            try:
+                if "data_labeler" in data_labelers:
+                    data_labeler = data_labelers["data_labeler"]
+                else:
+                    data_labeler = DataLabeler(
+                        labeler_type='structured',
+                        dirpath=data_labeler_options.data_labeler_dirpath,
+                        load_options=None)
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+                
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
+                
+        # Restore data labelers for all columns
+        for key in self._profile:
+
+            val = self._profile[key]
+            use_data_labeler = True
+            if val.options and isinstance(val.options, StructuredOptions):
+                use_data_labeler = val.options.data_labeler.is_enabled
+
+            if use_data_labeler:
+                data_labeler_profile = val.profiles['data_label_profile'] \
+                                          ._profiles['data_labeler']
+                data_labeler_profile.data_labeler = None
+                
+                if val.options and val.options.data_labeler.data_labeler_object:
+                    data_labeler_profile.data_labeler = val.options \
+                                                           .data_labeler \
+                                                           .data_labeler_object
+
+                if data_labeler_profile.data_labeler is None:
+                    data_labeler_dirpath = None
+                    if val.options:
+                        data_labeler_dirpath = val.options.data_labeler \
+                                                  .data_labeler_dirpath
+                    if key in data_labelers:
+                        data_labeler_profile.data_labeler = data_labelers[key]
+                    else:
+                        data_labeler_profile.data_labeler = DataLabeler(
+                            labeler_type='structured',
+                            dirpath=data_labeler_dirpath,
+                            load_options=None)
+
+    def save(self, filepath=None):
+        """
+        Save profiler to disk
+        
+        :param filepath: Path of file to save to
+        :type filepath: String
+        :return: None
+        """
+        # Set Default filepath
+        if filepath is None:
+            filepath = "profile-{}.pkl".format(
+                        datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f"))
+
+        # Remove data labelers as they can't be pickled
+        data_labelers = self._remove_data_labelers()
+
+        # Create dictionary for all metadata, options, and profile 
+        data = { 
+                "total_samples": self.total_samples,
+                "encoding": self.encoding,
+                "file_type": self.file_type,
+                "row_has_null_count": self.row_has_null_count,
+                "row_is_null_count": self.row_is_null_count,
+                "hashed_row_dict": self.hashed_row_dict,
+                "_samples_per_update": self._samples_per_update,
+                "_min_true_samples": self._min_true_samples,
+                "options": self.options,
+                "_profile": self.profile
+               } 
+
+        # Pickle and save profile to disk
+        with open(filepath, "wb") as outfile:
+            pickle.dump(data, outfile)
+
+        # Restore all data labelers
+        self._restore_data_labelers(data_labelers)
+
+    @staticmethod
+    def load(filepath):
+        """
+        Load profiler from disk
+        
+        :param filepath: Path of file to load from
+        :type filepath: String
+        :return: None
+        """
+        # Create Empty Profile
+        profile_options = ProfilerOptions()
+        profile_options.structured_options.data_labeler.is_enabled = False
+        profile = Profiler(pd.DataFrame([]), profiler_options=profile_options)
+
+        # Load profile from disk
+        with open(filepath, "rb") as infile:
+            data = pickle.load(infile)
+
+            profile.total_samples = data["total_samples"]
+            profile.encoding = data["encoding"]
+            profile.file_type = data["file_type"]
+            profile.row_has_null_count = data["row_has_null_count"]
+            profile.row_is_null_count = data["row_is_null_count"]
+            profile.hashed_row_dict = data["hashed_row_dict"]
+            profile._samples_per_update = data["_samples_per_update"]
+            profile._min_true_samples = data["_min_true_samples"]
+            profile._profile = data["_profile"]
+            profile.options = data["options"]
+
+        # Restore all data labelers
+        profile._restore_data_labelers()
+
+        return profile

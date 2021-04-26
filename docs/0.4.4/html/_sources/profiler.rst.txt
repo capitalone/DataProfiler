@@ -147,24 +147,42 @@ The profiles can easily be saved and loaded as shown below:
                                            indent=4))
 
 
-Setting Sample Size in Profile
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting the Sample Size
+~~~~~~~~~~~~~~~~~~~~~~~
 
-The minimum non-null sample size can easily be set as shown below:
+There are two ways to set sample size in a profile: samples_per_update and 
+min_true_samples. Samples_per_update takes an integer as the exact amount that
+will be sampled. Min_true_samples will set the minimum amount of samples that
+are not null. For example:
 
 .. code-block:: python
 
-    import json
-    from dataprofiler import Data, Profiler
+    from dataprofiler import Profiler
+    
+    sample_size = 2 
+    sample_array = [1.0, NULL, 2.0]
+    profile = dp.Profiler(sample_array, samples_per_update=sample_size) 
+    
+The first two samples (1.0 and NULL) are used for the statistical analysis.
+ 
+In contrast, if we also set min_true_samples to 2 then the Data Reader will 
+continue to read until the minimum true samples were found for the given column.
+For example: 
 
-    # Load a CSV file, with "," as the delimiter
-    data = Data("your_file.csv")
+.. code-block:: python
 
-    # Read in profile and print results
-    profile = Profiler(data, min_true_samples=100)
-    print(json.dumps(profile.report(report_options={"output_format":"compact"}), 
-                                           indent=4))
-
+    from dataprofiler import Profiler
+    
+    sample_size = 2 
+    min_true = 2
+    sample_array = [1.0, NULL, 2.0]
+    profile = dp.Profiler(sample_array, 
+                          samples_per_update=sample_size,
+                          min_true_samples=min_true)
+   
+This will use all samples in the statistical analysis until the number of "true" 
+(non-NULL) values are reached. Both min_true_samples and 
+samples_per_update conditions will be met if possible.
 
 Profile a Pandas DataFrame
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

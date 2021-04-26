@@ -10,7 +10,7 @@ Validators.
    :maxdepth: 1
    :caption: Contents:
    
+   dataprofiler.data_readers
    dataprofiler.profilers
    dataprofiler.labelers
-   dataprofiler.data_readers
    dataprofiler.validators

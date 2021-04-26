@@ -38,6 +38,7 @@ DESCRIPTION = "What is in your data? Detect schema, statistics and entities in a
 setup(
     name='DataProfiler',
     version=__version__,
+    python_requires='>=3.6',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
@@ -111,7 +112,7 @@ setup(
     # # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
     # # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
     data_files=default_labeler_files,
-    include_package_data=True,
+    include_package_data=True,    
 )
 
 print("find_packages():", find_packages())

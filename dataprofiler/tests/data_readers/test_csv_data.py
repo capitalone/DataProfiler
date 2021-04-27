@@ -300,16 +300,15 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=3, encoding='utf-8'),
         ]
 
-        input_file_names = self.input_file_names
-        input_file_names += file_with_header_and_authors
-        
+        input_file_names = self.input_file_names[:]
+        input_file_names += file_with_header_and_authors        
         for input_file in input_file_names:
             file_encoding = data_utils.detect_file_encoding(input_file['path'])
             with open(input_file['path'], encoding=file_encoding) as csvfile:
                 data_as_str = ''.join(list(islice(csvfile, 5)))
             header_line = CSVData._guess_header_row(data_as_str, input_file['delimiter'])
             self.assertIn(header_line, input_file['has_header'], input_file['path'])
-        
+
     def test_options(self):
 
         def _test_options(option, valid, invalid, expected_error):

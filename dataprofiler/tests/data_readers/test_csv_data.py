@@ -301,7 +301,7 @@ class TestCSVDataClass(unittest.TestCase):
         ]
 
         input_file_names = self.input_file_names
-        input_file_names += file_with_header_and_authors # TODO: PLUS EQUAL
+        input_file_names += file_with_header_and_authors
         
         for input_file in input_file_names:
             file_encoding = data_utils.detect_file_encoding(input_file['path'])

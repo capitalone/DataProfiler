@@ -236,13 +236,13 @@ class StructuredDataProfile(object):
             self.null_types, list(base_stats["null_types"].keys())
         )
 
-        if base_stats["min_id"] is not None:
-            if self.min_id is None:
+        if isinstance(base_stats["min_id"], int):
+            if isinstance(self.min_id, int):
                 self.min_id = base_stats["min_id"]
             else:
                 self.min_id = min(self.min_id, base_stats["min_id"])
-        if base_stats["max_id"] is not None:
-            if self.max_id is None:
+        if isinstance(base_stats["max_id"], int):
+            if isinstance(self.max_id, int):
                 self.max_id = base_stats["max_id"]
             else:
                 self.max_id = max(self.max_id, base_stats["max_id"])
@@ -284,7 +284,7 @@ class StructuredDataProfile(object):
                     (x1 <= y1 <= x2) or
                     (x1 <= y2 <= x2))
 
-        if (None not in [self.max_id, self.min_id] and
+        if (isinstance(self.min_id, int) and isinstance(self.max_id, int) and
                 all([isinstance(i, int) for i in df_series.index])):
             if overlap(self.min_id, self.max_id,
                        min(df_series.index), max(df_series.index)):

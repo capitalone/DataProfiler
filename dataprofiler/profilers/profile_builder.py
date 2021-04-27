@@ -276,6 +276,20 @@ class StructuredDataProfile(object):
             sample_size = self._get_sample_size(df_series)
         if not min_true_samples:
             min_true_samples = self._min_true_samples
+
+        # Return True iff [x1:x2] overlaps with [y1:y2]
+        def overlap(x1, x2, y1, y2):
+            return ((y1 <= x1 <= y2) or
+                    (y1 <= x2 <= y2) or
+                    (x1 <= y1 <= x2) or
+                    (x1 <= y2 <= x2))
+
+        if (None not in [self.max_id, self.min_id] and
+                all([isinstance(i, int) for i in df_series.index])):
+            if overlap(self.min_id, self.max_id,
+                       min(df_series.index), max(df_series.index)):
+                # Increment df_series index so that no overlap with current data
+                df_series.index = [i + self.max_id + 1 for i in df_series.index]
         
         clean_sampled_df, base_stats = self.clean_data_and_get_base_stats(
             df_series=df_series, sample_size=sample_size,

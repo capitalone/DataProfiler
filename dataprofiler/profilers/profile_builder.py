@@ -322,11 +322,20 @@ class StructuredDataProfile(object):
         if not len_df:
             return df_series, {
                 "sample_size": 0, "null_count": 0,
-                "null_types": dict(), "sample": []
+                "null_types": dict(), "sample": [],
+                "min_id": None, "max_id": None
             }
 
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
+
+        # Record min and max index values (if index is int)
+        try:
+            min_id = min(df_series.index)
+            max_id = max(df_series.index)
+        except:
+            min_id = None
+            max_id = None
 
         # Select generator depending if sample_ids availability
         if sample_ids is None:
@@ -380,7 +389,9 @@ class StructuredDataProfile(object):
             "null_count": total_na,
             "null_types": na_columns,
             "sample": random.sample(list(df_series.values),
-                                    min(len(df_series), 5))
+                                    min(len(df_series), 5)),
+            "min_id": min_id,
+            "max_id": max_id
         }
 
         return df_series, base_stats

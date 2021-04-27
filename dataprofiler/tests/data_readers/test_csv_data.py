@@ -59,7 +59,7 @@ class TestCSVDataClass(unittest.TestCase):
                  count=6, delimiter=None, has_header=[0],
                  num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/names-col-empty.txt'),
-                 count=6, delimiter=None, has_header=[0],
+                 count=33, delimiter=None, has_header=[0],
                  num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/log_data_long.txt'),
                  count=753, delimiter=',', has_header=[None],
@@ -119,7 +119,7 @@ class TestCSVDataClass(unittest.TestCase):
                  count=10, delimiter=',', has_header=[0],
                  num_columns=4, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/all-strings-skip-header.csv'),
-                 count=9, delimiter=',', has_header=[1],
+                 count=10, delimiter=',', has_header=[1],
                  num_columns=4, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/all-strings-skip-header-author.csv'),
                  count=5, delimiter=',', has_header=[1],
@@ -321,24 +321,43 @@ class TestCSVDataClass(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, expected_error):
                     CSVData(options={option: value})
 
-        _test_options("header", valid = ["auto", None, 0, 1],
-                      invalid = ["error", CSVData(), -1],
-                      expected_error = '`header` must be one of following: auto, ')
+        _test_options(
+            "header", valid=["auto", None, 0, 1],
+            invalid=["error", CSVData(), -1],
+            expected_error='`header` must be one of following: auto, ')
         
-        _test_options("delimiter", valid = [',', '\t', '', None],
-                      invalid = [CSVData(), 1],
-                      expected_error="'delimiter' must be a string or None")    
+        _test_options(
+            "delimiter", valid=[',', '\t', '', None],
+            invalid=[CSVData(), 1],
+            expected_error="'delimiter' must be a string or None")
         
-        _test_options("data_format", valid = ['dataframe', 'records'],
-                      invalid = ["error", CSVData(), 1, None],
-                      expected_error = "'data_format' must be one of the following: ") 
+        _test_options(
+            "data_format", valid=['dataframe', 'records'],
+            invalid=["error", CSVData(), 1, None],
+            expected_error="'data_format' must be one of the following: ")
         
-        _test_options("selected_columns", valid = [['hello', 'world'], ["test"], []],
-                      invalid = ["error", CSVData(), 1, None],
-                      expected_error = "'selected_columns' must be a list") 
+        _test_options(
+            "selected_columns", valid=[['hello', 'world'], ["test"], []],
+            invalid=["error", CSVData(), 1, None],
+            expected_error="'selected_columns' must be a list")
         
-        _test_options("selected_columns", valid = [], invalid = [[0,1,2,3]],
-                      expected_error = "'selected_columns' must be a list of strings")
+        _test_options(
+            "selected_columns", valid=[], invalid=[[0,1,2,3]],
+            expected_error="'selected_columns' must be a list of strings")
+
+        # test edge case for header being set
+        file = self.input_file_names[0]
+        filepath = file['path']
+        expected_header_value = file['has_header'][0]
+        options = {'header': 'auto', 'delimiter': ','}  # default values
+        data = CSVData(options=options)
+        self.assertEqual('auto', data.header)
+        self.assertFalse(data._checked_header)
+
+        data = CSVData(filepath, options=options)
+        retrieve_data = data.data
+        self.assertEqual(expected_header_value, data.header)
+        self.assertTrue(data._checked_header)
 
     def test_len_data(self):
         """

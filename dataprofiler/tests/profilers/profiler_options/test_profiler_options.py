@@ -111,7 +111,12 @@ class TestProfilerOptions(unittest.TestCase):
             self.assertTrue("data_label" not in profile_column.keys())
             self.assertIsNone(profile_column["categorical"])
             self.assertIsNone(profile_column["order"])
-            self.assertDictEqual({}, profile_column["statistics"])
+            self.assertDictEqual({
+                'sample_size': 2,
+                'null_count': 0,
+                'null_types': [],
+                'null_types_index': {}
+            }, profile_column["statistics"])
 
     @mock.patch('dataprofiler.profilers.text_column_profile.TextColumn'
                 '._update_vocab')

@@ -251,20 +251,21 @@ def read_csv_df(file_path, delimiter, header, selected_columns=[],
     :rtype: pd.DataFrame
     """
 
-    # If a header cannot be identified, use default behavior
-    skip_blank_lines = True
-    if header is not None:
-        skip_blank_lines = False
-        
     args = {
         'delimiter': delimiter,
         'header': header,
         'iterator': True,
         'dtype': 'object',
         'keep_default_na': False,
-        'encoding': encoding,
-        'skip_blank_lines': skip_blank_lines
+        'encoding': encoding
     }
+
+    # If a header can be identified, don't skip blanks
+    if header is not None:
+        args.update({
+            'skip_blank_lines': False
+        })
+
 
     if read_in_string:
         args['dtype'] = str

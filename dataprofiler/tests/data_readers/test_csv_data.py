@@ -15,7 +15,6 @@ class TestCSVDataClass(unittest.TestCase):
     def setUpClass(cls):
         
         test_dir = os.path.join(test_root_path, 'data')
-        cls.test_dir = test_dir
         cls.input_file_names = [
             dict(path=os.path.join(test_dir, 'csv/diamonds.csv'),
                  count=53940, delimiter=',', has_header=[0],
@@ -347,15 +346,17 @@ class TestCSVDataClass(unittest.TestCase):
             expected_error="'selected_columns' must be a list of strings")
 
         # test edge case for header being set
-        filepath = os.path.join(self.test_dir, 'csv/aws_honeypot_marx_geo.csv')
-        options = {'header': 'auto', 'delimiter': 'auto'}  # default value
+        file = self.input_file_names[0]
+        filepath = file['path']
+        expected_header_value = file['has_header'][0]
+        options = {'header': 'auto', 'delimiter': ','}  # default values
         data = CSVData(options=options)
         self.assertEqual('auto', data.header)
         self.assertFalse(data._checked_header)
 
         data = CSVData(filepath, options=options)
         retrieve_data = data.data
-        self.assertEqual(0, data.header)
+        self.assertEqual(expected_header_value, data.header)
         self.assertTrue(data._checked_header)
 
     def test_len_data(self):

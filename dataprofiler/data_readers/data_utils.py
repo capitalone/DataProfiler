@@ -250,7 +250,6 @@ def read_csv_df(file_path, delimiter, header, selected_columns=[],
     :return: Iterator
     :rtype: pd.DataFrame
     """
-
     args = {
         'delimiter': delimiter,
         'header': header,
@@ -265,7 +264,6 @@ def read_csv_df(file_path, delimiter, header, selected_columns=[],
         args.update({
             'skip_blank_lines': False
         })
-
 
     if read_in_string:
         args['dtype'] = str

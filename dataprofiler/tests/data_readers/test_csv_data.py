@@ -59,7 +59,7 @@ class TestCSVDataClass(unittest.TestCase):
                  count=6, delimiter=None, has_header=[0],
                  num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/names-col-empty.txt'),
-                 count=6, delimiter=None, has_header=[0],
+                 count=33, delimiter=None, has_header=[0],
                  num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/log_data_long.txt'),
                  count=753, delimiter=',', has_header=[None],
@@ -119,7 +119,7 @@ class TestCSVDataClass(unittest.TestCase):
                  count=10, delimiter=',', has_header=[0],
                  num_columns=4, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/all-strings-skip-header.csv'),
-                 count=9, delimiter=',', has_header=[1],
+                 count=10, delimiter=',', has_header=[1],
                  num_columns=4, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/all-strings-skip-header-author.csv'),
                  count=5, delimiter=',', has_header=[1],
@@ -217,7 +217,6 @@ class TestCSVDataClass(unittest.TestCase):
             for data_format in list(input_data_obj._data_formats.keys()):
                 input_data_obj.data_format = data_format
                 self.assertEqual(input_data_obj.data_format, data_format)
-                data = input_data_obj.data
                 if data_format == "dataframe":
                     import pandas as pd
                     self.assertIsInstance(data, pd.DataFrame)
@@ -300,15 +299,16 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=3, encoding='utf-8'),
         ]
 
-        input_file_names = self.input_file_names[:]
-        input_file_names += file_with_header_and_authors
+        input_file_names = self.input_file_names
+        input_file_names += file_with_header_and_authors # TODO: PLUS EQUAL
+        
         for input_file in input_file_names:
             file_encoding = data_utils.detect_file_encoding(input_file['path'])
             with open(input_file['path'], encoding=file_encoding) as csvfile:
                 data_as_str = ''.join(list(islice(csvfile, 5)))
             header_line = CSVData._guess_header_row(data_as_str, input_file['delimiter'])
             self.assertIn(header_line, input_file['has_header'], input_file['path'])
-
+        
     def test_options(self):
 
         def _test_options(option, valid, invalid, expected_error):

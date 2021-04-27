@@ -71,7 +71,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         self._quotechar = options.get("quotechar", None)
         self._selected_columns = options.get("selected_columns", list())
         self._header = options.get("header", 'auto')
-        self._checked_header = "header" in options
+        self._checked_header = "header" in options and self._header != 'auto'
         self._default_delimiter = ','
         self._default_quotechar = '"'
 
@@ -124,7 +124,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             value = options["data_format"]
             if value not in ["dataframe", "records"]:
                 raise ValueError("'data_format' must be one of the following: "
-                                 "'dataframe' or 'records' ") 
+                                 "'dataframe' or 'records' ")
         if 'selected_columns' in options.keys():
             value = options["selected_columns"]
             if not isinstance(value, list):
@@ -170,7 +170,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 ordered_vocab.append(c)
 
         # Attempt to identify the quote character
-        if not quotechar:            
+        if not quotechar:
             sniffer = csv.Sniffer()
             sniffer.preferred = preferred
             try:
@@ -210,7 +210,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
                 row = proposed_dataset[row_idx]
                 
-                # Skip - extra split from "\n" with no data 
+                # Skip - extra split from "\n" with no data
                 if len(row)<=1 and row_idx==len(proposed_dataset)-1:
                     continue
                 
@@ -224,7 +224,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     max_col_count = len(proposed_cells)
 
                 # Ensure rows have same number of cols, if more than one col
-                if len(proposed_cells) > prior_col_count: 
+                if len(proposed_cells) > prior_col_count:
                     incorrect_delimiter_flag = True
                     break
                 
@@ -234,14 +234,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
                 prior_col_count = len(proposed_cells)
 
-                prior_cell_type = None # Checks for int/alpha values and delims     
+                prior_cell_type = None # Checks for int/alpha values and delims
                 for col_id in range(len(proposed_cells)):
                     
                     proposed_cell = proposed_cells[col_id]
                     cell_type = data_utils.detect_cell_type(proposed_cell)
                     col_types[col_id] = cell_type
 
-                    # Handle if alpha character are seperator                     
+                    # Handle if alpha character are seperator
                     # NOTE: delimiter needs two ajoining cells to flag
                     if cell_type in ['str', 'none'] \
                        and prior_cell_type in ['str', 'none']:
@@ -292,10 +292,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :type suggested_delimiter: str
         :param suggested_delimiter: quotechar suggested to use when trying to find the header
         :type suggested_delimiter: str
-        :param diff_threshold: Max percent difference in cell types between rows allowed 
-        :type diff_threshold: float    
+        :param diff_threshold: Max percent difference in cell types between rows allowed
+        :type diff_threshold: float
         :param none_thresh: Max percent difference number of none values allowed
-        :type none_thresh: float    
+        :type none_thresh: float
         :param str_thresh: Min percent of strings (omitting none) in row to be a header
         :type str_thresh: float
         
@@ -376,7 +376,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         
             # Determine percent of string, uppercase string or none in row,
             # must be ABOVE threshold
-            rstr = float((header_check_list[i].count("str") 
+            rstr = float((header_check_list[i].count("str")
                           + header_check_list[i].count("upstr")
                           + header_check_list[i].count("none")))
             rstr /= float(len(header_check_list[i]))
@@ -453,7 +453,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                         last_row_with_first_col_value_count += 1
 
             # Ensures there is at least some variance
-            if variance.count(True) > 0: 
+            if variance.count(True) > 0:
                 
                 # Ensures most first lines are the same row
                 if last_row_with_first_col_value_count > (len(variance) // 2):
@@ -594,7 +594,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             # Find the location(s) where each delimiter was detected
             if delimiter:
                 count = len([i.start() for i in re.finditer(delimiter_regex, line)])
-            else:                    
+            else:
                 # If no delimiter, see if spaces are regular intervals
                 count = len([i.start() for i in re.finditer(space_regex, line)])
 

@@ -232,14 +232,16 @@ class StructuredDataProfile(object):
             self.null_types, list(base_stats["null_types"].keys())
         )
 
-        if self.min_id is None:
-            self.min_id = base_stats["min_id"]
-        else:
-            self.min_id = min(self.min_id, base_stats["min_id"])
-        if self.max_id is None:
-            self.max_id = base_stats["max_id"]
-        else:
-            self.max_id = max(self.max_id, base_stats["max_id"])
+        if base_stats["min_id"] is not None:
+            if self.min_id is None:
+                self.min_id = base_stats["min_id"]
+            else:
+                self.min_id = min(self.min_id, base_stats["min_id"])
+        if base_stats["max_id"] is not None:
+            if self.max_id is None:
+                self.max_id = base_stats["max_id"]
+            else:
+                self.max_id = max(self.max_id, base_stats["max_id"])
 
         for null_type, null_rows in base_stats["null_types"].items():
             if type(null_rows) is list:

@@ -160,13 +160,17 @@ class StructuredDataProfile(object):
             {"sample": self.sample,
              "sample_size": self.sample_size,
              "null_count": self.null_count,
-             "null_types": copy.deepcopy(self.null_types_index)}
+             "null_types": copy.deepcopy(self.null_types_index),
+             "min_id": self.min_id,
+             "max_id": self.max_id}
         )
         merged_profile._update_base_stats(
             {"sample": other.sample,
              "sample_size": other.sample_size,
              "null_count": other.null_count,
-             "null_types": copy.deepcopy(other.null_types_index)}
+             "null_types": copy.deepcopy(other.null_types_index),
+             "min_id": other.min_id,
+             "max_id": other.max_id}
         )
         samples = list(dict.fromkeys(self.sample + other.sample))
         merged_profile.sample = random.sample(samples, min(len(samples), 5))

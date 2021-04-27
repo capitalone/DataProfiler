@@ -217,6 +217,7 @@ class TestCSVDataClass(unittest.TestCase):
             for data_format in list(input_data_obj._data_formats.keys()):
                 input_data_obj.data_format = data_format
                 self.assertEqual(input_data_obj.data_format, data_format)
+                data = input_data_obj.data
                 if data_format == "dataframe":
                     import pandas as pd
                     self.assertIsInstance(data, pd.DataFrame)

@@ -549,7 +549,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
                                'sample_size': 5, 'null_count': 2,
-                               'null_types': dict(nan=['e', 'b'])}, base_stats)
+                               'null_types': dict(nan=['e', 'b']),
+                               'min_id': None, 'max_id': None}, base_stats)
 
     def test_column_names(self):
         data = [['a', 1], ['b', 2], ['c', 3]]

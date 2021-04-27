@@ -321,24 +321,41 @@ class TestCSVDataClass(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, expected_error):
                     CSVData(options={option: value})
 
-        _test_options("header", valid = ["auto", None, 0, 1],
-                      invalid = ["error", CSVData(), -1],
-                      expected_error = '`header` must be one of following: auto, ')
+        _test_options(
+            "header", valid=["auto", None, 0, 1],
+            invalid=["error", CSVData(), -1],
+            expected_error='`header` must be one of following: auto, ')
         
-        _test_options("delimiter", valid = [',', '\t', '', None],
-                      invalid = [CSVData(), 1],
-                      expected_error="'delimiter' must be a string or None")    
+        _test_options(
+            "delimiter", valid=[',', '\t', '', None],
+            invalid=[CSVData(), 1],
+            expected_error="'delimiter' must be a string or None")
         
-        _test_options("data_format", valid = ['dataframe', 'records'],
-                      invalid = ["error", CSVData(), 1, None],
-                      expected_error = "'data_format' must be one of the following: ") 
+        _test_options(
+            "data_format", valid=['dataframe', 'records'],
+            invalid=["error", CSVData(), 1, None],
+            expected_error="'data_format' must be one of the following: ")
         
-        _test_options("selected_columns", valid = [['hello', 'world'], ["test"], []],
-                      invalid = ["error", CSVData(), 1, None],
-                      expected_error = "'selected_columns' must be a list") 
+        _test_options(
+            "selected_columns", valid=[['hello', 'world'], ["test"], []],
+            invalid=["error", CSVData(), 1, None],
+            expected_error="'selected_columns' must be a list")
         
-        _test_options("selected_columns", valid = [], invalid = [[0,1,2,3]],
-                      expected_error = "'selected_columns' must be a list of strings")
+        _test_options(
+            "selected_columns", valid=[], invalid=[[0,1,2,3]],
+            expected_error="'selected_columns' must be a list of strings")
+
+        # test edge case for header being set
+        filepath = "../data/csv/aws_honeypot_marx_geo.csv"
+        options = {'header': 'auto', 'delimiter': 'auto'}  # default value
+        data = CSVData(options=options)
+        self.assertEqual('auto', data.header)
+        self.assertFalse(data._checked_header)
+
+        data = CSVData(filepath, options=options)
+        retrieve_data = data.data
+        self.assertEqual(0, data.header)
+        self.assertTrue(data._checked_header)
 
     def test_len_data(self):
         """

@@ -63,6 +63,8 @@ class StructuredDataProfile(object):
         self.null_count = 0
         self.null_types = list()
         self.null_types_index = {}
+        self.min_id = None
+        self.max_id = None
         self.profiles = {}
                          
         if df_series is not None and len(df_series) > 0:
@@ -230,6 +232,15 @@ class StructuredDataProfile(object):
             self.null_types, list(base_stats["null_types"].keys())
         )
 
+        if self.min_id is None:
+            self.min_id = base_stats["min_id"]
+        else:
+            self.min_id = min(self.min_id, base_stats["min_id"])
+        if self.max_id is None:
+            self.max_id = base_stats["max_id"]
+        else:
+            self.max_id = max(self.max_id, base_stats["max_id"])
+
         for null_type, null_rows in base_stats["null_types"].items():
             if type(null_rows) is list:
                 null_rows.sort()
@@ -329,13 +340,12 @@ class StructuredDataProfile(object):
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
 
-        # Record min and max index values (if index is int)
-        try:
+        # Record min and max index values if index is int
+        min_id = None
+        max_id = None
+        if all([isinstance(i, int) for i in df_series.index]):
             min_id = min(df_series.index)
             max_id = max(df_series.index)
-        except:
-            min_id = None
-            max_id = None
 
         # Select generator depending if sample_ids availability
         if sample_ids is None:

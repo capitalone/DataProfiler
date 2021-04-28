@@ -384,8 +384,9 @@ class StructuredDataProfile(object):
             max_id = max(df_series.index)
         else:
             warnings.warn("Unable to detect minimum and maximum index values. "
-                          "As a result overlap when merging/updating cannot be "
-                          "detected and may result in an inaccurate profile.")
+                          "There may be future overlapping in indices when "
+                          "updating/merging which could result in inaccurate "
+                          "null row index reporting.")
 
         # Select generator depending if sample_ids availability
         if sample_ids is None:

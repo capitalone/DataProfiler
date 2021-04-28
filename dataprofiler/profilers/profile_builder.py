@@ -250,7 +250,7 @@ class StructuredDataProfile(object):
             base_min = base_min + self.max_id + 1
             base_max = base_max + self.max_id + 1
 
-            base_nti = {k: utils.increment(v, self.max_id + 1) for k, v in
+            base_nti = {k: {x + self.max_id + 1 for x in v} for k, v in
                         base_stats["null_types"].items()}
 
         # Store/compare min/max id with current

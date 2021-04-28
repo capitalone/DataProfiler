@@ -662,6 +662,19 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profiler._sampling_ratio = 0.2
         self.assertEqual(10000, update_mock.call_args[0][1])
 
+    def test_index_overlap_resolved_for_update_profile(self):
+        data = pd.Series([0, None, 1, 2, None], index=[0, 1, 2, 3, 4])
+        profile = StructuredDataProfile(data)
+        self.assertEqual(0, profile.min_id)
+        self.assertEqual(4, profile.max_id)
+        expected_dict = {'nan': {1, 4}}
+        self.assertDictEqual(profile.null_types_index, expected_dict)
+        profile.update_profile(data)
+        # Now all indices will be shifted by max_id + 1 (5)
+        # So the 2 None will move from indices 1, 4 to 6, 9
+        expected_dict = {'nan': {1, 4, 6, 9}}
+        self.assertDictEqual(profile.null_types_index, expected_dict)
+
 
 class TestProfilerNullValues(unittest.TestCase):
 

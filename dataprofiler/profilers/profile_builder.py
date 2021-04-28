@@ -237,12 +237,12 @@ class StructuredDataProfile(object):
         )
 
         if isinstance(base_stats["min_id"], int):
-            if isinstance(self.min_id, int):
+            if not isinstance(self.min_id, int):
                 self.min_id = base_stats["min_id"]
             else:
                 self.min_id = min(self.min_id, base_stats["min_id"])
         if isinstance(base_stats["max_id"], int):
-            if isinstance(self.max_id, int):
+            if not isinstance(self.max_id, int):
                 self.max_id = base_stats["max_id"]
             else:
                 self.max_id = max(self.max_id, base_stats["max_id"])
@@ -289,6 +289,9 @@ class StructuredDataProfile(object):
             if overlap(self.min_id, self.max_id,
                        min(df_series.index), max(df_series.index)):
                 # Increment df_series index so that no overlap with current data
+                warnings.warn("Overlapping indices detected between data given "
+                              "to update_profile and profiled data, indices of "
+                              "provided data will be shifted to resolve this.")
                 df_series.index = [i + self.max_id + 1 for i in df_series.index]
         
         clean_sampled_df, base_stats = self.clean_data_and_get_base_stats(

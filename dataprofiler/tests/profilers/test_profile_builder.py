@@ -860,24 +860,25 @@ class TestProfilerNullValues(unittest.TestCase):
                              [None, None],
                              [None, 1],
                              [1, None],
-                             [None, 1],
                              [1, 1],
-                             [1, 1]])
+                             [None, None],
+                             [None, 1]])
         data1 = data[:4]
         data2 = data[4:]
         opts = ProfilerOptions()
         opts.structured_options.multiprocess.is_enabled = False
-        profile = dp.Profiler(data1, min_true_samples=2, profiler_options=opts)
+        profile = dp.Profiler(data1, min_true_samples=2, samples_per_update=2,
+                              profiler_options=opts)
         self.assertEqual(3, profile.row_has_null_count)
         self.assertEqual(1, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
 
-        profile.update_profile(data2, min_true_samples=2)
-        self.assertEqual(5, profile.row_has_null_count)
-        self.assertEqual(1, profile.row_is_null_count)
-        self.assertEqual(0.625, profile._get_row_has_null_ratio())
-        self.assertEqual(0.125, profile._get_row_is_null_ratio())
+        profile.update_profile(data2, min_true_samples=2, sample_size=2)
+        self.assertEqual(6, profile.row_has_null_count)
+        self.assertEqual(2, profile.row_is_null_count)
+        self.assertEqual(0.75, profile._get_row_has_null_ratio())
+        self.assertEqual(0.25, profile._get_row_is_null_ratio())
 
 
 if __name__ == '__main__':

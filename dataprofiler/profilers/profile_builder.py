@@ -13,6 +13,8 @@ import random
 import re
 from collections import OrderedDict
 import warnings
+import pickle
+from datetime import datetime
 
 import pandas as pd
 import numpy as np
@@ -153,12 +155,14 @@ class StructuredDataProfile(object):
 
         merged_profile.name = self.name
         merged_profile._update_base_stats(
-            {"sample": self.sample, 'sample_size': self.sample_size,
+            {"sample": self.sample,
+             "sample_size": self.sample_size,
              "null_count": self.null_count,
              "null_types": copy.deepcopy(self.null_types_index)}
         )
         merged_profile._update_base_stats(
-            {"sample": other.sample, 'sample_size': other.sample_size,
+            {"sample": other.sample,
+             "sample_size": other.sample_size,
              "null_count": other.null_count,
              "null_types": copy.deepcopy(other.null_types_index)}
         )
@@ -184,13 +188,16 @@ class StructuredDataProfile(object):
             "column_name": name,
             "samples": self.sample,
         })
-                
+
+        unordered_profile["statistics"].update({
+            "sample_size": self.sample_size,
+            "null_count": self.null_count,
+            "null_types": self.null_types,
+            "null_types_index": self.null_types_index
+        })
+        
         if unordered_profile.get("data_type", None) is not None:
             unordered_profile["statistics"].update({
-                "sample_size": self.sample_size,
-                "null_count": self.null_count,
-                "null_types": self.null_types,
-                "null_types_index": self.null_types_index,
                 "data_type_representation":
                 unordered_profile["data_type_representation"]
             })
@@ -278,8 +285,8 @@ class StructuredDataProfile(object):
     #  index number in the error as well
     @staticmethod
     def clean_data_and_get_base_stats(df_series, sample_size,
-                                             min_true_samples=None,
-                                             sample_ids=None):
+                                      min_true_samples=None,
+                                      sample_ids=None):
         """
         Identify null characters and return them in a dictionary as well as
         remove any nulls in column.
@@ -321,7 +328,7 @@ class StructuredDataProfile(object):
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
 
-        # Select generator depending if sample_ids availablity
+        # Select generator depending if sample_ids availability
         if sample_ids is None:
             sample_ind_generator = utils.shuffle_in_chunks(
                 len_df, chunk_size=sample_size)
@@ -334,7 +341,6 @@ class StructuredDataProfile(object):
         total_sample_size = 0
         query = '|'.join(null_values_and_flags.keys())
         regex = f"^(?:{(query)})$"
-        
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
             
@@ -352,9 +358,9 @@ class StructuredDataProfile(object):
                 na_columns.setdefault(cell, list()).append(index)
             
             # Ensure minimum number of true samples met
-            # and if total_sample_size > samplesize exit
+            # and if total_sample_size >= sample size, exit
             if len(true_sample_list) >= min_true_samples \
-               and total_sample_size > sample_size:                
+                    and total_sample_size >= sample_size:
                 break
             
         # close the generator in case it is not exhausted.
@@ -444,7 +450,7 @@ class Profiler(object):
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
-        if len(data):
+        if data is not None:
             self.update_profile(data)
 
     def __add__(self, other):
@@ -521,6 +527,16 @@ class Profiler(object):
             samples_used = max(samples_used, col.sample_size)
         return samples_used
 
+    @property
+    def _min_col_samples_used(self):
+        """
+        Calculates and returns the number of rows that were completely sampled
+        i.e. every column in the Profile was read up to this row (possibly
+        further in some cols)
+        """
+        return min([self._profile[col].sample_size
+                    for col in self._profile], default=0)
+
     def report(self, report_options=None):
         if not report_options:
             report_options = {
@@ -561,17 +577,17 @@ class Profiler(object):
         return len(self.hashed_row_dict) / self.total_samples
 
     def _get_row_is_null_ratio(self):
-        return 0 if self._max_col_samples_used == 0 \
-            else self.row_is_null_count / self._max_col_samples_used
+        return 0 if self._min_col_samples_used in {0, None} \
+            else self.row_is_null_count / self._min_col_samples_used
 
     def _get_row_has_null_ratio(self):
-        return 0 if self._max_col_samples_used == 0 \
-            else self.row_has_null_count / self._max_col_samples_used
+        return 0 if self._min_col_samples_used in {0, None} \
+            else self.row_has_null_count / self._min_col_samples_used
 
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)
 
-    def _update_row_statistics(self, data):
+    def _update_row_statistics(self, data, sample_ids=None):
         """
         Iterate over the provided dataset row by row and calculate
         the row statistics. Specifically, number of unique rows,
@@ -580,12 +596,18 @@ class Profiler(object):
 
         :param data: a dataset
         :type data: pandas.DataFrame
+        :param sample_ids: list of indices in order they were sampled in data
+        :type sample_ids: list(int)
         """
+
+        if not isinstance(data, pd.DataFrame):
+            raise ValueError("Cannot calculate row statistics on data that is"
+                             "not a DataFrame")
         
         self.total_samples += len(data)
-        self.hashed_row_dict = dict.fromkeys(
+        self.hashed_row_dict.update(dict.fromkeys(
             pd.util.hash_pandas_object(data, index=False), True
-        )
+        ))
 
         # Calculate Null Column Count
         null_rows = set()
@@ -597,6 +619,12 @@ class Profiler(object):
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
 
+            if sample_ids is not None:
+                # If sample ids provided, only consider nulls in rows that
+                # were fully sampled
+                null_row_indices = null_row_indices.intersection(
+                    data.index[sample_ids[:self._min_col_samples_used]])
+
             # Find the common null indices between the columns
             if first_col_flag:
                 null_rows = null_row_indices
@@ -606,8 +634,8 @@ class Profiler(object):
                 null_rows = null_rows.intersection(null_row_indices)
                 null_in_row_count = null_in_row_count.union(null_row_indices)
 
-        self.row_has_null_count += len(null_in_row_count)
-        self.row_is_null_count += len(null_rows)
+        self.row_has_null_count = len(null_in_row_count)
+        self.row_is_null_count = len(null_rows)
 
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """
@@ -635,6 +663,8 @@ class Profiler(object):
                 "pd.DataFrame."
             )
 
+        if not len(data):
+            return
         if not min_true_samples:
             min_true_samples = self._min_true_samples
         if not sample_size:
@@ -642,7 +672,6 @@ class Profiler(object):
 
         self._update_profile_from_chunk(
             data, sample_size, min_true_samples, self.options)
-        self._update_row_statistics(data)
 
     def _update_profile_from_chunk(self, df, sample_size=None,
                                    min_true_samples=None, options=None):
@@ -673,22 +702,22 @@ class Profiler(object):
                     print("Processing Column {}/{}".format(i+1, len(l)))
                     yield e
 
-        # Shuffle indices ones and share with columns
+        # Shuffle indices once and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
         
         # If there are no minimum true samples, you can sort to save time
-        if (min_true_samples is None or min_true_samples == 0) \
-           and len(sample_ids) > 0:
+        if min_true_samples in [None, 0]:
             # If there's a sample size, truncate
             if sample_size is not None:
                 sample_ids[0] = sample_ids[0][:sample_size]
-            # Sort the sample_ids anre replace prior
+            # Sort the sample_ids and replace prior
             sample_ids[0] = sorted(sample_ids[0])
+
         # Numpy arrays allocate to heap and can be shared between processes
         # Non-locking multiprocessing fails on machines without POSIX (windows)
         # The function handles that situation, but will be single process
         # Newly introduced features (python3.8) improves the situation
-        sample_ids = np.array(sample_ids)        
+        sample_ids = np.array(sample_ids)
 
         # Create structured profile objects
         new_cols = set()
@@ -728,7 +757,6 @@ class Profiler(object):
                           "not the whole dataset.".format(sample_size))
 
         if pool is not None:
-
             # Create a bunch of simultaneous column conversions
             for col in df.columns:
                 if min_true_samples is None:
@@ -764,11 +792,10 @@ class Profiler(object):
                             df[col], sample_size, min_true_samples, sample_ids)
                     self._profile[col]._update_base_stats(base_stats)
             
-            pool.close() # Close pool for new tasks
-            pool.join() # Wait for all workers to complete
+            pool.close()  # Close pool for new tasks
+            pool.join()  # Wait for all workers to complete
 
-        else: # No pool
-
+        else:  # No pool
             print(notification_str)
             for col in tqdm(df.columns):
                 if min_true_samples is None:
@@ -792,6 +819,176 @@ class Profiler(object):
         for col in tqdm(df.columns):
             self._profile[col].update_column_profilers(
                 clean_sampled_dict[col], pool)
+
         if pool is not None:
-            pool.close() # Close pool for new tasks
-            pool.join() # Wait for all workers to complete
+            pool.close()  # Close pool for new tasks
+            pool.join()  # Wait for all workers to complete
+
+        # Only pass along sample ids if necessary
+        samples_for_row_stats = None
+        if min_true_samples not in [None, 0]:
+            samples_for_row_stats = np.concatenate(sample_ids)
+
+        self._update_row_statistics(df, samples_for_row_stats)
+
+    def _remove_data_labelers(self):
+        """
+        Helper method for removing all data labelers before saving to disk.
+
+        :return: dictionary of removed data labeler objects
+        :rtype: dict (string -> data labeler object) 
+        """
+        data_labelers = {}
+
+        # Delete data labeler for profiler
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is not None:
+            data_labelers["data_labeler"] = data_labeler_options \
+                                            .data_labeler_object
+            data_labeler_options.data_labeler_object = None
+                
+        # Delete data labelers for all columns
+        for key in self._profile:
+
+            val = self._profile[key]
+            use_data_labeler = True
+            if val.options and isinstance(val.options, StructuredOptions):
+                use_data_labeler = val.options.data_labeler.is_enabled
+
+            if use_data_labeler:
+                data_labelers[key] = val.profiles['data_label_profile'] \
+                                        ._profiles['data_labeler'].data_labeler
+                val.profiles['data_label_profile']._profiles['data_labeler'] \
+                   .data_labeler = None
+
+        return data_labelers
+
+    def _restore_data_labelers(self, data_labelers={}):
+        """
+        Helper method for restoring all data labelers after saving to or 
+        loading from disk.
+
+        :param data_labelers: data_labelers to restore
+        :type data_labelers: dict (string -> data labeler object)
+        """
+        # Restore data labeler for profiler
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+            try:
+                if "data_labeler" in data_labelers:
+                    data_labeler = data_labelers["data_labeler"]
+                else:
+                    data_labeler = DataLabeler(
+                        labeler_type='structured',
+                        dirpath=data_labeler_options.data_labeler_dirpath,
+                        load_options=None)
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+                
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
+                
+        # Restore data labelers for all columns
+        for key in self._profile:
+
+            val = self._profile[key]
+            use_data_labeler = True
+            if val.options and isinstance(val.options, StructuredOptions):
+                use_data_labeler = val.options.data_labeler.is_enabled
+
+            if use_data_labeler:
+                data_labeler_profile = val.profiles['data_label_profile'] \
+                                          ._profiles['data_labeler']
+                data_labeler_profile.data_labeler = None
+                
+                if val.options and val.options.data_labeler.data_labeler_object:
+                    data_labeler_profile.data_labeler = val.options \
+                                                           .data_labeler \
+                                                           .data_labeler_object
+
+                if data_labeler_profile.data_labeler is None:
+                    data_labeler_dirpath = None
+                    if val.options:
+                        data_labeler_dirpath = val.options.data_labeler \
+                                                  .data_labeler_dirpath
+                    if key in data_labelers:
+                        data_labeler_profile.data_labeler = data_labelers[key]
+                    else:
+                        data_labeler_profile.data_labeler = DataLabeler(
+                            labeler_type='structured',
+                            dirpath=data_labeler_dirpath,
+                            load_options=None)
+
+    def save(self, filepath=None):
+        """
+        Save profiler to disk
+        
+        :param filepath: Path of file to save to
+        :type filepath: String
+        :return: None
+        """
+        # Set Default filepath
+        if filepath is None:
+            filepath = "profile-{}.pkl".format(
+                        datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f"))
+
+        # Remove data labelers as they can't be pickled
+        data_labelers = self._remove_data_labelers()
+
+        # Create dictionary for all metadata, options, and profile 
+        data = { 
+                "total_samples": self.total_samples,
+                "encoding": self.encoding,
+                "file_type": self.file_type,
+                "row_has_null_count": self.row_has_null_count,
+                "row_is_null_count": self.row_is_null_count,
+                "hashed_row_dict": self.hashed_row_dict,
+                "_samples_per_update": self._samples_per_update,
+                "_min_true_samples": self._min_true_samples,
+                "options": self.options,
+                "_profile": self.profile
+               } 
+
+        # Pickle and save profile to disk
+        with open(filepath, "wb") as outfile:
+            pickle.dump(data, outfile)
+
+        # Restore all data labelers
+        self._restore_data_labelers(data_labelers)
+
+    @staticmethod
+    def load(filepath):
+        """
+        Load profiler from disk
+        
+        :param filepath: Path of file to load from
+        :type filepath: String
+        :return: None
+        """
+        # Create Empty Profile
+        profile_options = ProfilerOptions()
+        profile_options.structured_options.data_labeler.is_enabled = False
+        profile = Profiler(pd.DataFrame([]), profiler_options=profile_options)
+
+        # Load profile from disk
+        with open(filepath, "rb") as infile:
+            data = pickle.load(infile)
+
+            profile.total_samples = data["total_samples"]
+            profile.encoding = data["encoding"]
+            profile.file_type = data["file_type"]
+            profile.row_has_null_count = data["row_has_null_count"]
+            profile.row_is_null_count = data["row_is_null_count"]
+            profile.hashed_row_dict = data["hashed_row_dict"]
+            profile._samples_per_update = data["_samples_per_update"]
+            profile._min_true_samples = data["_min_true_samples"]
+            profile._profile = data["_profile"]
+            profile.options = data["options"]
+
+        # Restore all data labelers
+        profile._restore_data_labelers()
+
+        return profile

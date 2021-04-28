@@ -259,6 +259,12 @@ def read_csv_df(file_path, delimiter, header, selected_columns=[],
         'encoding': encoding
     }
 
+    # If a header can be identified, don't skip blanks
+    if header is not None:
+        args.update({
+            'skip_blank_lines': False
+        })
+
     if read_in_string:
         args['dtype'] = str
 

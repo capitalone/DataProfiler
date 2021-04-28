@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import unittest
 from unittest import mock
+from io import BytesIO
 import builtins
 import random
 import six
@@ -10,7 +11,6 @@ import re
 
 import numpy as np
 import pandas as pd
-from io import BytesIO
 
 from . import utils as test_utils
 

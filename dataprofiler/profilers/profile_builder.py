@@ -294,20 +294,6 @@ class StructuredDataProfile(object):
             sample_size = self._get_sample_size(df_series)
         if not min_true_samples:
             min_true_samples = self._min_true_samples
-
-        if utils.overlap(self.min_id, self.max_id,
-                         min(df_series.index), max(df_series.index)):
-            # Increment df_series index so that no overlap with current data
-            warnings.warn("Overlapping indices detected between data given "
-                          "to update_profile and profiled data, indices of "
-                          "provided data will be shifted to resolve this.")
-            if isinstance(df_series.index, pd.RangeIndex):
-                new_start = df_series.index.start + self.max_id + 1
-                new_stop = df_series.index.stop + self.max_id + 1
-                df_series.index = pd.RangeIndex(start=new_start, stop=new_stop,
-                                                step=df_series.index.step)
-            else:
-                df_series.index = [i + self.max_id + 1 for i in df_series.index]
         
         clean_sampled_df, base_stats = self.clean_data_and_get_base_stats(
             df_series=df_series, sample_size=sample_size,

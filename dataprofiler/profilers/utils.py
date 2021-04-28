@@ -245,3 +245,13 @@ def overlap(x1, x2, y1, y2):
             (y1 <= x2 <= y2) or
             (x1 <= y1 <= x2) or
             (x1 <= y2 <= x2))
+
+
+def increment(set_or_list, inc):
+    """
+    Increments each value in set_or_list by inc
+    """
+    incremented = [x + inc for x in set_or_list]
+    if isinstance(set_or_list, set):
+        return set(incremented)
+    return incremented

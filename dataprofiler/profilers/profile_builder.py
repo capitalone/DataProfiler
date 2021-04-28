@@ -167,11 +167,7 @@ class StructuredDataProfile(object):
             other_min_id = other.min_id + self.max_id + 1
             other_max_id = other.max_id + self.max_id + 1
 
-            # Increment values (indices) in s by self.max_id + 1
-            def increment(s):
-                return {x + self.max_id + 1 for x in s}
-
-            other_nti = {k: increment(v) for k, v in
+            other_nti = {k: utils.increment(v, self.max_id + 1) for k, v in
                          other.null_types_index.items()}
 
         merged_profile.name = self.name
@@ -302,7 +298,11 @@ class StructuredDataProfile(object):
             warnings.warn("Overlapping indices detected between data given "
                           "to update_profile and profiled data, indices of "
                           "provided data will be shifted to resolve this.")
-            df_series.index = [i + self.max_id + 1 for i in df_series.index]
+            if isinstance(df_series.index, pd.RangeIndex):
+                df_series.index.start += (self.max_id + 1)
+                df_series.index.stop += (self.max_id + 1)
+            else:
+                df_series.index = [i + self.max_id + 1 for i in df_series.index]
         
         clean_sampled_df, base_stats = self.clean_data_and_get_base_stats(
             df_series=df_series, sample_size=sample_size,

@@ -376,9 +376,16 @@ class StructuredDataProfile(object):
         # Record min and max index values if index is int
         min_id = None
         max_id = None
-        if all([isinstance(i, int) for i in df_series.index]):
+        if isinstance(df_series.index, pd.RangeIndex):
+            min_id = df_series.index.start
+            max_id = df_series.index.stop
+        elif all([isinstance(i, int) for i in df_series.index]):
             min_id = min(df_series.index)
             max_id = max(df_series.index)
+        else:
+            warnings.warn("Unable to detect minimum and maximum index values. "
+                          "As a result overlap when merging/updating cannot be "
+                          "detected and may result in inaccurate profile.")
 
         # Select generator depending if sample_ids availability
         if sample_ids is None:

@@ -246,6 +246,7 @@ class StructuredDataProfile(object):
                           f"where null data present will be shifted forward "
                           f"when stored in profile: {self.name}")
 
+            # Shift indices (min, max, and all indices in null types index
             base_min = base_min + self.max_id + 1
             base_max = base_max + self.max_id + 1
 

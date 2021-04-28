@@ -692,8 +692,8 @@ class Profiler(object):
                 null_rows = null_rows.intersection(null_row_indices)
                 null_in_row_count = null_in_row_count.union(null_row_indices)
 
-        self.row_has_null_count = len(null_in_row_count)
-        self.row_is_null_count = len(null_rows)
+        self.row_has_null_count += len(null_in_row_count)
+        self.row_is_null_count += len(null_rows)
 
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """

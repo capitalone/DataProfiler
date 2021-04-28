@@ -156,19 +156,23 @@ class StructuredDataProfile(object):
         )
 
         # Check if indices overlap, if they do, adjust attributes accordingly
+        other_min_id = other.min_id
+        other_max_id = other.max_id
+        other_nti = copy.deepcopy(other.null_types_index)
         if utils.overlap(self.min_id, self.max_id, other.min_id, other.max_id):
             warnings.warn(f"Attempted to merge profiles {self.name} and "
                           f"{other.name} with overlapping indices. The indices "
                           f"in {other.name} will be shifted to resolve this.")
-            other.min_id = other.min_id + self.max_id + 1
-            other.max_id = other.max_id + self.max_id + 1
+
+            other_min_id = other.min_id + self.max_id + 1
+            other_max_id = other.max_id + self.max_id + 1
 
             # Increment values (indices) in s by self.max_id + 1
             def increment(s):
                 return {x + self.max_id + 1 for x in s}
 
-            other.null_types_index = {k: increment(v) for k, v in
-                                      other.null_types_index.items()}
+            other_nti = {k: increment(v) for k, v in
+                         other.null_types_index.items()}
 
         merged_profile.name = self.name
         merged_profile._update_base_stats(
@@ -183,9 +187,9 @@ class StructuredDataProfile(object):
             {"sample": other.sample,
              "sample_size": other.sample_size,
              "null_count": other.null_count,
-             "null_types": copy.deepcopy(other.null_types_index),
-             "min_id": other.min_id,
-             "max_id": other.max_id}
+             "null_types": other_nti,
+             "min_id": other_min_id,
+             "max_id": other_max_id}
         )
         samples = list(dict.fromkeys(self.sample + other.sample))
         merged_profile.sample = random.sample(samples, min(len(samples), 5))

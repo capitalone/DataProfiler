@@ -667,13 +667,29 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile = StructuredDataProfile(data)
         self.assertEqual(0, profile.min_id)
         self.assertEqual(4, profile.max_id)
-        expected_dict = {'nan': {1, 4}}
-        self.assertDictEqual(profile.null_types_index, expected_dict)
+        self.assertDictEqual(profile.null_types_index, {'nan': {1, 4}})
         profile.update_profile(data)
         # Now all indices will be shifted by max_id + 1 (5)
         # So the 2 None will move from indices 1, 4 to 6, 9
-        expected_dict = {'nan': {1, 4, 6, 9}}
-        self.assertDictEqual(profile.null_types_index, expected_dict)
+        self.assertEqual(0, profile.min_id)
+        self.assertEqual(9, profile.max_id)
+        self.assertDictEqual(profile.null_types_index, {'nan': {1, 4, 6, 9}})
+
+    def test_index_overlap_resolved_for_merge(self):
+        data = pd.Series([0, None, 1, 2, None], index=[0, 1, 2, 3, 4])
+        profile1 = StructuredDataProfile(data)
+        profile2 = StructuredDataProfile(data)
+
+        # Ensure merged profile included shifted indices
+        profile3 = profile1 + profile2
+        self.assertEqual(0, profile3.min_id)
+        self.assertEqual(9, profile3.max_id)
+        self.assertDictEqual(profile3.null_types_index, {'nan': {1, 4, 6, 9}})
+
+        # Ensure original profile not overwritten
+        self.assertEqual(0, profile2.min_id)
+        self.assertEqual(4, profile2.max_id)
+        self.assertDictEqual(profile2.null_types_index, {'nan': {1, 4}})
 
 
 class TestProfilerNullValues(unittest.TestCase):

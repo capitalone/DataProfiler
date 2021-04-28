@@ -299,8 +299,10 @@ class StructuredDataProfile(object):
                           "to update_profile and profiled data, indices of "
                           "provided data will be shifted to resolve this.")
             if isinstance(df_series.index, pd.RangeIndex):
-                df_series.index.start += (self.max_id + 1)
-                df_series.index.stop += (self.max_id + 1)
+                new_start = df_series.index.start + self.max_id + 1
+                new_stop = df_series.index.stop + self.max_id + 1
+                df_series.index = pd.RangeIndex(start=new_start, stop=new_stop,
+                                                step=df_series.index.step)
             else:
                 df_series.index = [i + self.max_id + 1 for i in df_series.index]
         

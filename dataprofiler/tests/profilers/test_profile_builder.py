@@ -793,13 +793,11 @@ class TestProfilerNullValues(unittest.TestCase):
         for i in range(2):
             
             # Profile Once
-            # TODO: bc currently don't handle overlapping indexes
             data.index = pd.RangeIndex(0, 8)
             profile = dp.Profiler(data, profiler_options=profiler_options,
                                   samples_per_update=2)
 
             # Profile Twice
-            # TODO: bc currently don't handle overlapping indexes
             data.index = pd.RangeIndex(8, 16)
             profile.update_profile(data)
 

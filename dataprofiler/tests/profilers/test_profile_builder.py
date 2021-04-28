@@ -875,7 +875,7 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
 
-        profile.update_profile(data2)
+        profile.update_profile(data2, min_true_samples=2)
         self.assertEqual(5, profile.row_has_null_count)
         self.assertEqual(1, profile.row_is_null_count)
         self.assertEqual(0.625, profile._get_row_has_null_ratio())

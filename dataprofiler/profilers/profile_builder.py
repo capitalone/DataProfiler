@@ -160,9 +160,9 @@ class StructuredDataProfile(object):
         other_max_id = other.max_id
         other_nti = copy.deepcopy(other.null_types_index)
         if utils.overlap(self.min_id, self.max_id, other.min_id, other.max_id):
-            warnings.warn(f"Attempted to merge profiles {self.name} and "
-                          f"{other.name} with overlapping indices. The indices "
-                          f"in {other.name} will be shifted to resolve this.")
+            warnings.warn(f"Attempted to merge profiles with overlapping "
+                          f"indices. The indices in {other.name} will be "
+                          f"shifted in the merged profile to resolve this.")
 
             other_min_id = other.min_id + self.max_id + 1
             other_max_id = other.max_id + self.max_id + 1
@@ -376,10 +376,8 @@ class StructuredDataProfile(object):
         # Record min and max index values if index is int
         min_id = None
         max_id = None
-        if isinstance(df_series.index, pd.RangeIndex):
-            min_id = df_series.index.start
-            max_id = df_series.index.stop
-        elif all([isinstance(i, int) for i in df_series.index]):
+        if isinstance(df_series.index, pd.RangeIndex) or \
+                all([isinstance(i, int) for i in df_series.index]):
             min_id = min(df_series.index)
             max_id = max(df_series.index)
         else:

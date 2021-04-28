@@ -10,6 +10,7 @@ import re
 
 import numpy as np
 import pandas as pd
+from io import BytesIO
 
 from . import utils as test_utils
 
@@ -26,13 +27,13 @@ from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-from io import BytesIO
 
 def setup_save_mock_open(mock_open):
     mock_file = BytesIO()
     mock_file.close = lambda: None
     mock_open.side_effect = lambda *args: mock_file
     return mock_file
+
 
 class TestProfiler(unittest.TestCase):
 
@@ -669,7 +670,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
-    def test_index_overlap_resolved_for_update_profile(self):
+    def test_index_overlap_resolved_for_update_profile(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
         profile = StructuredDataProfile(data)
         self.assertEqual(0, profile.min_id)
@@ -689,7 +690,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
-    def test_index_overlap_resolved_for_merge(self):
+    def test_index_overlap_resolved_for_merge(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
         profile1 = StructuredDataProfile(data)
         profile2 = StructuredDataProfile(data)

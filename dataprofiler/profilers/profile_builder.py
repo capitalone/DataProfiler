@@ -648,7 +648,7 @@ class Profiler(object):
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)
 
-    def _update_row_statistics(self, data, sample_ids):
+    def _update_row_statistics(self, data, sample_ids=None):
         """
         Iterate over the provided dataset row by row and calculate
         the row statistics. Specifically, number of unique rows,
@@ -680,8 +680,11 @@ class Profiler(object):
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
 
-            null_row_indices = null_row_indices.intersection(
-                data.index[sample_ids[:self._min_col_samples_used]])
+            if sample_ids is not None:
+                # If sample ids provided, only consider nulls in rows that
+                # were fully sampled
+                null_row_indices = null_row_indices.intersection(
+                    data.index[sample_ids[:self._min_col_samples_used]])
 
             # Find the common null indices between the columns
             if first_col_flag:
@@ -692,8 +695,13 @@ class Profiler(object):
                 null_rows = null_rows.intersection(null_row_indices)
                 null_in_row_count = null_in_row_count.union(null_row_indices)
 
-        self.row_has_null_count += len(null_in_row_count)
-        self.row_is_null_count += len(null_rows)
+        # If sample_ids provided, increment since that means only new data read
+        if sample_ids:
+            self.row_has_null_count += len(null_in_row_count)
+            self.row_is_null_count += len(null_rows)
+        else:
+            self.row_has_null_count = len(null_in_row_count)
+            self.row_is_null_count = len(null_rows)
 
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """
@@ -882,7 +890,12 @@ class Profiler(object):
             pool.close()  # Close pool for new tasks
             pool.join()  # Wait for all workers to complete
 
-        self._update_row_statistics(df, np.concatenate(sample_ids))
+        # Only pass along sample ids if necessary
+        samples_for_row_stats = None
+        if min_true_samples not in [None, 0]:
+            samples_for_row_stats = np.concatenate(sample_ids)
+
+        self._update_row_statistics(df, samples_for_row_stats)
 
     def _remove_data_labelers(self):
         """

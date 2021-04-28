@@ -385,7 +385,7 @@ class StructuredDataProfile(object):
         else:
             warnings.warn("Unable to detect minimum and maximum index values. "
                           "As a result overlap when merging/updating cannot be "
-                          "detected and may result in inaccurate profile.")
+                          "detected and may result in an inaccurate profile.")
 
         # Select generator depending if sample_ids availability
         if sample_ids is None:

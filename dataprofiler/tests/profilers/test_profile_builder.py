@@ -849,6 +849,38 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(0.5, profile2._get_row_is_null_ratio())
         self.assertEqual(1, profile2._get_row_has_null_ratio())
 
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_null_row_stats_correct_after_updates(self, *mocks):
+        data = pd.DataFrame([[1, None],
+                             [1, 1],
+                             [None, None],
+                             [None, 1],
+                             [1, None],
+                             [None, 1],
+                             [1, 1],
+                             [1, 1]])
+        data1 = data[:4]
+        data2 = data[4:]
+        opts = ProfilerOptions()
+        opts.structured_options.multiprocess.is_enabled = False
+        profile = dp.Profiler(data1, min_true_samples=2, profiler_options=opts)
+        self.assertEqual(3, profile.row_has_null_count)
+        self.assertEqual(1, profile.row_is_null_count)
+        self.assertEqual(0.75, profile._get_row_has_null_ratio())
+        self.assertEqual(0.25, profile._get_row_is_null_ratio())
+
+        profile.update_profile(data2)
+        self.assertEqual(5, profile.row_has_null_count)
+        self.assertEqual(1, profile.row_is_null_count)
+        self.assertEqual(0.625, profile._get_row_has_null_ratio())
+        self.assertEqual(0.125, profile._get_row_is_null_ratio())
+
 
 if __name__ == '__main__':
     unittest.main()

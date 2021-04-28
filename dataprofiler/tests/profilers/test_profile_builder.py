@@ -718,15 +718,18 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile1 = StructuredDataProfile(data[:2])
         profile2 = StructuredDataProfile(data[2:])
 
+        # Base initialization
         self.assertEqual(0, profile1.min_id)
         self.assertEqual(1, profile1.max_id)
         self.assertEqual(2, profile2.min_id)
         self.assertEqual(6, profile2.max_id)
 
+        # Needs to work with merge
         profile3 = profile1 + profile2
         self.assertEqual(0, profile3.min_id)
         self.assertEqual(6, profile3.max_id)
 
+        # Needs to work with update_profile
         profile = StructuredDataProfile(data[:2])
         profile.update_profile(data[2:])
         self.assertEqual(0, profile.min_id)

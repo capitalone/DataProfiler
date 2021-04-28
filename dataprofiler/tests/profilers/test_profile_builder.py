@@ -662,6 +662,13 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profiler._sampling_ratio = 0.2
         self.assertEqual(10000, update_mock.call_args[0][1])
 
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_index_overlap_resolved_for_update_profile(self):
         data = pd.Series([0, None, 1, 2, None])
         profile = StructuredDataProfile(data)
@@ -675,6 +682,13 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertEqual(9, profile.max_id)
         self.assertDictEqual(profile.null_types_index, {'nan': {1, 4, 6, 9}})
 
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_index_overlap_resolved_for_merge(self):
         data = pd.Series([0, None, 1, 2, None])
         profile1 = StructuredDataProfile(data)

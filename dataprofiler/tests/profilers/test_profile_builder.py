@@ -663,7 +663,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertEqual(10000, update_mock.call_args[0][1])
 
     def test_index_overlap_resolved_for_update_profile(self):
-        data = pd.Series([0, None, 1, 2, None], index=[0, 1, 2, 3, 4])
+        data = pd.Series([0, None, 1, 2, None])
         profile = StructuredDataProfile(data)
         self.assertEqual(0, profile.min_id)
         self.assertEqual(4, profile.max_id)
@@ -676,7 +676,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertDictEqual(profile.null_types_index, {'nan': {1, 4, 6, 9}})
 
     def test_index_overlap_resolved_for_merge(self):
-        data = pd.Series([0, None, 1, 2, None], index=[0, 1, 2, 3, 4])
+        data = pd.Series([0, None, 1, 2, None])
         profile1 = StructuredDataProfile(data)
         profile2 = StructuredDataProfile(data)
 

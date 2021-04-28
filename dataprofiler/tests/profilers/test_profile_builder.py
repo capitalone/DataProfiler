@@ -706,6 +706,32 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertEqual(4, profile2.max_id)
         self.assertDictEqual(profile2.null_types_index, {'nan': {1, 4}})
 
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_min_max_id_properly_update(self, *mocks):
+        data = pd.Series([1, None, 3, 4, 5, None, 1])
+        profile1 = StructuredDataProfile(data[:2])
+        profile2 = StructuredDataProfile(data[2:])
+
+        self.assertEqual(0, profile1.min_id)
+        self.assertEqual(1, profile1.max_id)
+        self.assertEqual(2, profile2.min_id)
+        self.assertEqual(6, profile2.max_id)
+
+        profile3 = profile1 + profile2
+        self.assertEqual(0, profile3.min_id)
+        self.assertEqual(6, profile3.max_id)
+
+        profile = StructuredDataProfile(data[:2])
+        profile.update_profile(data[2:])
+        self.assertEqual(0, profile.min_id)
+        self.assertEqual(6, profile.max_id)
+
 
 class TestProfilerNullValues(unittest.TestCase):
 

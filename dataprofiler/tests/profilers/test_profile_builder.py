@@ -907,12 +907,14 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(1, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
+        self.assertEqual(4, profile._min_sampled_from_batch)
 
         profile.update_profile(data2, min_true_samples=2, sample_size=2)
         self.assertEqual(6, profile.row_has_null_count)
         self.assertEqual(2, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
+        self.assertEqual(4, profile._min_sampled_from_batch)
 
         # When not setting min true samples/samples per update
         opts = ProfilerOptions()
@@ -922,12 +924,14 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(1, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
+        self.assertEqual(4, profile._min_sampled_from_batch)
 
         profile.update_profile(data2)
         self.assertEqual(6, profile.row_has_null_count)
         self.assertEqual(2, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
+        self.assertEqual(4, profile._min_sampled_from_batch)
 
 
 if __name__ == '__main__':

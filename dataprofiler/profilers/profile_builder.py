@@ -254,16 +254,14 @@ class StructuredDataProfile(object):
                         base_stats["null_types"].items()}
 
         # Store/compare min/max id with current
-        if isinstance(base_min, int):
-            if not isinstance(self._min_id, int):
-                self._min_id = base_min
-            else:
-                self._min_id = min(self._min_id, base_min)
-        if isinstance(base_max, int):
-            if not isinstance(self._max_id, int):
-                self._max_id = base_max
-            else:
-                self._max_id = max(self._max_id, base_max)
+        if self._min_id is None:
+            self._min_id = base_min
+        elif base_min is not None:
+            self._min_id = min(self._min_id, base_min)
+        if self._max_id is None:
+            self._max_id = base_max
+        elif base_max is not None:
+            self._max_id = max(self._max_id, base_max)
 
         # Update null row indices
         for null_type, null_rows in base_nti.items():

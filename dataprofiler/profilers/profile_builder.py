@@ -693,9 +693,11 @@ class Profiler(object):
                 # event of overlap
                 shift = self._profile[column]._index_shift
                 if shift is None:
+                    # Shift is None if index is str or if no overlap detected
                     null_row_indices = null_row_indices.intersection(
                         data.index[sample_ids[:self._min_sampled_from_batch]])
                 else:
+                    # Only shift if index shift detected (must be ints)
                     null_row_indices = null_row_indices.intersection(
                         data.index[sample_ids[:self._min_sampled_from_batch]] +
                         shift)

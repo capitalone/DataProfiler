@@ -283,7 +283,6 @@ print(json.dumps(report, indent=4))
 print(json.dumps(report["data stats"][0], indent=4))
 ```
 
-
 **Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**
 
 

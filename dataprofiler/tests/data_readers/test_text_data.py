@@ -49,6 +49,7 @@ class TestTextDataClass(unittest.TestCase):
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'text', input_file['path'])
+            self.assertEqual(input_file['path'], input_data_obj.input_file_path)
 
 
 if __name__ == '__main__':

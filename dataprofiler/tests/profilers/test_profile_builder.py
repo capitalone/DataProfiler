@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import unittest
 from unittest import mock
+from io import BytesIO
 import builtins
 import random
 import six
@@ -26,13 +27,13 @@ from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-from io import BytesIO
 
 def setup_save_mock_open(mock_open):
     mock_file = BytesIO()
     mock_file.close = lambda: None
     mock_open.side_effect = lambda *args: mock_file
     return mock_file
+
 
 class TestProfiler(unittest.TestCase):
 
@@ -407,7 +408,17 @@ class TestProfiler(unittest.TestCase):
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
             load_report = _clean_report(load_profile.report())
-            self.assertDictEqual(save_report, load_report)       
+            self.assertDictEqual(save_report, load_report)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_string_index_doesnt_cause_error(self, *mocks):
+        dp.Profiler(pd.DataFrame([[1, 2, 3]], index=["hello"]))
 
 
 class TestStructuredDataProfileClass(unittest.TestCase):
@@ -549,7 +560,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
                                'sample_size': 5, 'null_count': 2,
-                               'null_types': dict(nan=['e', 'b'])}, base_stats)
+                               'null_types': dict(nan=['e', 'b']),
+                               'min_id': None, 'max_id': None}, base_stats)
 
     def test_column_names(self):
         data = [['a', 1], ['b', 2], ['c', 3]]
@@ -661,6 +673,81 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profiler._sampling_ratio = 0.2
         self.assertEqual(10000, update_mock.call_args[0][1])
 
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_index_overlap_for_update_profile(self, *mocks):
+        data = pd.Series([0, None, 1, 2, None])
+        profile = StructuredDataProfile(data)
+        self.assertEqual(0, profile._min_id)
+        self.assertEqual(4, profile._max_id)
+        self.assertDictEqual(profile.null_types_index, {'nan': {1, 4}})
+        profile.update_profile(data)
+        # Now all indices will be shifted by max_id + 1 (5)
+        # So the 2 None will move from indices 1, 4 to 6, 9
+        self.assertEqual(0, profile._min_id)
+        self.assertEqual(9, profile._max_id)
+        self.assertDictEqual(profile.null_types_index, {'nan': {1, 4, 6, 9}})
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_index_overlap_for_merge(self, *mocks):
+        data = pd.Series([0, None, 1, 2, None])
+        profile1 = StructuredDataProfile(data)
+        profile2 = StructuredDataProfile(data)
+
+        # Ensure merged profile included shifted indices
+        profile3 = profile1 + profile2
+        self.assertEqual(0, profile3._min_id)
+        self.assertEqual(9, profile3._max_id)
+        self.assertDictEqual(profile3.null_types_index, {'nan': {1, 4, 6, 9}})
+
+        # Ensure original profiles not overwritten
+        self.assertEqual(0, profile1._min_id)
+        self.assertEqual(4, profile1._max_id)
+        self.assertDictEqual(profile1.null_types_index, {'nan': {1, 4}})
+        self.assertEqual(0, profile2._min_id)
+        self.assertEqual(4, profile2._max_id)
+        self.assertDictEqual(profile2.null_types_index, {'nan': {1, 4}})
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_min_max_id_properly_update(self, *mocks):
+        data = pd.Series([1, None, 3, 4, 5, None, 1])
+        profile1 = StructuredDataProfile(data[:2])
+        profile2 = StructuredDataProfile(data[2:])
+
+        # Base initialization
+        self.assertEqual(0, profile1._min_id)
+        self.assertEqual(1, profile1._max_id)
+        self.assertEqual(2, profile2._min_id)
+        self.assertEqual(6, profile2._max_id)
+
+        # Needs to work with merge
+        profile3 = profile1 + profile2
+        self.assertEqual(0, profile3._min_id)
+        self.assertEqual(6, profile3._max_id)
+
+        # Needs to work with update_profile
+        profile = StructuredDataProfile(data[:2])
+        profile.update_profile(data[2:])
+        self.assertEqual(0, profile._min_id)
+        self.assertEqual(6, profile._max_id)
+
 
 class TestProfilerNullValues(unittest.TestCase):
 
@@ -748,13 +835,11 @@ class TestProfilerNullValues(unittest.TestCase):
         for i in range(2):
             
             # Profile Once
-            # TODO: bc currently don't handle overlapping indexes
             data.index = pd.RangeIndex(0, 8)
             profile = dp.Profiler(data, profiler_options=profiler_options,
                                   samples_per_update=2)
 
             # Profile Twice
-            # TODO: bc currently don't handle overlapping indexes
             data.index = pd.RangeIndex(8, 16)
             profile.update_profile(data)
 
@@ -803,6 +888,97 @@ class TestProfilerNullValues(unittest.TestCase):
         # Only 4 total rows sampled, ratio accordingly
         self.assertEqual(0.5, profile2._get_row_is_null_ratio())
         self.assertEqual(1, profile2._get_row_has_null_ratio())
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_null_row_stats_correct_after_updates(self, *mocks):
+        data1 = pd.DataFrame([[1, None],
+                             [1, 1],
+                             [None, None],
+                             [None, 1]])
+        data2 = pd.DataFrame([[None, None],
+                             [1, None],
+                             [None, None],
+                             [None, 1]])
+        opts = ProfilerOptions()
+        opts.structured_options.multiprocess.is_enabled = False
+
+        # When setting min true samples/samples per update
+        profile = dp.Profiler(data1, min_true_samples=2, samples_per_update=2,
+                              profiler_options=opts)
+        self.assertEqual(3, profile.row_has_null_count)
+        self.assertEqual(1, profile.row_is_null_count)
+        self.assertEqual(0.75, profile._get_row_has_null_ratio())
+        self.assertEqual(0.25, profile._get_row_is_null_ratio())
+        self.assertEqual(4, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3}, profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2}, profile._profile[1].null_types_index['nan'])
+
+        profile.update_profile(data2, min_true_samples=2, sample_size=2)
+        self.assertEqual(7, profile.row_has_null_count)
+        self.assertEqual(3, profile.row_is_null_count)
+        self.assertEqual(0.875, profile._get_row_has_null_ratio())
+        self.assertEqual(0.375, profile._get_row_is_null_ratio())
+        self.assertEqual(4, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3, 4, 6, 7},
+                            profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2, 4, 5, 6},
+                            profile._profile[1].null_types_index['nan'])
+
+        # When not setting min true samples/samples per update
+        opts = ProfilerOptions()
+        opts.structured_options.multiprocess.is_enabled = False
+        profile = dp.Profiler(data1, profiler_options=opts)
+        self.assertEqual(3, profile.row_has_null_count)
+        self.assertEqual(1, profile.row_is_null_count)
+        self.assertEqual(0.75, profile._get_row_has_null_ratio())
+        self.assertEqual(0.25, profile._get_row_is_null_ratio())
+        self.assertEqual(4, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3}, profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2}, profile._profile[1].null_types_index['nan'])
+
+        profile.update_profile(data2)
+        self.assertEqual(7, profile.row_has_null_count)
+        self.assertEqual(3, profile.row_is_null_count)
+        self.assertEqual(0.875, profile._get_row_has_null_ratio())
+        self.assertEqual(0.375, profile._get_row_is_null_ratio())
+        self.assertEqual(4, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3, 4, 6, 7},
+                            profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2, 4, 5, 6},
+                            profile._profile[1].null_types_index['nan'])
+
+        # Test that update with emtpy data doesn't change stats
+        profile.update_profile(pd.DataFrame([]))
+        self.assertEqual(7, profile.row_has_null_count)
+        self.assertEqual(3, profile.row_is_null_count)
+        self.assertEqual(0.875, profile._get_row_has_null_ratio())
+        self.assertEqual(0.375, profile._get_row_is_null_ratio())
+        self.assertEqual(0, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3, 4, 6, 7},
+                            profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2, 4, 5, 6},
+                            profile._profile[1].null_types_index['nan'])
+
+        # Test one row update
+        profile.update_profile(pd.DataFrame([[1, None]]))
+        self.assertEqual(8, profile.row_has_null_count)
+        self.assertEqual(3, profile.row_is_null_count)
+        self.assertEqual(8/9, profile._get_row_has_null_ratio())
+        self.assertEqual(3/9, profile._get_row_is_null_ratio())
+        self.assertEqual(1, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3, 4, 6, 7},
+                            profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2, 4, 5, 6},
+                            profile._profile[1].null_types_index['nan'])
+        # Weird pandas behavior makes this None since this column will be
+        # recognized as object, not float64
+        self.assertSetEqual({8}, profile._profile[1].null_types_index['None'])
 
 
 if __name__ == '__main__':

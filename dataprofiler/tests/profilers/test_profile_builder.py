@@ -673,14 +673,14 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     def test_index_overlap_for_update_profile(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
         profile = StructuredDataProfile(data)
-        self.assertEqual(0, profile.min_id)
-        self.assertEqual(4, profile.max_id)
+        self.assertEqual(0, profile._min_id)
+        self.assertEqual(4, profile._max_id)
         self.assertDictEqual(profile.null_types_index, {'nan': {1, 4}})
         profile.update_profile(data)
         # Now all indices will be shifted by max_id + 1 (5)
         # So the 2 None will move from indices 1, 4 to 6, 9
-        self.assertEqual(0, profile.min_id)
-        self.assertEqual(9, profile.max_id)
+        self.assertEqual(0, profile._min_id)
+        self.assertEqual(9, profile._max_id)
         self.assertDictEqual(profile.null_types_index, {'nan': {1, 4, 6, 9}})
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
@@ -697,16 +697,16 @@ class TestStructuredDataProfileClass(unittest.TestCase):
 
         # Ensure merged profile included shifted indices
         profile3 = profile1 + profile2
-        self.assertEqual(0, profile3.min_id)
-        self.assertEqual(9, profile3.max_id)
+        self.assertEqual(0, profile3._min_id)
+        self.assertEqual(9, profile3._max_id)
         self.assertDictEqual(profile3.null_types_index, {'nan': {1, 4, 6, 9}})
 
         # Ensure original profiles not overwritten
-        self.assertEqual(0, profile1.min_id)
-        self.assertEqual(4, profile1.max_id)
+        self.assertEqual(0, profile1._min_id)
+        self.assertEqual(4, profile1._max_id)
         self.assertDictEqual(profile1.null_types_index, {'nan': {1, 4}})
-        self.assertEqual(0, profile2.min_id)
-        self.assertEqual(4, profile2.max_id)
+        self.assertEqual(0, profile2._min_id)
+        self.assertEqual(4, profile2._max_id)
         self.assertDictEqual(profile2.null_types_index, {'nan': {1, 4}})
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
@@ -722,21 +722,21 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile2 = StructuredDataProfile(data[2:])
 
         # Base initialization
-        self.assertEqual(0, profile1.min_id)
-        self.assertEqual(1, profile1.max_id)
-        self.assertEqual(2, profile2.min_id)
-        self.assertEqual(6, profile2.max_id)
+        self.assertEqual(0, profile1._min_id)
+        self.assertEqual(1, profile1._max_id)
+        self.assertEqual(2, profile2._min_id)
+        self.assertEqual(6, profile2._max_id)
 
         # Needs to work with merge
         profile3 = profile1 + profile2
-        self.assertEqual(0, profile3.min_id)
-        self.assertEqual(6, profile3.max_id)
+        self.assertEqual(0, profile3._min_id)
+        self.assertEqual(6, profile3._max_id)
 
         # Needs to work with update_profile
         profile = StructuredDataProfile(data[:2])
         profile.update_profile(data[2:])
-        self.assertEqual(0, profile.min_id)
-        self.assertEqual(6, profile.max_id)
+        self.assertEqual(0, profile._min_id)
+        self.assertEqual(6, profile._max_id)
 
 
 class TestProfilerNullValues(unittest.TestCase):

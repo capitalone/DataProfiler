@@ -63,8 +63,8 @@ class StructuredDataProfile(object):
         self.null_count = 0
         self.null_types = list()
         self.null_types_index = {}
-        self.min_id = None
-        self.max_id = None
+        self._min_id = None
+        self._max_id = None
         self.profiles = {}
                          
         if df_series is not None and len(df_series) > 0:
@@ -161,16 +161,16 @@ class StructuredDataProfile(object):
              "sample_size": self.sample_size,
              "null_count": self.null_count,
              "null_types": copy.deepcopy(self.null_types_index),
-             "min_id": self.min_id,
-             "max_id": self.max_id}
+             "min_id": self._min_id,
+             "max_id": self._max_id}
         )
         merged_profile._update_base_stats(
             {"sample": other.sample,
              "sample_size": other.sample_size,
              "null_count": other.null_count,
              "null_types": copy.deepcopy(other.null_types_index),
-             "min_id": other.min_id,
-             "max_id": other.max_id}
+             "min_id": other._min_id,
+             "max_id": other._max_id}
         )
         samples = list(dict.fromkeys(self.sample + other.sample))
         merged_profile.sample = random.sample(samples, min(len(samples), 5))
@@ -241,29 +241,29 @@ class StructuredDataProfile(object):
         base_nti = base_stats["null_types"]
 
         # Check if indices overlap, if they do, adjust attributes accordingly
-        if utils.overlap(self.min_id, self.max_id, base_min, base_max):
+        if utils.overlap(self._min_id, self._max_id, base_min, base_max):
             warnings.warn(f"Overlapping indices detected. To resolve, indices "
                           f"where null data present will be shifted forward "
                           f"when stored in profile: {self.name}")
 
             # Shift indices (min, max, and all indices in null types index
-            base_min = base_min + self.max_id + 1
-            base_max = base_max + self.max_id + 1
+            base_min = base_min + self._max_id + 1
+            base_max = base_max + self._max_id + 1
 
-            base_nti = {k: {x + self.max_id + 1 for x in v} for k, v in
+            base_nti = {k: {x + self._max_id + 1 for x in v} for k, v in
                         base_stats["null_types"].items()}
 
         # Store/compare min/max id with current
         if isinstance(base_min, int):
-            if not isinstance(self.min_id, int):
-                self.min_id = base_min
+            if not isinstance(self._min_id, int):
+                self._min_id = base_min
             else:
-                self.min_id = min(self.min_id, base_min)
+                self._min_id = min(self._min_id, base_min)
         if isinstance(base_max, int):
-            if not isinstance(self.max_id, int):
-                self.max_id = base_max
+            if not isinstance(self._max_id, int):
+                self._max_id = base_max
             else:
-                self.max_id = max(self.max_id, base_max)
+                self._max_id = max(self._max_id, base_max)
 
         # Update null row indices
         for null_type, null_rows in base_nti.items():

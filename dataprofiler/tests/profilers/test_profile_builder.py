@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import unittest
 from unittest import mock
+import builtins
 import random
 import six
 import os
@@ -19,11 +20,19 @@ from dataprofiler.profilers.profiler_options import ProfilerOptions, \
 from dataprofiler.profilers.column_profile_compilers import \
     ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler, \
     ColumnDataLabelerCompiler
+from dataprofiler import StructuredDataLabeler
 
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
+from io import BytesIO
+
+def setup_save_mock_open(mock_open):
+    mock_file = BytesIO()
+    mock_file.close = lambda: None
+    mock_open.side_effect = lambda *args: mock_file
+    return mock_file
 
 class TestProfiler(unittest.TestCase):
 
@@ -43,15 +52,16 @@ class TestProfiler(unittest.TestCase):
         cls.trained_schema = dp.Profiler(cls.aws_dataset, len(cls.aws_dataset),
                                          profiler_options=profiler_options)
 
-
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+    @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+    @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnStatsProfileCompiler')
-    @mock.patch('dataprofiler.profilers.column_profile_compilers.'
+    @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
     def test_add_profilers(self, *mocks):
-        data = pd.DataFrame([1, None, 3, 4, 5, None])
+        data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
         profile1 = dp.Profiler(data[:2])
         profile2 = dp.Profiler(data[2:])
 
@@ -86,7 +96,7 @@ class TestProfiler(unittest.TestCase):
             "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type)
         self.assertEqual(2, merged_profile.row_has_null_count)
         self.assertEqual(2, merged_profile.row_is_null_count)
-        self.assertEqual(6, merged_profile.total_samples)
+        self.assertEqual(7, merged_profile.total_samples)
         self.assertEqual(5, len(merged_profile.hashed_row_dict))
 
         # test success if drawn from multiple files
@@ -95,6 +105,42 @@ class TestProfiler(unittest.TestCase):
         merged_profile = profile1 + profile2
         self.assertEqual('multiple files', merged_profile.encoding)
         self.assertEqual('multiple files', merged_profile.file_type)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_stream_profilers(self, *mocks):
+        data = pd.DataFrame([
+            ['test1', 1.0],
+            ['test2', None],
+            ['test1', 1.0],
+            [None, None],
+            [None, 5.0],
+            [None, 5.0],
+            [None, None],
+            ['test3', 7.0]])
+
+        # check prior to update
+        profiler = dp.Profiler(data[:3])
+        self.assertEqual(1, profiler.row_has_null_count)
+        self.assertEqual(0, profiler.row_is_null_count)
+        self.assertEqual(3, profiler.total_samples)
+        self.assertEqual(2, len(profiler.hashed_row_dict))
+
+        # check after update
+        profiler.update_profile(data[3:])
+
+        self.assertIsNone(profiler.encoding)
+        self.assertEqual(
+            "<class 'pandas.core.frame.DataFrame'>", profiler.file_type)
+        self.assertEqual(5, profiler.row_has_null_count)
+        self.assertEqual(2, profiler.row_is_null_count)
+        self.assertEqual(8, profiler.total_samples)
+        self.assertEqual(5, len(profiler.hashed_row_dict))
 
     def test_correct_unique_row_ratio_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))
@@ -328,6 +374,40 @@ class TestProfiler(unittest.TestCase):
         sparse_profile = dp.Profiler(sparse_df, min_true_samples=2,
                                      samples_per_update=1)
         self.assertEqual(2, sparse_profile._min_col_samples_used)
+
+    def test_save_and_load(self):
+        datapth = "dataprofiler/tests/data/"
+        test_files = ["csv/guns.csv", "csv/iris.csv"]
+
+        def _clean_report(report):
+            data_stats = report["data_stats"]
+            for key in data_stats:
+                stats = data_stats[key]["statistics"]
+                if "histogram" in stats:
+                    if "bin_counts" in stats["histogram"]:
+                        stats["histogram"]["bin_counts"] = \
+                            stats["histogram"]["bin_counts"].tolist() 
+                    if "bin_edges" in stats["histogram"]:
+                        stats["histogram"]["bin_edges"] = \
+                            stats["histogram"]["bin_edges"].tolist() 
+            return report
+
+        for test_file in test_files:
+            # Create Data and Profiler objects
+            data = dp.Data(os.path.join(datapth, test_file))
+            save_profile = dp.Profiler(data)
+            
+            # Save and Load profile with Mock IO
+            with mock.patch('builtins.open') as m:
+                mock_file = setup_save_mock_open(m)
+                save_profile.save()
+                mock_file.seek(0)
+                load_profile = dp.Profiler.load("mock.pkl")
+
+            # Check that reports are equivalent
+            save_report = _clean_report(save_profile.report())
+            load_report = _clean_report(load_profile.report())
+            self.assertDictEqual(save_report, load_report)       
 
 
 class TestStructuredDataProfileClass(unittest.TestCase):
@@ -649,24 +729,36 @@ class TestProfilerNullValues(unittest.TestCase):
         )
        
     def test_correct_total_sample_size_and_counts_and_mutability(self):
-        file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
-        data = pd.read_csv(file_path)
+        data = [['test1', 1.0],
+                ['test2', 2.0],
+                ['test3', 3.0],
+                [None, None],
+                ['test5', 5.0],
+                ['test6', 6.0],
+                [None, None],
+                ['test7', 7.0]]
+        data = pd.DataFrame(data, columns=['NAME', 'VALUE'])
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
 
         col_one_len = len(data['NAME'])
-        col_two_len = len(data[' VALUE'])
+        col_two_len = len(data['VALUE'])
 
-        # Test reloading data, ensuring unmutable 
+        # Test reloading data, ensuring immutable
         for i in range(2):
             
             # Profile Once
+            # TODO: bc currently don't handle overlapping indexes
+            data.index = pd.RangeIndex(0, 8)
             profile = dp.Profiler(data, profiler_options=profiler_options,
                                   samples_per_update=2)
 
             # Profile Twice
+            # TODO: bc currently don't handle overlapping indexes
+            data.index = pd.RangeIndex(8, 16)
             profile.update_profile(data)
 
+            # rows sampled are [5, 6], [13, 14] (0 index)
             self.assertEqual(16, profile.total_samples)
             self.assertEqual(4, profile._max_col_samples_used)
             self.assertEqual(2, profile.row_has_null_count)
@@ -677,8 +769,8 @@ class TestProfilerNullValues(unittest.TestCase):
             self.assertEqual(9, profile._get_duplicate_row_count())
             
         self.assertEqual(col_one_len, len(data['NAME']))
-        self.assertEqual(col_two_len, len(data[' VALUE']))
-
+        self.assertEqual(col_two_len, len(data['VALUE']))
+           
     def test_null_calculation_with_differently_sampled_cols(self):
         opts = ProfilerOptions()
         opts.structured_options.multiprocess.is_enabled = False
@@ -711,7 +803,6 @@ class TestProfilerNullValues(unittest.TestCase):
         # Only 4 total rows sampled, ratio accordingly
         self.assertEqual(0.5, profile2._get_row_is_null_ratio())
         self.assertEqual(1, profile2._get_row_has_null_ratio())
-
 
 
 if __name__ == '__main__':

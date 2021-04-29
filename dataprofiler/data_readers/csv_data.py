@@ -1,11 +1,8 @@
-import re
 import csv
 import re
-from itertools import islice
 from six import StringIO
 
 import random
-import dateutil
 from collections import Counter
 
 import numpy as np
@@ -35,15 +32,24 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             options = dict(
                 delimiter= type: str
                 data_format= type: str, choices: "dataframe", "records"
+                record_samples_per_line= type: int (only for "records")
                 selected_columns= type: list(str)
                 header= type: any
             )
 
         delimiter: delimiter used to decipher the csv input file
         data_format: user selected format in which to return data
-        can only be of specified types
+        can only be of specified types:
+        ```
+        dataframe - (default) loads the dataset as a pandas.DataFrame
+        records   - loads the data as rows of text values, the extra parameter
+            "record_samples_per_line" determines how many rows are combined into
+            a single line
+        ```
         selected_columns: columns being selected from the entire dataset
-        header: any information pertaining to the file header.
+        header: location of the header in the file
+        quotechar: quote character used in the delimited file
+
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str
         :param data: data being loaded into the class instead of an input file
@@ -66,12 +72,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         #  _selected_columns: columns being selected from the entire dataset
         #  _header: any information pertaining to the file header.
         self._data_formats["records"] = self._get_data_as_records
+        self.SAMPLES_PER_LINE_DEFAULT = options.get("record_samples_per_line",
+                                                    1)
         self._selected_data_format = options.get("data_format", "dataframe")
         self._delimiter = options.get("delimiter", None)
         self._quotechar = options.get("quotechar", None)
         self._selected_columns = options.get("selected_columns", list())
         self._header = options.get("header", 'auto')
-        self._checked_header = "header" in options
+        self._checked_header = "header" in options and self._header != 'auto'
         self._default_delimiter = ','
         self._default_quotechar = '"'
 
@@ -108,7 +116,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         """
         options = super()._check_and_return_options(options)
         
-        if 'header' in options.keys():
+        if 'header' in options:
             value = options["header"]
             if value != 'auto' and value is not None \
                 and not (isinstance(value, int) and value > -1):
@@ -116,22 +124,28 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                                  'none for no header, or a non-negative '
                                  'integer for the row that represents the '
                                  'header (0 based index)')
-        if 'delimiter' in options.keys():
+        if 'delimiter' in options:
             value = options["delimiter"]
             if value is not None and not isinstance(value, str):
                 raise ValueError("'delimiter' must be a string or None")
-        if 'data_format' in options.keys():
+        if 'data_format' in options:
             value = options["data_format"]
             if value not in ["dataframe", "records"]:
                 raise ValueError("'data_format' must be one of the following: "
-                                 "'dataframe' or 'records' ") 
-        if 'selected_columns' in options.keys():
+                                 "'dataframe' or 'records' ")
+        if 'selected_columns' in options:
             value = options["selected_columns"]
             if not isinstance(value, list):
                 raise ValueError("'selected_columns' must be a list")
             for sc in value:
                 if not isinstance(sc, str):
-                    raise ValueError("'selected_columns' must be a list of strings")
+                    raise ValueError("'selected_columns' must be a list of "
+                                     "strings")
+        if 'record_samples_per_line' in options:
+            value = options['record_samples_per_line']
+            if not isinstance(value, int) or value < 0:
+                raise ValueError("'record_samples_per_line' must be an int "
+                                 "more than 0")
         return options
 
     
@@ -170,7 +184,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 ordered_vocab.append(c)
 
         # Attempt to identify the quote character
-        if not quotechar:            
+        if not quotechar:
             sniffer = csv.Sniffer()
             sniffer.preferred = preferred
             try:
@@ -210,7 +224,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
                 row = proposed_dataset[row_idx]
                 
-                # Skip - extra split from "\n" with no data 
+                # Skip - extra split from "\n" with no data
                 if len(row)<=1 and row_idx==len(proposed_dataset)-1:
                     continue
                 
@@ -224,7 +238,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                     max_col_count = len(proposed_cells)
 
                 # Ensure rows have same number of cols, if more than one col
-                if len(proposed_cells) > prior_col_count: 
+                if len(proposed_cells) > prior_col_count:
                     incorrect_delimiter_flag = True
                     break
                 
@@ -234,14 +248,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
                 prior_col_count = len(proposed_cells)
 
-                prior_cell_type = None # Checks for int/alpha values and delims     
+                prior_cell_type = None # Checks for int/alpha values and delims
                 for col_id in range(len(proposed_cells)):
                     
                     proposed_cell = proposed_cells[col_id]
                     cell_type = data_utils.detect_cell_type(proposed_cell)
                     col_types[col_id] = cell_type
 
-                    # Handle if alpha character are seperator                     
+                    # Handle if alpha character are seperator
                     # NOTE: delimiter needs two ajoining cells to flag
                     if cell_type in ['str', 'none'] \
                        and prior_cell_type in ['str', 'none']:
@@ -292,10 +306,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :type suggested_delimiter: str
         :param suggested_delimiter: quotechar suggested to use when trying to find the header
         :type suggested_delimiter: str
-        :param diff_threshold: Max percent difference in cell types between rows allowed 
-        :type diff_threshold: float    
+        :param diff_threshold: Max percent difference in cell types between rows allowed
+        :type diff_threshold: float
         :param none_thresh: Max percent difference number of none values allowed
-        :type none_thresh: float    
+        :type none_thresh: float
         :param str_thresh: Min percent of strings (omitting none) in row to be a header
         :type str_thresh: float
         
@@ -376,7 +390,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         
             # Determine percent of string, uppercase string or none in row,
             # must be ABOVE threshold
-            rstr = float((header_check_list[i].count("str") 
+            rstr = float((header_check_list[i].count("str")
                           + header_check_list[i].count("upstr")
                           + header_check_list[i].count("none")))
             rstr /= float(len(header_check_list[i]))
@@ -453,7 +467,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                         last_row_with_first_col_value_count += 1
 
             # Ensures there is at least some variance
-            if variance.count(True) > 0: 
+            if variance.count(True) > 0:
                 
                 # Ensures most first lines are the same row
                 if last_row_with_first_col_value_count > (len(variance) // 2):
@@ -519,7 +533,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 if count_delimiter_last == num_lines_read:
                     self._delimiter = None
 
-        
         return data_utils.read_csv_df(
             input_file_path,
             self.delimiter, self.header, self.selected_columns,
@@ -551,6 +564,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if JSONData.is_match(file_path) or ParquetData.is_match(file_path) \
                 or AVROData.is_match(file_path):
             return False
+
+        if options is None:
+            options = dict()
 
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         delimiter = options.get("delimiter", None)
@@ -594,7 +610,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             # Find the location(s) where each delimiter was detected
             if delimiter:
                 count = len([i.start() for i in re.finditer(delimiter_regex, line)])
-            else:                    
+            else:
                 # If no delimiter, see if spaces are regular intervals
                 count = len([i.start() for i in re.finditer(space_regex, line)])
 
@@ -661,4 +677,4 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             header=self.header, delimiter=self.delimiter, quotechar=self.quotechar
         )
         super(CSVData, self).reload(input_file_path, data, options)
-        self.__init__(input_file_path, data, options)
+        self.__init__(self.input_file_path, data, options)

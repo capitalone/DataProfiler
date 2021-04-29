@@ -142,8 +142,9 @@ class BaseData(object):
             raise ValueError(
                 "Reloaded dataset does not match the specified data_type"
             )
+        elif input_file_path:
+            self.input_file_path = input_file_path
         self._data = None
-        self.input_file_path = None
         self._tmp_file_name = None
         self.options = None
         self._batch_info = dict(perm=list(), iter=0)

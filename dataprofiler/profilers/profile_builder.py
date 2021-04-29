@@ -65,6 +65,7 @@ class StructuredDataProfile(object):
         self.null_types_index = {}
         self._min_id = None
         self._max_id = None
+        self._index_shift = None
         self.profiles = {}
                          
         if df_series is not None and len(df_series) > 0:
@@ -247,10 +248,11 @@ class StructuredDataProfile(object):
                           f"when stored in profile: {self.name}")
 
             # Shift indices (min, max, and all indices in null types index
-            base_min = base_min + self._max_id + 1
-            base_max = base_max + self._max_id + 1
+            self._index_shift = self._max_id + 1
+            base_min = base_min + self._index_shift
+            base_max = base_max + self._index_shift
 
-            base_nti = {k: {x + self._max_id + 1 for x in v} for k, v in
+            base_nti = {k: {x + self._index_shift for x in v} for k, v in
                         base_stats["null_types"].items()}
 
         # Store/compare min/max id with current
@@ -673,11 +675,19 @@ class Profiler(object):
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
 
+            # If sample ids provided, only consider nulls in rows that
+            # were fully sampled
             if sample_ids is not None:
-                # If sample ids provided, only consider nulls in rows that
-                # were fully sampled
-                null_row_indices = null_row_indices.intersection(
-                    data.index[sample_ids[:self._min_col_samples_used]])
+                # This is the amount (integer) indices were shifted by in the
+                # event of overlap
+                shift = self._profile[column]._index_shift
+                if shift is None:
+                    null_row_indices = null_row_indices.intersection(
+                        data.index[sample_ids[:self._min_col_samples_used]])
+                else:
+                    null_row_indices = null_row_indices.intersection(
+                        data.index[sample_ids[:self._min_col_samples_used]] +
+                        shift)
 
             # Find the common null indices between the columns
             if first_col_flag:

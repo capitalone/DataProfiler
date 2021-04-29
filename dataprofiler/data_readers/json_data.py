@@ -352,6 +352,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         valid_json_line_count = 0
         total_line_count = 0
 
+        if options is None:
+            options = dict()
+
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         with open(file_path, 'r', encoding=file_encoding) as data_file:
             try:
@@ -397,4 +400,4 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         """
         self._selected_keys = None
         super(JSONData, self).reload(input_file_path, data, options)
-        self.__init__(input_file_path, data, options)
+        self.__init__(self.input_file_path, data, options)

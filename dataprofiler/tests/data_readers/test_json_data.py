@@ -69,6 +69,7 @@ class TestJSONDataClass(unittest.TestCase):
             input_data_obj = Data(input_file["path"])
             input_data_obj.reload(input_file["path"])
             self.assertEqual(input_data_obj.data_type, 'json')
+            self.assertEqual(input_file['path'], input_data_obj.input_file_path)
 
     def test_json_from_string(self):
         """

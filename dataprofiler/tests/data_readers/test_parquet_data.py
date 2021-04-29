@@ -55,6 +55,7 @@ class TestParquetDataClass(unittest.TestCase):
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'parquet')
+            self.assertEqual(input_file['path'], input_data_obj.input_file_path)
 
     def test_data_formats(self):
         """

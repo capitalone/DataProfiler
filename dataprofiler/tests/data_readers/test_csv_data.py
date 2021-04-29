@@ -216,6 +216,7 @@ class TestCSVDataClass(unittest.TestCase):
             self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
             self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
                              input_file['path'])
+            self.assertEqual(input_file['path'], input_data_obj.input_file_path)
 
     def test_allowed_data_formats(self):
         """

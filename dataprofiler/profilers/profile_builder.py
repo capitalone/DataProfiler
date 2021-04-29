@@ -66,6 +66,7 @@ class StructuredDataProfile(object):
         self._min_id = None
         self._max_id = None
         self._index_shift = None
+        self._last_batch_size = None
         self.profiles = {}
                          
         if df_series is not None and len(df_series) > 0:
@@ -231,6 +232,7 @@ class StructuredDataProfile(object):
     
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
+        self._last_batch_size = base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
         self.null_types = utils._combine_unique_sets(
@@ -593,6 +595,15 @@ class Profiler(object):
         return min([self._profile[col].sample_size
                     for col in self._profile], default=0)
 
+    @property
+    def _min_sampled_from_batch(self):
+        """
+        Calculates and returns the number of rows that were completely sampled
+        in the most previous batch
+        """
+        return min([self._profile[col]._last_batch_size
+                    for col in self._profile], default=0)
+
     def report(self, report_options=None):
         if not report_options:
             report_options = {
@@ -683,10 +694,10 @@ class Profiler(object):
                 shift = self._profile[column]._index_shift
                 if shift is None:
                     null_row_indices = null_row_indices.intersection(
-                        data.index[sample_ids[:self._min_col_samples_used]])
+                        data.index[sample_ids[:self._min_sampled_from_batch]])
                 else:
                     null_row_indices = null_row_indices.intersection(
-                        data.index[sample_ids[:self._min_col_samples_used]] +
+                        data.index[sample_ids[:self._min_sampled_from_batch]] +
                         shift)
 
             # Find the common null indices between the columns

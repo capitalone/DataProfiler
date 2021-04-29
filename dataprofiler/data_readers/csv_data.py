@@ -40,11 +40,21 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             )
 
         delimiter: delimiter used to decipher the csv input file
+
         data_format: user selected format in which to return data
-        can only be of specified types
+        can only be of specified types:
+        ```
+        dataframe - (default) loads the dataset as a pandas.DataFrame
+        records - loads the data as rows of text values, the extra parameter
+        "record_samples_per_line" how many rows are combined into a single line
+        ```
+
         selected_columns: columns being selected from the entire dataset
+
         header: location of the header in the file
+
         quotechar: quote character used in the delimited file
+
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str
         :param data: data being loaded into the class instead of an input file

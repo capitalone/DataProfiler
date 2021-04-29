@@ -41,7 +41,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             )
 
         delimiter: delimiter used to decipher the csv input file
-
         data_format: user selected format in which to return data
         can only be of specified types:
         ```
@@ -51,9 +50,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             a single line
         ```
         selected_columns: columns being selected from the entire dataset
-
         header: location of the header in the file
-
         quotechar: quote character used in the delimited file
 
         :param input_file_path: path to the file being loaded or None

@@ -62,6 +62,8 @@ class AVROData(JSONData, BaseData):
         :return: is file a avro file or not
         :rtype: bool
         """
+        if options is None:
+            options = dict()
 
         is_valid_avro = fastavro.is_avro(file_path)
         return is_valid_avro

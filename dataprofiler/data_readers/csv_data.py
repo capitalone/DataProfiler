@@ -1,11 +1,8 @@
-import re
 import csv
 import re
-from itertools import islice
 from six import StringIO
 
 import random
-import dateutil
 from collections import Counter
 
 import numpy as np
@@ -568,6 +565,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 or AVROData.is_match(file_path):
             return False
 
+        if options is None:
+            options = dict()
+
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         delimiter = options.get("delimiter", None)
         quotechar = options.get("quotechar", None)
@@ -677,4 +677,4 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             header=self.header, delimiter=self.delimiter, quotechar=self.quotechar
         )
         super(CSVData, self).reload(input_file_path, data, options)
-        self.__init__(input_file_path, data, options)
+        self.__init__(self.input_file_path, data, options)

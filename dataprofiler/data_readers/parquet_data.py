@@ -102,6 +102,9 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         :return: is file a parquet file or not
         :rtype: bool
         """
+        if options is None:
+            options = dict()
+
         try:
             pfile = pq.ParquetFile(file_path)
             is_valid_parquet = True

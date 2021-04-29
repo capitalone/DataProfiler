@@ -1,11 +1,8 @@
-import re
 import csv
 import re
-from itertools import islice
 from six import StringIO
 
 import random
-import dateutil
 from collections import Counter
 
 import numpy as np
@@ -567,6 +564,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if JSONData.is_match(file_path) or ParquetData.is_match(file_path) \
                 or AVROData.is_match(file_path):
             return False
+
+        if options is None:
+            options = dict()
 
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         delimiter = options.get("delimiter", None)

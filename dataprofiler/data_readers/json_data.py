@@ -352,6 +352,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         valid_json_line_count = 0
         total_line_count = 0
 
+        if options is None:
+            options = dict()
+
         file_encoding = data_utils.detect_file_encoding(file_path=file_path)
         with open(file_path, 'r', encoding=file_encoding) as data_file:
             try:

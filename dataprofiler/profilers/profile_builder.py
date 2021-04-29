@@ -63,6 +63,10 @@ class StructuredDataProfile(object):
         self.null_count = 0
         self.null_types = list()
         self.null_types_index = {}
+        self._min_id = None
+        self._max_id = None
+        self._index_shift = None
+        self._last_batch_size = None
         self.profiles = {}
                          
         if df_series is not None and len(df_series) > 0:
@@ -158,13 +162,17 @@ class StructuredDataProfile(object):
             {"sample": self.sample,
              "sample_size": self.sample_size,
              "null_count": self.null_count,
-             "null_types": copy.deepcopy(self.null_types_index)}
+             "null_types": copy.deepcopy(self.null_types_index),
+             "min_id": self._min_id,
+             "max_id": self._max_id}
         )
         merged_profile._update_base_stats(
             {"sample": other.sample,
              "sample_size": other.sample_size,
              "null_count": other.null_count,
-             "null_types": copy.deepcopy(other.null_types_index)}
+             "null_types": copy.deepcopy(other.null_types_index),
+             "min_id": other._min_id,
+             "max_id": other._max_id}
         )
         samples = list(dict.fromkeys(self.sample + other.sample))
         merged_profile.sample = random.sample(samples, min(len(samples), 5))
@@ -224,13 +232,43 @@ class StructuredDataProfile(object):
     
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
+        self._last_batch_size = base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self.null_count += base_stats["null_count"]
         self.null_types = utils._combine_unique_sets(
             self.null_types, list(base_stats["null_types"].keys())
         )
 
-        for null_type, null_rows in base_stats["null_types"].items():
+        base_min = base_stats["min_id"]
+        base_max = base_stats["max_id"]
+        base_nti = base_stats["null_types"]
+
+        # Check if indices overlap, if they do, adjust attributes accordingly
+        if utils.overlap(self._min_id, self._max_id, base_min, base_max):
+            warnings.warn(f"Overlapping indices detected. To resolve, indices "
+                          f"where null data present will be shifted forward "
+                          f"when stored in profile: {self.name}")
+
+            # Shift indices (min, max, and all indices in null types index
+            self._index_shift = self._max_id + 1
+            base_min = base_min + self._index_shift
+            base_max = base_max + self._index_shift
+
+            base_nti = {k: {x + self._index_shift for x in v} for k, v in
+                        base_stats["null_types"].items()}
+
+        # Store/compare min/max id with current
+        if self._min_id is None:
+            self._min_id = base_min
+        elif base_min is not None:
+            self._min_id = min(self._min_id, base_min)
+        if self._max_id is None:
+            self._max_id = base_max
+        elif base_max is not None:
+            self._max_id = max(self._max_id, base_max)
+
+        # Update null row indices
+        for null_type, null_rows in base_nti.items():
             if type(null_rows) is list:
                 null_rows.sort()
             self.null_types_index.setdefault(null_type, set()).update(null_rows)
@@ -322,11 +360,29 @@ class StructuredDataProfile(object):
         if not len_df:
             return df_series, {
                 "sample_size": 0, "null_count": 0,
-                "null_types": dict(), "sample": []
+                "null_types": dict(), "sample": [],
+                "min_id": None, "max_id": None
             }
 
         # Pandas reads empty values in the csv files as nan
         df_series = df_series.apply(str)
+
+        # Record min and max index values if index is int
+        is_index_all_ints = True
+        try:
+            min_id = min(df_series.index)
+            max_id = max(df_series.index)
+            if not (isinstance(min_id, int) and isinstance(max_id, int)):
+                is_index_all_ints = False
+        except TypeError:
+            is_index_all_ints = False
+
+        if not is_index_all_ints:
+            min_id = max_id = None
+            warnings.warn("Unable to detect minimum and maximum index values "
+                          "for overlap detection. Updating/merging profiles "
+                          "may result in inaccurate null row index reporting "
+                          "due to unhandled overlapping indices.")
 
         # Select generator depending if sample_ids availability
         if sample_ids is None:
@@ -380,7 +436,9 @@ class StructuredDataProfile(object):
             "null_count": total_na,
             "null_types": na_columns,
             "sample": random.sample(list(df_series.values),
-                                    min(len(df_series), 5))
+                                    min(len(df_series), 5)),
+            "min_id": min_id,
+            "max_id": max_id
         }
 
         return df_series, base_stats
@@ -537,6 +595,15 @@ class Profiler(object):
         return min([self._profile[col].sample_size
                     for col in self._profile], default=0)
 
+    @property
+    def _min_sampled_from_batch(self):
+        """
+        Calculates and returns the number of rows that were completely sampled
+        in the most previous batch
+        """
+        return min([self._profile[col]._last_batch_size
+                    for col in self._profile], default=0)
+
     def report(self, report_options=None):
         if not report_options:
             report_options = {
@@ -619,11 +686,21 @@ class Profiler(object):
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
 
+            # If sample ids provided, only consider nulls in rows that
+            # were fully sampled
             if sample_ids is not None:
-                # If sample ids provided, only consider nulls in rows that
-                # were fully sampled
-                null_row_indices = null_row_indices.intersection(
-                    data.index[sample_ids[:self._min_col_samples_used]])
+                # This is the amount (integer) indices were shifted by in the
+                # event of overlap
+                shift = self._profile[column]._index_shift
+                if shift is None:
+                    # Shift is None if index is str or if no overlap detected
+                    null_row_indices = null_row_indices.intersection(
+                        data.index[sample_ids[:self._min_sampled_from_batch]])
+                else:
+                    # Only shift if index shift detected (must be ints)
+                    null_row_indices = null_row_indices.intersection(
+                        data.index[sample_ids[:self._min_sampled_from_batch]] +
+                        shift)
 
             # Find the common null indices between the columns
             if first_col_flag:
@@ -634,8 +711,13 @@ class Profiler(object):
                 null_rows = null_rows.intersection(null_row_indices)
                 null_in_row_count = null_in_row_count.union(null_row_indices)
 
-        self.row_has_null_count = len(null_in_row_count)
-        self.row_is_null_count = len(null_rows)
+        # If sample_ids provided, increment since that means only new data read
+        if sample_ids is not None:
+            self.row_has_null_count += len(null_in_row_count)
+            self.row_is_null_count += len(null_rows)
+        else:
+            self.row_has_null_count = len(null_in_row_count)
+            self.row_is_null_count = len(null_rows)
 
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """
@@ -664,6 +746,9 @@ class Profiler(object):
             )
 
         if not len(data):
+            # Need to reflect that no samples in this batch
+            for column in self._profile:
+                self._profile[column]._last_batch_size = 0
             return
         if not min_true_samples:
             min_true_samples = self._min_true_samples

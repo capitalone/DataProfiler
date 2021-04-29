@@ -233,3 +233,15 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
             )            
 
     return pool, max_pool_size
+
+
+def overlap(x1, x2, y1, y2):
+    """
+    Return True iff [x1:x2] overlaps with [y1:y2]
+    """
+    if not all([isinstance(i, int) for i in [x1, x2, y1, y2]]):
+        return False
+    return ((y1 <= x1 <= y2) or
+            (y1 <= x2 <= y2) or
+            (x1 <= y1 <= x2) or
+            (x1 <= y2 <= x2))

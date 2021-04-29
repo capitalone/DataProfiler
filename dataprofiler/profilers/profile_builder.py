@@ -364,13 +364,17 @@ class StructuredDataProfile(object):
         df_series = df_series.apply(str)
 
         # Record min and max index values if index is int
-        min_id = None
-        max_id = None
-        if isinstance(df_series.index, pd.RangeIndex) or \
-                all([isinstance(i, int) for i in df_series.index]):
+        is_index_all_ints = True
+        try:
             min_id = min(df_series.index)
             max_id = max(df_series.index)
-        else:
+            if not (isinstance(min_id, int) and isinstance(max_id, int)):
+                is_index_all_ints = False
+        except TypeError:
+            is_index_all_ints = False
+
+        if not is_index_all_ints:
+            min_id = max_id = None
             warnings.warn("Unable to detect minimum and maximum index values "
                           "for overlap detection. Updating/merging profiles "
                           "may result in inaccurate null row index reporting "

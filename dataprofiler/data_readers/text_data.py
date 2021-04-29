@@ -123,4 +123,4 @@ class TextData(BaseData):
         :return: None
         """
         super(TextData, self).reload(input_file_path, data, options)
-        self.__init__(input_file_path, data, options)
+        self.__init__(self.input_file_path, data, options)

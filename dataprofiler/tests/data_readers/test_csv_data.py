@@ -342,8 +342,14 @@ class TestCSVDataClass(unittest.TestCase):
             expected_error="'selected_columns' must be a list")
         
         _test_options(
-            "selected_columns", valid=[], invalid=[[0,1,2,3]],
+            "selected_columns", valid=[], invalid=[[0, 1, 2, 3]],
             expected_error="'selected_columns' must be a list of strings")
+
+        _test_options(
+            "record_samples_per_line", valid=[1, 10],
+            invalid=[[-1, int, '', None, dict()]],
+            expected_error="'record_samples_per_line' must be an int more than "
+                           "0")
 
         # test edge case for header being set
         file = self.input_file_names[0]

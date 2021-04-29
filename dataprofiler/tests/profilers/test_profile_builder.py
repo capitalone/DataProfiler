@@ -408,7 +408,17 @@ class TestProfiler(unittest.TestCase):
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
             load_report = _clean_report(load_profile.report())
-            self.assertDictEqual(save_report, load_report)       
+            self.assertDictEqual(save_report, load_report)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_string_index_doesnt_cause_error(self, *mocks):
+        dp.Profiler(pd.DataFrame([[1, 2, 3]], index=["hello"]))
 
 
 class TestStructuredDataProfileClass(unittest.TestCase):
@@ -906,6 +916,8 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
         self.assertEqual(4, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3}, profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2}, profile._profile[1].null_types_index['nan'])
 
         profile.update_profile(data2, min_true_samples=2, sample_size=2)
         self.assertEqual(7, profile.row_has_null_count)
@@ -913,6 +925,10 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(0.875, profile._get_row_has_null_ratio())
         self.assertEqual(0.375, profile._get_row_is_null_ratio())
         self.assertEqual(4, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3, 4, 6, 7},
+                            profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2, 4, 5, 6},
+                            profile._profile[1].null_types_index['nan'])
 
         # When not setting min true samples/samples per update
         opts = ProfilerOptions()
@@ -923,6 +939,8 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
         self.assertEqual(4, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3}, profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2}, profile._profile[1].null_types_index['nan'])
 
         profile.update_profile(data2)
         self.assertEqual(7, profile.row_has_null_count)
@@ -930,6 +948,37 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(0.875, profile._get_row_has_null_ratio())
         self.assertEqual(0.375, profile._get_row_is_null_ratio())
         self.assertEqual(4, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3, 4, 6, 7},
+                            profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2, 4, 5, 6},
+                            profile._profile[1].null_types_index['nan'])
+
+        # Test that update with emtpy data doesn't change stats
+        profile.update_profile(pd.DataFrame([]))
+        self.assertEqual(7, profile.row_has_null_count)
+        self.assertEqual(3, profile.row_is_null_count)
+        self.assertEqual(0.875, profile._get_row_has_null_ratio())
+        self.assertEqual(0.375, profile._get_row_is_null_ratio())
+        self.assertEqual(0, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3, 4, 6, 7},
+                            profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2, 4, 5, 6},
+                            profile._profile[1].null_types_index['nan'])
+
+        # Test one row update
+        profile.update_profile(pd.DataFrame([[1, None]]))
+        self.assertEqual(8, profile.row_has_null_count)
+        self.assertEqual(3, profile.row_is_null_count)
+        self.assertEqual(8/9, profile._get_row_has_null_ratio())
+        self.assertEqual(3/9, profile._get_row_is_null_ratio())
+        self.assertEqual(1, profile._min_sampled_from_batch)
+        self.assertSetEqual({2, 3, 4, 6, 7},
+                            profile._profile[0].null_types_index['nan'])
+        self.assertSetEqual({0, 2, 4, 5, 6},
+                            profile._profile[1].null_types_index['nan'])
+        # Weird pandas behavior makes this None since this column will be
+        # recognized as object, not float64
+        self.assertSetEqual({8}, profile._profile[1].null_types_index['None'])
 
 
 if __name__ == '__main__':

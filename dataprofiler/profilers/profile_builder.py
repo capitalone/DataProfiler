@@ -746,6 +746,9 @@ class Profiler(object):
             )
 
         if not len(data):
+            # Need to reflect that no samples in this batch
+            for column in self._profile:
+                self._profile[column]._last_batch_size = 0
             return
         if not min_true_samples:
             min_true_samples = self._min_true_samples

@@ -670,7 +670,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
-    def test_index_overlap_resolved_for_update_profile(self, *mocks):
+    def test_index_overlap_for_update_profile(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
         profile = StructuredDataProfile(data)
         self.assertEqual(0, profile.min_id)
@@ -690,7 +690,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
-    def test_index_overlap_resolved_for_merge(self, *mocks):
+    def test_index_overlap_for_merge(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
         profile1 = StructuredDataProfile(data)
         profile2 = StructuredDataProfile(data)
@@ -701,7 +701,10 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertEqual(9, profile3.max_id)
         self.assertDictEqual(profile3.null_types_index, {'nan': {1, 4, 6, 9}})
 
-        # Ensure original profile not overwritten
+        # Ensure original profiles not overwritten
+        self.assertEqual(0, profile1.min_id)
+        self.assertEqual(4, profile1.max_id)
+        self.assertDictEqual(profile1.null_types_index, {'nan': {1, 4}})
         self.assertEqual(0, profile2.min_id)
         self.assertEqual(4, profile2.max_id)
         self.assertDictEqual(profile2.null_types_index, {'nan': {1, 4}})
@@ -896,6 +899,8 @@ class TestProfilerNullValues(unittest.TestCase):
         data2 = data[4:]
         opts = ProfilerOptions()
         opts.structured_options.multiprocess.is_enabled = False
+
+        # When setting min true samples/samples per update
         profile = dp.Profiler(data1, min_true_samples=2, samples_per_update=2,
                               profiler_options=opts)
         self.assertEqual(3, profile.row_has_null_count)
@@ -904,6 +909,21 @@ class TestProfilerNullValues(unittest.TestCase):
         self.assertEqual(0.25, profile._get_row_is_null_ratio())
 
         profile.update_profile(data2, min_true_samples=2, sample_size=2)
+        self.assertEqual(6, profile.row_has_null_count)
+        self.assertEqual(2, profile.row_is_null_count)
+        self.assertEqual(0.75, profile._get_row_has_null_ratio())
+        self.assertEqual(0.25, profile._get_row_is_null_ratio())
+
+        # When not setting min true samples/samples per update
+        opts = ProfilerOptions()
+        opts.structured_options.multiprocess.is_enabled = False
+        profile = dp.Profiler(data1, profiler_options=opts)
+        self.assertEqual(3, profile.row_has_null_count)
+        self.assertEqual(1, profile.row_is_null_count)
+        self.assertEqual(0.75, profile._get_row_has_null_ratio())
+        self.assertEqual(0.25, profile._get_row_is_null_ratio())
+
+        profile.update_profile(data2)
         self.assertEqual(6, profile.row_has_null_count)
         self.assertEqual(2, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())

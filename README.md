@@ -237,6 +237,8 @@ report  = profile.report(report_options={"output_format":"pretty"})
 print(json.dumps(report, indent=4))
 ```
 
+Note that if the data you update the profile with contains integer indices that overlap with the indices on data originally profiled, when null rows are calculated the indices will be "shifted" to uninhabited values so that null counts and ratios are still accurate.
+
 ### Merging Profiles
 
 If you have two files with the same schema (but different data), it is possible to merge the two profiles together via an addition operator. 
@@ -262,6 +264,8 @@ report  = profile3.report(report_options={"output_format":"pretty"})
 print(json.dumps(report, indent=4))
 ```
 
+Note that if merged profiles had overlapping integer indices, when null rows are calculated the indices will be "shifted" to uninhabited values so that null counts and ratios are still accurate.
+
 ### Profile a Pandas DataFrame
 ```python
 import pandas as pd
@@ -278,7 +282,6 @@ print(json.dumps(report, indent=4))
 # read a specified column, in this case it is labeled 0:
 print(json.dumps(report["data stats"][0], indent=4))
 ```
-
 
 **Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**
 

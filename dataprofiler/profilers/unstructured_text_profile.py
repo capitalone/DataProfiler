@@ -98,19 +98,10 @@ class TextProfiler(object):
         if options and options.stop_words is not None:
             self._stop_words = options.stop_words
 
-        self.__calculations = {}
-        if options:
-            if options.vocab.is_enabled:
-                self.__calculations.update(
-                    {"vocab": TextProfiler._update_vocab})
-            if options.words.is_enabled:
-                self.__calculations.update(
-                    {"words": TextProfiler._update_words})
-        else:
-            self.__calculations = {
-                "vocab": TextProfiler._update_vocab,
-                "words": TextProfiler._update_words,
-            }
+        self.__calculations = {
+            "vocab": TextProfiler._update_vocab,
+            "words": TextProfiler._update_words,
+        }
         BaseColumnProfiler._filter_properties_w_options(self.__calculations, options)
 
     def _merge_words(self, other, merged_profile):

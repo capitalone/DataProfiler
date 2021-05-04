@@ -166,7 +166,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                                    'friends': 1}
             self.assertDictEqual(expected_word_count, profile['word_count'])
 
-    def test_options_text_profile(self):
+    def test_options_validation(self):
         # option check for the invalid values
         options_case_sensitive = [2, 'string']
         for option_case_sensitive in options_case_sensitive:
@@ -207,6 +207,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                     "object."):
                 TextProfiler("Name", options=options)
 
+    def test_options_different_values(self):
         # default options
         options = TextProfilerOptions()
 

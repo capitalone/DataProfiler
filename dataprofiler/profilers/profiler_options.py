@@ -186,14 +186,14 @@ class HistogramOption(BooleanOption):
 
 class BaseInspectorOptions(BooleanOption):
 
-    def __init__(self):
+    def __init__(self, is_enabled=True):
         """
         Base options for all the columns.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        super().__init__(is_enabled=True)
+        super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='BaseInspectorOptions'):
         """
@@ -764,7 +764,8 @@ class ProfilerOptions(BaseOption):
 
 
 class TextProfilerOptions(BaseInspectorOptions):
-    def __init__(self):
+
+    def __init__(self, is_enabled=True):
         """
         Constructs the TextProfilerOption object with default values.
 
@@ -781,6 +782,7 @@ class TextProfilerOptions(BaseInspectorOptions):
         self.stop_words = None
         self.words = BooleanOption(is_enabled=True)
         self.vocab = BooleanOption(is_enabled=True)
+        super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='TextProfilerOptions'):
         """
@@ -791,7 +793,11 @@ class TextProfilerOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        errors = []
+        if not variable_path:
+            variable_path = self.__class__.__name__
+
+        errors = super()._validate_helper(variable_path=variable_path)
+
         if not isinstance(self.is_case_sensitive, bool):
             errors.append("{}.is_case_sensitive must be a Boolean."
                           .format(variable_path))

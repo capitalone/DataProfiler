@@ -211,11 +211,11 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options = TextProfilerOptions()
 
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is, a Test sentence.!!!"])
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
         profile = text_profile.profile
 
-        expected_word_count = {'sentence': 1, 'Test': 1}
+        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
         expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
                           'e', 't', 'n', 'c']
         self.assertDictEqual(expected_word_count, profile['word_count'])
@@ -226,11 +226,11 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.is_case_sensitive = False
 
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is, a Test sentence.!!!"])
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
         profile = text_profile.profile
 
-        expected_word_count = {'sentence': 1, 'test': 1}
+        expected_word_count = {'sentence': 1, 'test': 2}
         expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
                           'e', 't', 'n', 'c']
         self.assertDictEqual(expected_word_count, profile['word_count'])
@@ -241,11 +241,11 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.stop_words = ['hello', 'sentence', 'is', 'a']
 
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is, a Test sentence.!!!"])
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
         profile = text_profile.profile
 
-        expected_word_count = {'This': 1, 'Test': 1}
+        expected_word_count = {'This': 1, 'Test': 1, 'test': 1}
         expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
                           'e', 't', 'n', 'c']
         self.assertDictEqual(expected_word_count, profile['word_count'])
@@ -256,7 +256,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.words.is_enabled = False
 
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is, a Test sentence.!!!"])
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
         profile = text_profile.profile
 
@@ -271,11 +271,11 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         options.vocab.is_enabled = False
 
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is, a Test sentence.!!!"])
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
         text_profile.update(sample)
         profile = text_profile.profile
 
-        expected_word_count = {'sentence': 1, 'Test': 1}
+        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
         expected_vocab = []
         self.assertDictEqual(expected_word_count, profile['word_count'])
         self.assertCountEqual(expected_vocab, profile['vocab'])

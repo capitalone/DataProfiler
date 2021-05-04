@@ -184,7 +184,7 @@ class HistogramOption(BooleanOption):
         return errors
 
 
-class BaseColumnOptions(BooleanOption):
+class BaseInspectorOptions(BooleanOption):
 
     def __init__(self):
         """
@@ -195,7 +195,7 @@ class BaseColumnOptions(BooleanOption):
         """
         super().__init__(is_enabled=True)
 
-    def _validate_helper(self, variable_path='BaseColumnOptions'):
+    def _validate_helper(self, variable_path='BaseInspectorOptions'):
         """
         Validates the options do not conflict and cause errors.
 
@@ -227,7 +227,7 @@ class BaseColumnOptions(BooleanOption):
         return is_enabled
 
 
-class NumericalOptions(BaseColumnOptions):
+class NumericalOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -255,7 +255,7 @@ class NumericalOptions(BaseColumnOptions):
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     @property
     def is_numeric_stats_enabled(self):
@@ -501,7 +501,7 @@ class TextOptions(NumericalOptions):
         return errors
 
 
-class DateTimeOptions(BaseColumnOptions):
+class DateTimeOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -510,7 +510,7 @@ class DateTimeOptions(BaseColumnOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     def _validate_helper(self, variable_path='DateTimeOptions'):
         """
@@ -524,7 +524,7 @@ class DateTimeOptions(BaseColumnOptions):
         return super()._validate_helper(variable_path) 
 
 
-class OrderOptions(BaseColumnOptions):
+class OrderOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -533,7 +533,7 @@ class OrderOptions(BaseColumnOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     def _validate_helper(self, variable_path='OrderOptions'):
         """
@@ -547,7 +547,7 @@ class OrderOptions(BaseColumnOptions):
         return super()._validate_helper(variable_path) 
 
 
-class CategoricalOptions(BaseColumnOptions):
+class CategoricalOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -556,7 +556,7 @@ class CategoricalOptions(BaseColumnOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     def _validate_helper(self, variable_path='CategoricalOptions'):
         """
@@ -570,7 +570,7 @@ class CategoricalOptions(BaseColumnOptions):
         return super()._validate_helper(variable_path) 
 
 
-class DataLabelerOptions(BaseColumnOptions):
+class DataLabelerOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -583,7 +583,7 @@ class DataLabelerOptions(BaseColumnOptions):
         :ivar max_sample_size: Int to decide sample size
         :vartype max_sample_size: int
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
         self.data_labeler_dirpath = None
         self.max_sample_size = None
         self.data_labeler_object = None
@@ -763,7 +763,7 @@ class ProfilerOptions(BaseOption):
         return errors
 
 
-class TextProfilerOptions(BaseOption):
+class TextProfilerOptions(BaseInspectorOptions):
     def __init__(self):
         """
         Constructs the TextProfilerOption object with default values.
@@ -781,17 +781,6 @@ class TextProfilerOptions(BaseOption):
         self.stop_words = None
         self.words = BooleanOption(is_enabled=True)
         self.vocab = BooleanOption(is_enabled=True)
-
-    def is_prop_enabled(self, prop):
-        """
-        Checks to see if a property is enabled or not and returns boolean.
-
-        :param prop: The option to check if it is enabled
-        :type prop: String
-        :return: Whether or not the property is enabled
-        :rtype: Boolean
-        """
-        return BaseColumnOptions.is_prop_enabled(self, prop)
 
     def _validate_helper(self, variable_path='TextProfilerOptions'):
         """

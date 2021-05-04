@@ -1,9 +1,9 @@
 from dataprofiler.profilers.profiler_options import OrderOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_column_options \
-     import TestBaseColumnOptions
+     import TestBaseInspectorOptions
 
 
-class TestOrderOptions(TestBaseColumnOptions):
+class TestOrderOptions(TestBaseInspectorOptions):
     
     options_class = OrderOptions
     

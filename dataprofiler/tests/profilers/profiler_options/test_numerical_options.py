@@ -1,10 +1,10 @@
 from dataprofiler.profilers.profiler_options \
      import BooleanOption, NumericalOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_column_options \
-     import TestBaseColumnOptions
+     import TestBaseInspectorOptions
 
 
-class TestNumericalOptions(TestBaseColumnOptions):
+class TestNumericalOptions(TestBaseInspectorOptions):
     
     option_class = NumericalOptions
     keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]

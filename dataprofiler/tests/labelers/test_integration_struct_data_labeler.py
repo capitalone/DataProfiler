@@ -378,5 +378,16 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
         profile1.update_profile(data)
 
+    def test_hist(self):
+        test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        test_dir = os.path.join(test_root_path, 'data')
+        path = os.path.join(test_dir, 'csv/diamonds.csv')
+
+        data = dp.Data(path)
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"data_labeler.is_enabled": False,})
+        print('running dp1')
+        profile1 = dp.Profiler(data, profiler_options=profile_options)
+
 if __name__ == '__main__':
     unittest.main()

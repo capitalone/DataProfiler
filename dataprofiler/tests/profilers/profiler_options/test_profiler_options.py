@@ -111,7 +111,12 @@ class TestProfilerOptions(unittest.TestCase):
             self.assertTrue("data_label" not in profile_column.keys())
             self.assertIsNone(profile_column["categorical"])
             self.assertIsNone(profile_column["order"])
-            self.assertDictEqual({}, profile_column["statistics"])
+            self.assertDictEqual({
+                'sample_size': 2,
+                'null_count': 0,
+                'null_types': [],
+                'null_types_index': {}
+            }, profile_column["statistics"])
 
     @mock.patch('dataprofiler.profilers.text_column_profile.TextColumn'
                 '._update_vocab')
@@ -323,7 +328,6 @@ class TestProfilerOptions(unittest.TestCase):
                                     "TextOptions."):
             options.structured_options.text.is_prop_enabled("Invalid")
 
-
         # This test is to ensure is_prop_enabled works for BooleanOption objects
         options.structured_options.int.min.is_enabled = True
         self.assertTrue(options.structured_options.int.is_prop_enabled("min"))
@@ -351,6 +355,7 @@ class TestDataLabelerCallWithOptions(unittest.TestCase):
         options.structured_options.data_labeler.data_labeler_dirpath \
             = "Test_Dirpath"
         options.structured_options.data_labeler.max_sample_size = 50
+        options.structured_options.multiprocess.is_enabled = False
 
         profile = Profiler(self.data,
                            profiler_options=options)

@@ -9,7 +9,6 @@ from __future__ import division
 
 from future.utils import with_metaclass
 import copy
-import time
 import abc
 import warnings
 
@@ -52,8 +51,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.max = None
         self.sum = 0
         self.variance = 0
-        self.max_histogram_bin = 10000
-        self.min_histogram_bin = 1
+        self.max_histogram_bin = 100000
+        self.min_histogram_bin = 1000
         self.histogram_bin_method_names = [
             'auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'
         ]
@@ -70,16 +69,27 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 self.user_set_histogram_bin = bin_count_or_method
                 self.histogram_bin_method_names = ['custom']
         self.histogram_methods = {}
-        for method in self.histogram_bin_method_names:
-            self.histogram_methods[method] = {
+        self._stored_histogram = {
                 'total_loss': 0,
                 'current_loss': 0,
+                'suggested_bin_count': self.min_histogram_bin,
                 'histogram': {
                     'bin_counts': None,
                     'bin_edges': None
                 }
             }
-        self.quantiles = { bin_num: None for bin_num in range(1000) }
+        for method in self.histogram_bin_method_names:
+            self.histogram_methods[method] = {
+                'total_loss': 0,
+                'current_loss': 0,
+                'suggested_bin_count': self.min_histogram_bin,
+                'histogram': {
+                    'bin_counts': None,
+                    'bin_edges': None
+                }
+            }
+        num_quantiles = 1000  # TODO: add to options
+        self.quantiles = {bin_num: None for bin_num in range(num_quantiles - 1)}
         self.__calculations = {
             "min": NumericStatsMixin._get_min,
             "max": NumericStatsMixin._get_max,
@@ -97,6 +107,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     def __getitem__(self, item):
         return super(NumericStatsMixin, self).__getitem__(item)
 
+    @property
+    def _has_histogram(self):
+        return self._stored_histogram['histogram']['bin_counts'] is not None
+
     @BaseColumnProfiler._timeit(name="histogram_and_quantiles")
     def _add_helper_merge_profile_histograms(self, other1, other2):
         """
@@ -109,8 +123,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: None
         """
         # get available bin methods and set to current
-        bin_methods = list(set(other1.histogram_bin_method_names) &
-                           set(other2.histogram_bin_method_names))
+        bin_methods = [x for x in other1.histogram_bin_method_names
+                       if x in other2.histogram_bin_method_names]
         if not bin_methods:
             raise ValueError('Profiles have no overlapping bin methods and '
                              'therefore cannot be added together.')
@@ -135,19 +149,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 }
             }
 
-        for i, method in enumerate(self.histogram_bin_method_names):
-            combined_values = other1._histogram_to_array(
-                method) + other2._histogram_to_array(method)
-            bin_counts, bin_edges = self._get_histogram(
-                combined_values, method)
-            self.histogram_methods[method]['histogram']['bin_counts'] = \
-                bin_counts
-            self.histogram_methods[method]['histogram']['bin_edges'] = bin_edges
+        combined_values = np.concatenate([other1._histogram_to_array(),
+                                          other2._histogram_to_array()])
+        bin_counts, bin_edges = self._get_histogram(combined_values)
+        self._stored_histogram['histogram']['bin_counts'] = bin_counts
+        self._stored_histogram['histogram']['bin_edges'] = bin_edges
 
-        # Select histogram: always choose first profile selected method
-        # Either both profiles have the same selection or you at least use one
-        # of the profiles selected method
-        self.histogram_selection = other1.histogram_selection
+        histogram_loss = self._histogram_bin_error(combined_values)
+        self._stored_histogram['histogram']['current_loss'] = histogram_loss
+        self._stored_histogram['histogram']['total_loss'] = histogram_loss
+
         self._get_quantiles()
 
     def _add_helper(self, other1, other2):
@@ -170,10 +181,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 other1.match_count, other1.variance, other1.mean,
                 other2.match_count, other2.variance, other2.mean)
         if "histogram_and_quantiles" in self.__calculations.keys():
-            if other1.histogram_selection is not None and \
-                    other2.histogram_selection is not None:
+            if other1._has_histogram and other2._has_histogram:
                 self._add_helper_merge_profile_histograms(other1, other2)
-            elif other2.histogram_selection is None:
+            elif not other2._has_histogram:
                 self.histogram_methods = other1.histogram_methods
                 self.quantiles = other1.quantiles
             else:
@@ -254,26 +264,59 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         new_variance = M2 / (curr_count + match_count2 - 1)
         return new_variance
 
-    def _estimate_stats_from_histogram(self, method):
+    def _estimate_stats_from_histogram(self):
         # test estimated mean and var
-        bin_counts = self.histogram_methods[method]['histogram']['bin_counts']
-        bin_edges = self.histogram_methods[method]['histogram']['bin_edges']
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
         mids = 0.5 * (bin_edges[1:] + bin_edges[:-1])
         mean = np.average(mids, weights=bin_counts)
         var = np.average((mids - mean) ** 2, weights=bin_counts)
-        std = np.sqrt(var)
-        return mean, var, std
+        return var
 
-    def _total_histogram_bin_variance(self, input_array, method):
+    def _total_histogram_bin_variance(self, input_array):
         # calculate total variance over all bins of a histogram
-        bin_edges = self.histogram_methods[method]['histogram']['bin_edges']
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
+
+        # account ofr digitize which is exclusive
+        bin_edges = bin_edges.copy()
+        bin_edges[-1] += 1e-3
+
         inds = np.digitize(input_array, bin_edges)
         sum_var = 0
-        for i in range(1, len(bin_edges)):
+        non_zero_bins = np.where(bin_counts)[0] + 1
+        for i in non_zero_bins:
             elements_in_bin = input_array[inds == i]
-            bin_var = elements_in_bin.var() if len(elements_in_bin) > 0 else 0
+            bin_var = elements_in_bin.var()
             sum_var += bin_var
         return sum_var
+
+    def _histogram_bin_error(self, input_array):
+        """
+        Calculate the error of each value from the bin of the histogram it
+        falls within.
+
+        :param input_array: input data used to calculate the histogram
+        :type input_array: Union[np.array, pd.Series]
+        :return: binning error
+        :rtype: float
+        """
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
+
+        # account ofr digitize which is exclusive
+        bin_edges = bin_edges.copy()
+        bin_edges[-1] += 1e-3
+
+        inds = np.digitize(input_array, bin_edges)
+
+        # reset the edge
+        bin_edges[-1] -= 1e-3
+
+        sum_error = sum(
+            (input_array - (bin_edges[inds] + bin_edges[inds - 1])/2) ** 2
+        )
+        return sum_error
 
     @staticmethod
     def _histogram_loss(diff_var, avg_diffvar, total_var,
@@ -298,6 +341,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         current_avg_run_time = current_run_time.mean()
         min_total_loss = np.inf
         selected_method = ''
+        selected_suggested_bin_count = 0
         for method_id, method in enumerate(self.histogram_bin_method_names):
             self.histogram_methods[method]['current_loss'] = \
                 self._histogram_loss(current_diff_var[method_id],
@@ -309,32 +353,51 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.histogram_methods[method]['total_loss'] += \
                 self.histogram_methods[method]['current_loss']
 
-            if min_total_loss > self.histogram_methods[method]['total_loss']:
+            if min_total_loss >= self.histogram_methods[method]['total_loss']:
+                # if same loss and less bins, don't save bc higher resolution
+                if (self.histogram_methods[method]['suggested_bin_count']
+                        <= selected_suggested_bin_count
+                        and min_total_loss ==
+                        self.histogram_methods[method]['total_loss']):
+                    continue
                 min_total_loss = self.histogram_methods[method]['total_loss']
                 selected_method = method
+                selected_suggested_bin_count = \
+                    self.histogram_methods[method]['suggested_bin_count']
 
         return selected_method
 
-    def _histogram_to_array(self, bins):
+    def _histogram_to_array(self):
         # Extend histogram to array format
-        bin_counts = self.histogram_methods[bins]['histogram']['bin_counts']
-        bin_edges = self.histogram_methods[bins]['histogram']['bin_edges']
-        hist_to_array = [[bin_edge] * bin_count for bin_count, bin_edge in
-                         zip(bin_counts[:-1], bin_edges[:-2])]
-        hist_to_array.append([bin_edges[-2]] * int(bin_counts[-1] / 2))
-        hist_to_array.append([bin_edges[-1]] *
-                             (bin_counts[-1] - int(bin_counts[-1] / 2)))
-        array_flatten = [element for sublist in hist_to_array for
-                         element in sublist]
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
+        is_bin_non_zero = bin_counts[:-1] > 0
+        bin_left_edge = bin_edges[:-2][is_bin_non_zero]
+        hist_to_array = [
+            [left_edge] * count for left_edge, count
+            in zip(bin_left_edge, bin_counts[:-1][is_bin_non_zero])
+        ]
+        if not hist_to_array:
+            hist_to_array = [[]]
+
+        array_flatten = np.concatenate(
+            (hist_to_array + [[bin_edges[-2]] * int(bin_counts[-1] / 2)] +
+            [[bin_edges[-1]] * (bin_counts[-1] - int(bin_counts[-1] / 2))]))
+
+        # If we know they are integers, we can limit the data to be as such
+        # during conversion
+        if not self.__class__.__name__ == 'FloatColumn':
+            array_flatten = np.round(array_flatten)
+
         return array_flatten
 
-    def _get_histogram(self, values, bin_method):
+    def _get_histogram(self, values):
         """
-        Get histogram from values and bin method, using np.histogram
-        :param values: input values
-        :type values: np.array or pd.Series
-        :param bin_method: bin method, e.g., sqrt, rice, etc
-        :type bin_method: str
+        Calculates the stored histogram the suggested bin counts for each
+        histogram method, uses np.histogram
+
+        :param values: input data values
+        :type values: Union[np.array, pd.Series]
         :return: bin edges and bin counts
         """
         if len(np.unique(values)) == 1:
@@ -344,25 +407,48 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             else:
                 unique_value = values.iloc[0]
             bin_edges = np.array([unique_value, unique_value])
+            for bin_method in self.histogram_bin_method_names:
+                self.histogram_methods[bin_method]['histogram'][
+                    'bin_counts'] = bin_counts
+                self.histogram_methods[bin_method]['histogram'][
+                    'bin_edges'] = bin_edges
+                self.histogram_methods[bin_method]['suggested_bin_count'] = 1
         else:
-            n_equal_bins = suggested_bin_count = self.user_set_histogram_bin
-            if n_equal_bins is None:
-                values, weights = histogram_utils._ravel_and_check_weights(
-                    values, None)
-                _, n_equal_bins = histogram_utils._get_bin_edges(
-                    values, bin_method, None, None)
-                suggested_bin_count = min(n_equal_bins, self.max_histogram_bin)
-                n_equal_bins = max(self.min_histogram_bin, suggested_bin_count)
+            # if user set the bin count, then use the user set count to
+            n_equal_bins = suggested_bin_count = self.min_histogram_bin
+            if self.user_set_histogram_bin:
+                n_equal_bins = suggested_bin_count = self.user_set_histogram_bin
+
+            if not isinstance(values, np.ndarray):
+                values = np.array(values)
+
+            # loop through all methods to get their suggested bin count for
+            # reporting
+            for i, bin_method in enumerate(self.histogram_bin_method_names):
+                if self.user_set_histogram_bin is None:
+                    _, suggested_bin_count = histogram_utils._get_bin_edges(
+                        values, bin_method, None, None)
+                    suggested_bin_count = min(suggested_bin_count,
+                                              self.max_histogram_bin)
+                    n_equal_bins = max(n_equal_bins, suggested_bin_count)
+                self.histogram_methods[bin_method]['histogram'][
+                    'bin_counts'] = None
+                self.histogram_methods[bin_method]['histogram'][
+                    'bin_edges'] = None
+                self.histogram_methods[bin_method]['suggested_bin_count'] = \
+                    suggested_bin_count
+
+            # calculate the stored histogram bins
             bin_counts, bin_edges = np.histogram(values, bins=n_equal_bins)
         return bin_counts, bin_edges
 
-    def _merge_histogram(self, values, bins):
+    def _merge_histogram(self, values):
         # values is the current array of values,
         # that needs to be updated to the accumulated histogram
-        combined_values = values + self._histogram_to_array(bins)
-        bin_counts, bin_edges = self._get_histogram(combined_values, bins)
-        self.histogram_methods[bins]['histogram']['bin_counts'] = bin_counts
-        self.histogram_methods[bins]['histogram']['bin_edges'] = bin_edges
+        combined_values = np.concatenate([values, self._histogram_to_array()])
+        bin_counts, bin_edges = self._get_histogram(combined_values)
+        self._stored_histogram['histogram']['bin_counts'] = bin_counts
+        self._stored_histogram['histogram']['bin_edges'] = bin_edges
 
     def _update_histogram(self, df_series):
         """
@@ -387,77 +473,165 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if df_series.empty:
             return
 
-        current_est_var = np.zeros(len(self.histogram_bin_method_names))
-        current_exact_var = np.zeros(len(self.histogram_bin_method_names))
-        current_total_var = np.zeros(len(self.histogram_bin_method_names))
-        current_run_time = np.zeros(len(self.histogram_bin_method_names))
-        for i, method in enumerate(self.histogram_bin_method_names):
-            # update histogram for the method
-            start_time = time.time()
-            bin_counts, bin_edges = self._get_histogram(df_series, method)
-            if self.histogram_methods[method]['histogram']['bin_counts'] is None:
-                self.histogram_methods[method]['histogram']['bin_counts'] = bin_counts
-                self.histogram_methods[method]['histogram']['bin_edges'] = bin_edges
-            else:
-                self._merge_histogram(df_series.tolist(), bins=method)
-            run_time = time.time() - start_time
-            # update loss for the method
-            current_est_var[i] = self._estimate_stats_from_histogram(method)[1]
-            current_exact_var = df_series.values.var()
-            current_total_var[i] = self._total_histogram_bin_variance(
-                df_series.values, method)
-            current_run_time[i] = run_time
+        if self._has_histogram:
+            self._merge_histogram(df_series.tolist())
+        else:
+            bin_counts, bin_edges = self._get_histogram(df_series)
+            self._stored_histogram['histogram']['bin_counts'] = bin_counts
+            self._stored_histogram['histogram']['bin_edges'] = bin_edges
 
-        # select the best method and update the total loss
-        selected_method = self._select_method_for_histogram(
-            current_exact_var, current_est_var,
-            current_total_var, current_run_time)
-        self.histogram_selection = selected_method
+        # update loss for the stored bins
+        histogram_loss = self._histogram_bin_error(df_series)
+        self._stored_histogram['current_loss'] = histogram_loss
+        self._stored_histogram['total_loss'] += histogram_loss
+        
+    def _histogram_for_profile(self, histogram_method):
+        """
+        Converts the stored histogram into the presentable state based on the
+        suggested histogram bin count from numpy.histograms. The bin count used
+        is stored in 'suggested_bin_count' for each method.
+        
+        :param histogram_method: method to use for determining the histogram
+            profile
+        :type histogram_method: str
+        :return: histogram bin edges and bin counts
+        :rtype: dict
+        """
+        bin_counts, bin_edges = (
+            self._stored_histogram['histogram']['bin_counts'],
+            self._stored_histogram['histogram']['bin_edges'],
+        )
 
-    def _get_percentile(self, percentile):
+        current_bin_counts, suggested_bin_count = (
+            self.histogram_methods[histogram_method]['histogram']['bin_counts'],
+            self.histogram_methods[histogram_method]['suggested_bin_count'],
+        )
+        
+        # base case, no need to change if it is already correct
+        if not self._has_histogram or current_bin_counts is not None:
+            return (self.histogram_methods[histogram_method]['histogram'],
+                    self.histogram_methods[histogram_method]['total_loss'])
+        elif len(bin_counts) == suggested_bin_count:
+            return (self._stored_histogram['histogram'],
+                    self._stored_histogram['total_loss'])
+
+        # create proper binning
+        new_bin_counts = np.zeros((suggested_bin_count,))
+        new_bin_edges = np.linspace(
+            bin_edges[0], bin_edges[-1], suggested_bin_count + 1)
+        
+        # allocate bin_counts
+        new_bin_id = 0
+        hist_loss = 0
+        for bin_id, bin_count in enumerate(bin_counts):
+            if not bin_count:  # if nothing in bin, nothing to add
+                continue
+
+            bin_edge = bin_edges[bin_id: bin_id + 3]
+
+            # if we know not float, we can assume values in bins are integers.
+            is_float_profile = self.__class__.__name__ == 'FloatColumn'
+            if not is_float_profile:
+                bin_edge = np.round(bin_edge)
+
+            # loop until we have a new bin which contains the current bin.
+            while (bin_edge[0] >= new_bin_edges[new_bin_id + 1]
+                   and new_bin_id < suggested_bin_count - 1):
+                new_bin_id += 1
+
+            new_bin_edge = new_bin_edges[new_bin_id: new_bin_id + 3]
+            
+            # find where the current bin falls within the new bins
+            is_last_bin = new_bin_id == suggested_bin_count -1
+            if bin_edge[1] < new_bin_edge[1] or is_last_bin:
+                # current bin is within the new bin
+                new_bin_counts[new_bin_id] += bin_count
+                hist_loss += ((
+                    (new_bin_edge[1] + new_bin_edge[0])
+                    - (bin_edge[1] + bin_edge[0])) / 2) ** 2 * bin_count
+            elif bin_edge[0] < new_bin_edge[1]:
+                # current bin straddles two of the new bins
+                # get the percentage of bin that falls to the left
+                percentage_in_left_bin = (
+                    (new_bin_edge[1] - bin_edge[0])
+                    / (bin_edge[1] - bin_edge[0])
+                )
+                count_in_left_bin = round(bin_count * percentage_in_left_bin)
+                new_bin_counts[new_bin_id] += count_in_left_bin
+                hist_loss += ((
+                    (new_bin_edge[1] + new_bin_edge[0])
+                    - (bin_edge[1] + bin_edge[0])) / 2) ** 2 * count_in_left_bin
+
+                # allocate leftovers to the right bin
+                new_bin_counts[new_bin_id + 1] += bin_count - count_in_left_bin
+                hist_loss += ((
+                    (new_bin_edge[2] - new_bin_edge[1])
+                    - (bin_edge[1] - bin_edge[0])
+                ) / 2)**2 * (bin_count - count_in_left_bin)
+
+                # increment bin id to the right bin
+                new_bin_id += 1
+
+        return ({'bin_edges': new_bin_edges, 'bin_counts': new_bin_counts},
+                hist_loss)
+
+    def _get_best_histogram_for_profile(self):
+        """
+        Converts the stored histogram into the presentable state based on the
+        suggested histogram bin count from numpy.histograms. The bin count used
+        is stored in 'suggested_bin_count' for each method.
+
+        :return: histogram bin edges and bin counts
+        :rtype: dict
+        """
+        if self.histogram_selection is None:
+            best_hist_loss = np.inf
+            for method in self.histogram_methods:
+                histogram, hist_loss = self._histogram_for_profile(method)
+                self.histogram_methods[method]['histogram'] = histogram
+                self.histogram_methods[method]['current_loss'] = hist_loss
+                self.histogram_methods[method]['total_loss'] += hist_loss
+                if hist_loss < best_hist_loss:
+                    self.histogram_selection = method
+                    best_hist_loss = hist_loss
+        return self.histogram_methods[self.histogram_selection]['histogram']
+
+    def _get_percentile(self, percentiles):
         """
         Get value for the number where the given percentage of values fall below
         it.
 
-        :param percentile: Percentage of values to fall before the value
-        :type percentile: float
-        :return: Value for which the percentage of values in the distribution
-            fall before the percentage
+        :param percentiles: List of percentage of values to fall before the
+            value
+        :type percentiles: list[float]
+        :return: List of corresponding values for which the percentage of values
+            in the distribution fall before each percentage
         """
-        selected_method = self.histogram_selection
-        bin_counts = \
-            self.histogram_methods[selected_method]['histogram']['bin_counts']
-        bin_edges = \
-            self.histogram_methods[selected_method]['histogram']['bin_edges']
-        num_edges = len(bin_edges)
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
 
-        if percentile == 100:
-            return bin_edges[-1]
-        percentile = float(percentile) / 100
+        zero_inds = bin_counts == 0
 
-        accumulated_count = 0
         bin_counts = bin_counts.astype(float)
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
+        cumsum_bin_counts = np.cumsum(normalized_bin_counts)
 
-        bin_id = -1
-        # keep updating the total counts until it is
-        # close to the designated percentile
-        while accumulated_count < percentile:
-            bin_id += 1
-            accumulated_count += normalized_bin_counts[bin_id]
+        median_value = None
+        median_bin_inds = cumsum_bin_counts == 0.5
+        if np.sum(median_bin_inds) > 1:
+            median_value = np.mean(bin_edges[np.append([False], median_bin_inds)])
 
-        if accumulated_count == percentile:
-            if (num_edges % 2) == 0:
-                return 0.5 * (bin_edges[bin_id] + bin_edges[bin_id + 1])
-            else:
-                return bin_edges[bin_id + 1]
-        else:
-            if bin_id == 0:
-                return 0.5 * (bin_edges[0] + bin_edges[1])
-            if (num_edges % 2) == 0:
-                return 0.5 * (bin_edges[bin_id - 1] + bin_edges[bin_id])
-            else:
-                return bin_edges[bin_id]
+        # use the floor by slightly increasing cases where no bin exist.
+        cumsum_bin_counts[zero_inds] += 1e-15
+
+        # add initial zero bin
+        cumsum_bin_counts = np.append([0], cumsum_bin_counts)
+
+        quantiles = np.interp(percentiles / 100,
+                              cumsum_bin_counts, bin_edges).tolist()
+        if median_value:
+            quantiles[499] = median_value
+        return quantiles
 
     def _get_quantiles(self):
         """
@@ -466,10 +640,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         :return: list of quantiles
         """
-        size_bins = 100 / len(self.quantiles)
-        for bin_num in range(len(self.quantiles) - 1):
-            self.quantiles[bin_num] = self._get_percentile(
-                percentile=((bin_num + 1) * size_bins))
+        percentiles = np.linspace(0, 100, len(self.quantiles) + 2)[1:-1]
+        self.quantiles = self._get_percentile(
+            percentiles=percentiles)
 
     def _update_helper(self, df_series_clean, profile):
         """
@@ -535,7 +708,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                                      subset_properties):
         try:
             self._update_histogram(df_series)
-            if self.histogram_selection is not None:
+            self.histogram_selection = None
+            if self._has_histogram:
                 self._get_quantiles()
         except BaseException:
             warnings.warn(

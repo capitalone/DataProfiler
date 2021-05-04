@@ -28,6 +28,9 @@ class TextProfiler(object):
         # TODO: Add line length
         #self.line_length = {'max': None, 'min': None,...} #numeric stats mixin?
 
+        if options:
+            options.validate()
+
         self._is_case_sensitive = True
         if options:
             self._is_case_sensitive = options.is_case_sensitive
@@ -92,11 +95,22 @@ class TextProfiler(object):
             'hereupon', 'done', 'against', 'get', 'behind', 'several', 'anyone',
             'seeming', "shoulve"}
 
+        if options and options.stop_words:
+            self._stop_words = options.stop_words
 
-        self.__calculations = {
-            "vocab": TextProfiler._update_vocab,
-            "words": TextProfiler._update_words,
-        }
+        self.__calculations = {}
+        if options:
+            if options.vocab.is_enabled:
+                self.__calculations.update(
+                    {"vocab": TextProfiler._update_vocab})
+            if options.words.is_enabled:
+                self.__calculations.update(
+                    {"words": TextProfiler._update_words})
+        else:
+            self.__calculations = {
+                "vocab": TextProfiler._update_vocab,
+                "words": TextProfiler._update_words,
+            }
         BaseColumnProfiler._filter_properties_w_options(self.__calculations, options)
 
     def _merge_words(self, other, merged_profile):

@@ -761,3 +761,67 @@ class ProfilerOptions(BaseOption):
             variable_path=variable_path + '.structured_options')
 
         return errors
+
+
+class TextProfilerOptions(BaseOption):
+    def __init__(self):
+        """
+        Constructs the TextProfilerOption object with default values.
+
+        :ivar is_case_sensitive: option set for case sensitivity.
+        :vartype is_case_sensitive: bool
+        :ivar stop_words: option set for stop words.
+        :vartype stop_words: Union[None, list(str)]
+        :ivar words: option set for word update.
+        :vartype words: BooleanOption
+        :ivar vocab: option set for vocab update.
+        :vartype vocab: BooleanOption
+        """
+        self.is_case_sensitive = True
+        self.stop_words = None
+        self.words = BooleanOption(is_enabled=True)
+        self.vocab = BooleanOption(is_enabled=True)
+
+    def is_prop_enabled(self, prop):
+        """
+        Checks to see if a property is enabled or not and returns boolean.
+
+        :param prop: The option to check if it is enabled
+        :type prop: String
+        :return: Whether or not the property is enabled
+        :rtype: Boolean
+        """
+        return BaseColumnOptions.is_prop_enabled(self, prop)
+
+    def _validate_helper(self, variable_path='TextProfilerOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = []
+        if not isinstance(self.is_case_sensitive, bool):
+            errors.append("{}.is_case_sensitive must be a Boolean."
+                          .format(variable_path))
+
+        if self.stop_words is not None and \
+                (not isinstance(self.stop_words, list)
+                 or len(self.stop_words) < 1
+                 or not all(
+                    [isinstance(item, str) for item in self.stop_words])):
+            errors.append("{}.stop_words must be None "
+                              "or list of strings.".format(variable_path))
+
+        if not isinstance(self.words, BooleanOption):
+            errors.append("{}.words must be a BooleanOption "
+                          "object."
+                          .format(variable_path))
+
+        if not isinstance(self.vocab, BooleanOption):
+            errors.append("{}.vocab must be a BooleanOption "
+                          "object."
+                          .format(variable_path))
+        return errors

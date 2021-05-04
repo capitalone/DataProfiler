@@ -809,7 +809,6 @@ class TextProfilerOptions(BaseOption):
 
         if self.stop_words is not None and \
                 (not isinstance(self.stop_words, list)
-                 or len(self.stop_words) < 1
                  or not all(
                     [isinstance(item, str) for item in self.stop_words])):
             errors.append("{}.stop_words must be None "

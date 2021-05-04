@@ -251,6 +251,17 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, profile['word_count'])
         self.assertCountEqual(expected_vocab, profile['vocab'])
 
+        options = TextProfilerOptions()
+        options.stop_words = [] # empty list of stopwords
+
+        text_profile = TextProfiler("Name", options=options)
+        sample = pd.Series(["This is test"])
+        text_profile.update(sample)
+        profile = text_profile.profile
+
+        expected_word_count = {'This': 1, 'is': 1, 'test': 1}
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+
         # words enabled options
         options = TextProfilerOptions()
         options.words.is_enabled = False

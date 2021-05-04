@@ -95,7 +95,7 @@ class TextProfiler(object):
             'hereupon', 'done', 'against', 'get', 'behind', 'several', 'anyone',
             'seeming', "shoulve"}
 
-        if options and options.stop_words:
+        if options and options.stop_words is not None:
             self._stop_words = options.stop_words
 
         self.__calculations = {}

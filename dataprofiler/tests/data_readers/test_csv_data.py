@@ -59,7 +59,7 @@ class TestCSVDataClass(unittest.TestCase):
                  count=6, delimiter=None, has_header=[0],
                  num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/names-col-empty.txt'),
-                 count=6, delimiter=None, has_header=[0],
+                 count=33, delimiter=None, has_header=[0],
                  num_columns=1, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/log_data_long.txt'),
                  count=753, delimiter=',', has_header=[None],
@@ -119,7 +119,7 @@ class TestCSVDataClass(unittest.TestCase):
                  count=10, delimiter=',', has_header=[0],
                  num_columns=4, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/all-strings-skip-header.csv'),
-                 count=9, delimiter=',', has_header=[1],
+                 count=10, delimiter=',', has_header=[1],
                  num_columns=4, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/all-strings-skip-header-author.csv'),
                  count=5, delimiter=',', has_header=[1],
@@ -147,7 +147,16 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=4, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/preferred-check-small-num.csv'),
                  count=5, delimiter=',', has_header=[None],
-                 num_columns=2, encoding='utf-8')
+                 num_columns=2, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-empty-first-row.txt'),
+                 count=9, delimiter=',', has_header=[1],
+                 num_columns=3, encoding='utf-8'),            
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-header-and-author.txt'),
+                 count=9, delimiter=',', has_header=[1],
+                 num_columns=3, encoding='utf-8'),            
+            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-header-and-author-description.txt'),
+                 count=9, delimiter=',', has_header=[3],
+                 num_columns=3, encoding='utf-8'),            
         ]
         cls.output_file_path = None
         
@@ -207,6 +216,7 @@ class TestCSVDataClass(unittest.TestCase):
             self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
             self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
                              input_file['path'])
+            self.assertEqual(input_file['path'], input_data_obj.input_file_path)
 
     def test_allowed_data_formats(self):
         """
@@ -287,21 +297,7 @@ class TestCSVDataClass(unittest.TestCase):
 
         # add some more files to the list to test the header detection
         # these files have some first lines which are not the header
-        test_dir = os.path.join(test_root_path, 'data')
-        file_with_header_and_authors = [
-            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-header-and-author.txt'),
-                 count=6, delimiter=',', has_header=[1],
-                 num_columns=3, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-header-and-author-description.txt'),
-                 count=6, delimiter=',', has_header=[3],
-                 num_columns=3, encoding='utf-8'),
-            dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-empty-first-row.txt'),
-                 count=11, delimiter=',', has_header=[1],
-                 num_columns=3, encoding='utf-8'),
-        ]
-
-        input_file_names = self.input_file_names[:]
-        input_file_names += file_with_header_and_authors
+        input_file_names = self.input_file_names
         for input_file in input_file_names:
             file_encoding = data_utils.detect_file_encoding(input_file['path'])
             with open(input_file['path'], encoding=file_encoding) as csvfile:
@@ -321,24 +317,49 @@ class TestCSVDataClass(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, expected_error):
                     CSVData(options={option: value})
 
-        _test_options("header", valid = ["auto", None, 0, 1],
-                      invalid = ["error", CSVData(), -1],
-                      expected_error = '`header` must be one of following: auto, ')
+        _test_options(
+            "header", valid=["auto", None, 0, 1],
+            invalid=["error", CSVData(), -1],
+            expected_error='`header` must be one of following: auto, ')
         
-        _test_options("delimiter", valid = [',', '\t', '', None],
-                      invalid = [CSVData(), 1],
-                      expected_error="'delimiter' must be a string or None")    
+        _test_options(
+            "delimiter", valid=[',', '\t', '', None],
+            invalid=[CSVData(), 1],
+            expected_error="'delimiter' must be a string or None")
         
-        _test_options("data_format", valid = ['dataframe', 'records'],
-                      invalid = ["error", CSVData(), 1, None],
-                      expected_error = "'data_format' must be one of the following: ") 
+        _test_options(
+            "data_format", valid=['dataframe', 'records'],
+            invalid=["error", CSVData(), 1, None],
+            expected_error="'data_format' must be one of the following: ")
         
-        _test_options("selected_columns", valid = [['hello', 'world'], ["test"], []],
-                      invalid = ["error", CSVData(), 1, None],
-                      expected_error = "'selected_columns' must be a list") 
+        _test_options(
+            "selected_columns", valid=[['hello', 'world'], ["test"], []],
+            invalid=["error", CSVData(), 1, None],
+            expected_error="'selected_columns' must be a list")
         
-        _test_options("selected_columns", valid = [], invalid = [[0,1,2,3]],
-                      expected_error = "'selected_columns' must be a list of strings")
+        _test_options(
+            "selected_columns", valid=[], invalid=[[0, 1, 2, 3]],
+            expected_error="'selected_columns' must be a list of strings")
+
+        _test_options(
+            "record_samples_per_line", valid=[1, 10],
+            invalid=[[-1, int, '', None, dict()]],
+            expected_error="'record_samples_per_line' must be an int more than "
+                           "0")
+
+        # test edge case for header being set
+        file = self.input_file_names[0]
+        filepath = file['path']
+        expected_header_value = file['has_header'][0]
+        options = {'header': 'auto', 'delimiter': ','}  # default values
+        data = CSVData(options=options)
+        self.assertEqual('auto', data.header)
+        self.assertFalse(data._checked_header)
+
+        data = CSVData(filepath, options=options)
+        retrieve_data = data.data
+        self.assertEqual(expected_header_value, data.header)
+        self.assertTrue(data._checked_header)
 
     def test_len_data(self):
         """

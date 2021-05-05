@@ -21,10 +21,20 @@ class UnstructuredLabelerProfile(object):
         # initializing a UnstructuredDataLabeler as well as the entity counts
         # statistic:
         self.options = options
-        self._data_labeler = DataLabeler(
-            labeler_type='unstructured',
-            dirpath=data_labeler_dirpath,
-            load_options=None)
+
+        self._data_labeler = None
+        if options and options.data_labeler_object:
+            self._data_labeler = options.data_labeler_object
+        if self._data_labeler is None:
+            data_labeler_dirpath = None
+            if options:
+                data_labeler_dirpath = options.data_labeler_dirpath
+
+            self._data_labeler = DataLabeler(
+                labeler_type='unstructured',
+                dirpath=data_labeler_dirpath,
+                load_options=None)
+
         self.entity_counts = dict(
             word_level=defaultdict(int),
             true_char_level=defaultdict(int),

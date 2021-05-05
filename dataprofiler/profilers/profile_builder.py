@@ -424,7 +424,7 @@ class StructuredDataProfile(object):
             sample_ind_generator.close()
 
         # If min_true_samples exists, sort
-        if min_true_samples > 0:
+        if min_true_samples > 0 or sample_ids is None:
             true_sample_list = sorted(true_sample_list)
 
         # Split out true values for later utilization

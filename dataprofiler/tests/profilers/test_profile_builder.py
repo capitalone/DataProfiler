@@ -553,15 +553,16 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         # previously `iloc` was used at:
         # `df_series = df_series.loc[sorted(true_sample_list)]`
         # which caused errors
+        test_utils.set_seed(seed=0)
         df_series, base_stats = \
             StructuredDataProfile.clean_data_and_get_base_stats(
                 df_series=data[1:], sample_size=6, min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
-        self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
-                               'sample_size': 5, 'null_count': 2,
-                               'null_types': dict(nan=['e', 'b']),
-                               'min_id': None, 'max_id': None}, base_stats)
+        self.assertDictEqual({'sample': ['4.0', '6.0', '3.0'],
+                              'sample_size': 5, 'null_count': 2,
+                              'null_types': dict(nan=['e', 'b']),
+                              'min_id': None, 'max_id': None}, base_stats)
 
     def test_column_names(self):
         data = [['a', 1], ['b', 2], ['c', 3]]

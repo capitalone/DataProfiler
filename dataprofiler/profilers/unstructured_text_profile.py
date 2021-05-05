@@ -265,8 +265,8 @@ class TextProfiler(object):
         """
         Updates the column profile.
 
-        :param df_series: df series
-        :type df_series: pandas.core.series.Series
+        :param data: df series
+        :type data: pandas.core.series.Series
         :return: None
         """
         len_data = len(data)

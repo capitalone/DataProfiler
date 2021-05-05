@@ -246,9 +246,13 @@ class UnstructuredCompiler(BaseCompiler):
     @property
     def profile(self):
         profile = {
-            "data_label":
-                self._profiles[UnstructuredLabelerProfile.type].profile,
-            "statistics":
-                self._profiles[TextProfiler.type].profile
+            "data_label": dict(),
+            "statistics": dict()
         }
+        if UnstructuredLabelerProfile.type in self._profiles:
+            profile["data_label"] = \
+                self._profiles[UnstructuredLabelerProfile.type].profile
+        if TextProfiler.type in self._profiles:
+            profile["statistics"] = \
+                self._profiles[TextProfiler.type].profile
         return profile

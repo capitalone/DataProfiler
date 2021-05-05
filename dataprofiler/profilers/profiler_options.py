@@ -769,6 +769,8 @@ class TextProfilerOptions(BaseInspectorOptions):
         """
         Constructs the TextProfilerOption object with default values.
 
+        :ivar is_enabled: boolean option to enable/disable the option.
+        :vartype is_enabled: bool
         :ivar is_case_sensitive: option set for case sensitivity.
         :vartype is_case_sensitive: bool
         :ivar stop_words: option set for stop words.

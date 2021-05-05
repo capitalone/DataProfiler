@@ -166,6 +166,12 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                                    'friends': 1}
             self.assertDictEqual(expected_word_count, profile['word_count'])
 
+    def test_text_profile_with_wrong_options(self):
+        with self.assertRaisesRegex(ValueError,
+                "TextProfiler parameter 'options' must be of type"
+                " TextProfilerOptions."):
+            TextProfiler("Name", options="wrong_data_type")
+
     def test_options_default(self):
         options = TextProfilerOptions()
 

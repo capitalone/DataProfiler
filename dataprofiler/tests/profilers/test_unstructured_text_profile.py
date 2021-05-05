@@ -3,6 +3,7 @@ import unittest
 import pandas as pd
 
 from dataprofiler.profilers.unstructured_text_profile import TextProfiler
+from dataprofiler.profilers.profiler_options import TextProfilerOptions
 
 
 class TestUnstructuredTextProfile(unittest.TestCase):
@@ -164,4 +165,89 @@ class TestUnstructuredTextProfile(unittest.TestCase):
             expected_word_count = {'hello': 1, 'name': 1, 'grant': 2, 'bob': 1,
                                    'friends': 1}
             self.assertDictEqual(expected_word_count, profile['word_count'])
-        
+
+    def test_options_default(self):
+        options = TextProfilerOptions()
+
+        text_profile = TextProfiler("Name", options=options)
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        text_profile.update(sample)
+        profile = text_profile.profile
+
+        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
+        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
+                          'e', 't', 'n', 'c']
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+        self.assertCountEqual(expected_vocab, profile['vocab'])
+
+    def test_options_case_sensitive(self):
+        options = TextProfilerOptions()
+        options.is_case_sensitive = False
+
+        text_profile = TextProfiler("Name", options=options)
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        text_profile.update(sample)
+        profile = text_profile.profile
+
+        expected_word_count = {'sentence': 1, 'test': 2}
+        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
+                          'e', 't', 'n', 'c']
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+        self.assertCountEqual(expected_vocab, profile['vocab'])
+
+    def test_options_stop_words(self):
+        # with a list of stopwords
+        options = TextProfilerOptions()
+        options.stop_words = ['hello', 'sentence', 'is', 'a']
+
+        text_profile = TextProfiler("Name", options=options)
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        text_profile.update(sample)
+        profile = text_profile.profile
+
+        expected_word_count = {'This': 1, 'Test': 1, 'test': 1}
+        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
+                          'e', 't', 'n', 'c']
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+        self.assertCountEqual(expected_vocab, profile['vocab'])
+
+        # with an empty list
+        options = TextProfilerOptions()
+        options.stop_words = []
+
+        text_profile = TextProfiler("Name", options=options)
+        sample = pd.Series(["This is test"])
+        text_profile.update(sample)
+        profile = text_profile.profile
+
+        expected_word_count = {'This': 1, 'is': 1, 'test': 1}
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+
+    def test_options_words_update(self):
+        options = TextProfilerOptions()
+        options.words.is_enabled = False
+
+        text_profile = TextProfiler("Name", options=options)
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        text_profile.update(sample)
+        profile = text_profile.profile
+
+        expected_word_count = {}
+        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
+                          'e', 't', 'n', 'c']
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+        self.assertCountEqual(expected_vocab, profile['vocab'])
+
+    def test_options_vocab_update(self):
+        options = TextProfilerOptions()
+        options.vocab.is_enabled = False
+
+        text_profile = TextProfiler("Name", options=options)
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        text_profile.update(sample)
+        profile = text_profile.profile
+
+        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
+        expected_vocab = []
+        self.assertDictEqual(expected_word_count, profile['word_count'])
+        self.assertCountEqual(expected_vocab, profile['vocab'])

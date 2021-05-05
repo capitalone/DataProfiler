@@ -4,6 +4,7 @@ import re
 import warnings
 
 from . import utils, BaseColumnProfiler
+from .profiler_options import TextProfilerOptions
 
 
 class TextProfiler(object):
@@ -28,8 +29,9 @@ class TextProfiler(object):
         # TODO: Add line length
         #self.line_length = {'max': None, 'min': None,...} #numeric stats mixin?
 
-        if options:
-            options.validate()
+        if options and not isinstance(options, TextProfilerOptions):
+            raise ValueError("TextProfiler parameter 'options' must be of type"
+                             " TextProfilerOptions.")
 
         self._is_case_sensitive = True
         if options:

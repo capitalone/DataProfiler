@@ -1,143 +1,138 @@
-import unittest
-
-import pandas as pd
-
-from dataprofiler.profilers.unstructured_text_profile import TextProfiler
-from dataprofiler.profilers.profiler_options import TextProfilerOptions
+from dataprofiler.profilers.profiler_options import TextProfilerOptions, \
+    BooleanOption
+from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options \
+     import TestBaseInspectorOptions
 
 
-class TestUnstructuredTextProfileOptions(unittest.TestCase):
+class TestTextProfilerOptions(TestBaseInspectorOptions):
 
-    def test_options_validation(self):
-        """
-        Option check for the invalid values
-        :return:
-        """
-        # case sensitive
-        options_case_sensitive = [2, 'string']
-        for option_case_sensitive in options_case_sensitive:
-            options = TextProfilerOptions()
-            options.is_case_sensitive = option_case_sensitive
-            with self.assertRaisesRegex(
-                    ValueError,
-                    "TextProfilerOptions.is_case_sensitive must be a Boolean."):
-                TextProfiler("Name", options=options)
+    option_class = TextProfilerOptions
+    keys = []
 
-        # stop words
-        options_stop_words = [2, 'a', [1, 2]]
-        for option_stop_words in options_stop_words:
-            options = TextProfilerOptions()
-            options.stop_words = option_stop_words
-            with self.assertRaisesRegex(
-                    ValueError,
-                    "TextProfilerOptions.stop_words must be None "
-                    "or list of strings."):
-                TextProfiler("Name", options=options)
+    def test_init(self):
+        option = self.get_options()
+        self.assertTrue(option.is_enabled)
+        self.assertTrue(option.is_case_sensitive)
+        self.assertIsNone(option.stop_words)
+        self.assertTrue(option.words.is_enabled)
+        self.assertTrue(option.vocab.is_enabled)
 
-        # words update
-        options_words = [2, True]
-        for option_words in options_words:
-            options = TextProfilerOptions()
-            options.words = option_words
-            with self.assertRaisesRegex(
-                    ValueError,
-                    "TextProfilerOptions.words must be a BooleanOption "
-                    "object."):
-                TextProfiler("Name", options=options)
+    def test_set_helper(self):
+        option = self.get_options()
 
-        # vocab update
-        options_vocab = [2, True]
-        for option_vocab in options_vocab:
-            options = TextProfilerOptions()
-            options.vocab = option_vocab
-            with self.assertRaisesRegex(
-                    ValueError,
-                    "TextProfilerOptions.vocab must be a BooleanOption "
-                    "object."):
-                TextProfiler("Name", options=options)
+        # validate, variable path being passed
+        expected_error = ("type object 'test.is_case_sensitive' has no "
+                          "attribute 'is_enabled'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option._set_helper({'is_case_sensitive.is_enabled': True}, 'test')
 
-    def test_options_default(self):
-        options = TextProfilerOptions()
+        expected_error = ("type object 'test.stop_words' has no "
+                          "attribute 'is_enabled'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option._set_helper({'stop_words.is_enabled': True}, 'test')
 
-        text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
-        text_profile.update(sample)
-        profile = text_profile.profile
+    def test_set(self):
+        option = self.get_options()
 
-        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
-        self.assertDictEqual(expected_word_count, profile['word_count'])
-        self.assertCountEqual(expected_vocab, profile['vocab'])
+        params_to_check = [
+            dict(prop='is_enabled', value_list=[False, True]),
+            dict(prop='is_case_sensitive', value_list=[False, True]),
+            dict(prop='stop_words',
+                 value_list=[None, ['word1', 'word2'], []]),
+            dict(prop='words', value_list=[False, True]),
+            dict(prop='vocab', value_list=[False, True]),
+        ]
 
-    def test_options_case_sensitive(self):
-        options = TextProfilerOptions()
-        options.is_case_sensitive = False
+        # this code can be abstracted to limit code everywhere else
+        # AKA, params_to_check would be the only needed code plus raise errors
+        def _assert_set_helper(prop, value):
+            if prop not in ['words', 'vocab']:
+                option.set({prop: value})
+                self.assertEqual(value, getattr(option, prop), msg=prop)
+            else:
+                prop_enable = '{}.is_enabled'.format(prop)
+                option.set({prop_enable: value})
+                self.assertEqual(value, option.properties[prop].is_enabled,
+                                 msg=prop)
 
-        text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
-        text_profile.update(sample)
-        profile = text_profile.profile
+        for params in params_to_check:
+            prop, value_list = params['prop'], params['value_list']
+            for value in value_list:
+                _assert_set_helper(prop, value)
 
-        expected_word_count = {'sentence': 1, 'test': 2}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
-        self.assertDictEqual(expected_word_count, profile['word_count'])
-        self.assertCountEqual(expected_vocab, profile['vocab'])
+        # Treat is_case_sensitive and stop_words as BooleanOption
+        expected_error = ("type object 'is_case_sensitive' has no attribute "
+                          "'is_enabled'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option.set({'is_case_sensitive.is_enabled': True})
 
-    def test_options_stop_words(self):
-        # with a list of stopwords
-        options = TextProfilerOptions()
-        options.stop_words = ['hello', 'sentence', 'is', 'a']
+        expected_error = ("type object 'stop_words' has no attribute "
+                          "'is_enabled'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option.set({'stop_words.is_enabled': True})
 
-        text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
-        text_profile.update(sample)
-        profile = text_profile.profile
+    def test_validate_helper(self):
+        super(TestTextProfilerOptions, self).test_validate_helper()
 
-        expected_word_count = {'This': 1, 'Test': 1, 'test': 1}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
-        self.assertDictEqual(expected_word_count, profile['word_count'])
-        self.assertCountEqual(expected_vocab, profile['vocab'])
+    def test_validate(self):
 
-        # with an empty list
-        options = TextProfilerOptions()
-        options.stop_words = []
+        super(TestTextProfilerOptions, self).test_validate()
 
-        text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test"])
-        text_profile.update(sample)
-        profile = text_profile.profile
+        params_to_check = [
+            # non errors
+            dict(prop='is_enabled', value_list=[False, True], errors=[]),
+            dict(prop='is_case_sensitive', value_list=[False, True], errors=[]),
+            dict(prop='stop_words',
+                 value_list=[None, ['word1', 'word2'], []],
+                 errors=[]),
+            dict(prop='words', value_list=[False, True], errors=[]),
+            dict(prop='vocab', value_list=[False, True], errors=[]),
 
-        expected_word_count = {'This': 1, 'is': 1, 'test': 1}
-        self.assertDictEqual(expected_word_count, profile['word_count'])
+            # errors
+            dict(prop='stop_words',
+                 value_list=[2, 'a', [1, 2]],
+                 errors=[
+                     "TextProfilerOptions.stop_words must be None "
+                     "or list of strings."
+                 ]),
+        ]
 
-    def test_options_words_update(self):
-        options = TextProfilerOptions()
-        options.words.is_enabled = False
+        # # this code can be abstracted to limit code everywhere else
+        # # AKA, for loop below could be abstracted to a utils func
 
-        text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
-        text_profile.update(sample)
-        profile = text_profile.profile
+        # Default configuration is valid
+        option = self.get_options()
+        self.assertIsNone(option.validate(raise_error=False))
 
-        expected_word_count = {}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
-        self.assertDictEqual(expected_word_count, profile['word_count'])
-        self.assertCountEqual(expected_vocab, profile['vocab'])
+        for params in params_to_check:
+            prop, value_list, expected_errors = (
+                params['prop'], params['value_list'], params['errors']
+            )
+            option = self.get_options()
+            for value in value_list:
+                if prop not in ['words', 'vocab']:
+                    setattr(option, prop, value)
+                else:
+                    prop_enable = '{}.is_enabled'.format(prop)
+                    setattr(option, prop_enable, value)
 
-    def test_options_vocab_update(self):
-        options = TextProfilerOptions()
-        options.vocab.is_enabled = False
+                validate_errors = option.validate(raise_error=False)
+                if expected_errors:
+                    self.assertListEqual(
+                        expected_errors,
+                        validate_errors,
+                        msg='Errored for prop: {}, value: {}.'.format(prop,
+                                                                      value))
+                else:
+                    self.assertIsNone(
+                        validate_errors,
+                        msg='Errored for prop: {}, value: {}.'.format(prop,
+                                                                      value))
 
-        text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
-        text_profile.update(sample)
-        profile = text_profile.profile
-
-        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
-        expected_vocab = []
-        self.assertDictEqual(expected_word_count, profile['word_count'])
-        self.assertCountEqual(expected_vocab, profile['vocab'])
+        # this time testing raising an error
+        option.stop_words = 'fake word'
+        expected_error = (
+            "TextProfilerOptions.stop_words must be None "
+            "or list of strings.")
+        with self.assertRaisesRegex(ValueError, expected_error):
+            option.validate()

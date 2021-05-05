@@ -166,8 +166,15 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                                    'friends': 1}
             self.assertDictEqual(expected_word_count, profile['word_count'])
 
+
+class TestUnstructuredTextProfileOptions(unittest.TestCase):
+
     def test_options_validation(self):
-        # option check for the invalid values
+        """
+        Option check for the invalid values
+        :return:
+        """
+        # case sensitive
         options_case_sensitive = [2, 'string']
         for option_case_sensitive in options_case_sensitive:
             options = TextProfilerOptions()
@@ -177,6 +184,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                     "TextProfilerOptions.is_case_sensitive must be a Boolean."):
                 TextProfiler("Name", options=options)
 
+        # stop words
         options_stop_words = [2, 'a', [1, 2]]
         for option_stop_words in options_stop_words:
             options = TextProfilerOptions()
@@ -187,6 +195,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                               "or list of strings."):
                 TextProfiler("Name", options=options)
 
+        # words update
         options_words = [2, True]
         for option_words in options_words:
             options = TextProfilerOptions()
@@ -197,6 +206,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                           "object."):
                 TextProfiler("Name", options=options)
 
+        # vocab update
         options_vocab = [2, True]
         for option_vocab in options_vocab:
             options = TextProfilerOptions()
@@ -207,8 +217,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                     "object."):
                 TextProfiler("Name", options=options)
 
-    def test_options_different_values(self):
-        # default options
+    def test_options_default(self):
         options = TextProfilerOptions()
 
         text_profile = TextProfiler("Name", options=options)
@@ -222,7 +231,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, profile['word_count'])
         self.assertCountEqual(expected_vocab, profile['vocab'])
 
-        # is_case_sensitive options
+    def test_options_case_sensitive(self):
         options = TextProfilerOptions()
         options.is_case_sensitive = False
 
@@ -237,7 +246,8 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, profile['word_count'])
         self.assertCountEqual(expected_vocab, profile['vocab'])
 
-        # stop_words options
+    def test_options_stop_words(self):
+        # with a list of stopwords
         options = TextProfilerOptions()
         options.stop_words = ['hello', 'sentence', 'is', 'a']
 
@@ -252,8 +262,9 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, profile['word_count'])
         self.assertCountEqual(expected_vocab, profile['vocab'])
 
+        # with an empty list
         options = TextProfilerOptions()
-        options.stop_words = [] # empty list of stopwords
+        options.stop_words = []
 
         text_profile = TextProfiler("Name", options=options)
         sample = pd.Series(["This is test"])
@@ -263,7 +274,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         expected_word_count = {'This': 1, 'is': 1, 'test': 1}
         self.assertDictEqual(expected_word_count, profile['word_count'])
 
-        # words enabled options
+    def test_options_words_update(self):
         options = TextProfilerOptions()
         options.words.is_enabled = False
 
@@ -278,7 +289,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, profile['word_count'])
         self.assertCountEqual(expected_vocab, profile['vocab'])
 
-        # vocab enabled options
+    def test_options_vocab_update(self):
         options = TextProfilerOptions()
         options.vocab.is_enabled = False
 

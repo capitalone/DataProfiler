@@ -765,7 +765,8 @@ class ProfilerOptions(BaseOption):
 
 class TextProfilerOptions(BaseInspectorOptions):
 
-    def __init__(self, is_enabled=True):
+    def __init__(self, is_enabled=True, is_case_sensitive=True,
+                 stop_words=None):
         """
         Constructs the TextProfilerOption object with default values.
 
@@ -780,8 +781,8 @@ class TextProfilerOptions(BaseInspectorOptions):
         :ivar vocab: option set for vocab update.
         :vartype vocab: BooleanOption
         """
-        self.is_case_sensitive = True
-        self.stop_words = None
+        self.is_case_sensitive = is_case_sensitive
+        self.stop_words = stop_words
         self.words = BooleanOption(is_enabled=True)
         self.vocab = BooleanOption(is_enabled=True)
         super().__init__(is_enabled=is_enabled)

@@ -7,7 +7,7 @@ from ..labelers.data_processing import CharPostprocessor
 
 class UnstructuredLabelerProfile(object):
 
-    type = 'text_labeling'
+    type = "data_labeler"
 
     def __init__(self, data_labeler_dirpath=None, options=None):
         """

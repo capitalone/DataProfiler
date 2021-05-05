@@ -246,14 +246,13 @@ class TextProfiler(object):
                         word = word_lower
                     self.word_count[word] += 1
 
-
     def _update_helper(self, data, profile):
         """
         Method for updating the column profile properties with a cleaned
         dataset and the known null parameters of the dataset.
 
-        :param df_series_clean: df series with nulls removed
-        :type df_series_clean: pandas.core.series.Series
+        :param data: df series with nulls removed
+        :type data: pandas.core.series.Series
         :param profile: text profile dictionary
         :type profile: dict
         :return: None

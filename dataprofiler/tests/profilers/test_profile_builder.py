@@ -3,7 +3,6 @@ from __future__ import print_function
 import unittest
 from unittest import mock
 from io import BytesIO
-import builtins
 import random
 import six
 import os

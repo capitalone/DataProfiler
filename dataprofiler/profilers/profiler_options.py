@@ -184,18 +184,18 @@ class HistogramOption(BooleanOption):
         return errors
 
 
-class BaseColumnOptions(BooleanOption):
+class BaseInspectorOptions(BooleanOption):
 
-    def __init__(self):
+    def __init__(self, is_enabled=True):
         """
         Base options for all the columns.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        super().__init__(is_enabled=True)
+        super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path='BaseColumnOptions'):
+    def _validate_helper(self, variable_path='BaseInspectorOptions'):
         """
         Validates the options do not conflict and cause errors.
 
@@ -227,7 +227,7 @@ class BaseColumnOptions(BooleanOption):
         return is_enabled
 
 
-class NumericalOptions(BaseColumnOptions):
+class NumericalOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -255,7 +255,7 @@ class NumericalOptions(BaseColumnOptions):
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     @property
     def is_numeric_stats_enabled(self):
@@ -501,7 +501,7 @@ class TextOptions(NumericalOptions):
         return errors
 
 
-class DateTimeOptions(BaseColumnOptions):
+class DateTimeOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -510,7 +510,7 @@ class DateTimeOptions(BaseColumnOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     def _validate_helper(self, variable_path='DateTimeOptions'):
         """
@@ -524,7 +524,7 @@ class DateTimeOptions(BaseColumnOptions):
         return super()._validate_helper(variable_path) 
 
 
-class OrderOptions(BaseColumnOptions):
+class OrderOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -533,7 +533,7 @@ class OrderOptions(BaseColumnOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     def _validate_helper(self, variable_path='OrderOptions'):
         """
@@ -547,7 +547,7 @@ class OrderOptions(BaseColumnOptions):
         return super()._validate_helper(variable_path) 
 
 
-class CategoricalOptions(BaseColumnOptions):
+class CategoricalOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -556,7 +556,7 @@ class CategoricalOptions(BaseColumnOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     def _validate_helper(self, variable_path='CategoricalOptions'):
         """
@@ -570,7 +570,7 @@ class CategoricalOptions(BaseColumnOptions):
         return super()._validate_helper(variable_path) 
 
 
-class DataLabelerOptions(BaseColumnOptions):
+class DataLabelerOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -583,7 +583,7 @@ class DataLabelerOptions(BaseColumnOptions):
         :ivar max_sample_size: Int to decide sample size
         :vartype max_sample_size: int
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
         self.data_labeler_dirpath = None
         self.max_sample_size = None
         self.data_labeler_object = None
@@ -760,4 +760,65 @@ class ProfilerOptions(BaseOption):
         errors += self.structured_options._validate_helper(
             variable_path=variable_path + '.structured_options')
 
+        return errors
+
+
+class TextProfilerOptions(BaseInspectorOptions):
+
+    def __init__(self, is_enabled=True, is_case_sensitive=True,
+                 stop_words=None):
+        """
+        Constructs the TextProfilerOption object with default values.
+
+        :ivar is_enabled: boolean option to enable/disable the option.
+        :vartype is_enabled: bool
+        :ivar is_case_sensitive: option set for case sensitivity.
+        :vartype is_case_sensitive: bool
+        :ivar stop_words: option set for stop words.
+        :vartype stop_words: Union[None, list(str)]
+        :ivar words: option set for word update.
+        :vartype words: BooleanOption
+        :ivar vocab: option set for vocab update.
+        :vartype vocab: BooleanOption
+        """
+        super().__init__(is_enabled=is_enabled)
+        self.is_case_sensitive = is_case_sensitive
+        self.stop_words = stop_words
+        self.words = BooleanOption(is_enabled=True)
+        self.vocab = BooleanOption(is_enabled=True)
+
+    def _validate_helper(self, variable_path='TextProfilerOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        if not variable_path:
+            variable_path = self.__class__.__name__
+
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if not isinstance(self.is_case_sensitive, bool):
+            errors.append("{}.is_case_sensitive must be a Boolean."
+                          .format(variable_path))
+
+        if (self.stop_words is not None and
+                (not isinstance(self.stop_words, list)
+                 or not all(isinstance(item, str)
+                            for item in self.stop_words))):
+            errors.append("{}.stop_words must be None "
+                              "or list of strings.".format(variable_path))
+
+        if not isinstance(self.words, BooleanOption):
+            errors.append("{}.words must be a BooleanOption "
+                          "object."
+                          .format(variable_path))
+
+        if not isinstance(self.vocab, BooleanOption):
+            errors.append("{}.vocab must be a BooleanOption "
+                          "object."
+                          .format(variable_path))
         return errors

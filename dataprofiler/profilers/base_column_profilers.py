@@ -107,7 +107,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :param calculations: Contains all the column calculations.
         :type calculations: Dict
         :param options: Contains all the options.
-        :type options: BaseColumnOptions
+        :type options: BaseInspectorOptions
         """
         for prop in list(calculations):
             if options and not options.is_prop_enabled(prop):

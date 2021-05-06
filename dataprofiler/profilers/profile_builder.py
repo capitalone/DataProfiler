@@ -736,6 +736,7 @@ class UnstructuredProfiler(object):
         print(notification_str)
         pool = None
         if self._profile is None:
+            # TODO: update when unstructured_options becomes available
             self._profile = UnstructuredCompiler(
                 data, options=self.options.structured_options, pool=pool)
         else:

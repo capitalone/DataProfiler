@@ -994,8 +994,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             'handle', 'rule', 'need', 'or', 'to', 'pieces', 'when', 'needs',
             'can', 'handles', 'generic', 'Report', 'coupled', 'this', 'of',
             'usually', 'try', 'if', 'just', 'special', 'Share', 'potential',
-            'your', 'unrelated', 'you', 'abstraction', 'exact', 'by', 'extra',
-            'test', 'data', 'merging'
+            'your', 'unrelated', 'you', 'abstraction', 'exact', 'by',
         }
         expected_words -= set(  # adapt to the stop words (brittle test)
             self.profiler._profile._profiles['unstructured_text']._stop_words)
@@ -1015,24 +1014,25 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
                 'statistics': {
                     'word_count': {
                         'business': 7, 'rules': 4, 'code': 3, 'rule': 3,
-                        'removing': 3, 'duplication': 3, 'similar': 2,
+                        'Removing': 3, 'duplication': 3, 'similar': 2,
                         'different': 2, 'application': 2, 'single': 2,
                         'generic': 2, 'abstraction': 2, 'modify': 2,
                         'function': 2, 'win': 2,  'edited': 1, '9': 1,
                         'hours': 1, 'ago': 1, '6': 1, 'duplicate': 1,
                         'want': 1, 'caution': 1, 'following': 1, 'rigidly': 1,
                         'pieces': 1, 'behavior': 1,  'represent': 1,
-                        'totally': 1, 'try': 1, 'dry': 1,  'inadvertently': 1,
+                        'totally': 1, 'try': 1, 'DRY': 1,  'inadvertently': 1,
                         'coupled': 1, 'needs': 1,  'change': 1, 'shared': 1,
                         'potential': 1, 'breaking': 1, 'unrelated': 1,
                         'lead': 1, 'special': 1, 'case': 1, 'creep': 1,
                         'handle': 1, 'new': 1, 'requirements': 1, 'need': 1,
                         'source': 1, 'truth': 1, 'repeats': 1, 'handling': 1,
                         'exact': 1, 'usually': 1, 'trying': 1, 'fit': 1,
-                        'handles': 1, 'reply': 1, 'share': 1, 'report': 1}
+                        'handles': 1, 'Reply': 1, 'Share': 1, 'Report': 1}
                 }
             }
         }
+        self.maxDiff = None
         self.assertDictEqual(expected_report, self.report)
 
     def test_add_profilers(self):

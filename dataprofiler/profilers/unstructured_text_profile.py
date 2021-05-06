@@ -4,6 +4,7 @@ import re
 import warnings
 
 from . import utils, BaseColumnProfiler
+from .profiler_options import TextProfilerOptions
 
 
 class TextProfiler(object):
@@ -27,6 +28,10 @@ class TextProfiler(object):
 
         # TODO: Add line length
         #self.line_length = {'max': None, 'min': None,...} #numeric stats mixin?
+
+        if options and not isinstance(options, TextProfilerOptions):
+            raise ValueError("TextProfiler parameter 'options' must be of type"
+                             " TextProfilerOptions.")
 
         self._is_case_sensitive = True
         if options:
@@ -92,6 +97,8 @@ class TextProfiler(object):
             'hereupon', 'done', 'against', 'get', 'behind', 'several', 'anyone',
             'seeming', "shoulve"}
 
+        if options and options.stop_words is not None:
+            self._stop_words = options.stop_words
 
         self.__calculations = {
             "vocab": TextProfiler._update_vocab,

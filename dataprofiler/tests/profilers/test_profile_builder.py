@@ -1032,7 +1032,6 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
                 }
             }
         }
-        self.maxDiff = None
         self.assertDictEqual(expected_report, self.report)
 
     def test_add_profilers(self):
@@ -1041,7 +1040,6 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         self.assertEqual(25, merged_profiler.total_samples)
         self.assertEqual(9, merged_profiler._empty_line_count)
-        self.maxDiff = None
         self.assertCountEqual(
             ['test\n',
              'extra',
@@ -1094,7 +1092,6 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         # tests
         self.assertEqual(25, update_profiler.total_samples)
         self.assertEqual(9, update_profiler._empty_line_count)
-        self.maxDiff = None
 
         # Note: different from merge because sample is from last update only
         self.assertCountEqual(

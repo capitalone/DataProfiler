@@ -31,6 +31,16 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         with self.assertRaisesRegex(AttributeError, expected_error):
             option._set_helper({'stop_words.is_enabled': True}, 'test')
 
+        expected_error = ("type object 'test.words.is_enabled' has no attribute "
+                          "'other_props'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option._set_helper({'words.is_enabled.other_props': True}, 'test')
+
+        expected_error = ("type object 'test.vocab.is_enabled' has no attribute "
+                          "'other_props'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option._set_helper({'vocab.is_enabled.other_props': True}, 'test')
+
     def test_set(self):
         option = self.get_options()
 
@@ -71,6 +81,16 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         with self.assertRaisesRegex(AttributeError, expected_error):
             option.set({'stop_words.is_enabled': True})
 
+        expected_error = ("type object 'words.is_enabled' has no attribute "
+                          "'other_props'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option.set({'words.is_enabled.other_props': True})
+
+        expected_error = ("type object 'vocab.is_enabled' has no attribute "
+                          "'other_props'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option.set({'vocab.is_enabled.other_props': True})
+
     def test_validate_helper(self):
         super(TestTextProfilerOptions, self).test_validate_helper()
 
@@ -85,8 +105,14 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
             dict(prop='stop_words',
                  value_list=[None, ['word1', 'word2'], []],
                  errors=[]),
-            dict(prop='words', value_list=[False, True], errors=[]),
-            dict(prop='vocab', value_list=[False, True], errors=[]),
+            dict(prop='words',
+                 value_list=[BooleanOption(is_enabled=False),
+                             BooleanOption(is_enabled=True)],
+                 errors=[]),
+            dict(prop='vocab',
+                 value_list=[BooleanOption(is_enabled=False),
+                             BooleanOption(is_enabled=True)],
+                 errors=[]),
 
             # errors
             dict(prop='stop_words',
@@ -110,11 +136,7 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
             )
             option = self.get_options()
             for value in value_list:
-                if prop not in ['words', 'vocab']:
-                    setattr(option, prop, value)
-                else:
-                    prop_enable = '{}.is_enabled'.format(prop)
-                    setattr(option, prop_enable, value)
+                setattr(option, prop, value)
 
                 validate_errors = option.validate(raise_error=False)
                 if expected_errors:
@@ -130,6 +152,7 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
                                                                       value))
 
         # this time testing raising an error
+        option = self.get_options()
         option.stop_words = 'fake word'
         expected_error = (
             "TextProfilerOptions.stop_words must be None "

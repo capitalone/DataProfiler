@@ -1,11 +1,11 @@
-from dataprofiler.profilers.profiler_options import BaseColumnOptions
+from dataprofiler.profilers.profiler_options import BaseInspectorOptions
 from dataprofiler.tests.profilers.profiler_options.test_boolean_option \
      import TestBooleanOption
 
 
-class TestBaseColumnOptions(TestBooleanOption):
+class TestBaseInspectorOptions(TestBooleanOption):
     
-    option_class = BaseColumnOptions
+    option_class = BaseInspectorOptions
 
     @classmethod
     def get_options(cls, *args, **params):

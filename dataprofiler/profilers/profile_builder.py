@@ -25,7 +25,8 @@ from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
     ColumnStatsProfileCompiler, ColumnDataLabelerCompiler, UnstructuredCompiler
 from ..labelers.data_labelers import DataLabeler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
-from .profiler_options import ProfilerOptions, StructuredOptions
+from .profiler_options import ProfilerOptions, StructuredOptions, \
+    TextProfilerOptions
 
 
 class StructuredDataProfile(object):
@@ -442,16 +443,6 @@ class StructuredDataProfile(object):
         }
 
         return df_series, base_stats
-
-
-# TODO: remove when proper when TextProfilerOptions available
-from .profiler_options import BaseColumnOptions, BooleanOption
-class TextProfilerOptions(BaseColumnOptions):
-    def __init__(self):
-        super().__init__()
-        self.is_case_sensitive = False
-        self.vocab = BooleanOption()
-        self.words = BooleanOption()
 
 
 class UnstructuredProfiler(object):

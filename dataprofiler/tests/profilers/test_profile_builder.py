@@ -980,21 +980,22 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # vocab order doesn't matter, case insensitive, remove stop words
         expected_words = {
-            'reply', 'also', 'a', 'function', 'dry', 'creep', 'change',
+            'Reply', 'also', 'a', 'function', 'DRY', 'creep', 'change',
             'almost', 'modify', 'an', 'represent', '9', 'want', 'them', 'one',
             'similar', 'different', 'caution', 'same', 'breaking',
             'duplication', 'edited', 'in', 'top', 'that', 'together', 'has',
             'thus', 'fit', 'and', 'source', 'rules', 'too', 'against',
             'following', 'inadvertently', 'ago', 'requirements', 'duplicate',
             'other', 'behavior', 'case', 'win', 'always', 'shared', 'single',
-            'on', 'have', 'repeats', 'but', 'whereby', 'lead', 'removing',
+            'on', 'have', 'repeats', 'but', 'whereby', 'lead', 'Removing',
             'sometimes', 'code', 'the', '6', 'trying', 'those', 'up', 'it',
             'business', 'two', 'rigidly', 'handling', 'truth', 'not', 'for',
             'totally', 'is', 'part', 'hours', 'application', 'new', 'into',
             'handle', 'rule', 'need', 'or', 'to', 'pieces', 'when', 'needs',
-            'can', 'handles', 'generic', 'report', 'coupled', 'this', 'of',
-            'usually', 'try', 'if', 'just', 'special', 'share', 'potential',
-            'your', 'unrelated', 'you', 'abstraction', 'exact', 'by'
+            'can', 'handles', 'generic', 'Report', 'coupled', 'this', 'of',
+            'usually', 'try', 'if', 'just', 'special', 'Share', 'potential',
+            'your', 'unrelated', 'you', 'abstraction', 'exact', 'by', 'extra',
+            'test', 'data', 'merging'
         }
         expected_words -= set(  # adapt to the stop words (brittle test)
             self.profiler._profile._profiles['unstructured_text']._stop_words)
@@ -1055,20 +1056,20 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         # assuming if words are correct, rest of TextProfiler is merged properly
         # vocab order doesn't matter, case insensitive, remove stop words
         expected_words = {
-            'reply', 'also', 'a', 'function', 'dry', 'creep', 'change',
+            'Reply', 'also', 'a', 'function', 'DRY', 'creep', 'change',
             'almost', 'modify', 'an', 'represent', '9', 'want', 'them', 'one',
             'similar', 'different', 'caution', 'same', 'breaking',
             'duplication', 'edited', 'in', 'top', 'that', 'together', 'has',
             'thus', 'fit', 'and', 'source', 'rules', 'too', 'against',
             'following', 'inadvertently', 'ago', 'requirements', 'duplicate',
             'other', 'behavior', 'case', 'win', 'always', 'shared', 'single',
-            'on', 'have', 'repeats', 'but', 'whereby', 'lead', 'removing',
+            'on', 'have', 'repeats', 'but', 'whereby', 'lead', 'Removing',
             'sometimes', 'code', 'the', '6', 'trying', 'those', 'up', 'it',
             'business', 'two', 'rigidly', 'handling', 'truth', 'not', 'for',
             'totally', 'is', 'part', 'hours', 'application', 'new', 'into',
             'handle', 'rule', 'need', 'or', 'to', 'pieces', 'when', 'needs',
-            'can', 'handles', 'generic', 'report', 'coupled', 'this', 'of',
-            'usually', 'try', 'if', 'just', 'special', 'share', 'potential',
+            'can', 'handles', 'generic', 'Report', 'coupled', 'this', 'of',
+            'usually', 'try', 'if', 'just', 'special', 'Share', 'potential',
             'your', 'unrelated', 'you', 'abstraction', 'exact', 'by', 'extra',
             'test', 'data', 'merging'
         }
@@ -1104,20 +1105,20 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         # assuming if words are correct, rest of TextProfiler is merged properly
         # vocab order doesn't matter, case insensitive, remove stop words
         expected_words = {
-            'reply', 'also', 'a', 'function', 'dry', 'creep', 'change',
+            'Reply', 'also', 'a', 'function', 'DRY', 'creep', 'change',
             'almost', 'modify', 'an', 'represent', '9', 'want', 'them', 'one',
             'similar', 'different', 'caution', 'same', 'breaking',
             'duplication', 'edited', 'in', 'top', 'that', 'together', 'has',
             'thus', 'fit', 'and', 'source', 'rules', 'too', 'against',
             'following', 'inadvertently', 'ago', 'requirements', 'duplicate',
             'other', 'behavior', 'case', 'win', 'always', 'shared', 'single',
-            'on', 'have', 'repeats', 'but', 'whereby', 'lead', 'removing',
+            'on', 'have', 'repeats', 'but', 'whereby', 'lead', 'Removing',
             'sometimes', 'code', 'the', '6', 'trying', 'those', 'up', 'it',
             'business', 'two', 'rigidly', 'handling', 'truth', 'not', 'for',
             'totally', 'is', 'part', 'hours', 'application', 'new', 'into',
             'handle', 'rule', 'need', 'or', 'to', 'pieces', 'when', 'needs',
-            'can', 'handles', 'generic', 'report', 'coupled', 'this', 'of',
-            'usually', 'try', 'if', 'just', 'special', 'share', 'potential',
+            'can', 'handles', 'generic', 'Report', 'coupled', 'this', 'of',
+            'usually', 'try', 'if', 'just', 'special', 'Share', 'potential',
             'your', 'unrelated', 'you', 'abstraction', 'exact', 'by', 'extra',
             'test', 'data', 'merging'
         }

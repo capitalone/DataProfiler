@@ -115,11 +115,29 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
                  errors=[]),
 
             # errors
+            dict(prop='is_case_sensitive',
+                 value_list=[2, 'string'],
+                 errors=[
+                     "TextProfilerOptions.is_case_sensitive must "
+                     "be a Boolean."
+                 ]),
             dict(prop='stop_words',
                  value_list=[2, 'a', [1, 2]],
                  errors=[
                      "TextProfilerOptions.stop_words must be None "
                      "or list of strings."
+                 ]),
+            dict(prop='words',
+                 value_list=[2, True],
+                 errors=[
+                     "TextProfilerOptions.words must be a "
+                     "BooleanOption object."
+                 ]),
+            dict(prop='vocab',
+                 value_list=[2, True],
+                 errors=[
+                     "TextProfilerOptions.vocab must be a "
+                     "BooleanOption object."
                  ]),
         ]
 

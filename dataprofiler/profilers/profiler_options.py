@@ -781,11 +781,11 @@ class TextProfilerOptions(BaseInspectorOptions):
         :ivar vocab: option set for vocab update.
         :vartype vocab: BooleanOption
         """
+        super().__init__(is_enabled=is_enabled)
         self.is_case_sensitive = is_case_sensitive
         self.stop_words = stop_words
         self.words = BooleanOption(is_enabled=True)
         self.vocab = BooleanOption(is_enabled=True)
-        super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='TextProfilerOptions'):
         """
@@ -805,10 +805,10 @@ class TextProfilerOptions(BaseInspectorOptions):
             errors.append("{}.is_case_sensitive must be a Boolean."
                           .format(variable_path))
 
-        if self.stop_words is not None and \
+        if (self.stop_words is not None and
                 (not isinstance(self.stop_words, list)
-                 or not all(
-                    [isinstance(item, str) for item in self.stop_words])):
+                 or not all(isinstance(item, str)
+                            for item in self.stop_words))):
             errors.append("{}.stop_words must be None "
                               "or list of strings.".format(variable_path))
 

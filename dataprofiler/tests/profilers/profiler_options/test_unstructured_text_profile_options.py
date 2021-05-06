@@ -122,7 +122,7 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
                      "be a Boolean."
                  ]),
             dict(prop='stop_words',
-                 value_list=[2, 'a', [1, 2]],
+                 value_list=[2, 'a', [1, 2], ['a', 1, 'a']],
                  errors=[
                      "TextProfilerOptions.stop_words must be None "
                      "or list of strings."

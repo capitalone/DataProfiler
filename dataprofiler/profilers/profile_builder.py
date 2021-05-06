@@ -22,7 +22,7 @@ import numpy as np
 from . import utils
 from .. import data_readers
 from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
-    ColumnStatsProfileCompiler, ColumnDataLabelerCompiler
+    ColumnStatsProfileCompiler, ColumnDataLabelerCompiler, UnstructuredCompiler
 from ..labelers.data_labelers import DataLabeler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions
@@ -444,6 +444,474 @@ class StructuredDataProfile(object):
         return df_series, base_stats
 
 
+# TODO: remove when proper when TextProfilerOptions available
+from .profiler_options import BaseColumnOptions, BooleanOption
+class TextProfilerOptions(BaseColumnOptions):
+    def __init__(self):
+        super().__init__()
+        self.is_case_sensitive = False
+        self.vocab = BooleanOption()
+        self.words = BooleanOption()
+
+
+class UnstructuredProfiler(object):
+
+    def __init__(self, data, samples_per_update=None, min_true_samples=0,
+                 options=None):
+        """
+        Instantiate the Profiler class
+
+        :param data: Data to be profiled
+        :type data: Data class object
+        :param samples_per_update: Number of samples to use in generating
+            profile
+        :type samples_per_update: int
+        :param min_true_samples: Minimum number of samples required for the
+            profiler
+        :type min_true_samples: int
+        :param options: Options for the profiler.
+        :type options: ProfilerOptions Object
+        :return: Profiler
+        """
+        if not options:
+            options = ProfilerOptions()
+        elif not isinstance(options, ProfilerOptions):
+            raise ValueError("The profile options must be passed as a "
+                             "ProfileOptions object.")
+
+        self._profile = None
+        self.options = options
+        self.encoding = None
+        self.file_type = None
+        self._min_true_samples = min_true_samples
+        self._samples_per_update = samples_per_update
+
+        # base stats
+        self.total_samples = 0
+        self._empty_line_count = 0
+
+        # TODO: allow set via options
+        self._sampling_ratio = 0.2
+        self._min_sample_size = 5000
+
+        # assign data labeler
+        # TODO: when available, update to use "unstructured_options"
+        self.options.structured_options.unstructured_text = TextProfilerOptions()
+        data_labeler_options = self.options.structured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+
+            try:
+
+                data_labeler = DataLabeler(
+                    labeler_type='unstructured',
+                    dirpath=data_labeler_options.data_labeler_dirpath,
+                    load_options=None)
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
+
+        if data is not None:
+            self.update_profile(data)
+
+    def __add__(self, other):
+        """
+        Merges two profiles together overriding the `+` operator.
+
+        :param other: unstructured profile being add to this one.
+        :type other: UnstructuredProfiler
+        :return: merger of the two profiles
+        """
+        if type(other) is not type(self):
+            raise TypeError('`{}` and `{}` are not of the same profiler type.'.
+                            format(type(self).__name__, type(other).__name__))
+
+        merged_profile = UnstructuredProfiler(
+            data=None, samples_per_update=self._samples_per_update,
+            min_true_samples=self._min_true_samples, options=self.options
+        )
+        merged_profile.encoding = self.encoding \
+            if self.encoding == other.encoding else 'multiple files'
+        merged_profile.file_type = self.file_type \
+            if self.file_type == other.file_type else 'multiple files'
+        merged_profile._empty_line_count = (
+            self._empty_line_count + other._empty_line_count)
+        merged_profile.total_samples = self.total_samples + other.total_samples
+
+        samples = list(dict.fromkeys(self.sample + other.sample))
+        merged_profile.sample = random.sample(list(samples),
+                                              min(len(samples), 5))
+        merged_profile._profile = self._profile + other._profile
+        return merged_profile
+
+    def _get_sample_size(self, data):
+        """
+        Determines the minimum sampling size for detecting column type.
+
+        :param data: data to be profiled
+        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
+        :return: integer sampling size
+        :rtype: int
+        """
+        if self._samples_per_update:
+            return self._samples_per_update
+
+        len_data = len(data)
+        if len_data <= self._min_sample_size:
+            return int(len_data)
+        return max(int(self._sampling_ratio * len_data), self._min_sample_size)
+
+    def _update_base_stats(self, base_stats):
+        """
+        TBD
+
+        :param base_stats: TBD
+        :type base_stats: dict
+        :return: None
+        """
+        self.total_samples += base_stats["sample_size"]
+        self.sample = base_stats["sample"]
+        self._empty_line_count += base_stats["empty_line_count"]
+
+    @property
+    def profile(self):
+        """
+
+        Returns:
+
+        """
+        return self._profile
+
+    def report(self, report_options=None):
+        """
+
+        Args:
+            report_options:
+
+        Returns:
+
+        """
+        if not report_options:
+            report_options = {
+                "output_format": None,
+            }
+
+        output_format = report_options.get("output_format", None)
+        omit_keys = report_options.get("omit_keys", [])
+
+        report = OrderedDict([
+            ("global_stats", {
+                "samples_used": self.total_samples,
+                "empty_line_count": self._empty_line_count,
+                "file_type": self.file_type,
+                "encoding": self.encoding
+            }),
+            ("data_stats", OrderedDict()),
+        ])
+
+        report["data_stats"] = self._profile.profile
+        return _prepare_report(report, output_format, omit_keys)
+
+    @staticmethod
+    def _clean_data_and_get_base_stats(data, sample_size,
+                                       min_true_samples=None):
+        """
+        Identify empty rows and return a cleaned version of text data without
+        empty rows.
+
+        :param data: a series of text data
+        :type data: pandas.core.series.Series
+        :param sample_size: Number of samples to use in generating the profile
+        :type sample_size: int
+        :param min_true_samples: Minimum number of samples required for the
+            profiler
+        :type min_true_samples: int
+        :return: updated column with null removed and dictionary of null
+            parameters
+        :rtype: pd.Series, dict
+        """
+        if min_true_samples is None:
+            min_true_samples = 0
+
+        len_data = len(data)
+        if not len_data:
+            return data, {
+                "sample_size": 0, "empty_line_count": dict(), "sample": [],
+            }
+
+        # ensure all data are of type str
+        data = data.apply(str)
+
+        # Setup sample generator
+        sample_ind_generator = utils.shuffle_in_chunks(
+            len_data, chunk_size=sample_size)
+
+        true_sample_list = set()
+        total_sample_size = 0
+
+        regex = f"^\s*$"
+        for chunked_sample_ids in sample_ind_generator:
+            total_sample_size += len(chunked_sample_ids)
+
+            # Find subset of series based on randomly selected ids
+            data_subset = data.iloc[chunked_sample_ids]
+
+            # Query should search entire cell for all elements at once
+            matches = data_subset.str.match(regex, flags=re.IGNORECASE)
+
+            # Split series into None samples and true samples
+            true_sample_list.update(data_subset[~matches].index)
+
+            # Ensure minimum number of true samples met
+            # and if total_sample_size >= sample size, exit
+            if len(true_sample_list) >= min_true_samples \
+                    and total_sample_size >= sample_size:
+                break
+
+        # close the generator in case it is not exhausted.
+        sample_ind_generator.close()
+
+        true_sample_list = sorted(true_sample_list)
+
+        # Split out true values for later utilization
+        data = data.loc[true_sample_list]
+        total_empty = total_sample_size - len(true_sample_list)
+
+        base_stats = {
+            "sample_size": total_sample_size,
+            "empty_line_count": total_empty,
+            "sample": random.sample(list(data.values),
+                                    min(len(data), 5)),
+        }
+
+        return data, base_stats
+
+    def _update_profile_from_chunk(self, data, sample_size,
+                                   min_true_samples=None):
+        """
+        Iterate over the columns of a dataset and identify its parameters.
+
+        :param data: a text dataset
+        :type data: Union[pd.Series, pd.DataFrame, list]
+        :param sample_size: number of samples for df to use for profiling
+        :type sample_size: int
+        :param min_true_samples: minimum number of true samples required
+        :type min_true_samples: int
+        :return: list of column profile base subclasses
+        :rtype: list(BaseColumnProfiler)
+        """
+
+        if isinstance(data, pd.DataFrame):
+            if len(data.columns) > 1:
+                raise ValueError("The unstructured cannot handle a dataset "
+                                 "with more than 1 column. Please make sure "
+                                 "the data format of the dataset is "
+                                 "appropriate.")
+            data = data[data.columns[0]]
+        elif isinstance(data, list):
+            # we know that if it comes in as a list, it is a 1-d list based
+            # bc of our data readers
+            data = pd.Series(data)
+
+        # Format the data
+        notification_str = "Finding the empty lines in the data..."
+        print(notification_str)
+        data, base_stats = self._clean_data_and_get_base_stats(
+            data, sample_size, min_true_samples)
+        self._update_base_stats(base_stats)
+
+        if sample_size < len(data):
+            warnings.warn("The data will be profiled with a sample size of {}. "
+                          "All statistics will be based on this subsample and "
+                          "not the whole dataset.".format(sample_size))
+
+        # process the text data
+        notification_str = "Calculating the statistics... "
+        print(notification_str)
+        pool = None
+        if self._profile is None:
+            self._profile = UnstructuredCompiler(
+                data, options=self.options.structured_options, pool=pool)
+        else:
+            self._profile.update_profile(data, pool=pool)
+
+    def update_profile(self, data, sample_size=None, min_true_samples=None):
+        """
+        Update the profile for data provided. User can specify the sample
+        size to profile the data with. Additionally, the user can specify the
+        minimum number of non-null samples to profile.
+
+        :param data: data to be profiled
+        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
+        :param sample_size: number of samples to profile from the data
+        :type sample_size: int
+        :param min_true_samples: minimum number of non-null samples to profile
+        :type min_true_samples
+        :return: None
+        """
+        if isinstance(data, data_readers.base_data.BaseData):
+            self.encoding = data.file_encoding
+            self.file_type = data.data_type
+            data = data.data
+        elif isinstance(data, (pd.Series, pd.DataFrame)):
+            self.file_type = str(data.__class__)
+        else:
+            raise ValueError(
+                "Data must either be imported using the data_readers or "
+                "pd.DataFrame."
+            )
+
+        if not len(data):
+            warnings.warn("The passed dataset was empty, hence no data was "
+                          "profiled.")
+            return
+        if not min_true_samples:
+            min_true_samples = self._min_true_samples
+        if not sample_size:
+            sample_size = self._get_sample_size(data)
+
+        self._update_profile_from_chunk(data, sample_size, min_true_samples)
+
+    def _remove_data_labelers(self):
+        """
+        Helper method for removing all data labelers before saving to disk.
+
+        :return: data_labeler use for unstructured labeling
+        :rtype: DataLabeler
+        """
+        data_labeler = None
+
+        # Delete data labeler for profiler
+        # TODO: fix to correct options when unstructured options avail
+        use_data_labeler = True
+        if self.options and isinstance(self.options, ProfilerOptions):
+            data_labeler_options = self.options.structured_options.data_labeler
+            use_data_labeler = data_labeler_options.is_enabled
+        if use_data_labeler \
+                and data_labeler_options.data_labeler_object is not None:
+            data_labeler = data_labeler_options.data_labeler_object
+            data_labeler_options.data_labeler_object = None
+
+        # remove data labelers
+        # TODO: fix to correct options when unstructured options avail
+        if use_data_labeler:
+            if data_labeler is None:
+                data_labeler = \
+                    self._profile._profiles['data_labeler'].data_labeler
+            self._profile._profiles['data_labeler'].data_labeler = None
+
+        return data_labeler
+
+    def _restore_data_labelers(self, data_labeler=None):
+        """
+        Helper method for restoring all data labelers after saving to or
+        loading from disk.
+
+        :param data_labeler: unstructured data_labeler
+        :type data_labeler: DataLabeler
+        """
+        # Restore data labeler for profiler
+        # TODO: fix to correct options when unstructured options avail
+        use_data_labeler = True
+        data_labeler_options = None
+        if self.options and isinstance(self.options, ProfilerOptions):
+            data_labeler_options = self.options.structured_options.data_labeler
+            use_data_labeler = data_labeler_options.is_enabled
+
+        if use_data_labeler:
+            try:
+                if data_labeler is None and data_labeler_options is None:
+                    data_labeler = DataLabeler(
+                        labeler_type='unstructured',
+                        dirpath=None,
+                        load_options=None)
+                elif data_labeler is None:
+                    data_labeler = DataLabeler(
+                        labeler_type='unstructured',
+                        dirpath=data_labeler_options.data_labeler_dirpath,
+                        load_options=None)
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
+
+        # Restore data labelers for all columns
+        if use_data_labeler:
+            data_labeler_profile = self._profile._profiles['data_labeler']
+            data_labeler_profile.data_labeler = data_labeler
+
+    def save(self, filepath=None):
+        """
+        Save profiler to disk
+
+        :param filepath: Path of file to save to
+        :type filepath: String
+        :return: None
+        """
+        # Set Default filepath
+        if filepath is None:
+            filepath = "profile-{}.pkl".format(
+                datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f"))
+
+        # Remove the data labeler as they can't be pickled
+        data_labeler = self._remove_data_labelers()
+
+        # Create dictionary for all metadata, options, and profile
+        data = {
+            "total_samples": self.total_samples,
+            "encoding": self.encoding,
+            "file_type": self.file_type,
+            "_samples_per_update": self._samples_per_update,
+            "_min_true_samples": self._min_true_samples,
+            "options": self.options,
+            "_profile": self.profile
+        }
+
+        # Pickle and save profile to disk
+        with open(filepath, "wb") as outfile:
+            pickle.dump(data, outfile)
+
+        # Restore all data labelers
+        self._restore_data_labelers(data_labeler)
+
+    @classmethod
+    def load(cls, filepath):
+        """
+        Load profiler from disk
+
+        :param filepath: Path of file to load from
+        :type filepath: String
+        :return: None
+        """
+        # Create Empty Profile
+        # TODO: fix options when unstructured options is available
+        profile_options = ProfilerOptions()
+        profile_options.structured_options.data_labeler.is_enabled = False
+        profile = cls(pd.DataFrame([]), options=profile_options)
+
+        # Load profile from disk
+        with open(filepath, "rb") as infile:
+            data = pickle.load(infile)
+
+            profile.total_samples = data["total_samples"]
+            profile.encoding = data["encoding"]
+            profile.file_type = data["file_type"]
+            profile._samples_per_update = data["_samples_per_update"]
+            profile._min_true_samples = data["_min_true_samples"]
+            profile._profile = data["_profile"]
+            profile.options = data["options"]
+
+        # Restore all data labelers
+        profile._restore_data_labelers()
+
+        return profile
+
+
 class Profiler(object):
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0, 
@@ -719,45 +1187,6 @@ class Profiler(object):
             self.row_has_null_count = len(null_in_row_count)
             self.row_is_null_count = len(null_rows)
 
-    def update_profile(self, data, sample_size=None, min_true_samples=None):
-        """
-        Update the profile for data provided. User can specify the sample
-        size to profile the data with. Additionally, the user can specify the
-        minimum number of non-null samples to profile.
-
-        :param data: data to be profiled
-        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
-        :param sample_size: number of samples to profile from the data
-        :type sample_size: int
-        :param min_true_samples: minimum number of non-null samples to profile
-        :type min_true_samples
-        :return: None
-        """
-        if isinstance(data, data_readers.base_data.BaseData):
-            self.encoding = data.file_encoding
-            self.file_type = data.data_type
-            data = data.data
-        elif isinstance(data, pd.DataFrame):
-            self.file_type = str(data.__class__)
-        else:
-            raise ValueError(
-                "Data must either be imported using the data_readers or "
-                "pd.DataFrame."
-            )
-
-        if not len(data):
-            # Need to reflect that no samples in this batch
-            for column in self._profile:
-                self._profile[column]._last_batch_size = 0
-            return
-        if not min_true_samples:
-            min_true_samples = self._min_true_samples
-        if not sample_size:
-            sample_size = self._get_sample_size(data)
-
-        self._update_profile_from_chunk(
-            data, sample_size, min_true_samples, self.options)
-
     def _update_profile_from_chunk(self, df, sample_size=None,
                                    min_true_samples=None, options=None):
         """
@@ -781,7 +1210,7 @@ class Profiler(object):
 
         try:
             from tqdm import tqdm
-        except:
+        except ImportError:
             def tqdm(l):
                 for i, e in enumerate(l):
                     print("Processing Column {}/{}".format(i+1, len(l)))
@@ -916,12 +1345,51 @@ class Profiler(object):
 
         self._update_row_statistics(df, samples_for_row_stats)
 
+    def update_profile(self, data, sample_size=None, min_true_samples=None):
+        """
+        Update the profile for data provided. User can specify the sample
+        size to profile the data with. Additionally, the user can specify the
+        minimum number of non-null samples to profile.
+
+        :param data: data to be profiled
+        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
+        :param sample_size: number of samples to profile from the data
+        :type sample_size: int
+        :param min_true_samples: minimum number of non-null samples to profile
+        :type min_true_samples
+        :return: None
+        """
+        if isinstance(data, data_readers.base_data.BaseData):
+            self.encoding = data.file_encoding
+            self.file_type = data.data_type
+            data = data.data
+        elif isinstance(data, pd.DataFrame):
+            self.file_type = str(data.__class__)
+        else:
+            raise ValueError(
+                "Data must either be imported using the data_readers or "
+                "pd.DataFrame."
+            )
+
+        if not len(data):
+            # Need to reflect that no samples in this batch
+            for column in self._profile:
+                self._profile[column]._last_batch_size = 0
+            return
+        if not min_true_samples:
+            min_true_samples = self._min_true_samples
+        if not sample_size:
+            sample_size = self._get_sample_size(data)
+
+        self._update_profile_from_chunk(
+            data, sample_size, min_true_samples, self.options)
+
     def _remove_data_labelers(self):
         """
         Helper method for removing all data labelers before saving to disk.
 
         :return: dictionary of removed data labeler objects
-        :rtype: dict (string -> data labeler object) 
+        :rtype: dict (string -> data labeler object)
         """
         data_labelers = {}
 
@@ -932,7 +1400,7 @@ class Profiler(object):
             data_labelers["data_labeler"] = data_labeler_options \
                                             .data_labeler_object
             data_labeler_options.data_labeler_object = None
-                
+
         # Delete data labelers for all columns
         for key in self._profile:
 

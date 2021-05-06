@@ -141,13 +141,12 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
                  ]),
         ]
 
-        # # this code can be abstracted to limit code everywhere else
-        # # AKA, for loop below could be abstracted to a utils func
-
         # Default configuration is valid
         option = self.get_options()
         self.assertIsNone(option.validate(raise_error=False))
 
+        # # this code can be abstracted to limit code everywhere else
+        # # AKA, for loop below could be abstracted to a utils func
         for params in params_to_check:
             prop, value_list, expected_errors = (
                 params['prop'], params['value_list'], params['errors']

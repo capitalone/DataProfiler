@@ -557,9 +557,10 @@ class UnstructuredProfiler(object):
 
     def _update_base_stats(self, base_stats):
         """
-        TBD
+        Updates the samples and line count of the class for the given dataset
+        batch.
 
-        :param base_stats: TBD
+        :param base_stats: dictionary of basic sampling / data stats
         :type base_stats: dict
         :return: None
         """
@@ -570,20 +571,31 @@ class UnstructuredProfiler(object):
     @property
     def profile(self):
         """
+        Returns the UnstructuredCompiler which compiles the low level
+        inspectors.
 
-        Returns:
-
+        :return: None
         """
         return self._profile
 
     def report(self, report_options=None):
         """
+        Returns the unstructured report based on all profiled data fed into the
+        profiler. User can specify the output_formats: (pretty, compact,
+        serializable, flat).
+            Pretty: floats are rounded to four decimal places, and lists are
+                shortened.
+            Compact: Similar to pretty, but removes detailed statistics such as
+                runtimes, label probabilities, index locations of null types,
+                etc.
+            Serializable: Output is json serializable and not prettified
+            Flat: Nested output is returned as a flattened dictionary
 
-        Args:
-            report_options:
-
-        Returns:
-
+        :var report_options: optional format changes to the report
+            `dict(output_format=<FORMAT>)`
+        :type report_options: dict
+        :return: dictionary report
+        :rtype: dict
         """
         if not report_options:
             report_options = {

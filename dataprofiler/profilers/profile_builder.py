@@ -603,7 +603,6 @@ class UnstructuredProfiler(object):
             }
 
         output_format = report_options.get("output_format", None)
-        omit_keys = report_options.get("omit_keys", [])
 
         report = OrderedDict([
             ("global_stats", {
@@ -616,7 +615,7 @@ class UnstructuredProfiler(object):
         ])
 
         report["data_stats"] = self._profile.profile
-        return _prepare_report(report, output_format, omit_keys)
+        return _prepare_report(report, output_format)
 
     @staticmethod
     def _clean_data_and_get_base_stats(data, sample_size,

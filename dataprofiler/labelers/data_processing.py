@@ -1256,7 +1256,6 @@ class StructCharPostprocessor(BaseDataPostprocessor,
                          flatten_separator=flatten_separator,
                          random_state=random_state)
 
-
     def __eq__(self, other):
         """
         Checks if two processors are equal with one another.

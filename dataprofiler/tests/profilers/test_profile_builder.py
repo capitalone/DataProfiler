@@ -846,7 +846,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         sample_size = profiler._get_sample_size(data)
         self.assertEqual(10000, sample_size)
 
-        # test min_sample_size > data size * 0.10
+        # test min_sample_size > data size * 0.5
         profiler._sampling_ratio = 0.5
         sample_size = profiler._get_sample_size(data)
         self.assertEqual(25000, sample_size)

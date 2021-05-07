@@ -540,7 +540,7 @@ class UnstructuredProfiler(object):
 
     def _get_sample_size(self, data):
         """
-        Determines the minimum sampling size for detecting column type.
+        Determines the minimum sampling size for profiling.
 
         :param data: data to be profiled
         :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
@@ -696,7 +696,7 @@ class UnstructuredProfiler(object):
     def _update_profile_from_chunk(self, data, sample_size,
                                    min_true_samples=None):
         """
-        Iterate over the columns of a dataset and identify its parameters.
+        Iterate over the dataset and identify its parameters via profiles.
 
         :param data: a text dataset
         :type data: Union[pd.Series, pd.DataFrame, list]

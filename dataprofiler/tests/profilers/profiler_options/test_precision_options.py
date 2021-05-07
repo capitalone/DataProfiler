@@ -2,6 +2,7 @@ from dataprofiler.profilers.profiler_options import PrecisionOptions
 from dataprofiler.tests.profilers.profiler_options.test_boolean_option \
      import TestBooleanOption
 
+
 class TestPrecisionOptions(TestBooleanOption):
     
     option_class = PrecisionOptions

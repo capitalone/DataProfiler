@@ -604,7 +604,7 @@ class UnstructuredProfiler(object):
             }
 
         output_format = report_options.get("output_format", None)
-        omit_keys = report_options.get("omit_keys", [])
+        omit_keys = report_options.get("omit_keys", None)
 
         report = OrderedDict([
             ("global_stats", {

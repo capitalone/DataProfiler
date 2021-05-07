@@ -859,10 +859,11 @@ class TestUnstructuredProfiler(unittest.TestCase):
             UnstructuredProfiler._clean_data_and_get_base_stats(
                 data=data, sample_size=3)
 
+        # note: bc the sample size is 3, only a subset of the data was sampled
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertDictEqual(
             {
-                'sample': ['more data'],
+                'sample': ['more data'],  # bc of subset sampled
                 'sample_size': 3,
                 'empty_line_count': 2
             },
@@ -873,6 +874,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
             UnstructuredProfiler._clean_data_and_get_base_stats(
                 data=data, sample_size=3, min_true_samples=2)
 
+        # note: bc the sample size is 3, only a subset of the data was sampled
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertDictEqual(
             {
@@ -911,37 +913,26 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         test_utils.set_seed(0)
+        cls.maxDiff = None
         cls.input_data = [
-            'edited 9 hours ago', '6. Do not duplicate code.',
+            'edited 9 hours ago',
+            '6. Do not duplicate code.',
             '\t',
             'Just want to caution against following this too rigidly.',
             '\t',
-            'Sometimes two pieces of code can have similar behavior, but '
-            'represent two totally different business rules in your '
-            'application.',
             '   ',
             'When you try to DRY them up into a single generic abstraction, '
             'you have inadvertently coupled those two business rules together.',
             '   ',
-            'If one business rule needs to change, you have to modify the '
-            'shared function. This has the potential for breaking the other '
-            'business rule, and thus an unrelated part of the application, or '
-            'it can lead to special case creep whereby you modify the function '
-            'to handle the new requirements of one of the business rules.',
-            '',
-            'Removing duplication when you need a single source of truth is '
-            'almost always a win.',
             '   ',
             'Removing duplication that repeats the handling of the exact same '
             'business rule is also usually a win.',
             '',
-            'Removing duplication by trying to fit a generic abstraction on '
-            'top of similar code that handles different business rules, is '
-            'not.',
-            '',
+            'Duplicate words: business, win, code',
+            '\n\r',
             'Reply',
             'Share',
-            'Report'
+            'Report',
         ]
         cls.dataset = pd.DataFrame(cls.input_data)
 
@@ -961,22 +952,19 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         self.maxDiff = None
         self.assertCountEqual(
             ['Report',
-             'Removing duplication when you need a single source of truth is '
-             'almost always a win.',
-             'When you try to DRY them up into a single generic abstraction, '
-             'you have inadvertently coupled those two business rules '
-             'together.',
-             'edited 9 hours ago',
+             'Reply',
              'Removing duplication that repeats the handling of the exact same '
-             'business rule is also usually a win.'],
+             'business rule is also usually a win.',
+             'edited 9 hours ago',
+             'Just want to caution against following this too rigidly.'],
             self.profiler.sample
         )
 
     def test_total_samples(self):
-        self.assertEqual(20, self.profiler.total_samples)
+        self.assertEqual(16, self.profiler.total_samples)
 
     def test_empty_line_count(self):
-        self.assertEqual(8, self.profiler._empty_line_count)
+        self.assertEqual(7, self.profiler._empty_line_count)
 
     def test_text_profiler_results(self):
         # pop out times
@@ -984,34 +972,38 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             self.report['data_stats']['statistics'].pop('times'))
 
         # vocab order doesn't matter
-        expected_vocab = ['x', 'i', 'y', 'q', 's', '9', ',', 'u', 'b', 'f', 'Y',
-                          'J', 'v', 'r', 'o', 'a', '6', 'n', 'T', 'k', 'h', ' ',
-                          'g', 'R', 't', 'W', '.', 'm', 'c', 'I', 'l', 'e', 'p',
-                          'w', 'S', 'd', 'D']
+        expected_vocab = ['x', 'i', 'y', 's', '9', ',', 'u', 'b', 'f', 'Y', 'J',
+                          'v', 'r', 'o', 'a', '6', 'n', 'h', ' ', 'g', 'R', 't',
+                          'W', '.', 'm', 'c', 'l', 'e', 'p', 'w', 'S', 'd', 'D',
+                          ':']
         self.assertCountEqual(
             expected_vocab,
             self.report['data_stats']['statistics'].pop('vocab'))
 
         # vocab order doesn't matter, case insensitive, remove stop words
-        expected_words = {
-            'Reply', 'also', 'a', 'function', 'DRY', 'creep', 'change',
-            'almost', 'modify', 'an', 'represent', '9', 'want', 'them', 'one',
-            'similar', 'different', 'caution', 'same', 'breaking',
-            'duplication', 'edited', 'in', 'top', 'that', 'together', 'has',
-            'thus', 'fit', 'and', 'source', 'rules', 'too', 'against',
-            'following', 'inadvertently', 'ago', 'requirements', 'duplicate',
-            'other', 'behavior', 'case', 'win', 'always', 'shared', 'single',
-            'on', 'have', 'repeats', 'but', 'whereby', 'lead', 'Removing',
-            'sometimes', 'code', 'the', '6', 'trying', 'those', 'up', 'it',
-            'business', 'two', 'rigidly', 'handling', 'truth', 'not', 'for',
-            'totally', 'is', 'part', 'hours', 'application', 'new', 'into',
-            'handle', 'rule', 'need', 'or', 'to', 'pieces', 'when', 'needs',
-            'can', 'handles', 'generic', 'Report', 'coupled', 'this', 'of',
-            'usually', 'try', 'if', 'just', 'special', 'Share', 'potential',
-            'your', 'unrelated', 'you', 'abstraction', 'exact', 'by',
-        }
-        expected_words -= set(  # adapt to the stop words (brittle test)
-            self.profiler._profile._profiles['unstructured_text']._stop_words)
+        # assuming if words are correct, rest of TextProfiler is merged properly
+        # vocab order doesn't matter, case insensitive, remove stop words
+        expected_word_count = {
+            'edited': 1, '9': 1, 'hours': 1, 'ago': 1, '6': 1, 'Do': 1,
+            'not': 1, 'duplicate': 1, 'code': 2, 'Just': 1, 'want': 1,
+            'to': 2, 'caution': 1, 'against': 1, 'following': 1, 'this': 1,
+            'too': 1, 'rigidly': 1, 'When': 1, 'you': 2, 'try': 1, 'DRY': 1,
+            'them': 1, 'up': 1, 'into': 1, 'a': 2, 'single': 1, 'generic': 1,
+            'abstraction': 1, 'have': 1, 'inadvertently': 1, 'coupled': 1,
+            'those': 1, 'two': 1, 'business': 3, 'rules': 1, 'together': 1,
+            'Removing': 1, 'duplication': 1, 'that': 1, 'repeats': 1, 'the': 2,
+            'handling': 1, 'of': 1, 'exact': 1, 'same': 1, 'rule': 1, 'is': 1,
+            'also': 1, 'usually': 1, 'win': 2, 'Duplicate': 1, 'words': 1,
+            'Reply': 1, 'Share': 1, 'Report': 1}
+
+        # adapt to the stop words (brittle test)
+        stop_words = \
+            self.profiler._profile._profiles['unstructured_text']._stop_words
+        for key in list(expected_word_count.keys()):
+            if key.lower() in stop_words:
+                expected_word_count.pop(key)
+
+        expected_words = expected_word_count.keys()
         self.assertCountEqual(
             expected_words,
             self.report['data_stats']['statistics'].pop('words'))
@@ -1019,30 +1011,14 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         # expected after the popping: times, vocab, words
         expected_report = {
             'global_stats': {
-                'samples_used': 20,
-                'empty_line_count': 8,
+                'samples_used': 16,
+                'empty_line_count': 7,
                 'file_type': "<class 'pandas.core.frame.DataFrame'>",
                 'encoding': None},
             'data_stats': {
                 'data_label': {},
                 'statistics': {
-                    'word_count': {
-                        'business': 7, 'rules': 4, 'code': 3, 'rule': 3,
-                        'Removing': 3, 'duplication': 3, 'similar': 2,
-                        'different': 2, 'application': 2, 'single': 2,
-                        'generic': 2, 'abstraction': 2, 'modify': 2,
-                        'function': 2, 'win': 2,  'edited': 1, '9': 1,
-                        'hours': 1, 'ago': 1, '6': 1, 'duplicate': 1,
-                        'want': 1, 'caution': 1, 'following': 1, 'rigidly': 1,
-                        'pieces': 1, 'behavior': 1,  'represent': 1,
-                        'totally': 1, 'try': 1, 'DRY': 1,  'inadvertently': 1,
-                        'coupled': 1, 'needs': 1,  'change': 1, 'shared': 1,
-                        'potential': 1, 'breaking': 1, 'unrelated': 1,
-                        'lead': 1, 'special': 1, 'case': 1, 'creep': 1,
-                        'handle': 1, 'new': 1, 'requirements': 1, 'need': 1,
-                        'source': 1, 'truth': 1, 'repeats': 1, 'handling': 1,
-                        'exact': 1, 'usually': 1, 'trying': 1, 'fit': 1,
-                        'handles': 1, 'Reply': 1, 'Share': 1, 'Report': 1}
+                    'word_count': expected_word_count
                 }
             }
         }
@@ -1052,44 +1028,48 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         merged_profiler = self.profiler + self.profiler2
         report = merged_profiler.report()
 
-        self.assertEqual(25, merged_profiler.total_samples)
-        self.assertEqual(9, merged_profiler._empty_line_count)
+        self.assertEqual(21, merged_profiler.total_samples)
+        self.assertEqual(8, merged_profiler._empty_line_count)
         self.assertCountEqual(
             ['test\n',
              'extra',
-             'Removing duplication when you need a single source of truth is '
-             'almost always a win.',
+             'Reply',
              'edited 9 hours ago',
-             'Removing duplication that repeats the handling of the exact same'
-             ' business rule is also usually a win.'],
+             'Removing duplication that repeats the handling of the exact same '
+             'business rule is also usually a win.'],
             merged_profiler.sample
         )
 
         # assuming if words are correct, rest of TextProfiler is merged properly
         # vocab order doesn't matter, case insensitive, remove stop words
-        expected_words = {
-            'Reply', 'also', 'a', 'function', 'DRY', 'creep', 'change',
-            'almost', 'modify', 'an', 'represent', '9', 'want', 'them', 'one',
-            'similar', 'different', 'caution', 'same', 'breaking',
-            'duplication', 'edited', 'in', 'top', 'that', 'together', 'has',
-            'thus', 'fit', 'and', 'source', 'rules', 'too', 'against',
-            'following', 'inadvertently', 'ago', 'requirements', 'duplicate',
-            'other', 'behavior', 'case', 'win', 'always', 'shared', 'single',
-            'on', 'have', 'repeats', 'but', 'whereby', 'lead', 'Removing',
-            'sometimes', 'code', 'the', '6', 'trying', 'those', 'up', 'it',
-            'business', 'two', 'rigidly', 'handling', 'truth', 'not', 'for',
-            'totally', 'is', 'part', 'hours', 'application', 'new', 'into',
-            'handle', 'rule', 'need', 'or', 'to', 'pieces', 'when', 'needs',
-            'can', 'handles', 'generic', 'Report', 'coupled', 'this', 'of',
-            'usually', 'try', 'if', 'just', 'special', 'Share', 'potential',
-            'your', 'unrelated', 'you', 'abstraction', 'exact', 'by', 'extra',
-            'test', 'data', 'merging'
-        }
-        expected_words -= set(  # adapt to the stop words (brittle test)
-            merged_profiler._profile._profiles['unstructured_text']._stop_words)
+        expected_word_count = {
+            'edited': 1, '9': 1, 'hours': 1, 'ago': 1, '6': 1, 'Do': 1,
+            'not': 1, 'duplicate': 1, 'code': 2, 'Just': 1, 'want': 1,
+            'to': 2, 'caution': 1, 'against': 1, 'following': 1, 'this': 1,
+            'too': 1, 'rigidly': 1, 'When': 1, 'you': 2, 'try': 1, 'DRY': 1,
+            'them': 1, 'up': 1, 'into': 1, 'a': 2, 'single': 1, 'generic': 1,
+            'abstraction': 1, 'have': 1, 'inadvertently': 1, 'coupled': 1,
+            'those': 1, 'two': 1, 'business': 3, 'rules': 1, 'together': 1,
+            'Removing': 1, 'duplication': 1, 'that': 1, 'repeats': 1, 'the': 2,
+            'handling': 1, 'of': 1, 'exact': 1, 'same': 1, 'rule': 1, 'is': 1,
+            'also': 1, 'usually': 1, 'win': 2, 'Duplicate': 1, 'words': 1,
+            'Reply': 1, 'Share': 1, 'Report': 1, 'extra': 1, 'test': 1,
+            'data': 1, 'merging': 1}
+
+        # adapt to the stop words (brittle test)
+        stop_words = \
+            merged_profiler._profile._profiles['unstructured_text']._stop_words
+        for key in list(expected_word_count.keys()):
+            if key.lower() in stop_words:
+                expected_word_count.pop(key)
+
+        expected_words = expected_word_count.keys()
         self.assertCountEqual(
             expected_words,
-            report['data_stats']['statistics'].pop('words'))
+            report['data_stats']['statistics']['words'])
+        self.assertDictEqual(
+            expected_word_count,
+            report['data_stats']['statistics']['word_count'])
 
     def test_update_profile(self):
         # turn off data labeler because if model changes, results also change
@@ -1104,8 +1084,8 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         report = update_profiler.report()
 
         # tests
-        self.assertEqual(25, update_profiler.total_samples)
-        self.assertEqual(9, update_profiler._empty_line_count)
+        self.assertEqual(21, update_profiler.total_samples)
+        self.assertEqual(8, update_profiler._empty_line_count)
 
         # Note: different from merge because sample is from last update only
         self.assertCountEqual(
@@ -1115,29 +1095,34 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # assuming if words are correct, rest of TextProfiler is merged properly
         # vocab order doesn't matter, case insensitive, remove stop words
-        expected_words = {
-            'Reply', 'also', 'a', 'function', 'DRY', 'creep', 'change',
-            'almost', 'modify', 'an', 'represent', '9', 'want', 'them', 'one',
-            'similar', 'different', 'caution', 'same', 'breaking',
-            'duplication', 'edited', 'in', 'top', 'that', 'together', 'has',
-            'thus', 'fit', 'and', 'source', 'rules', 'too', 'against',
-            'following', 'inadvertently', 'ago', 'requirements', 'duplicate',
-            'other', 'behavior', 'case', 'win', 'always', 'shared', 'single',
-            'on', 'have', 'repeats', 'but', 'whereby', 'lead', 'Removing',
-            'sometimes', 'code', 'the', '6', 'trying', 'those', 'up', 'it',
-            'business', 'two', 'rigidly', 'handling', 'truth', 'not', 'for',
-            'totally', 'is', 'part', 'hours', 'application', 'new', 'into',
-            'handle', 'rule', 'need', 'or', 'to', 'pieces', 'when', 'needs',
-            'can', 'handles', 'generic', 'Report', 'coupled', 'this', 'of',
-            'usually', 'try', 'if', 'just', 'special', 'Share', 'potential',
-            'your', 'unrelated', 'you', 'abstraction', 'exact', 'by', 'extra',
-            'test', 'data', 'merging'
-        }
-        expected_words -= set(  # adapt to the stop words (brittle test)
-            update_profiler._profile._profiles['unstructured_text']._stop_words)
+        expected_word_count = {
+            'edited': 1, '9': 1, 'hours': 1, 'ago': 1, '6': 1, 'Do': 1,
+            'not': 1, 'duplicate': 1, 'code': 2, 'Just': 1, 'want': 1,
+            'to': 2, 'caution': 1, 'against': 1, 'following': 1, 'this': 1,
+            'too': 1, 'rigidly': 1, 'When': 1, 'you': 2, 'try': 1, 'DRY': 1,
+            'them': 1, 'up': 1, 'into': 1, 'a': 2, 'single': 1, 'generic': 1,
+            'abstraction': 1, 'have': 1, 'inadvertently': 1, 'coupled': 1,
+            'those': 1, 'two': 1, 'business': 3, 'rules': 1, 'together': 1,
+            'Removing': 1, 'duplication': 1, 'that': 1, 'repeats': 1, 'the': 2,
+            'handling': 1, 'of': 1, 'exact': 1, 'same': 1, 'rule': 1, 'is': 1,
+            'also': 1, 'usually': 1, 'win': 2, 'Duplicate': 1, 'words': 1,
+            'Reply': 1, 'Share': 1, 'Report': 1, 'extra': 1, 'test': 1,
+            'data': 1, 'merging': 1}
+
+        # adapt to the stop words (brittle test)
+        stop_words = \
+            update_profiler._profile._profiles['unstructured_text']._stop_words
+        for key in list(expected_word_count.keys()):
+            if key.lower() in stop_words:
+                expected_word_count.pop(key)
+
+        expected_words = expected_word_count.keys()
         self.assertCountEqual(
             expected_words,
-            report['data_stats']['statistics'].pop('words'))
+            report['data_stats']['statistics']['words'])
+        self.assertDictEqual(
+            expected_word_count,
+            report['data_stats']['statistics']['word_count'])
 
 
 class TestProfilerNullValues(unittest.TestCase):

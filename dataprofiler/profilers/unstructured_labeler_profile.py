@@ -7,7 +7,7 @@ from ..labelers.data_processing import CharPostprocessor
 
 class UnstructuredLabelerProfile(object):
 
-    type = 'text_labeling'
+    type = "data_labeler"
 
     def __init__(self, data_labeler_dirpath=None, options=None):
         """
@@ -20,11 +20,20 @@ class UnstructuredLabelerProfile(object):
         """
         # initializing a UnstructuredDataLabeler as well as the entity counts
         # statistic:
-        self.options = options
-        self._data_labeler = DataLabeler(
-            labeler_type='unstructured',
-            dirpath=data_labeler_dirpath,
-            load_options=None)
+
+        self.data_labeler = None
+        if options and options.data_labeler_object:
+            self.data_labeler = options.data_labeler_object
+        if self.data_labeler is None:
+            data_labeler_dirpath = None
+            if options:
+                data_labeler_dirpath = options.data_labeler_dirpath
+
+            self.data_labeler = DataLabeler(
+                labeler_type='unstructured',
+                dirpath=data_labeler_dirpath,
+                load_options=None)
+
         self.entity_counts = dict(
             word_level=defaultdict(int),
             true_char_level=defaultdict(int),
@@ -40,7 +49,7 @@ class UnstructuredLabelerProfile(object):
 
     @property
     def label_encoding(self):
-        return self._data_labeler.labels
+        return self.data_labeler.labels
 
     @BaseColumnProfiler._timeit(name='data_labeler_predict')
     def _update_helper(self, df_series_clean, profile):
@@ -54,14 +63,14 @@ class UnstructuredLabelerProfile(object):
         :return: None
         """
         # this will get char_level predictions as output
-        predictions = self._data_labeler.predict(df_series_clean)
+        predictions = self.data_labeler.predict(df_series_clean)
 
         # also store spacy/NER format
         postprocessor = CharPostprocessor(use_word_level_argmax=True,
                                           output_format="NER")
         format_predictions = postprocessor.process(
             df_series_clean, predictions.copy(),
-            self._data_labeler.label_mapping)
+            self.data_labeler.label_mapping)
 
         # Update counts and percent values
         self._update_word_label_counts(
@@ -138,7 +147,7 @@ class UnstructuredLabelerProfile(object):
         :type predictions: list
         :return: None
         """
-        label_lookup = self._data_labeler.reverse_label_mapping
+        label_lookup = self.data_labeler.reverse_label_mapping
         char_label_counts = self.entity_counts["true_char_level"]
 
         for sample in predictions:

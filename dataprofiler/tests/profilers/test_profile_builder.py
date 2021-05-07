@@ -3,7 +3,6 @@ from __future__ import print_function
 import unittest
 from unittest import mock
 from io import BytesIO
-import builtins
 import random
 import six
 import os
@@ -15,7 +14,8 @@ import pandas as pd
 from . import utils as test_utils
 
 import dataprofiler as dp
-from dataprofiler.profilers.profile_builder import StructuredDataProfile
+from dataprofiler.profilers.profile_builder import StructuredDataProfile, \
+    UnstructuredProfiler, UnstructuredCompiler
 from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
@@ -403,7 +403,9 @@ class TestProfiler(unittest.TestCase):
                 mock_file = setup_save_mock_open(m)
                 save_profile.save()
                 mock_file.seek(0)
-                load_profile = dp.Profiler.load("mock.pkl")
+                with mock.patch('dataprofiler.profilers.profile_builder.'
+                                'DataLabeler'):
+                    load_profile = dp.Profiler.load("mock.pkl")
 
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
@@ -553,15 +555,16 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         # previously `iloc` was used at:
         # `df_series = df_series.loc[sorted(true_sample_list)]`
         # which caused errors
+        test_utils.set_seed(seed=0)
         df_series, base_stats = \
             StructuredDataProfile.clean_data_and_get_base_stats(
                 df_series=data[1:], sample_size=6, min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
-        self.assertCountEqual({'sample': ['4.0', '6.0', '3.0'],
-                               'sample_size': 5, 'null_count': 2,
-                               'null_types': dict(nan=['e', 'b']),
-                               'min_id': None, 'max_id': None}, base_stats)
+        self.assertDictEqual({'sample': ['4.0', '6.0', '3.0'],
+                              'sample_size': 5, 'null_count': 2,
+                              'null_types': dict(nan=['e', 'b']),
+                              'min_id': None, 'max_id': None}, base_stats)
 
     def test_column_names(self):
         data = [['a', 1], ['b', 2], ['c', 3]]
@@ -747,6 +750,378 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         profile.update_profile(data[2:])
         self.assertEqual(0, profile._min_id)
         self.assertEqual(6, profile._max_id)
+
+
+@mock.patch('dataprofiler.profilers.profile_builder.UnstructuredCompiler',
+            spec=UnstructuredCompiler)
+@mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+class TestUnstructuredProfiler(unittest.TestCase):
+
+    @classmethod
+    def setUp(cls):
+        test_utils.set_seed(seed=0)
+
+    def test_base(self, *mocks):
+        # ensure can make an empty profiler
+        profiler = UnstructuredProfiler(None)
+        self.assertIsNone(profiler.encoding)
+        self.assertIsNone(profiler.file_type)
+        self.assertIsNone(profiler._profile)
+        self.assertIsNone(profiler._samples_per_update)
+        self.assertEqual(0, profiler._min_true_samples)
+        self.assertEqual(0, profiler.total_samples)
+        self.assertEqual(0, profiler._empty_line_count)
+        self.assertEqual(0.2, profiler._sampling_ratio)
+        self.assertEqual(5000, profiler._min_sample_size)
+        self.assertIsInstance(profiler.options, ProfilerOptions)
+
+        # can set samples_per_update and min_true_samples
+        profiler = UnstructuredProfiler(None, samples_per_update=10,
+                                        min_true_samples=5)
+        self.assertEqual(profiler._samples_per_update, 10)
+        self.assertEqual(profiler._min_true_samples, 5)
+
+        # can properties update correctly for data
+        data = pd.Series(['this', 'is my', '\n\r', 'test'])
+        profiler = UnstructuredProfiler(data)
+        self.assertEqual(4, profiler.total_samples)
+        self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual("<class 'pandas.core.series.Series'>",
+                         profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
+        # can properties update correctly for data loaded from file
+        data = pd.Series(['this', 'is my', '\n\r', 'test'])
+        mock_data_reader = mock.Mock(spec=dp.data_readers.csv_data.CSVData)
+        mock_data_reader.data = data
+        mock_data_reader.data_type = 'csv'
+        mock_data_reader.file_encoding = 'utf-8'
+        mock_data_reader.input_file_path = 'fake/path/file.csv'
+
+        profiler = UnstructuredProfiler(mock_data_reader)
+        self.assertEqual(4, profiler.total_samples)
+        self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual("csv", profiler.file_type)
+        self.assertEqual("utf-8", profiler.encoding)
+        self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
+    def test_merge_profiles(self, *mocks):
+        # can properties update correctly for data
+        data1 = pd.Series(['this', 'is my', '\n\r', 'test'])
+        data2 = pd.Series(['here\n', '\t    ', ' ', ' is', '\n\r', 'more data'])
+
+        # create profilers
+        profiler1 = UnstructuredProfiler(data1)
+        profiler2 = UnstructuredProfiler(data2)
+
+        # mock out _profile
+        profiler1._profile = 1
+        profiler2._profile = 2
+
+        # merge profilers
+        merged_profile = profiler1 + profiler2
+        self.assertEqual(10, merged_profile.total_samples)
+        self.assertEqual(4, merged_profile._empty_line_count)
+        # note how sample doesn't include whitespace lines
+        self.assertCountEqual(['this', ' is', 'here\n', 'more data', 'is my'],
+                              merged_profile.sample)
+        self.assertEqual(3, merged_profile._profile)
+
+    def test_get_sample_size(self, *mocks):
+        data = pd.DataFrame([0] * int(50e3))
+
+        # test data size < min_sample_size = 5000 by default
+        profiler = UnstructuredProfiler(None)
+        profiler._min_sample_size = 5000
+        profiler._sampling_ratio = 0.2
+        sample_size = profiler._get_sample_size(data[:1000])
+        self.assertEqual(1000, sample_size)
+
+        # test data size * 0.20 < min_sample_size < data size
+        sample_size = profiler._get_sample_size(data[:10000])
+        self.assertEqual(5000, sample_size)
+
+        # test min_sample_size > data size * 0.20
+        sample_size = profiler._get_sample_size(data)
+        self.assertEqual(10000, sample_size)
+
+        # test min_sample_size > data size * 0.5
+        profiler._sampling_ratio = 0.5
+        sample_size = profiler._get_sample_size(data)
+        self.assertEqual(25000, sample_size)
+
+    def test_clean_data_and_get_base_stats(self, *mocks):
+        data = pd.Series(['here\n', '\t    ', 'a', ' is', '\n\r', 'more data'])
+
+        # case when min_true_samples not set and subset of data
+        df_series, base_stats = \
+            UnstructuredProfiler._clean_data_and_get_base_stats(
+                data=data, sample_size=3)
+
+        # note: bc the sample size is 3, only a subset of the data was sampled
+        self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
+        self.assertDictEqual(
+            {
+                'sample': ['more data'],  # bc of subset sampled
+                'sample_size': 3,
+                'empty_line_count': 2
+            },
+            base_stats)
+
+        # case when min_true_samples set and subset of data
+        df_series, base_stats = \
+            UnstructuredProfiler._clean_data_and_get_base_stats(
+                data=data, sample_size=3, min_true_samples=2)
+
+        # note: bc the sample size is 3, only a subset of the data was sampled
+        self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
+        self.assertDictEqual(
+            {
+                'sample': ['more data', 'here\n', 'a', ' is'],
+                'sample_size': 6,
+                'empty_line_count': 2
+            },
+            base_stats)
+
+    def test_update_profile(self, *mocks):
+        # can properties update correctly for data
+        data1 = pd.Series(['this', 'is my', '\n\r', 'test'])
+        data2 = pd.Series(['here\n', '\t    ', ' ', ' is', '\n\r', 'more data'])
+
+        # profiler with first dataset
+        profiler = UnstructuredProfiler(data1)
+        self.assertEqual(4, profiler.total_samples)
+        self.assertEqual(1, profiler._empty_line_count)
+        # note how sample doesn't include whitespace lines
+        self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
+
+        # update with second dataset
+        profiler.update_profile(data2)
+        self.assertEqual(10, profiler.total_samples)
+        self.assertEqual(4, profiler._empty_line_count)
+        # note how sample doesn't include whitespace lines
+        self.assertCountEqual(['here\n', ' is', 'more data'], profiler.sample)
+
+
+class TestUnstructuredProfilerWData(unittest.TestCase):
+
+    @classmethod
+    def setUp(cls):
+        test_utils.set_seed(seed=0)
+
+    @classmethod
+    def setUpClass(cls):
+        test_utils.set_seed(0)
+        cls.maxDiff = None
+        cls.input_data = [
+            'edited 9 hours ago',
+            '6. Do not duplicate code.',
+            '\t',
+            'Just want to caution against following this too rigidly.',
+            '\t',
+            '   ',
+            'When you try to DRY them up into a single generic abstraction, '
+            'you have inadvertently coupled those two business rules together.',
+            '   ',
+            '   ',
+            'Removing duplication that repeats the handling of the exact same '
+            'business rule is also usually a win.',
+            '',
+            'Duplicate words: business, win, code',
+            '\n\r',
+            'Reply',
+            'Share',
+            'Report',
+        ]
+        cls.dataset = pd.DataFrame(cls.input_data)
+
+        # turn off data labeler because if model changes, results also change
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+
+        cls.profiler = UnstructuredProfiler(
+            cls.dataset, len(cls.dataset), options=profiler_options)
+        cls.profiler2 = UnstructuredProfiler(
+            pd.DataFrame(['extra', '\n', 'test\n', 'data .', 'For merging.']),
+            options=profiler_options
+        )
+        cls.report = cls.profiler.report()
+
+    def test_sample(self):
+        self.maxDiff = None
+        self.assertCountEqual(
+            ['Report',
+             'Reply',
+             'Removing duplication that repeats the handling of the exact same '
+             'business rule is also usually a win.',
+             'edited 9 hours ago',
+             'Just want to caution against following this too rigidly.'],
+            self.profiler.sample
+        )
+
+    def test_total_samples(self):
+        self.assertEqual(16, self.profiler.total_samples)
+
+    def test_empty_line_count(self):
+        self.assertEqual(7, self.profiler._empty_line_count)
+
+    def test_text_profiler_results(self):
+        # pop out times
+        self.assertIsNotNone(
+            self.report['data_stats']['statistics'].pop('times'))
+
+        # vocab order doesn't matter
+        expected_vocab = ['x', 'i', 'y', 's', '9', ',', 'u', 'b', 'f', 'Y', 'J',
+                          'v', 'r', 'o', 'a', '6', 'n', 'h', ' ', 'g', 'R', 't',
+                          'W', '.', 'm', 'c', 'l', 'e', 'p', 'w', 'S', 'd', 'D',
+                          ':']
+        self.assertCountEqual(
+            expected_vocab,
+            self.report['data_stats']['statistics'].pop('vocab'))
+
+        # assuming if words are correct, rest of TextProfiler is merged properly
+        # vocab order doesn't matter, case insensitive, remove stop words
+        expected_word_count = {
+            'edited': 1, '9': 1, 'hours': 1, 'ago': 1, '6': 1, 'Do': 1,
+            'not': 1, 'duplicate': 1, 'code': 2, 'Just': 1, 'want': 1,
+            'to': 2, 'caution': 1, 'against': 1, 'following': 1, 'this': 1,
+            'too': 1, 'rigidly': 1, 'When': 1, 'you': 2, 'try': 1, 'DRY': 1,
+            'them': 1, 'up': 1, 'into': 1, 'a': 2, 'single': 1, 'generic': 1,
+            'abstraction': 1, 'have': 1, 'inadvertently': 1, 'coupled': 1,
+            'those': 1, 'two': 1, 'business': 3, 'rules': 1, 'together': 1,
+            'Removing': 1, 'duplication': 1, 'that': 1, 'repeats': 1, 'the': 2,
+            'handling': 1, 'of': 1, 'exact': 1, 'same': 1, 'rule': 1, 'is': 1,
+            'also': 1, 'usually': 1, 'win': 2, 'Duplicate': 1, 'words': 1,
+            'Reply': 1, 'Share': 1, 'Report': 1}
+
+        # adapt to the stop words (brittle test)
+        stop_words = \
+            self.profiler._profile._profiles['unstructured_text']._stop_words
+        for key in list(expected_word_count.keys()):
+            if key.lower() in stop_words:
+                expected_word_count.pop(key)
+
+        expected_words = expected_word_count.keys()
+        self.assertCountEqual(
+            expected_words,
+            self.report['data_stats']['statistics'].pop('words'))
+
+        # expected after the popping: times, vocab, words
+        expected_report = {
+            'global_stats': {
+                'samples_used': 16,
+                'empty_line_count': 7,
+                'file_type': "<class 'pandas.core.frame.DataFrame'>",
+                'encoding': None},
+            'data_stats': {
+                'data_label': {},
+                'statistics': {
+                    'word_count': expected_word_count
+                }
+            }
+        }
+        self.assertDictEqual(expected_report, self.report)
+
+    def test_add_profilers(self):
+        merged_profiler = self.profiler + self.profiler2
+        report = merged_profiler.report()
+
+        self.assertEqual(21, merged_profiler.total_samples)
+        self.assertEqual(8, merged_profiler._empty_line_count)
+        self.assertCountEqual(
+            ['test\n',
+             'extra',
+             'Reply',
+             'edited 9 hours ago',
+             'Removing duplication that repeats the handling of the exact same '
+             'business rule is also usually a win.'],
+            merged_profiler.sample
+        )
+
+        # assuming if words are correct, rest of TextProfiler is merged properly
+        # vocab order doesn't matter, case insensitive, remove stop words
+        expected_word_count = {
+            'edited': 1, '9': 1, 'hours': 1, 'ago': 1, '6': 1, 'Do': 1,
+            'not': 1, 'duplicate': 1, 'code': 2, 'Just': 1, 'want': 1,
+            'to': 2, 'caution': 1, 'against': 1, 'following': 1, 'this': 1,
+            'too': 1, 'rigidly': 1, 'When': 1, 'you': 2, 'try': 1, 'DRY': 1,
+            'them': 1, 'up': 1, 'into': 1, 'a': 2, 'single': 1, 'generic': 1,
+            'abstraction': 1, 'have': 1, 'inadvertently': 1, 'coupled': 1,
+            'those': 1, 'two': 1, 'business': 3, 'rules': 1, 'together': 1,
+            'Removing': 1, 'duplication': 1, 'that': 1, 'repeats': 1, 'the': 2,
+            'handling': 1, 'of': 1, 'exact': 1, 'same': 1, 'rule': 1, 'is': 1,
+            'also': 1, 'usually': 1, 'win': 2, 'Duplicate': 1, 'words': 1,
+            'Reply': 1, 'Share': 1, 'Report': 1, 'extra': 1, 'test': 1,
+            'data': 1, 'merging': 1}
+
+        # adapt to the stop words (brittle test)
+        stop_words = \
+            merged_profiler._profile._profiles['unstructured_text']._stop_words
+        for key in list(expected_word_count.keys()):
+            if key.lower() in stop_words:
+                expected_word_count.pop(key)
+
+        expected_words = expected_word_count.keys()
+        self.assertCountEqual(
+            expected_words,
+            report['data_stats']['statistics']['words'])
+        self.assertDictEqual(
+            expected_word_count,
+            report['data_stats']['statistics']['word_count'])
+
+    def test_update_profile(self):
+        # turn off data labeler because if model changes, results also change
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+
+        # update profiler and get report
+        update_profiler = UnstructuredProfiler(self.dataset,
+                                               options=profiler_options)
+        update_profiler.update_profile(pd.DataFrame(['extra', '\n', 'test\n',
+                                                     'data .', 'For merging.']))
+        report = update_profiler.report()
+
+        # tests
+        self.assertEqual(21, update_profiler.total_samples)
+        self.assertEqual(8, update_profiler._empty_line_count)
+
+        # Note: different from merge because sample is from last update only
+        self.assertCountEqual(
+            ['test\n', 'extra', 'For merging.', 'data .'],
+            update_profiler.sample
+        )
+
+        # assuming if words are correct, rest of TextProfiler is merged properly
+        # vocab order doesn't matter, case insensitive, remove stop words
+        expected_word_count = {
+            'edited': 1, '9': 1, 'hours': 1, 'ago': 1, '6': 1, 'Do': 1,
+            'not': 1, 'duplicate': 1, 'code': 2, 'Just': 1, 'want': 1,
+            'to': 2, 'caution': 1, 'against': 1, 'following': 1, 'this': 1,
+            'too': 1, 'rigidly': 1, 'When': 1, 'you': 2, 'try': 1, 'DRY': 1,
+            'them': 1, 'up': 1, 'into': 1, 'a': 2, 'single': 1, 'generic': 1,
+            'abstraction': 1, 'have': 1, 'inadvertently': 1, 'coupled': 1,
+            'those': 1, 'two': 1, 'business': 3, 'rules': 1, 'together': 1,
+            'Removing': 1, 'duplication': 1, 'that': 1, 'repeats': 1, 'the': 2,
+            'handling': 1, 'of': 1, 'exact': 1, 'same': 1, 'rule': 1, 'is': 1,
+            'also': 1, 'usually': 1, 'win': 2, 'Duplicate': 1, 'words': 1,
+            'Reply': 1, 'Share': 1, 'Report': 1, 'extra': 1, 'test': 1,
+            'data': 1, 'merging': 1}
+
+        # adapt to the stop words (brittle test)
+        stop_words = \
+            update_profiler._profile._profiles['unstructured_text']._stop_words
+        for key in list(expected_word_count.keys()):
+            if key.lower() in stop_words:
+                expected_word_count.pop(key)
+
+        expected_words = expected_word_count.keys()
+        self.assertCountEqual(
+            expected_words,
+            report['data_stats']['statistics']['words'])
+        self.assertDictEqual(
+            expected_word_count,
+            report['data_stats']['statistics']['word_count'])
 
 
 class TestProfilerNullValues(unittest.TestCase):

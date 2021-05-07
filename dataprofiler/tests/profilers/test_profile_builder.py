@@ -980,7 +980,6 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             expected_vocab,
             self.report['data_stats']['statistics'].pop('vocab'))
 
-        # vocab order doesn't matter, case insensitive, remove stop words
         # assuming if words are correct, rest of TextProfiler is merged properly
         # vocab order doesn't matter, case insensitive, remove stop words
         expected_word_count = {

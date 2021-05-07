@@ -791,6 +791,21 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertIsNone(profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
 
+        # can properties update correctly for data loaded from file
+        data = pd.Series(['this', 'is my', '\n\r', 'test'])
+        mock_data_reader = mock.Mock(spec=dp.data_readers.csv_data.CSVData)
+        mock_data_reader.data = data
+        mock_data_reader.data_type = 'csv'
+        mock_data_reader.file_encoding = 'utf-8'
+        mock_data_reader.input_file_path = 'fake/path/file.csv'
+
+        profiler = UnstructuredProfiler(mock_data_reader)
+        self.assertEqual(4, profiler.total_samples)
+        self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual("csv", profiler.file_type)
+        self.assertEqual("utf-8", profiler.encoding)
+        self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
     def test_merge_profiles(self, *mocks):
         # can properties update correctly for data
         data1 = pd.Series(['this', 'is my', '\n\r', 'test'])

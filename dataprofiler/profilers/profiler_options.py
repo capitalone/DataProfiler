@@ -412,7 +412,8 @@ class PrecisionOptions(BooleanOption):
                               .format(variable_path))                
         
         return errors
-    
+
+
 class FloatOptions(NumericalOptions):
 
     def __init__(self):
@@ -655,6 +656,67 @@ class DataLabelerOptions(BaseInspectorOptions):
         return errors
 
 
+class TextProfilerOptions(BaseInspectorOptions):
+
+    def __init__(self, is_enabled=True, is_case_sensitive=True,
+                 stop_words=None):
+        """
+        Constructs the TextProfilerOption object with default values.
+
+        :ivar is_enabled: boolean option to enable/disable the option.
+        :vartype is_enabled: bool
+        :ivar is_case_sensitive: option set for case sensitivity.
+        :vartype is_case_sensitive: bool
+        :ivar stop_words: option set for stop words.
+        :vartype stop_words: Union[None, list(str)]
+        :ivar words: option set for word update.
+        :vartype words: BooleanOption
+        :ivar vocab: option set for vocab update.
+        :vartype vocab: BooleanOption
+        """
+        super().__init__(is_enabled=is_enabled)
+        self.is_case_sensitive = is_case_sensitive
+        self.stop_words = stop_words
+        self.words = BooleanOption(is_enabled=True)
+        self.vocab = BooleanOption(is_enabled=True)
+
+    def _validate_helper(self, variable_path='TextProfilerOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        if not variable_path:
+            variable_path = self.__class__.__name__
+
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if not isinstance(self.is_case_sensitive, bool):
+            errors.append("{}.is_case_sensitive must be a Boolean."
+                          .format(variable_path))
+
+        if (self.stop_words is not None and
+                (not isinstance(self.stop_words, list)
+                 or not all(isinstance(item, str)
+                            for item in self.stop_words))):
+            errors.append("{}.stop_words must be None "
+                          "or list of strings.".format(variable_path))
+
+        if not isinstance(self.words, BooleanOption):
+            errors.append("{}.words must be a BooleanOption "
+                          "object."
+                          .format(variable_path))
+
+        if not isinstance(self.vocab, BooleanOption):
+            errors.append("{}.vocab must be a BooleanOption "
+                          "object."
+                          .format(variable_path))
+        return errors
+
+
 class StructuredOptions(BaseOption):
 
     def __init__(self):
@@ -723,9 +785,62 @@ class StructuredOptions(BaseOption):
             if not isinstance(self.properties[column], prop_check[column]):
                 errors.append("{}.{} must be a(n) {}.".format(
                     variable_path, column, prop_check[column].__name__))
-            errors += self.properties[column]._validate_helper(
-                variable_path=(variable_path + '.' + column
-                               if variable_path else column))
+            else:
+                errors += self.properties[column]._validate_helper(
+                    variable_path=(variable_path + '.' + column
+                                   if variable_path else column))
+        return errors
+
+
+class UnstructuredOptions(BaseOption):
+
+    def __init__(self):
+        """
+        Constructs the UnstructuredOptions object with default values.
+
+        :ivar text: option set for text profiling.
+        :vartype text: TextProfilerOptions
+        :ivar data_labeler: option set for data_labeler profiling.
+        :vartype data_labeler: DataLabelerOptions
+        """
+        self.text = TextProfilerOptions()
+        self.data_labeler = DataLabelerOptions()
+
+    @property
+    def enabled_profiles(self):
+        """Returns a list of the enabled profilers for columns."""
+        enabled_profiles = list()
+        for key, value in self.properties.items():
+            if value.is_enabled:
+                enabled_profiles.append(key)
+        return enabled_profiles
+
+    def _validate_helper(self, variable_path='StructuredOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
+        errors = []
+
+        prop_check = dict([
+            ('text', TextProfilerOptions),
+            ('data_labeler', DataLabelerOptions)
+        ])
+
+        for prop in self.properties:
+            if not isinstance(self.properties[prop], prop_check[prop]):
+                errors.append("{}.{} must be a(n) {}.".format(
+                    variable_path, prop, prop_check[prop].__name__))
+            else:
+                errors += self.properties[prop]._validate_helper(
+                    variable_path=(variable_path + '.' + prop
+                                   if variable_path else prop))
         return errors
 
 
@@ -737,8 +852,11 @@ class ProfilerOptions(BaseOption):
 
         :ivar structured_options: option set for structured dataset profiling.
         :vartype structured_options: StructuredOptions
+        :ivar unstructured_options: option set for unstructured dataset profiling.
+        :vartype unstructured_options: UnstructuredOptions
         """
         self.structured_options = StructuredOptions()
+        self.unstructured_options = UnstructuredOptions()
 
     def _validate_helper(self, variable_path='ProfilerOptions'):
         """
@@ -760,65 +878,4 @@ class ProfilerOptions(BaseOption):
         errors += self.structured_options._validate_helper(
             variable_path=variable_path + '.structured_options')
 
-        return errors
-
-
-class TextProfilerOptions(BaseInspectorOptions):
-
-    def __init__(self, is_enabled=True, is_case_sensitive=True,
-                 stop_words=None):
-        """
-        Constructs the TextProfilerOption object with default values.
-
-        :ivar is_enabled: boolean option to enable/disable the option.
-        :vartype is_enabled: bool
-        :ivar is_case_sensitive: option set for case sensitivity.
-        :vartype is_case_sensitive: bool
-        :ivar stop_words: option set for stop words.
-        :vartype stop_words: Union[None, list(str)]
-        :ivar words: option set for word update.
-        :vartype words: BooleanOption
-        :ivar vocab: option set for vocab update.
-        :vartype vocab: BooleanOption
-        """
-        super().__init__(is_enabled=is_enabled)
-        self.is_case_sensitive = is_case_sensitive
-        self.stop_words = stop_words
-        self.words = BooleanOption(is_enabled=True)
-        self.vocab = BooleanOption(is_enabled=True)
-
-    def _validate_helper(self, variable_path='TextProfilerOptions'):
-        """
-        Validates the options do not conflict and cause errors.
-
-        :param variable_path: current path to variable set.
-        :type variable_path: str
-        :return: list of errors (if raise_error is false)
-        :rtype: list(str)
-        """
-        if not variable_path:
-            variable_path = self.__class__.__name__
-
-        errors = super()._validate_helper(variable_path=variable_path)
-
-        if not isinstance(self.is_case_sensitive, bool):
-            errors.append("{}.is_case_sensitive must be a Boolean."
-                          .format(variable_path))
-
-        if (self.stop_words is not None and
-                (not isinstance(self.stop_words, list)
-                 or not all(isinstance(item, str)
-                            for item in self.stop_words))):
-            errors.append("{}.stop_words must be None "
-                              "or list of strings.".format(variable_path))
-
-        if not isinstance(self.words, BooleanOption):
-            errors.append("{}.words must be a BooleanOption "
-                          "object."
-                          .format(variable_path))
-
-        if not isinstance(self.vocab, BooleanOption):
-            errors.append("{}.vocab must be a BooleanOption "
-                          "object."
-                          .format(variable_path))
         return errors

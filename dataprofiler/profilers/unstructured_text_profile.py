@@ -8,7 +8,7 @@ from .profiler_options import TextProfilerOptions
 
 
 class TextProfiler(object):
-    type = 'unstructured_text'
+    type = 'text'
 
     def __init__(self, name, options=None):
         """

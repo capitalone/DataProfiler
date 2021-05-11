@@ -1133,6 +1133,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             save_profile = UnstructuredProfiler(data)
 
             # store the expected data_labeler
+            # TODO: update to use unstructured options when available
             data_labeler = save_profile.options.structured_options.data_labeler\
                 .data_labeler_object
 
@@ -1142,9 +1143,11 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
                 save_profile.save()
 
                 # make sure data_labeler unchanged
+                # TODO: update to use unstructured options when available
                 self.assertIs(
                     data_labeler,
-                    save_profile.options.structured_options.data_labeler.data_labeler_object)
+                    save_profile.options.structured_options.data_labeler.
+                        data_labeler_object)
                 self.assertIs(
                     data_labeler,
                     save_profile._profile._profiles['data_labeler'].data_labeler)
@@ -1155,6 +1158,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
                     load_profile = UnstructuredProfiler.load("mock.pkl")
 
             # validate loaded profile has same data labeler class
+            # TODO: update to use unstructured options when available
             self.assertIsInstance(
                 load_profile.options.structured_options.data_labeler.
                     data_labeler_object,

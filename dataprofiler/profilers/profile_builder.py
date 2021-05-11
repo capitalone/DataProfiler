@@ -789,19 +789,20 @@ class UnstructuredProfiler(object):
         """
         data_labeler = None
 
-        # Delete data labeler for profiler
+        # determine if the data labeler is enabled
         # TODO: fix to correct options when unstructured options avail
         use_data_labeler = True
         if self.options and isinstance(self.options, ProfilerOptions):
             data_labeler_options = self.options.structured_options.data_labeler
             use_data_labeler = data_labeler_options.is_enabled
+
+        # remove the data labeler from options
         if use_data_labeler \
                 and data_labeler_options.data_labeler_object is not None:
             data_labeler = data_labeler_options.data_labeler_object
             data_labeler_options.data_labeler_object = None
 
-        # remove data labelers
-        # TODO: fix to correct options when unstructured options avail
+        # remove the data labeler from the unstructured profiler
         if use_data_labeler:
             if data_labeler is None:
                 data_labeler = \
@@ -818,7 +819,7 @@ class UnstructuredProfiler(object):
         :param data_labeler: unstructured data_labeler
         :type data_labeler: DataLabeler
         """
-        # Restore data labeler for profiler
+        # Restore data labeler for options
         # TODO: fix to correct options when unstructured options avail
         use_data_labeler = True
         data_labeler_options = None
@@ -845,7 +846,7 @@ class UnstructuredProfiler(object):
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
-        # Restore data labelers for all columns
+        # Restore data labelers for unstructured data labeling
         if use_data_labeler:
             data_labeler_profile = self._profile._profiles['data_labeler']
             data_labeler_profile.data_labeler = data_labeler

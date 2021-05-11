@@ -486,7 +486,7 @@ class UnstructuredProfiler(object):
         self._min_sample_size = 5000
 
         # assign data labeler
-        self.options.unstructured_options.unstructured_text = TextProfilerOptions()
+        self.options.unstructured_options.text = TextProfilerOptions()
         data_labeler_options = self.options.structured_options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:

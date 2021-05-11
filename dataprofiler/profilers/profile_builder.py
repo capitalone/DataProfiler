@@ -784,8 +784,9 @@ class UnstructuredProfiler(object):
         """
         Helper method for removing all data labelers before saving to disk.
 
-        :return: data_labeler use for unstructured labeling
-        :rtype: DataLabeler
+        :return: data_labeler(s) used for unstructured labelling (if labeler
+        exists in structured options it will be returned in the 1 index)
+        :rtype: list(DataLabeler)
         """
         data_labeler = None
 
@@ -801,6 +802,20 @@ class UnstructuredProfiler(object):
             data_labeler = data_labeler_options.data_labeler_object
             data_labeler_options.data_labeler_object = None
 
+        # determine if the structured data labeler is enabled
+        use_struct_data_labeler = True
+        if self.options and isinstance(self.options, ProfilerOptions):
+            struct_data_labeler_options = \
+                self.options.structured_options.data_labeler
+            use_struct_data_labeler = data_labeler_options.is_enabled
+
+        # remove the data labeler from options
+        struct_data_labeler = None
+        if use_struct_data_labeler \
+                and struct_data_labeler_options.data_labeler_object is not None:
+            struct_data_labeler = data_labeler_options.data_labeler_object
+            struct_data_labeler_options.data_labeler_object = None
+
         # remove the data labeler from the unstructured profiler
         if use_data_labeler:
             if data_labeler is None:
@@ -808,17 +823,21 @@ class UnstructuredProfiler(object):
                     self._profile._profiles['data_labeler'].data_labeler
             self._profile._profiles['data_labeler'].data_labeler = None
 
-        return data_labeler
+        return [data_labeler, struct_data_labeler]
 
-    def _restore_data_labelers(self, data_labeler=None):
+    def _restore_data_labelers(self, data_labelers=None):
         """
         Helper method for restoring all data labelers after saving to or
         loading from disk.
 
-        :param data_labeler: unstructured data_labeler
-        :type data_labeler: DataLabeler
+        :param data_labelers: unstructured data_labeler (and possible structured
+        if it was present in ProfilerOptions)
+        :type data_labelers: list(DataLabeler)
         """
         # Restore data labeler for options
+        data_labeler = None
+        if data_labelers:
+            data_labeler = data_labelers[0]
         use_data_labeler = True
         data_labeler_options = None
         if self.options and isinstance(self.options, ProfilerOptions):
@@ -851,6 +870,12 @@ class UnstructuredProfiler(object):
             data_labeler_profile = self._profile._profiles['data_labeler']
             data_labeler_profile.data_labeler = data_labeler
 
+        # Restore structured data labeler if there was one
+        if data_labelers and data_labelers[1] and self.options and \
+                isinstance(self.options, ProfilerOptions):
+            self.options.structured_options.data_labeler.data_labeler_object \
+                = data_labelers[1]
+
     def save(self, filepath=None):
         """
         Save profiler to disk
@@ -865,7 +890,7 @@ class UnstructuredProfiler(object):
                 datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f"))
 
         # Remove the data labeler as they can't be pickled
-        data_labeler = self._remove_data_labelers()
+        data_labelers = self._remove_data_labelers()
 
         # Create dictionary for all metadata, options, and profile
         data = {
@@ -883,7 +908,7 @@ class UnstructuredProfiler(object):
             pickle.dump(data, outfile)
 
         # Restore all data labelers
-        self._restore_data_labelers(data_labeler)
+        self._restore_data_labelers(data_labelers)
 
     @classmethod
     def load(cls, filepath):

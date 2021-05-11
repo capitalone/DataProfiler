@@ -998,7 +998,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # adapt to the stop words (brittle test)
         stop_words = \
-            self.profiler._profile._profiles['unstructured_text']._stop_words
+            self.profiler._profile._profiles['text']._stop_words
         for key in list(expected_word_count.keys()):
             if key.lower() in stop_words:
                 expected_word_count.pop(key)
@@ -1058,7 +1058,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # adapt to the stop words (brittle test)
         stop_words = \
-            merged_profiler._profile._profiles['unstructured_text']._stop_words
+            merged_profiler._profile._profiles['text']._stop_words
         for key in list(expected_word_count.keys()):
             if key.lower() in stop_words:
                 expected_word_count.pop(key)
@@ -1111,7 +1111,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # adapt to the stop words (brittle test)
         stop_words = \
-            update_profiler._profile._profiles['unstructured_text']._stop_words
+            update_profiler._profile._profiles['text']._stop_words
         for key in list(expected_word_count.keys()):
             if key.lower() in stop_words:
                 expected_word_count.pop(key)

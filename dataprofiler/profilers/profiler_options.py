@@ -815,7 +815,7 @@ class UnstructuredOptions(BaseOption):
                 enabled_profiles.append(key)
         return enabled_profiles
 
-    def _validate_helper(self, variable_path='StructuredOptions'):
+    def _validate_helper(self, variable_path='UnstructuredOptions'):
         """
         Validates the options do not conflict and cause errors.
         :param variable_path: current path to variable set.

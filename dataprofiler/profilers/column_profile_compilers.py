@@ -7,7 +7,7 @@ from . import DateTimeColumn, IntColumn, FloatColumn, TextColumn
 from . import OrderColumn, CategoricalColumn
 from . import DataLabelerColumn, UnstructuredLabelerProfile
 from .unstructured_text_profile import TextProfiler
-from .profiler_options import BaseOption, StructuredOptions
+from .profiler_options import UnstructuredOptions, StructuredOptions
 
 
 class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
@@ -240,8 +240,8 @@ class UnstructuredCompiler(BaseCompiler):
         TextProfiler,
         UnstructuredLabelerProfile,
     ]
-    # TODO: replace with UnstructuredOptions when created
-    _option_class = BaseOption
+
+    _option_class = UnstructuredOptions
 
     @property
     def profile(self):

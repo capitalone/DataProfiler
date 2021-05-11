@@ -938,7 +938,8 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # turn off data labeler because if model changes, results also change
         profiler_options = ProfilerOptions()
-        profiler_options.set({'data_labeler.is_enabled': False})
+        profiler_options.structured_options.data_labeler.is_enabled = False
+        profiler_options.unstructured_options.data_labeler.is_enabled = False
 
         cls.profiler = UnstructuredProfiler(
             cls.dataset, len(cls.dataset), options=profiler_options)

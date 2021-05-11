@@ -486,8 +486,7 @@ class UnstructuredProfiler(object):
         self._min_sample_size = 5000
 
         # assign data labeler
-        # TODO: when available, update to use "unstructured_options"
-        self.options.structured_options.unstructured_text = TextProfilerOptions()
+        self.options.unstructured_options.unstructured_text = TextProfilerOptions()
         data_labeler_options = self.options.structured_options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:
@@ -737,9 +736,8 @@ class UnstructuredProfiler(object):
         print(notification_str)
         pool = None
         if self._profile is None:
-            # TODO: update when unstructured_options becomes available
             self._profile = UnstructuredCompiler(
-                data, options=self.options.structured_options, pool=pool)
+                data, options=self.options.unstructured_options, pool=pool)
         else:
             self._profile.update_profile(data, pool=pool)
 

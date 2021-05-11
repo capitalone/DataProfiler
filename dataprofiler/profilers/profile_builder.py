@@ -809,7 +809,7 @@ class UnstructuredProfiler(object):
                 self.options.structured_options.data_labeler
             use_struct_data_labeler = data_labeler_options.is_enabled
 
-        # remove the data labeler from options
+        # remove the structured data labeler from options
         struct_data_labeler = None
         if use_struct_data_labeler \
                 and struct_data_labeler_options.data_labeler_object is not None:
@@ -1425,7 +1425,7 @@ class Profiler(object):
         """
         data_labelers = {}
 
-        # Delete data labeler for profiler
+        # Delete data labeler from structured options
         struct_data_labeler_options = \
             self.options.structured_options.data_labeler
         if struct_data_labeler_options.is_enabled \
@@ -1434,6 +1434,7 @@ class Profiler(object):
                 struct_data_labeler_options.data_labeler_object
             struct_data_labeler_options.data_labeler_object = None
 
+        # Delete data labeler from unstructured options
         unstruct_data_labeler_options = \
             self.options.unstructured_options.data_labeler
         if unstruct_data_labeler_options.is_enabled \

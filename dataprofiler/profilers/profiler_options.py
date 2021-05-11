@@ -878,4 +878,11 @@ class ProfilerOptions(BaseOption):
         errors += self.structured_options._validate_helper(
             variable_path=variable_path + '.structured_options')
 
+        if not isinstance(self.unstructured_options, UnstructuredOptions):
+            errors.append("{}.unstructured_options must be an UnstructuredOptions."
+                          .format(variable_path))
+
+        errors += self.unstructured_options._validate_helper(
+            variable_path=variable_path + '.unstructured_options')
+
         return errors

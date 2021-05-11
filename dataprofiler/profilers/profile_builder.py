@@ -486,8 +486,7 @@ class UnstructuredProfiler(object):
         self._min_sample_size = 5000
 
         # assign data labeler
-        self.options.unstructured_options.text = TextProfilerOptions()
-        data_labeler_options = self.options.structured_options.data_labeler
+        data_labeler_options = self.options.unstructured_options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:
 
@@ -1425,7 +1424,7 @@ class Profiler(object):
         """
         data_labelers = {}
 
-        # Delete data labeler from structured options
+        # Remove data labeler from structured options
         struct_data_labeler_options = \
             self.options.structured_options.data_labeler
         if struct_data_labeler_options.is_enabled \
@@ -1434,7 +1433,7 @@ class Profiler(object):
                 struct_data_labeler_options.data_labeler_object
             struct_data_labeler_options.data_labeler_object = None
 
-        # Delete data labeler from unstructured options
+        # Remove data labeler from unstructured options
         unstruct_data_labeler_options = \
             self.options.unstructured_options.data_labeler
         if unstruct_data_labeler_options.is_enabled \
@@ -1443,7 +1442,7 @@ class Profiler(object):
                 unstruct_data_labeler_options.data_labeler_object
             unstruct_data_labeler_options.data_labeler_object = None
 
-        # Delete data labelers for all columns
+        # Remove data labelers for all columns
         for key in self._profile:
 
             val = self._profile[key]

@@ -788,10 +788,9 @@ class UnstructuredProfiler(object):
         data_labeler = None
 
         # determine if the data labeler is enabled
-        # TODO: fix to correct options when unstructured options avail
         use_data_labeler = True
         if self.options and isinstance(self.options, ProfilerOptions):
-            data_labeler_options = self.options.structured_options.data_labeler
+            data_labeler_options = self.options.unstructured_options.data_labeler
             use_data_labeler = data_labeler_options.is_enabled
 
         # remove the data labeler from options
@@ -818,11 +817,10 @@ class UnstructuredProfiler(object):
         :type data_labeler: DataLabeler
         """
         # Restore data labeler for options
-        # TODO: fix to correct options when unstructured options avail
         use_data_labeler = True
         data_labeler_options = None
         if self.options and isinstance(self.options, ProfilerOptions):
-            data_labeler_options = self.options.structured_options.data_labeler
+            data_labeler_options = self.options.unstructured_options.data_labeler
             use_data_labeler = data_labeler_options.is_enabled
 
         if use_data_labeler:
@@ -893,9 +891,8 @@ class UnstructuredProfiler(object):
         :return: None
         """
         # Create Empty Profile
-        # TODO: fix options when unstructured options is available
         profile_options = ProfilerOptions()
-        profile_options.structured_options.data_labeler.is_enabled = False
+        profile_options.unstructured_options.data_labeler.is_enabled = False
         profile = cls(pd.DataFrame([]), options=profile_options)
 
         # Load profile from disk

@@ -498,11 +498,13 @@ class UnstructuredProfiler(object):
                     dirpath=data_labeler_options.data_labeler_dirpath,
                     load_options=None)
                 self.options.set(
-                    {'data_labeler.data_labeler_object': data_labeler})
+                    {'unstructured_options.data_labeler.data_labeler_object':
+                         data_labeler})
 
             except Exception as e:
                 utils.warn_on_profile('data_labeler', e)
-                self.options.set({'data_labeler.is_enabled': False})
+                self.options.set({'unstructured_options.data_labeler.is_enabled':
+                                      False})
 
         if data is not None:
             self.update_profile(data)
@@ -836,11 +838,13 @@ class UnstructuredProfiler(object):
                         dirpath=data_labeler_options.data_labeler_dirpath,
                         load_options=None)
                 self.options.set(
-                    {'data_labeler.data_labeler_object': data_labeler})
+                    {'unstructured_options.data_labeler.data_labeler_object':
+                         data_labeler})
 
             except Exception as e:
                 utils.warn_on_profile('data_labeler', e)
-                self.options.set({'data_labeler.is_enabled': False})
+                self.options.set({'unstructured_options.data_labeler.is_enabled':
+                                      False})
 
         # Restore data labelers for unstructured data labeling
         if use_data_labeler:
@@ -971,11 +975,13 @@ class Profiler(object):
                     dirpath=data_labeler_options.data_labeler_dirpath,
                     load_options=None)
                 self.options.set(
-                    {'data_labeler.data_labeler_object': data_labeler})
+                    {'structured_options.data_labeler.data_labeler_object':
+                         data_labeler})
 
             except Exception as e:
                 utils.warn_on_profile('data_labeler', e)
-                self.options.set({'data_labeler.is_enabled': False})
+                self.options.set({'structured_options.data_labeler.is_enabled':
+                                      False})
 
         if data is not None:
             self.update_profile(data)
@@ -1435,7 +1441,7 @@ class Profiler(object):
         :param data_labelers: data_labelers to restore
         :type data_labelers: dict (string -> data labeler object)
         """
-        # Restore data labeler for profiler
+        # Restore structured data labeler in options
         data_labeler_options = self.options.structured_options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:
@@ -1448,11 +1454,35 @@ class Profiler(object):
                         dirpath=data_labeler_options.data_labeler_dirpath,
                         load_options=None)
                 self.options.set(
-                    {'data_labeler.data_labeler_object': data_labeler})
+                    {'structured_options.data_labeler.data_labeler_object':
+                         data_labeler})
                 
             except Exception as e:
                 utils.warn_on_profile('data_labeler', e)
-                self.options.set({'data_labeler.is_enabled': False})
+                self.options.set({'structured_options.data_labeler.is_enabled':
+                                      False})
+
+        # Restore unstructured data labeler in options
+        data_labeler_options = \
+            self.options.unstructured_options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+            try:
+                if "unstruct_data_labeler" in data_labelers:
+                    data_labeler = data_labelers["unstruct_data_labeler"]
+                else:
+                    data_labeler = DataLabeler(
+                        labeler_type='unstructured',
+                        dirpath=data_labeler_options.data_labeler_dirpath,
+                        load_options=None)
+                self.options.set(
+                    {'structured_options.data_labeler.data_labeler_object':
+                         data_labeler})
+
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'structured_options.data_labeler.is_enabled':
+                                      False})
                 
         # Restore data labelers for all columns
         for key in self._profile:

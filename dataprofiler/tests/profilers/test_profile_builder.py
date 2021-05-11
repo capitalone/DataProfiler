@@ -1124,6 +1124,59 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             expected_word_count,
             report['data_stats']['statistics']['word_count'])
 
+    def test_save_and_load(self):
+        data_folder = "dataprofiler/tests/data/"
+        test_files = ["txt/code.txt", "txt/sentence-10x.txt"]
+
+        for test_file in test_files:
+            # Create Data and Profiler objects
+            data = dp.Data(os.path.join(data_folder, test_file))
+            save_profile = UnstructuredProfiler(data)
+
+            # store the expected data_labeler
+            # TODO: update to use unstructured options when available
+            data_labeler = save_profile.options.structured_options.data_labeler\
+                .data_labeler_object
+
+            # Save and Load profile with Mock IO
+            with mock.patch('builtins.open') as m:
+                mock_file = setup_save_mock_open(m)
+                save_profile.save()
+
+                # make sure data_labeler unchanged
+                # TODO: update to use unstructured options when available
+                self.assertIs(
+                    data_labeler,
+                    save_profile.options.structured_options.data_labeler.
+                        data_labeler_object)
+                self.assertIs(
+                    data_labeler,
+                    save_profile._profile._profiles['data_labeler'].data_labeler)
+
+                mock_file.seek(0)
+                with mock.patch('dataprofiler.profilers.profile_builder.'
+                                'DataLabeler', return_value=data_labeler):
+                    load_profile = UnstructuredProfiler.load("mock.pkl")
+
+            # validate loaded profile has same data labeler class
+            # TODO: update to use unstructured options when available
+            self.assertIsInstance(
+                load_profile.options.structured_options.data_labeler.
+                    data_labeler_object,
+                data_labeler.__class__)
+            self.assertIsInstance(
+                load_profile.profile._profiles['data_labeler'].data_labeler,
+                data_labeler.__class__)
+
+            # Check that reports are equivalent
+            save_report = save_profile.report()
+            load_report = load_profile.report()
+            self.assertDictEqual(save_report, load_report)
+
+            # validate both are still usable after
+            save_profile.update_profile(pd.DataFrame(['test']))
+            load_profile.update_profile(pd.DataFrame(['test']))
+
 
 class TestProfilerNullValues(unittest.TestCase):
 

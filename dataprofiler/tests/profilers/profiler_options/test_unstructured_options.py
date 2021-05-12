@@ -20,24 +20,33 @@ class TestUnstructuredOptions(TestBaseOption):
         for key in self.keys:
             self.assertIn(key, options.properties)
 
+        self.assertTrue(options.text.is_enabled)
+        self.assertTrue(options.text.is_case_sensitive)
+        self.assertIsNone(options.text.stop_words)
+        self.assertTrue(options.text.vocab.is_enabled)
+        self.assertTrue(options.text.words.is_enabled)
+        self.assertTrue(options.data_labeler.is_enabled)
+        self.assertIsNone(options.data_labeler.data_labeler_dirpath)
+        self.assertIsNone(options.data_labeler.data_labeler_object)
+        self.assertIsNone(options.data_labeler.max_sample_size)
+
     def test_set_helper(self):
         super().test_set_helper()
         option = self.get_options()
 
-        # Enable and Disable Option
-        for key in self.keys:
-            option._set_helper({'{}.is_enabled'.format(key): False}, '')
-            self.assertFalse(option.properties[key].is_enabled)
-            option._set_helper({'{}.is_enabled'.format(key): True}, '')
-            self.assertTrue(option.properties[key].is_enabled)
+        # validate, variable path being passed
+        expected_error = (
+            "type object 'test.text.is_enabled' has no attribute "
+            "'other_props'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option._set_helper({'text.is_enabled.other_props': True}, 'test')
 
-        # Treat is_enabled as a BooleanOption
-        for key in self.keys:
-            expected_error = "type object '{}.is_enabled' has no attribute " \
-                             "'is_enabled'".format(key)
-            with self.assertRaisesRegex(AttributeError, expected_error):
-                option._set_helper({'{}.is_enabled.is_enabled' \
-                                   .format(key): True}, '')
+        expected_error = (
+            "type object 'test.data_labeler.is_enabled' has no attribute "
+            "'other_props'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option._set_helper({'data_labeler.is_enabled.other_props': True},
+                               'test')
 
     def test_set(self):
         super().test_set()
@@ -50,60 +59,53 @@ class TestUnstructuredOptions(TestBaseOption):
             option.set({'{}.is_enabled'.format(key): True})
             self.assertTrue(option.properties[key].is_enabled)
 
-        # Treat is_enabled as a BooleanOption
-        for key in self.keys:
-            expected_error = "type object '{}.is_enabled' has no attribute " \
-                             "'is_enabled'".format(key)
-            with self.assertRaisesRegex(AttributeError, expected_error):
-                option.set({'{}.is_enabled.is_enabled'.format(key): True})
+        # Set text options
+        option.set({'text.is_case_sensitive': False})
+        self.assertFalse(option.text.is_case_sensitive)
+        option.set({'text.stop_words': ['hello', 'there']})
+        self.assertEqual(['hello', 'there'], option.text.stop_words)
+        option.set({'text.vocab.is_enabled': False})
+        self.assertFalse(option.text.vocab.is_enabled)
+        option.set({'text.words.is_enabled': False})
+        self.assertFalse(option.text.words.is_enabled)
+
+        # Set data labeler options
+        option.set({'data_labeler.data_labeler_dirpath': 'hi'})
+        self.assertEqual('hi', option.data_labeler.data_labeler_dirpath)
+        option.set({'data_labeler.max_sample_size': 12})
+        self.assertEqual(12, option.data_labeler.max_sample_size)
 
     def test_validate_helper(self):
         option = self.get_options()
 
+        # validate, variable path being passed
+        expected_errors = ["test.text must be a(n) TextProfilerOptions."]
+        option.text = 7
+        self.assertEqual(expected_errors, option._validate_helper('test'))
+
+        expected_errors = ["test.data_labeler must be a(n) DataLabelerOptions."]
+        option = self.get_options()
+        option.data_labeler = 7
+        self.assertEqual(expected_errors, option._validate_helper('test'))
+
+    def test_validate(self):
+        option = self.get_options()
+
         # Default configuration
-        self.assertEqual([], option._validate_helper())
+        self.assertIsNone(option.validate(raise_error=False))
 
         # Wrong text option type
         option.text = BooleanOption()
-        self.assertEqual(option._validate_helper(),
+        self.assertEqual(option.validate(raise_error=False),
                          ["UnstructuredOptions.text must be a(n) "
                           "TextProfilerOptions."])
 
         # Wrong labeler option type
         option = self.get_options()
         option.data_labeler = BooleanOption()
-        self.assertEqual(option._validate_helper(),
+        self.assertEqual(option.validate(raise_error=False),
                          ["UnstructuredOptions.data_labeler must be a(n) "
                           "DataLabelerOptions."])
-
-        # Both incorrect
-        option.text = BooleanOption()
-        self.assertCountEqual(option._validate_helper(),
-                              ["UnstructuredOptions.text must be a(n) "
-                               "TextProfilerOptions.",
-                               "UnstructuredOptions.data_labeler must be a(n) "
-                               "DataLabelerOptions."])
-
-    def test_validate(self):
-        option = self.get_options()
-
-        # Default configuration
-        option.validate()
-
-        # Wrong text option type
-        option.text = BooleanOption()
-        with self.assertRaisesRegex(ValueError,
-                                    r"UnstructuredOptions\.text must be"
-                                    r" a\(n\) TextProfilerOptions\."):
-            option.validate()
-
-        # Wrong labeler option type
-        option = self.get_options()
-        option.data_labeler = BooleanOption()
-        with self.assertRaisesRegex(ValueError,
-                                    r"UnstructuredOptions\.data_labeler "
-                                    r"must be a\(n\) DataLabelerOptions\."):
-            option.validate()
 
         # Both incorrect
         option.text = BooleanOption()

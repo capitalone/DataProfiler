@@ -863,7 +863,7 @@ class UnstructuredProfiler(object):
                 datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f"))
 
         # Remove the data labeler as they can't be pickled
-        data_labelers = self._remove_data_labelers()
+        data_labeler = self._remove_data_labelers()
 
         # Create dictionary for all metadata, options, and profile
         data = {
@@ -881,7 +881,7 @@ class UnstructuredProfiler(object):
             pickle.dump(data, outfile)
 
         # Restore all data labelers
-        self._restore_data_labelers(data_labelers)
+        self._restore_data_labelers(data_labeler)
 
     @classmethod
     def load(cls, filepath):

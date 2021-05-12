@@ -808,7 +808,7 @@ class UnstructuredOptions(BaseOption):
 
     @property
     def enabled_profiles(self):
-        """Returns a list of the enabled profilers for columns."""
+        """Returns a list of the enabled profilers."""
         enabled_profiles = list()
         for key, value in self.properties.items():
             if value.is_enabled:

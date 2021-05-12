@@ -26,7 +26,7 @@ from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
 from ..labelers.data_labelers import DataLabeler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions, \
-    TextProfilerOptions
+    UnstructuredOptions
 
 
 class StructuredDataProfile(object):
@@ -464,9 +464,12 @@ class UnstructuredProfiler(object):
         :type options: ProfilerOptions Object
         :return: Profiler
         """
+
         if not options:
-            options = ProfilerOptions()
-        elif not isinstance(options, ProfilerOptions):
+            options = UnstructuredOptions()
+        elif isinstance(options, ProfilerOptions):
+            options = options.unstructured_options
+        elif not isinstance(options, UnstructuredOptions):
             raise ValueError("The profile options must be passed as a "
                              "ProfileOptions object.")
 
@@ -486,9 +489,7 @@ class UnstructuredProfiler(object):
         self._min_sample_size = 5000
 
         # assign data labeler
-        # TODO: when available, update to use "unstructured_options"
-        self.options.structured_options.unstructured_text = TextProfilerOptions()
-        data_labeler_options = self.options.structured_options.data_labeler
+        data_labeler_options = self.options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:
 
@@ -737,9 +738,8 @@ class UnstructuredProfiler(object):
         print(notification_str)
         pool = None
         if self._profile is None:
-            # TODO: update when unstructured_options becomes available
-            self._profile = UnstructuredCompiler(
-                data, options=self.options.structured_options, pool=pool)
+            self._profile = UnstructuredCompiler(data, options=self.options,
+                                                 pool=pool)
         else:
             self._profile.update_profile(data, pool=pool)
 
@@ -784,20 +784,20 @@ class UnstructuredProfiler(object):
         """
         Helper method for removing all data labelers before saving to disk.
 
-        :return: data_labeler use for unstructured labeling
+        :return: data_labeler used for unstructured labelling
         :rtype: DataLabeler
         """
         data_labeler = None
+        data_labeler_options = None
 
         # determine if the data labeler is enabled
-        # TODO: fix to correct options when unstructured options avail
         use_data_labeler = True
-        if self.options and isinstance(self.options, ProfilerOptions):
-            data_labeler_options = self.options.structured_options.data_labeler
+        if self.options and isinstance(self.options, UnstructuredOptions):
+            data_labeler_options = self.options.data_labeler
             use_data_labeler = data_labeler_options.is_enabled
 
         # remove the data labeler from options
-        if use_data_labeler \
+        if use_data_labeler and data_labeler_options is not None \
                 and data_labeler_options.data_labeler_object is not None:
             data_labeler = data_labeler_options.data_labeler_object
             data_labeler_options.data_labeler_object = None
@@ -820,11 +820,10 @@ class UnstructuredProfiler(object):
         :type data_labeler: DataLabeler
         """
         # Restore data labeler for options
-        # TODO: fix to correct options when unstructured options avail
         use_data_labeler = True
         data_labeler_options = None
-        if self.options and isinstance(self.options, ProfilerOptions):
-            data_labeler_options = self.options.structured_options.data_labeler
+        if self.options and isinstance(self.options, UnstructuredOptions):
+            data_labeler_options = self.options.data_labeler
             use_data_labeler = data_labeler_options.is_enabled
 
         if use_data_labeler:
@@ -895,9 +894,8 @@ class UnstructuredProfiler(object):
         :return: None
         """
         # Create Empty Profile
-        # TODO: fix options when unstructured options is available
-        profile_options = ProfilerOptions()
-        profile_options.structured_options.data_labeler.is_enabled = False
+        profile_options = UnstructuredOptions()
+        profile_options.data_labeler.is_enabled = False
         profile = cls(pd.DataFrame([]), options=profile_options)
 
         # Load profile from disk
@@ -939,8 +937,10 @@ class Profiler(object):
         """
 
         if not profiler_options:
-            profiler_options = ProfilerOptions()
-        elif not isinstance(profiler_options, ProfilerOptions):
+            profiler_options = StructuredOptions()
+        elif isinstance(profiler_options, ProfilerOptions):
+            profiler_options = profiler_options.structured_options
+        elif not isinstance(profiler_options, StructuredOptions):
             raise ValueError("The profile options must be passed as a "
                              "ProfileOptions object.")
         
@@ -965,7 +965,7 @@ class Profiler(object):
             raise TypeError("Cannot provide TextData object to Profiler")
 
         # assign data labeler
-        data_labeler_options = self.options.structured_options.data_labeler
+        data_labeler_options = self.options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:
 
@@ -1194,7 +1194,7 @@ class Profiler(object):
             self.row_is_null_count = len(null_rows)
 
     def _update_profile_from_chunk(self, df, sample_size=None,
-                                   min_true_samples=None, options=None):
+                                   min_true_samples=None):
         """
         Iterate over the columns of a dataset and identify its parameters.
         
@@ -1204,8 +1204,6 @@ class Profiler(object):
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
         :type min_true_samples: int
-        :param options: Options for the profiler
-        :type options: ProfilerOptions
         :return: list of column profile base subclasses
         :rtype: list(BaseColumnProfiler)
         """
@@ -1243,20 +1241,17 @@ class Profiler(object):
         new_cols = set()
         for col in df.columns:
             if col not in self._profile:
-                structured_options = None
-                if options and options.structured_options:
-                    structured_options = options.structured_options
                 self._profile[col] = StructuredDataProfile(
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,
-                    options=structured_options
+                    options=self.options
                 )
                 new_cols.add(col)
                 
         # Generate pool and estimate datasize
         pool = None
-        if options.structured_options.multiprocess.is_enabled:
+        if self.options.multiprocess.is_enabled:
             est_data_size = df[:50000].memory_usage(index=False, deep=True).sum()
             est_data_size = (est_data_size / min(50000, len(df))) * len(df)
             pool, pool_size = utils.generate_pool(
@@ -1330,7 +1325,7 @@ class Profiler(object):
         # Process and label the data
         notification_str = "Calculating the statistics... "
         pool = None
-        if options.structured_options.multiprocess.is_enabled:
+        if self.options.multiprocess.is_enabled:
             pool, pool_size = utils.generate_pool(4, est_data_size)
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"
@@ -1387,8 +1382,7 @@ class Profiler(object):
         if not sample_size:
             sample_size = self._get_sample_size(data)
 
-        self._update_profile_from_chunk(
-            data, sample_size, min_true_samples, self.options)
+        self._update_profile_from_chunk(data, sample_size, min_true_samples)
 
     def _remove_data_labelers(self):
         """
@@ -1399,15 +1393,15 @@ class Profiler(object):
         """
         data_labelers = {}
 
-        # Delete data labeler for profiler
-        data_labeler_options = self.options.structured_options.data_labeler
+        # Remove data labeler from options
+        data_labeler_options = self.options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is not None:
-            data_labelers["data_labeler"] = data_labeler_options \
-                                            .data_labeler_object
+            data_labelers["data_labeler"] = \
+                data_labeler_options.data_labeler_object
             data_labeler_options.data_labeler_object = None
 
-        # Delete data labelers for all columns
+        # Remove data labelers for all columns
         for key in self._profile:
 
             val = self._profile[key]
@@ -1431,8 +1425,8 @@ class Profiler(object):
         :param data_labelers: data_labelers to restore
         :type data_labelers: dict (string -> data labeler object)
         """
-        # Restore data labeler for profiler
-        data_labeler_options = self.options.structured_options.data_labeler
+        # Restore structured data labeler in options
+        data_labeler_options = self.options.data_labeler
         if data_labeler_options.is_enabled \
                 and data_labeler_options.data_labeler_object is None:
             try:
@@ -1528,8 +1522,8 @@ class Profiler(object):
         :return: None
         """
         # Create Empty Profile
-        profile_options = ProfilerOptions()
-        profile_options.structured_options.data_labeler.is_enabled = False
+        profile_options = StructuredOptions()
+        profile_options.data_labeler.is_enabled = False
         profile = Profiler(pd.DataFrame([]), profiler_options=profile_options)
 
         # Load profile from disk

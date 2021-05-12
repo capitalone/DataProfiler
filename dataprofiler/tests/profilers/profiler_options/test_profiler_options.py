@@ -23,15 +23,12 @@ class TestProfilerOptions(unittest.TestCase):
         # Allowing Profiler to create default options
         profile = Profiler(self.data)
         self.assertIsNotNone(profile.options)
-        self.assertTrue(profile.options.structured_options.data_labeler
-                        .is_enabled)
-        for column in profile.options.structured_options.properties:
-            self.assertTrue(
-                profile.options.structured_options.properties[column].
-                    is_enabled)
+        self.assertTrue(profile.options.data_labeler.is_enabled)
+        for column in profile.options.properties:
+            self.assertTrue(profile.options.properties[column].is_enabled)
 
         for column in ["int", "float", "text"]:
-            column = profile.options.structured_options.properties[column]
+            column = profile.options.properties[column]
             self.assertTrue(column.properties["histogram_and_quantiles"])
             self.assertTrue(column.properties["min"])
             self.assertTrue(column.properties["max"])
@@ -42,7 +39,8 @@ class TestProfilerOptions(unittest.TestCase):
         # Using ProfilerOptions with the default options
         options = ProfilerOptions()
         profile2 = Profiler(self.data, profiler_options=options)
-        self.assertEqual(profile2.options, options)
+        # Stored in Profiler as StructuredOptions
+        self.assertEqual(profile2.options, options.structured_options)
 
     def test_numerical_stats_option(self, *mocks):
         # Assert that the stats are disabled
@@ -187,7 +185,7 @@ class TestProfilerOptions(unittest.TestCase):
             "ProfilerOptions.structured_options.data_labeler."
             "data_labeler_dirpath must be a string.")
         with self.assertRaisesRegex(ValueError, expected_error):
-            profile = Profiler(self.data, profiler_options=options)
+            options.validate()
 
     def test_validate_numeric_stats(self, *mocks):
         options = ProfilerOptions()
@@ -281,7 +279,7 @@ class TestProfilerOptions(unittest.TestCase):
             profile_options = ProfilerOptions()
             profile_options.structured_options.text.max.is_enabled \
                 = "String"
-            profile = Profiler(self.data, profiler_options=profile_options)
+            profile_options.validate()
 
     def test_invalid_options_type(self, *mocks):
         # Test incorrect data labeler options

@@ -17,7 +17,7 @@ import dataprofiler as dp
 from dataprofiler.profilers.profile_builder import StructuredDataProfile, \
     UnstructuredProfiler, UnstructuredCompiler
 from dataprofiler.profilers.profiler_options import ProfilerOptions, \
-    StructuredOptions
+    StructuredOptions, UnstructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
     ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler, \
     ColumnDataLabelerCompiler
@@ -773,7 +773,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profiler._empty_line_count)
         self.assertEqual(0.2, profiler._sampling_ratio)
         self.assertEqual(5000, profiler._min_sample_size)
-        self.assertIsInstance(profiler.options, ProfilerOptions)
+        self.assertIsInstance(profiler.options, UnstructuredOptions)
 
         # can set samples_per_update and min_true_samples
         profiler = UnstructuredProfiler(None, samples_per_update=10,
@@ -997,7 +997,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # adapt to the stop words (brittle test)
         stop_words = \
-            self.profiler._profile._profiles['unstructured_text']._stop_words
+            self.profiler._profile._profiles['text']._stop_words
         for key in list(expected_word_count.keys()):
             if key.lower() in stop_words:
                 expected_word_count.pop(key)
@@ -1057,7 +1057,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # adapt to the stop words (brittle test)
         stop_words = \
-            merged_profiler._profile._profiles['unstructured_text']._stop_words
+            merged_profiler._profile._profiles['text']._stop_words
         for key in list(expected_word_count.keys()):
             if key.lower() in stop_words:
                 expected_word_count.pop(key)
@@ -1110,7 +1110,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         # adapt to the stop words (brittle test)
         stop_words = \
-            update_profiler._profile._profiles['unstructured_text']._stop_words
+            update_profiler._profile._profiles['text']._stop_words
         for key in list(expected_word_count.keys()):
             if key.lower() in stop_words:
                 expected_word_count.pop(key)
@@ -1133,9 +1133,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             save_profile = UnstructuredProfiler(data)
 
             # store the expected data_labeler
-            # TODO: update to use unstructured options when available
-            data_labeler = save_profile.options.structured_options.data_labeler\
-                .data_labeler_object
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
 
             # Save and Load profile with Mock IO
             with mock.patch('builtins.open') as m:
@@ -1143,11 +1141,9 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
                 save_profile.save()
 
                 # make sure data_labeler unchanged
-                # TODO: update to use unstructured options when available
                 self.assertIs(
                     data_labeler,
-                    save_profile.options.structured_options.data_labeler.
-                        data_labeler_object)
+                    save_profile.options.data_labeler.data_labeler_object)
                 self.assertIs(
                     data_labeler,
                     save_profile._profile._profiles['data_labeler'].data_labeler)
@@ -1158,10 +1154,8 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
                     load_profile = UnstructuredProfiler.load("mock.pkl")
 
             # validate loaded profile has same data labeler class
-            # TODO: update to use unstructured options when available
             self.assertIsInstance(
-                load_profile.options.structured_options.data_labeler.
-                    data_labeler_object,
+                load_profile.options.data_labeler.data_labeler_object,
                 data_labeler.__class__)
             self.assertIsInstance(
                 load_profile.profile._profiles['data_labeler'].data_labeler,
@@ -1175,6 +1169,12 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             # validate both are still usable after
             save_profile.update_profile(pd.DataFrame(['test']))
             load_profile.update_profile(pd.DataFrame(['test']))
+
+    def test_options_ingested_correctly(self):
+        self.assertIsInstance(self.profiler.options, UnstructuredOptions)
+        self.assertIsInstance(self.profiler2.options, UnstructuredOptions)
+        self.assertFalse(self.profiler.options.data_labeler.is_enabled)
+        self.assertFalse(self.profiler2.options.data_labeler.is_enabled)
 
 
 class TestProfilerNullValues(unittest.TestCase):

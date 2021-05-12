@@ -1170,6 +1170,12 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             save_profile.update_profile(pd.DataFrame(['test']))
             load_profile.update_profile(pd.DataFrame(['test']))
 
+    def test_options_ingested_correctly(self):
+        self.assertIsInstance(self.profiler.options, UnstructuredOptions)
+        self.assertIsInstance(self.profiler2.options, UnstructuredOptions)
+        self.assertFalse(self.profiler.options.data_labeler.is_enabled)
+        self.assertFalse(self.profiler.options.data_labeler.is_enabled)
+
 
 class TestProfilerNullValues(unittest.TestCase):
 

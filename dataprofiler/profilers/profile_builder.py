@@ -788,6 +788,7 @@ class UnstructuredProfiler(object):
         :rtype: DataLabeler
         """
         data_labeler = None
+        data_labeler_options = None
 
         # determine if the data labeler is enabled
         use_data_labeler = True
@@ -796,7 +797,7 @@ class UnstructuredProfiler(object):
             use_data_labeler = data_labeler_options.is_enabled
 
         # remove the data labeler from options
-        if use_data_labeler \
+        if use_data_labeler and data_labeler_options is not None \
                 and data_labeler_options.data_labeler_object is not None:
             data_labeler = data_labeler_options.data_labeler_object
             data_labeler_options.data_labeler_object = None

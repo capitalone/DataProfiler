@@ -1174,7 +1174,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         self.assertIsInstance(self.profiler.options, UnstructuredOptions)
         self.assertIsInstance(self.profiler2.options, UnstructuredOptions)
         self.assertFalse(self.profiler.options.data_labeler.is_enabled)
-        self.assertFalse(self.profiler.options.data_labeler.is_enabled)
+        self.assertFalse(self.profiler2.options.data_labeler.is_enabled)
 
 
 class TestProfilerNullValues(unittest.TestCase):

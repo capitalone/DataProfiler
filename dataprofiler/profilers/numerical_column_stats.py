@@ -310,6 +310,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         inds = np.digitize(input_array, bin_edges)
 
+        inds = np.where(inds >= len(input_array), len(input_array) - 1, inds)
+
         # reset the edge
         bin_edges[-1] -= 1e-3
 
@@ -484,13 +486,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         histogram_loss = self._histogram_bin_error(df_series)
         self._stored_histogram['current_loss'] = histogram_loss
         self._stored_histogram['total_loss'] += histogram_loss
-        
+
     def _histogram_for_profile(self, histogram_method):
         """
         Converts the stored histogram into the presentable state based on the
         suggested histogram bin count from numpy.histograms. The bin count used
         is stored in 'suggested_bin_count' for each method.
-        
+
         :param histogram_method: method to use for determining the histogram
             profile
         :type histogram_method: str
@@ -506,7 +508,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.histogram_methods[histogram_method]['histogram']['bin_counts'],
             self.histogram_methods[histogram_method]['suggested_bin_count'],
         )
-        
+
         # base case, no need to change if it is already correct
         if not self._has_histogram or current_bin_counts is not None:
             return (self.histogram_methods[histogram_method]['histogram'],
@@ -519,7 +521,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         new_bin_counts = np.zeros((suggested_bin_count,))
         new_bin_edges = np.linspace(
             bin_edges[0], bin_edges[-1], suggested_bin_count + 1)
-        
+
         # allocate bin_counts
         new_bin_id = 0
         hist_loss = 0
@@ -540,7 +542,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 new_bin_id += 1
 
             new_bin_edge = new_bin_edges[new_bin_id: new_bin_id + 3]
-            
+
             # find where the current bin falls within the new bins
             is_last_bin = new_bin_id == suggested_bin_count -1
             if bin_edge[1] < new_bin_edge[1] or is_last_bin:
@@ -771,7 +773,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     def np_type_to_type(val):
         """
         Converts numpy variables to base python type variables
-        
+
         :param val: value to check & change
         :type val: numpy type or base type
         :return val: base python type

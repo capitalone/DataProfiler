@@ -26,7 +26,7 @@ from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
 from ..labelers.data_labelers import DataLabeler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions, \
-    UnstructuredOptions, TextProfilerOptions
+    UnstructuredOptions
 
 
 class StructuredDataProfile(object):

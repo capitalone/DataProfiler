@@ -17,7 +17,7 @@ import dataprofiler as dp
 from dataprofiler.profilers.profile_builder import StructuredDataProfile, \
     UnstructuredProfiler, UnstructuredCompiler
 from dataprofiler.profilers.profiler_options import ProfilerOptions, \
-    StructuredOptions
+    StructuredOptions, UnstructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
     ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler, \
     ColumnDataLabelerCompiler
@@ -773,7 +773,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profiler._empty_line_count)
         self.assertEqual(0.2, profiler._sampling_ratio)
         self.assertEqual(5000, profiler._min_sample_size)
-        self.assertIsInstance(profiler.options, ProfilerOptions)
+        self.assertIsInstance(profiler.options, UnstructuredOptions)
 
         # can set samples_per_update and min_true_samples
         profiler = UnstructuredProfiler(None, samples_per_update=10,
@@ -1133,8 +1133,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             save_profile = UnstructuredProfiler(data)
 
             # store the expected data_labeler
-            data_labeler = save_profile.options.unstructured_options.\
-                data_labeler.data_labeler_object
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
 
             # Save and Load profile with Mock IO
             with mock.patch('builtins.open') as m:
@@ -1144,8 +1143,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
                 # make sure data_labeler unchanged
                 self.assertIs(
                     data_labeler,
-                    save_profile.options.unstructured_options.data_labeler.
-                        data_labeler_object)
+                    save_profile.options.data_labeler.data_labeler_object)
                 self.assertIs(
                     data_labeler,
                     save_profile._profile._profiles['data_labeler'].data_labeler)
@@ -1157,8 +1155,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
             # validate loaded profile has same data labeler class
             self.assertIsInstance(
-                load_profile.options.unstructured_options.data_labeler.
-                    data_labeler_object,
+                load_profile.options.data_labeler.data_labeler_object,
                 data_labeler.__class__)
             self.assertIsInstance(
                 load_profile.profile._profiles['data_labeler'].data_labeler,

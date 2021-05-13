@@ -227,7 +227,7 @@ class TestProfilerOptions(unittest.TestCase):
         # Ensure set works appropriately
         options.set({"data_labeler.is_enabled": False,
                      "min.is_enabled": False,
-                     "data_labeler_dirpath": "test",
+                     "structured_options.data_labeler_dirpath": "test",
                      "max_sample_size": 15})
 
         text_options = options.structured_options.text.properties
@@ -354,6 +354,13 @@ class TestProfilerOptions(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, msg):
             options.set(set_dict)
 
+        set_dict = {"data_labeler.data_labeler_dirpath": 3}
+        msg = f"Attempted to set options {set_dict} in ProfilerOptions " \
+              f"without specifying whether to set them for StructuredOptions " \
+              f"or UnstructuredOptions."
+        with self.assertRaisesRegex(ValueError, msg):
+            options.set(set_dict)
+
         # Works still for disabling both
         options.set({"data_labeler.is_enabled": False})
         self.assertFalse(options.structured_options.data_labeler.is_enabled)
@@ -375,6 +382,23 @@ class TestProfilerOptions(unittest.TestCase):
                           data_labeler_object)
         self.assertEqual(3, options.unstructured_options.data_labeler.
                          data_labeler_object)
+
+        # Sets correct one if opt_type specified
+        options.set({"data_labeler.data_labeler_dirpath": 3},
+                    opt_type="structured")
+        self.assertIsNone(options.unstructured_options.data_labeler.
+                          data_labeler_dirpath)
+        self.assertEqual(3, options.structured_options.data_labeler.
+                         data_labeler_dirpath)
+
+        # Sets correct one if opt_type specified
+        options = ProfilerOptions()
+        options.set({"data_labeler.data_labeler_dirpath": 3},
+                    opt_type="unstructured")
+        self.assertIsNone(options.structured_options.data_labeler.
+                          data_labeler_dirpath)
+        self.assertEqual(3, options.unstructured_options.data_labeler.
+                         data_labeler_dirpath)
 
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'

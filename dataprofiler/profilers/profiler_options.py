@@ -907,8 +907,7 @@ class ProfilerOptions(BaseOption):
                              "one of {'structured', 'unstructured'}.")
 
         # Options that need to have structured/unstructured specified
-        # Left as set to be modular for future overlapping options
-        overlap_options = {"data_labeler_object"}
+        overlap_options = {"data_labeler_object", "data_labeler_dirpath"}
 
         # Function to see if any overlap options present in option being set
         def overlap_opt_set(opt):

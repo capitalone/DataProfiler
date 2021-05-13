@@ -886,3 +886,49 @@ class ProfilerOptions(BaseOption):
             variable_path=variable_path + '.unstructured_options')
 
         return errors
+
+    def set(self, options, opt_type=None):
+        """
+        Overwrites BaseOption.set since the type (unstructured/structured) may
+        need to be specified if the same options exist within both
+        self.structured_options and self.unstructured_options
+
+        :param options: Dictionary of options to set
+        :type options: dict
+        :param opt_type: Tells which type to set (structured/unstructured)
+        :type opt_type: str
+        :Return: None
+        """
+        if not isinstance(options, dict):
+            raise ValueError("The options must be a dictionary.")
+
+        if opt_type and opt_type not in ["structured", "unstructured"]:
+            raise ValueError("ProfilerOptions.set argument 'opt_type' must be"
+                             "one of {'structured', 'unstructured'}.")
+
+        # Options that need to have structured/unstructured specified
+        overlap_options = {"data_labeler_object", "vocab"}
+        separate_dict = dict()
+        for option in options:
+            opt_list = option.split(".")
+            # Tried to set an option without specifying structured/unstructured
+            if (opt_list[0] not in ["structured_options", "unstructured_options"]
+                    and len(set(opt_list).intersection(overlap_options)) > 0):
+                separate_dict[option] = options.pop(option)
+
+        # Set options that don't need clarification
+        self._set_helper(options, variable_path='')
+
+        # Set option that need structured/unstructured clarification
+        if separate_dict:
+            if opt_type == "structured":
+                self.structured_options._set_helper(
+                    separate_dict, variable_path='structured_options')
+            elif opt_type == "unstructured":
+                self.unstructured_options._set_helper(
+                    separate_dict, variable_path='unstructured_options')
+            else:
+                raise ValueError(f"Attempted to set options {separate_dict} in "
+                                 f"ProfilerOptions without specifying whether "
+                                 f"to set them for StructuredOptions or "
+                                 f"UnstructuredOptions.")

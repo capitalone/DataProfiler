@@ -907,14 +907,19 @@ class ProfilerOptions(BaseOption):
                              "one of {'structured', 'unstructured'}.")
 
         # Options that need to have structured/unstructured specified
-        overlap_options = {"data_labeler_object", "vocab"}
+        # Left as set to be modular for future overlapping options
+        overlap_options = {"data_labeler_object"}
         separate_dict = dict()
         for option in options:
             opt_list = option.split(".")
             # Tried to set an option without specifying structured/unstructured
             if (opt_list[0] not in ["structured_options", "unstructured_options"]
                     and len(set(opt_list).intersection(overlap_options)) > 0):
-                separate_dict[option] = options.pop(option)
+                separate_dict[option] = options[option]
+
+        # Pop out overlap options from input dict outside of loop
+        for option in separate_dict:
+            options.pop(option)
 
         # Set options that don't need clarification
         self._set_helper(options, variable_path='')

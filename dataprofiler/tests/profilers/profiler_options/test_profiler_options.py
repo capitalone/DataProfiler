@@ -338,6 +338,39 @@ class TestProfilerOptions(unittest.TestCase):
         self.assertTrue(options.structured_options.int.
                         is_prop_enabled("is_numeric_stats_enabled"))
 
+    def test_setting_overlapping_option(self, *mocks):
+        options = ProfilerOptions()
+
+        # Raises error if no opt_type specified but overlap option set
+        set_dict = {"data_labeler.data_labeler_object": 3}
+        msg = f"Attempted to set options {set_dict} in ProfilerOptions " \
+              f"without specifying whether to set them for StructuredOptions " \
+              f"or UnstructuredOptions."
+        with self.assertRaisesRegex(ValueError, msg):
+            options.set(set_dict)
+
+        # Works still for disabling both
+        options.set({"data_labeler.is_enabled": False})
+        self.assertFalse(options.structured_options.data_labeler.is_enabled)
+        self.assertFalse(options.unstructured_options.data_labeler.is_enabled)
+
+        # Sets correct one if opt_type specified
+        options.set({"data_labeler.data_labeler_object": 3},
+                    opt_type="structured")
+        self.assertIsNone(options.unstructured_options.data_labeler.
+                          data_labeler_object)
+        self.assertEqual(3, options.structured_options.data_labeler.
+                         data_labeler_object)
+
+        # Sets correct one if opt_type specified
+        options = ProfilerOptions()
+        options.set({"data_labeler.data_labeler_object": 3},
+                    opt_type="unstructured")
+        self.assertIsNone(options.structured_options.data_labeler.
+                          data_labeler_object)
+        self.assertEqual(3, options.unstructured_options.data_labeler.
+                         data_labeler_object)
+
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
             'DataLabelerColumn.update', return_value=None)

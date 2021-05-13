@@ -903,7 +903,7 @@ class ProfilerOptions(BaseOption):
             raise ValueError("The options must be a dictionary.")
 
         if opt_type and opt_type not in ["structured", "unstructured"]:
-            raise ValueError("ProfilerOptions.set argument 'opt_type' must be"
+            raise ValueError("ProfilerOptions.set argument 'opt_type' must be "
                              "one of {'structured', 'unstructured'}.")
 
         # Options that need to have structured/unstructured specified

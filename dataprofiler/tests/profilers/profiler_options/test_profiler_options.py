@@ -341,6 +341,11 @@ class TestProfilerOptions(unittest.TestCase):
     def test_setting_overlapping_option(self, *mocks):
         options = ProfilerOptions()
 
+        msg = "ProfilerOptions.set argument 'opt_type' must be one of " \
+              "{'structured', 'unstructured'}."
+        with self.assertRaisesRegex(ValueError, msg):
+            options.set(dict(), opt_type="whoops")
+
         # Raises error if no opt_type specified but overlap option set
         set_dict = {"data_labeler.data_labeler_object": 3}
         msg = f"Attempted to set options {set_dict} in ProfilerOptions " \

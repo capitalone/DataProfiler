@@ -909,12 +909,20 @@ class ProfilerOptions(BaseOption):
         # Options that need to have structured/unstructured specified
         # Left as set to be modular for future overlapping options
         overlap_options = {"data_labeler_object"}
+
+        # Function to see if any overlap options present in option being set
+        def overlap_opt_set(opt):
+            for overlap_opt in overlap_options:
+                if overlap_opt in opt:
+                    return True
+            return False
+
         separate_dict = dict()
         for option in options:
-            opt_list = option.split(".")
             # Tried to set an option without specifying structured/unstructured
-            if (opt_list[0] not in ["structured_options", "unstructured_options"]
-                    and len(set(opt_list).intersection(overlap_options)) > 0):
+            if (option.split(".")[0] not in ["structured_options",
+                                             "unstructured_options"]
+                    and overlap_opt_set(option)):
                 separate_dict[option] = options[option]
 
         # Pop out overlap options from input dict outside of loop

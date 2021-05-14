@@ -420,6 +420,29 @@ class TestProfiler(unittest.TestCase):
     def test_string_index_doesnt_cause_error(self, *mocks):
         dp.Profiler(pd.DataFrame([[1, 2, 3]], index=["hello"]))
 
+    def test_add_profilers_merge_histogram_(self):
+        vals = ['4948484949555554544949495054485054', '4948484948485749515554495054485054',
+                '4948484948505251545552524952485054', '4948484952485048485551524952485054',
+                '4948484948515550575556535154485054', '4948484950545549485651495054485054',
+                '4948484954565649505449524950485054', '49484849535456545155495054485054',
+                '4948484954515651515451495054485054', '4948484957575651505156554954485054']
+
+        df = pd.DataFrame({"column_a": vals})
+        df_1 = df[:5]
+        df_2 = df[5:]
+
+        profile_options = ProfilerOptions()
+
+        profile_options.set({
+            "histogram_and_quantiles.is_enabled": True
+        })
+
+        profile_1 = dp.Profiler(data=df_1, profiler_options=profile_options)
+        profile_2 = dp.Profiler(data=df_2, profiler_options=profile_options)
+
+        profile_1 + profile_2
+
+
 
 class TestStructuredDataProfileClass(unittest.TestCase):
 

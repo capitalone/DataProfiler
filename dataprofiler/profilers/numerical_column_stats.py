@@ -301,19 +301,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: binning error
         :rtype: float
         """
-        bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
 
         # account ofr digitize which is exclusive
         bin_edges = bin_edges.copy()
-        bin_edges[-1] += 1e-3
 
         inds = np.digitize(input_array, bin_edges)
 
-        inds = np.where(inds >= len(input_array), len(input_array) - 1, inds)
-
-        # reset the edge
-        bin_edges[-1] -= 1e-3
+        inds = np.where(inds >= len(bin_edges), len(bin_edges) - 1, inds)
 
         sum_error = sum(
             (input_array - (bin_edges[inds] + bin_edges[inds - 1])/2) ** 2
@@ -483,7 +478,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self._stored_histogram['histogram']['bin_edges'] = bin_edges
 
         # update loss for the stored bins
-        histogram_loss = self._histogram_bin_error(df_series)
+        try:
+            histogram_loss = self._histogram_bin_error(df_series)
+        except BaseException:
+            histogram_loss = None
+
         self._stored_histogram['current_loss'] = histogram_loss
         self._stored_histogram['total_loss'] += histogram_loss
 

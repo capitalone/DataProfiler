@@ -2,6 +2,7 @@ import os
 import unittest
 from unittest import mock
 from collections import defaultdict
+import sys
 
 import pandas as pd
 import numpy as np
@@ -285,4 +286,89 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         sum_error = num_profiler._histogram_bin_error(input_array)
 
+        # Sum of errors should be difference of each input value to midpoint of bin squared
+        # bin_midpoints = [2, 6, 10, 14]
         assert sum_error == (2-0)**2 + (2-3)**2 + (6-5)**2 + (10-9)**2 + (10-11)**2 + (17-14)**2
+
+        # Max value test
+        input_array = [sys.float_info.max, 1.2e308, 1.3e308, 1.5e308]
+
+        num_profiler._stored_histogram = {
+            "histogram": {
+                "bin_edges": np.array([1e308, 1.2e308, 1.4e308, 1.6e308])
+            }
+        }
+
+        sum_error = num_profiler._histogram_bin_error(input_array)
+
+        assert sum_error == np.inf
+
+        # Min value test
+        input_array = [sys.float_info.min, -1.2e308, -1.3e308, -1.5e308]
+
+        num_profiler._stored_histogram = {
+            "histogram": {
+                "bin_edges": np.array([-1.6e308, -1.4e308, -1.2e308, -1e308])
+            }
+        }
+
+        sum_error = num_profiler._histogram_bin_error(input_array)
+
+        assert sum_error == np.inf
+
+    def test_get_best_histogram_profile(self):
+        num_profiler = TestColumn()
+
+        num_profiler._histogram_for_profile = mock.MagicMock(side_effect=[
+            ("hist_1", 3),
+            ("hist_2", 2),
+            ("hist_3", 1)
+        ])
+
+        num_profiler.histogram_selection = None
+
+        num_profiler.histogram_methods = {
+            'method_1': {
+                'total_loss': 0,
+                'current_loss': 0,
+                'histogram': None,
+                'suggested_bin_count': 3
+            },
+            'method_2': {
+                'total_loss': 0,
+                'current_loss': 0,
+                'histogram': None,
+                'suggested_bin_count': 3
+            },
+            'method_3': {
+                'total_loss': 0,
+                'current_loss': 0,
+                'histogram': None,
+                'suggested_bin_count': 3
+            }
+        }
+
+        best_histogram = num_profiler._get_best_histogram_for_profile()
+
+        assert best_histogram == "hist_3"
+
+    def test_get_best_histogram_profile_infinite_loss(self):
+        num_profiler = TestColumn()
+
+        num_profiler._histogram_for_profile = mock.MagicMock(return_value=("hist_1", 3))
+
+        num_profiler.histogram_selection = None
+
+        num_profiler.histogram_methods = {
+            'method_1': {
+                'total_loss': np.inf,
+                'current_loss': np.inf,
+                'histogram': None,
+                'suggested_bin_count': 3
+            },
+        }
+
+        best_histogram = num_profiler._get_best_histogram_for_profile()
+
+        assert best_histogram == "hist_1"
+

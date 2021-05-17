@@ -11,6 +11,7 @@ from future.utils import with_metaclass
 import copy
 import abc
 import warnings
+import sys
 
 import numpy as np
 
@@ -319,6 +320,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         sum_error = sum(
             (input_array - (bin_edges[inds] + bin_edges[inds - 1])/2) ** 2
         )
+
         return sum_error
 
     @staticmethod
@@ -588,16 +590,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: histogram bin edges and bin counts
         :rtype: dict
         """
+
         if self.histogram_selection is None:
-            best_hist_loss = np.inf
+            best_hist_loss = None
             for method in self.histogram_methods:
                 histogram, hist_loss = self._histogram_for_profile(method)
                 self.histogram_methods[method]['histogram'] = histogram
                 self.histogram_methods[method]['current_loss'] = hist_loss
                 self.histogram_methods[method]['total_loss'] += hist_loss
-                if hist_loss < best_hist_loss:
+                if not best_hist_loss or hist_loss < best_hist_loss:
                     self.histogram_selection = method
                     best_hist_loss = hist_loss
+
         return self.histogram_methods[self.histogram_selection]['histogram']
 
     def _get_percentile(self, percentiles):

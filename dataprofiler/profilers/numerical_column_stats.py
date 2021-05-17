@@ -306,9 +306,15 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         # account ofr digitize which is exclusive
         bin_edges = bin_edges.copy()
 
-        inds = np.digitize(input_array, bin_edges)
+        temp_last_edge = bin_edges[-1]
+        bin_edges[-1] = np.inf
 
-        inds = np.where(inds >= len(bin_edges), len(bin_edges) - 1, inds)
+        inds = np.digitize(input_array, bin_edges)
+        if temp_last_edge == np.inf:
+            inds = np.minimum(inds, len(bin_edges) - 1)
+
+        # reset the edge
+        bin_edges[-1] = temp_last_edge
 
         sum_error = sum(
             (input_array - (bin_edges[inds] + bin_edges[inds - 1])/2) ** 2
@@ -478,10 +484,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self._stored_histogram['histogram']['bin_edges'] = bin_edges
 
         # update loss for the stored bins
-        try:
-            histogram_loss = self._histogram_bin_error(df_series)
-        except BaseException:
-            histogram_loss = None
+        histogram_loss = self._histogram_bin_error(df_series)
 
         self._stored_histogram['current_loss'] = histogram_loss
         self._stored_histogram['total_loss'] += histogram_loss

@@ -270,3 +270,19 @@ class TestNumericStatsMixin(unittest.TestCase):
             num_profiler._get_histogram_and_quantiles(
                 df_series, prev_dependent_properties, subset_properties)
             self.assertEqual(expected, num_profiler.times)
+
+    def test_histogram_bin_error(self):
+        num_profiler = TestColumn()
+
+        # Dummy data for calculating bin error
+        num_profiler._stored_histogram = {
+            "histogram": {
+                "bin_edges": np.array([0.0, 4.0, 8.0, 12.0, 16.0])
+            }
+        }
+
+        input_array = [0, 3, 5, 9, 11, 17]
+
+        sum_error = num_profiler._histogram_bin_error(input_array)
+
+        assert sum_error == (2-0)**2 + (2-3)**2 + (6-5)**2 + (10-9)**2 + (10-11)**2 + (17-14)**2

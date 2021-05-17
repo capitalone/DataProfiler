@@ -568,3 +568,29 @@ class TestIntColumn(unittest.TestCase):
 
         histogram, _ = num_profiler._histogram_for_profile('custom')
         self.assertEqual(100, len(histogram['bin_counts']))
+
+    def test_profile_merge_bin_edges_indices(self):
+        vals = [4948484949555554544949495054485054, 4948484948485749515554495054485054,
+                4948484948505251545552524952485054, 4948484952485048485551524952485054,
+                4948484948515550575556535154485054, 4948484950545549485651495054485054,
+                4948484954565649505449524950485054, 49484849535456545155495054485054,
+                4948484954515651515451495054485054, 4948484957575651505156554954485054]
+
+        data = pd.Series(vals)
+        data_1 = data[:5]
+        data_2 = data[5:]
+
+        options = IntOptions()
+
+        options.set({
+            "histogram_and_quantiles.is_enabled": True
+        })
+
+        profile_1 = IntColumn("Int", options=options)
+        profile_2 = IntColumn("Int", options=options)
+
+        profile_1.update(data_1)
+        profile_2.update(data_2)
+
+        profile_1 + profile_2
+

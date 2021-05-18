@@ -287,7 +287,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         sum_error = num_profiler._histogram_bin_error(input_array)
 
         # Sum of errors should be difference of each input value to midpoint of bin squared
-        # bin_midpoints = [2, 6, 10, 14]
+        # bin_midpoints = [2, 6, 10, 14]   ids = [1, 1, 2, 3, 3, 4]
         assert sum_error == (2-0)**2 + (2-3)**2 + (6-5)**2 + (10-9)**2 + (10-11)**2 + (17-14)**2
 
         # Max value test

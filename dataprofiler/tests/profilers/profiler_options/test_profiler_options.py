@@ -341,11 +341,6 @@ class TestProfilerOptions(unittest.TestCase):
     def test_setting_overlapping_option(self, *mocks):
         options = ProfilerOptions()
 
-        msg = "ProfilerOptions.set argument 'opt_type' must be one of " \
-              "{'structured', 'unstructured'}."
-        with self.assertRaisesRegex(ValueError, msg):
-            options.set(dict(), opt_type="whoops")
-
         # Raises error if no opt_type specified but overlap option set
         set_dict = {"data_labeler.data_labeler_object": 3}
         msg = f"Attempted to set options {set_dict} in ProfilerOptions " \
@@ -365,40 +360,6 @@ class TestProfilerOptions(unittest.TestCase):
         options.set({"data_labeler.is_enabled": False})
         self.assertFalse(options.structured_options.data_labeler.is_enabled)
         self.assertFalse(options.unstructured_options.data_labeler.is_enabled)
-
-        # Sets correct one if opt_type specified
-        options.set({"data_labeler.data_labeler_object": 3},
-                    opt_type="structured")
-        self.assertIsNone(options.unstructured_options.data_labeler.
-                          data_labeler_object)
-        self.assertEqual(3, options.structured_options.data_labeler.
-                         data_labeler_object)
-
-        # Sets correct one if opt_type specified
-        options = ProfilerOptions()
-        options.set({"data_labeler.data_labeler_object": 3},
-                    opt_type="unstructured")
-        self.assertIsNone(options.structured_options.data_labeler.
-                          data_labeler_object)
-        self.assertEqual(3, options.unstructured_options.data_labeler.
-                         data_labeler_object)
-
-        # Sets correct one if opt_type specified
-        options.set({"data_labeler.data_labeler_dirpath": 3},
-                    opt_type="structured")
-        self.assertIsNone(options.unstructured_options.data_labeler.
-                          data_labeler_dirpath)
-        self.assertEqual(3, options.structured_options.data_labeler.
-                         data_labeler_dirpath)
-
-        # Sets correct one if opt_type specified
-        options = ProfilerOptions()
-        options.set({"data_labeler.data_labeler_dirpath": 3},
-                    opt_type="unstructured")
-        self.assertIsNone(options.structured_options.data_labeler.
-                          data_labeler_dirpath)
-        self.assertEqual(3, options.unstructured_options.data_labeler.
-                         data_labeler_dirpath)
 
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'

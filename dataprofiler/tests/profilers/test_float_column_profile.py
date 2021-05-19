@@ -38,7 +38,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.match_count, 1.0)
         self.assertEqual(profiler.mean, 1.5)
         self.assertEqual(profiler.variance, 0.0)
-        
+
         data = pd.Series([2.5]).apply(str)
         profiler.update(data)
         self.assertEqual(profiler.match_count, 2)
@@ -59,7 +59,7 @@ class TestFloatColumn(unittest.TestCase):
         float_profiler.update(df_3)
         self.assertEqual(4, float_profiler.precision['min'])
         self.assertEqual(4, float_profiler.precision['max'])
-        
+
         float_profiler.update(df_2)
         self.assertEqual(2, float_profiler.precision['min'])
         self.assertEqual(4, float_profiler.precision['max'])
@@ -142,7 +142,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertDictEqual(
             float_profiler.precision, float_profiler_order.precision
         )
-        
+
         # check to make sure all formats of precision are correctly predicted
         samples = [
             # value, min expected precision
@@ -157,7 +157,7 @@ class TestFloatColumn(unittest.TestCase):
             ['  0012345600.  ', 8],
             ['  -0012345600.  ', 8],
         ]
-        
+
         for sample in samples:
             df_series = pd.Series([sample[0]])
             min_expected_precision = sample[1]
@@ -664,7 +664,7 @@ class TestFloatColumn(unittest.TestCase):
 
         profiler = FloatColumn(df.name)
 
-        expected_profile = dict(            
+        expected_profile = dict(
             min=2.5,
             max=12.5,
             mean=20/3.0,
@@ -693,7 +693,7 @@ class TestFloatColumn(unittest.TestCase):
                 'confidence_level': 0.999
             }
         )
-        
+
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
@@ -734,23 +734,23 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions()
         options.set({"precision.is_enabled": False})
         profiler = FloatColumn(df.name, options=options)
-        profiler.update(df)        
+        profiler.update(df)
         self.assertEqual(None, profiler.precision['sample_size'])
 
         # Turn on precision, check sample_size
         options = FloatOptions()
         options.set({"precision.is_enabled": True})
         profiler = FloatColumn(df.name, options=options)
-        profiler.update(df)        
+        profiler.update(df)
         self.assertEqual(4, profiler.precision['sample_size'])
 
         # Trun on precision, set 0.5 sample_size
         options = FloatOptions()
         options.set({"precision.sample_ratio": 0.5})
         profiler = FloatColumn(df.name, options=options)
-        profiler.update(df)        
+        profiler.update(df)
         self.assertEqual(2, profiler.precision['sample_size'])
-            
+
     def test_option_timing(self):
         data = [2.0, 12.5, 'not a float', 6.0, 'not a float']
         df = pd.Series(data).apply(str)
@@ -771,7 +771,7 @@ class TestFloatColumn(unittest.TestCase):
 
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0,\
                                            'variance': 1.0, 'precision': 1.0,\
-                                           'histogram_and_quantiles': 15.0})            
+                                           'histogram_and_quantiles': 15.0})
             self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second update
@@ -934,7 +934,7 @@ class TestFloatColumn(unittest.TestCase):
         options.min.is_enabled = False
         options.precision.is_enabled = False
         options.histogram_and_quantiles.bin_count_or_method = None
-        
+
         data2 = [10, 15]
         df2 = pd.Series(data2).apply(str)
         profiler2 = FloatColumn("Float", options=options)
@@ -965,7 +965,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertIsNone(profiler3.min)
         self.assertEqual(None, profiler3.precision['min'])
         self.assertEqual(None, profiler3.precision['max'])
-        
+
         # Creating profiler with precision to 0.1
         options = FloatOptions()
         options.max.is_enabled = False
@@ -975,7 +975,7 @@ class TestFloatColumn(unittest.TestCase):
         data = [2, 4, 6, 8]
         df = pd.Series(data).apply(str)
         profiler1 = FloatColumn("Float", options=options)
-        profiler1.update(df)        
+        profiler1.update(df)
 
     def test_float_column_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
@@ -1020,7 +1020,6 @@ class TestFloatColumn(unittest.TestCase):
         histogram, _ = num_profiler._histogram_for_profile('custom')
         self.assertEqual(100, len(histogram['bin_counts']))
 
-
     def test_profile_merge_bin_edges_indices(self):
         vals = [4948484949555554544949495054485054.0, 4948484948485749515554495054485054.0,
                 4948484948505251545552524952485054.0, 4948484952485048485551524952485054.0,
@@ -1028,7 +1027,7 @@ class TestFloatColumn(unittest.TestCase):
                 4948484954565649505449524950485054.0, 49484849535456545155495054485054.0,
                 4948484954515651515451495054485054.0, 4948484957575651505156554954485054.0]
 
-        data = pd.Series(vals)
+        data = pd.Series(vals).astype(str)
         data_1 = data[:5]
         data_2 = data[5:]
 

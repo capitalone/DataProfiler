@@ -910,19 +910,19 @@ class ProfilerOptions(BaseOption):
                     return True
             return False
 
-        separate_dict = dict()
+        overlap_dict = dict()
         for option in options:
             # Tried to set an overlap option without specifying struct/unstruct
             if (option.split(".")[0] not in ["structured_options",
                                              "unstructured_options"]
                     and overlap_opt_set(option)):
-                separate_dict[option] = options[option]
+                overlap_dict[option] = options[option]
 
-        if separate_dict:
-            raise ValueError(f"Attempted to set options {separate_dict} in "
+        if overlap_dict:
+            raise ValueError(f"Attempted to set options {overlap_dict} in "
                              f"ProfilerOptions without specifying whether "
                              f"to set them for StructuredOptions or "
                              f"UnstructuredOptions.")
 
-        # Set options that don't need clarification
+        # Set options as normal if none were overlapping
         self._set_helper(options, variable_path='')

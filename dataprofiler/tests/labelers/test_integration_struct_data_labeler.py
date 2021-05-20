@@ -277,12 +277,14 @@ class TestStructuredDataLabeler(unittest.TestCase):
         data = dp.Data(path)
 
         profile_options = dp.ProfilerOptions()
-        profile_options.set({"text.is_enabled": False,
-                             "int.is_enabled": False,
-                             "float.is_enabled": False,
-                             "order.is_enabled": False,
-                             "category.is_enabled": False,
-                             "datetime.is_enabled": False, })
+        profile_options.structured_options.set(
+            {"text.is_enabled": False,
+             "int.is_enabled": False,
+             "float.is_enabled": False,
+             "order.is_enabled": False,
+             "category.is_enabled": False,
+             "datetime.is_enabled": False}
+        )
 
         profile = dp.Profiler(data, profiler_options=profile_options)
         results = profile.report()
@@ -303,12 +305,14 @@ class TestStructuredDataLabeler(unittest.TestCase):
             print('running dp =============================', i)
             data = dp.Data(path)
             profile_options = dp.ProfilerOptions()
-            profile_options.set({"text.is_enabled": False,
-                                 "int.is_enabled": False,
-                                 "float.is_enabled": False,
-                                 "order.is_enabled": False,
-                                 "category.is_enabled": False,
-                                 "datetime.is_enabled": False, })
+            profile_options.structured_options.set(
+                {"text.is_enabled": False,
+                 "int.is_enabled": False,
+                 "float.is_enabled": False,
+                 "order.is_enabled": False,
+                 "category.is_enabled": False,
+                 "datetime.is_enabled": False}
+            )
 
             profile = dp.Profiler(data, profiler_options=profile_options)
 
@@ -327,23 +331,27 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
         data = dp.Data(path)
         profile_options = dp.ProfilerOptions()
-        profile_options.set({"text.is_enabled": False,
-                             "int.is_enabled": False,
-                             "float.is_enabled": False,
-                             "order.is_enabled": False,
-                             "category.is_enabled": False,
-                             "datetime.is_enabled": False, })
+        profile_options.structured_options.set(
+            {"text.is_enabled": False,
+             "int.is_enabled": False,
+             "float.is_enabled": False,
+             "order.is_enabled": False,
+             "category.is_enabled": False,
+             "datetime.is_enabled": False}
+        )
         print('running dp1')
         profile1 = dp.Profiler(data, profiler_options=profile_options)
 
         data = dp.Data(path)
         profile_options = dp.ProfilerOptions()
-        profile_options.set({"text.is_enabled": False,
-                             "int.is_enabled": False,
-                             "float.is_enabled": False,
-                             "order.is_enabled": False,
-                             "category.is_enabled": False,
-                             "datetime.is_enabled": False, })
+        profile_options.structured_options.set(
+            {"text.is_enabled": False,
+             "int.is_enabled": False,
+             "float.is_enabled": False,
+             "order.is_enabled": False,
+             "category.is_enabled": False,
+             "datetime.is_enabled": False}
+        )
         print('running dp2')
         profile2 = dp.Profiler(data, profiler_options=profile_options)
 
@@ -356,23 +364,27 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
         data = dp.Data(path)
         profile_options = dp.ProfilerOptions()
-        profile_options.set({"text.is_enabled": False,
-                             "int.is_enabled": False,
-                             "float.is_enabled": False,
-                             "order.is_enabled": False,
-                             "category.is_enabled": False,
-                             "datetime.is_enabled": False, })
+        profile_options.structured_options.set(
+            {"text.is_enabled": False,
+             "int.is_enabled": False,
+             "float.is_enabled": False,
+             "order.is_enabled": False,
+             "category.is_enabled": False,
+             "datetime.is_enabled": False}
+        )
         print('running dp1')
         profile1 = dp.Profiler(data, profiler_options=profile_options)
 
         data = dp.Data(path)
         profile_options = dp.ProfilerOptions()
-        profile_options.set({"text.is_enabled": False,
-                             "int.is_enabled": False,
-                             "float.is_enabled": False,
-                             "order.is_enabled": False,
-                             "category.is_enabled": False,
-                             "datetime.is_enabled": False, })
+        profile_options.structured_options.set(
+            {"text.is_enabled": False,
+             "int.is_enabled": False,
+             "float.is_enabled": False,
+             "order.is_enabled": False,
+             "category.is_enabled": False,
+             "datetime.is_enabled": False}
+        )
         print('running dp2')
         profile2 = dp.Profiler(data, profiler_options=profile_options)
 

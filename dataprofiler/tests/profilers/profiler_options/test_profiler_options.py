@@ -227,7 +227,7 @@ class TestProfilerOptions(unittest.TestCase):
         # Ensure set works appropriately
         options.set({"data_labeler.is_enabled": False,
                      "min.is_enabled": False,
-                     "data_labeler_dirpath": "test",
+                     "structured_options.data_labeler_dirpath": "test",
                      "max_sample_size": 15})
 
         text_options = options.structured_options.text.properties
@@ -338,6 +338,46 @@ class TestProfilerOptions(unittest.TestCase):
         self.assertTrue(options.structured_options.int.
                         is_prop_enabled("is_numeric_stats_enabled"))
 
+    def test_setting_overlapping_option(self, *mocks):
+        options = ProfilerOptions()
+
+        # Raises error if overlap option set
+        set_dict = {"data_labeler.data_labeler_object": 3}
+        msg = f"Attempted to set options {set_dict} in ProfilerOptions " \
+              f"without specifying whether to set them for StructuredOptions " \
+              f"or UnstructuredOptions."
+        with self.assertRaisesRegex(ValueError, msg):
+            options.set(set_dict)
+
+        set_dict = {"data_labeler.data_labeler_dirpath": 3}
+        msg = f"Attempted to set options {set_dict} in ProfilerOptions " \
+              f"without specifying whether to set them for StructuredOptions " \
+              f"or UnstructuredOptions."
+        with self.assertRaisesRegex(ValueError, msg):
+            options.set(set_dict)
+
+        # Works still for disabling both
+        options.set({"data_labeler.is_enabled": False})
+        self.assertFalse(options.structured_options.data_labeler.is_enabled)
+        self.assertFalse(options.unstructured_options.data_labeler.is_enabled)
+
+        # Works for specifying which to set for
+        options = ProfilerOptions()
+        options.set(
+            {"unstructured_options.data_labeler.data_labeler_object": 23})
+        self.assertIsNone(options.structured_options.data_labeler.
+                          data_labeler_object)
+        self.assertEqual(23, options.unstructured_options.data_labeler.
+                          data_labeler_object)
+
+        options = ProfilerOptions()
+        options.set({"structured_options.data_labeler.data_labeler_dirpath":
+                     "Hello There"})
+        self.assertEqual("Hello There", options.structured_options.
+                         data_labeler.data_labeler_dirpath)
+        self.assertIsNone(options.unstructured_options.data_labeler.
+                          data_labeler_dirpath)
+
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
             'DataLabelerColumn.update', return_value=None)
@@ -369,7 +409,8 @@ class TestDataLabelerCallWithOptions(unittest.TestCase):
         data_labeler = mock.Mock(spec=BaseDataLabeler)
         data_labeler.reverse_label_mapping = dict()
         data_labeler.model.num_labels = 0
-        options.set({'data_labeler.data_labeler_object': data_labeler})
+        options.set({'structured_options.data_labeler.data_labeler_object':
+                         data_labeler})
         with self.assertWarnsRegex(UserWarning,
                                    "The data labeler passed in will be used,"
                                    " not through the directory of the default"

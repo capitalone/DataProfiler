@@ -15,8 +15,6 @@ class DataLabelerColumn(BaseColumnProfiler):
         """
         Initialization of Data Label profiling for structured datasets.
 
-        :param data_labeler_dirpath: Directory path to the data labeler
-        :type data_labeler_dirpath: String
         :param options: Options for the data labeler column
         :type options: DataLabelerOptions
         """

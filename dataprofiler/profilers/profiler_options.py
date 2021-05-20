@@ -886,3 +886,45 @@ class ProfilerOptions(BaseOption):
             variable_path=variable_path + '.unstructured_options')
 
         return errors
+
+    def set(self, options):
+        """
+        Overwrites BaseOption.set since the type (unstructured/structured) may
+        need to be specified if the same options exist within both
+        self.structured_options and self.unstructured_options
+
+        :param options: Dictionary of options to set
+        :type options: dict
+        :Return: None
+        """
+        if not isinstance(options, dict):
+            raise ValueError("The options must be a dictionary.")
+
+        # Options that need further specification
+        overlap_options = {"data_labeler_object", "data_labeler_dirpath"}
+
+        # Specification needed for overlap_options above
+        option_specifications = {"structured_options", "unstructured_options"}
+
+        # Function to see if any overlap options present in option being set
+        def overlap_opt_set(opt):
+            for overlap_opt in overlap_options:
+                if overlap_opt in opt:
+                    return True
+            return False
+
+        overlap_dict = dict()
+        for option in options:
+            # Tried to set an overlap option without specifying struct/unstruct
+            if (option.split(".")[0] not in option_specifications
+                    and overlap_opt_set(option)):
+                overlap_dict[option] = options[option]
+
+        if overlap_dict:
+            raise ValueError(f"Attempted to set options {overlap_dict} in "
+                             f"ProfilerOptions without specifying whether "
+                             f"to set them for StructuredOptions or "
+                             f"UnstructuredOptions.")
+
+        # Set options as normal if none were overlapping
+        self._set_helper(options, variable_path='')

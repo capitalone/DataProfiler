@@ -1862,18 +1862,19 @@ class TestStructCharPostprocessor(unittest.TestCase):
         results['conf'] = confidences
 
         expected_confidence_output = np.array([
-            [0, 0, 1, 0, 0],
-            [0, 0, 0, 1, 0],
-            [0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0],
-            [0, 0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [1, 0, 0, 0],
+            [0, 0, 1, 0],
+            [0, 1, 0, 0],
         ])
 
         output = processor.process(data, results, label_mapping)
         self.assertIn('pred', output)
         self.assertIn('conf', output)
         self.assertTrue((expected_output['pred'] == output['pred']).all())
-        self.assertTrue((expected_confidence_output == output['conf']).all())
+        self.assertTrue(np.array_equal(expected_confidence_output,
+                                       output['conf']))
 
     def test_match_sentence_lengths(self):
         processor = StructCharPostprocessor()

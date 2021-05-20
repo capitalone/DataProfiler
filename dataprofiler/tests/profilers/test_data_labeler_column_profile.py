@@ -22,6 +22,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         mock_DataLabeler.label_mapping = {"a": 0, "b": 1}
         mock_DataLabeler.reverse_label_mapping = {0: "a", 1: "b"}
         mock_DataLabeler.model.num_labels = 2
+        mock_DataLabeler.model.requires_zero_mapping = False
 
         def mock_predict(data, *args, **kwargs):
             len_data = len(data)
@@ -91,6 +92,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         mock_DataLabeler.reverse_label_mapping = \
             {0: "a", 1: "b", 2: "c", 3: "d"}
         mock_DataLabeler.model.num_labels = 4
+        mock_DataLabeler.model.requires_zero_mapping = False
 
         def mock_low_predict(data, *args, **kwargs):
             return {'pred': None, 'conf': np.array([
@@ -139,7 +141,6 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             expected = defaultdict(float, {'data_labeler_predict': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
 
-
     def test_label_match(self, mock_instance):
         """
         Test label match between avg_prediction and data_label_representation
@@ -150,6 +151,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         mock_DataLabeler.reverse_label_mapping = \
             {0: "a", 1: "c", 2: "e", 3: "f"}
         mock_DataLabeler.model.num_labels = 4
+        mock_DataLabeler.model.requires_zero_mapping = False
 
         data = pd.Series(['1', '2', '3', '4', '5', '6'])
         profiler = DataLabelerColumn(data.name)
@@ -158,7 +160,6 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         self.assertEqual(["a", "c", "e", "f"], profiler._possible_data_labels)
         self.assertDictEqual(dict(a=0, c=0, e=0, f=0), profiler.label_representation)
         self.assertDictEqual(dict(a=0, c=0, e=0, f=0), profiler.avg_predictions)
-
 
     def test_profile_merge(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)

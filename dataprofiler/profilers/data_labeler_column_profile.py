@@ -43,12 +43,21 @@ class DataLabelerColumn(BaseColumnProfiler):
                 dirpath=data_labeler_dirpath,
                 load_options=None)
 
-        reverse_label_mapping = self.data_labeler.reverse_label_mapping
+        self.reverse_label_mapping = self.data_labeler.reverse_label_mapping
         num_labels = self.data_labeler.model.num_labels
-        self._possible_data_labels = list(reverse_label_mapping.values())
+
+        # remove PAD from output (reserved zero index)
+        if self.data_labeler.model.requires_zero_mapping:
+            self.reverse_label_mapping.pop(0, None)
+            # update mapping to relate to rank prediction saves
+            self.reverse_label_mapping = dict(
+                (k-1, v) for k, v in self.reverse_label_mapping.items())
+            num_labels -= 1
+
+        self._possible_data_labels = list(self.reverse_label_mapping.values())
         self._possible_data_labels = [  # sort the data_labels based on index
             x for _, x in sorted(zip(
-                reverse_label_mapping.keys(), self._possible_data_labels)
+                self.reverse_label_mapping.keys(), self._possible_data_labels)
             )
         ]
         self.rank_distribution = dict(
@@ -254,7 +263,6 @@ class DataLabelerColumn(BaseColumnProfiler):
         sum_predictions = np.sum(predictions['conf'], axis=0)
         self._sum_predictions += sum_predictions
 
-        label_decoder = self.data_labeler.reverse_label_mapping
         rank_predictions = np.argpartition(
             predictions['conf'], axis=1, kth=-self._top_k_voting
         )
@@ -263,7 +271,7 @@ class DataLabelerColumn(BaseColumnProfiler):
             sorted_rank = sorted_rank[np.argsort(predictions['conf'][i][sorted_rank])]
             for rank_position, value in enumerate(sorted_rank):
                 if predictions['conf'][i][value] > self._min_voting_prob:
-                    self.rank_distribution[label_decoder[value]] += rank_position + 1
+                    self.rank_distribution[self.reverse_label_mapping[value]] += rank_position + 1
 
     def _update_helper(self, df_series_clean, profile):
         """

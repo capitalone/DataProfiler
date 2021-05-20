@@ -74,6 +74,24 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         self.assertDictEqual(dict(a=2, b=1), profiler.rank_distribution)
         self.assertDictEqual(dict(a=2/3, b=1/3), profiler.label_representation)
 
+    def test_update_reserve_label_mapping(self, mock_instance):
+        self._setup_data_labeler_mock(mock_instance)
+        mock_DataLabeler = mock_instance.return_value
+        mock_DataLabeler.model.requires_zero_mapping = True
+        mock_DataLabeler.label_mapping = {"PAD": 0, "a": 1, "b": 2}
+        mock_DataLabeler.reverse_label_mapping = {0: "PAD", 1:"a", 2: "b"}
+        mock_DataLabeler.model.num_labels = 3
+
+        data = pd.Series(['1', '2', '3'])
+        profiler = DataLabelerColumn(data.name)
+        profiler.update(data)
+
+        self.assertEqual(["a", "b"], profiler._possible_data_labels)
+        self.assertEqual("a", profiler.data_label)
+        self.assertDictEqual(dict(a=2/3, b=1/3), profiler.avg_predictions)
+        self.assertDictEqual(dict(a=2, b=1), profiler.rank_distribution)
+        self.assertDictEqual(dict(a=2/3, b=1/3), profiler.label_representation)
+
     def test_data_label_low_accuracy(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
 

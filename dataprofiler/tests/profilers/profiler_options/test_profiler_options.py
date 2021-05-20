@@ -342,21 +342,21 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
 
         # Raises error if overlap option set
-        set_dict = {"data_labeler.data_labeler_object": 3}
-        msg = f"Attempted to set options {set_dict} in ProfilerOptions " \
-              f"without specifying whether to set them for StructuredOptions " \
-              f"or UnstructuredOptions."
-        with self.assertRaisesRegex(ValueError, msg):
-            options.set(set_dict)
+        sets = [
+            {"data_labeler.data_labeler_object": 3},
+            {"data_labeler.data_labeler_dirpath": 3},
+            {"text.is_enabled": False},
+            {"text.vocab.is_enabled": False}
+        ]
 
-        set_dict = {"data_labeler.data_labeler_dirpath": 3}
-        msg = f"Attempted to set options {set_dict} in ProfilerOptions " \
-              f"without specifying whether to set them for StructuredOptions " \
-              f"or UnstructuredOptions."
-        with self.assertRaisesRegex(ValueError, msg):
-            options.set(set_dict)
+        for set_dict in sets:
+            msg = f"Attempted to set options {set_dict} in ProfilerOptions " \
+                  f"without specifying whether to set them for " \
+                  f"StructuredOptions or UnstructuredOptions."
+            with self.assertRaisesRegex(ValueError, msg):
+                options.set(set_dict)
 
-        # Works still for disabling both
+        # Works still for disabling both labelers
         options.set({"data_labeler.is_enabled": False})
         self.assertFalse(options.structured_options.data_labeler.is_enabled)
         self.assertFalse(options.unstructured_options.data_labeler.is_enabled)
@@ -377,6 +377,16 @@ class TestProfilerOptions(unittest.TestCase):
                          data_labeler.data_labeler_dirpath)
         self.assertIsNone(options.unstructured_options.data_labeler.
                           data_labeler_dirpath)
+
+        options = ProfilerOptions()
+        options.set({"unstructured_options.text.is_enabled": False})
+        self.assertTrue(options.structured_options.text.is_enabled)
+        self.assertFalse(options.unstructured_options.text.is_enabled)
+
+        options = ProfilerOptions()
+        options.set({"structured_options.text.vocab.is_enabled": False})
+        self.assertFalse(options.structured_options.text.vocab.is_enabled)
+        self.assertTrue(options.unstructured_options.text.vocab.is_enabled)
 
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'

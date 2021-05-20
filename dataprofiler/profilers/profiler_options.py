@@ -916,8 +916,8 @@ class ProfilerOptions(BaseOption):
         overlap_dict = dict()
         for option in options:
             # Tried to set an overlap option without specifying struct/unstruct
-            if (option.split(".")[0] not in option_specifications and
-                    overlap_opt_set(option)):
+            if (option.split(".")[0] not in option_specifications
+                    and overlap_opt_set(option)):
                 overlap_dict[option] = options[option]
 
         if overlap_dict:

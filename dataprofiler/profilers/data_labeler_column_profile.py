@@ -47,9 +47,6 @@ class DataLabelerColumn(BaseColumnProfiler):
         # remove PAD from output (reserved zero index)
         if self.data_labeler.model.requires_zero_mapping:
             self.reverse_label_mapping.pop(0, None)
-            # update mapping to relate to rank prediction saves
-            self.reverse_label_mapping = dict(
-                (k-1, v) for k, v in self.reverse_label_mapping.items())
             num_labels -= 1
 
         self._possible_data_labels = list(self.reverse_label_mapping.values())
@@ -264,12 +261,17 @@ class DataLabelerColumn(BaseColumnProfiler):
         rank_predictions = np.argpartition(
             predictions['conf'], axis=1, kth=-self._top_k_voting
         )
+        start_index = 0
+        if self.data_labeler.model.requires_zero_mapping:
+            start_index = 1
         for i in range(rank_predictions.shape[0]):
             sorted_rank = rank_predictions[i][-self._top_k_voting:]
             sorted_rank = sorted_rank[np.argsort(predictions['conf'][i][sorted_rank])]
             for rank_position, value in enumerate(sorted_rank):
                 if predictions['conf'][i][value] > self._min_voting_prob:
-                    self.rank_distribution[self.reverse_label_mapping[value]] += rank_position + 1
+                    self.rank_distribution[
+                        self.reverse_label_mapping[value + start_index]
+                    ] += rank_position + 1
 
     def _update_helper(self, df_series_clean, profile):
         """

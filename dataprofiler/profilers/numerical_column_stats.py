@@ -11,6 +11,7 @@ from future.utils import with_metaclass
 import copy
 import abc
 import warnings
+import sys
 
 import numpy as np
 
@@ -301,21 +302,25 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: binning error
         :rtype: float
         """
-        bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
 
         # account ofr digitize which is exclusive
         bin_edges = bin_edges.copy()
-        bin_edges[-1] += 1e-3
+
+        temp_last_edge = bin_edges[-1]
+        bin_edges[-1] = np.inf
 
         inds = np.digitize(input_array, bin_edges)
+        if temp_last_edge == np.inf:
+            inds = np.minimum(inds, len(bin_edges) - 1)
 
         # reset the edge
-        bin_edges[-1] -= 1e-3
+        bin_edges[-1] = temp_last_edge
 
         sum_error = sum(
             (input_array - (bin_edges[inds] + bin_edges[inds - 1])/2) ** 2
         )
+
         return sum_error
 
     @staticmethod
@@ -482,15 +487,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         # update loss for the stored bins
         histogram_loss = self._histogram_bin_error(df_series)
+
         self._stored_histogram['current_loss'] = histogram_loss
         self._stored_histogram['total_loss'] += histogram_loss
-        
+
     def _histogram_for_profile(self, histogram_method):
         """
         Converts the stored histogram into the presentable state based on the
         suggested histogram bin count from numpy.histograms. The bin count used
         is stored in 'suggested_bin_count' for each method.
-        
+
         :param histogram_method: method to use for determining the histogram
             profile
         :type histogram_method: str
@@ -506,7 +512,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.histogram_methods[histogram_method]['histogram']['bin_counts'],
             self.histogram_methods[histogram_method]['suggested_bin_count'],
         )
-        
+
         # base case, no need to change if it is already correct
         if not self._has_histogram or current_bin_counts is not None:
             return (self.histogram_methods[histogram_method]['histogram'],
@@ -519,7 +525,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         new_bin_counts = np.zeros((suggested_bin_count,))
         new_bin_edges = np.linspace(
             bin_edges[0], bin_edges[-1], suggested_bin_count + 1)
-        
+
         # allocate bin_counts
         new_bin_id = 0
         hist_loss = 0
@@ -540,7 +546,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 new_bin_id += 1
 
             new_bin_edge = new_bin_edges[new_bin_id: new_bin_id + 3]
-            
+
             # find where the current bin falls within the new bins
             is_last_bin = new_bin_id == suggested_bin_count -1
             if bin_edge[1] < new_bin_edge[1] or is_last_bin:
@@ -584,16 +590,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: histogram bin edges and bin counts
         :rtype: dict
         """
+
         if self.histogram_selection is None:
-            best_hist_loss = np.inf
+            best_hist_loss = None
             for method in self.histogram_methods:
                 histogram, hist_loss = self._histogram_for_profile(method)
                 self.histogram_methods[method]['histogram'] = histogram
                 self.histogram_methods[method]['current_loss'] = hist_loss
                 self.histogram_methods[method]['total_loss'] += hist_loss
-                if hist_loss < best_hist_loss:
+                if not best_hist_loss or hist_loss < best_hist_loss:
                     self.histogram_selection = method
                     best_hist_loss = hist_loss
+
         return self.histogram_methods[self.histogram_selection]['histogram']
 
     def _get_percentile(self, percentiles):
@@ -771,7 +779,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     def np_type_to_type(val):
         """
         Converts numpy variables to base python type variables
-        
+
         :param val: value to check & change
         :type val: numpy type or base type
         :return val: base python type

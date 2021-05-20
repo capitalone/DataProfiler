@@ -901,7 +901,8 @@ class ProfilerOptions(BaseOption):
             raise ValueError("The options must be a dictionary.")
 
         # Options that need further specification
-        overlap_options = {"data_labeler_object", "data_labeler_dirpath"}
+        overlap_options = {"data_labeler_object", "data_labeler_dirpath",
+                           "text.is_enabled", "text.vocab"}
 
         # Specification needed for overlap_options above
         option_specifications = {"structured_options", "unstructured_options"}

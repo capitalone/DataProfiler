@@ -29,7 +29,7 @@ from .profiler_options import ProfilerOptions, StructuredOptions, \
     UnstructuredOptions
 
 
-class StructuredDataProfile(object):
+class StructuredColProfiler(object):
 
     def __init__(self, df_series=None, sample_size=None, min_sample_size=5000,
                  sampling_ratio=0.2, min_true_samples=None,
@@ -136,7 +136,7 @@ class StructuredDataProfile(object):
         Merges two Structured profiles together overriding the `+` operator.
 
         :param other: structured profile being add to this one.
-        :type other: StructuredDataProfile
+        :type other: StructuredColProfiler
         :return: merger of the two structured profiles
         """
         if type(other) is not type(self):
@@ -149,7 +149,7 @@ class StructuredDataProfile(object):
             raise ValueError('Structured profilers were not setup with the same'
                              ' options, hence they do not calculate the same '
                              'profiles and cannot be added together.')
-        merged_profile = StructuredDataProfile(
+        merged_profile = StructuredColProfiler(
             df_series=pd.Series([]),
             min_sample_size=max(self._min_sample_size, other._min_sample_size),
             sampling_ratio=max(self._sampling_ratio, other._sampling_ratio),
@@ -1241,7 +1241,7 @@ class Profiler(object):
         new_cols = set()
         for col in df.columns:
             if col not in self._profile:
-                self._profile[col] = StructuredDataProfile(
+                self._profile[col] = StructuredColProfiler(
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,

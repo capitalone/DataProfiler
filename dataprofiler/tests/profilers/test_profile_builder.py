@@ -14,7 +14,7 @@ import pandas as pd
 from . import utils as test_utils
 
 import dataprofiler as dp
-from dataprofiler.profilers.profile_builder import StructuredDataProfile, \
+from dataprofiler.profilers.profile_builder import StructuredColProfiler, \
     UnstructuredProfiler, UnstructuredCompiler
 from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions, UnstructuredOptions
@@ -336,7 +336,7 @@ class TestProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     @mock.patch('dataprofiler.profilers.profile_builder.Profiler.'
                 '_update_row_statistics')
-    @mock.patch('dataprofiler.profilers.profile_builder.StructuredDataProfile')
+    @mock.patch('dataprofiler.profilers.profile_builder.StructuredColProfiler')
     def test_sample_size_warning_in_the_profiler(self, *mocks):
         # structure data profile mock
         sdp_mock = mock.Mock()
@@ -423,7 +423,7 @@ class TestProfiler(unittest.TestCase):
         dp.Profiler(pd.DataFrame([[1, 2, 3]], index=["hello"]))
 
 
-class TestStructuredDataProfileClass(unittest.TestCase):
+class TestStructuredColProfilerClass(unittest.TestCase):
 
     def setUp(self):
         test_utils.set_seed(seed=0)
@@ -437,7 +437,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
 
     def test_base_props(self):
         src_column = self.aws_dataset.src
-        src_profile = StructuredDataProfile(
+        src_profile = StructuredColProfiler(
             src_column, sample_size=len(src_column))
 
         self.assertIsInstance(src_profile.profiles['data_type_profile'],
@@ -482,12 +482,12 @@ class TestStructuredDataProfileClass(unittest.TestCase):
                 'ColumnDataLabelerCompiler')
     def test_add_profilers(self, *mocks):
         data = pd.Series([1, None, 3, 4, 5, None])
-        profile1 = StructuredDataProfile(data[:2])
-        profile2 = StructuredDataProfile(data[2:])
+        profile1 = StructuredColProfiler(data[:2])
+        profile2 = StructuredColProfiler(data[2:])
 
         # test incorrect type
         with self.assertRaisesRegex(TypeError,
-                                    '`StructuredDataProfile` and `int` are '
+                                    '`StructuredColProfiler` and `int` are '
                                     'not of the same profiler type.'):
             profile1 + 3
 
@@ -557,7 +557,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         # which caused errors
         test_utils.set_seed(seed=0)
         df_series, base_stats = \
-            StructuredDataProfile.clean_data_and_get_base_stats(
+            StructuredColProfiler.clean_data_and_get_base_stats(
                 df_series=data[1:], sample_size=6, min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
@@ -569,17 +569,17 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     def test_column_names(self):
         data = [['a', 1], ['b', 2], ['c', 3]]
         df = pd.DataFrame(data, columns=['letter', 'number'])
-        profile1 = StructuredDataProfile(df['letter'])
-        profile2 = StructuredDataProfile(df['number'])
+        profile1 = StructuredColProfiler(df['letter'])
+        profile2 = StructuredColProfiler(df['number'])
         self.assertEqual(profile1.name, 'letter')
         self.assertEqual(profile2.name, 'number')
 
         df_series = pd.Series([1, 2, 3, 4, 5])
-        profile = StructuredDataProfile(df_series)
+        profile = StructuredColProfiler(df_series)
         self.assertEqual(profile.name, df_series.name)
 
         # Ensure issue raised
-        profile = StructuredDataProfile(df['letter'])
+        profile = StructuredColProfiler(df['letter'])
         with self.assertRaises(ValueError) as context:
             profile.update_profile(df['number'])
         self.assertTrue(
@@ -598,11 +598,11 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         src_column = self.aws_dataset.src
         structured_options = StructuredOptions()
         structured_options.data_labeler.is_enabled = False
-        std_profile = StructuredDataProfile(src_column,
+        std_profile = StructuredColProfiler(src_column,
                                             sample_size=len(src_column))
-        togg_profile = StructuredDataProfile(src_column,
-                                            sample_size=len(src_column),
-                                            options=structured_options)
+        togg_profile = StructuredColProfiler(src_column,
+                                             sample_size=len(src_column),
+                                             options=structured_options)
         self.assertIn('data_label_profile', std_profile.profiles)
         self.assertNotIn('data_label_profile', togg_profile.profiles)
 
@@ -611,7 +611,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
 
         # test null_count when full sample size
         random.seed(0)
-        profile = StructuredDataProfile(column, sample_size=len(column))
+        profile = StructuredColProfiler(column, sample_size=len(column))
         self.assertEqual(10, profile.null_count)
 
     def test_generating_report_ensure_no_error(self):
@@ -685,7 +685,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_index_overlap_for_update_profile(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
-        profile = StructuredDataProfile(data)
+        profile = StructuredColProfiler(data)
         self.assertEqual(0, profile._min_id)
         self.assertEqual(4, profile._max_id)
         self.assertDictEqual(profile.null_types_index, {'nan': {1, 4}})
@@ -705,8 +705,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_index_overlap_for_merge(self, *mocks):
         data = pd.Series([0, None, 1, 2, None])
-        profile1 = StructuredDataProfile(data)
-        profile2 = StructuredDataProfile(data)
+        profile1 = StructuredColProfiler(data)
+        profile2 = StructuredColProfiler(data)
 
         # Ensure merged profile included shifted indices
         profile3 = profile1 + profile2
@@ -731,8 +731,8 @@ class TestStructuredDataProfileClass(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_min_max_id_properly_update(self, *mocks):
         data = pd.Series([1, None, 3, 4, 5, None, 1])
-        profile1 = StructuredDataProfile(data[:2])
-        profile2 = StructuredDataProfile(data[2:])
+        profile1 = StructuredColProfiler(data[:2])
+        profile2 = StructuredColProfiler(data[2:])
 
         # Base initialization
         self.assertEqual(0, profile1._min_id)
@@ -746,7 +746,7 @@ class TestStructuredDataProfileClass(unittest.TestCase):
         self.assertEqual(6, profile3._max_id)
 
         # Needs to work with update_profile
-        profile = StructuredDataProfile(data[:2])
+        profile = StructuredColProfiler(data[:2])
         profile.update_profile(data[2:])
         self.assertEqual(0, profile._min_id)
         self.assertEqual(6, profile._max_id)

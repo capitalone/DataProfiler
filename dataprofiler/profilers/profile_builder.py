@@ -35,7 +35,7 @@ class StructuredColProfiler(object):
                  sampling_ratio=0.2, min_true_samples=None,
                  sample_ids=None, pool=None, options=None):
         """
-        Instantiate the Structured Profiler class for a given column.
+        Instantiate the StructuredColProfiler class for a given column.
         
         :param df_series: Data to be profiled
         :type df_series: pandas.core.series.Series
@@ -450,7 +450,7 @@ class UnstructuredProfiler(object):
     def __init__(self, data, samples_per_update=None, min_true_samples=0,
                  options=None):
         """
-        Instantiate the Profiler class
+        Instantiate the UnstructuredProfiler class
 
         :param data: Data to be profiled
         :type data: Data class object
@@ -462,7 +462,7 @@ class UnstructuredProfiler(object):
         :type min_true_samples: int
         :param options: Options for the profiler.
         :type options: ProfilerOptions Object
-        :return: Profiler
+        :return: UnstructuredProfiler
         """
 
         if not options:
@@ -916,12 +916,12 @@ class UnstructuredProfiler(object):
         return profile
 
 
-class Profiler(object):
+class StructuredProfiler(object):
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0, 
                  profiler_options=None):
         """
-        Instantiate the Profiler class
+        Instantiate the StructuredProfiler class
         
         :param data: Data to be profiled
         :type data: Data class object
@@ -933,7 +933,7 @@ class Profiler(object):
         :type min_true_samples: int
         :param profiler_options: Options for the profiler.
         :type profiler_options: ProfilerOptions Object
-        :return: Profiler
+        :return: StructuredProfiler
         """
 
         if not profiler_options:
@@ -962,7 +962,7 @@ class Profiler(object):
         self._min_sample_size = 5000
 
         if isinstance(data, data_readers.text_data.TextData):
-            raise TypeError("Cannot provide TextData object to Profiler")
+            raise TypeError("Cannot provide TextData object to StructuredProfiler")
 
         # assign data labeler
         data_labeler_options = self.options.data_labeler
@@ -990,7 +990,7 @@ class Profiler(object):
         Merges two profiles together overriding the `+` operator.
 
         :param other: profile being add to this one.
-        :type other: Profiler
+        :type other: StructuredProfiler
         :return: merger of the two profiles
         """
         if type(other) is not type(self):
@@ -1004,7 +1004,7 @@ class Profiler(object):
             raise ValueError('The two profilers were not setup with the same '
                              'options, hence they do not calculate the same '
                              'profiles and cannot be added together.')
-        merged_profile = Profiler(
+        merged_profile = StructuredProfiler(
             data=pd.DataFrame([]), samples_per_update=self._samples_per_update,
             min_true_samples=self._min_true_samples,
             profiler_options=self.options
@@ -1209,7 +1209,7 @@ class Profiler(object):
         """
 
         if len(df.columns) != len(df.columns.unique()):
-            raise ValueError('`Profiler` does not currently support data which '
+            raise ValueError('`StructuredProfiler` does not currently support data which '
                              'contains columns with duplicate names.')
 
         try:
@@ -1524,7 +1524,7 @@ class Profiler(object):
         # Create Empty Profile
         profile_options = StructuredOptions()
         profile_options.data_labeler.is_enabled = False
-        profile = Profiler(pd.DataFrame([]), profiler_options=profile_options)
+        profile = StructuredProfiler(pd.DataFrame([]), profiler_options=profile_options)
 
         # Load profile from disk
         with open(filepath, "rb") as infile:

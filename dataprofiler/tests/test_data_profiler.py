@@ -6,7 +6,7 @@ from unittest import mock
 
 from . import test_utils
 
-from dataprofiler import Data, Profiler
+from dataprofiler import Data, StructuredProfiler
 
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
@@ -37,7 +37,7 @@ class TestDataProfiler(unittest.TestCase):
     def test_data_profiling(self):
         for file in self.input_file_names:
             data = Data(file['path'])
-            profile = Profiler(data)
+            profile = StructuredProfiler(data)
             self.assertIsNotNone(profile.profile)
             self.assertIsNotNone(profile.report())
 
@@ -95,7 +95,7 @@ class TestDataProfiler(unittest.TestCase):
         with mock.patch('builtins.__import__', side_effect=import_mock):
 
             with self.assertWarnsRegex(RuntimeWarning,
-                                       "Partial Profiler Failure"):
+                                       "Partial StructuredProfiler Failure"):
                 modules_with_tf = [
                     'dataprofiler.labelers.character_level_cnn_model',
                 ]
@@ -103,7 +103,7 @@ class TestDataProfiler(unittest.TestCase):
                     if module in sys.modules:
                         del sys.modules[module]
                 df = pandas.DataFrame([[1, 2.0], [1, 2.2], [-1, 3]])
-                profile = Profiler(df)
+                profile = StructuredProfiler(df)
 
 
 if __name__ == '__main__':

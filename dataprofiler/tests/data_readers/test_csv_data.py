@@ -385,12 +385,12 @@ class TestCSVDataClass(unittest.TestCase):
         data = CSVData(filename)
         self.assertTrue(data.is_structured)
 
-        # With option specifying data frame as format
+        # With option specifying dataframe as data_format
         data = CSVData(input_file_path=filename,
                        options={"data_format": "dataframe"})
         self.assertTrue(data.is_structured)
 
-        # With option specifying records as format
+        # With option specifying records as data_format
         data = CSVData(input_file_path=filename,
                        options={"data_format": "records"})
         self.assertFalse(data.is_structured)

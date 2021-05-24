@@ -478,14 +478,20 @@ class BaseProfiler(object):
 
     def _get_sample_size(self, data):
         """
-        Determines the minimum sampling size for detecting column type.
+        Determines the minimum sampling size for profiling the dataset.
 
-        :param data: a column of data
-        :type data: pandas.core.series.Series
+        :param data: a dataset
+        :type data: Union[pd.Series, pd.DataFrame, list]
         :return: integer sampling size
         :rtype: int
         """
-        raise NotImplementedError()
+        if self._samples_per_update:
+            return self._samples_per_update
+
+        len_data = len(data)
+        if len_data <= self._min_sample_size:
+            return int(len_data)
+        return max(int(self._sampling_ratio * len_data), self._min_sample_size)
 
     @property
     def profile(self):
@@ -683,23 +689,6 @@ class UnstructuredProfiler(BaseProfiler):
                                               min(len(samples), 5))
         merged_profile._profile = self._profile + other._profile
         return merged_profile
-
-    def _get_sample_size(self, data):
-        """
-        Determines the minimum sampling size for profiling.
-
-        :param data: data to be profiled
-        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
-        :return: integer sampling size
-        :rtype: int
-        """
-        if self._samples_per_update:
-            return self._samples_per_update
-
-        len_data = len(data)
-        if len_data <= self._min_sample_size:
-            return int(len_data)
-        return max(int(self._sampling_ratio * len_data), self._min_sample_size)
 
     def _update_base_stats(self, base_stats):
         """
@@ -1174,23 +1163,6 @@ class StructuredProfiler(BaseProfiler):
     @property
     def profile(self):
         return self._profile
-
-    def _get_sample_size(self, data):
-        """
-        Determines the minimum sampling size for detecting column type.
-
-        :param data: data to be profiled
-        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
-        :return: integer sampling size
-        :rtype: int
-        """
-        if self._samples_per_update:
-            return self._samples_per_update
-
-        len_data = len(data)
-        if len_data <= self._min_sample_size:
-            return int(len_data)
-        return max(int(self._sampling_ratio * len_data), self._min_sample_size)
 
     @property
     def _max_col_samples_used(self):

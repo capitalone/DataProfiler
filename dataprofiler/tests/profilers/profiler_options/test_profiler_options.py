@@ -270,8 +270,7 @@ class TestProfilerOptions(unittest.TestCase):
         with self.assertRaisesRegex(
                 ValueError, "The profile options must be passed as a "
                              "ProfileOptions object."):
-            profile = Profiler(self.data,
-                                         options="Strings are not accepted")
+            profile = Profiler(self.data, options="Strings are not accepted")
 
         with self.assertRaisesRegex(
                 ValueError, "ProfilerOptions.structured_options.text.max."

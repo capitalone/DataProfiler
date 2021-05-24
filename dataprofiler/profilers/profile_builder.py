@@ -1714,5 +1714,5 @@ def Profiler(data, samples_per_update=None, min_true_samples=0,
                          "['structured', 'unstructured'].")
 
     # TODO: Add support for creating unstructured profilers via this wrapper
-    return StructuredProfiler(data=data, samples_per_update=samples_per_update,
-                              min_true_samples=min_true_samples, options=options)
+    return StructuredProfiler(data, samples_per_update, min_true_samples,
+                              options)

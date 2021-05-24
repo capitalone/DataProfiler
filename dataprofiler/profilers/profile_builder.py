@@ -1691,8 +1691,7 @@ class StructuredProfiler(BaseProfiler):
         return profile
 
 
-def Profiler(data, samples_per_update=None, min_true_samples=0,
-             options=None, profiler_type='structured'):
+def Profiler(data, samples_per_update=None, min_true_samples=0, options=None):
     """
     Wrapper function for instantiating Structured and Unstructured Profilers
 
@@ -1704,14 +1703,10 @@ def Profiler(data, samples_per_update=None, min_true_samples=0,
     :type min_true_samples: int
     :param options: Options for the profiler.
     :type options: ProfilerOptions Object
-    :param profiler_type: Type of Profile to be made (structured/unstructured)
-    :type profiler_type: str
     :return: BaseProfiler
     """
-
-    if profiler_type not in ['structured', 'unstructured']:
-        raise ValueError("profiler_type provided to Profiler must be one of "
-                         "['structured', 'unstructured'].")
+    # Will want to add 'profiler_type' parameter similar to 'labeler_type'
+    # for specifying structured/unstructured profiler
 
     # TODO: Add support for creating unstructured profilers via this wrapper
     return StructuredProfiler(data, samples_per_update, min_true_samples,

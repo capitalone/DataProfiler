@@ -72,6 +72,10 @@ class BaseData(object):
     def data_format(self):
         return self._selected_data_format
 
+    @property
+    def is_structured(self):
+        raise NotImplementedError
+
     @data_format.setter
     def data_format(self, value):
         allowed_data_formats = list(self._data_formats.keys())

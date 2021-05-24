@@ -21,7 +21,7 @@ from dataprofiler.profilers.profiler_options import ProfilerOptions, \
 from dataprofiler.profilers.column_profile_compilers import \
     ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler, \
     ColumnDataLabelerCompiler
-from dataprofiler import StructuredDataLabeler
+from dataprofiler import StructuredDataLabeler, UnstructuredDataLabeler
 
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
@@ -754,7 +754,8 @@ class TestStructuredColProfilerClass(unittest.TestCase):
 
 @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredCompiler',
             spec=UnstructuredCompiler)
-@mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+@mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+            spec=UnstructuredDataLabeler)
 class TestUnstructuredProfiler(unittest.TestCase):
 
     @classmethod

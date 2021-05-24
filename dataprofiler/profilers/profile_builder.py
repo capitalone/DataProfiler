@@ -447,6 +447,8 @@ class StructuredColProfiler(object):
 
 class BaseProfiler(object):
 
+    _default_labeler_type = None
+
     def __init__(self, data, samples_per_update=None, min_true_samples=None,
                  options=None):
         """
@@ -464,7 +466,41 @@ class BaseProfiler(object):
         :type options: ProfilerOptions Object
         :return: Profiler
         """
-        pass
+        if self._default_labeler_type is None:
+            raise ValueError('`_default_labeler_type` must be set when '
+                             'overriding `BaseProfiler`.')
+
+        options.validate()
+
+        self._profile = None
+        self.options = options
+        self.encoding = None
+        self.file_type = None
+        self._samples_per_update = samples_per_update
+        self._min_true_samples = min_true_samples
+        self.total_samples = 0
+
+        # TODO: allow set via options
+        self._sampling_ratio = 0.2
+        self._min_sample_size = 5000
+
+        # assign data labeler
+        data_labeler_options = self.options.data_labeler
+        if data_labeler_options.is_enabled \
+                and data_labeler_options.data_labeler_object is None:
+
+            try:
+
+                data_labeler = DataLabeler(
+                    labeler_type=self._default_labeler_type,
+                    dirpath=data_labeler_options.data_labeler_dirpath,
+                    load_options=None)
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
 
     def __add__(self, other):
         """
@@ -598,6 +634,8 @@ class BaseProfiler(object):
 
 class UnstructuredProfiler(BaseProfiler):
 
+    _default_labeler_type = 'unstructured'
+
     def __init__(self, data, samples_per_update=None, min_true_samples=0,
                  options=None):
         """
@@ -615,7 +653,6 @@ class UnstructuredProfiler(BaseProfiler):
         :type options: ProfilerOptions Object
         :return: UnstructuredProfiler
         """
-        super().__init__(data, samples_per_update, min_true_samples, options)
         if not options:
             options = UnstructuredOptions()
         elif isinstance(options, ProfilerOptions):
@@ -624,38 +661,10 @@ class UnstructuredProfiler(BaseProfiler):
             raise ValueError("The profile options must be passed as a "
                              "ProfileOptions object.")
 
-        self._profile = None
-        self.options = options
-        self.encoding = None
-        self.file_type = None
-        self._min_true_samples = min_true_samples
-        self._samples_per_update = samples_per_update
+        super().__init__(data, samples_per_update, min_true_samples, options)
 
-        # base stats
-        self.total_samples = 0
+        # Unstructured specific properties
         self._empty_line_count = 0
-
-        # TODO: allow set via options
-        self._sampling_ratio = 0.2
-        self._min_sample_size = 5000
-
-        # assign data labeler
-        data_labeler_options = self.options.data_labeler
-        if data_labeler_options.is_enabled \
-                and data_labeler_options.data_labeler_object is None:
-
-            try:
-
-                data_labeler = DataLabeler(
-                    labeler_type='unstructured',
-                    dirpath=data_labeler_options.data_labeler_dirpath,
-                    load_options=None)
-                self.options.set(
-                    {'data_labeler.data_labeler_object': data_labeler})
-
-            except Exception as e:
-                utils.warn_on_profile('data_labeler', e)
-                self.options.set({'data_labeler.is_enabled': False})
 
         if data is not None:
             self.update_profile(data)
@@ -1052,6 +1061,8 @@ class UnstructuredProfiler(BaseProfiler):
 
 class StructuredProfiler(BaseProfiler):
 
+    _default_labeler_type = 'structured'
+
     def __init__(self, data, samples_per_update=None, min_true_samples=0, 
                  options=None):
         """
@@ -1069,7 +1080,6 @@ class StructuredProfiler(BaseProfiler):
         :type options: ProfilerOptions Object
         :return: StructuredProfiler
         """
-        super().__init__(data, samples_per_update, min_true_samples, options)
         if not options:
             options = StructuredOptions()
         elif isinstance(options, ProfilerOptions):
@@ -1077,44 +1087,18 @@ class StructuredProfiler(BaseProfiler):
         elif not isinstance(options, StructuredOptions):
             raise ValueError("The profile options must be passed as a "
                              "ProfileOptions object.")
-        
-        options.validate()
-        self.options = options
-        self.total_samples = 0
-        self.encoding = None
-        self.file_type = None
+
+        if isinstance(data, data_readers.text_data.TextData):
+            raise TypeError("Cannot provide TextData object to "
+                            "StructuredProfiler")
+
+        super().__init__(data, samples_per_update, min_true_samples, options)
+
+        # Structured specific properties
         self.row_has_null_count = 0
         self.row_is_null_count = 0
         self.hashed_row_dict = dict()
-        self._samples_per_update = samples_per_update
-        self._min_true_samples = min_true_samples
         self._profile = dict()
-
-        # matches structured data profile
-        # TODO: allow set via options
-        self._sampling_ratio = 0.2
-        self._min_sample_size = 5000
-
-        if isinstance(data, data_readers.text_data.TextData):
-            raise TypeError("Cannot provide TextData object to StructuredProfiler")
-
-        # assign data labeler
-        data_labeler_options = self.options.data_labeler
-        if data_labeler_options.is_enabled \
-                and data_labeler_options.data_labeler_object is None:
-
-            try:
-
-                data_labeler = DataLabeler(
-                    labeler_type='structured',
-                    dirpath=data_labeler_options.data_labeler_dirpath,
-                    load_options=None)
-                self.options.set(
-                    {'data_labeler.data_labeler_object': data_labeler})
-
-            except Exception as e:
-                utils.warn_on_profile('data_labeler', e)
-                self.options.set({'data_labeler.is_enabled': False})
 
         if data is not None:
             self.update_profile(data)

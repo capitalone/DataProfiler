@@ -445,7 +445,152 @@ class StructuredDataProfile(object):
         return df_series, base_stats
 
 
-class UnstructuredProfiler(object):
+class BaseProfiler(object):
+
+    def __init__(self, data, samples_per_update=None, min_true_samples=None,
+                 options=None):
+        """
+        Instantiate the BaseProfiler class
+
+        :param data: Data to be profiled
+        :type data: Data class object
+        :param samples_per_update: Number of samples to use in generating
+            profile
+        :type samples_per_update: int
+        :param min_true_samples: Minimum number of samples required for the
+            profiler
+        :type min_true_samples: int
+        :param options: Options for the profiler.
+        :type options: ProfilerOptions Object
+        :return: Profiler
+        """
+        pass
+
+    def __add__(self, other):
+        """
+        Merges two profiles together overriding the `+` operator.
+
+        :param other: profile being added to this one.
+        :type other: BaseProfiler
+        :return: merger of the two profiles
+        """
+        raise NotImplementedError()
+
+    def _get_sample_size(self, data):
+        """
+        Determines the minimum sampling size for detecting column type.
+
+        :param data: a column of data
+        :type data: pandas.core.series.Series
+        :return: integer sampling size
+        :rtype: int
+        """
+        raise NotImplementedError()
+
+    @property
+    def profile(self):
+        """
+        Returns the stored profiles for the given profiler.
+
+        :return: None
+        """
+        raise NotImplementedError()
+
+    def report(self, report_options=None):
+        """
+        Returns the profile report based on all profiled data fed into the
+        profiler. User can specify the output_formats: (pretty, compact,
+        serializable, flat).
+            Pretty: floats are rounded to four decimal places, and lists are
+                shortened.
+            Compact: Similar to pretty, but removes detailed statistics such as
+                runtimes, label probabilities, index locations of null types,
+                etc.
+            Serializable: Output is json serializable and not prettified
+            Flat: Nested output is returned as a flattened dictionary
+
+        :var report_options: optional format changes to the report
+            `dict(output_format=<FORMAT>)`
+        :type report_options: dict
+        :return: dictionary report
+        :rtype: dict
+        """
+        raise NotImplementedError()
+
+    @staticmethod
+    def _update_profile_from_chunk(df, profile=None, options=None, **kwargs):
+        """
+        Iterate over the dataset and identify its parameters via profiles.
+
+        :param data: dataset to be profiled
+        :type data: Union[pd.Series, pd.DataFrame, list]
+        :param sample_size: number of samples for df to use for profiling
+        :type sample_size: int
+        :param min_true_samples: minimum number of true samples required
+        :type min_true_samples: int
+        :return: list of column profile base subclasses
+        :rtype: list(BaseColumnProfiler)
+        """
+        raise NotImplementedError()
+
+    def update_profile(self, data, sample_size, min_true_samples=None):
+        """
+        Update the profile for data provided. User can specify the sample
+        size to profile the data with. Additionally, the user can specify the
+        minimum number of non-null samples to profile.
+
+        :param data: data to be profiled
+        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
+        :param sample_size: number of samples to profile from the data
+        :type sample_size: int
+        :param min_true_samples: minimum number of non-null samples to profile
+        :type min_true_samples
+        :return: None
+        """
+        raise NotImplementedError()
+
+    def _remove_data_labelers(self):
+        """
+        Helper method for removing all data labelers before saving to disk.
+
+        :return: data_labeler used for unstructured labelling
+        :rtype: DataLabeler
+        """
+        raise NotImplementedError()
+
+    def _restore_data_labelers(self, data_labeler=None):
+        """
+        Helper method for restoring all data labelers after saving to or
+        loading from disk.
+
+        :param data_labeler: unstructured data_labeler
+        :type data_labeler: DataLabeler
+        """
+        raise NotImplementedError()
+
+    def save(self, filepath=None):
+        """
+        Save profiler to disk
+
+        :param filepath: Path of file to save to
+        :type filepath: String
+        :return: None
+        """
+        raise NotImplementedError()
+
+    @staticmethod
+    def load(filepath):
+        """
+        Load profiler from disk
+
+        :param filepath: Path of file to load from
+        :type filepath: String
+        :return: None
+        """
+        raise NotImplementedError()
+
+
+class UnstructuredProfiler(BaseProfiler):
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0,
                  options=None):
@@ -464,7 +609,7 @@ class UnstructuredProfiler(object):
         :type options: ProfilerOptions Object
         :return: Profiler
         """
-
+        super().__init__(data, samples_per_update, min_true_samples, options)
         if not options:
             options = UnstructuredOptions()
         elif isinstance(options, ProfilerOptions):
@@ -513,7 +658,7 @@ class UnstructuredProfiler(object):
         """
         Merges two profiles together overriding the `+` operator.
 
-        :param other: unstructured profile being add to this one.
+        :param other: unstructured profile being added to this one.
         :type other: UnstructuredProfiler
         :return: merger of the two profiles
         """
@@ -916,7 +1061,7 @@ class UnstructuredProfiler(object):
         return profile
 
 
-class Profiler(object):
+class Profiler(BaseProfiler):
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0, 
                  profiler_options=None):
@@ -935,7 +1080,8 @@ class Profiler(object):
         :type profiler_options: ProfilerOptions Object
         :return: Profiler
         """
-
+        super().__init__(
+            data, samples_per_update, min_true_samples, profiler_options)
         if not profiler_options:
             profiler_options = StructuredOptions()
         elif isinstance(profiler_options, ProfilerOptions):
@@ -989,7 +1135,7 @@ class Profiler(object):
         """
         Merges two profiles together overriding the `+` operator.
 
-        :param other: profile being add to this one.
+        :param other: profile being added to this one.
         :type other: Profiler
         :return: merger of the two profiles
         """

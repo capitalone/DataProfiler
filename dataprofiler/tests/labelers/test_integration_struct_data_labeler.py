@@ -286,7 +286,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "datetime.is_enabled": False}
         )
 
-        profile = dp.Profiler(data, profiler_options=profile_options)
+        profile = dp.StructuredProfiler(data, options=profile_options)
         results = profile.report()
 
         columns = []
@@ -314,7 +314,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
                  "datetime.is_enabled": False}
             )
 
-            profile = dp.Profiler(data, profiler_options=profile_options)
+            profile = dp.StructuredProfiler(data, options=profile_options)
 
             results = profile.report()
 
@@ -340,7 +340,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "datetime.is_enabled": False}
         )
         print('running dp1')
-        profile1 = dp.Profiler(data, profiler_options=profile_options)
+        profile1 = dp.StructuredProfiler(data, options=profile_options)
 
         data = dp.Data(path)
         profile_options = dp.ProfilerOptions()
@@ -353,7 +353,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "datetime.is_enabled": False}
         )
         print('running dp2')
-        profile2 = dp.Profiler(data, profiler_options=profile_options)
+        profile2 = dp.StructuredProfiler(data, options=profile_options)
 
         profile = profile1 + profile2
 
@@ -373,7 +373,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "datetime.is_enabled": False}
         )
         print('running dp1')
-        profile1 = dp.Profiler(data, profiler_options=profile_options)
+        profile1 = dp.StructuredProfiler(data, options=profile_options)
 
         data = dp.Data(path)
         profile_options = dp.ProfilerOptions()
@@ -386,7 +386,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "datetime.is_enabled": False}
         )
         print('running dp2')
-        profile2 = dp.Profiler(data, profiler_options=profile_options)
+        profile2 = dp.StructuredProfiler(data, options=profile_options)
 
         profile1.update_profile(data)
 

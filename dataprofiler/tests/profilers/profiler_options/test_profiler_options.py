@@ -38,7 +38,7 @@ class TestProfilerOptions(unittest.TestCase):
 
         # Using ProfilerOptions with the default options
         options = ProfilerOptions()
-        profile2 = Profiler(self.data, profiler_options=options)
+        profile2 = Profiler(self.data, options=options)
         # Stored in Profiler as StructuredOptions
         self.assertEqual(profile2.options, options.structured_options)
 
@@ -46,7 +46,7 @@ class TestProfilerOptions(unittest.TestCase):
         # Assert that the stats are disabled
         options = ProfilerOptions()
         options.set({"is_numeric_stats_enabled": False})
-        profile = Profiler(self.data, profiler_options=options)
+        profile = Profiler(self.data, options=options)
 
         for column_name in profile.profile.keys():
             profile_column = profile.profile[column_name].profile
@@ -64,7 +64,7 @@ class TestProfilerOptions(unittest.TestCase):
 
         # Assert that the stats are enabled
         options.set({"is_numeric_stats_enabled": True})
-        profile = Profiler(self.data, profiler_options=options)
+        profile = Profiler(self.data, options=options)
 
         for column_name in profile.profile.keys():
             profile_column = profile.profile[column_name].profile
@@ -84,7 +84,7 @@ class TestProfilerOptions(unittest.TestCase):
     def test_disable_labeler_in_profiler_options(self, *mocks):
         options = ProfilerOptions()
         options.structured_options.data_labeler.enable = False
-        profile = Profiler(self.data, profiler_options=options)
+        profile = Profiler(self.data, options=options)
         for column_name in profile.profile.keys():
             profile_column = profile.profile[column_name].profile
             if profile_column["statistics"] \
@@ -102,7 +102,7 @@ class TestProfilerOptions(unittest.TestCase):
         options.structured_options.order.is_enabled = False
         options.structured_options.category.is_enabled = False
         options.structured_options.data_labeler.is_enabled = False
-        profile = Profiler(self.data, profiler_options=options)
+        profile = Profiler(self.data, options=options)
         for column_name in profile.profile.keys():
             profile_column = profile.profile[column_name].profile
             self.assertIsNone(profile_column["data_type"])
@@ -122,13 +122,13 @@ class TestProfilerOptions(unittest.TestCase):
         # Check to see disabling vocab prevents vocab from updating
         options = ProfilerOptions()
         options.structured_options.text.vocab.is_enabled = False
-        profile = Profiler(self.data, profiler_options=options)
+        profile = Profiler(self.data, options=options)
         vocab_mock.assert_not_called()
 
         # Check to see default options enable vocab
         multi_options = ProfilerOptions()
         multi_options.structured_options.multiprocess.is_enabled = False
-        profile = Profiler(self.data, profiler_options=multi_options)
+        profile = Profiler(self.data, options=multi_options)
         vocab_mock.assert_called()
 
     def test_disabling_all_stats(self, *mocks):
@@ -153,7 +153,7 @@ class TestProfilerOptions(unittest.TestCase):
             self.assertFalse(int_options[option].is_enabled)
 
         # Run the profiler
-        profile = Profiler(self.data, profiler_options=options)
+        profile = Profiler(self.data, options=options)
 
         # Assert that the stats are non-existent
         for column_name in profile.profile.keys():
@@ -270,8 +270,7 @@ class TestProfilerOptions(unittest.TestCase):
         with self.assertRaisesRegex(
                 ValueError, "The profile options must be passed as a "
                              "ProfileOptions object."):
-            profile = Profiler(self.data,
-                               profiler_options="Strings are not accepted")
+            profile = Profiler(self.data, options="Strings are not accepted")
 
         with self.assertRaisesRegex(
                 ValueError, "ProfilerOptions.structured_options.text.max."
@@ -287,13 +286,13 @@ class TestProfilerOptions(unittest.TestCase):
         options.structured_options.data_labeler = IntOptions()
         with self.assertRaisesRegex(
                 ValueError, "data_labeler must be a\(n\) DataLabelerOptions."):
-            profile = Profiler(self.data, profiler_options=options)
+            profile = Profiler(self.data, options=options)
         # Test incorrect float options
         options = ProfilerOptions()
         options.structured_options.float = IntOptions()
         with self.assertRaisesRegex(
                 ValueError, "float must be a\(n\) FloatOptions."):
-            profile = Profiler(self.data, profiler_options=options)
+            profile = Profiler(self.data, options=options)
 
     @mock.patch('dataprofiler.profilers.float_column_profile.FloatColumn.'
                 '_update_precision')
@@ -302,12 +301,12 @@ class TestProfilerOptions(unittest.TestCase):
         options.structured_options.float.precision.is_enabled = False
         options.structured_options.multiprocess.is_enabled = False
 
-        profile = Profiler(self.data, profiler_options=options)
+        profile = Profiler(self.data, options=options)
         update_precision.assert_not_called()
 
         multi_options = ProfilerOptions()
         multi_options.structured_options.multiprocess.is_enabled = False
-        profile = Profiler(self.data, profiler_options=multi_options)
+        profile = Profiler(self.data, options=multi_options)
         update_precision.assert_called()
 
     def test_set_attribute_error(self, *mocks):
@@ -405,8 +404,7 @@ class TestDataLabelerCallWithOptions(unittest.TestCase):
         options.structured_options.data_labeler.max_sample_size = 50
         options.structured_options.multiprocess.is_enabled = False
 
-        profile = Profiler(self.data,
-                           profiler_options=options)
+        profile = Profiler(self.data, options=options)
 
         # Mock[0] is the Datalabeler Object mock
         mocks[0].assert_called_with(dirpath='Test_Dirpath',
@@ -427,7 +425,7 @@ class TestDataLabelerCallWithOptions(unittest.TestCase):
                                    " model"):
             options.validate()
 
-        profile = Profiler(self.data, profiler_options=options)
+        profile = Profiler(self.data, options=options)
         self.assertEqual(data_labeler,
                          # profile, col prof, compiler
                          (profile._profile[0].profiles['data_label_profile'].

@@ -376,6 +376,24 @@ class TestCSVDataClass(unittest.TestCase):
                              data.length,
                              msg=input_file['path'])
 
+    def test_is_structured(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        filename = 'csv/blogposts.csv'
+        filename = os.path.join(test_dir, filename)
+
+        # Default construction
+        data = CSVData(filename)
+        self.assertTrue(data.is_structured)
+
+        # With option specifying data frame as format
+        data = CSVData(input_file_path=filename,
+                       options={"data_format": "dataframe"})
+        self.assertTrue(data.is_structured)
+
+        # With option specifying records as format
+        data = CSVData(input_file_path=filename,
+                       options={"data_format": "records"})
+        self.assertFalse(data.is_structured)
 
 if __name__ == '__main__':
     unittest.main()

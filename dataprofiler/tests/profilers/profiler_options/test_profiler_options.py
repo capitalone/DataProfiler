@@ -418,7 +418,8 @@ class TestDataLabelerCallWithOptions(unittest.TestCase):
         data_labeler.reverse_label_mapping = dict()
         data_labeler.model.num_labels = 0
         data_labeler.model.requires_zero_mapping = False
-        options.set({'data_labeler.data_labeler_object': data_labeler})
+        options.structured_options.set(
+            {'data_labeler.data_labeler_object': data_labeler})
         with self.assertWarnsRegex(UserWarning,
                                    "The data labeler passed in will be used,"
                                    " not through the directory of the default"

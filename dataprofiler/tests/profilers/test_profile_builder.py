@@ -51,7 +51,7 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
         cls.trained_schema = dp.StructuredProfiler(cls.aws_dataset, len(cls.aws_dataset),
-                                                   profiler_options=profiler_options)
+                                                   options=profiler_options)
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -538,7 +538,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         options.set({'data_labeler.is_enabled': False})
 
         data = pd.DataFrame([1, 2, 3, 4])
-        profile1 = dp.StructuredProfiler(data, profiler_options=options)
+        profile1 = dp.StructuredProfiler(data, options=options)
         profile2 = dp.StructuredProfiler(data)
         with self.assertRaisesRegex(ValueError,
                                     'Structured profilers were not setup with '
@@ -659,19 +659,19 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         profiler_options.set({'data_labeler.is_enabled': False})
 
         # test data size < min_sample_size = 5000 by default
-        profiler = dp.StructuredProfiler(data[:1000], profiler_options=profiler_options)
+        profiler = dp.StructuredProfiler(data[:1000], options=profiler_options)
         profiler._min_sample_size = 5000
         profiler._sampling_ratio = 0.2
         self.assertEqual(1000, update_mock.call_args[0][1])
 
         # test data size * 0.20 < min_sample_size < data size
-        profiler = dp.StructuredProfiler(data[:10000], profiler_options=profiler_options)
+        profiler = dp.StructuredProfiler(data[:10000], options=profiler_options)
         profiler._min_sample_size = 5000
         profiler._sampling_ratio = 0.2
         self.assertEqual(5000, update_mock.call_args[0][1])
 
         # test min_sample_size > data size * 0.20
-        profiler = dp.StructuredProfiler(data, profiler_options=profiler_options)
+        profiler = dp.StructuredProfiler(data, options=profiler_options)
         profiler._min_sample_size = 5000
         profiler._sampling_ratio = 0.2
         self.assertEqual(10000, update_mock.call_args[0][1])
@@ -1191,7 +1191,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
         trained_schema = dp.StructuredProfiler(test_dataset, len(test_dataset),
-                                               profiler_options=profiler_options)
+                                               options=profiler_options)
 
         self.assertCountEqual(['', 'nan', 'None', 'null'],
                          trained_schema.profile['1'].null_types)
@@ -1209,7 +1209,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         data = pd.read_csv(file_path)
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
-        profile = dp.StructuredProfiler(data, profiler_options=profiler_options)
+        profile = dp.StructuredProfiler(data, options=profiler_options)
         self.assertEqual(2, profile.row_has_null_count)
         self.assertEqual(0.25, profile._get_row_has_null_ratio())
         self.assertEqual(2, profile.row_is_null_count)
@@ -1217,7 +1217,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
 
         file_path = os.path.join(test_root_path, 'data','csv/iris-with-null-rows.csv')
         data = pd.read_csv(file_path)
-        profile = dp.StructuredProfiler(data, profiler_options=profiler_options)
+        profile = dp.StructuredProfiler(data, options=profiler_options)
         self.assertEqual(13, profile.row_has_null_count)
         self.assertEqual(13/24, profile._get_row_has_null_ratio())
         self.assertEqual(3, profile.row_is_null_count)
@@ -1229,7 +1229,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
         data = dp.Data(filename_null_in_file)
-        profile = dp.StructuredProfiler(data, profiler_options=profiler_options)
+        profile = dp.StructuredProfiler(data, options=profiler_options)
 
         report = profile.report(report_options={"output_format":"pretty"})
         
@@ -1264,7 +1264,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
             
             # Profile Once
             data.index = pd.RangeIndex(0, 8)
-            profile = dp.StructuredProfiler(data, profiler_options=profiler_options,
+            profile = dp.StructuredProfiler(data, options=profiler_options,
                                             samples_per_update=2)
 
             # Profile Twice
@@ -1290,7 +1290,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         data = pd.DataFrame({"full": [1, 2, 3, 4, 5, 6, 7, 8, 9],
                              "sparse": [1, None, 3, None, 5, None, 7, None, 9]})
         profile = dp.StructuredProfiler(data, samples_per_update=5, min_true_samples=5,
-                                        profiler_options=opts)
+                                        options=opts)
         # Rows 2, 4, 5, 6, 7 are sampled in first column
         # Therefore only those rows should be considered for null calculations
         # The only null in those rows in second column in that subset are 5, 7
@@ -1306,7 +1306,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
             {"sparse": [1, None, 3, None, 5, None, 7, None],
              "sparser": [1, None, None, None, None, None, None, 8]})
         profile2 = dp.StructuredProfiler(data2, samples_per_update=2, min_true_samples=2,
-                                         profiler_options=opts)
+                                         options=opts)
         # Rows are sampled as follows: [6, 5], [1, 4], [2, 3], [0, 7]
         # First column gets min true samples from ids 1, 4, 5, 6
         # Second column gets completely sampled (has a null in 1, 4, 5, 6)
@@ -1338,7 +1338,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
 
         # When setting min true samples/samples per update
         profile = dp.StructuredProfiler(data1, min_true_samples=2, samples_per_update=2,
-                                        profiler_options=opts)
+                                        options=opts)
         self.assertEqual(3, profile.row_has_null_count)
         self.assertEqual(1, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())
@@ -1361,7 +1361,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         # When not setting min true samples/samples per update
         opts = ProfilerOptions()
         opts.structured_options.multiprocess.is_enabled = False
-        profile = dp.StructuredProfiler(data1, profiler_options=opts)
+        profile = dp.StructuredProfiler(data1, options=opts)
         self.assertEqual(3, profile.row_has_null_count)
         self.assertEqual(1, profile.row_is_null_count)
         self.assertEqual(0.75, profile._get_row_has_null_ratio())

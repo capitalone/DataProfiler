@@ -95,7 +95,7 @@ class TestDataProfiler(unittest.TestCase):
         with mock.patch('builtins.__import__', side_effect=import_mock):
 
             with self.assertWarnsRegex(RuntimeWarning,
-                                       "Partial StructuredProfiler Failure"):
+                                       "Partial Profiler Failure"):
                 modules_with_tf = [
                     'dataprofiler.labelers.character_level_cnn_model',
                 ]

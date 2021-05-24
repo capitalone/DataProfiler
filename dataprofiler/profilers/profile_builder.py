@@ -919,7 +919,7 @@ class UnstructuredProfiler(object):
 class StructuredProfiler(object):
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0, 
-                 profiler_options=None):
+                 options=None):
         """
         Instantiate the StructuredProfiler class
         
@@ -931,21 +931,21 @@ class StructuredProfiler(object):
         :param min_true_samples: Minimum number of samples required for the
             profiler
         :type min_true_samples: int
-        :param profiler_options: Options for the profiler.
-        :type profiler_options: ProfilerOptions Object
+        :param options: Options for the profiler.
+        :type options: ProfilerOptions Object
         :return: StructuredProfiler
         """
 
-        if not profiler_options:
-            profiler_options = StructuredOptions()
-        elif isinstance(profiler_options, ProfilerOptions):
-            profiler_options = profiler_options.structured_options
-        elif not isinstance(profiler_options, StructuredOptions):
+        if not options:
+            options = StructuredOptions()
+        elif isinstance(options, ProfilerOptions):
+            options = options.structured_options
+        elif not isinstance(options, StructuredOptions):
             raise ValueError("The profile options must be passed as a "
                              "ProfileOptions object.")
         
-        profiler_options.validate()
-        self.options = profiler_options
+        options.validate()
+        self.options = options
         self.total_samples = 0
         self.encoding = None
         self.file_type = None
@@ -1006,8 +1006,7 @@ class StructuredProfiler(object):
                              'profiles and cannot be added together.')
         merged_profile = StructuredProfiler(
             data=pd.DataFrame([]), samples_per_update=self._samples_per_update,
-            min_true_samples=self._min_true_samples,
-            profiler_options=self.options
+            min_true_samples=self._min_true_samples, options=self.options
         )
         merged_profile.encoding = self.encoding \
             if self.encoding == other.encoding else 'multiple files'
@@ -1524,7 +1523,7 @@ class StructuredProfiler(object):
         # Create Empty Profile
         profile_options = StructuredOptions()
         profile_options.data_labeler.is_enabled = False
-        profile = StructuredProfiler(pd.DataFrame([]), profiler_options=profile_options)
+        profile = StructuredProfiler(pd.DataFrame([]), options=profile_options)
 
         # Load profile from disk
         with open(filepath, "rb") as infile:
@@ -1545,3 +1544,30 @@ class StructuredProfiler(object):
         profile._restore_data_labelers()
 
         return profile
+
+
+def Profiler(data, samples_per_update=None, min_true_samples=0,
+             options=None, profiler_type='structured'):
+    """
+    Wrapper function for instantiating Structured and Unstructured Profilers
+
+    :param data: Data to be profiled
+    :type data: Data class object
+    :param samples_per_update: Number of samples to use in generating profile
+    :type samples_per_update: int
+    :param min_true_samples: Minimum number of samples required for the profiler
+    :type min_true_samples: int
+    :param options: Options for the profiler.
+    :type options: ProfilerOptions Object
+    :param profiler_type: Type of Profile to be made (structured/unstructured)
+    :type profiler_type: str
+    :return: BaseProfiler
+    """
+
+    if profiler_type not in ['structured', 'unstructured']:
+        raise ValueError("profiler_type provided to Profiler must be one of "
+                         "['structured', 'unstructured'].")
+
+    # TODO: Add support for creating unstructured profilers via this wrapper
+    return StructuredProfiler(data=data, samples_per_update=samples_per_update,
+                              min_true_samples=min_true_samples, options=options)

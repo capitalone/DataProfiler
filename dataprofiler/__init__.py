@@ -1,5 +1,6 @@
 from .data_readers.data import Data
-from .profilers.profile_builder import StructuredProfiler
+from .profilers.profile_builder import StructuredProfiler, \
+                                       UnstructuredProfiler, Profiler
 from .profilers.profiler_options import ProfilerOptions
 from .labelers.data_labelers import train_structured_labeler, DataLabeler, \
                                     StructuredDataLabeler, \

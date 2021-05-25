@@ -254,7 +254,7 @@ class TestJSONDataClass(unittest.TestCase):
 
     def test_is_structured(self):
         test_dir = os.path.join(test_root_path, 'data')
-        filename = 'json/simple_json'
+        filename = 'json/simple.json'
         filename = os.path.join(test_dir, filename)
 
         # Default construction

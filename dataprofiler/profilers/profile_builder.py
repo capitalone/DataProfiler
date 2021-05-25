@@ -740,7 +740,7 @@ class UnstructuredProfiler(BaseProfiler):
 
     def __add__(self, other):
         """
-        Merges two profiles together overriding the `+` operator.
+        Merges two Unstructured profiles together overriding the `+` operator.
 
         :param other: unstructured profile being added to this one.
         :type other: UnstructuredProfiler
@@ -1144,7 +1144,7 @@ class StructuredProfiler(BaseProfiler):
 
     def __add__(self, other):
         """
-        Merges two profiles together overriding the `+` operator.
+        Merges two Structured profiles together overriding the `+` operator.
 
         :param other: profile being added to this one.
         :type other: StructuredProfiler

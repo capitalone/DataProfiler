@@ -531,11 +531,11 @@ class BaseProfiler(object):
         )
         merged_profile.encoding = self.encoding
         if self.encoding != other.encoding:
-            self.encoding = 'multiple files'
+            merged_profile.encoding = 'multiple files'
 
         merged_profile.file_type = self.file_type
         if self.file_type != other.file_type:
-            self.file_type = 'multiple files'
+            merged_profile.file_type = 'multiple files'
 
         merged_profile.total_samples = self.total_samples + other.total_samples
 

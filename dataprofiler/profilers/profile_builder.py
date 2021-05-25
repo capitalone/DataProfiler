@@ -529,10 +529,14 @@ class BaseProfiler(object):
             data=None, samples_per_update=self._samples_per_update,
             min_true_samples=self._min_true_samples, options=self.options
         )
-        merged_profile.encoding = self.encoding \
-            if self.encoding == other.encoding else 'multiple files'
-        merged_profile.file_type = self.file_type \
-            if self.file_type == other.file_type else 'multiple files'
+        merged_profile.encoding = self.encoding
+        if self.encoding != other.encoding:
+            self.encoding = 'multiple files'
+
+        merged_profile.file_type = self.file_type
+        if self.file_type != other.file_type:
+            self.file_type = 'multiple files'
+
         merged_profile.total_samples = self.total_samples + other.total_samples
 
         return merged_profile

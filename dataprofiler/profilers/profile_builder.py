@@ -1160,7 +1160,7 @@ class StructuredProfiler(BaseProfiler):
         # merge profiles
         for profile_name in self._profile:
             merged_profile._profile[profile_name] = (
-                    self._profile[profile_name] + other._profile[profile_name]
+                self._profile[profile_name] + other._profile[profile_name]
             )
         return merged_profile
 

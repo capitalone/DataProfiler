@@ -125,6 +125,35 @@ class TestAVRODataClass(unittest.TestCase):
                              data.length,
                              msg=input_file['path'])
 
+    def test_is_structured(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        filename = 'avro/userdata1.avro'
+        filename = os.path.join(test_dir, filename)
+
+        # Default construction
+        data = AVROData(filename)
+        self.assertTrue(data.is_structured)
+
+        # With option specifying dataframe as data_format
+        data = AVROData(input_file_path=filename,
+                        options={"data_format": "dataframe"})
+        self.assertTrue(data.is_structured)
+
+        # With option specifying flattened_dataframe as data_format
+        data = AVROData(input_file_path=filename,
+                        options={"data_format": "flattened_dataframe"})
+        self.assertTrue(data.is_structured)
+
+        # With option specifying records as data_format
+        data = AVROData(input_file_path=filename,
+                        options={"data_format": "records"})
+        self.assertFalse(data.is_structured)
+
+        # With option specifying json as data_format
+        data = AVROData(input_file_path=filename,
+                        options={"data_format": "json"})
+        self.assertFalse(data.is_structured)
+
 
 if __name__ == '__main__':
     unittest.main()

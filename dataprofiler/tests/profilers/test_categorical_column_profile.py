@@ -10,7 +10,7 @@ import numpy as np
 from . import utils as test_utils
 
 from dataprofiler.profilers import CategoricalColumn
-from dataprofiler.profilers.profile_builder import StructuredDataProfile
+from dataprofiler.profilers.profile_builder import StructuredColProfiler
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -104,7 +104,7 @@ class TestCategoricalColumn(unittest.TestCase):
             "NaN", "b", "nan", "c", None,
         ])
 
-        column_profile = StructuredDataProfile(df1)
+        column_profile = StructuredColProfiler(df1)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
 
         num_null_types = 1
@@ -244,7 +244,7 @@ class TestCategoricalSentence(unittest.TestCase):
 
         len_unique = len(set(cat_sentence_list))
         cat_sentence_df = pd.Series(cat_sentence_list)
-        column_profile = StructuredDataProfile(cat_sentence_df)
+        column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
         self.assertEqual(True, cat_profiler.is_match)
         self.assertEqual(len_unique, len(cat_profiler.categories))
@@ -262,7 +262,7 @@ class TestCategoricalSentence(unittest.TestCase):
         cat_sentence_list = list_unique_values * num_sentences
 
         cat_sentence_df = pd.Series(cat_sentence_list)
-        column_profile = StructuredDataProfile(cat_sentence_df)
+        column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
         
         self.assertEqual(False, cat_profiler.is_match)
@@ -282,7 +282,7 @@ class TestCategoricalSentence(unittest.TestCase):
 
         len_unique = len(set(cat_sentence_list))
         cat_sentence_df = pd.Series(cat_sentence_list)
-        column_profile = StructuredDataProfile(cat_sentence_df)
+        column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
         self.assertEqual(True, cat_profiler.is_match)
         self.assertEqual(len_unique, len(cat_profiler.categories))
@@ -307,7 +307,7 @@ class TestCategoricalSentence(unittest.TestCase):
 
         len_unique = len(set(cat_sentence_list))
         cat_sentence_df = pd.Series(cat_sentence_list)
-        column_profile = StructuredDataProfile(cat_sentence_df)
+        column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
         self.assertEqual(True, cat_profiler.is_match)
         self.assertEqual(len_unique, len(cat_profiler.categories))
@@ -325,7 +325,7 @@ class TestCategoricalSentence(unittest.TestCase):
 
         len_unique = len(set(cat_sentence_list))
         cat_sentence_df = pd.Series(cat_sentence_list)
-        column_profile = StructuredDataProfile(cat_sentence_df)
+        column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
         self.assertEqual(True, cat_profiler.is_match)
         self.assertEqual(len_unique, len(cat_profiler.categories))

@@ -253,32 +253,24 @@ class TestJSONDataClass(unittest.TestCase):
         self.assertEqual(2, len(dual_payload.data.columns))
 
     def test_is_structured(self):
-        test_dir = os.path.join(test_root_path, 'data')
-        filename = 'json/simple.json'
-        filename = os.path.join(test_dir, filename)
-
         # Default construction
-        data = JSONData(filename)
+        data = JSONData()
         self.assertTrue(data.is_structured)
 
         # With option specifying dataframe as data_format
-        data = JSONData(input_file_path=filename,
-                        options={"data_format": "dataframe"})
+        data = JSONData(options={"data_format": "dataframe"})
         self.assertTrue(data.is_structured)
 
         # With option specifying flattened_dataframe as data_format
-        data = JSONData(input_file_path=filename,
-                        options={"data_format": "flattened_dataframe"})
+        data = JSONData(options={"data_format": "flattened_dataframe"})
         self.assertTrue(data.is_structured)
 
         # With option specifying records as data_format
-        data = JSONData(input_file_path=filename,
-                        options={"data_format": "records"})
+        data = JSONData(options={"data_format": "records"})
         self.assertFalse(data.is_structured)
 
         # With option specifying json as data_format
-        data = JSONData(input_file_path=filename,
-                        options={"data_format": "json"})
+        data = JSONData(options={"data_format": "json"})
         self.assertFalse(data.is_structured)
 
 

@@ -55,9 +55,7 @@ class TestTextDataClass(unittest.TestCase):
         """
         Ensures TextData.is_structured is False
         """
-        for input_file in self.input_file_names:
-            data_obj = TextData(input_file_path=input_file['path'])
-            self.assertFalse(data_obj.is_structured)
+        self.assertFalse(TextData().is_structured)
 
 
 if __name__ == '__main__':

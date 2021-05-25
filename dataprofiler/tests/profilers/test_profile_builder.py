@@ -61,6 +61,40 @@ class TestStructuredProfiler(unittest.TestCase):
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
+    def test_pandas_series_data(self, *mocks):
+        data = pd.Series([1, None, 3, 4, 5, None, 1])
+        profiler = dp.StructuredProfiler(data)
+
+        # test properties
+        self.assertEqual(
+            "<class 'pandas.core.series.Series'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertEqual(2, profiler.row_has_null_count)
+        self.assertEqual(2, profiler.row_is_null_count)
+        self.assertEqual(7, profiler.total_samples)
+        self.assertEqual(5, len(profiler.hashed_row_dict))
+        self.assertListEqual([0], list(profiler._profile.keys()))
+
+        # test properties when series has name
+        data.name = 'test'
+        profiler = dp.StructuredProfiler(data)
+        self.assertEqual(
+            "<class 'pandas.core.series.Series'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertEqual(2, profiler.row_has_null_count)
+        self.assertEqual(2, profiler.row_is_null_count)
+        self.assertEqual(7, profiler.total_samples)
+        self.assertEqual(5, len(profiler.hashed_row_dict))
+        self.assertListEqual(['test'], list(profiler._profile.keys()))
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
     def test_add_profilers(self, *mocks):
         data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
         profile1 = dp.StructuredProfiler(data[:2])
@@ -1388,7 +1422,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         self.assertEqual(3, profile.row_is_null_count)
         self.assertEqual(0.875, profile._get_row_has_null_ratio())
         self.assertEqual(0.375, profile._get_row_is_null_ratio())
-        self.assertEqual(0, profile._min_sampled_from_batch)
+        self.assertEqual(4, profile._min_sampled_from_batch)
         self.assertSetEqual({2, 3, 4, 6, 7},
                             profile._profile[0].null_types_index['nan'])
         self.assertSetEqual({0, 2, 4, 5, 6},

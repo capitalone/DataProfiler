@@ -1351,9 +1351,7 @@ class StructuredProfiler(BaseProfiler):
         
         # If there are no minimum true samples, you can sort to save time
         if min_true_samples in [None, 0]:
-            # If there's a sample size, truncate
-            if sample_size is not None:
-                sample_ids[0] = sample_ids[0][:sample_size]
+            sample_ids[0] = sample_ids[0][:sample_size]
             # Sort the sample_ids and replace prior
             sample_ids[0] = sorted(sample_ids[0])
 
@@ -1392,7 +1390,7 @@ class StructuredProfiler(BaseProfiler):
         clean_sampled_dict = {}
         multi_process_dict = {}
         single_process_list = set()
-        if not sample_size: sample_size = len(data)
+        
         if sample_size < len(data):
             warnings.warn("The data will be profiled with a sample size of {}. "
                           "All statistics will be based on this subsample and "

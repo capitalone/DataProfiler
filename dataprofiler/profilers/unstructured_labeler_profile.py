@@ -5,7 +5,9 @@ from ..labelers.data_labelers import DataLabeler
 from ..labelers.data_processing import CharPostprocessor
 
 
-class UnstructuredDataLabelerProfile(object):
+class UnstructuredLabelerProfile(object):
+
+    type = "data_labeler"
 
     def __init__(self, data_labeler_dirpath=None, options=None):
         """
@@ -18,11 +20,20 @@ class UnstructuredDataLabelerProfile(object):
         """
         # initializing a UnstructuredDataLabeler as well as the entity counts
         # statistic:
-        self.options = options
-        self._data_labeler = DataLabeler(
-            labeler_type='unstructured',
-            dirpath=data_labeler_dirpath,
-            load_options=None)
+
+        self.data_labeler = None
+        if options and options.data_labeler_object:
+            self.data_labeler = options.data_labeler_object
+        if self.data_labeler is None:
+            data_labeler_dirpath = None
+            if options:
+                data_labeler_dirpath = options.data_labeler_dirpath
+
+            self.data_labeler = DataLabeler(
+                labeler_type='unstructured',
+                dirpath=data_labeler_dirpath,
+                load_options=None)
+
         self.entity_counts = dict(
             word_level=defaultdict(int),
             true_char_level=defaultdict(int),
@@ -38,7 +49,7 @@ class UnstructuredDataLabelerProfile(object):
 
     @property
     def label_encoding(self):
-        return self._data_labeler.labels
+        return self.data_labeler.labels
 
     @BaseColumnProfiler._timeit(name='data_labeler_predict')
     def _update_helper(self, df_series_clean, profile):
@@ -52,14 +63,14 @@ class UnstructuredDataLabelerProfile(object):
         :return: None
         """
         # this will get char_level predictions as output
-        predictions = self._data_labeler.predict(df_series_clean)
+        predictions = self.data_labeler.predict(df_series_clean)
 
         # also store spacy/NER format
         postprocessor = CharPostprocessor(use_word_level_argmax=True,
                                           output_format="NER")
         format_predictions = postprocessor.process(
             df_series_clean, predictions.copy(),
-            self._data_labeler.label_mapping)
+            self.data_labeler.label_mapping)
 
         # Update counts and percent values
         self._update_word_label_counts(
@@ -131,11 +142,12 @@ class UnstructuredDataLabelerProfile(object):
     def _update_true_char_label_counts(self, predictions):
         """
         Updates the true character label counts
-        :param predictions: contains array of samples with predictions on the character level
+        :param predictions: contains array of samples with predictions on the
+            character level
         :type predictions: list
         :return: None
         """
-        label_lookup = self._data_labeler.reverse_label_mapping
+        label_lookup = self.data_labeler.reverse_label_mapping
         char_label_counts = self.entity_counts["true_char_level"]
 
         for sample in predictions:
@@ -150,7 +162,8 @@ class UnstructuredDataLabelerProfile(object):
         Updates the postprocess character label counts
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
-        :param format_predictions: contains dict of samples with predictions on the character level in congruence with the word level predictions
+        :param format_predictions: contains dict of samples with predictions on
+            the character level in congruence with the word level predictions
         :type format_predictions: Dict
         :return: None
         """

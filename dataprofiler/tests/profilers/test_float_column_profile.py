@@ -950,7 +950,7 @@ class TestFloatColumn(unittest.TestCase):
             warning1 = ("precision is disabled because it is not enabled in "
                         "both profiles.")
             warning2 = ("max is disabled because it is not enabled in both "
-                       "profiles.")
+                        "profiles.")
             self.assertIn(warning1, list_of_warning_messages)
             self.assertIn(warning2, list_of_warning_messages)
 

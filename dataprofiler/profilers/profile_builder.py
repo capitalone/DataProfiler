@@ -1067,8 +1067,6 @@ class UnstructuredProfiler(BaseProfiler):
         :type filepath: String
         :return: None
         """
-        # Set Default filepath
-
         # Create dictionary for all metadata, options, and profile
         data_dict = {
             "total_samples": self.total_samples,

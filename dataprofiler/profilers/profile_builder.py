@@ -589,7 +589,7 @@ class BaseProfiler(object):
         raise NotImplementedError()
 
     @staticmethod
-    def _update_profile_from_chunk(df, profile=None, options=None, **kwargs):
+    def _update_profile_from_chunk(data, sample_size, min_true_samples=None):
         """
         Iterate over the dataset and identify its parameters via profiles.
 
@@ -1317,13 +1317,13 @@ class StructuredProfiler(BaseProfiler):
             self.row_has_null_count = len(null_in_row_count)
             self.row_is_null_count = len(null_rows)
 
-    def _update_profile_from_chunk(self, df, sample_size=None,
+    def _update_profile_from_chunk(self, data, sample_size,
                                    min_true_samples=None):
         """
         Iterate over the columns of a dataset and identify its parameters.
         
-        :param df: a dataset
-        :type df: pandas.DataFrame
+        :param data: a dataset
+        :type data: pandas.DataFrame
         :param sample_size: number of samples for df to use for profiling
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
@@ -1331,10 +1331,10 @@ class StructuredProfiler(BaseProfiler):
         :return: list of column profile base subclasses
         :rtype: list(BaseColumnProfiler)
         """
-        if isinstance(df, pd.Series):
-            df = df.to_frame()
+        if isinstance(data, pd.Series):
+            data = data.to_frame()
 
-        if len(df.columns) != len(df.columns.unique()):
+        if len(data.columns) != len(data.columns.unique()):
             raise ValueError('`StructuredProfiler` does not currently support '
                              'data which contains columns with duplicate '
                              'names.')
@@ -1348,7 +1348,7 @@ class StructuredProfiler(BaseProfiler):
                     yield e
 
         # Shuffle indices once and share with columns
-        sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
+        sample_ids = [*utils.shuffle_in_chunks(len(data), len(data))]
         
         # If there are no minimum true samples, you can sort to save time
         if min_true_samples in [None, 0]:
@@ -1366,7 +1366,7 @@ class StructuredProfiler(BaseProfiler):
 
         # Create structured profile objects
         new_cols = set()
-        for col in df.columns:
+        for col in data.columns:
             if col not in self._profile:
                 self._profile[col] = StructuredColProfiler(
                     sample_size=sample_size,
@@ -1379,10 +1379,11 @@ class StructuredProfiler(BaseProfiler):
         # Generate pool and estimate datasize
         pool = None
         if self.options.multiprocess.is_enabled:
-            est_data_size = df[:50000].memory_usage(index=False, deep=True).sum()
-            est_data_size = (est_data_size / min(50000, len(df))) * len(df)
+            est_data_size = data[:50000].memory_usage(index=False, deep=True).sum()
+            est_data_size = (est_data_size / min(50000, len(data))) * len(data)
             pool, pool_size = utils.generate_pool(
-                max_pool_size=None, data_size=est_data_size, cols=len(df.columns))
+                max_pool_size=None, data_size=est_data_size,
+                cols=len(data.columns))
 
         # Format the data
         notification_str = "Finding the Null values in the columns..."        
@@ -1392,21 +1393,21 @@ class StructuredProfiler(BaseProfiler):
         clean_sampled_dict = {}
         multi_process_dict = {}
         single_process_list = set()
-        if not sample_size: sample_size = len(df)
-        if sample_size < len(df):
+        if not sample_size: sample_size = len(data)
+        if sample_size < len(data):
             warnings.warn("The data will be profiled with a sample size of {}. "
                           "All statistics will be based on this subsample and "
                           "not the whole dataset.".format(sample_size))
 
         if pool is not None:
             # Create a bunch of simultaneous column conversions
-            for col in df.columns:
+            for col in data.columns:
                 if min_true_samples is None:
                     min_true_samples = self._profile[col]._min_true_samples
                 try:
                     multi_process_dict[col] = pool.apply_async(
                         self._profile[col].clean_data_and_get_base_stats,
-                        (df[col], sample_size, min_true_samples, sample_ids))
+                        (data[col], sample_size, min_true_samples, sample_ids))
                 except Exception as e:
                     print(e)
                     single_process_list.add(col)
@@ -1431,7 +1432,7 @@ class StructuredProfiler(BaseProfiler):
                         min_true_samples = self._profile[col]._min_true_samples
                     clean_sampled_dict[col], base_stats = \
                         self._profile[col].clean_data_and_get_base_stats(
-                            df[col], sample_size, min_true_samples, sample_ids)
+                            data[col], sample_size, min_true_samples, sample_ids)
                     self._profile[col]._update_base_stats(base_stats)
             
             pool.close()  # Close pool for new tasks
@@ -1439,12 +1440,12 @@ class StructuredProfiler(BaseProfiler):
 
         else:  # No pool
             print(notification_str)
-            for col in tqdm(df.columns):
+            for col in tqdm(data.columns):
                 if min_true_samples is None:
                     min_true_samples = self._profile[col]._min_true_samples
                 clean_sampled_dict[col], base_stats = \
                     self._profile[col].clean_data_and_get_base_stats(
-                        df_series=df[col], sample_size=sample_size,
+                        df_series=data[col], sample_size=sample_size,
                         min_true_samples=min_true_samples, sample_ids=sample_ids
                     )
                 self._profile[col]._update_base_stats(base_stats)
@@ -1458,7 +1459,7 @@ class StructuredProfiler(BaseProfiler):
                 notification_str += " (with " + str(pool_size) + " processes)"
         print(notification_str)
         
-        for col in tqdm(df.columns):
+        for col in tqdm(data.columns):
             self._profile[col].update_column_profilers(
                 clean_sampled_dict[col], pool)
 
@@ -1471,7 +1472,7 @@ class StructuredProfiler(BaseProfiler):
         if min_true_samples not in [None, 0]:
             samples_for_row_stats = np.concatenate(sample_ids)
 
-        self._update_row_statistics(df, samples_for_row_stats)
+        self._update_row_statistics(data, samples_for_row_stats)
 
     def _remove_data_labelers(self):
         """

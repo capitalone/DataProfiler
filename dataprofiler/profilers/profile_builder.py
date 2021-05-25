@@ -502,6 +502,13 @@ class BaseProfiler(object):
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
+    def _add_error_checks(self, other):
+        """
+        Profiler type specific checks to ensure two profiles can be added
+        together.
+        """
+        raise NotImplementedError()
+
     def __add__(self, other):
         """
         Merges two profiles together overriding the `+` operator.
@@ -509,8 +516,30 @@ class BaseProfiler(object):
         :param other: profile being added to this one.
         :type other: BaseProfiler
         :return: merger of the two profiles
+        :rtype: BaseProfiler
         """
-        raise NotImplementedError()
+        if type(other) is not type(self):
+            raise TypeError('`{}` and `{}` are not of the same profiler type.'.
+                            format(type(self).__name__, type(other).__name__))
+
+        # error checks specific to its profiler
+        self._add_error_checks(other)
+
+        merged_profile = self.__class__(
+            data=None, samples_per_update=self._samples_per_update,
+            min_true_samples=self._min_true_samples, options=self.options
+        )
+        merged_profile.encoding = self.encoding
+        if self.encoding != other.encoding:
+            merged_profile.encoding = 'multiple files'
+
+        merged_profile.file_type = self.file_type
+        if self.file_type != other.file_type:
+            merged_profile.file_type = 'multiple files'
+
+        merged_profile.total_samples = self.total_samples + other.total_samples
+
+        return merged_profile
 
     def _get_sample_size(self, data):
         """
@@ -702,34 +731,34 @@ class UnstructuredProfiler(BaseProfiler):
         if data is not None:
             self.update_profile(data)
 
+    def _add_error_checks(self, other):
+        """
+        UnstructuredProfiler specific checks to ensure two profiles can be added
+        together.
+        """
+        pass
+
     def __add__(self, other):
         """
-        Merges two profiles together overriding the `+` operator.
+        Merges two Unstructured profiles together overriding the `+` operator.
 
         :param other: unstructured profile being added to this one.
         :type other: UnstructuredProfiler
         :return: merger of the two profiles
+        :rtype: UnstructuredProfiler
         """
-        if type(other) is not type(self):
-            raise TypeError('`{}` and `{}` are not of the same profiler type.'.
-                            format(type(self).__name__, type(other).__name__))
+        merged_profile = super().__add__(other)
 
-        merged_profile = UnstructuredProfiler(
-            data=None, samples_per_update=self._samples_per_update,
-            min_true_samples=self._min_true_samples, options=self.options
-        )
-        merged_profile.encoding = self.encoding \
-            if self.encoding == other.encoding else 'multiple files'
-        merged_profile.file_type = self.file_type \
-            if self.file_type == other.file_type else 'multiple files'
+        # unstruct specific property merging
         merged_profile._empty_line_count = (
-            self._empty_line_count + other._empty_line_count)
-        merged_profile.total_samples = self.total_samples + other.total_samples
-
+                self._empty_line_count + other._empty_line_count)
         samples = list(dict.fromkeys(self.sample + other.sample))
         merged_profile.sample = random.sample(list(samples),
                                               min(len(samples), 5))
+
+        # merge profiles
         merged_profile._profile = self._profile + other._profile
+
         return merged_profile
 
     def _update_base_stats(self, base_stats):
@@ -1099,18 +1128,12 @@ class StructuredProfiler(BaseProfiler):
         if data is not None:
             self.update_profile(data)
 
-    def __add__(self, other):
+    def _add_error_checks(self, other):
         """
-        Merges two profiles together overriding the `+` operator.
-
-        :param other: profile being added to this one.
-        :type other: Profiler
-        :return: merger of the two profiles
+        StructuredProfiler specific checks to ensure two profiles can be added
+        together.
         """
-        if type(other) is not type(self):
-            raise TypeError('`{}` and `{}` are not of the same profiler type.'.
-                            format(type(self).__name__, type(other).__name__))
-        elif set(self._profile) != set(other._profile):
+        if set(self._profile) != set(other._profile):
             raise ValueError('Profiles do not have the same schema.')
         elif not all([isinstance(other._profile[p_name],
                                  type(self._profile[p_name]))
@@ -1118,22 +1141,27 @@ class StructuredProfiler(BaseProfiler):
             raise ValueError('The two profilers were not setup with the same '
                              'options, hence they do not calculate the same '
                              'profiles and cannot be added together.')
-        merged_profile = StructuredProfiler(
-            data=pd.DataFrame([]), samples_per_update=self._samples_per_update,
-            min_true_samples=self._min_true_samples, options=self.options
-        )
-        merged_profile.encoding = self.encoding \
-            if self.encoding == other.encoding else 'multiple files'
-        merged_profile.file_type = self.file_type \
-            if self.file_type == other.file_type else 'multiple files'
+
+    def __add__(self, other):
+        """
+        Merges two Structured profiles together overriding the `+` operator.
+
+        :param other: profile being added to this one.
+        :type other: StructuredProfiler
+        :return: merger of the two profiles
+        :rtype: StructuredProfiler
+        """
+        merged_profile = super().__add__(other)
+
+        # struct specific property merging
         merged_profile.row_has_null_count = \
             self.row_has_null_count + other.row_has_null_count
         merged_profile.row_is_null_count = \
             self.row_is_null_count + other.row_is_null_count
-        merged_profile.total_samples = self.total_samples + other.total_samples
         merged_profile.hashed_row_dict.update(self.hashed_row_dict)
         merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
+        # merge profiles
         for profile_name in self._profile:
             merged_profile._profile[profile_name] = (
                 self._profile[profile_name] + other._profile[profile_name]

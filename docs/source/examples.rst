@@ -13,6 +13,6 @@ Basics
 
    Overview of Data Profiler<overview>
    Data Reader<data_reader>
-   Profiler<profiler>
+   Profiler<profiler_example>
    Labeler<labeler>
    Adding Models to a Labeler Pipeline<add_new_model_to_data_labeler>

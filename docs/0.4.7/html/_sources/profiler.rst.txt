@@ -266,7 +266,7 @@ must be specified as structured or unstructured when setting (ie. datalabeler op
     profile_options.set({"is_numeric_stats_enabled": False})
     profile_options.set({"int.is_numeric_stats_enabled": False})
 
-    profile = Profiler(data, profiler_options=profile_options)
+    profile = Profiler(data, options=profile_options)
 
     # Print the report using json to prettify.
     report  = profile.report(report_options={"output_format":"pretty"})

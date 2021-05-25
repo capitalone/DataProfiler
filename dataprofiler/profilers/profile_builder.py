@@ -1151,8 +1151,8 @@ class StructuredProfiler(BaseProfiler):
         :return: merger of the two profiles
         :rtype: StructuredProfiler
         """
-        merged_profile = super().__add__(other
-                                         )
+        merged_profile = super().__add__(other)
+        
         # struct specific property merging
         merged_profile.row_has_null_count = \
             self.row_has_null_count + other.row_has_null_count

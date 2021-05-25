@@ -1,10 +1,10 @@
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
-from dataprofiler.tests.profilers.profiler_options.test_base_column_options \
-     import TestBaseColumnOptions
+from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options \
+     import TestBaseInspectorOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 
 
-class TestDataLabelerOptions(TestBaseColumnOptions):
+class TestDataLabelerOptions(TestBaseInspectorOptions):
     
     option_class = DataLabelerOptions
 

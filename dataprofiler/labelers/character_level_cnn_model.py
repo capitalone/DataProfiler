@@ -537,14 +537,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                                            max_char_encoding_id + 1)
 
         # padding
-        sentences_encode = sentences_encode.to_tensor()
-        remain_car = max_len - tf.shape(sentences_encode)[1]
-        end_pad_char = tf.math.maximum(remain_car, 0)
-        pad_end = tf.zeros((tf.shape(input_str_tensor)[0], end_pad_char),
-                           tf.int32)
-        sentences_encode_pad = tf.concat(axis=1,
-                                         values=[sentences_encode, pad_end])
-
+        sentences_encode_pad = sentences_encode.to_tensor(shape=[None, max_len])
         return sentences_encode_pad
 
     @staticmethod

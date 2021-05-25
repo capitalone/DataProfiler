@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from dataprofiler.data_readers.data import Data
+from dataprofiler.data_readers.data import Data, TextData
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -50,6 +50,12 @@ class TestTextDataClass(unittest.TestCase):
             input_data_obj.reload(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'text', input_file['path'])
             self.assertEqual(input_file['path'], input_data_obj.input_file_path)
+
+    def test_is_structured(self):
+        """
+        Ensures TextData.is_structured is False
+        """
+        self.assertFalse(TextData().is_structured)
 
 
 if __name__ == '__main__':

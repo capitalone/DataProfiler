@@ -26,7 +26,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         
             options = dict(
                 data_format= type: str, choices: "dataframe", "records", "json",
-                 "data_stream"
+                 "flattened_dataframe"
                 selected_keys= type: list(str)
                 payload_keys= type: Union[str, list(str)]
             )
@@ -94,6 +94,13 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             data = [self._metadata, data]
             data = pd.concat(data, axis=1)
         return data
+
+    @property
+    def is_structured(self):
+        """
+        Determines compatibility with StructuredProfiler
+        """
+        return self.data_format in ["dataframe", "flattened_dataframe"]
 
     def _find_data(self, json_data, path=""):
         """

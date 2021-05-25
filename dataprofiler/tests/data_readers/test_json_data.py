@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import os
 import unittest
 
-from dataprofiler.data_readers.data import Data
+from dataprofiler.data_readers.data import Data, JSONData
 from dataprofiler.data_readers import json_data
 
 
@@ -251,6 +251,27 @@ class TestJSONDataClass(unittest.TestCase):
         # Make sure the larger payload is selected
         self.assertIn("payload.bigger_list_of_things.id", dual_payload.data.columns)
         self.assertEqual(2, len(dual_payload.data.columns))
+
+    def test_is_structured(self):
+        # Default construction
+        data = JSONData()
+        self.assertTrue(data.is_structured)
+
+        # With option specifying dataframe as data_format
+        data = JSONData(options={"data_format": "dataframe"})
+        self.assertTrue(data.is_structured)
+
+        # With option specifying flattened_dataframe as data_format
+        data = JSONData(options={"data_format": "flattened_dataframe"})
+        self.assertTrue(data.is_structured)
+
+        # With option specifying records as data_format
+        data = JSONData(options={"data_format": "records"})
+        self.assertFalse(data.is_structured)
+
+        # With option specifying json as data_format
+        data = JSONData(options={"data_format": "json"})
+        self.assertFalse(data.is_structured)
 
 
 if __name__ == '__main__':

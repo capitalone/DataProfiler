@@ -575,21 +575,54 @@ class BaseProfiler(object):
         """
         raise NotImplementedError()
 
-    def update_profile(self, data, sample_size, min_true_samples=None):
+    def update_profile(self, data, sample_size=None, min_true_samples=None):
         """
         Update the profile for data provided. User can specify the sample
         size to profile the data with. Additionally, the user can specify the
         minimum number of non-null samples to profile.
 
         :param data: data to be profiled
-        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame]
+        :type data: Union[data_readers.base_data.BaseData, pandas.DataFrame,
+            pandas.Series]
         :param sample_size: number of samples to profile from the data
         :type sample_size: int
         :param min_true_samples: minimum number of non-null samples to profile
         :type min_true_samples
         :return: None
         """
-        raise NotImplementedError()
+        encoding = None
+        file_type = None
+
+        if isinstance(data, data_readers.base_data.BaseData):
+            encoding = data.file_encoding
+            file_type = data.data_type
+            data = data.data
+        elif isinstance(data, (pd.Series, pd.DataFrame)):
+            file_type = str(data.__class__)
+        else:
+            raise ValueError(
+                "Data must either be imported using the data_readers, "
+                "pd.Series, or pd.DataFrame."
+            )
+
+        if not len(data):
+            warnings.warn("The passed dataset was empty, hence no data was "
+                          "profiled.")
+            return
+
+        # set file properties since data will be processed
+        if encoding is not None:
+            self.encoding = encoding
+        if file_type is not None:
+            self.file_type = file_type
+
+        # set sampling properties
+        if not min_true_samples:
+            min_true_samples = self._min_true_samples
+        if not sample_size:
+            sample_size = self._get_sample_size(data)
+
+        self._update_profile_from_chunk(data, sample_size, min_true_samples)
 
     def _remove_data_labelers(self):
         """

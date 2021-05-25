@@ -639,12 +639,6 @@ class BaseProfiler(object):
                           "profiled.")
             return
 
-        # set file properties since data will be processed
-        if encoding is not None:
-            self.encoding = encoding
-        if file_type is not None:
-            self.file_type = file_type
-
         # set sampling properties
         if not min_true_samples:
             min_true_samples = self._min_true_samples
@@ -652,6 +646,12 @@ class BaseProfiler(object):
             sample_size = self._get_sample_size(data)
 
         self._update_profile_from_chunk(data, sample_size, min_true_samples)
+
+        # set file properties since data will be processed
+        if encoding is not None:
+            self.encoding = encoding
+        if file_type is not None:
+            self.file_type = file_type
 
     def _remove_data_labelers(self):
         """

@@ -74,6 +74,9 @@ class BaseData(object):
 
     @property
     def is_structured(self):
+        """
+        Determines compatibility with StructuredProfiler
+        """
         raise NotImplementedError
 
     @data_format.setter

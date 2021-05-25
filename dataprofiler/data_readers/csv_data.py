@@ -108,6 +108,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     @property
     def is_structured(self):
+        """
+        Determines compatibility with StructuredProfiler
+        """
         return self.data_format == "dataframe"
 
     def _check_and_return_options(self, options):

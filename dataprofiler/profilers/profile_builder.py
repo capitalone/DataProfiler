@@ -714,14 +714,24 @@ class BaseProfiler(object):
             data_labeler_options = self.options.data_labeler
             use_data_labeler = data_labeler_options.is_enabled
 
-        if data_labeler_options.is_enabled \
-                and data_labeler_options.data_labeler_object is None:
+        if use_data_labeler:
             try:
-                if data_labeler is None:
+                if data_labeler is None and data_labeler_options is None:
+                    data_labeler = DataLabeler(
+                        labeler_type=self._default_labeler_type,
+                        dirpath=None,
+                        load_options=None)
+                elif data_labeler is None:
                     data_labeler = DataLabeler(
                         labeler_type=self._default_labeler_type,
                         dirpath=data_labeler_options.data_labeler_dirpath,
                         load_options=None)
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
                 self.options.set(
                     {'data_labeler.data_labeler_object': data_labeler})
 

@@ -691,6 +691,8 @@ class BaseProfiler(object):
 
             # profiles stored differently in Struct/Unstruct, this unifies
             # labeler extraction
+            # unstructured: _profile is a compiler
+            # structured: StructuredColProfiler.profiles['data_label_profile']
             if isinstance(self, StructuredProfiler):
                 profiler = profiler.profiles['data_label_profile']
 
@@ -749,6 +751,8 @@ class BaseProfiler(object):
 
             # profiles stored differently in Struct/Unstruct, this unifies
             # label replacement
+            # unstructured: _profile is a compiler
+            # structured: StructuredColProfiler.profiles['data_label_profile']
             if isinstance(self, StructuredProfiler):
                 profiler = profiler.profiles['data_label_profile']
 

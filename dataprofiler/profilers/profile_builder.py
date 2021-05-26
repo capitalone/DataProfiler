@@ -711,7 +711,6 @@ class BaseProfiler(object):
         """
         # Restore data labeler for options
         use_data_labeler = True
-        data_labeler_options = None
         data_labeler_dirpath = None
         if self.options and isinstance(self.options, (StructuredOptions,
                                                       UnstructuredOptions)):

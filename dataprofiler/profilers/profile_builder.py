@@ -717,7 +717,7 @@ class BaseProfiler(object):
                                                       UnstructuredOptions)):
             data_labeler_options = self.options.data_labeler
             use_data_labeler = data_labeler_options.is_enabled
-            data_labeler_path = data_labeler_options.data_labeler_dirpath
+            data_labeler_dirpath = data_labeler_options.data_labeler_dirpath
 
         if use_data_labeler:
             try:

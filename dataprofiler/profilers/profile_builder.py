@@ -1520,9 +1520,9 @@ class Profiler(object):
 
         :param data: Data to be profiled
         :type data: Data class object
-        :param samples_per_update: Number of samples to use in generating profile
+        :param samples_per_update: Number of samples to use to generate profile
         :type samples_per_update: int
-        :param min_true_samples: Minimum number of samples required for the profiler
+        :param min_true_samples: Min number of samples required for the profiler
         :type min_true_samples: int
         :param options: Options for the profiler.
         :type options: ProfilerOptions Object
@@ -1538,7 +1538,7 @@ class Profiler(object):
             return UnstructuredProfiler(data, samples_per_update,
                                         min_true_samples, options)
         elif profiler_type is not None:
-            raise ValueError("Must specify 'profiler_type' to be 'structured'"
+            raise ValueError("Must specify 'profiler_type' to be 'structured' "
                              "or 'unstructured'.")
 
         # If user doesn't specify, and data is Data object, use is_structured

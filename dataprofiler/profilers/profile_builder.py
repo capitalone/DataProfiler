@@ -1511,80 +1511,80 @@ class StructuredProfiler(BaseProfiler):
         self._save_helper(filepath, data_dict)
 
 
-def Profiler(data, samples_per_update=None, min_true_samples=0, options=None,
-             profiler_type=None):
-    """
-    Wrapper function for instantiating Structured and Unstructured Profilers
+class Profiler(object):
 
-    :param data: Data to be profiled
-    :type data: Data class object
-    :param samples_per_update: Number of samples to use in generating profile
-    :type samples_per_update: int
-    :param min_true_samples: Minimum number of samples required for the profiler
-    :type min_true_samples: int
-    :param options: Options for the profiler.
-    :type options: ProfilerOptions Object
-    :param profiler_type: Type of Profiler ("structured"/"unstructured")
-    :type profiler_type: str
-    :return: BaseProfiler
-    """
-    # Attempt to construct according to user kwarg input
-    if profiler_type == "structured":
-        return StructuredProfiler(data, samples_per_update, min_true_samples,
-                                  options)
-    elif profiler_type == "unstructured":
-        return UnstructuredProfiler(data, samples_per_update, min_true_samples,
-                                    options)
-    elif profiler_type is not None:
-        raise ValueError("Must specify 'profiler_type' to be 'structured'"
-                         "or 'unstructured'.")
+    def __new__(cls, data, samples_per_update=None, min_true_samples=0,
+                options=None, profiler_type=None):
+        """
+        Factory class for instantiating Structured and Unstructured Profilers
 
-    # If user doesn't specify, and data is Data object, use is_structured
-    if isinstance(data, data_readers.base_data.BaseData):
-        if data.is_structured:
+        :param data: Data to be profiled
+        :type data: Data class object
+        :param samples_per_update: Number of samples to use in generating profile
+        :type samples_per_update: int
+        :param min_true_samples: Minimum number of samples required for the profiler
+        :type min_true_samples: int
+        :param options: Options for the profiler.
+        :type options: ProfilerOptions Object
+        :param profiler_type: Type of Profiler ("structured"/"unstructured")
+        :type profiler_type: str
+        :return: BaseProfiler
+        """
+        # Attempt to construct according to user kwarg input
+        if profiler_type == "structured":
             return StructuredProfiler(data, samples_per_update,
                                       min_true_samples, options)
-        else:
+        elif profiler_type == "unstructured":
             return UnstructuredProfiler(data, samples_per_update,
                                         min_true_samples, options)
+        elif profiler_type is not None:
+            raise ValueError("Must specify 'profiler_type' to be 'structured'"
+                             "or 'unstructured'.")
 
-    # If user doesn't specify, and data is Pandas object, need to infer
-    if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
-        # If empty, default to structured
-        if not len(data):
-            warnings.warn("Empty data given to Profiler, will assume data"
-                          "is structured and create StructuredProfiler")
-            return StructuredProfiler(data, samples_per_update,
-                                      min_true_samples, options)
-
-        # If multi column df, data is structured
-        if isinstance(data, pd.DataFrame) and len(data.columns) > 1:
-            return StructuredProfiler(data, samples_per_update,
-                                      min_true_samples, options)
-
-        # If single column, look at string length and variance
-        d_type = data.dtype if isinstance(data, pd.Series) else data.dtypes[0]
-        if d_type == "object":
-            sample = data if isinstance(data, pd.Series) else data[0]
-            if len(sample) > 5:
-                sample = sample.sample(n=5)
-            sample_lens = sample.apply(len)
-            len_mean = sample_lens.mean()
-            len_range = sample_lens.max() - sample_lens.min()
-            # If strings are very long or varied, use unstructured
-            if len_mean > 20 or len_range > 20:
-                warnings.warn("Singular column string data given to Profiler "
-                              "inferred to be unstructured, will create "
-                              "UnstructuredProfiler.")
+        # If user doesn't specify, and data is Data object, use is_structured
+        if isinstance(data, data_readers.base_data.BaseData):
+            if data.is_structured:
+                return StructuredProfiler(data, samples_per_update,
+                                          min_true_samples, options)
+            else:
                 return UnstructuredProfiler(data, samples_per_update,
                                             min_true_samples, options)
-            else:
-                warnings.warn("Singular column string data given to Profiler "
-                              "inferred to be structured, will create "
-                              "StructuredProfiler.")
 
-        return StructuredProfiler(data, samples_per_update, min_true_samples,
-                                  options)
+        # If user doesn't specify, and data is Pandas object, need to infer
+        if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+            # If empty, default to structured
+            if not len(data):
+                warnings.warn("Empty data given to Profiler, will assume data "
+                              "is structured and create StructuredProfiler")
+                return StructuredProfiler(data, samples_per_update,
+                                          min_true_samples, options)
 
-    raise ValueError("Data must either be imported using the data_readers, "
-                     "pd.Series, or pd.DataFrame.")
+            # If multi column df, data is structured
+            if isinstance(data, pd.DataFrame) and len(data.columns) > 1:
+                return StructuredProfiler(data, samples_per_update,
+                                          min_true_samples, options)
+
+            # If single column, look at string length and variance
+            data_ser = data if isinstance(data, pd.Series) else data[0]
+            if data_ser.dtype == "object":
+                sample = data_ser.sample(min(5, len(data_ser)))
+                sample_lens = sample.apply(len)
+                len_mean = sample_lens.mean()
+                len_range = sample_lens.max() - sample_lens.min()
+                # If strings are very long or varied, use unstructured
+                if len_mean > 20 or len_range > 20:
+                    warnings.warn("Singular column string data given to "
+                                  "Profiler inferred to be unstructured, will "
+                                  "create UnstructuredProfiler.")
+                    return UnstructuredProfiler(data, samples_per_update,
+                                                min_true_samples, options)
+                else:
+                    warnings.warn("Singular column string data given to "
+                                  "Profiler inferred to be structured, will "
+                                  "create StructuredProfiler.")
+
+            return StructuredProfiler(data, samples_per_update,
+                                      min_true_samples, options)
+
+        raise ValueError("Data must either be imported using the data_readers, "
+                         "pd.Series, or pd.DataFrame.")

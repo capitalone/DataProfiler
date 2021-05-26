@@ -15,7 +15,7 @@ from . import utils as test_utils
 
 import dataprofiler as dp
 from dataprofiler.profilers.profile_builder import StructuredColProfiler, \
-    UnstructuredProfiler, UnstructuredCompiler
+    UnstructuredProfiler, UnstructuredCompiler, StructuredProfiler, Profiler
 from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions, UnstructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
@@ -1450,14 +1450,45 @@ class TestProfilerFactoryClass(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Must specify 'profiler_type' "
                                                 "to be 'structured' or "
                                                 "'unstructured'."):
-            dp.Profiler(pd.DataFrame([]), profiler_type="whoops")
+            Profiler(pd.DataFrame([]), profiler_type="whoops")
 
         with self.assertRaisesRegex(ValueError, "Data must either be imported "
                                                 "using the data_readers, "
                                                 "pd.Series, or pd.DataFrame."):
-            dp.Profiler("whoops")
+            Profiler("whoops")
 
     def test_profiler_factory_class_creates_correct_profiler(self):
+        """
+        Ensure Profiler factory class either respects user input or makes
+        reasonable inference in the absence of user specificity.
+        """
+        # User specifies via profiler_type
+        pass
+        pass
+
+        # User gives data that has .is_structured == True
+        pass
+
+        # User gives data that has .is_structured == False
+        pass
+
+        # User gives empty data (should default to StructuredProfiler)
+        pass
+        pass
+
+        # User gives 2D DF
+        pass
+
+        # User gives 1 col int data
+        pass
+        pass
+
+        # User gives 1 col data with short, uniform strings
+        pass
+        pass
+
+        # User gives 1 col data with strings of varying lengths
+        pass
         pass
 
 

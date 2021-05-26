@@ -688,6 +688,9 @@ class BaseProfiler(object):
 
         # Remove data labelers for all columns
         for profiler in profilers:
+
+            # profiles stored differently in Struct/Unstruct, this unifies
+            # labeler extraction
             if isinstance(self, StructuredProfiler):
                 profiler = profiler.profiles['data_label_profile']
 
@@ -739,6 +742,8 @@ class BaseProfiler(object):
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
+        # get all profiles, unstructured is a single profile and hence needs to
+        # be in a list, whereas structured is a dict and needs to be a list
         profilers = [self._profile]
         if isinstance(self, StructuredProfiler):
             profilers = self._profile.values()
@@ -746,6 +751,8 @@ class BaseProfiler(object):
         # Restore data labelers for all columns
         for profiler in profilers:
 
+            # profiles stored differently in Struct/Unstruct, this unifies
+            # label replacement
             if isinstance(self, StructuredProfiler):
                 profiler = profiler.profiles['data_label_profile']
 

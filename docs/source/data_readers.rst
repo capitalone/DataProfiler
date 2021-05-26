@@ -4,7 +4,7 @@ Data Readers
 ************
 
 The `Data` class itself will identify then output one of the following `Data` class types. 
-Using the data reader is easy, just pass it through the Data object.
+Using the data reader is easy, just pass it through the Data object. 
 
 .. code-block:: python
 

@@ -4,7 +4,7 @@ Data Readers
 ************
 
 The `Data` class itself will identify then output one of the following `Data` class types. 
-Using the data reader is easy, just pass it through the Data object.
+Using the data reader is easy, just pass it through the Data object. 
 
 .. code-block:: python
 
@@ -81,7 +81,10 @@ may also be specified using the options dict parameter.
 
 Possible `options`:
 
-* data_format - must be a string, choices: "dataframe", "records", "avro"
+* data_format - must be a string, choices: "dataframe", "records", "avro", "json", "flattened_dataframe"
+
+  * "flattened_dataframe" is best used for AVROs with a JSON structure typically found in data streams that contain
+    nested lists of dictionaries and a payload. For example: `{"data": [ columns ], "response": 200}`
 * selected_keys - columns being selected from the entire dataset, must be a list `["column 1", "ssn"]`
 
 ParquetData
@@ -109,5 +112,5 @@ may also be specified using the options dict parameter.
 
 Possible `options`:
 
-* data_format: user selected format in which to return data can only be of specified types
+* data_format: user selected format in which to return data. Currently only supports "text".
 * samples_per_line - chunks by which to read in the specified dataset

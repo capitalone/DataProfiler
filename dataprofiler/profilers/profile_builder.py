@@ -712,22 +712,19 @@ class BaseProfiler(object):
         # Restore data labeler for options
         use_data_labeler = True
         data_labeler_options = None
+        data_labeler_dirpath = None
         if self.options and isinstance(self.options, (StructuredOptions,
                                                       UnstructuredOptions)):
             data_labeler_options = self.options.data_labeler
             use_data_labeler = data_labeler_options.is_enabled
+            data_labeler_path = data_labeler_options.data_labeler_dirpath
 
         if use_data_labeler:
             try:
-                if data_labeler is None and data_labeler_options is None:
+                if data_labeler is None:
                     data_labeler = DataLabeler(
                         labeler_type=self._default_labeler_type,
-                        dirpath=None,
-                        load_options=None)
-                elif data_labeler is None:
-                    data_labeler = DataLabeler(
-                        labeler_type=self._default_labeler_type,
-                        dirpath=data_labeler_options.data_labeler_dirpath,
+                        dirpath=data_labeler_dirpath,
                         load_options=None)
                 self.options.set(
                     {'data_labeler.data_labeler_object': data_labeler})

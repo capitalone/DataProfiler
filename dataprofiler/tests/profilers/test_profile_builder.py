@@ -1444,5 +1444,22 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         self.assertSetEqual({8}, profile._profile[1].null_types_index['None'])
 
 
+class TestProfilerFactoryClass(unittest.TestCase):
+
+    def test_profiler_factory_class_bad_input(self):
+        with self.assertRaisesRegex(ValueError, "Must specify 'profiler_type' "
+                                                "to be 'structured' or "
+                                                "'unstructured'."):
+            dp.Profiler(pd.DataFrame([]), profiler_type="whoops")
+
+        with self.assertRaisesRegex(ValueError, "Data must either be imported "
+                                                "using the data_readers, "
+                                                "pd.Series, or pd.DataFrame."):
+            dp.Profiler("whoops")
+
+    def test_profiler_factory_class_creates_correct_profiler(self):
+        pass
+
+
 if __name__ == '__main__':
     unittest.main()

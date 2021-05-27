@@ -1516,16 +1516,14 @@ class Profiler(object):
         :type profiler_type: str
         :return: BaseProfiler
         """
-        if profiler_type and profiler_type not in ["structured", "unstructured"]:
-            raise ValueError("Must specify 'profiler_type' to be 'structured' "
-                             "or 'unstructured'.")
 
         if profiler_type is None:
-            # If type unspecified, and data is Data object, use is_structured
+            # Default to structured
+            profiler_type = "structured"
+
+            # Unstructured if data is Data object and is_structured is False
             if isinstance(data, data_readers.base_data.BaseData):
-                if data.is_structured:
-                    profiler_type = "structured"
-                else:
+                if not data.is_structured:
                     profiler_type = "unstructured"
 
             # If type unspecified, and data is Pandas object, need to infer
@@ -1536,29 +1534,20 @@ class Profiler(object):
                                   "data is structured, if this is not the "
                                   "case please specify via 'profiler_type'"
                                   "kwarg.")
-                    profiler_type = "structured"
 
-                # If multi column df, data is structured
-                elif isinstance(data, pd.DataFrame) and len(data.columns) > 1:
-                    profiler_type = "structured"
-
-                # Single column df or series
-                else:
+                # Data is structured unless it is 1 column of string data
+                # that is either very long or varied in length
+                elif isinstance(data, pd.Series) or len(data.columns) == 1:
                     # Keep a series version of 1 col df for consistency
                     data_ser = data if isinstance(data, pd.Series) else data[0]
                     if data_ser.dtype == "object":
                         sample = data_ser.sample(min(5, len(data_ser)))
-                        sample_lens = sample.apply(len)
+                        sample_lens = sample.astype(str).apply(len)
                         len_mean = sample_lens.mean()
                         len_range = sample_lens.max() - sample_lens.min()
                         # If strings are very long or varied, use unstructured
-                        if len_mean > 15 or len_range > 15:
+                        if len_mean > 20 or len_range > 15:
                             profiler_type = "unstructured"
-                        else:
-                            profiler_type = "structured"
-                    else:
-                        # Structured for 1 col with non-string data
-                        profiler_type = "structured"
 
                     warnings.warn(f"Singular column data given to Profiler, "
                                   f"inferred to be {profiler_type}, if this is "
@@ -1575,3 +1564,6 @@ class Profiler(object):
         elif profiler_type == "unstructured":
             return UnstructuredProfiler(data, samples_per_update,
                                         min_true_samples, options)
+        else:
+            raise ValueError("Must specify 'profiler_type' to be 'structured' "
+                             "or 'unstructured'.")

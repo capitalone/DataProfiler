@@ -1519,6 +1519,12 @@ class TestProfilerFactoryClass(unittest.TestCase):
         self.assertIsInstance(Profiler(unstruct_str_df), UnstructuredProfiler)
         self.assertIsInstance(Profiler(unstruct_str_ser), UnstructuredProfiler)
 
+        # User gives mixed data types, but they are relatively uniform length
+        mixed_df = pd.DataFrame([1, "two", 3, "four"])
+        mixed_ser = mixed_df[0]
+        self.assertIsInstance(Profiler(mixed_df), StructuredProfiler)
+        self.assertIsInstance(Profiler(mixed_ser), StructuredProfiler)
+
 
 if __name__ == '__main__':
     unittest.main()

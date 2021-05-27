@@ -1530,61 +1530,62 @@ class Profiler(object):
         :type profiler_type: str
         :return: BaseProfiler
         """
-        # Attempt to construct according to user kwarg input
+        if profiler_type and profiler_type not in ["structured", "unstructured"]:
+            raise ValueError("Must specify 'profiler_type' to be 'structured' "
+                             "or 'unstructured'.")
+
+        if profiler_type is None:
+            # If type unspecified, and data is Data object, use is_structured
+            if isinstance(data, data_readers.base_data.BaseData):
+                if data.is_structured:
+                    profiler_type = "structured"
+                else:
+                    profiler_type = "unstructured"
+
+            # If type unspecified, and data is Pandas object, need to infer
+            elif isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+                # If empty, default to structured
+                if not len(data):
+                    warnings.warn("Empty data given to Profiler, will assume "
+                                  "data is structured, if this is not the "
+                                  "case please specify via 'profiler_type'"
+                                  "kwarg.")
+                    profiler_type = "structured"
+
+                # If multi column df, data is structured
+                elif isinstance(data, pd.DataFrame) and len(data.columns) > 1:
+                    profiler_type = "structured"
+
+                # Single column df or series
+                else:
+                    # Keep a series version of 1 col df for consistency
+                    data_ser = data if isinstance(data, pd.Series) else data[0]
+                    if data_ser.dtype == "object":
+                        sample = data_ser.sample(min(5, len(data_ser)))
+                        sample_lens = sample.apply(len)
+                        len_mean = sample_lens.mean()
+                        len_range = sample_lens.max() - sample_lens.min()
+                        # If strings are very long or varied, use unstructured
+                        if len_mean > 15 or len_range > 15:
+                            profiler_type = "unstructured"
+                        else:
+                            profiler_type = "structured"
+                    else:
+                        # Structured for 1 col with non-string data
+                        profiler_type = "structured"
+
+                    warnings.warn(f"Singular column data given to Profiler, "
+                                  f"inferred to be {profiler_type}, if this is "
+                                  f"not the case please specify via "
+                                  f"'profiler_type' kwarg.")
+            else:
+                raise ValueError("Data must either be imported using the "
+                                 "data_readers, pd.Series, or pd.DataFrame.")
+
+        # Construct based off of initial kwarg input or inference
         if profiler_type == "structured":
             return StructuredProfiler(data, samples_per_update,
                                       min_true_samples, options)
         elif profiler_type == "unstructured":
             return UnstructuredProfiler(data, samples_per_update,
                                         min_true_samples, options)
-        elif profiler_type is not None:
-            raise ValueError("Must specify 'profiler_type' to be 'structured' "
-                             "or 'unstructured'.")
-
-        # If user doesn't specify, and data is Data object, use is_structured
-        if isinstance(data, data_readers.base_data.BaseData):
-            if data.is_structured:
-                return StructuredProfiler(data, samples_per_update,
-                                          min_true_samples, options)
-            else:
-                return UnstructuredProfiler(data, samples_per_update,
-                                            min_true_samples, options)
-
-        # If user doesn't specify, and data is Pandas object, need to infer
-        if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
-            # If empty, default to structured
-            if not len(data):
-                warnings.warn("Empty data given to Profiler, will assume data "
-                              "is structured and create StructuredProfiler")
-                return StructuredProfiler(data, samples_per_update,
-                                          min_true_samples, options)
-
-            # If multi column df, data is structured
-            if isinstance(data, pd.DataFrame) and len(data.columns) > 1:
-                return StructuredProfiler(data, samples_per_update,
-                                          min_true_samples, options)
-
-            # If single column, look at string length and variance
-            data_ser = data if isinstance(data, pd.Series) else data[0]
-            if data_ser.dtype == "object":
-                sample = data_ser.sample(min(5, len(data_ser)))
-                sample_lens = sample.apply(len)
-                len_mean = sample_lens.mean()
-                len_range = sample_lens.max() - sample_lens.min()
-                # If strings are very long or varied, use unstructured
-                if len_mean > 25 or len_range > 25:
-                    warnings.warn("Singular column string data given to "
-                                  "Profiler inferred to be unstructured, will "
-                                  "create UnstructuredProfiler.")
-                    return UnstructuredProfiler(data, samples_per_update,
-                                                min_true_samples, options)
-                else:
-                    warnings.warn("Singular column string data given to "
-                                  "Profiler inferred to be structured, will "
-                                  "create StructuredProfiler.")
-
-            return StructuredProfiler(data, samples_per_update,
-                                      min_true_samples, options)
-
-        raise ValueError("Data must either be imported using the data_readers, "
-                         "pd.Series, or pd.DataFrame.")

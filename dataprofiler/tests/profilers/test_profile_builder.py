@@ -1518,7 +1518,6 @@ class TestProfilerFactoryClass(unittest.TestCase):
         unstruct_str_ser = unstruct_str_df[0]
         self.assertIsInstance(Profiler(unstruct_str_df), UnstructuredProfiler)
         self.assertIsInstance(Profiler(unstruct_str_ser), UnstructuredProfiler)
-        pass
 
 
 if __name__ == '__main__':

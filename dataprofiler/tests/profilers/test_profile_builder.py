@@ -1167,7 +1167,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             data = dp.Data(os.path.join(data_folder, test_file))
             save_profile = UnstructuredProfiler(data)
 
-            # address case where empty_line_count is 0
+            # address case where data is read in a way that has no empty lines
             save_profile._empty_line_count = 1
 
             # store the expected data_labeler

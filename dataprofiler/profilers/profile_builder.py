@@ -820,9 +820,9 @@ class BaseProfiler(object):
         # to determine which profiler is being loaded.
         profiler_cls = cls
         if cls is BaseProfiler:
-            if 'StructuredProfiler' == profiler_class:
+            if profiler_class == 'StructuredProfiler':
                 profiler_cls = StructuredProfiler
-            elif 'UnstructuredProfiler' == profiler_class:
+            elif profiler_class == 'UnstructuredProfiler':
                 profiler_cls = UnstructuredProfiler
             elif profiler_class is None:  # deprecated case
                 profiler_cls = StructuredProfiler

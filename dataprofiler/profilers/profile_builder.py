@@ -778,6 +778,9 @@ class BaseProfiler(object):
         # Remove data labelers as they can't be pickled
         data_labelers = self._remove_data_labelers()
 
+        # add profiler class to data_dict
+        data_dict['profiler_class'] = self.__class__.__name__
+
         # Pickle and save profile to disk
         with open(filepath, "wb") as outfile:
             pickle.dump(data_dict, outfile)
@@ -806,15 +809,35 @@ class BaseProfiler(object):
             UnstructuredProfiler
         :rtype: BaseProfiler
         """
-        profile_options = cls._option_class()
-        profile_options.data_labeler.is_enabled = False
-        profiler = cls(None, options=profile_options)
-
         # Load profile from disk
         with open(filepath, "rb") as infile:
             data = pickle.load(infile)
-            for key in data:
-                setattr(profiler, key, data[key])
+
+        # remove profiler class if it exists
+        profiler_class = data.pop('profiler_class', None)
+
+        # if the user didn't load from the a given profiler class, we need
+        # to determine which profiler is being loaded.
+        profiler_cls = cls
+        if cls is BaseProfiler:
+            if 'StructuredProfiler' == profiler_class:
+                profiler_cls = StructuredProfiler
+            elif 'UnstructuredProfiler' == profiler_class:
+                profiler_cls = UnstructuredProfiler
+            elif profiler_class is None:  # deprecated case
+                profiler_cls = StructuredProfiler
+                if '_empty_line_count' in data:
+                    profiler_cls = UnstructuredProfiler
+            else:
+                raise ValueError(f'Invalid profiler class {profiler_class} '
+                                 f'failed to load.')
+
+        profile_options = profiler_cls._option_class()
+        profile_options.data_labeler.is_enabled = False
+        profiler = profiler_cls(None, options=profile_options)
+
+        for key in data:
+            setattr(profiler, key, data[key])
 
         # Restore all data labelers
         profiler._restore_data_labelers()
@@ -1573,3 +1596,16 @@ class Profiler(object):
         else:
             raise ValueError("Must specify 'profiler_type' to be 'structured' "
                              "or 'unstructured'.")
+
+    @classmethod
+    def load(cls, filepath):
+        """
+        Load profiler from disk
+
+        :param filepath: Path of file to load from
+        :type filepath: String
+        :return: Profiler being loaded, StructuredProfiler or
+            UnstructuredProfiler
+        :rtype: BaseProfiler
+        """
+        return BaseProfiler.load(filepath)

@@ -569,7 +569,7 @@ class BaseProfiler(object):
 
         :return: None
         """
-        raise NotImplementedError()
+        return self._profile
 
     def report(self, report_options=None):
         """
@@ -902,16 +902,6 @@ class UnstructuredProfiler(BaseProfiler):
         self.sample = base_stats["sample"]
         self._empty_line_count += base_stats["empty_line_count"]
 
-    @property
-    def profile(self):
-        """
-        Returns the UnstructuredCompiler which compiles the low level
-        inspectors.
-
-        :return: None
-        """
-        return self._profile
-
     def report(self, report_options=None):
         """
         Returns the unstructured report based on all profiled data fed into the
@@ -1181,10 +1171,6 @@ class StructuredProfiler(BaseProfiler):
                 self._profile[profile_name] + other._profile[profile_name]
             )
         return merged_profile
-
-    @property
-    def profile(self):
-        return self._profile
 
     @property
     def _max_col_samples_used(self):

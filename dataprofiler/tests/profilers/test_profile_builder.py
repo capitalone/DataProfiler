@@ -481,7 +481,7 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_dict_in_data_no_error(self, *mocks):
         # validates that _update_row_statistics does not error when trying to
-        # hash a dict. 
+        # hash a dict.
         profiler = dp.StructuredProfiler(pd.DataFrame([[{'test': 1}], [None]]))
         self.assertEqual(1, profiler.row_is_null_count)
         self.assertEqual(2, profiler.total_samples)

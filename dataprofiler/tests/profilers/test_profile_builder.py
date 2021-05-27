@@ -1585,7 +1585,9 @@ class TestProfilerFactoryClass(unittest.TestCase):
             data = dp.Data(os.path.join(data_folder, test_file))
             save_profile = UnstructuredProfiler(data)
 
-            # address case where empty_line_count is 0
+            # If profile _empty_line_count = 0, it won't test if the variable is
+            # saved correctly since that is also the default value. Ensure
+            # not the default
             save_profile._empty_line_count = 1
 
             # store the expected data_labeler

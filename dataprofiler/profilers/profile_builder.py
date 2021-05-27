@@ -451,7 +451,7 @@ class BaseProfiler(object):
     _option_class = None
     _allowed_external_data_types = None
 
-    def __init__(self, data, samples_per_update=None, min_true_samples=None,
+    def __init__(self, data, samples_per_update=None, min_true_samples=0,
                  options=None):
         """
         Instantiate the BaseProfiler class

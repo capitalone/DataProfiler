@@ -1081,6 +1081,7 @@ class UnstructuredProfiler(BaseProfiler):
             "file_type": self.file_type,
             "_samples_per_update": self._samples_per_update,
             "_min_true_samples": self._min_true_samples,
+            "_empty_line_count": self._empty_line_count,
             "options": self.options,
             "_profile": self.profile
         }

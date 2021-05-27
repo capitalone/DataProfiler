@@ -1525,6 +1525,18 @@ class TestProfilerFactoryClass(unittest.TestCase):
         self.assertIsInstance(Profiler(mixed_df), StructuredProfiler)
         self.assertIsInstance(Profiler(mixed_ser), StructuredProfiler)
 
+        # Test dict input, struct
+        dict_df = pd.DataFrame({0: [{"test": 'test'}]})
+        dict_ser = dict_df[0]
+        self.assertIsInstance(Profiler(dict_df), StructuredProfiler)
+        self.assertIsInstance(Profiler(dict_ser), StructuredProfiler)
+
+        # Test dict input, unstruct
+        dict_df = pd.DataFrame({0: [{"test": 'test' * 100}]})
+        dict_ser = dict_df[0]
+        self.assertIsInstance(Profiler(dict_df), UnstructuredProfiler)
+        self.assertIsInstance(Profiler(dict_ser), UnstructuredProfiler)
+
 
 if __name__ == '__main__':
     unittest.main()

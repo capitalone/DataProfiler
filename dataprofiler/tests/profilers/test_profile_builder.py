@@ -1611,6 +1611,10 @@ class TestProfilerFactoryClass(unittest.TestCase):
             load_report = _clean_report(load_profile.report())
             self.assertDictEqual(save_report, load_report)
 
+            # validate both are still usable after
+            save_profile.update_profile(data.data.iloc[:2])
+            load_profile.update_profile(data.data.iloc[:2])
+
     def test_save_and_load_unstructured(self):
         data_folder = "dataprofiler/tests/data/"
         test_files = ["txt/code.txt", "txt/sentence-10x.txt"]

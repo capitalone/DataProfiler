@@ -1572,7 +1572,7 @@ class Profiler(object):
                 len_mean = sample_lens.mean()
                 len_range = sample_lens.max() - sample_lens.min()
                 # If strings are very long or varied, use unstructured
-                if len_mean > 20 or len_range > 20:
+                if len_mean > 25 or len_range > 25:
                     warnings.warn("Singular column string data given to "
                                   "Profiler inferred to be unstructured, will "
                                   "create UnstructuredProfiler.")

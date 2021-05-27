@@ -431,6 +431,9 @@ class TestStructuredProfiler(unittest.TestCase):
             # Create Data and StructuredProfiler objects
             data = dp.Data(os.path.join(datapth, test_file))
             save_profile = dp.StructuredProfiler(data)
+
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
             
             # Save and Load profile with Mock IO
             with mock.patch('builtins.open') as m:
@@ -438,8 +441,22 @@ class TestStructuredProfiler(unittest.TestCase):
                 save_profile.save()
                 mock_file.seek(0)
                 with mock.patch('dataprofiler.profilers.profile_builder.'
-                                'DataLabeler'):
+                                'DataLabeler', return_value=data_labeler):
                     load_profile = dp.StructuredProfiler.load("mock.pkl")
+
+                # validate loaded profile has same data labeler class
+                self.assertIsInstance(
+                    load_profile.options.data_labeler.data_labeler_object,
+                    data_labeler.__class__)
+
+                # only checks first columns
+                # get first column
+                first_column_profile = list(load_profile.profile.values())[
+                    0]
+                self.assertIsInstance(
+                    first_column_profile.profiles['data_label_profile']
+                        ._profiles['data_labeler'].data_labeler,
+                    data_labeler.__class__)
 
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
@@ -1167,7 +1184,9 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             data = dp.Data(os.path.join(data_folder, test_file))
             save_profile = UnstructuredProfiler(data)
 
-            # address case where data is read in a way that has no empty lines
+            # If profile _empty_line_count = 0, it won't test if the variable is
+            # saved correctly since that is also the default value. Ensure
+            # not the default
             save_profile._empty_line_count = 1
 
             # store the expected data_labeler
@@ -1562,14 +1581,30 @@ class TestProfilerFactoryClass(unittest.TestCase):
             data = dp.Data(os.path.join(datapth, test_file))
             save_profile = dp.StructuredProfiler(data)
 
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
+
             # Save and Load profile with Mock IO
             with mock.patch('builtins.open') as m:
                 mock_file = setup_save_mock_open(m)
                 save_profile.save()
                 mock_file.seek(0)
                 with mock.patch('dataprofiler.profilers.profile_builder.'
-                                'DataLabeler'):
+                                'DataLabeler', return_value=data_labeler):
                     load_profile = dp.Profiler.load("mock.pkl")
+
+            # validate loaded profile has same data labeler class
+            self.assertIsInstance(
+                load_profile.options.data_labeler.data_labeler_object,
+                data_labeler.__class__)
+
+            # only checks first columns
+            # get first column
+            first_column_profile = list(load_profile.profile.values())[0]
+            self.assertIsInstance(
+                first_column_profile.profiles['data_label_profile']
+                    ._profiles['data_labeler'].data_labeler,
+                data_labeler.__class__)
 
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())

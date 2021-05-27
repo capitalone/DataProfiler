@@ -451,8 +451,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
                 # only checks first columns
                 # get first column
-                first_column_profile = list(load_profile.profile.values())[
-                    0]
+                first_column_profile = list(load_profile.profile.values())[0]
                 self.assertIsInstance(
                     first_column_profile.profiles['data_label_profile']
                         ._profiles['data_labeler'].data_labeler,

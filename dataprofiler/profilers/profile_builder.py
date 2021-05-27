@@ -1555,17 +1555,17 @@ class Profiler(object):
         :type profiler_type: str
         :return: BaseProfiler
         """
-
         if profiler_type is None:
+            # defaults as structured
+            profiler_type = "structured"
             # Unstructured if data is Data object and is_structured is False
             if isinstance(data, data_readers.base_data.BaseData):
                 if not data.is_structured:
                     profiler_type = "unstructured"
             elif isinstance(data, str):
                 profiler_type = "unstructured"
-            elif isinstance(data, (list, pd.DataFrame, pd.Series)):
-                profiler_type = "structured"
-            else:
+            # the below checks the viable structured formats, on failure raises
+            elif not isinstance(data, (list, pd.DataFrame, pd.Series)):
                 raise ValueError("Data must either be imported using the "
                                  "data_readers, pd.Series, or pd.DataFrame.")
 

@@ -15,7 +15,7 @@ from . import utils as test_utils
 
 import dataprofiler as dp
 from dataprofiler.profilers.profile_builder import StructuredColProfiler, \
-    UnstructuredProfiler, UnstructuredCompiler
+    UnstructuredProfiler, UnstructuredCompiler, StructuredProfiler, Profiler
 from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions, UnstructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
@@ -1442,6 +1442,88 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         # Weird pandas behavior makes this None since this column will be
         # recognized as object, not float64
         self.assertSetEqual({8}, profile._profile[1].null_types_index['None'])
+
+
+class TestProfilerFactoryClass(unittest.TestCase):
+
+    def test_profiler_factory_class_bad_input(self):
+        with self.assertRaisesRegex(ValueError, "Must specify 'profiler_type' "
+                                                "to be 'structured' or "
+                                                "'unstructured'."):
+            Profiler(pd.DataFrame([]), profiler_type="whoops")
+
+        with self.assertRaisesRegex(ValueError, "Data must either be imported "
+                                                "using the data_readers, "
+                                                "pd.Series, or pd.DataFrame."):
+            Profiler("whoops")
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredCompiler')
+    def test_profiler_factory_class_creates_correct_profiler(self, *mocks):
+        """
+        Ensure Profiler factory class either respects user input or makes
+        reasonable inference in the absence of user specificity.
+        """
+        # User specifies via profiler_type
+        empty_df = pd.DataFrame([])
+        empty_ser = pd.Series([])
+        self.assertIsInstance(Profiler(empty_df, profiler_type="structured"),
+                              StructuredProfiler)
+        self.assertIsInstance(Profiler(empty_df, profiler_type="unstructured"),
+                              UnstructuredProfiler)
+
+        # User gives data that has .is_structured == True
+        empty_csv_df = dp.Data(data=empty_df, data_type="csv")
+        self.assertIsInstance(Profiler(empty_csv_df), StructuredProfiler)
+
+        # User gives data that has .is_structured == False
+        empty_csv_rec = dp.Data(data=empty_df, data_type="csv",
+                                options={"data_format": "records"})
+        self.assertIsInstance(Profiler(empty_csv_rec), UnstructuredProfiler)
+
+        # User gives empty data w/o specifying profiler type
+        self.assertIsInstance(Profiler(empty_df), StructuredProfiler)
+        self.assertIsInstance(Profiler(empty_ser), StructuredProfiler)
+
+        # User gives 2D DF
+        df_2d = pd.DataFrame([[1, "two"], [3, "four"]])
+        self.assertIsInstance(Profiler(df_2d), StructuredProfiler)
+
+        # User gives 1 col int data
+        col_int_df = pd.DataFrame([1, 2, 3, 4])
+        col_int_ser = col_int_df[0]
+        self.assertIsInstance(Profiler(col_int_df), StructuredProfiler)
+        self.assertIsInstance(Profiler(col_int_ser), StructuredProfiler)
+
+        # User gives 1 col data with short, uniform strings
+        struct_str_df = pd.DataFrame(["Bob", "Bill", "Linda", "Brady", "Tom"])
+        struct_str_ser = struct_str_df[0]
+        self.assertIsInstance(Profiler(struct_str_df), StructuredProfiler)
+        self.assertIsInstance(Profiler(struct_str_ser), StructuredProfiler)
+
+        # User gives 1 col data with strings of varying lengths
+        unstruct_str_df = pd.DataFrame(["short",
+                                        "this one here is a tad bit longer",
+                                        "oh wow this one is really long, like, "
+                                        "who would give this much string data, "
+                                        "this can't possibly be structured.",
+                                        "haha its short again now",
+                                        "k bye"])
+        unstruct_str_ser = unstruct_str_df[0]
+        self.assertIsInstance(Profiler(unstruct_str_df), UnstructuredProfiler)
+        self.assertIsInstance(Profiler(unstruct_str_ser), UnstructuredProfiler)
+
+        # User gives mixed data types, but they are relatively uniform length
+        mixed_df = pd.DataFrame([1, "two", 3, "four"])
+        mixed_ser = mixed_df[0]
+        self.assertIsInstance(Profiler(mixed_df), StructuredProfiler)
+        self.assertIsInstance(Profiler(mixed_ser), StructuredProfiler)
 
 
 if __name__ == '__main__':

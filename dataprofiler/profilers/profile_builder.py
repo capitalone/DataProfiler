@@ -1497,23 +1497,73 @@ class StructuredProfiler(BaseProfiler):
         self._save_helper(filepath, data_dict)
 
 
-def Profiler(data, samples_per_update=None, min_true_samples=0, options=None):
-    """
-    Wrapper function for instantiating Structured and Unstructured Profilers
+class Profiler(object):
 
-    :param data: Data to be profiled
-    :type data: Data class object
-    :param samples_per_update: Number of samples to use in generating profile
-    :type samples_per_update: int
-    :param min_true_samples: Minimum number of samples required for the profiler
-    :type min_true_samples: int
-    :param options: Options for the profiler.
-    :type options: ProfilerOptions Object
-    :return: BaseProfiler
-    """
-    # Will want to add 'profiler_type' parameter similar to 'labeler_type'
-    # for specifying structured/unstructured profiler
+    def __new__(cls, data, samples_per_update=None, min_true_samples=0,
+                options=None, profiler_type=None):
+        """
+        Factory class for instantiating Structured and Unstructured Profilers
 
-    # TODO: Add support for creating unstructured profilers via this wrapper
-    return StructuredProfiler(data, samples_per_update, min_true_samples,
-                              options)
+        :param data: Data to be profiled
+        :type data: Data class object
+        :param samples_per_update: Number of samples to use to generate profile
+        :type samples_per_update: int
+        :param min_true_samples: Min number of samples required for the profiler
+        :type min_true_samples: int
+        :param options: Options for the profiler.
+        :type options: ProfilerOptions Object
+        :param profiler_type: Type of Profiler ("structured"/"unstructured")
+        :type profiler_type: str
+        :return: BaseProfiler
+        """
+
+        if profiler_type is None:
+            # Default to structured
+            profiler_type = "structured"
+
+            # Unstructured if data is Data object and is_structured is False
+            if isinstance(data, data_readers.base_data.BaseData):
+                if not data.is_structured:
+                    profiler_type = "unstructured"
+
+            # If type unspecified, and data is Pandas object, need to infer
+            elif isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+                # If empty, default to structured
+                if not len(data):
+                    warnings.warn("Empty data given to Profiler, will assume "
+                                  "data is structured, if this is not the "
+                                  "case please specify via 'profiler_type'"
+                                  "kwarg.")
+
+                # Data is structured unless it is 1 column of string data
+                # that is either very long or varied in length
+                elif isinstance(data, pd.Series) or len(data.columns) == 1:
+                    # Keep a series version of 1 col df for consistency
+                    data_ser = data if isinstance(data, pd.Series) else data[0]
+                    if data_ser.dtype == "object":
+                        sample = data_ser.sample(min(5, len(data_ser)))
+                        sample_lens = sample.astype(str).apply(len)
+                        len_mean = sample_lens.mean()
+                        len_range = sample_lens.max() - sample_lens.min()
+                        # If strings are very long or varied, use unstructured
+                        if len_mean > 20 or len_range > 15:
+                            profiler_type = "unstructured"
+
+                    warnings.warn(f"Singular column data given to Profiler, "
+                                  f"inferred to be {profiler_type}, if this is "
+                                  f"not the case please specify via "
+                                  f"'profiler_type' kwarg.")
+            else:
+                raise ValueError("Data must either be imported using the "
+                                 "data_readers, pd.Series, or pd.DataFrame.")
+
+        # Construct based off of initial kwarg input or inference
+        if profiler_type == "structured":
+            return StructuredProfiler(data, samples_per_update,
+                                      min_true_samples, options)
+        elif profiler_type == "unstructured":
+            return UnstructuredProfiler(data, samples_per_update,
+                                        min_true_samples, options)
+        else:
+            raise ValueError("Must specify 'profiler_type' to be 'structured' "
+                             "or 'unstructured'.")

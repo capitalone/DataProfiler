@@ -1291,8 +1291,8 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             self.assertDictEqual(save_report, load_report)
 
             # validate both are still usable after
-            save_profile.update_profile(pd.DataFrame(['test']))
-            load_profile.update_profile(pd.DataFrame(['test']))
+            save_profile.update_profile(pd.DataFrame(['test', 'test2']))
+            load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
     def test_options_ingested_correctly(self):
         self.assertIsInstance(self.profiler.options, UnstructuredOptions)
@@ -1688,8 +1688,8 @@ class TestProfilerFactoryClass(unittest.TestCase):
             self.assertDictEqual(save_report, load_report)
 
             # validate both are still usable after
-            save_profile.update_profile(pd.DataFrame(['test']))
-            load_profile.update_profile(pd.DataFrame(['test']))
+            save_profile.update_profile(pd.DataFrame(['test', 'test2']))
+            load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
 
 if __name__ == '__main__':

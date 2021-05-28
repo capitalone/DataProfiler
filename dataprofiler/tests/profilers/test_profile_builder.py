@@ -61,6 +61,47 @@ class TestStructuredProfiler(unittest.TestCase):
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
+    def test_bad_input_data(self, *mocks):
+        allowed_data_types = (r"\(<class 'list'>, " 
+                             r"<class 'pandas.core.series.Series'>, " 
+                             r"<class 'pandas.core.frame.DataFrame'>\)")
+        bad_data_types = [1, {}, np.inf, 'sdfs']
+        for data in bad_data_types:
+            with self.assertRaisesRegex(TypeError,
+                                        r"Data must either be imported using "
+                                        r"the data_readers or using one of the "
+                                        r"following: " + allowed_data_types):
+                StructuredProfiler(data)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
+    def test_list_data(self, *mocks):
+        data = [1, None, 3, 4, 5, None, 1]
+        profiler = dp.StructuredProfiler(data)
+
+        # test properties
+        self.assertEqual("<class 'list'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertEqual(2, profiler.row_has_null_count)
+        self.assertEqual(2, profiler.row_is_null_count)
+        self.assertEqual(7, profiler.total_samples)
+        self.assertEqual(5, len(profiler.hashed_row_dict))
+        self.assertListEqual([0], list(profiler._profile.keys()))
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
     def test_pandas_series_data(self, *mocks):
         data = pd.Series([1, None, 3, 4, 5, None, 1])
         profiler = dp.StructuredProfiler(data)
@@ -870,6 +911,19 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual("csv", profiler.file_type)
         self.assertEqual("utf-8", profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
+    def test_bad_input_data(self, *mocks):
+        allowed_data_types = (r"\(<class 'str'>, "
+                              r"<class 'list'>, "
+                              r"<class 'pandas.core.series.Series'>, "
+                              r"<class 'pandas.core.frame.DataFrame'>\)")
+        bad_data_types = [1, {}, np.inf]
+        for data in bad_data_types:
+            with self.assertRaisesRegex(TypeError,
+                                        r"Data must either be imported using "
+                                        r"the data_readers or using one of the "
+                                        r"following: " + allowed_data_types):
+                UnstructuredProfiler(data)
 
     def test_merge_profiles(self, *mocks):
         # can properties update correctly for data

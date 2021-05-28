@@ -449,8 +449,9 @@ class BaseProfiler(object):
 
     _default_labeler_type = None
     _option_class = None
+    _allowed_external_data_types = None
 
-    def __init__(self, data, samples_per_update=None, min_true_samples=None,
+    def __init__(self, data, samples_per_update=None, min_true_samples=0,
                  options=None):
         """
         Instantiate the BaseProfiler class
@@ -473,6 +474,9 @@ class BaseProfiler(object):
         elif self._option_class is None:
             raise ValueError('`_option_class` must be set when overriding '
                              '`BaseProfiler`.')
+        elif self._allowed_external_data_types is None:
+            raise ValueError('`_allowed_external_data_types` must be set when '
+                             'overriding `BaseProfiler`.')
 
         options.validate()
 
@@ -592,8 +596,8 @@ class BaseProfiler(object):
         """
         raise NotImplementedError()
 
-    @staticmethod
-    def _update_profile_from_chunk(data, sample_size, min_true_samples=None):
+    def _update_profile_from_chunk(self, data, sample_size,
+                                   min_true_samples=None):
         """
         Iterate over the dataset and identify its parameters via profiles.
 
@@ -630,12 +634,12 @@ class BaseProfiler(object):
             encoding = data.file_encoding
             file_type = data.data_type
             data = data.data
-        elif isinstance(data, (pd.Series, pd.DataFrame)):
+        elif isinstance(data, self._allowed_external_data_types):
             file_type = str(data.__class__)
         else:
-            raise ValueError(
-                "Data must either be imported using the data_readers, "
-                "pd.Series, or pd.DataFrame."
+            raise TypeError(
+                f"Data must either be imported using the data_readers or using "
+                f"one of the following: {self._allowed_external_data_types}"
             )
 
         if not len(data):
@@ -848,6 +852,7 @@ class UnstructuredProfiler(BaseProfiler):
 
     _default_labeler_type = 'unstructured'
     _option_class = UnstructuredOptions
+    _allowed_external_data_types = (str, list, pd.Series, pd.DataFrame)
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0,
                  options=None):
@@ -1062,9 +1067,10 @@ class UnstructuredProfiler(BaseProfiler):
                                  "the data format of the dataset is "
                                  "appropriate.")
             data = data[data.columns[0]]
-        elif isinstance(data, list):
+        elif isinstance(data, (str, list)):
             # we know that if it comes in as a list, it is a 1-d list based
             # bc of our data readers
+            # for strings, we just need to put it inside a series for compute.
             data = pd.Series(data)
 
         # Format the data
@@ -1115,6 +1121,7 @@ class StructuredProfiler(BaseProfiler):
 
     _default_labeler_type = 'structured'
     _option_class = StructuredOptions
+    _allowed_external_data_types = (list, pd.Series, pd.DataFrame)
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0, 
                  options=None):
@@ -1362,6 +1369,8 @@ class StructuredProfiler(BaseProfiler):
         """
         if isinstance(data, pd.Series):
             data = data.to_frame()
+        elif isinstance(data, list):
+            data = pd.DataFrame(data)
 
         if len(data.columns) != len(data.columns.unique()):
             raise ValueError('`StructuredProfiler` does not currently support '
@@ -1533,7 +1542,8 @@ class Profiler(object):
         """
         Factory class for instantiating Structured and Unstructured Profilers
 
-        :param data: Data to be profiled
+        :param data: Data to be profiled, type allowed depends on the
+            profiler_type
         :type data: Data class object
         :param samples_per_update: Number of samples to use to generate profile
         :type samples_per_update: int
@@ -1545,44 +1555,17 @@ class Profiler(object):
         :type profiler_type: str
         :return: BaseProfiler
         """
-
         if profiler_type is None:
-            # Default to structured
+            # defaults as structured
             profiler_type = "structured"
-
             # Unstructured if data is Data object and is_structured is False
             if isinstance(data, data_readers.base_data.BaseData):
                 if not data.is_structured:
                     profiler_type = "unstructured"
-
-            # If type unspecified, and data is Pandas object, need to infer
-            elif isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
-                # If empty, default to structured
-                if not len(data):
-                    warnings.warn("Empty data given to Profiler, will assume "
-                                  "data is structured, if this is not the "
-                                  "case please specify via 'profiler_type'"
-                                  "kwarg.")
-
-                # Data is structured unless it is 1 column of string data
-                # that is either very long or varied in length
-                elif isinstance(data, pd.Series) or len(data.columns) == 1:
-                    # Keep a series version of 1 col df for consistency
-                    data_ser = data if isinstance(data, pd.Series) else data[0]
-                    if data_ser.dtype == "object":
-                        sample = data_ser.sample(min(5, len(data_ser)))
-                        sample_lens = sample.astype(str).apply(len)
-                        len_mean = sample_lens.mean()
-                        len_range = sample_lens.max() - sample_lens.min()
-                        # If strings are very long or varied, use unstructured
-                        if len_mean > 20 or len_range > 15:
-                            profiler_type = "unstructured"
-
-                    warnings.warn(f"Singular column data given to Profiler, "
-                                  f"inferred to be {profiler_type}, if this is "
-                                  f"not the case please specify via "
-                                  f"'profiler_type' kwarg.")
-            else:
+            elif isinstance(data, str):
+                profiler_type = "unstructured"
+            # the below checks the viable structured formats, on failure raises
+            elif not isinstance(data, (list, pd.DataFrame, pd.Series)):
                 raise ValueError("Data must either be imported using the "
                                  "data_readers, pd.Series, or pd.DataFrame.")
 

@@ -1509,13 +1509,13 @@ class TestProfilerFactoryClass(unittest.TestCase):
                               UnstructuredProfiler)
 
         # User gives data that has .is_structured == True
-        empty_csv_df = dp.Data(data=data_df, data_type="csv")
-        self.assertIsInstance(Profiler(empty_csv_df), StructuredProfiler)
+        data_csv_df = dp.Data(data=data_df, data_type="csv")
+        self.assertIsInstance(Profiler(data_csv_df), StructuredProfiler)
 
         # User gives data that has .is_structured == False
-        empty_csv_rec = dp.Data(data=data_df, data_type="csv",
-                                options={"data_format": "records"})
-        self.assertIsInstance(Profiler(empty_csv_rec), UnstructuredProfiler)
+        data_csv_rec = dp.Data(data=data_df, data_type="csv",
+                               options={"data_format": "records"})
+        self.assertIsInstance(Profiler(data_csv_rec), UnstructuredProfiler)
 
         # user gives structured: list, pd.Series, pd.DataFrame
         data_series = pd.Series(['test'])

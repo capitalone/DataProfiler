@@ -925,6 +925,33 @@ class TestUnstructuredProfiler(unittest.TestCase):
                                         r"following: " + allowed_data_types):
                 UnstructuredProfiler(data)
 
+    def test_str_input_data(self, *mocks):
+        data = 'this is my\n\rtest'
+        profiler = UnstructuredProfiler(data)
+        self.assertEqual(1, profiler.total_samples)
+        self.assertEqual(0, profiler._empty_line_count)
+        self.assertEqual("<class 'str'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
+    def test_list_input_data(self, *mocks):
+        data = ['this', 'is my', '\n\r', 'test']
+        profiler = UnstructuredProfiler(data)
+        self.assertEqual(4, profiler.total_samples)
+        self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual("<class 'list'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
+    def test_dataframe_input_data(self, *mocks):
+        data = pd.DataFrame(['this', 'is my', '\n\r', 'test'])
+        profiler = UnstructuredProfiler(data)
+        self.assertEqual(4, profiler.total_samples)
+        self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual("<class 'pandas.core.frame.DataFrame'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
     def test_merge_profiles(self, *mocks):
         # can properties update correctly for data
         data1 = pd.Series(['this', 'is my', '\n\r', 'test'])

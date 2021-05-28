@@ -637,7 +637,7 @@ class BaseProfiler(object):
         elif isinstance(data, self._allowed_external_data_types):
             file_type = str(data.__class__)
         else:
-            raise ValueError(
+            raise TypeError(
                 f"Data must either be imported using the data_readers or using "
                 f"one of the following: {self._allowed_external_data_types}"
             )

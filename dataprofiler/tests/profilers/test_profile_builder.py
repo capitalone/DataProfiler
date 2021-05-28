@@ -431,6 +431,9 @@ class TestStructuredProfiler(unittest.TestCase):
             # Create Data and StructuredProfiler objects
             data = dp.Data(os.path.join(datapth, test_file))
             save_profile = dp.StructuredProfiler(data)
+
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
             
             # Save and Load profile with Mock IO
             with mock.patch('builtins.open') as m:
@@ -438,8 +441,21 @@ class TestStructuredProfiler(unittest.TestCase):
                 save_profile.save()
                 mock_file.seek(0)
                 with mock.patch('dataprofiler.profilers.profile_builder.'
-                                'DataLabeler'):
+                                'DataLabeler', return_value=data_labeler):
                     load_profile = dp.StructuredProfiler.load("mock.pkl")
+
+                # validate loaded profile has same data labeler class
+                self.assertIsInstance(
+                    load_profile.options.data_labeler.data_labeler_object,
+                    data_labeler.__class__)
+
+                # only checks first columns
+                # get first column
+                first_column_profile = list(load_profile.profile.values())[0]
+                self.assertIsInstance(
+                    first_column_profile.profiles['data_label_profile']
+                        ._profiles['data_labeler'].data_labeler,
+                    data_labeler.__class__)
 
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
@@ -1167,6 +1183,11 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             data = dp.Data(os.path.join(data_folder, test_file))
             save_profile = UnstructuredProfiler(data)
 
+            # If profile _empty_line_count = 0, it won't test if the variable is
+            # saved correctly since that is also the default value. Ensure
+            # not the default
+            save_profile._empty_line_count = 1
+
             # store the expected data_labeler
             data_labeler = save_profile.options.data_labeler.data_labeler_object
 
@@ -1536,6 +1557,115 @@ class TestProfilerFactoryClass(unittest.TestCase):
         dict_ser = dict_df[0]
         self.assertIsInstance(Profiler(dict_df), UnstructuredProfiler)
         self.assertIsInstance(Profiler(dict_ser), UnstructuredProfiler)
+
+    def test_save_and_load_structured(self):
+        datapth = "dataprofiler/tests/data/"
+        test_files = ["csv/guns.csv", "csv/iris.csv"]
+
+        def _clean_report(report):
+            data_stats = report["data_stats"]
+            for key in data_stats:
+                stats = data_stats[key]["statistics"]
+                if "histogram" in stats:
+                    if "bin_counts" in stats["histogram"]:
+                        stats["histogram"]["bin_counts"] = \
+                            stats["histogram"]["bin_counts"].tolist()
+                    if "bin_edges" in stats["histogram"]:
+                        stats["histogram"]["bin_edges"] = \
+                            stats["histogram"]["bin_edges"].tolist()
+            return report
+
+        for test_file in test_files:
+            # Create Data and StructuredProfiler objects
+            data = dp.Data(os.path.join(datapth, test_file))
+            save_profile = dp.StructuredProfiler(data)
+
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
+
+            # Save and Load profile with Mock IO
+            with mock.patch('builtins.open') as m:
+                mock_file = setup_save_mock_open(m)
+                save_profile.save()
+                mock_file.seek(0)
+                with mock.patch('dataprofiler.profilers.profile_builder.'
+                                'DataLabeler', return_value=data_labeler):
+                    load_profile = dp.Profiler.load("mock.pkl")
+
+            # validate loaded profile has same data labeler class
+            self.assertIsInstance(
+                load_profile.options.data_labeler.data_labeler_object,
+                data_labeler.__class__)
+
+            # only checks first columns
+            # get first column
+            first_column_profile = list(load_profile.profile.values())[0]
+            self.assertIsInstance(
+                first_column_profile.profiles['data_label_profile']
+                    ._profiles['data_labeler'].data_labeler,
+                data_labeler.__class__)
+
+            # Check that reports are equivalent
+            save_report = _clean_report(save_profile.report())
+            load_report = _clean_report(load_profile.report())
+            self.assertDictEqual(save_report, load_report)
+
+            # validate both are still usable after
+            save_profile.update_profile(data.data.iloc[:2])
+            load_profile.update_profile(data.data.iloc[:2])
+
+    def test_save_and_load_unstructured(self):
+        data_folder = "dataprofiler/tests/data/"
+        test_files = ["txt/code.txt", "txt/sentence-10x.txt"]
+
+        for test_file in test_files:
+            # Create Data and StructuredProfiler objects
+            data = dp.Data(os.path.join(data_folder, test_file))
+            save_profile = UnstructuredProfiler(data)
+
+            # If profile _empty_line_count = 0, it won't test if the variable is
+            # saved correctly since that is also the default value. Ensure
+            # not the default
+            save_profile._empty_line_count = 1
+
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
+
+            # Save and Load profile with Mock IO
+            with mock.patch('builtins.open') as m:
+                mock_file = setup_save_mock_open(m)
+                save_profile.save()
+
+                # make sure data_labeler unchanged
+                self.assertIs(
+                    data_labeler,
+                    save_profile.options.data_labeler.data_labeler_object)
+                self.assertIs(
+                    data_labeler,
+                    save_profile._profile._profiles[
+                        'data_labeler'].data_labeler)
+
+                mock_file.seek(0)
+                with mock.patch('dataprofiler.profilers.profile_builder.'
+                                'DataLabeler', return_value=data_labeler):
+                    load_profile = Profiler.load("mock.pkl")
+
+            # validate loaded profile has same data labeler class
+            self.assertIsInstance(
+                load_profile.options.data_labeler.data_labeler_object,
+                data_labeler.__class__)
+            self.assertIsInstance(
+                load_profile.profile._profiles['data_labeler'].data_labeler,
+                data_labeler.__class__)
+
+            # Check that reports are equivalent
+            save_report = save_profile.report()
+            load_report = load_profile.report()
+            self.assertDictEqual(save_report, load_report)
+
+            # validate both are still usable after
+            save_profile.update_profile(pd.DataFrame(['test']))
+            load_profile.update_profile(pd.DataFrame(['test']))
 
 
 if __name__ == '__main__':

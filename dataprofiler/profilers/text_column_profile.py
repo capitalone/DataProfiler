@@ -110,7 +110,6 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         data_flat = list(itertools.chain(*data))
         self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
 
-
     def _update_helper(self, df_series_clean, profile):
         """
         Method for updating the column profile properties with a cleaned

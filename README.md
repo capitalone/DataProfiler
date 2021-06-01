@@ -47,7 +47,7 @@ Install from pypi: `pip install DataProfiler`
 
 In the case of this library, a data profile is a dictionary containing statistics and predictions about the underlying dataset. There are "global statistics" or `global_stats`, which contain dataset level data and there are "column/row level statistics" or `data_stats` (each column is a new key-value entry). 
 
-The format for a profile is below:
+The format for a structured profile is below:
 
 ```
 "global_stats": {
@@ -112,6 +112,33 @@ The format for a profile is below:
 }
 ```
 
+The format for an unstructured profile is below:
+```
+{
+    "global_stats": {
+        "samples_used": int,
+        "empty_line_count": int,
+        "file_type": string,
+        "encoding": string
+    },
+    "data_stats": {
+        "data_label": {
+            "entity_counts": {
+                "word_level": dict(int),
+                "true_char_level": dict(int),
+                "postprocess_char_level": dict(int)
+            },
+            "times": dict(float)
+        },
+        "statistics": {
+            "vocab": list(char),
+            "words": list(string),
+            "word_count": dict(int),
+            "times": dict(float)
+        }
+    }
+}
+```
 # Support
 
 ### Supported Data Formats
@@ -121,6 +148,7 @@ The format for a profile is below:
 * Avro file
 * Parquet file
 * Pandas DataFrame
+* Text file
 
 ### Data Types
 
@@ -170,6 +198,7 @@ The Data Profiler can profile the following data/file types:
 * Avro file
 * Parquet file
 * Pandas DataFrame
+* Text file
 
 The profiler should automatically identify the file type and load the data into a `Data Class`.
 
@@ -197,7 +226,7 @@ specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-fil
 
 ### Profile a File 
 
-Example uses a CSV file for example, but CSV, JSON, Avro or Parquet should also work.
+Example uses a CSV file for example, but CSV, JSON, Avro, Parquet or Text should also work.
 
 ```python
 import json
@@ -283,6 +312,33 @@ print(json.dumps(report, indent=4))
 print(json.dumps(report["data stats"][0], indent=4))
 ```
 
+### Unstructured profiler
+In addition to structure profiler, DataProfiler provides unstructured profiling for the TextData object or string. Unstructured profile also works with list(string), pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of unstructured profile with a text file. 
+```python
+import dataprofiler as dp
+import json
+
+my_text = dp.Data('text_file.txt')
+profile = dp.Profiler(my_text)
+
+# print the report using json to prettify.
+report = profile.report(report_options={"output_format":"pretty"})
+print(json.dumps(report, indent=4))
+```
+
+Another example of unstructured profile with pd.Series of string is given as below
+```python
+import dataprofiler as dp
+import pandas as pd
+import json
+
+text_data = pd.Series(['first string', 'second string'])
+profile = dp.Profiler(text_data)
+
+# print the report using json to prettify.
+report = profile.report(report_options={"output_format":"pretty"})
+print(json.dumps(report, indent=4))
+```
 **Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**
 
 

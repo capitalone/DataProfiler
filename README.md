@@ -332,7 +332,7 @@ import dataprofiler as dp
 import pandas as pd
 import json
 
-text_data = pd.Series(['first string', 'second string'])
+text_data = pd.Series(['first string', 'second string'], profiler_type='unstructured')
 profile = dp.Profiler(text_data)
 
 # print the report using json to prettify.

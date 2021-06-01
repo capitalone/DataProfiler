@@ -448,8 +448,10 @@ class StructuredColProfiler(object):
 class BaseProfiler(object):
 
     _default_labeler_type = None
+    _option_class = None
+    _allowed_external_data_types = None
 
-    def __init__(self, data, samples_per_update=None, min_true_samples=None,
+    def __init__(self, data, samples_per_update=None, min_true_samples=0,
                  options=None):
         """
         Instantiate the BaseProfiler class
@@ -468,6 +470,12 @@ class BaseProfiler(object):
         """
         if self._default_labeler_type is None:
             raise ValueError('`_default_labeler_type` must be set when '
+                             'overriding `BaseProfiler`.')
+        elif self._option_class is None:
+            raise ValueError('`_option_class` must be set when overriding '
+                             '`BaseProfiler`.')
+        elif self._allowed_external_data_types is None:
+            raise ValueError('`_allowed_external_data_types` must be set when '
                              'overriding `BaseProfiler`.')
 
         options.validate()
@@ -502,6 +510,13 @@ class BaseProfiler(object):
                 utils.warn_on_profile('data_labeler', e)
                 self.options.set({'data_labeler.is_enabled': False})
 
+    def _add_error_checks(self, other):
+        """
+        Profiler type specific checks to ensure two profiles can be added
+        together.
+        """
+        raise NotImplementedError()
+
     def __add__(self, other):
         """
         Merges two profiles together overriding the `+` operator.
@@ -509,8 +524,30 @@ class BaseProfiler(object):
         :param other: profile being added to this one.
         :type other: BaseProfiler
         :return: merger of the two profiles
+        :rtype: BaseProfiler
         """
-        raise NotImplementedError()
+        if type(other) is not type(self):
+            raise TypeError('`{}` and `{}` are not of the same profiler type.'.
+                            format(type(self).__name__, type(other).__name__))
+
+        # error checks specific to its profiler
+        self._add_error_checks(other)
+
+        merged_profile = self.__class__(
+            data=None, samples_per_update=self._samples_per_update,
+            min_true_samples=self._min_true_samples, options=self.options
+        )
+        merged_profile.encoding = self.encoding
+        if self.encoding != other.encoding:
+            merged_profile.encoding = 'multiple files'
+
+        merged_profile.file_type = self.file_type
+        if self.file_type != other.file_type:
+            merged_profile.file_type = 'multiple files'
+
+        merged_profile.total_samples = self.total_samples + other.total_samples
+
+        return merged_profile
 
     def _get_sample_size(self, data):
         """
@@ -536,7 +573,7 @@ class BaseProfiler(object):
 
         :return: None
         """
-        raise NotImplementedError()
+        return self._profile
 
     def report(self, report_options=None):
         """
@@ -559,8 +596,8 @@ class BaseProfiler(object):
         """
         raise NotImplementedError()
 
-    @staticmethod
-    def _update_profile_from_chunk(df, profile=None, options=None, **kwargs):
+    def _update_profile_from_chunk(self, data, sample_size,
+                                   min_true_samples=None):
         """
         Iterate over the dataset and identify its parameters via profiles.
 
@@ -597,24 +634,18 @@ class BaseProfiler(object):
             encoding = data.file_encoding
             file_type = data.data_type
             data = data.data
-        elif isinstance(data, (pd.Series, pd.DataFrame)):
+        elif isinstance(data, self._allowed_external_data_types):
             file_type = str(data.__class__)
         else:
-            raise ValueError(
-                "Data must either be imported using the data_readers, "
-                "pd.Series, or pd.DataFrame."
+            raise TypeError(
+                f"Data must either be imported using the data_readers or using "
+                f"one of the following: {self._allowed_external_data_types}"
             )
 
         if not len(data):
             warnings.warn("The passed dataset was empty, hence no data was "
                           "profiled.")
             return
-
-        # set file properties since data will be processed
-        if encoding is not None:
-            self.encoding = encoding
-        if file_type is not None:
-            self.file_type = file_type
 
         # set sampling properties
         if not min_true_samples:
@@ -624,6 +655,12 @@ class BaseProfiler(object):
 
         self._update_profile_from_chunk(data, sample_size, min_true_samples)
 
+        # set file properties since data will be processed
+        if encoding is not None:
+            self.encoding = encoding
+        if file_type is not None:
+            self.file_type = file_type
+
     def _remove_data_labelers(self):
         """
         Helper method for removing all data labelers before saving to disk.
@@ -631,7 +668,44 @@ class BaseProfiler(object):
         :return: data_labeler used for unstructured labelling
         :rtype: DataLabeler
         """
-        raise NotImplementedError()
+        data_labeler = None
+        data_labeler_options = None
+
+        # determine if the data labeler is enabled
+        use_data_labeler = True
+        if self.options and isinstance(self.options, (StructuredOptions,
+                                                      UnstructuredOptions)):
+            data_labeler_options = self.options.data_labeler
+            use_data_labeler = data_labeler_options.is_enabled
+
+        # remove the data labeler from options
+        if use_data_labeler and data_labeler_options is not None \
+                and data_labeler_options.data_labeler_object is not None:
+            data_labeler = data_labeler_options.data_labeler_object
+            data_labeler_options.data_labeler_object = None
+
+        # get all profiles, unstructured is a single profile and hence needs to
+        # be in a list, whereas structured is a dict and needs to be a list
+        profilers = [self._profile]
+        if isinstance(self, StructuredProfiler):
+            profilers = self._profile.values()
+
+        # Remove data labelers for all columns
+        for profiler in profilers:
+
+            # profiles stored differently in Struct/Unstruct, this unifies
+            # labeler extraction
+            # unstructured: _profile is a compiler
+            # structured: StructuredColProfiler.profiles['data_label_profile']
+            if isinstance(self, StructuredProfiler):
+                profiler = profiler.profiles['data_label_profile']
+
+            if use_data_labeler and data_labeler is None:
+                data_labeler = profiler._profiles['data_labeler'].data_labeler
+
+            profiler._profiles['data_labeler'].data_labeler = None
+
+        return data_labeler
 
     def _restore_data_labelers(self, data_labeler=None):
         """
@@ -641,7 +715,82 @@ class BaseProfiler(object):
         :param data_labeler: unstructured data_labeler
         :type data_labeler: DataLabeler
         """
-        raise NotImplementedError()
+        # Restore data labeler for options
+        use_data_labeler = True
+        data_labeler_dirpath = None
+        if self.options and isinstance(self.options, (StructuredOptions,
+                                                      UnstructuredOptions)):
+            data_labeler_options = self.options.data_labeler
+            use_data_labeler = data_labeler_options.is_enabled
+            data_labeler_dirpath = data_labeler_options.data_labeler_dirpath
+
+        if use_data_labeler:
+            try:
+                if data_labeler is None:
+                    data_labeler = DataLabeler(
+                        labeler_type=self._default_labeler_type,
+                        dirpath=data_labeler_dirpath,
+                        load_options=None)
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
+                self.options.set(
+                    {'data_labeler.data_labeler_object': data_labeler})
+
+            except Exception as e:
+                utils.warn_on_profile('data_labeler', e)
+                self.options.set({'data_labeler.is_enabled': False})
+
+        # get all profiles, unstructured is a single profile and hence needs to
+        # be in a list, whereas structured is a dict and needs to be a list
+        profilers = [self._profile]
+        if isinstance(self, StructuredProfiler):
+            profilers = self._profile.values()
+
+        # Restore data labelers for all columns
+        for profiler in profilers:
+
+            # profiles stored differently in Struct/Unstruct, this unifies
+            # label replacement
+            # unstructured: _profile is a compiler
+            # structured: StructuredColProfiler.profiles['data_label_profile']
+            if isinstance(self, StructuredProfiler):
+                profiler = profiler.profiles['data_label_profile']
+
+            if use_data_labeler:
+                data_labeler_profile = profiler._profiles['data_labeler']
+                data_labeler_profile.data_labeler = data_labeler
+
+    def _save_helper(self, filepath, data_dict):
+        """
+        Save profiler to disk
+
+        :param filepath: Path of file to save to
+        :type filepath: String
+        :param data_dict: profile data to be saved
+        :type data_dict: dict
+        :return: None
+        """
+        # Set Default filepath
+        if filepath is None:
+            filepath = "profile-{}.pkl".format(
+                datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f"))
+
+        # Remove data labelers as they can't be pickled
+        data_labelers = self._remove_data_labelers()
+
+        # add profiler class to data_dict
+        data_dict['profiler_class'] = self.__class__.__name__
+
+        # Pickle and save profile to disk
+        with open(filepath, "wb") as outfile:
+            pickle.dump(data_dict, outfile)
+
+        # Restore all data labelers
+        self._restore_data_labelers(data_labelers)
 
     def save(self, filepath=None):
         """
@@ -653,21 +802,57 @@ class BaseProfiler(object):
         """
         raise NotImplementedError()
 
-    @staticmethod
-    def load(filepath):
+    @classmethod
+    def load(cls, filepath):
         """
         Load profiler from disk
 
         :param filepath: Path of file to load from
         :type filepath: String
-        :return: None
+        :return: Profiler being loaded, StructuredProfiler or
+            UnstructuredProfiler
+        :rtype: BaseProfiler
         """
-        raise NotImplementedError()
+        # Load profile from disk
+        with open(filepath, "rb") as infile:
+            data = pickle.load(infile)
+
+        # remove profiler class if it exists
+        profiler_class = data.pop('profiler_class', None)
+
+        # if the user didn't load from the a given profiler class, we need
+        # to determine which profiler is being loaded.
+        profiler_cls = cls
+        if cls is BaseProfiler:
+            if profiler_class == 'StructuredProfiler':
+                profiler_cls = StructuredProfiler
+            elif profiler_class == 'UnstructuredProfiler':
+                profiler_cls = UnstructuredProfiler
+            elif profiler_class is None:  # deprecated case
+                profiler_cls = StructuredProfiler
+                if '_empty_line_count' in data:
+                    profiler_cls = UnstructuredProfiler
+            else:
+                raise ValueError(f'Invalid profiler class {profiler_class} '
+                                 f'failed to load.')
+
+        profile_options = profiler_cls._option_class()
+        profile_options.data_labeler.is_enabled = False
+        profiler = profiler_cls(None, options=profile_options)
+
+        for key in data:
+            setattr(profiler, key, data[key])
+
+        # Restore all data labelers
+        profiler._restore_data_labelers()
+        return profiler
 
 
 class UnstructuredProfiler(BaseProfiler):
 
     _default_labeler_type = 'unstructured'
+    _option_class = UnstructuredOptions
+    _allowed_external_data_types = (str, list, pd.Series, pd.DataFrame)
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0,
                  options=None):
@@ -702,34 +887,34 @@ class UnstructuredProfiler(BaseProfiler):
         if data is not None:
             self.update_profile(data)
 
+    def _add_error_checks(self, other):
+        """
+        UnstructuredProfiler specific checks to ensure two profiles can be added
+        together.
+        """
+        pass
+
     def __add__(self, other):
         """
-        Merges two profiles together overriding the `+` operator.
+        Merges two Unstructured profiles together overriding the `+` operator.
 
         :param other: unstructured profile being added to this one.
         :type other: UnstructuredProfiler
         :return: merger of the two profiles
+        :rtype: UnstructuredProfiler
         """
-        if type(other) is not type(self):
-            raise TypeError('`{}` and `{}` are not of the same profiler type.'.
-                            format(type(self).__name__, type(other).__name__))
+        merged_profile = super().__add__(other)
 
-        merged_profile = UnstructuredProfiler(
-            data=None, samples_per_update=self._samples_per_update,
-            min_true_samples=self._min_true_samples, options=self.options
-        )
-        merged_profile.encoding = self.encoding \
-            if self.encoding == other.encoding else 'multiple files'
-        merged_profile.file_type = self.file_type \
-            if self.file_type == other.file_type else 'multiple files'
+        # unstruct specific property merging
         merged_profile._empty_line_count = (
-            self._empty_line_count + other._empty_line_count)
-        merged_profile.total_samples = self.total_samples + other.total_samples
-
+                self._empty_line_count + other._empty_line_count)
         samples = list(dict.fromkeys(self.sample + other.sample))
         merged_profile.sample = random.sample(list(samples),
                                               min(len(samples), 5))
+
+        # merge profiles
         merged_profile._profile = self._profile + other._profile
+
         return merged_profile
 
     def _update_base_stats(self, base_stats):
@@ -744,16 +929,6 @@ class UnstructuredProfiler(BaseProfiler):
         self.total_samples += base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self._empty_line_count += base_stats["empty_line_count"]
-
-    @property
-    def profile(self):
-        """
-        Returns the UnstructuredCompiler which compiles the low level
-        inspectors.
-
-        :return: None
-        """
-        return self._profile
 
     def report(self, report_options=None):
         """
@@ -892,9 +1067,10 @@ class UnstructuredProfiler(BaseProfiler):
                                  "the data format of the dataset is "
                                  "appropriate.")
             data = data[data.columns[0]]
-        elif isinstance(data, list):
+        elif isinstance(data, (str, list)):
             # we know that if it comes in as a list, it is a 1-d list based
             # bc of our data readers
+            # for strings, we just need to put it inside a series for compute.
             data = pd.Series(data)
 
         # Format the data
@@ -919,76 +1095,6 @@ class UnstructuredProfiler(BaseProfiler):
         else:
             self._profile.update_profile(data, pool=pool)
 
-    def _remove_data_labelers(self):
-        """
-        Helper method for removing all data labelers before saving to disk.
-
-        :return: data_labeler used for unstructured labelling
-        :rtype: DataLabeler
-        """
-        data_labeler = None
-        data_labeler_options = None
-
-        # determine if the data labeler is enabled
-        use_data_labeler = True
-        if self.options and isinstance(self.options, UnstructuredOptions):
-            data_labeler_options = self.options.data_labeler
-            use_data_labeler = data_labeler_options.is_enabled
-
-        # remove the data labeler from options
-        if use_data_labeler and data_labeler_options is not None \
-                and data_labeler_options.data_labeler_object is not None:
-            data_labeler = data_labeler_options.data_labeler_object
-            data_labeler_options.data_labeler_object = None
-
-        # remove the data labeler from the unstructured profiler
-        if use_data_labeler:
-            if data_labeler is None:
-                data_labeler = \
-                    self._profile._profiles['data_labeler'].data_labeler
-            self._profile._profiles['data_labeler'].data_labeler = None
-
-        return data_labeler
-
-    def _restore_data_labelers(self, data_labeler=None):
-        """
-        Helper method for restoring all data labelers after saving to or
-        loading from disk.
-
-        :param data_labeler: unstructured data_labeler
-        :type data_labeler: DataLabeler
-        """
-        # Restore data labeler for options
-        use_data_labeler = True
-        data_labeler_options = None
-        if self.options and isinstance(self.options, UnstructuredOptions):
-            data_labeler_options = self.options.data_labeler
-            use_data_labeler = data_labeler_options.is_enabled
-
-        if use_data_labeler:
-            try:
-                if data_labeler is None and data_labeler_options is None:
-                    data_labeler = DataLabeler(
-                        labeler_type='unstructured',
-                        dirpath=None,
-                        load_options=None)
-                elif data_labeler is None:
-                    data_labeler = DataLabeler(
-                        labeler_type='unstructured',
-                        dirpath=data_labeler_options.data_labeler_dirpath,
-                        load_options=None)
-                self.options.set(
-                    {'data_labeler.data_labeler_object': data_labeler})
-
-            except Exception as e:
-                utils.warn_on_profile('data_labeler', e)
-                self.options.set({'data_labeler.is_enabled': False})
-
-        # Restore data labelers for unstructured data labeling
-        if use_data_labeler:
-            data_labeler_profile = self._profile._profiles['data_labeler']
-            data_labeler_profile.data_labeler = data_labeler
-
     def save(self, filepath=None):
         """
         Save profiler to disk
@@ -997,67 +1103,25 @@ class UnstructuredProfiler(BaseProfiler):
         :type filepath: String
         :return: None
         """
-        # Set Default filepath
-        if filepath is None:
-            filepath = "profile-{}.pkl".format(
-                datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f"))
-
-        # Remove the data labeler as they can't be pickled
-        data_labeler = self._remove_data_labelers()
-
         # Create dictionary for all metadata, options, and profile
-        data = {
+        data_dict = {
             "total_samples": self.total_samples,
             "encoding": self.encoding,
             "file_type": self.file_type,
             "_samples_per_update": self._samples_per_update,
             "_min_true_samples": self._min_true_samples,
+            "_empty_line_count": self._empty_line_count,
             "options": self.options,
             "_profile": self.profile
         }
-
-        # Pickle and save profile to disk
-        with open(filepath, "wb") as outfile:
-            pickle.dump(data, outfile)
-
-        # Restore all data labelers
-        self._restore_data_labelers(data_labeler)
-
-    @classmethod
-    def load(cls, filepath):
-        """
-        Load profiler from disk
-
-        :param filepath: Path of file to load from
-        :type filepath: String
-        :return: None
-        """
-        # Create Empty Profile
-        profile_options = UnstructuredOptions()
-        profile_options.data_labeler.is_enabled = False
-        profile = cls(pd.DataFrame([]), options=profile_options)
-
-        # Load profile from disk
-        with open(filepath, "rb") as infile:
-            data = pickle.load(infile)
-
-            profile.total_samples = data["total_samples"]
-            profile.encoding = data["encoding"]
-            profile.file_type = data["file_type"]
-            profile._samples_per_update = data["_samples_per_update"]
-            profile._min_true_samples = data["_min_true_samples"]
-            profile._profile = data["_profile"]
-            profile.options = data["options"]
-
-        # Restore all data labelers
-        profile._restore_data_labelers()
-
-        return profile
+        self._save_helper(filepath, data_dict)
 
 
 class StructuredProfiler(BaseProfiler):
 
     _default_labeler_type = 'structured'
+    _option_class = StructuredOptions
+    _allowed_external_data_types = (list, pd.Series, pd.DataFrame)
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0, 
                  options=None):
@@ -1099,18 +1163,12 @@ class StructuredProfiler(BaseProfiler):
         if data is not None:
             self.update_profile(data)
 
-    def __add__(self, other):
+    def _add_error_checks(self, other):
         """
-        Merges two profiles together overriding the `+` operator.
-
-        :param other: profile being added to this one.
-        :type other: Profiler
-        :return: merger of the two profiles
+        StructuredProfiler specific checks to ensure two profiles can be added
+        together.
         """
-        if type(other) is not type(self):
-            raise TypeError('`{}` and `{}` are not of the same profiler type.'.
-                            format(type(self).__name__, type(other).__name__))
-        elif set(self._profile) != set(other._profile):
+        if set(self._profile) != set(other._profile):
             raise ValueError('Profiles do not have the same schema.')
         elif not all([isinstance(other._profile[p_name],
                                  type(self._profile[p_name]))
@@ -1118,31 +1176,32 @@ class StructuredProfiler(BaseProfiler):
             raise ValueError('The two profilers were not setup with the same '
                              'options, hence they do not calculate the same '
                              'profiles and cannot be added together.')
-        merged_profile = StructuredProfiler(
-            data=pd.DataFrame([]), samples_per_update=self._samples_per_update,
-            min_true_samples=self._min_true_samples, options=self.options
-        )
-        merged_profile.encoding = self.encoding \
-            if self.encoding == other.encoding else 'multiple files'
-        merged_profile.file_type = self.file_type \
-            if self.file_type == other.file_type else 'multiple files'
+
+    def __add__(self, other):
+        """
+        Merges two Structured profiles together overriding the `+` operator.
+
+        :param other: profile being added to this one.
+        :type other: StructuredProfiler
+        :return: merger of the two profiles
+        :rtype: StructuredProfiler
+        """
+        merged_profile = super().__add__(other)
+
+        # struct specific property merging
         merged_profile.row_has_null_count = \
             self.row_has_null_count + other.row_has_null_count
         merged_profile.row_is_null_count = \
             self.row_is_null_count + other.row_is_null_count
-        merged_profile.total_samples = self.total_samples + other.total_samples
         merged_profile.hashed_row_dict.update(self.hashed_row_dict)
         merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
+        # merge profiles
         for profile_name in self._profile:
             merged_profile._profile[profile_name] = (
                 self._profile[profile_name] + other._profile[profile_name]
             )
         return merged_profile
-
-    @property
-    def profile(self):
-        return self._profile
 
     @property
     def _max_col_samples_used(self):
@@ -1242,9 +1301,14 @@ class StructuredProfiler(BaseProfiler):
                              "not a DataFrame")
         
         self.total_samples += len(data)
-        self.hashed_row_dict.update(dict.fromkeys(
-            pd.util.hash_pandas_object(data, index=False), True
-        ))
+        try:
+            self.hashed_row_dict.update(dict.fromkeys(
+                pd.util.hash_pandas_object(data, index=False), True
+            ))
+        except TypeError:
+            self.hashed_row_dict.update(dict.fromkeys(
+                pd.util.hash_pandas_object(data.astype(str), index=False), True
+            ))
 
         # Calculate Null Column Count
         null_rows = set()
@@ -1289,13 +1353,13 @@ class StructuredProfiler(BaseProfiler):
             self.row_has_null_count = len(null_in_row_count)
             self.row_is_null_count = len(null_rows)
 
-    def _update_profile_from_chunk(self, df, sample_size=None,
+    def _update_profile_from_chunk(self, data, sample_size,
                                    min_true_samples=None):
         """
         Iterate over the columns of a dataset and identify its parameters.
         
-        :param df: a dataset
-        :type df: pandas.DataFrame
+        :param data: a dataset
+        :type data: pandas.DataFrame
         :param sample_size: number of samples for df to use for profiling
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
@@ -1303,10 +1367,12 @@ class StructuredProfiler(BaseProfiler):
         :return: list of column profile base subclasses
         :rtype: list(BaseColumnProfiler)
         """
-        if isinstance(df, pd.Series):
-            df = df.to_frame()
+        if isinstance(data, pd.Series):
+            data = data.to_frame()
+        elif isinstance(data, list):
+            data = pd.DataFrame(data)
 
-        if len(df.columns) != len(df.columns.unique()):
+        if len(data.columns) != len(data.columns.unique()):
             raise ValueError('`StructuredProfiler` does not currently support '
                              'data which contains columns with duplicate '
                              'names.')
@@ -1320,13 +1386,11 @@ class StructuredProfiler(BaseProfiler):
                     yield e
 
         # Shuffle indices once and share with columns
-        sample_ids = [*utils.shuffle_in_chunks(len(df), len(df))]
+        sample_ids = [*utils.shuffle_in_chunks(len(data), len(data))]
         
         # If there are no minimum true samples, you can sort to save time
         if min_true_samples in [None, 0]:
-            # If there's a sample size, truncate
-            if sample_size is not None:
-                sample_ids[0] = sample_ids[0][:sample_size]
+            sample_ids[0] = sample_ids[0][:sample_size]
             # Sort the sample_ids and replace prior
             sample_ids[0] = sorted(sample_ids[0])
 
@@ -1338,7 +1402,7 @@ class StructuredProfiler(BaseProfiler):
 
         # Create structured profile objects
         new_cols = set()
-        for col in df.columns:
+        for col in data.columns:
             if col not in self._profile:
                 self._profile[col] = StructuredColProfiler(
                     sample_size=sample_size,
@@ -1351,10 +1415,11 @@ class StructuredProfiler(BaseProfiler):
         # Generate pool and estimate datasize
         pool = None
         if self.options.multiprocess.is_enabled:
-            est_data_size = df[:50000].memory_usage(index=False, deep=True).sum()
-            est_data_size = (est_data_size / min(50000, len(df))) * len(df)
+            est_data_size = data[:50000].memory_usage(index=False, deep=True).sum()
+            est_data_size = (est_data_size / min(50000, len(data))) * len(data)
             pool, pool_size = utils.generate_pool(
-                max_pool_size=None, data_size=est_data_size, cols=len(df.columns))
+                max_pool_size=None, data_size=est_data_size,
+                cols=len(data.columns))
 
         # Format the data
         notification_str = "Finding the Null values in the columns..."        
@@ -1364,21 +1429,21 @@ class StructuredProfiler(BaseProfiler):
         clean_sampled_dict = {}
         multi_process_dict = {}
         single_process_list = set()
-        if not sample_size: sample_size = len(df)
-        if sample_size < len(df):
+        
+        if sample_size < len(data):
             warnings.warn("The data will be profiled with a sample size of {}. "
                           "All statistics will be based on this subsample and "
                           "not the whole dataset.".format(sample_size))
 
         if pool is not None:
             # Create a bunch of simultaneous column conversions
-            for col in df.columns:
+            for col in data.columns:
                 if min_true_samples is None:
                     min_true_samples = self._profile[col]._min_true_samples
                 try:
                     multi_process_dict[col] = pool.apply_async(
                         self._profile[col].clean_data_and_get_base_stats,
-                        (df[col], sample_size, min_true_samples, sample_ids))
+                        (data[col], sample_size, min_true_samples, sample_ids))
                 except Exception as e:
                     print(e)
                     single_process_list.add(col)
@@ -1403,7 +1468,7 @@ class StructuredProfiler(BaseProfiler):
                         min_true_samples = self._profile[col]._min_true_samples
                     clean_sampled_dict[col], base_stats = \
                         self._profile[col].clean_data_and_get_base_stats(
-                            df[col], sample_size, min_true_samples, sample_ids)
+                            data[col], sample_size, min_true_samples, sample_ids)
                     self._profile[col]._update_base_stats(base_stats)
             
             pool.close()  # Close pool for new tasks
@@ -1411,12 +1476,12 @@ class StructuredProfiler(BaseProfiler):
 
         else:  # No pool
             print(notification_str)
-            for col in tqdm(df.columns):
+            for col in tqdm(data.columns):
                 if min_true_samples is None:
                     min_true_samples = self._profile[col]._min_true_samples
                 clean_sampled_dict[col], base_stats = \
                     self._profile[col].clean_data_and_get_base_stats(
-                        df_series=df[col], sample_size=sample_size,
+                        df_series=data[col], sample_size=sample_size,
                         min_true_samples=min_true_samples, sample_ids=sample_ids
                     )
                 self._profile[col]._update_base_stats(base_stats)
@@ -1430,7 +1495,7 @@ class StructuredProfiler(BaseProfiler):
                 notification_str += " (with " + str(pool_size) + " processes)"
         print(notification_str)
         
-        for col in tqdm(df.columns):
+        for col in tqdm(data.columns):
             self._profile[col].update_column_profilers(
                 clean_sampled_dict[col], pool)
 
@@ -1443,98 +1508,7 @@ class StructuredProfiler(BaseProfiler):
         if min_true_samples not in [None, 0]:
             samples_for_row_stats = np.concatenate(sample_ids)
 
-        self._update_row_statistics(df, samples_for_row_stats)
-
-    def _remove_data_labelers(self):
-        """
-        Helper method for removing all data labelers before saving to disk.
-
-        :return: dictionary of removed data labeler objects
-        :rtype: dict (string -> data labeler object)
-        """
-        data_labelers = {}
-
-        # Remove data labeler from options
-        data_labeler_options = self.options.data_labeler
-        if data_labeler_options.is_enabled \
-                and data_labeler_options.data_labeler_object is not None:
-            data_labelers["data_labeler"] = \
-                data_labeler_options.data_labeler_object
-            data_labeler_options.data_labeler_object = None
-
-        # Remove data labelers for all columns
-        for key in self._profile:
-
-            val = self._profile[key]
-            use_data_labeler = True
-            if val.options and isinstance(val.options, StructuredOptions):
-                use_data_labeler = val.options.data_labeler.is_enabled
-
-            if use_data_labeler:
-                data_labelers[key] = val.profiles['data_label_profile'] \
-                                        ._profiles['data_labeler'].data_labeler
-                val.profiles['data_label_profile']._profiles['data_labeler'] \
-                   .data_labeler = None
-
-        return data_labelers
-
-    def _restore_data_labelers(self, data_labelers={}):
-        """
-        Helper method for restoring all data labelers after saving to or 
-        loading from disk.
-
-        :param data_labelers: data_labelers to restore
-        :type data_labelers: dict (string -> data labeler object)
-        """
-        # Restore structured data labeler in options
-        data_labeler_options = self.options.data_labeler
-        if data_labeler_options.is_enabled \
-                and data_labeler_options.data_labeler_object is None:
-            try:
-                if "data_labeler" in data_labelers:
-                    data_labeler = data_labelers["data_labeler"]
-                else:
-                    data_labeler = DataLabeler(
-                        labeler_type='structured',
-                        dirpath=data_labeler_options.data_labeler_dirpath,
-                        load_options=None)
-                self.options.set(
-                    {'data_labeler.data_labeler_object': data_labeler})
-                
-            except Exception as e:
-                utils.warn_on_profile('data_labeler', e)
-                self.options.set({'data_labeler.is_enabled': False})
-                
-        # Restore data labelers for all columns
-        for key in self._profile:
-
-            val = self._profile[key]
-            use_data_labeler = True
-            if val.options and isinstance(val.options, StructuredOptions):
-                use_data_labeler = val.options.data_labeler.is_enabled
-
-            if use_data_labeler:
-                data_labeler_profile = val.profiles['data_label_profile'] \
-                                          ._profiles['data_labeler']
-                data_labeler_profile.data_labeler = None
-                
-                if val.options and val.options.data_labeler.data_labeler_object:
-                    data_labeler_profile.data_labeler = val.options \
-                                                           .data_labeler \
-                                                           .data_labeler_object
-
-                if data_labeler_profile.data_labeler is None:
-                    data_labeler_dirpath = None
-                    if val.options:
-                        data_labeler_dirpath = val.options.data_labeler \
-                                                  .data_labeler_dirpath
-                    if key in data_labelers:
-                        data_labeler_profile.data_labeler = data_labelers[key]
-                    else:
-                        data_labeler_profile.data_labeler = DataLabeler(
-                            labeler_type='structured',
-                            dirpath=data_labeler_dirpath,
-                            load_options=None)
+        self._update_row_statistics(data, samples_for_row_stats)
 
     def save(self, filepath=None):
         """
@@ -1544,16 +1518,8 @@ class StructuredProfiler(BaseProfiler):
         :type filepath: String
         :return: None
         """
-        # Set Default filepath
-        if filepath is None:
-            filepath = "profile-{}.pkl".format(
-                        datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f"))
-
-        # Remove data labelers as they can't be pickled
-        data_labelers = self._remove_data_labelers()
-
         # Create dictionary for all metadata, options, and profile 
-        data = { 
+        data_dict = {
                 "total_samples": self.total_samples,
                 "encoding": self.encoding,
                 "file_type": self.file_type,
@@ -1566,65 +1532,63 @@ class StructuredProfiler(BaseProfiler):
                 "_profile": self.profile
                } 
 
-        # Pickle and save profile to disk
-        with open(filepath, "wb") as outfile:
-            pickle.dump(data, outfile)
+        self._save_helper(filepath, data_dict)
 
-        # Restore all data labelers
-        self._restore_data_labelers(data_labelers)
 
-    @staticmethod
-    def load(filepath):
+class Profiler(object):
+
+    def __new__(cls, data, samples_per_update=None, min_true_samples=0,
+                options=None, profiler_type=None):
+        """
+        Factory class for instantiating Structured and Unstructured Profilers
+
+        :param data: Data to be profiled, type allowed depends on the
+            profiler_type
+        :type data: Data class object
+        :param samples_per_update: Number of samples to use to generate profile
+        :type samples_per_update: int
+        :param min_true_samples: Min number of samples required for the profiler
+        :type min_true_samples: int
+        :param options: Options for the profiler.
+        :type options: ProfilerOptions Object
+        :param profiler_type: Type of Profiler ("structured"/"unstructured")
+        :type profiler_type: str
+        :return: BaseProfiler
+        """
+        if profiler_type is None:
+            # defaults as structured
+            profiler_type = "structured"
+            # Unstructured if data is Data object and is_structured is False
+            if isinstance(data, data_readers.base_data.BaseData):
+                if not data.is_structured:
+                    profiler_type = "unstructured"
+            elif isinstance(data, str):
+                profiler_type = "unstructured"
+            # the below checks the viable structured formats, on failure raises
+            elif not isinstance(data, (list, pd.DataFrame, pd.Series)):
+                raise ValueError("Data must either be imported using the "
+                                 "data_readers, pd.Series, or pd.DataFrame.")
+
+        # Construct based off of initial kwarg input or inference
+        if profiler_type == "structured":
+            return StructuredProfiler(data, samples_per_update,
+                                      min_true_samples, options)
+        elif profiler_type == "unstructured":
+            return UnstructuredProfiler(data, samples_per_update,
+                                        min_true_samples, options)
+        else:
+            raise ValueError("Must specify 'profiler_type' to be 'structured' "
+                             "or 'unstructured'.")
+
+    @classmethod
+    def load(cls, filepath):
         """
         Load profiler from disk
-        
+
         :param filepath: Path of file to load from
         :type filepath: String
-        :return: None
+        :return: Profiler being loaded, StructuredProfiler or
+            UnstructuredProfiler
+        :rtype: BaseProfiler
         """
-        # Create Empty Profile
-        profile_options = StructuredOptions()
-        profile_options.data_labeler.is_enabled = False
-        profile = StructuredProfiler(pd.DataFrame([]), options=profile_options)
-
-        # Load profile from disk
-        with open(filepath, "rb") as infile:
-            data = pickle.load(infile)
-
-            profile.total_samples = data["total_samples"]
-            profile.encoding = data["encoding"]
-            profile.file_type = data["file_type"]
-            profile.row_has_null_count = data["row_has_null_count"]
-            profile.row_is_null_count = data["row_is_null_count"]
-            profile.hashed_row_dict = data["hashed_row_dict"]
-            profile._samples_per_update = data["_samples_per_update"]
-            profile._min_true_samples = data["_min_true_samples"]
-            profile._profile = data["_profile"]
-            profile.options = data["options"]
-
-        # Restore all data labelers
-        profile._restore_data_labelers()
-
-        return profile
-
-
-def Profiler(data, samples_per_update=None, min_true_samples=0, options=None):
-    """
-    Wrapper function for instantiating Structured and Unstructured Profilers
-
-    :param data: Data to be profiled
-    :type data: Data class object
-    :param samples_per_update: Number of samples to use in generating profile
-    :type samples_per_update: int
-    :param min_true_samples: Minimum number of samples required for the profiler
-    :type min_true_samples: int
-    :param options: Options for the profiler.
-    :type options: ProfilerOptions Object
-    :return: BaseProfiler
-    """
-    # Will want to add 'profiler_type' parameter similar to 'labeler_type'
-    # for specifying structured/unstructured profiler
-
-    # TODO: Add support for creating unstructured profilers via this wrapper
-    return StructuredProfiler(data, samples_per_update, min_true_samples,
-                              options)
+        return BaseProfiler.load(filepath)

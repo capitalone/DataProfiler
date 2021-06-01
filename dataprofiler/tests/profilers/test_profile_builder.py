@@ -15,7 +15,7 @@ from . import utils as test_utils
 
 import dataprofiler as dp
 from dataprofiler.profilers.profile_builder import StructuredColProfiler, \
-    UnstructuredProfiler, UnstructuredCompiler
+    UnstructuredProfiler, UnstructuredCompiler, StructuredProfiler, Profiler
 from dataprofiler.profilers.profiler_options import ProfilerOptions, \
     StructuredOptions, UnstructuredOptions
 from dataprofiler.profilers.column_profile_compilers import \
@@ -52,6 +52,47 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler_options.set({'data_labeler.is_enabled': False})
         cls.trained_schema = dp.StructuredProfiler(cls.aws_dataset, len(cls.aws_dataset),
                                                    options=profiler_options)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
+    def test_bad_input_data(self, *mocks):
+        allowed_data_types = (r"\(<class 'list'>, " 
+                             r"<class 'pandas.core.series.Series'>, " 
+                             r"<class 'pandas.core.frame.DataFrame'>\)")
+        bad_data_types = [1, {}, np.inf, 'sdfs']
+        for data in bad_data_types:
+            with self.assertRaisesRegex(TypeError,
+                                        r"Data must either be imported using "
+                                        r"the data_readers or using one of the "
+                                        r"following: " + allowed_data_types):
+                StructuredProfiler(data)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
+    def test_list_data(self, *mocks):
+        data = [1, None, 3, 4, 5, None, 1]
+        profiler = dp.StructuredProfiler(data)
+
+        # test properties
+        self.assertEqual("<class 'list'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertEqual(2, profiler.row_has_null_count)
+        self.assertEqual(2, profiler.row_is_null_count)
+        self.assertEqual(7, profiler.total_samples)
+        self.assertEqual(5, len(profiler.hashed_row_dict))
+        self.assertListEqual([0], list(profiler._profile.keys()))
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -431,6 +472,9 @@ class TestStructuredProfiler(unittest.TestCase):
             # Create Data and StructuredProfiler objects
             data = dp.Data(os.path.join(datapth, test_file))
             save_profile = dp.StructuredProfiler(data)
+
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
             
             # Save and Load profile with Mock IO
             with mock.patch('builtins.open') as m:
@@ -438,8 +482,21 @@ class TestStructuredProfiler(unittest.TestCase):
                 save_profile.save()
                 mock_file.seek(0)
                 with mock.patch('dataprofiler.profilers.profile_builder.'
-                                'DataLabeler'):
+                                'DataLabeler', return_value=data_labeler):
                     load_profile = dp.StructuredProfiler.load("mock.pkl")
+
+                # validate loaded profile has same data labeler class
+                self.assertIsInstance(
+                    load_profile.options.data_labeler.data_labeler_object,
+                    data_labeler.__class__)
+
+                # only checks first columns
+                # get first column
+                first_column_profile = list(load_profile.profile.values())[0]
+                self.assertIsInstance(
+                    first_column_profile.profiles['data_label_profile']
+                        ._profiles['data_labeler'].data_labeler,
+                    data_labeler.__class__)
 
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
@@ -455,6 +512,20 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_string_index_doesnt_cause_error(self, *mocks):
         dp.StructuredProfiler(pd.DataFrame([[1, 2, 3]], index=["hello"]))
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnPrimitiveTypeProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnStatsProfileCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_dict_in_data_no_error(self, *mocks):
+        # validates that _update_row_statistics does not error when trying to
+        # hash a dict.
+        profiler = dp.StructuredProfiler(pd.DataFrame([[{'test': 1}], [None]]))
+        self.assertEqual(1, profiler.row_is_null_count)
+        self.assertEqual(2, profiler.total_samples)
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):
@@ -841,6 +912,46 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual("utf-8", profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
 
+    def test_bad_input_data(self, *mocks):
+        allowed_data_types = (r"\(<class 'str'>, "
+                              r"<class 'list'>, "
+                              r"<class 'pandas.core.series.Series'>, "
+                              r"<class 'pandas.core.frame.DataFrame'>\)")
+        bad_data_types = [1, {}, np.inf]
+        for data in bad_data_types:
+            with self.assertRaisesRegex(TypeError,
+                                        r"Data must either be imported using "
+                                        r"the data_readers or using one of the "
+                                        r"following: " + allowed_data_types):
+                UnstructuredProfiler(data)
+
+    def test_str_input_data(self, *mocks):
+        data = 'this is my\n\rtest'
+        profiler = UnstructuredProfiler(data)
+        self.assertEqual(1, profiler.total_samples)
+        self.assertEqual(0, profiler._empty_line_count)
+        self.assertEqual("<class 'str'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
+    def test_list_input_data(self, *mocks):
+        data = ['this', 'is my', '\n\r', 'test']
+        profiler = UnstructuredProfiler(data)
+        self.assertEqual(4, profiler.total_samples)
+        self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual("<class 'list'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
+    def test_dataframe_input_data(self, *mocks):
+        data = pd.DataFrame(['this', 'is my', '\n\r', 'test'])
+        profiler = UnstructuredProfiler(data)
+        self.assertEqual(4, profiler.total_samples)
+        self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual("<class 'pandas.core.frame.DataFrame'>", profiler.file_type)
+        self.assertIsNone(profiler.encoding)
+        self.assertIsInstance(profiler._profile, UnstructuredCompiler)
+
     def test_merge_profiles(self, *mocks):
         # can properties update correctly for data
         data1 = pd.Series(['this', 'is my', '\n\r', 'test'])
@@ -1167,6 +1278,11 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             data = dp.Data(os.path.join(data_folder, test_file))
             save_profile = UnstructuredProfiler(data)
 
+            # If profile _empty_line_count = 0, it won't test if the variable is
+            # saved correctly since that is also the default value. Ensure
+            # not the default
+            save_profile._empty_line_count = 1
+
             # store the expected data_labeler
             data_labeler = save_profile.options.data_labeler.data_labeler_object
 
@@ -1202,8 +1318,8 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             self.assertDictEqual(save_report, load_report)
 
             # validate both are still usable after
-            save_profile.update_profile(pd.DataFrame(['test']))
-            load_profile.update_profile(pd.DataFrame(['test']))
+            save_profile.update_profile(pd.DataFrame(['test', 'test2']))
+            load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
     def test_options_ingested_correctly(self):
         self.assertIsInstance(self.profiler.options, UnstructuredOptions)
@@ -1442,6 +1558,165 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         # Weird pandas behavior makes this None since this column will be
         # recognized as object, not float64
         self.assertSetEqual({8}, profile._profile[1].null_types_index['None'])
+
+
+class TestProfilerFactoryClass(unittest.TestCase):
+
+    def test_profiler_factory_class_bad_input(self):
+        with self.assertRaisesRegex(ValueError, "Must specify 'profiler_type' "
+                                                "to be 'structured' or "
+                                                "'unstructured'."):
+            Profiler(pd.DataFrame([]), profiler_type="whoops")
+
+        with self.assertRaisesRegex(ValueError, "Data must either be imported "
+                                                "using the data_readers, "
+                                                "pd.Series, or pd.DataFrame."):
+            Profiler({'test': 1})
+
+    @mock.patch('dataprofiler.profilers.profile_builder.StructuredProfiler',
+                spec=StructuredProfiler)
+    @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredProfiler',
+                spec=UnstructuredProfiler)
+    def test_profiler_factory_class_creates_correct_profiler(self, *mocks):
+        """
+        Ensure Profiler factory class either respects user input or makes
+        reasonable inference in the absence of user specificity.
+        """
+        # User specifies via profiler_type
+        data_df = pd.DataFrame(['test'])
+        self.assertIsInstance(Profiler(data_df, profiler_type="structured"),
+                              StructuredProfiler)
+        self.assertIsInstance(Profiler(data_df, profiler_type="unstructured"),
+                              UnstructuredProfiler)
+
+        # User gives data that has .is_structured == True
+        data_csv_df = dp.Data(data=data_df, data_type="csv")
+        self.assertIsInstance(Profiler(data_csv_df), StructuredProfiler)
+
+        # User gives data that has .is_structured == False
+        data_csv_rec = dp.Data(data=data_df, data_type="csv",
+                               options={"data_format": "records"})
+        self.assertIsInstance(Profiler(data_csv_rec), UnstructuredProfiler)
+
+        # user gives structured: list, pd.Series, pd.DataFrame
+        data_series = pd.Series(['test'])
+        data_list = ['test']
+        self.assertIsInstance(Profiler(data_list), StructuredProfiler)
+        self.assertIsInstance(Profiler(data_series), StructuredProfiler)
+        self.assertIsInstance(Profiler(data_df), StructuredProfiler)
+
+        # user gives unstructured: str
+        data_str = 'test'
+        self.assertIsInstance(Profiler(data_str), UnstructuredProfiler)
+
+    def test_save_and_load_structured(self):
+        datapth = "dataprofiler/tests/data/"
+        test_files = ["csv/guns.csv", "csv/iris.csv"]
+
+        def _clean_report(report):
+            data_stats = report["data_stats"]
+            for key in data_stats:
+                stats = data_stats[key]["statistics"]
+                if "histogram" in stats:
+                    if "bin_counts" in stats["histogram"]:
+                        stats["histogram"]["bin_counts"] = \
+                            stats["histogram"]["bin_counts"].tolist()
+                    if "bin_edges" in stats["histogram"]:
+                        stats["histogram"]["bin_edges"] = \
+                            stats["histogram"]["bin_edges"].tolist()
+            return report
+
+        for test_file in test_files:
+            # Create Data and StructuredProfiler objects
+            data = dp.Data(os.path.join(datapth, test_file))
+            save_profile = dp.StructuredProfiler(data)
+
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
+
+            # Save and Load profile with Mock IO
+            with mock.patch('builtins.open') as m:
+                mock_file = setup_save_mock_open(m)
+                save_profile.save()
+                mock_file.seek(0)
+                with mock.patch('dataprofiler.profilers.profile_builder.'
+                                'DataLabeler', return_value=data_labeler):
+                    load_profile = dp.Profiler.load("mock.pkl")
+
+            # validate loaded profile has same data labeler class
+            self.assertIsInstance(
+                load_profile.options.data_labeler.data_labeler_object,
+                data_labeler.__class__)
+
+            # only checks first columns
+            # get first column
+            first_column_profile = list(load_profile.profile.values())[0]
+            self.assertIsInstance(
+                first_column_profile.profiles['data_label_profile']
+                    ._profiles['data_labeler'].data_labeler,
+                data_labeler.__class__)
+
+            # Check that reports are equivalent
+            save_report = _clean_report(save_profile.report())
+            load_report = _clean_report(load_profile.report())
+            self.assertDictEqual(save_report, load_report)
+
+            # validate both are still usable after
+            save_profile.update_profile(data.data.iloc[:2])
+            load_profile.update_profile(data.data.iloc[:2])
+
+    def test_save_and_load_unstructured(self):
+        data_folder = "dataprofiler/tests/data/"
+        test_files = ["txt/code.txt", "txt/sentence-10x.txt"]
+
+        for test_file in test_files:
+            # Create Data and StructuredProfiler objects
+            data = dp.Data(os.path.join(data_folder, test_file))
+            save_profile = UnstructuredProfiler(data)
+
+            # If profile _empty_line_count = 0, it won't test if the variable is
+            # saved correctly since that is also the default value. Ensure
+            # not the default
+            save_profile._empty_line_count = 1
+
+            # store the expected data_labeler
+            data_labeler = save_profile.options.data_labeler.data_labeler_object
+
+            # Save and Load profile with Mock IO
+            with mock.patch('builtins.open') as m:
+                mock_file = setup_save_mock_open(m)
+                save_profile.save()
+
+                # make sure data_labeler unchanged
+                self.assertIs(
+                    data_labeler,
+                    save_profile.options.data_labeler.data_labeler_object)
+                self.assertIs(
+                    data_labeler,
+                    save_profile._profile._profiles[
+                        'data_labeler'].data_labeler)
+
+                mock_file.seek(0)
+                with mock.patch('dataprofiler.profilers.profile_builder.'
+                                'DataLabeler', return_value=data_labeler):
+                    load_profile = Profiler.load("mock.pkl")
+
+            # validate loaded profile has same data labeler class
+            self.assertIsInstance(
+                load_profile.options.data_labeler.data_labeler_object,
+                data_labeler.__class__)
+            self.assertIsInstance(
+                load_profile.profile._profiles['data_labeler'].data_labeler,
+                data_labeler.__class__)
+
+            # Check that reports are equivalent
+            save_report = save_profile.report()
+            load_report = load_profile.report()
+            self.assertDictEqual(save_report, load_report)
+
+            # validate both are still usable after
+            save_profile.update_profile(pd.DataFrame(['test', 'test2']))
+            load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
 
 if __name__ == '__main__':

@@ -497,21 +497,6 @@ class TestFloatColumn(unittest.TestCase):
         profiler2.max_histogram_bin = 10000
         profiler2.update(df2)
         num_bins = len(profiler2.profile['histogram']['bin_counts'])
-        print('**************************')
-        print('**************************')
-        print('**************************')
-        print('**************************')
-        print('**************************')
-        print('**************************')
-        print(df2)
-        print(profiler2.profile['histogram']['bin_counts'])
-        print(profiler2.profile['histogram']['bin_edges'])
-        print('**************************')
-        print('**************************')
-        print('**************************')
-        print('**************************')
-        print('**************************')
-        print('**************************')
         self.assertEqual(10000, num_bins)
 
     def test_estimate_stats_from_histogram(self):

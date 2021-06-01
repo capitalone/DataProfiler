@@ -313,7 +313,7 @@ print(json.dumps(report["data stats"][0], indent=4))
 ```
 
 ### Unstructured profiler
-In addition to the structured profiler, DataProfiler provides unstructured profiling for the TextData object or string. Unstructured profile also works with list(string), pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of the unstructured profiler with a text file. 
+In addition to the structured profiler, DataProfiler provides unstructured profiling for the TextData object or string. The unstructured profiler also works with list(string), pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of the unstructured profiler with a text file. 
 ```python
 import dataprofiler as dp
 import json
@@ -326,7 +326,7 @@ report = profile.report(report_options={"output_format": "pretty"})
 print(json.dumps(report, indent=4))
 ```
 
-Another example of unstructured profiler with pd.Series of strings is given as below, with the profiler option `profiler_type='unstructured'`
+Another example of the unstructured profiler with pd.Series of strings is given as below, with the profiler option `profiler_type='unstructured'`
 ```python
 import dataprofiler as dp
 import pandas as pd

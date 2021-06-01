@@ -279,7 +279,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
 
-        # account for digitize with max value exclusive
+        # account ofr digitize which is exclusive
         bin_edges = bin_edges.copy()
         bin_edges[-1] += 1e-3
 
@@ -304,7 +304,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         """
         bin_edges = self._stored_histogram['histogram']['bin_edges']
 
-        # account for digitize with max value exclusive
+        # account ofr digitize which is exclusive
         bin_edges = bin_edges.copy()
 
         temp_last_edge = bin_edges[-1]

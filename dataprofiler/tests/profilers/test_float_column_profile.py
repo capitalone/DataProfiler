@@ -12,7 +12,6 @@ from dataprofiler.profilers.profiler_options import FloatOptions
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-
 class TestFloatColumn(unittest.TestCase):
 
     def test_base_case(self):

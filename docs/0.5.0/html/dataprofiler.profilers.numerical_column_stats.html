@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Order Column Profile" href="dataprofiler.profilers.order_column_profile.html" /><link rel="prev" title="Int Column Profile" href="dataprofiler.profilers.int_column_profile.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Numerical Column Stats - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -212,13 +210,13 @@
 Build model for a dataset by identifying type of column along with its
 respective parameters.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.numerical_column_stats.abstractstaticmethod">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.numerical_column_stats.</span></span><span class="sig-name descname"><span class="pre">abstractstaticmethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.abstractstaticmethod" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.numerical_column_stats.abstractstaticmethod">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.numerical_column_stats.</span></code><code class="sig-name descname"><span class="pre">abstractstaticmethod</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.abstractstaticmethod" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">staticmethod</span></code></p>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.numerical_column_stats.</span></span><span class="sig-name descname"><span class="pre">NumericStatsMixin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.numerical_column_stats.</span></code><code class="sig-name descname"><span class="pre">NumericStatsMixin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Abstract numerical column profile subclass of BaseColumnProfiler. Represents
 a column in the dataset which is a text column. Has Subclasses itself.</p>
@@ -229,20 +227,20 @@ a column in the dataset which is a text column. Has Subclasses itself.</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.mean">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">mean</span></span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.mean" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.stddev">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">stddev</span></span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.stddev" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.type">
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.update">
-<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.update" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.mean">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mean</span></code><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.mean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.stddev">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">stddev</span></code><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.stddev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.update">
+<em class="property"><span class="pre">abstract</span> </em><code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract Method for updating the numerical profile properties with an
 uncleaned dataset.</p>
 <dl class="field-list simple">
@@ -255,8 +253,8 @@ uncleaned dataset.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_float">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">is_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_float" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_float">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">is_float</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_float" title="Permalink to this definition">¶</a></dt>
 <dd><p>For “0.80” this function returns True
 For “1.00” this function returns True
 For “1” this function returns True</p>
@@ -273,8 +271,8 @@ For “1” this function returns True</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_int">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">is_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_int" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_int">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">is_int</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.is_int" title="Permalink to this definition">¶</a></dt>
 <dd><p>For “0.80” This function returns False
 For “1.00” This function returns True
 For “1” this function returns True</p>
@@ -291,8 +289,8 @@ For “1” this function returns True</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.np_type_to_type">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">np_type_to_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.np_type_to_type" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.np_type_to_type">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">np_type_to_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin.np_type_to_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts numpy variables to base python type variables</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -359,7 +357,6 @@ For “1” this function returns True</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

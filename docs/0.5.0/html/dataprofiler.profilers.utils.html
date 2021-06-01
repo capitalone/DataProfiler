@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Labelers" href="dataprofiler.labelers.html" /><link rel="prev" title="Unstructured Text Profile" href="dataprofiler.profilers.unstructured_text_profile.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Utils - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.profilers.utils">
 <span id="utils"></span><h1>Utils<a class="headerlink" href="#module-dataprofiler.profilers.utils" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.dict_merge">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">dict_merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_dct</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.dict_merge" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.dict_merge">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">dict_merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_dct</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.dict_merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Recursive dict merge. Inspired by :meth:<code class="docutils literal notranslate"><span class="pre">dict.update()</span></code>, instead of
 updating only top-level keys, dict_merge recurses down into dicts nested
 to an arbitrary depth, updating keys. The <code class="docutils literal notranslate"><span class="pre">merge_dct</span></code> is merged into
@@ -228,77 +226,77 @@ to an arbitrary depth, updating keys. The <code class="docutils literal notransl
 </dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">KeyDict</span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">KeyDict</span></code><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.defaultdict</span></code></p>
 <p>Helper class for sample_in_chunks. Allows keys that are missing to become
 the values for that key.
 From:
 <a class="reference external" href="https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/">https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/</a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.clear">
-<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">None.</span>  <span class="pre">Remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">D.</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.clear" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.clear">
+<code class="sig-name descname"><span class="pre">clear</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">None.</span>  <span class="pre">Remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">D.</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.clear" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.copy">
-<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">a</span> <span class="pre">shallow</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">D.</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.copy" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.copy">
+<code class="sig-name descname"><span class="pre">copy</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">a</span> <span class="pre">shallow</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">D.</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.default_factory">
-<span class="sig-name descname"><span class="pre">default_factory</span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.default_factory" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.default_factory">
+<code class="sig-name descname"><span class="pre">default_factory</span></code><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.default_factory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Factory for default value called by __missing__().</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.fromkeys">
-<span class="sig-name descname"><span class="pre">fromkeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.fromkeys" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.fromkeys">
+<code class="sig-name descname"><span class="pre">fromkeys</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.fromkeys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new dictionary with keys from iterable and values set to value.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.get" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.get">
+<code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value for key if key is in the dictionary, else default.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.items">
-<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">items</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.items" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.items">
+<code class="sig-name descname"><span class="pre">items</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">items</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.items" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.keys">
-<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">keys</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.keys" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.keys">
+<code class="sig-name descname"><span class="pre">keys</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">keys</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.keys" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.pop">
-<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">k</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">d</span></em><span class="optional">]</span><span class="sig-paren">)</span> → <span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.pop" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.pop">
+<code class="sig-name descname"><span class="pre">pop</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">k</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">d</span></em><span class="optional">]</span><span class="sig-paren">)</span> → <span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.pop" title="Permalink to this definition">¶</a></dt>
 <dd><p>If key is not found, d is returned if given, otherwise KeyError is raised</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.popitem">
-<span class="sig-name descname"><span class="pre">popitem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.popitem" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.popitem">
+<code class="sig-name descname"><span class="pre">popitem</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.popitem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove and return a (key, value) pair as a 2-tuple.</p>
 <p>Pairs are returned in LIFO (last-in, first-out) order.
 Raises KeyError if the dict is empty.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.setdefault">
-<span class="sig-name descname"><span class="pre">setdefault</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.setdefault" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.setdefault">
+<code class="sig-name descname"><span class="pre">setdefault</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.setdefault" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert key with a value of default if key is not in the dictionary.</p>
 <p>Return the value for key if key is in the dictionary, else default.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">E</span></em>, <span class="optional">]</span><em class="sig-param"><span class="pre">**F</span></em><span class="sig-paren">)</span> → <span class="pre">None.</span>  <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">dict/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.update" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.update">
+<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">E</span></em>, <span class="optional">]</span><em class="sig-param"><span class="pre">**F</span></em><span class="sig-paren">)</span> → <span class="pre">None.</span>  <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">dict/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
 If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
 In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.values">
-<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">values</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.values" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.KeyDict.values">
+<code class="sig-name descname"><span class="pre">values</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> → <span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">values</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.shuffle_in_chunks">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">shuffle_in_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.shuffle_in_chunks" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.shuffle_in_chunks">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">shuffle_in_chunks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.shuffle_in_chunks" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator for creating shuffled indexes in chunks. This reduces the cost
 of having to create all indexes, but only of that what is needed.
 Initial Code idea from:
@@ -316,8 +314,8 @@ Initial Code idea from:
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.warn_on_profile">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">warn_on_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.warn_on_profile" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.warn_on_profile">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">warn_on_profile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.warn_on_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a warning if a given profile errors (tensorflow typcially)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -329,8 +327,8 @@ Initial Code idea from:
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.partition">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.partition" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.partition">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">partition</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.partition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a generator which returns the data
 in the specified chunk size.</p>
 <dl class="field-list simple">
@@ -343,8 +341,8 @@ in the specified chunk size.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.suggest_pool_size">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">suggest_pool_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.suggest_pool_size" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.suggest_pool_size">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">suggest_pool_size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.suggest_pool_size" title="Permalink to this definition">¶</a></dt>
 <dd><p>Suggest the pool size based on resources</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -362,8 +360,8 @@ in the specified chunk size.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.generate_pool">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">generate_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_pool_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.generate_pool" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.generate_pool">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">generate_pool</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_pool_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.generate_pool" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a multiprocessing pool to allocate functions too</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -388,8 +386,8 @@ in the specified chunk size.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.overlap">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">overlap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.overlap" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.utils.overlap">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></code><code class="sig-name descname"><span class="pre">overlap</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.overlap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return True iff [x1:x2] overlaps with [y1:y2]</p>
 </dd></dl>
 </div>
@@ -444,7 +442,6 @@ in the specified chunk size.</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

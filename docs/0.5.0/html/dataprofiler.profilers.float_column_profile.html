@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Histogram Utils" href="dataprofiler.profilers.histogram_utils.html" /><link rel="prev" title="Datetime Column Profile" href="dataprofiler.profilers.datetime_column_profile.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Float Column Profile - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.profilers.float_column_profile">
 <span id="float-column-profile"></span><h1>Float Column Profile<a class="headerlink" href="#module-dataprofiler.profilers.float_column_profile" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.float_column_profile.</span></span><span class="sig-name descname"><span class="pre">FloatColumn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.float_column_profile.</span></code><code class="sig-name descname"><span class="pre">FloatColumn</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html#dataprofiler.profilers.numerical_column_stats.NumericStatsMixin" title="dataprofiler.profilers.numerical_column_stats.NumericStatsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.numerical_column_stats.NumericStatsMixin</span></code></a>, <a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html#dataprofiler.profilers.base_column_profilers.BaseColumnPrimitiveTypeProfiler" title="dataprofiler.profilers.base_column_profilers.BaseColumnPrimitiveTypeProfiler"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.base_column_profilers.BaseColumnPrimitiveTypeProfiler</span></code></a></p>
 <p>Float column profile mixin with of numerical stats. Represents a column in
 the dataset which is a float column.</p>
@@ -220,29 +218,29 @@ the dataset which is a float column.</p>
 :param options: Options for the float column
 :type options: FloatOptions</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'float'</span></em><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.type" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.type">
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'float'</span></em><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.profile">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile</span></span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.profile" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.profile">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">profile</span></code><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Property for profile. Returns the profile of the column.
 :return:</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.data_type_ratio">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">data_type_ratio</span></span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.data_type_ratio" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.data_type_ratio">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data_type_ratio</span></code><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.data_type_ratio" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculates the ratio of samples which match this data type.
 :return: ratio of data type
 :rtype: float</p>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.col_type">
-<span class="sig-name descname"><span class="pre">col_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.col_type" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.col_type">
+<code class="sig-name descname"><span class="pre">col_type</span></code><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.col_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.is_float">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">is_float</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.is_float" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.is_float">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">is_float</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.is_float" title="Permalink to this definition">¶</a></dt>
 <dd><p>For “0.80” this function returns True
 For “1.00” this function returns True
 For “1” this function returns True</p>
@@ -259,8 +257,8 @@ For “1” this function returns True</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.is_int">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">is_int</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.is_int" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.is_int">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">is_int</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.is_int" title="Permalink to this definition">¶</a></dt>
 <dd><p>For “0.80” This function returns False
 For “1.00” This function returns True
 For “1” this function returns True</p>
@@ -276,13 +274,13 @@ For “1” this function returns True</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.mean">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">mean</span></span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.mean" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.mean">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mean</span></code><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.mean" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.np_type_to_type">
-<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">np_type_to_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.np_type_to_type" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.np_type_to_type">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">np_type_to_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.np_type_to_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts numpy variables to base python type variables</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -296,13 +294,13 @@ For “1” this function returns True</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.stddev">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">stddev</span></span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.stddev" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.stddev">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">stddev</span></code><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.stddev" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.float_column_profile.FloatColumn.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.update" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.float_column_profile.FloatColumn.update">
+<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.float_column_profile.FloatColumn.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the column profile.
 :param df_series: df series
 :type df_series: pandas.core.series.Series
@@ -361,7 +359,6 @@ For “1” this function returns True</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

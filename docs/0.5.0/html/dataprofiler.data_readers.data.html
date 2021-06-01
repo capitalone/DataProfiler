@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Data Utils" href="dataprofiler.data_readers.data_utils.html" /><link rel="prev" title="CSV Data" href="dataprofiler.data_readers.csv_data.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Data - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.data_readers.data">
 <span id="data"></span><h1>Data<a class="headerlink" href="#module-dataprofiler.data_readers.data" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data.Data">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data.</span></span><span class="sig-name descname"><span class="pre">Data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data.Data" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data.Data">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data.</span></code><code class="sig-name descname"><span class="pre">Data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data.Data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Factory Data class. Auto-detection of data type if not specified for
 input files. Returns the proper data class or specified data class for
@@ -229,8 +227,8 @@ the given data or input file.</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data.Data.data_classes">
-<span class="sig-name descname"><span class="pre">data_classes</span></span><em class="property"> <span class="pre">=</span> <span class="pre">[{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.json_data.JSONData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}},</span> <span class="pre">{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.csv_data.CSVData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}},</span> <span class="pre">{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.parquet_data.ParquetData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}},</span> <span class="pre">{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.avro_data.AVROData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}},</span> <span class="pre">{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.text_data.TextData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}}]</span></em><a class="headerlink" href="#dataprofiler.data_readers.data.Data.data_classes" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data.Data.data_classes">
+<code class="sig-name descname"><span class="pre">data_classes</span></code><em class="property"> <span class="pre">=</span> <span class="pre">[{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.json_data.JSONData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}},</span> <span class="pre">{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.csv_data.CSVData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}},</span> <span class="pre">{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.parquet_data.ParquetData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}},</span> <span class="pre">{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.avro_data.AVROData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}},</span> <span class="pre">{'data_class':</span> <span class="pre">&lt;class</span> <span class="pre">'dataprofiler.data_readers.text_data.TextData'&gt;,</span> <span class="pre">'kwargs':</span> <span class="pre">{}}]</span></em><a class="headerlink" href="#dataprofiler.data_readers.data.Data.data_classes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 </dd></dl>
 </div>
@@ -285,7 +283,6 @@ the given data or input file.</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

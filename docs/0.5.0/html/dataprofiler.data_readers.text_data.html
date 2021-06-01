@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Profilers" href="dataprofiler.profilers.html" /><link rel="prev" title="Structured Mixins" href="dataprofiler.data_readers.structured_mixins.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Text Data - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.data_readers.text_data">
 <span id="text-data"></span><h1>Text Data<a class="headerlink" href="#module-dataprofiler.data_readers.text_data" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.text_data.</span></span><span class="sig-name descname"><span class="pre">TextData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.text_data.TextData">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.text_data.</span></code><code class="sig-name descname"><span class="pre">TextData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="dataprofiler.data_readers.base_data.html#dataprofiler.data_readers.base_data.BaseData" title="dataprofiler.data_readers.base_data.BaseData"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.data_readers.base_data.BaseData</span></code></a></p>
 <p>TextData class to save and load text files</p>
 <p>Data class for loading datasets of type TEXT. Can be specified by
@@ -239,25 +237,25 @@ samples_per_line: chunks by which to read in the specified dataset</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.data_type">
-<span class="sig-name descname"><span class="pre">data_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'text'</span></em><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.data_type" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.text_data.TextData.data_type">
+<code class="sig-name descname"><span class="pre">data_type</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'text'</span></em><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.data_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.samples_per_line">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">samples_per_line</span></span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.samples_per_line" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.text_data.TextData.samples_per_line">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">samples_per_line</span></code><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.samples_per_line" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.is_structured">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_structured</span></span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.is_structured" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.text_data.TextData.is_structured">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_structured</span></code><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.is_structured" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines compatibility with StructuredProfiler</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.tokenize">
-<span class="sig-name descname"><span class="pre">tokenize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.tokenize" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.text_data.TextData.tokenize">
+<code class="sig-name descname"><span class="pre">tokenize</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.tokenize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.is_match">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">is_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.is_match" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.text_data.TextData.is_match">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">is_match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.is_match" title="Permalink to this definition">¶</a></dt>
 <dd><p>All files can be considered text files, hence returns True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -275,8 +273,8 @@ samples_per_line: chunks by which to read in the specified dataset</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.reload">
-<span class="sig-name descname"><span class="pre">reload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.reload" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.text_data.TextData.reload">
+<code class="sig-name descname"><span class="pre">reload</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.reload" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reload the data class with a new dataset. This erases all existing
 data/options and replaces it with the input data/options.</p>
 <dl class="field-list simple">
@@ -292,29 +290,29 @@ data/options and replaces it with the input data/options.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.data">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.data_format">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">data_format</span></span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.data_format" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.file_encoding">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">file_encoding</span></span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.file_encoding" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.text_data.TextData.data">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.get_batch_generator">
-<span class="sig-name descname"><span class="pre">get_batch_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.get_batch_generator" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.text_data.TextData.data_format">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data_format</span></code><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.data_format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.text_data.TextData.file_encoding">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_encoding</span></code><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.file_encoding" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.text_data.TextData.get_batch_generator">
+<code class="sig-name descname"><span class="pre">get_batch_generator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.get_batch_generator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.info">
-<span class="sig-name descname"><span class="pre">info</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.info" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.text_data.TextData.info">
+<code class="sig-name descname"><span class="pre">info</span></code><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.text_data.TextData.length">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.length" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.text_data.TextData.length">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">length</span></code><a class="headerlink" href="#dataprofiler.data_readers.text_data.TextData.length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the length of the dataset which is loaded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -375,7 +373,6 @@ data/options and replaces it with the input data/options.</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

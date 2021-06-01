@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Text Column Profile" href="dataprofiler.profilers.text_column_profile.html" /><link rel="prev" title="Profile Builder" href="dataprofiler.profilers.profile_builder.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Profiler Options - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -211,12 +209,12 @@
 <p>coding=utf-8
 Specify the options when running the data profiler.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseOption">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">BaseOption</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BaseOption">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">BaseOption</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseOption.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.BaseOption.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -228,8 +226,8 @@ Specify the options when running the data profiler.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseOption.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BaseOption.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -243,8 +241,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseOption.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BaseOption.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -262,8 +260,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BooleanOption">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">BooleanOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BooleanOption">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">BooleanOption</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseOption" title="dataprofiler.profilers.profiler_options.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseOption</span></code></a></p>
 <p>Boolean option</p>
 <dl class="field-list simple">
@@ -271,9 +269,9 @@ false.</p>
 <dd class="field-odd"><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the option.</p>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BooleanOption.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.BooleanOption.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -285,8 +283,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BooleanOption.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BooleanOption.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -300,8 +298,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BooleanOption.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BooleanOption.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -319,8 +317,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.HistogramOption">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">HistogramOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_count_or_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.HistogramOption">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">HistogramOption</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_count_or_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BooleanOption</span></code></a></p>
 <p>Options for histograms</p>
 <dl class="field-list simple">
@@ -332,9 +330,9 @@ calculate histograms</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.HistogramOption.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.HistogramOption.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -346,8 +344,8 @@ calculate histograms</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.HistogramOption.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.HistogramOption.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -361,8 +359,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.HistogramOption.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.HistogramOption.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -380,8 +378,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">BaseInspectorOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BaseInspectorOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">BaseInspectorOptions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BooleanOption</span></code></a></p>
 <p>Base options for all the columns.</p>
 <dl class="field-list simple">
@@ -390,8 +388,8 @@ false.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -405,9 +403,9 @@ false.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -419,8 +417,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -434,8 +432,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -453,8 +451,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">NumericalOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.NumericalOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">NumericalOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
 <p>Options for the Numerical Stats Mixin</p>
 <dl class="field-list simple">
@@ -467,14 +465,14 @@ false.</p>
 <li><p><strong>variance</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable variance</p></li>
 <li><p><strong>histogram_and_quantiles</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable
 histogram_and_quantiles</p></li>
-<li><p><strong>is_numeric_stats_enabled</strong> (<em>bool</em>) – boolean to enable/disable all numeric
+<li><p><a class="reference internal" href="#dataprofiler.profilers.profiler_options.NumericalOptions.is_numeric_stats_enabled" title="dataprofiler.profilers.profiler_options.NumericalOptions.is_numeric_stats_enabled"><strong>is_numeric_stats_enabled</strong></a> (<em>bool</em>) – boolean to enable/disable all numeric
 stats</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.is_numeric_stats_enabled">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.NumericalOptions.is_numeric_stats_enabled">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the state of numeric stats being enabled / disabled. If any
 numeric stats property is enabled it will return True, otherwise it
 will return False.</p>
@@ -486,15 +484,15 @@ will return False.</p>
 <dd class="field-even"><p></p></dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.NumericalOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Includes at least:
 is_enabled: Turns on or off the column.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.NumericalOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -509,8 +507,8 @@ is_enabled: Turns on or off the column.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.NumericalOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -524,8 +522,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.NumericalOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -543,8 +541,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">IntOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.IntOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">IntOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.NumericalOptions" title="dataprofiler.profilers.profiler_options.NumericalOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.NumericalOptions</span></code></a></p>
 <p>Options for the Int Column</p>
 <dl class="field-list simple">
@@ -557,14 +555,14 @@ false.</p>
 <li><p><strong>variance</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable variance</p></li>
 <li><p><strong>histogram_and_quantiles</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable
 histogram_and_quantiles</p></li>
-<li><p><strong>is_numeric_stats_enabled</strong> (<em>bool</em>) – boolean to enable/disable all numeric
+<li><p><a class="reference internal" href="#dataprofiler.profilers.profiler_options.IntOptions.is_numeric_stats_enabled" title="dataprofiler.profilers.profiler_options.IntOptions.is_numeric_stats_enabled"><strong>is_numeric_stats_enabled</strong></a> (<em>bool</em>) – boolean to enable/disable all numeric
 stats</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.is_numeric_stats_enabled">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.IntOptions.is_numeric_stats_enabled">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the state of numeric stats being enabled / disabled. If any
 numeric stats property is enabled it will return True, otherwise it
 will return False.</p>
@@ -577,8 +575,8 @@ will return False.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.IntOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -592,15 +590,15 @@ will return False.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.IntOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Includes at least:
 is_enabled: Turns on or off the column.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.IntOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -614,8 +612,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.IntOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -633,8 +631,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.PrecisionOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">PrecisionOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.PrecisionOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">PrecisionOptions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BooleanOption</span></code></a></p>
 <p>Options for precision</p>
 <dl class="field-list simple">
@@ -647,9 +645,9 @@ This ratio will override any defaults.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.PrecisionOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.PrecisionOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -661,8 +659,8 @@ This ratio will override any defaults.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.PrecisionOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.PrecisionOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -676,8 +674,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.PrecisionOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.PrecisionOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -695,8 +693,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">FloatOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.FloatOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">FloatOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.NumericalOptions" title="dataprofiler.profilers.profiler_options.NumericalOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.NumericalOptions</span></code></a></p>
 <p>Options for the Float Column.</p>
 <dl class="field-list simple">
@@ -709,14 +707,14 @@ false.</p>
 <li><p><strong>variance</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable variance</p></li>
 <li><p><strong>histogram_and_quantiles</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable
 histogram_and_quantiles</p></li>
-<li><p><strong>is_numeric_stats_enabled</strong> (<em>bool</em>) – boolean to enable/disable all numeric
+<li><p><a class="reference internal" href="#dataprofiler.profilers.profiler_options.FloatOptions.is_numeric_stats_enabled" title="dataprofiler.profilers.profiler_options.FloatOptions.is_numeric_stats_enabled"><strong>is_numeric_stats_enabled</strong></a> (<em>bool</em>) – boolean to enable/disable all numeric
 stats</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.is_numeric_stats_enabled">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.FloatOptions.is_numeric_stats_enabled">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the state of numeric stats being enabled / disabled. If any
 numeric stats property is enabled it will return True, otherwise it
 will return False.</p>
@@ -729,8 +727,8 @@ will return False.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.FloatOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -744,15 +742,15 @@ will return False.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.FloatOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Includes at least:
 is_enabled: Turns on or off the column.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.FloatOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -766,8 +764,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.FloatOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -785,8 +783,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">TextOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.TextOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">TextOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.NumericalOptions" title="dataprofiler.profilers.profiler_options.NumericalOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.NumericalOptions</span></code></a></p>
 <p>Options for the Text Column:</p>
 <dl class="field-list simple">
@@ -800,14 +798,14 @@ false.</p>
 <li><p><strong>variance</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable variance</p></li>
 <li><p><strong>histogram_and_quantiles</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable
 histogram_and_quantiles</p></li>
-<li><p><strong>is_numeric_stats_enabled</strong> (<em>bool</em>) – boolean to enable/disable all numeric
+<li><p><a class="reference internal" href="#dataprofiler.profilers.profiler_options.TextOptions.is_numeric_stats_enabled" title="dataprofiler.profilers.profiler_options.TextOptions.is_numeric_stats_enabled"><strong>is_numeric_stats_enabled</strong></a> (<em>bool</em>) – boolean to enable/disable all numeric
 stats</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.is_numeric_stats_enabled">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.TextOptions.is_numeric_stats_enabled">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the state of numeric stats being enabled / disabled. If any
 numeric stats property is enabled it will return True, otherwise it
 will return False.</p>
@@ -820,8 +818,8 @@ will return False.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.TextOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -835,15 +833,15 @@ will return False.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.TextOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Includes at least:
 is_enabled: Turns on or off the column.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.TextOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -857,8 +855,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.TextOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -876,8 +874,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">DateTimeOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.DateTimeOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">DateTimeOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
 <p>Options for the Datetime Column</p>
 <dl class="field-list simple">
@@ -886,8 +884,8 @@ false.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.DateTimeOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -901,9 +899,9 @@ false.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.DateTimeOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -915,8 +913,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.DateTimeOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -930,8 +928,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.DateTimeOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -949,8 +947,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">OrderOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.OrderOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">OrderOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
 <p>Options for the Order Column</p>
 <dl class="field-list simple">
@@ -959,8 +957,8 @@ false.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.OrderOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -974,9 +972,9 @@ false.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.OrderOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -988,8 +986,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.OrderOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -1003,8 +1001,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.OrderOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -1022,8 +1020,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">CategoricalOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.CategoricalOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">CategoricalOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
 <p>Options for the Categorical Column</p>
 <dl class="field-list simple">
@@ -1032,8 +1030,8 @@ false.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.CategoricalOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1047,9 +1045,9 @@ false.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.CategoricalOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1061,8 +1059,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.CategoricalOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -1076,8 +1074,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.CategoricalOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -1095,8 +1093,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">DataLabelerOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.DataLabelerOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">DataLabelerOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
 <p>Options for the Data Labeler Column.</p>
 <dl class="field-list simple">
@@ -1108,9 +1106,9 @@ false.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.DataLabelerOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1122,8 +1120,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.DataLabelerOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1138,8 +1136,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.DataLabelerOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -1153,8 +1151,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.DataLabelerOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -1172,8 +1170,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">TextProfilerOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_case_sensitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_words</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.TextProfilerOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">TextProfilerOptions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_case_sensitive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_words</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
 <p>Constructs the TextProfilerOption object with default values.</p>
 <dl class="field-list simple">
@@ -1188,8 +1186,8 @@ false.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions.is_prop_enabled">
-<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.TextProfilerOptions.is_prop_enabled">
+<code class="sig-name descname"><span class="pre">is_prop_enabled</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see if a property is enabled or not and returns boolean.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1203,9 +1201,9 @@ false.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.TextProfilerOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1217,8 +1215,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.TextProfilerOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -1232,8 +1230,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.TextProfilerOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -1251,8 +1249,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">StructuredOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.StructuredOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">StructuredOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseOption" title="dataprofiler.profilers.profiler_options.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseOption</span></code></a></p>
 <p>Constructs the StructuredOptions object with default values.</p>
 <dl class="field-list simple">
@@ -1268,14 +1266,14 @@ false.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions.enabled_profiles">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">enabled_profiles</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.enabled_profiles" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.StructuredOptions.enabled_profiles">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">enabled_profiles</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.enabled_profiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of the enabled profilers for columns.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.StructuredOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1287,8 +1285,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.StructuredOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -1302,8 +1300,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.StructuredOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -1321,8 +1319,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">UnstructuredOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.UnstructuredOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">UnstructuredOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseOption" title="dataprofiler.profilers.profiler_options.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseOption</span></code></a></p>
 <p>Constructs the UnstructuredOptions object with default values.</p>
 <dl class="field-list simple">
@@ -1333,14 +1331,14 @@ false.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions.enabled_profiles">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">enabled_profiles</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.enabled_profiles" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.UnstructuredOptions.enabled_profiles">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">enabled_profiles</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.enabled_profiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of the enabled profilers.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.UnstructuredOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1352,8 +1350,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.UnstructuredOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set all the options. Send in a dict that contains all of or a subset of
 the appropriate options. Set the values of the options. Will raise error
 if the formatting is improper.</p>
@@ -1367,8 +1365,8 @@ if the formatting is improper.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.UnstructuredOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -1386,8 +1384,8 @@ false.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ProfilerOptions">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">ProfilerOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.ProfilerOptions">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></code><code class="sig-name descname"><span class="pre">ProfilerOptions</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseOption" title="dataprofiler.profilers.profiler_options.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseOption</span></code></a></p>
 <p>Initializes the ProfilerOptions object.</p>
 <dl class="field-list simple">
@@ -1398,9 +1396,9 @@ false.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ProfilerOptions.properties">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.profiler_options.ProfilerOptions.properties">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">properties</span></code><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions.properties" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a copy of the option properties.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1412,8 +1410,8 @@ false.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ProfilerOptions.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions.set" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.ProfilerOptions.set">
+<code class="sig-name descname"><span class="pre">set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Overwrites BaseOption.set since the type (unstructured/structured) may
 need to be specified if the same options exist within both
 self.structured_options and self.unstructured_options</p>
@@ -1427,8 +1425,8 @@ self.structured_options and self.unstructured_options</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ProfilerOptions.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.profiler_options.ProfilerOptions.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the options do not conflict and cause errors. Raises
 error/warning if so.</p>
 <dl class="field-list simple">
@@ -1497,7 +1495,6 @@ false.</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

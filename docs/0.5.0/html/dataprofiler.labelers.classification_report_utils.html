@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Data Labelers" href="dataprofiler.labelers.data_labelers.html" /><link rel="prev" title="Character Level Cnn Model" href="dataprofiler.labelers.character_level_cnn_model.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Classification Report Utils - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.labelers.classification_report_utils">
 <span id="classification-report-utils"></span><h1>Classification Report Utils<a class="headerlink" href="#module-dataprofiler.labelers.classification_report_utils" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.labelers.classification_report_utils.convert_confusion_matrix_to_MCM">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></span><span class="sig-name descname"><span class="pre">convert_confusion_matrix_to_MCM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.convert_confusion_matrix_to_MCM" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.classification_report_utils.convert_confusion_matrix_to_MCM">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></code><code class="sig-name descname"><span class="pre">convert_confusion_matrix_to_MCM</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.convert_confusion_matrix_to_MCM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts a confusion matrix into the MCM format for precision/recall/fscore/
 support computation by sklearn. The format is as specified by sklearn below:
 In multilabel confusion matrix <span class="math notranslate nohighlight">\(MCM\)</span>, the count of true negatives
@@ -233,8 +231,8 @@ for classification</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></span><span class="sig-name descname"><span class="pre">precision_recall_fscore_support</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MCM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('precision',</span> <span class="pre">'recall',</span> <span class="pre">'f-score')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></code><code class="sig-name descname"><span class="pre">precision_recall_fscore_support</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MCM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('precision',</span> <span class="pre">'recall',</span> <span class="pre">'f-score')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy of the precision_recall_fscore_support function from sklearn.metrics
 with the update to receiving the MCM instead of calculating each time it is
 called.</p>
@@ -314,8 +312,8 @@ In such cases, the metric will be set to 0, as will f-score, and
 <code class="docutils literal notranslate"><span class="pre">UndefinedMetricWarning</span></code> will be raised.</p>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.labelers.classification_report_utils.classification_report">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></span><span class="sig-name descname"><span class="pre">classification_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.classification_report" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.classification_report_utils.classification_report">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></code><code class="sig-name descname"><span class="pre">classification_report</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.classification_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Copy of the classification_report function from sklearn.metrics
 with the update to receiving the conf_matrix instead of calculating each
 time it is called.</p>
@@ -423,12 +421,11 @@ is also known as “sensitivity”; recall of the negative class is
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <script src="_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
 </html>

@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="JSON Data" href="dataprofiler.data_readers.json_data.html" /><link rel="prev" title="Data" href="dataprofiler.data_readers.data.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Data Utils - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.data_readers.data_utils">
 <span id="data-utils"></span><h1>Data Utils<a class="headerlink" href="#module-dataprofiler.data_readers.data_utils" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.data_generator">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">data_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.data_generator" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.data_generator">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">data_generator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.data_generator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a list and returns a generator on the list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -225,8 +223,8 @@
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.generator_on_file">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">generator_on_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_object</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.generator_on_file" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.generator_on_file">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">generator_on_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_object</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.generator_on_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a file and returns a generator that returns lines</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -241,8 +239,8 @@
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.convert_int_to_string">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">convert_int_to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.convert_int_to_string" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.convert_int_to_string">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">convert_int_to_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.convert_int_to_string" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts the given input to string. In particular, it is int,
 it converts it ensuring there is no . or 00 in the converted string.
 In addition, if the input is np.nan, the output will be ‘nan’ which is
@@ -260,8 +258,8 @@ what we need to handle data properly.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.unicode_to_str">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">unicode_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_dicts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.unicode_to_str" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.unicode_to_str">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">unicode_to_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_dicts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.unicode_to_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert data to string representation if it is a unicode string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -279,8 +277,8 @@ what we need to handle data properly.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.json_to_dataframe">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">json_to_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.json_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.json_to_dataframe">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">json_to_dataframe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.json_to_dataframe" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function takes a list of json objects and returns the dataframe
 representing the json list.</p>
 <dl class="field-list simple">
@@ -302,8 +300,8 @@ column</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.read_json_df">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">read_json_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_json_df" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.read_json_df">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">read_json_df</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_json_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function returns an iterator that returns a chunk of data
 as dataframe in each call. The source of input to this function is either a
 file or a list of JSON structured strings. If the file path is given as
@@ -333,8 +331,8 @@ each call as well as original dtypes of the dataframe columns.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.read_json">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">read_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_json" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.read_json">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">read_json</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_json" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function returns the lines of a json. The source of input to this
 function is either a file or a list of JSON structured strings. If the
 file path is given as input, the file is expected to have one JSON
@@ -362,8 +360,8 @@ converted to string</p></li>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.read_csv_df">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">read_csv_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_csv_df" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.read_csv_df">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">read_csv_df</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_csv_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads a CSV file in chunks and returns a dataframe in the form of iterator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -385,8 +383,8 @@ converted to string</p></li>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.read_parquet_df">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">read_parquet_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_parquet_df" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.read_parquet_df">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">read_parquet_df</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_in_string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_parquet_df" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an iterator that returns one row group each time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -401,8 +399,8 @@ converted to string</p></li>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.read_text_as_list_of_strs">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">read_text_as_list_of_strs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_text_as_list_of_strs" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.read_text_as_list_of_strs">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">read_text_as_list_of_strs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.read_text_as_list_of_strs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of strings relative to the chunk size. Each line is 1 chunk.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -417,8 +415,8 @@ converted to string</p></li>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.detect_file_encoding">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">detect_file_encoding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.detect_file_encoding" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.detect_file_encoding">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">detect_file_encoding</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.detect_file_encoding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines the encoding of files within the initial <cite>max_lines</cite> of length
 <cite>buffer_size</cite>.</p>
 <dl class="field-list simple">
@@ -438,8 +436,8 @@ converted to string</p></li>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.detect_cell_type">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">detect_cell_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.detect_cell_type" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.detect_cell_type">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">detect_cell_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.detect_cell_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detects the cell type (int, float, etc)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -448,8 +446,8 @@ converted to string</p></li>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.get_delimiter_regex">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">get_delimiter_regex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quotechar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">','</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.get_delimiter_regex" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.get_delimiter_regex">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">get_delimiter_regex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">','</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quotechar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">','</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.get_delimiter_regex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds regex for delimiter checks</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -461,8 +459,8 @@ converted to string</p></li>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.find_nth_loc">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">find_nth_loc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.find_nth_loc" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.find_nth_loc">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">find_nth_loc</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">search_query</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.find_nth_loc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Searches the string via the search_query and
 returns the nth index in which the query occurs.
 If there are less than ‘n’ the last loc is returned</p>
@@ -489,8 +487,8 @@ If there are less than ‘n’ the last loc is returned</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.data_utils.load_as_str_from_file">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></span><span class="sig-name descname"><span class="pre">load_as_str_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_encoding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">65536</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.load_as_str_from_file" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.data_utils.load_as_str_from_file">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.data_utils.</span></code><code class="sig-name descname"><span class="pre">load_as_str_from_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_encoding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">65536</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size_bytes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1024</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.data_utils.load_as_str_from_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads data from a csv file up to a specific line OR byte_size.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -559,7 +557,6 @@ If there are less than ‘n’ the last loc is returned</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

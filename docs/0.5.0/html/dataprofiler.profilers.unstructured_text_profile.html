@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Utils" href="dataprofiler.profilers.utils.html" /><link rel="prev" title="Unstructured Labeler Profile" href="dataprofiler.profilers.unstructured_labeler_profile.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Unstructured Text Profile - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.profilers.unstructured_text_profile">
 <span id="unstructured-text-profile"></span><h1>Unstructured Text Profile<a class="headerlink" href="#module-dataprofiler.profilers.unstructured_text_profile" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.unstructured_text_profile.TextProfiler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.unstructured_text_profile.</span></span><span class="sig-name descname"><span class="pre">TextProfiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.unstructured_text_profile.TextProfiler" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.unstructured_text_profile.TextProfiler">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.unstructured_text_profile.</span></code><code class="sig-name descname"><span class="pre">TextProfiler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.unstructured_text_profile.TextProfiler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Initialization of Text Profiler.</p>
 <dl class="field-list simple">
@@ -222,12 +220,12 @@
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.profilers.unstructured_text_profile.TextProfiler.type">
-<span class="sig-name descname"><span class="pre">type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'text'</span></em><a class="headerlink" href="#dataprofiler.profilers.unstructured_text_profile.TextProfiler.type" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.unstructured_text_profile.TextProfiler.type">
+<code class="sig-name descname"><span class="pre">type</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'text'</span></em><a class="headerlink" href="#dataprofiler.profilers.unstructured_text_profile.TextProfiler.type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.unstructured_text_profile.TextProfiler.profile">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile</span></span><a class="headerlink" href="#dataprofiler.profilers.unstructured_text_profile.TextProfiler.profile" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.unstructured_text_profile.TextProfiler.profile">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">profile</span></code><a class="headerlink" href="#dataprofiler.profilers.unstructured_text_profile.TextProfiler.profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Property for profile. Returns the profile of the column.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -236,8 +234,8 @@
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.unstructured_text_profile.TextProfiler.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.unstructured_text_profile.TextProfiler.update" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.unstructured_text_profile.TextProfiler.update">
+<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.unstructured_text_profile.TextProfiler.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the column profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -301,7 +299,6 @@
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

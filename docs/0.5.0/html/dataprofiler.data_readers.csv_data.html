@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Data" href="dataprofiler.data_readers.data.html" /><link rel="prev" title="Base Data" href="dataprofiler.data_readers.base_data.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>CSV Data - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.data_readers.csv_data">
 <span id="csv-data"></span><h1>CSV Data<a class="headerlink" href="#module-dataprofiler.data_readers.csv_data" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.csv_data.</span></span><span class="sig-name descname"><span class="pre">CSVData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.csv_data.CSVData">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.data_readers.csv_data.</span></code><code class="sig-name descname"><span class="pre">CSVData</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html#dataprofiler.data_readers.structured_mixins.SpreadSheetDataMixin" title="dataprofiler.data_readers.structured_mixins.SpreadSheetDataMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.data_readers.structured_mixins.SpreadSheetDataMixin</span></code></a>, <a class="reference internal" href="dataprofiler.data_readers.base_data.html#dataprofiler.data_readers.base_data.BaseData" title="dataprofiler.data_readers.base_data.BaseData"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.data_readers.base_data.BaseData</span></code></a></p>
 <p>SpreadsheetData class to save and load spreadsheet data</p>
 <p>Data class for loading datasets of type CSV. Can be specified by passing
@@ -253,53 +251,53 @@ quotechar: quote character used in the delimited file</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.data_type">
-<span class="sig-name descname"><span class="pre">data_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'csv'</span></em><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.data_type" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.csv_data.CSVData.data_type">
+<code class="sig-name descname"><span class="pre">data_type</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'csv'</span></em><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.data_type" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.selected_columns">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">selected_columns</span></span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.selected_columns" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.csv_data.CSVData.selected_columns">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">selected_columns</span></code><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.selected_columns" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.delimiter">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">delimiter</span></span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.delimiter" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.csv_data.CSVData.delimiter">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">delimiter</span></code><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.delimiter" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.quotechar">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">quotechar</span></span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.quotechar" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.csv_data.CSVData.quotechar">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">quotechar</span></code><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.quotechar" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.header">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">header</span></span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.header" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.csv_data.CSVData.header">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">header</span></code><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.header" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.is_structured">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_structured</span></span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.is_structured" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.csv_data.CSVData.is_structured">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_structured</span></code><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.is_structured" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines compatibility with StructuredProfiler</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.data">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.data_format">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">data_format</span></span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.data_format" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.file_encoding">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">file_encoding</span></span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.file_encoding" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.csv_data.CSVData.data">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data</span></code><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.get_batch_generator">
-<span class="sig-name descname"><span class="pre">get_batch_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.get_batch_generator" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.csv_data.CSVData.data_format">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">data_format</span></code><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.data_format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.csv_data.CSVData.file_encoding">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_encoding</span></code><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.file_encoding" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.csv_data.CSVData.get_batch_generator">
+<code class="sig-name descname"><span class="pre">get_batch_generator</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.get_batch_generator" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.info">
-<span class="sig-name descname"><span class="pre">info</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.info" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.csv_data.CSVData.info">
+<code class="sig-name descname"><span class="pre">info</span></code><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.info" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.is_match">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">is_match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.is_match" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.csv_data.CSVData.is_match">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">is_match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.is_match" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test the first 1000 lines of a given file to check if the file has valid
 delimited format or not.</p>
 <dl class="field-list simple">
@@ -317,9 +315,9 @@ delimited format or not.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.length">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.length" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.data_readers.csv_data.CSVData.length">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">length</span></code><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.length" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the length of the dataset which is loaded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -328,8 +326,8 @@ delimited format or not.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.data_readers.csv_data.CSVData.reload">
-<span class="sig-name descname"><span class="pre">reload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.reload" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.data_readers.csv_data.CSVData.reload">
+<code class="sig-name descname"><span class="pre">reload</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.data_readers.csv_data.CSVData.reload" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reload the data class with a new dataset. This erases all existing
 data/options and replaces it with the input data/options.</p>
 <dl class="field-list simple">
@@ -398,7 +396,6 @@ data/options and replaces it with the input data/options.</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

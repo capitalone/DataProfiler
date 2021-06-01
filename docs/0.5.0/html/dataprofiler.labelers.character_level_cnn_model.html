@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Classification Report Utils" href="dataprofiler.labelers.classification_report_utils.html" /><link rel="prev" title="Base Model" href="dataprofiler.labelers.base_model.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Character Level Cnn Model - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.labelers.character_level_cnn_model">
 <span id="character-level-cnn-model"></span><h1>Character Level Cnn Model<a class="headerlink" href="#module-dataprofiler.labelers.character_level_cnn_model" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.NoV1ResourceMessageFilter">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">NoV1ResourceMessageFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.NoV1ResourceMessageFilter" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.NoV1ResourceMessageFilter">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></code><code class="sig-name descname"><span class="pre">NoV1ResourceMessageFilter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.NoV1ResourceMessageFilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Filter</span></code></p>
 <p>Removes TF2 warning for using TF1 model which has resources.</p>
 <p>Initialize a filter.</p>
@@ -218,16 +216,16 @@
 children, will have its events allowed through the filter. If no
 name is specified, allow every event.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.NoV1ResourceMessageFilter.filter">
-<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.NoV1ResourceMessageFilter.filter" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.NoV1ResourceMessageFilter.filter">
+<code class="sig-name descname"><span class="pre">filter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.NoV1ResourceMessageFilter.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine if the specified record is to be logged.</p>
 <p>Returns True if the record should be logged, or False otherwise.
 If deemed appropriate, the record may be modified in-place.</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">FBetaScore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></code><code class="sig-name descname"><span class="pre">FBetaScore</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.keras.metrics.Metric</span></code></p>
 <p>Computes F-Beta score.
 Adapted and slightly modified from <a class="reference external" href="https://github.com/tensorflow/addons/blob/v0.12.0/tensorflow_addons/metrics/f_scores.py#L211-L283">https://github.com/tensorflow/addons/blob/v0.12.0/tensorflow_addons/metrics/f_scores.py#L211-L283</a></p>
@@ -279,8 +277,8 @@ None, the argmax is converted to 1, and the rest 0.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.update_state">
-<span class="sig-name descname"><span class="pre">update_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.update_state" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.update_state">
+<code class="sig-name descname"><span class="pre">update_state</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.update_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Accumulates statistics for the metric.</p>
 <p>Note: This function is executed as a graph function in graph mode.
 This means:</p>
@@ -305,32 +303,32 @@ eager execution.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.result">
-<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.result" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.result">
+<code class="sig-name descname"><span class="pre">result</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.result" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes and returns the metric value tensor.</p>
 <p>Result computation is an idempotent operation that simply calculates the
 metric value using the state variables.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_config">
-<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_config" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_config">
+<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the serializable config of the metric.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.reset_states">
-<span class="sig-name descname"><span class="pre">reset_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.reset_states" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.reset_states">
+<code class="sig-name descname"><span class="pre">reset_states</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.reset_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resets all of the metric state variables.</p>
 <p>This function is called between epochs/steps,
 when a metric is evaluated during training.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.activity_regularizer">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">activity_regularizer</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.activity_regularizer" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.activity_regularizer">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">activity_regularizer</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.activity_regularizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optional regularizer function for the output of this layer.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_loss">
-<span class="sig-name descname"><span class="pre">add_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">losses</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_loss" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_loss">
+<code class="sig-name descname"><span class="pre">add_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">losses</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add loss tensor(s), potentially dependent on layer inputs.</p>
 <p>Some losses (for instance, activity regularization losses) may be dependent
 on the inputs passed when calling a layer. Hence, when reusing the same
@@ -393,8 +391,8 @@ Accepted values:</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_metric">
-<span class="sig-name descname"><span class="pre">add_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_metric" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_metric">
+<code class="sig-name descname"><span class="pre">add_metric</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_metric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds metric tensor to the layer.</p>
 <p>This method can be used inside the <cite>call()</cite> method of a subclassed layer
 or model.</p>
@@ -449,8 +447,8 @@ using a <cite>keras.Metric.Mean</cite>.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_update">
-<span class="sig-name descname"><span class="pre">add_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">updates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_update" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_update">
+<code class="sig-name descname"><span class="pre">add_update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">updates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add update op(s), potentially dependent on layer inputs.</p>
 <p>Weight updates (for instance, the updates of the moving mean and variance
 in a BatchNormalization layer) may be dependent on the inputs passed
@@ -474,18 +472,18 @@ on this Layer, when executing in Eager mode.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_variable">
-<span class="sig-name descname"><span class="pre">add_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_variable" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_variable">
+<code class="sig-name descname"><span class="pre">add_variable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_variable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use! Alias for <cite>add_weight</cite>.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_weight">
-<span class="sig-name descname"><span class="pre">add_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name</span></em>, <em class="sig-param"><span class="pre">shape=()</span></em>, <em class="sig-param"><span class="pre">aggregation=&lt;VariableAggregation.SUM:</span> <span class="pre">1&gt;</span></em>, <em class="sig-param"><span class="pre">synchronization=&lt;VariableSynchronization.ON_READ:</span> <span class="pre">3&gt;</span></em>, <em class="sig-param"><span class="pre">initializer=None</span></em>, <em class="sig-param"><span class="pre">dtype=None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_weight" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_weight">
+<code class="sig-name descname"><span class="pre">add_weight</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name</span></em>, <em class="sig-param"><span class="pre">shape=()</span></em>, <em class="sig-param"><span class="pre">aggregation=&lt;VariableAggregation.SUM:</span> <span class="pre">1&gt;</span></em>, <em class="sig-param"><span class="pre">synchronization=&lt;VariableSynchronization.ON_READ:</span> <span class="pre">3&gt;</span></em>, <em class="sig-param"><span class="pre">initializer=None</span></em>, <em class="sig-param"><span class="pre">dtype=None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.add_weight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds state variable. Only for use by subclasses.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.apply">
-<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.apply" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.apply">
+<code class="sig-name descname"><span class="pre">apply</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use!</p>
 <p>This is an alias of <cite>self.__call__</cite>.</p>
 <dl class="field-list simple">
@@ -502,8 +500,8 @@ on this Layer, when executing in Eager mode.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.build">
-<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.build" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.build">
+<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the variables of the layer (optional, for subclass implementers).</p>
 <p>This is a method that implementers of subclasses of <cite>Layer</cite> or <cite>Model</cite>
 can override if they need a state-creation step in-between
@@ -518,8 +516,8 @@ layer instantiation and layer call.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.call">
-<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.call" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.call">
+<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is where the layer’s logic lives.</p>
 <p>Note here that <cite>call()</cite> method in <cite>tf.keras</cite> is little bit different
 from <cite>keras</cite> API. In <cite>keras</cite> API, you can pass support masking for
@@ -537,9 +535,9 @@ method to support masking.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_dtype">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">compute_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_dtype" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_dtype">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compute_dtype</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the layer’s computations.</p>
 <p>This is equivalent to <cite>Layer.dtype_policy.compute_dtype</cite>. Unless
 mixed precision is used, this is the same as <cite>Layer.dtype</cite>, the dtype of
@@ -558,8 +556,8 @@ will still typically be float16 or bfloat16 in such cases.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_mask">
-<span class="sig-name descname"><span class="pre">compute_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_mask" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_mask">
+<code class="sig-name descname"><span class="pre">compute_mask</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes an output mask tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -578,8 +576,8 @@ will still typically be float16 or bfloat16 in such cases.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_output_shape">
-<span class="sig-name descname"><span class="pre">compute_output_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_output_shape" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_output_shape">
+<code class="sig-name descname"><span class="pre">compute_output_shape</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_output_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the output shape of the layer.</p>
 <p>If the layer has not been built, this method will call <cite>build</cite> on the
 layer. This assumes that the layer will later be used with inputs that
@@ -597,8 +595,8 @@ instead of an integer.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_output_signature">
-<span class="sig-name descname"><span class="pre">compute_output_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_output_signature" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_output_signature">
+<code class="sig-name descname"><span class="pre">compute_output_signature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.compute_output_signature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the output tensor signature of the layer based on the inputs.</p>
 <p>Unlike a TensorShape object, a TensorSpec object contains both shape
 and dtype information for a tensor. This method allows layers to provide
@@ -624,8 +622,8 @@ objects, describing a candidate input for the layer.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.count_params">
-<span class="sig-name descname"><span class="pre">count_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.count_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.count_params">
+<code class="sig-name descname"><span class="pre">count_params</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.count_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Count the total number of scalars composing the weights.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -637,28 +635,28 @@ objects, describing a candidate input for the layer.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.dtype">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.dtype" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.dtype">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dtype</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the layer weights.</p>
 <p>This is equivalent to <cite>Layer.dtype_policy.variable_dtype</cite>. Unless
 mixed precision is used, this is the same as <cite>Layer.compute_dtype</cite>, the
 dtype of the layer’s computations.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.dtype_policy">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dtype_policy</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.dtype_policy" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.dtype_policy">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dtype_policy</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.dtype_policy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype policy associated with this layer.</p>
 <p>This is an instance of a <cite>tf.keras.mixed_precision.Policy</cite>.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.dynamic">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dynamic</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.dynamic" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.dynamic">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dynamic</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.dynamic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether the layer is dynamic (eager-only); set in the constructor.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.from_config">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.from_config" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.from_config">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.from_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a layer from its config.</p>
 <p>This method is the reverse of <cite>get_config</cite>,
 capable of instantiating the same layer from the config
@@ -675,8 +673,8 @@ output of get_config.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_at">
-<span class="sig-name descname"><span class="pre">get_input_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_at">
+<code class="sig-name descname"><span class="pre">get_input_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input tensor(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -694,8 +692,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_mask_at">
-<span class="sig-name descname"><span class="pre">get_input_mask_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_mask_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_mask_at">
+<code class="sig-name descname"><span class="pre">get_input_mask_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_mask_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input mask tensor(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -711,8 +709,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_shape_at">
-<span class="sig-name descname"><span class="pre">get_input_shape_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_shape_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_shape_at">
+<code class="sig-name descname"><span class="pre">get_input_shape_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_input_shape_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input shape(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -731,8 +729,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_losses_for">
-<span class="sig-name descname"><span class="pre">get_losses_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_losses_for" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_losses_for">
+<code class="sig-name descname"><span class="pre">get_losses_for</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_losses_for" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use!</p>
 <p>Retrieves losses relevant to a specific set of inputs.</p>
 <dl class="field-list simple">
@@ -745,8 +743,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_at">
-<span class="sig-name descname"><span class="pre">get_output_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_at">
+<code class="sig-name descname"><span class="pre">get_output_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output tensor(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -764,8 +762,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_mask_at">
-<span class="sig-name descname"><span class="pre">get_output_mask_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_mask_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_mask_at">
+<code class="sig-name descname"><span class="pre">get_output_mask_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_mask_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output mask tensor(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -781,8 +779,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_shape_at">
-<span class="sig-name descname"><span class="pre">get_output_shape_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_shape_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_shape_at">
+<code class="sig-name descname"><span class="pre">get_output_shape_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_output_shape_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output shape(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -801,8 +799,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_updates_for">
-<span class="sig-name descname"><span class="pre">get_updates_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_updates_for" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_updates_for">
+<code class="sig-name descname"><span class="pre">get_updates_for</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_updates_for" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use!</p>
 <p>Retrieves updates relevant to a specific set of inputs.</p>
 <dl class="field-list simple">
@@ -815,8 +813,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_weights">
-<span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_weights" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_weights">
+<code class="sig-name descname"><span class="pre">get_weights</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.get_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the current weights of the layer.</p>
 <p>The weights of a layer represent the state of the layer. This function
 returns both trainable and non-trainable weight values associated with this
@@ -852,14 +850,14 @@ Dense layer:</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.inbound_nodes">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">inbound_nodes</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.inbound_nodes" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.inbound_nodes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">inbound_nodes</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.inbound_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use! Only for compatibility with external Keras.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.input">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.input" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.input">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">input</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input tensor(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one input,
 i.e. if it is connected to one incoming layer.</p>
@@ -875,9 +873,9 @@ i.e. if it is connected to one incoming layer.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_mask">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input_mask</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_mask" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_mask">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">input_mask</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input mask tensor(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one inbound node,
 i.e. if it is connected to one incoming layer.</p>
@@ -894,9 +892,9 @@ mask tensors.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_shape">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input_shape</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_shape" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_shape">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">input_shape</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input shape(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one input,
 i.e. if it is connected to one incoming layer, or if all inputs
@@ -914,9 +912,9 @@ have the same shape.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_spec">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_spec" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_spec">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">input_spec</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.input_spec" title="Permalink to this definition">¶</a></dt>
 <dd><p><cite>InputSpec</cite> instance(s) describing the input format for this layer.</p>
 <p>When you create a layer subclass, you can set <cite>self.input_spec</cite> to enable
 the layer to run input compatibility checks when it is called.
@@ -944,9 +942,9 @@ error:</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.losses">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">losses</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.losses" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.losses">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">losses</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.losses" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of losses added using the <cite>add_loss()</cite> API.</p>
 <p>Variable regularization tensors are created when this property is accessed,
 so it is eager safe: accessing <cite>losses</cite> under a <cite>tf.GradientTape</cite> will
@@ -991,9 +989,9 @@ propagate gradients back to the corresponding variables.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.metrics">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">metrics</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.metrics" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.metrics">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">metrics</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of metrics added using the <cite>add_metric()</cite> API.</p>
 <p>Example:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,))</span>
@@ -1011,23 +1009,23 @@ propagate gradients back to the corresponding variables.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.name">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.name" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the layer (string), set in the constructor.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.name_scope">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name_scope</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.name_scope" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.name_scope">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name_scope</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.name_scope" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <cite>tf.name_scope</cite> instance for this class.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.non_trainable_variables">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">non_trainable_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.non_trainable_variables" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.non_trainable_variables">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">non_trainable_variables</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.non_trainable_variables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.non_trainable_weights">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">non_trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.non_trainable_weights" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.non_trainable_weights">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">non_trainable_weights</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.non_trainable_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all non-trainable weights tracked by this layer.</p>
 <p>Non-trainable weights are <em>not</em> updated during training. They are expected
 to be updated manually in <cite>call()</cite>.</p>
@@ -1039,14 +1037,14 @@ themselves Keras layers.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.outbound_nodes">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">outbound_nodes</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.outbound_nodes" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.outbound_nodes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">outbound_nodes</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.outbound_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use! Only for compatibility with external Keras.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.output">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.output" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.output">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">output</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.output" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output tensor(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one output,
 i.e. if it is connected to one incoming layer.</p>
@@ -1063,9 +1061,9 @@ i.e. if it is connected to one incoming layer.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.output_mask">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">output_mask</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.output_mask" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.output_mask">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">output_mask</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.output_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output mask tensor(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one inbound node,
 i.e. if it is connected to one incoming layer.</p>
@@ -1082,9 +1080,9 @@ mask tensors.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.output_shape">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">output_shape</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.output_shape" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.output_shape">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">output_shape</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.output_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output shape(s) of a layer.</p>
 <p>Only applicable if the layer has one output,
 or if all outputs have the same shape.</p>
@@ -1102,8 +1100,8 @@ or if all outputs have the same shape.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.set_weights">
-<span class="sig-name descname"><span class="pre">set_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.set_weights" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.set_weights">
+<code class="sig-name descname"><span class="pre">set_weights</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.set_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the weights of the layer, from Numpy arrays.</p>
 <p>The weights of a layer represent the state of the layer. This function
 sets the weight values from numpy arrays. The weight values should be
@@ -1148,13 +1146,13 @@ output of <cite>get_weights</cite>).</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.stateful">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">stateful</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.stateful" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.stateful">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">stateful</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.stateful" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.submodules">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">submodules</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.submodules" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.submodules">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">submodules</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.submodules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sequence of all sub-modules.</p>
 <p>Submodules are modules which are properties of this module, or found as
 properties of modules which are properties of this module (and so on).</p>
@@ -1177,18 +1175,18 @@ properties of modules which are properties of this module (and so on).</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.supports_masking">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">supports_masking</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.supports_masking" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.supports_masking">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">supports_masking</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.supports_masking" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether this layer supports computing a mask using <cite>compute_mask</cite>.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">trainable</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">trainable</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable_variables">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">trainable_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable_variables" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable_variables">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">trainable_variables</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sequence of trainable variables owned by this module and its submodules.</p>
 <p>Note: this method uses reflection to find variables on the current instance
 and submodules. For performance reasons you may wish to cache the result
@@ -1201,9 +1199,9 @@ first).</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable_weights">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable_weights" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable_weights">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">trainable_weights</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.trainable_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all trainable weights tracked by this layer.</p>
 <p>Trainable weights are updated via gradient descent during training.</p>
 <p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are not
@@ -1214,18 +1212,18 @@ themselves Keras layers.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.updates">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">updates</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.updates" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.updates">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">updates</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.updates" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.variable_dtype">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">variable_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.variable_dtype" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.variable_dtype">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">variable_dtype</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.variable_dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias of <cite>Layer.dtype</cite>, the dtype of the weights.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.variables">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.variables" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.variables">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">variables</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of all layer variables/weights.</p>
 <p>Alias of <cite>self.weights</cite>.</p>
 <p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are not
@@ -1236,9 +1234,9 @@ themselves Keras layers.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.weights">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.weights" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.weights">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">weights</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of all layer variables/weights.</p>
 <p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are not
 themselves Keras layers.</p>
@@ -1249,8 +1247,8 @@ themselves Keras layers.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.with_name_scope">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">with_name_scope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.with_name_scope" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.FBetaScore.with_name_scope">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">with_name_scope</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore.with_name_scope" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator to automatically enter the module name scope.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyModule</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="gp">... </span>  <span class="nd">@tf</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">with_name_scope</span>
@@ -1281,8 +1279,8 @@ names included the module name:</p>
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">F1Score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></code><code class="sig-name descname"><span class="pre">F1Score</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.character_level_cnn_model.FBetaScore" title="dataprofiler.labelers.character_level_cnn_model.FBetaScore"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.character_level_cnn_model.FBetaScore</span></code></a></p>
 <p>Computes F-1 Score.</p>
 <p># Copyright 2019 The TensorFlow Authors. All Rights Reserved.
@@ -1330,18 +1328,18 @@ None, the argmax is converted to 1, and the rest 0.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_config">
-<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_config" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_config">
+<code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the serializable config of the metric.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.activity_regularizer">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">activity_regularizer</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.activity_regularizer" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.activity_regularizer">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">activity_regularizer</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.activity_regularizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Optional regularizer function for the output of this layer.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_loss">
-<span class="sig-name descname"><span class="pre">add_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">losses</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_loss" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_loss">
+<code class="sig-name descname"><span class="pre">add_loss</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">losses</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add loss tensor(s), potentially dependent on layer inputs.</p>
 <p>Some losses (for instance, activity regularization losses) may be dependent
 on the inputs passed when calling a layer. Hence, when reusing the same
@@ -1404,8 +1402,8 @@ Accepted values:</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_metric">
-<span class="sig-name descname"><span class="pre">add_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_metric" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_metric">
+<code class="sig-name descname"><span class="pre">add_metric</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_metric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds metric tensor to the layer.</p>
 <p>This method can be used inside the <cite>call()</cite> method of a subclassed layer
 or model.</p>
@@ -1460,8 +1458,8 @@ using a <cite>keras.Metric.Mean</cite>.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_update">
-<span class="sig-name descname"><span class="pre">add_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">updates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_update" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_update">
+<code class="sig-name descname"><span class="pre">add_update</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">updates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add update op(s), potentially dependent on layer inputs.</p>
 <p>Weight updates (for instance, the updates of the moving mean and variance
 in a BatchNormalization layer) may be dependent on the inputs passed
@@ -1485,18 +1483,18 @@ on this Layer, when executing in Eager mode.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_variable">
-<span class="sig-name descname"><span class="pre">add_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_variable" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_variable">
+<code class="sig-name descname"><span class="pre">add_variable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_variable" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use! Alias for <cite>add_weight</cite>.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_weight">
-<span class="sig-name descname"><span class="pre">add_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name</span></em>, <em class="sig-param"><span class="pre">shape=()</span></em>, <em class="sig-param"><span class="pre">aggregation=&lt;VariableAggregation.SUM:</span> <span class="pre">1&gt;</span></em>, <em class="sig-param"><span class="pre">synchronization=&lt;VariableSynchronization.ON_READ:</span> <span class="pre">3&gt;</span></em>, <em class="sig-param"><span class="pre">initializer=None</span></em>, <em class="sig-param"><span class="pre">dtype=None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_weight" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.add_weight">
+<code class="sig-name descname"><span class="pre">add_weight</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name</span></em>, <em class="sig-param"><span class="pre">shape=()</span></em>, <em class="sig-param"><span class="pre">aggregation=&lt;VariableAggregation.SUM:</span> <span class="pre">1&gt;</span></em>, <em class="sig-param"><span class="pre">synchronization=&lt;VariableSynchronization.ON_READ:</span> <span class="pre">3&gt;</span></em>, <em class="sig-param"><span class="pre">initializer=None</span></em>, <em class="sig-param"><span class="pre">dtype=None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.add_weight" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds state variable. Only for use by subclasses.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.apply">
-<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.apply" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.apply">
+<code class="sig-name descname"><span class="pre">apply</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use!</p>
 <p>This is an alias of <cite>self.__call__</cite>.</p>
 <dl class="field-list simple">
@@ -1513,8 +1511,8 @@ on this Layer, when executing in Eager mode.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.build">
-<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.build" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.build">
+<code class="sig-name descname"><span class="pre">build</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates the variables of the layer (optional, for subclass implementers).</p>
 <p>This is a method that implementers of subclasses of <cite>Layer</cite> or <cite>Model</cite>
 can override if they need a state-creation step in-between
@@ -1529,8 +1527,8 @@ layer instantiation and layer call.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.call">
-<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.call" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.call">
+<code class="sig-name descname"><span class="pre">call</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.call" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is where the layer’s logic lives.</p>
 <p>Note here that <cite>call()</cite> method in <cite>tf.keras</cite> is little bit different
 from <cite>keras</cite> API. In <cite>keras</cite> API, you can pass support masking for
@@ -1548,9 +1546,9 @@ method to support masking.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.compute_dtype">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">compute_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.compute_dtype" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.compute_dtype">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">compute_dtype</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.compute_dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the layer’s computations.</p>
 <p>This is equivalent to <cite>Layer.dtype_policy.compute_dtype</cite>. Unless
 mixed precision is used, this is the same as <cite>Layer.dtype</cite>, the dtype of
@@ -1569,8 +1567,8 @@ will still typically be float16 or bfloat16 in such cases.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.compute_mask">
-<span class="sig-name descname"><span class="pre">compute_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.compute_mask" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.compute_mask">
+<code class="sig-name descname"><span class="pre">compute_mask</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.compute_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes an output mask tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1589,8 +1587,8 @@ will still typically be float16 or bfloat16 in such cases.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.compute_output_shape">
-<span class="sig-name descname"><span class="pre">compute_output_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.compute_output_shape" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.compute_output_shape">
+<code class="sig-name descname"><span class="pre">compute_output_shape</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.compute_output_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes the output shape of the layer.</p>
 <p>If the layer has not been built, this method will call <cite>build</cite> on the
 layer. This assumes that the layer will later be used with inputs that
@@ -1608,8 +1606,8 @@ instead of an integer.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.compute_output_signature">
-<span class="sig-name descname"><span class="pre">compute_output_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.compute_output_signature" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.compute_output_signature">
+<code class="sig-name descname"><span class="pre">compute_output_signature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_signature</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.compute_output_signature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the output tensor signature of the layer based on the inputs.</p>
 <p>Unlike a TensorShape object, a TensorSpec object contains both shape
 and dtype information for a tensor. This method allows layers to provide
@@ -1635,8 +1633,8 @@ objects, describing a candidate input for the layer.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.count_params">
-<span class="sig-name descname"><span class="pre">count_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.count_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.count_params">
+<code class="sig-name descname"><span class="pre">count_params</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.count_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Count the total number of scalars composing the weights.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -1648,28 +1646,28 @@ objects, describing a candidate input for the layer.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.dtype">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.dtype" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.dtype">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dtype</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype of the layer weights.</p>
 <p>This is equivalent to <cite>Layer.dtype_policy.variable_dtype</cite>. Unless
 mixed precision is used, this is the same as <cite>Layer.compute_dtype</cite>, the
 dtype of the layer’s computations.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.dtype_policy">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dtype_policy</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.dtype_policy" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.dtype_policy">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dtype_policy</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.dtype_policy" title="Permalink to this definition">¶</a></dt>
 <dd><p>The dtype policy associated with this layer.</p>
 <p>This is an instance of a <cite>tf.keras.mixed_precision.Policy</cite>.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.dynamic">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">dynamic</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.dynamic" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.dynamic">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">dynamic</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.dynamic" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether the layer is dynamic (eager-only); set in the constructor.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.from_config">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.from_config" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.from_config">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.from_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a layer from its config.</p>
 <p>This method is the reverse of <cite>get_config</cite>,
 capable of instantiating the same layer from the config
@@ -1686,8 +1684,8 @@ output of get_config.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_at">
-<span class="sig-name descname"><span class="pre">get_input_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_at">
+<code class="sig-name descname"><span class="pre">get_input_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input tensor(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1705,8 +1703,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_mask_at">
-<span class="sig-name descname"><span class="pre">get_input_mask_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_mask_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_mask_at">
+<code class="sig-name descname"><span class="pre">get_input_mask_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_mask_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input mask tensor(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1722,8 +1720,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_shape_at">
-<span class="sig-name descname"><span class="pre">get_input_shape_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_shape_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_shape_at">
+<code class="sig-name descname"><span class="pre">get_input_shape_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_input_shape_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input shape(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1742,8 +1740,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_losses_for">
-<span class="sig-name descname"><span class="pre">get_losses_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_losses_for" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_losses_for">
+<code class="sig-name descname"><span class="pre">get_losses_for</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_losses_for" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use!</p>
 <p>Retrieves losses relevant to a specific set of inputs.</p>
 <dl class="field-list simple">
@@ -1756,8 +1754,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_at">
-<span class="sig-name descname"><span class="pre">get_output_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_at">
+<code class="sig-name descname"><span class="pre">get_output_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output tensor(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1775,8 +1773,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_mask_at">
-<span class="sig-name descname"><span class="pre">get_output_mask_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_mask_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_mask_at">
+<code class="sig-name descname"><span class="pre">get_output_mask_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_mask_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output mask tensor(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1792,8 +1790,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_shape_at">
-<span class="sig-name descname"><span class="pre">get_output_shape_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_shape_at" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_shape_at">
+<code class="sig-name descname"><span class="pre">get_output_shape_at</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_output_shape_at" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output shape(s) of a layer at a given node.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1812,8 +1810,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_updates_for">
-<span class="sig-name descname"><span class="pre">get_updates_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_updates_for" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_updates_for">
+<code class="sig-name descname"><span class="pre">get_updates_for</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_updates_for" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use!</p>
 <p>Retrieves updates relevant to a specific set of inputs.</p>
 <dl class="field-list simple">
@@ -1826,8 +1824,8 @@ first time the layer was called.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_weights">
-<span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_weights" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.get_weights">
+<code class="sig-name descname"><span class="pre">get_weights</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.get_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the current weights of the layer.</p>
 <p>The weights of a layer represent the state of the layer. This function
 returns both trainable and non-trainable weight values associated with this
@@ -1863,14 +1861,14 @@ Dense layer:</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.inbound_nodes">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">inbound_nodes</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.inbound_nodes" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.inbound_nodes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">inbound_nodes</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.inbound_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use! Only for compatibility with external Keras.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.input">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.input" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.input">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">input</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.input" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input tensor(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one input,
 i.e. if it is connected to one incoming layer.</p>
@@ -1886,9 +1884,9 @@ i.e. if it is connected to one incoming layer.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.input_mask">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input_mask</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.input_mask" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.input_mask">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">input_mask</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.input_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input mask tensor(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one inbound node,
 i.e. if it is connected to one incoming layer.</p>
@@ -1905,9 +1903,9 @@ mask tensors.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.input_shape">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input_shape</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.input_shape" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.input_shape">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">input_shape</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.input_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the input shape(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one input,
 i.e. if it is connected to one incoming layer, or if all inputs
@@ -1925,9 +1923,9 @@ have the same shape.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.input_spec">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.input_spec" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.input_spec">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">input_spec</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.input_spec" title="Permalink to this definition">¶</a></dt>
 <dd><p><cite>InputSpec</cite> instance(s) describing the input format for this layer.</p>
 <p>When you create a layer subclass, you can set <cite>self.input_spec</cite> to enable
 the layer to run input compatibility checks when it is called.
@@ -1955,9 +1953,9 @@ error:</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.losses">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">losses</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.losses" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.losses">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">losses</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.losses" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of losses added using the <cite>add_loss()</cite> API.</p>
 <p>Variable regularization tensors are created when this property is accessed,
 so it is eager safe: accessing <cite>losses</cite> under a <cite>tf.GradientTape</cite> will
@@ -2002,9 +2000,9 @@ propagate gradients back to the corresponding variables.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.metrics">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">metrics</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.metrics" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.metrics">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">metrics</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of metrics added using the <cite>add_metric()</cite> API.</p>
 <p>Example:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,))</span>
@@ -2022,23 +2020,23 @@ propagate gradients back to the corresponding variables.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.name">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.name" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Name of the layer (string), set in the constructor.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.name_scope">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name_scope</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.name_scope" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.name_scope">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name_scope</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.name_scope" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a <cite>tf.name_scope</cite> instance for this class.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.non_trainable_variables">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">non_trainable_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.non_trainable_variables" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.non_trainable_variables">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">non_trainable_variables</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.non_trainable_variables" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.non_trainable_weights">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">non_trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.non_trainable_weights" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.non_trainable_weights">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">non_trainable_weights</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.non_trainable_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all non-trainable weights tracked by this layer.</p>
 <p>Non-trainable weights are <em>not</em> updated during training. They are expected
 to be updated manually in <cite>call()</cite>.</p>
@@ -2050,14 +2048,14 @@ themselves Keras layers.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.outbound_nodes">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">outbound_nodes</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.outbound_nodes" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.outbound_nodes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">outbound_nodes</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.outbound_nodes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deprecated, do NOT use! Only for compatibility with external Keras.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.output">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.output" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.output">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">output</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.output" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output tensor(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one output,
 i.e. if it is connected to one incoming layer.</p>
@@ -2074,9 +2072,9 @@ i.e. if it is connected to one incoming layer.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.output_mask">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">output_mask</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.output_mask" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.output_mask">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">output_mask</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.output_mask" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output mask tensor(s) of a layer.</p>
 <p>Only applicable if the layer has exactly one inbound node,
 i.e. if it is connected to one incoming layer.</p>
@@ -2093,9 +2091,9 @@ mask tensors.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.output_shape">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">output_shape</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.output_shape" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.output_shape">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">output_shape</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.output_shape" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the output shape(s) of a layer.</p>
 <p>Only applicable if the layer has one output,
 or if all outputs have the same shape.</p>
@@ -2113,22 +2111,22 @@ or if all outputs have the same shape.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.reset_states">
-<span class="sig-name descname"><span class="pre">reset_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.reset_states" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.reset_states">
+<code class="sig-name descname"><span class="pre">reset_states</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.reset_states" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resets all of the metric state variables.</p>
 <p>This function is called between epochs/steps,
 when a metric is evaluated during training.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.result">
-<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.result" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.result">
+<code class="sig-name descname"><span class="pre">result</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.result" title="Permalink to this definition">¶</a></dt>
 <dd><p>Computes and returns the metric value tensor.</p>
 <p>Result computation is an idempotent operation that simply calculates the
 metric value using the state variables.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.set_weights">
-<span class="sig-name descname"><span class="pre">set_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.set_weights" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.set_weights">
+<code class="sig-name descname"><span class="pre">set_weights</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.set_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the weights of the layer, from Numpy arrays.</p>
 <p>The weights of a layer represent the state of the layer. This function
 sets the weight values from numpy arrays. The weight values should be
@@ -2173,13 +2171,13 @@ output of <cite>get_weights</cite>).</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.stateful">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">stateful</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.stateful" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.stateful">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">stateful</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.stateful" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.submodules">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">submodules</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.submodules" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.submodules">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">submodules</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.submodules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sequence of all sub-modules.</p>
 <p>Submodules are modules which are properties of this module, or found as
 properties of modules which are properties of this module (and so on).</p>
@@ -2202,18 +2200,18 @@ properties of modules which are properties of this module (and so on).</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.supports_masking">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">supports_masking</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.supports_masking" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.supports_masking">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">supports_masking</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.supports_masking" title="Permalink to this definition">¶</a></dt>
 <dd><p>Whether this layer supports computing a mask using <cite>compute_mask</cite>.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.trainable">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">trainable</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.trainable" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.trainable">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">trainable</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.trainable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.trainable_variables">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">trainable_variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.trainable_variables" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.trainable_variables">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">trainable_variables</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.trainable_variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sequence of trainable variables owned by this module and its submodules.</p>
 <p>Note: this method uses reflection to find variables on the current instance
 and submodules. For performance reasons you may wish to cache the result
@@ -2226,9 +2224,9 @@ first).</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.trainable_weights">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">trainable_weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.trainable_weights" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.trainable_weights">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">trainable_weights</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.trainable_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of all trainable weights tracked by this layer.</p>
 <p>Trainable weights are updated via gradient descent during training.</p>
 <p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are not
@@ -2240,8 +2238,8 @@ themselves Keras layers.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.update_state">
-<span class="sig-name descname"><span class="pre">update_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.update_state" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.update_state">
+<code class="sig-name descname"><span class="pre">update_state</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.update_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Accumulates statistics for the metric.</p>
 <p>Note: This function is executed as a graph function in graph mode.
 This means:</p>
@@ -2265,18 +2263,18 @@ eager execution.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.updates">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">updates</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.updates" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.updates">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">updates</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.updates" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.variable_dtype">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">variable_dtype</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.variable_dtype" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.variable_dtype">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">variable_dtype</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.variable_dtype" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias of <cite>Layer.dtype</cite>, the dtype of the weights.</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.variables">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.variables" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.variables">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">variables</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.variables" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of all layer variables/weights.</p>
 <p>Alias of <cite>self.weights</cite>.</p>
 <p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are not
@@ -2287,9 +2285,9 @@ themselves Keras layers.</p>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.weights">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">weights</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.weights" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.weights">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">weights</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the list of all layer variables/weights.</p>
 <p>Note: This will not track the weights of nested <cite>tf.Modules</cite> that are not
 themselves Keras layers.</p>
@@ -2300,8 +2298,8 @@ themselves Keras layers.</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.F1Score.with_name_scope">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">with_name_scope</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.with_name_scope" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.F1Score.with_name_scope">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">with_name_scope</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.F1Score.with_name_scope" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decorator to automatically enter the module name scope.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">MyModule</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="gp">... </span>  <span class="nd">@tf</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">with_name_scope</span>
@@ -2332,8 +2330,8 @@ names included the module name:</p>
 </dd></dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.build_embd_dictionary">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">build_embd_dictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.build_embd_dictionary" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.build_embd_dictionary">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></code><code class="sig-name descname"><span class="pre">build_embd_dictionary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.build_embd_dictionary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a numpy embedding dictionary from embed file with GloVe-like format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2342,8 +2340,8 @@ names included the module name:</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.create_glove_char">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">create_glove_char</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.create_glove_char" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.create_glove_char">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></code><code class="sig-name descname"><span class="pre">create_glove_char</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_dims</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.create_glove_char" title="Permalink to this definition">¶</a></dt>
 <dd><p>Embeds GloVe chars embeddings from source file to n_dims principal
 components in a new file</p>
 <dl class="field-list simple">
@@ -2356,8 +2354,8 @@ components in a new file</p>
 </dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></span><span class="sig-name descname"><span class="pre">CharacterLevelCnnModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.character_level_cnn_model.</span></code><code class="sig-name descname"><span class="pre">CharacterLevelCnnModel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="dataprofiler.labelers.base_model.html#dataprofiler.labelers.base_model.BaseTrainableModel" title="dataprofiler.labelers.base_model.BaseTrainableModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.base_model.BaseTrainableModel</span></code></a></p>
 <p>CNN Model Initializer. initialize epoch_id</p>
 <dl class="field-list simple">
@@ -2378,12 +2376,12 @@ dropout, size_conv, num_fil, optimizer, default_label</p>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.requires_zero_mapping">
-<span class="sig-name descname"><span class="pre">requires_zero_mapping</span></span><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.requires_zero_mapping" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.requires_zero_mapping">
+<code class="sig-name descname"><span class="pre">requires_zero_mapping</span></code><em class="property"> <span class="pre">=</span> <span class="pre">True</span></em><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.requires_zero_mapping" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_label_mapping">
-<span class="sig-name descname"><span class="pre">set_label_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_label_mapping">
+<code class="sig-name descname"><span class="pre">set_label_mapping</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_label_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the labels for the model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2395,8 +2393,8 @@ dropout, size_conv, num_fil, optimizer, default_label</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.save_to_disk">
-<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.save_to_disk">
+<code class="sig-name descname"><span class="pre">save_to_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.save_to_disk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves whole model to disk with weights</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2408,8 +2406,8 @@ dropout, size_conv, num_fil, optimizer, default_label</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.load_from_disk">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_from_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.load_from_disk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads whole model from disk with weights</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2421,8 +2419,8 @@ dropout, size_conv, num_fil, optimizer, default_label</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reset_weights">
-<span class="sig-name descname"><span class="pre">reset_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reset_weights" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reset_weights">
+<code class="sig-name descname"><span class="pre">reset_weights</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reset_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset the weights of the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -2431,8 +2429,8 @@ dropout, size_conv, num_fil, optimizer, default_label</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.fit" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.fit">
+<code class="sig-name descname"><span class="pre">fit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train the current model with the training data and validation data</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2452,8 +2450,8 @@ not</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.add_label">
-<span class="sig-name descname"><span class="pre">add_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same_as</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.add_label" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.add_label">
+<code class="sig-name descname"><span class="pre">add_label</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same_as</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.add_label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a label to the data labeler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2469,20 +2467,20 @@ to single encoding index.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_class">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_class" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_class" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_parameters">
-<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_parameters">
+<code class="sig-name descname"><span class="pre">get_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.get_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dict of parameters from the model given a list.
 :param param_list: list of parameters to retrieve from the model.
 :type param_list: list
 :return: dict of parameters</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.help">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.help" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.help">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">help</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.help" title="Permalink to this definition">¶</a></dt>
 <dd><p>Help function describing alterable parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -2490,9 +2488,9 @@ to single encoding index.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.label_mapping">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">label_mapping</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.label_mapping" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.label_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>mapping of labels to their encoded values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -2500,19 +2498,19 @@ to single encoding index.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.labels">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">labels</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.labels" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the label
 :return: list of labels</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.num_labels">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">num_labels</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.num_labels" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.num_labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_labels</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.num_labels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_confidences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.predict" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.predict">
+<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_confidences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run model and get predictions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -2531,9 +2529,9 @@ to single encoding index.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reverse_label_mapping">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reverse_label_mapping</span></span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reverse_label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reverse_label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reversed order of current labels, useful for when needed to
 extract Labels via indices</p>
 <dl class="field-list simple">
@@ -2543,13 +2541,13 @@ extract Labels via indices</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_params">
-<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_params">
+<code class="sig-name descname"><span class="pre">set_params</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given kwargs, set the parameters if they exist.</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.details">
-<span class="sig-name descname"><span class="pre">details</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.details" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.details">
+<code class="sig-name descname"><span class="pre">details</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.character_level_cnn_model.CharacterLevelCnnModel.details" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints the relevant details of the model (summary, parameters, label
 mapping)</p>
 </dd></dl>
@@ -2606,7 +2604,6 @@ mapping)</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

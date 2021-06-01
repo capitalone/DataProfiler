@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Validators" href="dataprofiler.validators.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Base Validators - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -212,8 +210,8 @@
 <p>Build model for a dataset by identifying type of column along with its
 respective parameters.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.validators.base_validators.is_in_range">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.validators.base_validators.</span></span><span class="sig-name descname"><span class="pre">is_in_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.is_in_range" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.validators.base_validators.is_in_range">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.validators.base_validators.</span></code><code class="sig-name descname"><span class="pre">is_in_range</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.is_in_range" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see x is in the range of the config.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -228,8 +226,8 @@ respective parameters.</p>
 </dl>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.validators.base_validators.is_in_list">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.validators.base_validators.</span></span><span class="sig-name descname"><span class="pre">is_in_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.is_in_list" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.validators.base_validators.is_in_list">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.validators.base_validators.</span></code><code class="sig-name descname"><span class="pre">is_in_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.is_in_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks to see x is in the config list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -244,12 +242,12 @@ respective parameters.</p>
 </dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.validators.base_validators.Validator">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.validators.base_validators.</span></span><span class="sig-name descname"><span class="pre">Validator</span></span><a class="headerlink" href="#dataprofiler.validators.base_validators.Validator" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.validators.base_validators.Validator">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.validators.base_validators.</span></code><code class="sig-name descname"><span class="pre">Validator</span></code><a class="headerlink" href="#dataprofiler.validators.base_validators.Validator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.validators.base_validators.Validator.validate">
-<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.Validator.validate" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.validators.base_validators.Validator.validate">
+<code class="sig-name descname"><span class="pre">validate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.Validator.validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validate a data set. No option for validating a partial data set.</p>
 <p>Set configuration on run not on instantiation of the class such that
 you have the option to run multiple times with different configurations
@@ -280,8 +278,8 @@ specified in the configuration.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.validators.base_validators.Validator.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.Validator.get" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.validators.base_validators.Validator.get">
+<code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.validators.base_validators.Validator.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the results of the validation run.</p>
 </dd></dl>
 </dd></dl>
@@ -329,7 +327,6 @@ specified in the configuration.</p></li>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

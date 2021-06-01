@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Data Labeler Column Profile" href="dataprofiler.profilers.data_labeler_column_profile.html" /><link rel="prev" title="Categorical Column Profile" href="dataprofiler.profilers.categorical_column_profile.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Column Profile Compilers - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,16 +207,16 @@
         <div class="section" id="module-dataprofiler.profilers.column_profile_compilers">
 <span id="column-profile-compilers"></span><h1>Column Profile Compilers<a class="headerlink" href="#module-dataprofiler.profilers.column_profile_compilers" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.BaseCompiler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></span><span class="sig-name descname"><span class="pre">BaseCompiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.BaseCompiler">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></code><code class="sig-name descname"><span class="pre">BaseCompiler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.BaseCompiler.profile">
-<em class="property"><span class="pre">abstract</span> <span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile</span></span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler.profile" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.column_profile_compilers.BaseCompiler.profile">
+<em class="property"><span class="pre">abstract</span> <span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">profile</span></code><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler.profile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile">
-<span class="sig-name descname"><span class="pre">update_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile">
+<code class="sig-name descname"><span class="pre">update_profile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the profiles from the data frames</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -237,16 +235,16 @@
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></span><span class="sig-name descname"><span class="pre">ColumnPrimitiveTypeProfileCompiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></code><code class="sig-name descname"><span class="pre">ColumnPrimitiveTypeProfileCompiler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler" title="dataprofiler.profilers.column_profile_compilers.BaseCompiler"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.column_profile_compilers.BaseCompiler</span></code></a></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler.profile">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile</span></span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler.profile" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler.profile">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">profile</span></code><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler.profile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler.update_profile">
-<span class="sig-name descname"><span class="pre">update_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler.update_profile">
+<code class="sig-name descname"><span class="pre">update_profile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnPrimitiveTypeProfileCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the profiles from the data frames</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -265,16 +263,16 @@
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></span><span class="sig-name descname"><span class="pre">ColumnStatsProfileCompiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></code><code class="sig-name descname"><span class="pre">ColumnStatsProfileCompiler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler" title="dataprofiler.profilers.column_profile_compilers.BaseCompiler"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.column_profile_compilers.BaseCompiler</span></code></a></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler.profile">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile</span></span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler.profile" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler.profile">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">profile</span></code><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler.profile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler.update_profile">
-<span class="sig-name descname"><span class="pre">update_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler.update_profile">
+<code class="sig-name descname"><span class="pre">update_profile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnStatsProfileCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the profiles from the data frames</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -293,16 +291,16 @@
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></span><span class="sig-name descname"><span class="pre">ColumnDataLabelerCompiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></code><code class="sig-name descname"><span class="pre">ColumnDataLabelerCompiler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler" title="dataprofiler.profilers.column_profile_compilers.BaseCompiler"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.column_profile_compilers.BaseCompiler</span></code></a></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler.profile">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile</span></span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler.profile" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler.profile">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">profile</span></code><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler.profile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler.update_profile">
-<span class="sig-name descname"><span class="pre">update_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler.update_profile">
+<code class="sig-name descname"><span class="pre">update_profile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.ColumnDataLabelerCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the profiles from the data frames</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -321,16 +319,16 @@
 </dd></dl>
 </dd></dl>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></span><span class="sig-name descname"><span class="pre">UnstructuredCompiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.column_profile_compilers.</span></code><code class="sig-name descname"><span class="pre">UnstructuredCompiler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.column_profile_compilers.BaseCompiler" title="dataprofiler.profilers.column_profile_compilers.BaseCompiler"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.column_profile_compilers.BaseCompiler</span></code></a></p>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler.profile">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">profile</span></span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler.profile" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler.profile">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">profile</span></code><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler.profile" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler.update_profile">
-<span class="sig-name descname"><span class="pre">update_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler.update_profile">
+<code class="sig-name descname"><span class="pre">update_profile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.column_profile_compilers.UnstructuredCompiler.update_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the profiles from the data frames</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -400,7 +398,6 @@
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

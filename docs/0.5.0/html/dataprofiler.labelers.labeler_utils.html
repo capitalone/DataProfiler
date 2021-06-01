@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Regex Model" href="dataprofiler.labelers.regex_model.html" /><link rel="prev" title="Data Processing" href="dataprofiler.labelers.data_processing.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Labeler Utils - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.labelers.labeler_utils">
 <span id="labeler-utils"></span><h1>Labeler Utils<a class="headerlink" href="#module-dataprofiler.labelers.labeler_utils" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.f1_report_dict_to_str">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.labeler_utils.</span></span><span class="sig-name descname"><span class="pre">f1_report_dict_to_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f1_report</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.f1_report_dict_to_str" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.labeler_utils.f1_report_dict_to_str">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.labeler_utils.</span></code><code class="sig-name descname"><span class="pre">f1_report_dict_to_str</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">f1_report</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.f1_report_dict_to_str" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the report string from the f1_report dict.</p>
 <dl>
 <dt>Example Output:</dt><dd><blockquote>
@@ -235,8 +233,8 @@ inside sklearn.
 :rtype: str</p>
 </dd></dl>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.labelers.labeler_utils.evaluate_accuracy">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.labeler_utils.</span></span><span class="sig-name descname"><span class="pre">evaluate_accuracy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicted_entities_in_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_entities_in_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_rev_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omitted_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('PAD',</span> <span class="pre">'UNKNOWN')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confusion_matrix_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.evaluate_accuracy" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.labeler_utils.evaluate_accuracy">
+<code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.labeler_utils.</span></code><code class="sig-name descname"><span class="pre">evaluate_accuracy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predicted_entities_in_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_entities_in_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_rev_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omitted_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('PAD',</span> <span class="pre">'UNKNOWN')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confusion_matrix_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.labeler_utils.evaluate_accuracy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Evaluate the accuracy from comparing the predicted labels with true labels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -306,7 +304,6 @@ sentences</p></li>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

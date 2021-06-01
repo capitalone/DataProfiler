@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Validators" href="dataprofiler.validators.html" /><link rel="prev" title="Labeler Utils" href="dataprofiler.labelers.labeler_utils.html" />
 
-    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.0.0, furo 2021.04.11.beta34"/>
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-3.5.4, furo 2021.04.11.beta34"/>
         <title>Regex Model - Data Profiler v0.5.0</title>
       <link rel="stylesheet" href="_static/styles/furo.css?digest=59ab60ac09ea94ccfe6deddff6d715cce948a6fc">
     <link rel="stylesheet" href="_static/pygments.css">
@@ -37,9 +37,7 @@
   --color-code-foreground: #d0d0d0;
   
   }
-</style><link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+</style><link rel="stylesheet" type="text/css" href="_static/custom.css" />
     <link rel="stylesheet" href="_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
   <body dir="">
     
@@ -209,8 +207,8 @@
         <div class="section" id="module-dataprofiler.labelers.regex_model">
 <span id="regex-model"></span><h1>Regex Model<a class="headerlink" href="#module-dataprofiler.labelers.regex_model" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.regex_model.</span></span><span class="sig-name descname"><span class="pre">RegexModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.regex_model.</span></code><code class="sig-name descname"><span class="pre">RegexModel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="dataprofiler.labelers.base_model.html#dataprofiler.labelers.base_model.BaseModel" title="dataprofiler.labelers.base_model.BaseModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.base_model.BaseModel</span></code></a></p>
 <p>Regex Model Initializer.</p>
 <dl>
@@ -257,8 +255,8 @@ Possible parameters are:</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.reset_weights">
-<span class="sig-name descname"><span class="pre">reset_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.reset_weights" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.reset_weights">
+<code class="sig-name descname"><span class="pre">reset_weights</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.reset_weights" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset the weights of the model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -267,8 +265,8 @@ Possible parameters are:</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_confidences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.predict" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.predict">
+<code class="sig-name descname"><span class="pre">predict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_confidences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies the regex patterns (within regex_model) to the input_string,
 create predictions for all matching patterns. Each pattern has an
 associated entity and the predictions of each character within the
@@ -295,8 +293,8 @@ be required.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.load_from_disk">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">load_from_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.load_from_disk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads whole model from disk with weights</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -308,8 +306,8 @@ be required.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.save_to_disk">
-<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.save_to_disk">
+<code class="sig-name descname"><span class="pre">save_to_disk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.save_to_disk" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves whole model to disk with weights.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -321,8 +319,8 @@ be required.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.add_label">
-<span class="sig-name descname"><span class="pre">add_label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same_as</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.add_label" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.add_label">
+<code class="sig-name descname"><span class="pre">add_label</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">same_as</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.add_label" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a label to the data labeler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -338,20 +336,20 @@ to single encoding index.</p></li>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.get_class">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.get_class" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.get_class" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.get_parameters">
-<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.get_parameters">
+<code class="sig-name descname"><span class="pre">get_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.get_parameters" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dict of parameters from the model given a list.
 :param param_list: list of parameters to retrieve from the model.
 :type param_list: list
 :return: dict of parameters</p>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.help">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.help" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.help">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">help</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.help" title="Permalink to this definition">¶</a></dt>
 <dd><p>Help function describing alterable parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -359,9 +357,9 @@ to single encoding index.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.label_mapping">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">label_mapping</span></span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.label_mapping" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.regex_model.RegexModel.label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.label_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>mapping of labels to their encoded values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -369,23 +367,23 @@ to single encoding index.</p></li>
 </dd>
 </dl>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.labels">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">labels</span></span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.labels" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.regex_model.RegexModel.labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">labels</span></code><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.labels" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the label
 :return: list of labels</p>
 </dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.num_labels">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">num_labels</span></span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.num_labels" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.regex_model.RegexModel.num_labels">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_labels</span></code><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.num_labels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.requires_zero_mapping">
-<span class="sig-name descname"><span class="pre">requires_zero_mapping</span></span><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.requires_zero_mapping" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.requires_zero_mapping">
+<code class="sig-name descname"><span class="pre">requires_zero_mapping</span></code><em class="property"> <span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.requires_zero_mapping" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.reverse_label_mapping">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">reverse_label_mapping</span></span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dl class="py method">
+<dt id="dataprofiler.labelers.regex_model.RegexModel.reverse_label_mapping">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reverse_label_mapping</span></code><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.reverse_label_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reversed order of current labels, useful for when needed to
 extract Labels via indices</p>
 <dl class="field-list simple">
@@ -395,8 +393,8 @@ extract Labels via indices</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.set_label_mapping">
-<span class="sig-name descname"><span class="pre">set_label_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.set_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.set_label_mapping">
+<code class="sig-name descname"><span class="pre">set_label_mapping</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.set_label_mapping" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the labels for the model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -409,8 +407,8 @@ converted into the label mapping</p>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="dataprofiler.labelers.regex_model.RegexModel.set_params">
-<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.set_params" title="Permalink to this definition">¶</a></dt>
+<dt id="dataprofiler.labelers.regex_model.RegexModel.set_params">
+<code class="sig-name descname"><span class="pre">set_params</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.regex_model.RegexModel.set_params" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given kwargs, set the parameters if they exist.</p>
 </dd></dl>
 </dd></dl>
@@ -466,7 +464,6 @@ converted into the label mapping</p>
   </main>
 </div>
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>

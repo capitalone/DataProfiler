@@ -184,18 +184,18 @@ class HistogramOption(BooleanOption):
         return errors
 
 
-class BaseColumnOptions(BooleanOption):
+class BaseInspectorOptions(BooleanOption):
 
-    def __init__(self):
+    def __init__(self, is_enabled=True):
         """
         Base options for all the columns.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        super().__init__(is_enabled=True)
+        super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path='BaseColumnOptions'):
+    def _validate_helper(self, variable_path='BaseInspectorOptions'):
         """
         Validates the options do not conflict and cause errors.
 
@@ -227,7 +227,7 @@ class BaseColumnOptions(BooleanOption):
         return is_enabled
 
 
-class NumericalOptions(BaseColumnOptions):
+class NumericalOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -255,7 +255,7 @@ class NumericalOptions(BaseColumnOptions):
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     @property
     def is_numeric_stats_enabled(self):
@@ -412,7 +412,8 @@ class PrecisionOptions(BooleanOption):
                               .format(variable_path))                
         
         return errors
-    
+
+
 class FloatOptions(NumericalOptions):
 
     def __init__(self):
@@ -501,7 +502,7 @@ class TextOptions(NumericalOptions):
         return errors
 
 
-class DateTimeOptions(BaseColumnOptions):
+class DateTimeOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -510,7 +511,7 @@ class DateTimeOptions(BaseColumnOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     def _validate_helper(self, variable_path='DateTimeOptions'):
         """
@@ -524,7 +525,7 @@ class DateTimeOptions(BaseColumnOptions):
         return super()._validate_helper(variable_path) 
 
 
-class OrderOptions(BaseColumnOptions):
+class OrderOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -533,7 +534,7 @@ class OrderOptions(BaseColumnOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     def _validate_helper(self, variable_path='OrderOptions'):
         """
@@ -547,7 +548,7 @@ class OrderOptions(BaseColumnOptions):
         return super()._validate_helper(variable_path) 
 
 
-class CategoricalOptions(BaseColumnOptions):
+class CategoricalOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -556,7 +557,7 @@ class CategoricalOptions(BaseColumnOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
 
     def _validate_helper(self, variable_path='CategoricalOptions'):
         """
@@ -570,7 +571,7 @@ class CategoricalOptions(BaseColumnOptions):
         return super()._validate_helper(variable_path) 
 
 
-class DataLabelerOptions(BaseColumnOptions):
+class DataLabelerOptions(BaseInspectorOptions):
 
     def __init__(self):
         """
@@ -583,7 +584,7 @@ class DataLabelerOptions(BaseColumnOptions):
         :ivar max_sample_size: Int to decide sample size
         :vartype max_sample_size: int
         """
-        BaseColumnOptions.__init__(self)
+        BaseInspectorOptions.__init__(self)
         self.data_labeler_dirpath = None
         self.max_sample_size = None
         self.data_labeler_object = None
@@ -655,6 +656,67 @@ class DataLabelerOptions(BaseColumnOptions):
         return errors
 
 
+class TextProfilerOptions(BaseInspectorOptions):
+
+    def __init__(self, is_enabled=True, is_case_sensitive=True,
+                 stop_words=None):
+        """
+        Constructs the TextProfilerOption object with default values.
+
+        :ivar is_enabled: boolean option to enable/disable the option.
+        :vartype is_enabled: bool
+        :ivar is_case_sensitive: option set for case sensitivity.
+        :vartype is_case_sensitive: bool
+        :ivar stop_words: option set for stop words.
+        :vartype stop_words: Union[None, list(str)]
+        :ivar words: option set for word update.
+        :vartype words: BooleanOption
+        :ivar vocab: option set for vocab update.
+        :vartype vocab: BooleanOption
+        """
+        super().__init__(is_enabled=is_enabled)
+        self.is_case_sensitive = is_case_sensitive
+        self.stop_words = stop_words
+        self.words = BooleanOption(is_enabled=True)
+        self.vocab = BooleanOption(is_enabled=True)
+
+    def _validate_helper(self, variable_path='TextProfilerOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        if not variable_path:
+            variable_path = self.__class__.__name__
+
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if not isinstance(self.is_case_sensitive, bool):
+            errors.append("{}.is_case_sensitive must be a Boolean."
+                          .format(variable_path))
+
+        if (self.stop_words is not None and
+                (not isinstance(self.stop_words, list)
+                 or not all(isinstance(item, str)
+                            for item in self.stop_words))):
+            errors.append("{}.stop_words must be None "
+                          "or list of strings.".format(variable_path))
+
+        if not isinstance(self.words, BooleanOption):
+            errors.append("{}.words must be a BooleanOption "
+                          "object."
+                          .format(variable_path))
+
+        if not isinstance(self.vocab, BooleanOption):
+            errors.append("{}.vocab must be a BooleanOption "
+                          "object."
+                          .format(variable_path))
+        return errors
+
+
 class StructuredOptions(BaseOption):
 
     def __init__(self):
@@ -686,13 +748,13 @@ class StructuredOptions(BaseOption):
         self.data_labeler = DataLabelerOptions()
 
     @property
-    def enabled_columns(self):
-        """Returns a list of the enabled profiler columns."""
-        enabled_columns = list()
+    def enabled_profiles(self):
+        """Returns a list of the enabled profilers for columns."""
+        enabled_profiles = list()
         for key, value in self.properties.items():
             if value.is_enabled:
-                enabled_columns.append(key)
-        return enabled_columns
+                enabled_profiles.append(key)
+        return enabled_profiles
 
     def _validate_helper(self, variable_path='StructuredOptions'):
         """
@@ -723,9 +785,62 @@ class StructuredOptions(BaseOption):
             if not isinstance(self.properties[column], prop_check[column]):
                 errors.append("{}.{} must be a(n) {}.".format(
                     variable_path, column, prop_check[column].__name__))
-            errors += self.properties[column]._validate_helper(
-                variable_path=(variable_path + '.' + column
-                               if variable_path else column))
+            else:
+                errors += self.properties[column]._validate_helper(
+                    variable_path=(variable_path + '.' + column
+                                   if variable_path else column))
+        return errors
+
+
+class UnstructuredOptions(BaseOption):
+
+    def __init__(self):
+        """
+        Constructs the UnstructuredOptions object with default values.
+
+        :ivar text: option set for text profiling.
+        :vartype text: TextProfilerOptions
+        :ivar data_labeler: option set for data_labeler profiling.
+        :vartype data_labeler: DataLabelerOptions
+        """
+        self.text = TextProfilerOptions()
+        self.data_labeler = DataLabelerOptions()
+
+    @property
+    def enabled_profiles(self):
+        """Returns a list of the enabled profilers."""
+        enabled_profiles = list()
+        for key, value in self.properties.items():
+            if value.is_enabled:
+                enabled_profiles.append(key)
+        return enabled_profiles
+
+    def _validate_helper(self, variable_path='UnstructuredOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        if not isinstance(variable_path, str):
+            raise ValueError("The variable path must be a string.")
+
+        errors = []
+
+        prop_check = dict([
+            ('text', TextProfilerOptions),
+            ('data_labeler', DataLabelerOptions)
+        ])
+
+        for prop in self.properties:
+            if not isinstance(self.properties[prop], prop_check[prop]):
+                errors.append("{}.{} must be a(n) {}.".format(
+                    variable_path, prop, prop_check[prop].__name__))
+            else:
+                errors += self.properties[prop]._validate_helper(
+                    variable_path=(variable_path + '.' + prop
+                                   if variable_path else prop))
         return errors
 
 
@@ -737,8 +852,11 @@ class ProfilerOptions(BaseOption):
 
         :ivar structured_options: option set for structured dataset profiling.
         :vartype structured_options: StructuredOptions
+        :ivar unstructured_options: option set for unstructured dataset profiling.
+        :vartype unstructured_options: UnstructuredOptions
         """
         self.structured_options = StructuredOptions()
+        self.unstructured_options = UnstructuredOptions()
 
     def _validate_helper(self, variable_path='ProfilerOptions'):
         """
@@ -760,4 +878,54 @@ class ProfilerOptions(BaseOption):
         errors += self.structured_options._validate_helper(
             variable_path=variable_path + '.structured_options')
 
+        if not isinstance(self.unstructured_options, UnstructuredOptions):
+            errors.append("{}.unstructured_options must be an UnstructuredOptions."
+                          .format(variable_path))
+
+        errors += self.unstructured_options._validate_helper(
+            variable_path=variable_path + '.unstructured_options')
+
         return errors
+
+    def set(self, options):
+        """
+        Overwrites BaseOption.set since the type (unstructured/structured) may
+        need to be specified if the same options exist within both
+        self.structured_options and self.unstructured_options
+
+        :param options: Dictionary of options to set
+        :type options: dict
+        :Return: None
+        """
+        if not isinstance(options, dict):
+            raise ValueError("The options must be a dictionary.")
+
+        # Options that need further specification
+        overlap_options = {"data_labeler_object", "data_labeler_dirpath",
+                           "text.is_enabled", "text.vocab"}
+
+        # Specification needed for overlap_options above
+        option_specifications = {"structured_options", "unstructured_options"}
+
+        # Function to see if any overlap options present in option being set
+        def overlap_opt_set(opt):
+            for overlap_opt in overlap_options:
+                if overlap_opt in opt:
+                    return True
+            return False
+
+        overlap_dict = dict()
+        for option in options:
+            # Tried to set an overlap option without specifying struct/unstruct
+            if (option.split(".")[0] not in option_specifications
+                    and overlap_opt_set(option)):
+                overlap_dict[option] = options[option]
+
+        if overlap_dict:
+            raise ValueError(f"Attempted to set options {overlap_dict} in "
+                             f"ProfilerOptions without specifying whether "
+                             f"to set them for StructuredOptions or "
+                             f"UnstructuredOptions.")
+
+        # Set options as normal if none were overlapping
+        self._set_helper(options, variable_path='')

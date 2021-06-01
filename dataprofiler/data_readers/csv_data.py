@@ -106,6 +106,13 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     def header(self):
         return self._header
 
+    @property
+    def is_structured(self):
+        """
+        Determines compatibility with StructuredProfiler
+        """
+        return self.data_format == "dataframe"
+
     def _check_and_return_options(self, options):
         """
         Ensures options are valid inputs to the data reader.
@@ -586,7 +593,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             if header == 'auto':
                 options.update(header=cls._guess_header_row(
                     data_as_str, delimiter, quotechar))
-                
+
+        header = options.get('header', 0)
         max_line_count = 1000
         min_line_count = 3
         line_count = 0
@@ -597,7 +605,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         space_regex = data_utils.get_delimiter_regex(" ", quotechar)
 
         # Count the possible delimiters
-        for line in data_as_str.split('\n'):
+        for line in data_as_str.split('\n')[header:]:
 
             line_count += 1
             count = 0

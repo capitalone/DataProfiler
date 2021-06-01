@@ -60,6 +60,13 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
     def selected_columns(self):
         return self._selected_columns
 
+    @property
+    def is_structured(self):
+        """
+        Determines compatibility with StructuredProfiler
+        """
+        return self.data_format == "dataframe"
+
     def _load_data_from_str(self, data_as_str):
         data_generator = data_utils.data_generator(data_as_str.splitlines())
         data, original_df_dtypes = data_utils.read_json_df(

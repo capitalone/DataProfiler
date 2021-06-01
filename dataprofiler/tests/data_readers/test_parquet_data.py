@@ -55,6 +55,7 @@ class TestParquetDataClass(unittest.TestCase):
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'parquet')
+            self.assertEqual(input_file['path'], input_data_obj.input_file_path)
 
     def test_data_formats(self):
         """
@@ -125,3 +126,20 @@ class TestParquetDataClass(unittest.TestCase):
             self.assertEqual(input_file['count'],
                              data.length,
                              msg=input_file['path'])
+
+    def test_is_structured(self):
+        # Default construction
+        data = ParquetData()
+        self.assertTrue(data.is_structured)
+
+        # With option specifying dataframe as data_format
+        data = ParquetData(options={"data_format": "dataframe"})
+        self.assertTrue(data.is_structured)
+
+        # With option specifying records as data_format
+        data = ParquetData(options={"data_format": "records"})
+        self.assertFalse(data.is_structured)
+
+        # With option specifying json as data_format
+        data = ParquetData(options={"data_format": "json"})
+        self.assertFalse(data.is_structured)

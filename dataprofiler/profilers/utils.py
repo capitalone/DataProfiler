@@ -105,7 +105,7 @@ def shuffle_in_chunks(data_length, chunk_size):
         true_chunk_size = min(chunk_size, data_length - chunk_size * chunk_ind)
         values = [-1] * true_chunk_size
         
-        # Generate random list of indices
+        # Generate random list of indexes
         lower_bound_list = np.array(range(j, j + true_chunk_size))
         random_list = rng.integers(lower_bound_list, data_length)
 
@@ -204,7 +204,7 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
     Generate a multiprocessing pool to allocate functions too
 
     :param max_pool_size: Max number of processes assigned to the pool
-    :type max_pool_size: int
+    :type max_pool_size: Union[int, None]
     :param data_size: size of the dataset
     :type data_size: int
     :param cols: columns of the dataset
@@ -233,3 +233,15 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
             )            
 
     return pool, max_pool_size
+
+
+def overlap(x1, x2, y1, y2):
+    """
+    Return True iff [x1:x2] overlaps with [y1:y2]
+    """
+    if not all([isinstance(i, int) for i in [x1, x2, y1, y2]]):
+        return False
+    return ((y1 <= x1 <= y2) or
+            (y1 <= x2 <= y2) or
+            (x1 <= y1 <= x2) or
+            (x1 <= y2 <= x2))

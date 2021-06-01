@@ -1256,7 +1256,6 @@ class StructCharPostprocessor(BaseDataPostprocessor,
                          flatten_separator=flatten_separator,
                          random_state=random_state)
 
-
     def __eq__(self, other):
         """
         Checks if two processors are equal with one another.
@@ -1461,6 +1460,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         results['pred'] = labels_out
         if 'conf' in results:
             results['conf'] = confs_out
+            results['conf'] = np.delete(results['conf'], ignore_value, axis=1)
         return results
 
     def process(self, data, results, label_mapping):

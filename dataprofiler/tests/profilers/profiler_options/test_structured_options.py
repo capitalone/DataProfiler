@@ -168,22 +168,22 @@ class TestStructuredOptions(TestBaseOption):
         raised_error = set(str(cm.exception).split("\n"))
         self.assertEqual(expected_error, raised_error)
             
-    def test_enabled_columns(self):
+    def test_enabled_profilers(self):
         options = self.get_options()
         
         # All Columns Enabled
         for key in self.keys: 
             options.set({'{}.is_enabled'.format(key): True})
-        self.assertSetEqual(set(self.keys), set(options.enabled_columns))
+        self.assertSetEqual(set(self.keys), set(options.enabled_profiles))
 
         # No Columns Enabled        
         for key in self.keys: 
             options.set({'{}.is_enabled'.format(key): False})
-        self.assertEqual([], options.enabled_columns)
+        self.assertEqual([], options.enabled_profiles)
 
         # One Column Enabled
         for key in self.keys:
             options.set({'{}.is_enabled'.format(key): True})
-            self.assertSetEqual(set([key]), set(options.enabled_columns))
+            self.assertSetEqual(set([key]), set(options.enabled_profiles))
             options.set({'{}.is_enabled'.format(key): False})
 

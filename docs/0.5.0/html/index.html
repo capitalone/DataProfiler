@@ -480,15 +480,14 @@ profiling for the TextData object or string. Unstructured profiling also works
 with list(string), pd.Series(string) or pd.DataFrame(string) given profiler_type
 option specified as <cite>unstructured</cite>. Below is an example of unstructured profile
 with a text file.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>import dataprofiler as dp
-import json
-my_text = dp.Data('text_file.txt')
-profile = dp.Profiler(my_text)
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="n">my_text</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s1">'text_file.txt'</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">my_text</span><span class="p">)</span>
 
-# print the report using json to prettify.
-report = profile.report(report_options={"output_format":"pretty"})
-print(json.dumps(report, indent=4))
-```
+<span class="c1"># print the report using json to prettify.</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Another example of unstructured profile with pd.Series of string is given as below</p>
@@ -496,7 +495,7 @@ print(json.dumps(report, indent=4))
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
-<span class="n">text_data</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'first string'</span><span class="p">,</span> <span class="s1">'second string'</span><span class="p">]</span>
+<span class="n">text_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="s1">'first string'</span><span class="p">,</span> <span class="s1">'second string'</span><span class="p">])</span>
 <span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">text_data</span><span class="p">,</span> <span class="n">profiler_type</span><span class="o">=</span><span class="s2">"unstructured"</span><span class="p">)</span>
 
 <span class="c1"># print the report using json to prettify.</span>

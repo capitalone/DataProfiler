@@ -328,7 +328,6 @@ with a text file.
     # print the report using json to prettify.
     report = profile.report(report_options={"output_format":"pretty"})
     print(json.dumps(report, indent=4))
-    ```
     
 Another example of unstructured profile with pd.Series of string is given as below
 
@@ -338,7 +337,7 @@ Another example of unstructured profile with pd.Series of string is given as bel
     import pandas as pd
     import json
     
-    text_data = ['first string', 'second string']
+    text_data = pd.Series(['first string', 'second string'])
     profile = dp.Profiler(text_data, profiler_type="unstructured")
     
     # print the report using json to prettify.

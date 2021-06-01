@@ -18,7 +18,7 @@ profiler, and print out the report.
     
     profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
     
-    readable_report = profile.report(report_options={"output_format":"pretty"})
+    readable_report = profile.report(report_options={"output_format": "pretty"})
     print(json.dumps(readable_report, indent=4))
 
 If the data is structured, the profile will return global statistics as well as
@@ -70,7 +70,7 @@ Example uses a CSV file for example, but CSV, JSON, Avro or Parquet should also 
     profile = Profiler(data)
 
     # Generate a report and use json to prettify.
-    report  = profile.report(report_options={"output_format":"pretty"})
+    report  = profile.report(report_options={"output_format": "pretty"})
 
     # Print the report
     print(json.dumps(report, indent=4))
@@ -94,7 +94,7 @@ Currently, the data profiler is equipped to update its profile in batches.
     profile.update_profile(new_data)
 
     # Print the report using json to prettify.
-    report  = profile.report(report_options={"output_format":"pretty"})
+    report  = profile.report(report_options={"output_format": "pretty"})
     print(json.dumps(report, indent=4))
 
 
@@ -121,7 +121,7 @@ This also enables profiles to be determined in a distributed manner.
     profile3 = profile1 + profile2
 
     # Print the report using json to prettify.
-    report  = profile3.report(report_options={"output_format":"pretty"})
+    report  = profile3.report(report_options={"output_format": "pretty"})
     print(json.dumps(report, indent=4))
 
 
@@ -143,7 +143,7 @@ The profiles can easily be saved and loaded as shown below:
     profile.save(filepath="my_profile.pkl")
     
     loaded_profile = dp.Profiler.load("my_profile.pkl")
-    print(json.dumps(loaded_profile.report(report_options={"output_format":"compact"}), 
+    print(json.dumps(loaded_profile.report(report_options={"output_format": "compact"}), 
                                            indent=4))
 
 
@@ -159,19 +159,19 @@ explicit as shown below:
     import json
     from dataprofiler import Data, Profiler
     
-    # Creating an unstructured profile
-    data1 = Data("normal_text_file.txt")
-    unstructured_profile = Profiler(data1, profiler_type="unstructured")
-    
-    unstructured_report = unstructured_profile.report(report_options={"output_format":"pretty"})
-    print(json.dumps(unstructured_report, indent=4))
-    
     # Creating a structured profile
-    data2 = Data("normal_csv_file.csv")
-    structured_profile = Profiler(data2, profiler_type="structured")
+    data1 = Data("normal_csv_file.csv")
+    structured_profile = Profiler(data1, profiler_type="structured")
     
-    structured_report = structured_profile.report(report_options={"output_format":"pretty"})
+    structured_report = structured_profile.report(report_options={"output_format": "pretty"})
     print(json.dumps(structured_report, indent=4))
+    
+    # Creating an unstructured profile
+    data2 = Data("normal_text_file.txt")
+    unstructured_profile = Profiler(data2, profiler_type="unstructured")
+    
+    unstructured_report = unstructured_profile.report(report_options={"output_format": "pretty"})
+    print(json.dumps(unstructured_report, indent=4))
     
 
 Setting the Sample Size
@@ -222,7 +222,7 @@ Profile a Pandas DataFrame
     profile = dp.Profiler(my_dataframe)
 
     # print the report using json to prettify.
-    report = profile.report(report_options={"output_format":"pretty"})
+    report = profile.report(report_options={"output_format": "pretty"})
     print(json.dumps(report, indent=4))
 
     # read a specified column, in this case it is labeled 0:
@@ -249,7 +249,7 @@ In addition, it utilizes only the first 10,000 rows.
 
     # Read in profile and print results
     profile = Profiler(data)
-    print(json.dumps(profile.report(report_options={"output_format":"pretty"}), indent=4))
+    print(json.dumps(profile.report(report_options={"output_format": "pretty"}), indent=4))
 
 
 
@@ -296,7 +296,7 @@ must be specified as structured or unstructured when setting (ie. datalabeler op
     profile = Profiler(data, options=profile_options)
 
     # Print the report using json to prettify.
-    report  = profile.report(report_options={"output_format":"pretty"})
+    report  = profile.report(report_options={"output_format": "pretty"})
     print(json.dumps(report, indent=4))
 
 

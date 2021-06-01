@@ -308,7 +308,7 @@ def mock_open(filename, *args):
         return StringIO('{}')
 
 
-@mock.patch("keras.models.load_model")
+@mock.patch("tensorflow.keras.models.load_model")
 @mock.patch("builtins.open", side_effect=mock_open)
 class TestLoadedDataLabeler(unittest.TestCase):
 

@@ -9,8 +9,9 @@ from .categorical_column_profile import CategoricalColumn
 from .order_column_profile import OrderColumn
 
 from .data_labeler_column_profile import DataLabelerColumn
+from .unstructured_labeler_profile import UnstructuredLabelerProfile
 
-from .profile_builder import Profiler
+from .profile_builder import StructuredProfiler, UnstructuredProfiler, Profiler
 """
 The purpose of this package is to provide statistics and predictions for a 
 given dataset.

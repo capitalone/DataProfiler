@@ -62,6 +62,13 @@ class TextData(BaseData):
     def samples_per_line(self):
         return self._samples_per_line
 
+    @property
+    def is_structured(self):
+        """
+        Determines compatibility with StructuredProfiler
+        """
+        return False
+
     def _load_data(self, data=None):
         if data is not None:
             self._data = data

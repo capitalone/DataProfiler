@@ -15,7 +15,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     the dataset which is a float column.
     """
 
-    col_type = "float"
+    type = "float"
 
     def __init__(self, name, options=None):
         """

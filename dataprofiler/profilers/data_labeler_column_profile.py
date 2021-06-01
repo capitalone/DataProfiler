@@ -9,14 +9,14 @@ from .profiler_options import DataLabelerOptions
 
 class DataLabelerColumn(BaseColumnProfiler):
     
-    col_type = "data_labeler"
+    type = "data_labeler"
     
     def __init__(self, name, options=None):
         """
         Initialization of Data Label profiling for structured datasets.
 
-        :param data_labeler_dirpath: Directory path to the data labeler
-        :type data_labeler_dirpath: String
+        :param name: name of column being profiled
+        :type name: String
         :param options: Options for the data labeler column
         :type options: DataLabelerOptions
         """
@@ -43,12 +43,18 @@ class DataLabelerColumn(BaseColumnProfiler):
                 dirpath=data_labeler_dirpath,
                 load_options=None)
 
-        reverse_label_mapping = self.data_labeler.reverse_label_mapping
+        self.reverse_label_mapping = self.data_labeler.reverse_label_mapping
         num_labels = self.data_labeler.model.num_labels
-        self._possible_data_labels = list(reverse_label_mapping.values())
+
+        # remove PAD from output (reserved zero index)
+        if self.data_labeler.model.requires_zero_mapping:
+            self.reverse_label_mapping.pop(0, None)
+            num_labels -= 1
+
+        self._possible_data_labels = list(self.reverse_label_mapping.values())
         self._possible_data_labels = [  # sort the data_labels based on index
             x for _, x in sorted(zip(
-                reverse_label_mapping.keys(), self._possible_data_labels)
+                self.reverse_label_mapping.keys(), self._possible_data_labels)
             )
         ]
         self.rank_distribution = dict(
@@ -254,16 +260,20 @@ class DataLabelerColumn(BaseColumnProfiler):
         sum_predictions = np.sum(predictions['conf'], axis=0)
         self._sum_predictions += sum_predictions
 
-        label_decoder = self.data_labeler.reverse_label_mapping
         rank_predictions = np.argpartition(
             predictions['conf'], axis=1, kth=-self._top_k_voting
         )
+        start_index = 0
+        if self.data_labeler.model.requires_zero_mapping:
+            start_index = 1
         for i in range(rank_predictions.shape[0]):
             sorted_rank = rank_predictions[i][-self._top_k_voting:]
             sorted_rank = sorted_rank[np.argsort(predictions['conf'][i][sorted_rank])]
             for rank_position, value in enumerate(sorted_rank):
                 if predictions['conf'][i][value] > self._min_voting_prob:
-                    self.rank_distribution[label_decoder[value]] += rank_position + 1
+                    self.rank_distribution[
+                        self.reverse_label_mapping[value + start_index]
+                    ] += rank_position + 1
 
     def _update_helper(self, df_series_clean, profile):
         """

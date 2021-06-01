@@ -42,7 +42,7 @@ def flat_dict(od, separator='_', key=''):
            } if isinstance(od, dict) else {key:od}
 
 
-def _prepare_report(report, output_format=None, omit_keys=[]):
+def _prepare_report(report, output_format=None, omit_keys=None):
     """
     Prepares report dictionary for users upon request.
 

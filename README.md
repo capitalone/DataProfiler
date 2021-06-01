@@ -313,7 +313,7 @@ print(json.dumps(report["data stats"][0], indent=4))
 ```
 
 ### Unstructured profiler
-In addition to structure profiler, DataProfiler provides unstructured profiling for the TextData object or string. Unstructured profile also works with list(string), pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of unstructured profile with a text file. 
+In addition to the structured profiler, DataProfiler provides unstructured profiling for the TextData object or string. Unstructured profile also works with list(string), pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of the unstructured profiler with a text file. 
 ```python
 import dataprofiler as dp
 import json
@@ -322,21 +322,21 @@ my_text = dp.Data('text_file.txt')
 profile = dp.Profiler(my_text)
 
 # print the report using json to prettify.
-report = profile.report(report_options={"output_format":"pretty"})
+report = profile.report(report_options={"output_format": "pretty"})
 print(json.dumps(report, indent=4))
 ```
 
-Another example of unstructured profile with pd.Series of string is given as below
+Another example of unstructured profiler with pd.Series of strings is given as below, with the profiler option `profiler_type='unstructured'`
 ```python
 import dataprofiler as dp
 import pandas as pd
 import json
 
-text_data = pd.Series(['first string', 'second string'], profiler_type='unstructured')
-profile = dp.Profiler(text_data)
+text_data = pd.Series(['first string', 'second string'])
+profile = dp.Profiler(text_data, profiler_type='unstructured')
 
 # print the report using json to prettify.
-report = profile.report(report_options={"output_format":"pretty"})
+report = profile.report(report_options={"output_format": "pretty"})
 print(json.dumps(report, indent=4))
 ```
 **Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**

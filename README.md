@@ -20,7 +20,7 @@ print(data.data.head(5)) # Access data directly via a compatible Pandas DataFram
 
 profile = Profiler(data) # Calculate Statistics, Entity Recognition, etc
 
-readable_report = profile.report(report_options={"output_format":"compact"})
+readable_report = profile.report(report_options={"output_format": "compact"})
 
 print(json.dumps(readable_report, indent=4))
 ```
@@ -239,7 +239,7 @@ data = Data("your_file.csv")
 profile = Profiler(data)
 
 # Generate a report and use json to prettify.
-report  = profile.report(report_options={"output_format":"pretty"})
+report  = profile.report(report_options={"output_format": "pretty"})
 
 # Print the report
 print(json.dumps(report, indent=4))
@@ -262,7 +262,7 @@ new_data = Data("new_data.csv")
 profile.update_profile(new_data)
 
 # Print the report using json to prettify.
-report  = profile.report(report_options={"output_format":"pretty"})
+report  = profile.report(report_options={"output_format": "pretty"})
 print(json.dumps(report, indent=4))
 ```
 
@@ -289,7 +289,7 @@ profile2 = Profiler(data)
 profile3 = profile1 + profile2
 
 # Print the report using json to prettify.
-report  = profile3.report(report_options={"output_format":"pretty"})
+report  = profile3.report(report_options={"output_format": "pretty"})
 print(json.dumps(report, indent=4))
 ```
 
@@ -305,7 +305,7 @@ my_dataframe = pd.DataFrame([[1, 2.0],[1, 2.2],[-1, 3]])
 profile = dp.Profiler(my_dataframe)
 
 # print the report using json to prettify.
-report = profile.report(report_options={"output_format":"pretty"})
+report = profile.report(report_options={"output_format": "pretty"})
 print(json.dumps(report, indent=4))
 
 # read a specified column, in this case it is labeled 0:

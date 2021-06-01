@@ -147,8 +147,8 @@ The format for an unstructured profile is below:
 * JSON object
 * Avro file
 * Parquet file
-* Pandas DataFrame
 * Text file
+* Pandas DataFrame
 
 ### Data Types
 
@@ -197,8 +197,8 @@ The Data Profiler can profile the following data/file types:
 * JSON object
 * Avro file
 * Parquet file
-* Pandas DataFrame
 * Text file
+* Pandas DataFrame
 
 The profiler should automatically identify the file type and load the data into a `Data Class`.
 

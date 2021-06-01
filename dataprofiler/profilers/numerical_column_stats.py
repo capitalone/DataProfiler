@@ -154,7 +154,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_counts, bin_edges = self._get_histogram(combined_values)
         self._stored_histogram['histogram']['bin_counts'] = bin_counts
         self._stored_histogram['histogram']['bin_edges'] = bin_edges
-
+        print('combined_values ==========: ', combined_values)
         histogram_loss = self._histogram_bin_error(combined_values)
         self._stored_histogram['histogram']['current_loss'] = histogram_loss
         self._stored_histogram['histogram']['total_loss'] = histogram_loss
@@ -304,18 +304,22 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
 
-        # account ofr digitize which is exclusive
+        # account for digitize with max value exclusive
         bin_edges = bin_edges.copy()
-        bin_edges[-1] += 1e-3
+        temp_last_edge = bin_edges[-1]
+        bin_edges[-1] = np.inf
 
         inds = np.digitize(input_array, bin_edges)
+        if temp_last_edge == np.inf:
+            inds = np.minimum(inds, len(bin_edges) - 1)
 
         # reset the edge
-        bin_edges[-1] -= 1e-3
+        bin_edges[-1] = temp_last_edge
 
         sum_error = sum(
             (input_array - (bin_edges[inds] + bin_edges[inds - 1])/2) ** 2
         )
+
         return sum_error
 
     @staticmethod

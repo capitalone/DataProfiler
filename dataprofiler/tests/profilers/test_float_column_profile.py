@@ -10,7 +10,6 @@ import numpy as np
 from dataprofiler.profilers import FloatColumn
 from dataprofiler.profilers.profiler_options import FloatOptions
 
-
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
@@ -498,6 +497,21 @@ class TestFloatColumn(unittest.TestCase):
         profiler2.max_histogram_bin = 10000
         profiler2.update(df2)
         num_bins = len(profiler2.profile['histogram']['bin_counts'])
+        print('**************************')
+        print('**************************')
+        print('**************************')
+        print('**************************')
+        print('**************************')
+        print('**************************')
+        print(df2)
+        print(profiler2.profile['histogram']['bin_counts'])
+        print(profiler2.profile['histogram']['bin_edges'])
+        print('**************************')
+        print('**************************')
+        print('**************************')
+        print('**************************')
+        print('**************************')
+        print('**************************')
         self.assertEqual(10000, num_bins)
 
     def test_estimate_stats_from_histogram(self):
@@ -1019,3 +1033,4 @@ class TestFloatColumn(unittest.TestCase):
 
         histogram, _ = num_profiler._histogram_for_profile('custom')
         self.assertEqual(100, len(histogram['bin_counts']))
+

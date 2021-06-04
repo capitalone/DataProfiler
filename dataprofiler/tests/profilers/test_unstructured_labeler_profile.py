@@ -131,7 +131,25 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
 
         # key and value populated correctly
         self.assertDictEqual(expected_profile, profile)
+
+
+    def test_unstructured_labeler_profile_add(self):
+        profile1 = UnstructuredLabelerProfile()
+        sample = pd.Series(["abc123", "Bob", "!@##$%"])
+        profile1.update(sample)
         
+        profile2 = UnstructuredLabelerProfile()
+        sample = pd.Series(["hello", "my name", "is grant"])
+        profile2.update(sample)
+
+        merged_profile = profile1 + profile2
+        
+        self.assertEqual(merged_profile.entity_counts["word_level"]["UNKNOWN"],
+                         profile1.entity_counts["word_level"]["UNKNOWN"] +
+                         profile2.entity_counts["word_level"]["UNKNOWN"])
+        self.assertEqual(merged_profile.times["data_labeler_predict"],
+                         profile1.times["data_labeler_predict"] +
+                         profile2.times["data_labeler_predict"])
 
 if __name__ == '__main__':
     unittest.main()

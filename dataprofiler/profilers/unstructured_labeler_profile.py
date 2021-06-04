@@ -1,8 +1,10 @@
 from collections import defaultdict
+import copy
 
 from .base_column_profilers import BaseColumnProfiler
 from ..labelers.data_labelers import DataLabeler
 from ..labelers.data_processing import CharPostprocessor
+from .profiler_options import DataLabelerOptions
 
 
 class UnstructuredLabelerProfile(object):
@@ -47,15 +49,91 @@ class UnstructuredLabelerProfile(object):
         self.separators = (' ', ',', ';', '"', ':', '\n', '\t', ".", "!", "'")
         self.times = defaultdict(float)
 
+    def __add__(self, other):
+        """
+        Merges the properties of two UnstructuredLabelerProfile
+
+        :param self: first profile
+        :param other: second profile
+        :type self: UnstructuredLabelerProfile
+        :type other: UnstructuredLabelerProfile
+        :return: New UnstructuredLabelerProfile merged profile
+        """
+        
+        if not isinstance(other, UnstructuredLabelerProfile):
+            raise TypeError("Unsupported operand type(s) for +: "
+                            "'UnstructuredLabelerProfile' and '{}'".format(
+                other.__class__.__name__))
+        
+        if self.data_labeler != other.data_labeler:
+            raise AttributeError("Cannot merge. The data labeler is not the "
+                                 "same for both profiles.")
+
+        # recreate options so the DataLabeler is transferred and not duplicated
+        options = DataLabelerOptions()
+        options.data_labeler_object = self.data_labeler
+
+        merged_profile = UnstructuredLabelerProfile(options=options)
+        merged_profile.entity_counts = merged_profile.\
+            add_nested_dictionaries(self.entity_counts, other.entity_counts)
+
+        merged_profile.char_sample_size = self.char_sample_size + \
+                                          other.char_sample_size
+        merged_profile.word_sample_size = self.word_sample_size + \
+                                          other.word_sample_size
+        
+        merged_profile.times = merged_profile.\
+            add_nested_dictionaries(self.times, other.times)
+        
+        merged_profile._update_percentages()
+
+        return merged_profile
+
     @property
     def label_encoding(self):
         return self.data_labeler.labels
+
+
+    def add_nested_dictionaries(self, first_dict, second_dict):
+        """
+        Merges two dictionaries together and adds values together
+
+        :param first_dict: dictionary to be merged
+        :type first_dict: dict
+        :param second_dict: dictionary to be merged
+        :type second_dict: dict
+        :return: merged dictionary
+        """
+        if isinstance(first_dict, defaultdict):
+            merged_dict = defaultdict(first_dict.default_factory)
+        else:
+            merged_dict = {}
+            
+        for item in first_dict:
+            if item in second_dict:
+                if isinstance(first_dict[item], dict) or \
+                        isinstance(first_dict[item], defaultdict):
+                    merged_dict[item] = self.add_nested_dictionaries(
+                        first_dict[item],
+                        second_dict[item])
+                else:
+                    merged_dict[item] = first_dict[item] + second_dict[item]
+            else:
+                merged_dict[item] = first_dict[item]
+
+        for item in second_dict:
+            if item not in first_dict:
+                merged_dict[item] = second_dict[item]
+
+        return merged_dict
+
 
     @BaseColumnProfiler._timeit(name='data_labeler_predict')
     def _update_helper(self, df_series_clean, profile):
         """
         Method for updating the column profile properties with a cleaned
         dataset and the known profile of the dataset.
+
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
         :param profile: profile dictionary

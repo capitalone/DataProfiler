@@ -1,5 +1,4 @@
 from collections import defaultdict
-import copy
 
 from .base_column_profilers import BaseColumnProfiler
 from ..labelers.data_labelers import DataLabeler

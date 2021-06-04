@@ -132,14 +132,22 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         # key and value populated correctly
         self.assertDictEqual(expected_profile, profile)
 
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.DataLabeler')
+    def test_unstructured_labeler_profile_add(self, model_class_mock):
+        model_mock = mock.Mock()
+        model_mock.reverse_label_mapping = {0: 'PAD', 1: 'UNKNOWN', 2: 'TEST'}
+        model_mock.label_mapping = {'PAD': 0, 'UNKNOWN': 1, 'TEST': 2}
 
-    def test_unstructured_labeler_profile_add(self):
+        model_mock.predict.return_value = dict(pred=[[1,2,1,1,2,2,2]])
+        model_class_mock.return_value = model_mock
+        
         profile1 = UnstructuredLabelerProfile()
-        sample = pd.Series(["abc123", "Bob", "!@##$%"])
+        sample = pd.Series(["testing"])
         profile1.update(sample)
         
         profile2 = UnstructuredLabelerProfile()
-        sample = pd.Series(["hello", "my name", "is grant"])
+        sample = pd.Series(["samples"])
         profile2.update(sample)
 
         merged_profile = profile1 + profile2
@@ -147,6 +155,9 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         self.assertEqual(merged_profile.entity_counts["word_level"]["UNKNOWN"],
                          profile1.entity_counts["word_level"]["UNKNOWN"] +
                          profile2.entity_counts["word_level"]["UNKNOWN"])
+        self.assertEqual(merged_profile.entity_counts["word_level"]["testing"],
+                         profile1.entity_counts["word_level"]["testing"] +
+                         profile2.entity_counts["word_level"]["testing"])
         self.assertEqual(merged_profile.times["data_labeler_predict"],
                          profile1.times["data_labeler_predict"] +
                          profile2.times["data_labeler_predict"])

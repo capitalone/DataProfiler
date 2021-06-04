@@ -1,7 +1,7 @@
 
 import os
 import collections
-import random
+import copy
 import math
 import warnings
 import psutil
@@ -245,3 +245,33 @@ def overlap(x1, x2, y1, y2):
             (y1 <= x2 <= y2) or
             (x1 <= y1 <= x2) or
             (x1 <= y2 <= x2))
+
+def add_nested_dictionaries(first_dict, second_dict):
+    """
+    Merges two dictionaries together and adds values together
+
+    :param first_dict: dictionary to be merged
+    :type first_dict: dict
+    :param second_dict: dictionary to be merged
+    :type second_dict: dict
+    :return: merged dictionary
+    """
+    merged_dict = {}
+    if isinstance(first_dict, collections.defaultdict):
+        merged_dict = collections.defaultdict(first_dict.default_factory)
+
+    for item in first_dict:
+        if item in second_dict:
+            if isinstance(first_dict[item], (dict, collections.defaultdict)):
+                merged_dict[item] = add_nested_dictionaries(
+                    first_dict[item], second_dict[item])
+            else:
+                merged_dict[item] = first_dict[item] + second_dict[item]
+        else:
+            merged_dict[item] = copy.deepcopy(first_dict[item])
+
+    for item in second_dict:
+        if item not in first_dict:
+            merged_dict[item] = copy.deepcopy(second_dict[item])
+
+    return merged_dict

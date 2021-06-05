@@ -503,6 +503,48 @@ class TestStructuredProfiler(unittest.TestCase):
             load_report = _clean_report(load_profile.report())
             self.assertDictEqual(save_report, load_report)
 
+    def test_save_and_load_no_labeler(self):
+
+        def _clean_report(report):
+            data_stats = report["data_stats"]
+            for key in data_stats:
+                stats = data_stats[key]["statistics"]
+                if "histogram" in stats:
+                    if "bin_counts" in stats["histogram"]:
+                        stats["histogram"]["bin_counts"] = \
+                            stats["histogram"]["bin_counts"].tolist()
+                    if "bin_edges" in stats["histogram"]:
+                        stats["histogram"]["bin_edges"] = \
+                            stats["histogram"]["bin_edges"].tolist()
+            return report
+
+        # Create Data and UnstructuredProfiler objects
+        data = pd.DataFrame([1, 2, 3], columns=["a"])
+
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"data_labeler.is_enabled": False})
+
+        save_profile = dp.StructuredProfiler(data, options=profile_options)
+
+        # Save and Load profile with Mock IO
+        with mock.patch('builtins.open') as m:
+            mock_file = setup_save_mock_open(m)
+            save_profile.save()
+
+            mock_file.seek(0)
+            with mock.patch('dataprofiler.profilers.profile_builder.'
+                            'DataLabeler'):
+                load_profile = dp.StructuredProfiler.load("mock.pkl")
+
+        # Check that reports are equivalent
+        save_report = _clean_report(save_profile.report())
+        load_report = _clean_report(load_profile.report())
+        self.assertDictEqual(save_report, load_report)
+
+        # validate both are still usable after
+        save_profile.update_profile(pd.DataFrame(['test', 'test2']))
+        load_profile.update_profile(pd.DataFrame(['test', 'test2']))
+
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.'
@@ -1320,6 +1362,35 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             # validate both are still usable after
             save_profile.update_profile(pd.DataFrame(['test', 'test2']))
             load_profile.update_profile(pd.DataFrame(['test', 'test2']))
+
+    def test_save_and_load_no_labeler(self):
+
+        # Create Data and UnstructuredProfiler objects
+        data = 'this is my test data: 123-456-7890'
+
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"data_labeler.is_enabled": False})
+
+        save_profile = dp.UnstructuredProfiler(data, options=profile_options)
+
+        # Save and Load profile with Mock IO
+        with mock.patch('builtins.open') as m:
+            mock_file = setup_save_mock_open(m)
+            save_profile.save()
+
+            mock_file.seek(0)
+            with mock.patch('dataprofiler.profilers.profile_builder.'
+                            'DataLabeler'):
+                load_profile = dp.UnstructuredProfiler.load("mock.pkl")
+
+        # Check that reports are equivalent
+        save_report = save_profile.report()
+        load_report = load_profile.report()
+        self.assertDictEqual(save_report, load_report)
+
+        # validate both are still usable after
+        save_profile.update_profile(pd.DataFrame(['test', 'test2']))
+        load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
     def test_options_ingested_correctly(self):
         self.assertIsInstance(self.profiler.options, UnstructuredOptions)

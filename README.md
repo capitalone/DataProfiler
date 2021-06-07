@@ -309,7 +309,7 @@ report = profile.report(report_options={"output_format": "pretty"})
 print(json.dumps(report, indent=4))
 
 # read a specified column, in this case it is labeled 0:
-print(json.dumps(report["data stats"][0], indent=4))
+print(json.dumps(report["data_stats"][0], indent=4))
 ```
 
 ### Unstructured profiler

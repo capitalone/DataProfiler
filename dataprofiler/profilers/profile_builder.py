@@ -698,12 +698,13 @@ class BaseProfiler(object):
             # unstructured: _profile is a compiler
             # structured: StructuredColProfiler.profiles['data_label_profile']
             if isinstance(self, StructuredProfiler):
-                profiler = profiler.profiles['data_label_profile']
+                profiler = profiler.profiles.get('data_label_profile', None)
 
-            if use_data_labeler and data_labeler is None:
+            if profiler and use_data_labeler and data_labeler is None:
                 data_labeler = profiler._profiles['data_labeler'].data_labeler
 
-            profiler._profiles['data_labeler'].data_labeler = None
+            if profiler and 'data_labeler' in profiler._profiles:
+                profiler._profiles['data_labeler'].data_labeler = None
 
         return data_labeler
 
@@ -753,14 +754,15 @@ class BaseProfiler(object):
         # Restore data labelers for all columns
         for profiler in profilers:
 
-            # profiles stored differently in Struct/Unstruct, this unifies
-            # label replacement
-            # unstructured: _profile is a compiler
-            # structured: StructuredColProfiler.profiles['data_label_profile']
-            if isinstance(self, StructuredProfiler):
-                profiler = profiler.profiles['data_label_profile']
-
             if use_data_labeler:
+
+                # profiles stored differently in Struct/Unstruct, this unifies
+                # label replacement
+                # unstructured: _profile is a compiler
+                # structured: StructuredColProfiler.profiles['data_label_profile']
+                if isinstance(self, StructuredProfiler):
+                    profiler = profiler.profiles['data_label_profile']
+
                 data_labeler_profile = profiler._profiles['data_labeler']
                 data_labeler_profile.data_labeler = data_labeler
 

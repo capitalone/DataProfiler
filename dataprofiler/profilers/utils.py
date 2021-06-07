@@ -262,7 +262,7 @@ def add_nested_dictionaries(first_dict, second_dict):
 
     for item in first_dict:
         if item in second_dict:
-            if isinstance(first_dict[item], (dict, collections.defaultdict)):
+            if isinstance(first_dict[item], dict):
                 merged_dict[item] = add_nested_dictionaries(
                     first_dict[item], second_dict[item])
             else:

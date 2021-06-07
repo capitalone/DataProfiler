@@ -135,37 +135,53 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.'
                 'unstructured_labeler_profile.DataLabeler')
     def test_unstructured_labeler_profile_add(self, mock):
-        
+        # Test empty merge
         profile1 = UnstructuredLabelerProfile()
+        profile2 = UnstructuredLabelerProfile()
+        merged_profile = profile1 + profile2
+
+        self.assertDictEqual(merged_profile.entity_counts["word_level"], {})
+        self.assertDictEqual(merged_profile.entity_counts["true_char_level"], {})
+        self.assertDictEqual(merged_profile.entity_counts
+                             ["postprocess_char_level"], {})
+        self.assertEqual(merged_profile.word_sample_size, 0)
+        self.assertEqual(merged_profile.char_sample_size, 0)
+        
+        # Test merge with data
         profile1.word_sample_size = 7
         profile1.char_sample_size = 6
         profile1.entity_counts["word_level"]["UNKNOWN"] = 5
         profile1.entity_counts["word_level"]["TEST"] = 2
         profile1.entity_counts["true_char_level"]["PAD"] = 6
+        profile1.entity_counts["postprocess_char_level"]["UNKNOWN"] = 3
         
-        profile2 = UnstructuredLabelerProfile()
         profile2.word_sample_size = 4
         profile2.char_sample_size = 4
         profile2.entity_counts["word_level"]["UNKNOWN"] = 3
         profile2.entity_counts["word_level"]["PAD"] = 1
+        profile2.entity_counts["postprocess_char_level"]["UNKNOWN"] = 2
+        
 
         merged_profile = profile1 + profile2
         expected_word_level = {"UNKNOWN": 8, "TEST": 2, "PAD": 1}
         expected_true_char = {"PAD": 6}
+        expected_post_char = {"UNKNOWN": 5}
+        
         
         self.assertDictEqual(merged_profile.entity_counts["word_level"], 
                              expected_word_level)
         self.assertDictEqual(merged_profile.entity_counts["true_char_level"], 
                              expected_true_char)
         self.assertDictEqual(merged_profile.entity_counts["postprocess_char_level"],
-                             {})
-
+                             expected_post_char)
+        
         self.assertEqual(merged_profile.word_sample_size, 11)
         self.assertEqual(merged_profile.char_sample_size, 10)
 
         self.assertEqual(merged_profile.times["data_labeler_predict"],
                          profile1.times["data_labeler_predict"] +
                          profile2.times["data_labeler_predict"])
+        
 
 if __name__ == '__main__':
     unittest.main()

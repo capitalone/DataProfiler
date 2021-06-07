@@ -168,8 +168,9 @@ class UnstructuredLabelerProfile(object):
             total = self.char_sample_size
 
         percentages = {}
-        for entity in self.entity_counts[level]:
-            percentages[entity] = self.entity_counts[level][entity] / total
+        if total > 0:
+            for entity in self.entity_counts[level]:
+                percentages[entity] = self.entity_counts[level][entity] / total
         return percentages
 
     def _update_percentages(self):

@@ -17,6 +17,8 @@ import warnings
 
 import numpy as np
 
+from . import utils
+
 
 class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
     """
@@ -180,13 +182,8 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
             raise ValueError("Column names unmatched: {} != {}"
                              .format(other1.name, other2.name))
 
-        self.times = defaultdict(
-            float, {key: (other1.times.get(key, 0)
-                          + other2.times.get(key, 0)
-                          + self.times.get(key, 0))
-                    for key in (set(other1.times) | set(other2.times)
-                                | set(self.times))}
-        )
+        self.times = utils.add_nested_dictionaries(other1.times,
+                                                   other2.times)
 
         self.sample_size = other1.sample_size + other2.sample_size
 

@@ -111,7 +111,6 @@ class BaseOption(object):
             return errors
 
     def __eq__(self, other):
-        print("CALLED IT")
         self_dict = self.__dict__
         other_dict = other.__dict__
 

@@ -194,8 +194,8 @@ class TestStructuredOptions(TestBaseOption):
         options2 = self.get_options()
         options.multiprocess.is_enabled = False
         options.float.precision.sample_ratio = 0.1
-        self.assertFalse(options == options2)
+        self.assertNotEqual(options, options2)
         options2.multiprocess.is_enabled = False
         options2.float.precision.sample_ratio = 0.1
-        self.assertTrue(options == options2)
+        self.assertEqual(options, options2)
 

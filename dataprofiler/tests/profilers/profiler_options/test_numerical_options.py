@@ -116,8 +116,8 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         options2 = self.get_options()
         options.min.is_enabled = False
         options.variance.is_enabled = False
-        self.assertFalse(options == options2)
+        self.assertNotEqual(options, options2)
         options2.min.is_enabled = False
         options2.variance.is_enabled = False
-        self.assertTrue(options == options2)
+        self.assertEqual(options, options2)
 

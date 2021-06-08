@@ -32,6 +32,6 @@ class TestFloatOptions(TestNumericalOptions):
         options = self.get_options()
         options2 = self.get_options()
         options.precision.is_enabled = False
-        self.assertFalse(options == options2)
+        self.assertNotEqual(options, options2)
         options2.precision.is_enabled = False
-        self.assertTrue(options == options2)
+        self.assertEqual(options, options2)

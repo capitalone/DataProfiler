@@ -156,8 +156,8 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         options.data_labeler_dirpath = "hello"
         options.data_labeler_object = BaseDataLabeler()
         options.data_labeler_object._model = 7
-        self.assertFalse(options == options2)
+        self.assertNotEqual(options, options2)
         options2.data_labeler_dirpath = "hello"
         options2.data_labeler_object = BaseDataLabeler()
         options2.data_labeler_object._model = 7
-        self.assertTrue(options == options2)
+        self.assertEqual(options, options2)

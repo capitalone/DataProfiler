@@ -54,6 +54,6 @@ class TestBaseOption(AbstractTestOptions, unittest.TestCase):
 
     def test_eq(self):
         options = self.get_options()
-        self.assertTrue(options == options)
+        self.assertEqual(options, options)
         options2 = self.get_options()
-        self.assertTrue(options == options2)
+        self.assertEqual(options, options2)

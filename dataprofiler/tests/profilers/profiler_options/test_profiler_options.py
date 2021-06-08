@@ -392,10 +392,10 @@ class TestProfilerOptions(unittest.TestCase):
         options2 = ProfilerOptions()
         options.unstructured_options.data_labeler.is_enabled = False
         options.structured_options.float.precision.sample_ratio = 0.1
-        self.assertFalse(options == options2)
+        self.assertNotEqual(options, options2)
         options2.unstructured_options.data_labeler.is_enabled = False
         options2.structured_options.float.precision.sample_ratio = 0.1
-        self.assertTrue(options == options2)
+        self.assertEqual(options, options2)
 
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'

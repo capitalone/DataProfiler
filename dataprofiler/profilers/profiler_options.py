@@ -110,6 +110,16 @@ class BaseOption(object):
         elif errors: 
             return errors
 
+    def __eq__(self, other):
+        print("CALLED IT")
+        self_dict = self.__dict__
+        other_dict = other.__dict__
+
+        if type(self) != type(other):
+            return False
+
+        return all([self_dict[key] == other_dict[key] for key in self_dict])
+
 
 class BooleanOption(BaseOption):
 

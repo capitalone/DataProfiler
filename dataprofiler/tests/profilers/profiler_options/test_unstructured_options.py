@@ -127,3 +127,15 @@ class TestUnstructuredOptions(TestBaseOption):
         # Disable directly
         option.data_labeler.is_enabled = False
         self.assertEqual([], option.enabled_profiles)
+
+    def test_eq(self):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.data_labeler.is_enabled = False
+        options.text.stop_words = ["woah", "stop", "right", "there"]
+        self.assertFalse(options == options2)
+        options2.data_labeler.is_enabled = False
+        options2.text.stop_words = ["woah", "stop", "right", "there"]
+        self.assertTrue(options == options2)

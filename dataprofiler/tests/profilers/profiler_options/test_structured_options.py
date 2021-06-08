@@ -187,3 +187,15 @@ class TestStructuredOptions(TestBaseOption):
             self.assertSetEqual(set([key]), set(options.enabled_profiles))
             options.set({'{}.is_enabled'.format(key): False})
 
+    def test_eq(self):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.multiprocess.is_enabled = False
+        options.float.precision.sample_ratio = 0.1
+        self.assertFalse(options == options2)
+        options2.multiprocess.is_enabled = False
+        options2.float.precision.sample_ratio = 0.1
+        self.assertTrue(options == options2)
+

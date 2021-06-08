@@ -115,14 +115,10 @@ class BaseOption(object):
         Determines equality by ensuring equality of all attributes, some of
         which may be Options objects themselves.
         """
-        self_dict = self.__dict__
-        other_dict = other.__dict__
-
-        # Ensures keys in dictionaries are the same below
         if not isinstance(other, self.__class__):
             return False
 
-        return all([self_dict[key] == other_dict[key] for key in self_dict])
+        return self.__dict__ == other.__dict__
 
 
 class BooleanOption(BaseOption):

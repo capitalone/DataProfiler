@@ -58,7 +58,7 @@ class BaseDataLabeler(object):
         :return: Whether or not self and other are equal
         :rtype: Bool
         """
-        if other is None:
+        if not isinstance(other, BaseDataLabeler):
             return False
         if self._preprocessor != other.preprocessor \
                 or self._model != other.model \

@@ -177,7 +177,7 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()
 
-    def test_eq(self, *mocks):
+    def test_eq(self):
         super().test_eq()
 
         options = self.get_options()

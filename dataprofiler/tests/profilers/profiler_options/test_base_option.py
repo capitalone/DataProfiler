@@ -51,3 +51,9 @@ class TestBaseOption(AbstractTestOptions, unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             options.validate()
+
+    def test_eq(self):
+        options = self.get_options()
+        self.assertTrue(options == options)
+        options2 = self.get_options()
+        self.assertTrue(options == options2)

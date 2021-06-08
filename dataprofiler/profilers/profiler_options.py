@@ -111,10 +111,15 @@ class BaseOption(object):
             return errors
 
     def __eq__(self, other):
+        """
+        Determines equality by ensuring equality of all attributes, some of
+        which may be Options objects themselves.
+        """
         self_dict = self.__dict__
         other_dict = other.__dict__
 
-        if type(self) != type(other):
+        # Ensures keys in dictionaries are the same below
+        if not isinstance(other, self.__class__):
             return False
 
         return all([self_dict[key] == other_dict[key] for key in self_dict])

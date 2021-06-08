@@ -160,6 +160,9 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         options2.data_labeler_dirpath = "hello"
         self.assertEqual(options, options2)
 
+        # Labeler equality is determined by processor and model equaity
+        # the model is just set to different ints to ensure it is being
+        # looked at by the options __eq__
         options.data_labeler_object = BaseDataLabeler()
         options.data_labeler_object._model = 7
         self.assertNotEqual(options, options2)

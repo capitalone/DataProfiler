@@ -1,3 +1,5 @@
+from unittest import mock
+
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options \
      import TestBaseInspectorOptions
@@ -143,3 +145,19 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
 
     def test_is_prop_enabled(self):
         super().test_is_prop_enabled()
+
+    @mock.patch('dataprofiler.labelers.base_data_labeler.BaseDataLabeler.'
+                '_load_data_labeler')
+    def test_eq(self, *mocks):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.data_labeler_dirpath = "hello"
+        options.data_labeler_object = BaseDataLabeler()
+        options.data_labeler_object._model = 7
+        self.assertFalse(options == options2)
+        options2.data_labeler_dirpath = "hello"
+        options2.data_labeler_object = BaseDataLabeler()
+        options2.data_labeler_object._model = 7
+        self.assertTrue(options == options2)

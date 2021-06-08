@@ -592,6 +592,8 @@ class DataLabelerOptions(BaseInspectorOptions):
         :vartype data_labeler_dirpath: str
         :ivar max_sample_size: Int to decide sample size
         :vartype max_sample_size: int
+        :ivar data_labeler_object: DataLabeler object used in profiler
+        :vartype max_sample_size: BaseDataLabeler
         """
         BaseInspectorOptions.__init__(self)
         self.data_labeler_dirpath = None

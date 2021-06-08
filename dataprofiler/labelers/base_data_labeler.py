@@ -58,6 +58,8 @@ class BaseDataLabeler(object):
         :return: Whether or not self and other are equal
         :rtype: Bool
         """
+        if other is None:
+            return False
         if self._preprocessor != other.preprocessor \
                 or self._model != other.model \
                 or self._postprocessor != other.postprocessor:

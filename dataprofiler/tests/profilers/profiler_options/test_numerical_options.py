@@ -110,10 +110,10 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             self.assertFalse(options.is_numeric_stats_enabled)
 
     def test_eq(self):
+        super().test_eq()
+
         options = self.get_options()
-        self.assertTrue(options == options)
         options2 = self.get_options()
-        self.assertTrue(options == options2)
         options.min.is_enabled = False
         options.variance.is_enabled = False
         self.assertFalse(options == options2)

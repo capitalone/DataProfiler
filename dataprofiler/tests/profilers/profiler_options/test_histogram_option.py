@@ -116,10 +116,10 @@ class TestHistogramOption(TestBooleanOption):
             option.validate()
 
     def test_eq(self):
+        super().test_eq()
+
         options = self.get_options()
-        self.assertTrue(options == options)
         options2 = self.get_options()
-        self.assertTrue(options == options2)
         options.bin_count_or_method = "sturges"
         self.assertFalse(options == options2)
         options2.bin_count_or_method = "sturges"

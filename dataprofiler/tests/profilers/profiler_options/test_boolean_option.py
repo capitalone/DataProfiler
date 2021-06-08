@@ -84,10 +84,10 @@ class TestBooleanOption(TestBaseOption):
                             set(option.validate(raise_error=False)))
 
     def test_eq(self):
+        super().test_eq()
+
         options = self.get_options()
-        self.assertTrue(options == options)
         options2 = self.get_options()
-        self.assertTrue(options == options2)
         options.is_enabled = False
         self.assertFalse(options == options2)
         options2.is_enabled = False

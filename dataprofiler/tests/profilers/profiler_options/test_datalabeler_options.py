@@ -1,3 +1,5 @@
+from unittest import mock
+
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options \
      import TestBaseInspectorOptions
@@ -143,3 +145,29 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
 
     def test_is_prop_enabled(self):
         super().test_is_prop_enabled()
+
+    @mock.patch('dataprofiler.labelers.base_data_labeler.BaseDataLabeler.'
+                '_load_data_labeler')
+    def test_eq(self, *mocks):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.data_labeler_dirpath = "hello"
+        self.assertNotEqual(options, options2)
+        options2.data_labeler_dirpath = "hello there"
+        self.assertNotEqual(options, options2)
+        options2.data_labeler_dirpath = "hello"
+        self.assertEqual(options, options2)
+
+        # Labeler equality is determined by processor and model equality
+        # the model is just set to different ints to ensure it is being
+        # looked at by the options __eq__
+        options.data_labeler_object = BaseDataLabeler()
+        options.data_labeler_object._model = 7
+        self.assertNotEqual(options, options2)
+        options2.data_labeler_object = BaseDataLabeler()
+        options2.data_labeler_object._model = 8
+        self.assertNotEqual(options, options2)
+        options2.data_labeler_object._model = 7
+        self.assertEqual(options, options2)

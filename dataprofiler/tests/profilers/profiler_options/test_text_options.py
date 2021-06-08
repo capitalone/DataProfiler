@@ -25,3 +25,13 @@ class TestTextOptions(TestNumericalOptions):
     
     def test_is_numeric_stats_enabled(self):
         super().test_is_numeric_stats_enabled()
+
+    def test_eq(self):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.vocab.is_enabled = False
+        self.assertNotEqual(options, options2)
+        options2.vocab.is_enabled = False
+        self.assertEqual(options, options2)

@@ -82,3 +82,13 @@ class TestBooleanOption(TestBaseOption):
                            .format(optpth, key) for key in self.keys]
         self.assertSetEqual(set(expected_error), 
                             set(option.validate(raise_error=False)))
+
+    def test_eq(self):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.is_enabled = False
+        self.assertNotEqual(options, options2)
+        options2.is_enabled = False
+        self.assertEqual(options, options2)

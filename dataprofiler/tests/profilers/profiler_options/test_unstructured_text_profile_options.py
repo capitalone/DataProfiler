@@ -183,8 +183,11 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         options = self.get_options()
         options2 = self.get_options()
         options.is_case_sensitive = False
-        options.words.is_enabled = False
         self.assertNotEqual(options, options2)
         options2.is_case_sensitive = False
+        self.assertEqual(options, options2)
+
+        options.words.is_enabled = False
+        self.assertNotEqual(options, options2)
         options2.words.is_enabled = False
         self.assertEqual(options, options2)

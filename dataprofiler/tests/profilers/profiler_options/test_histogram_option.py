@@ -122,5 +122,7 @@ class TestHistogramOption(TestBooleanOption):
         options2 = self.get_options()
         options.bin_count_or_method = "sturges"
         self.assertNotEqual(options, options2)
+        options2.bin_count_or_method = "doane"
+        self.assertNotEqual(options, options2)
         options2.bin_count_or_method = "sturges"
         self.assertEqual(options, options2)

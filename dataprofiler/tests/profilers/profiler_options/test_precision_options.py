@@ -109,5 +109,7 @@ class TestPrecisionOptions(TestBooleanOption):
         options2 = self.get_options()
         options.sample_ratio = 0.3
         self.assertNotEqual(options, options2)
+        options2.sample_ratio = 0.5
+        self.assertNotEqual(options, options2)
         options2.sample_ratio = 0.3
         self.assertEqual(options, options2)

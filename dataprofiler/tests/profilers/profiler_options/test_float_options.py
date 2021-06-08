@@ -25,3 +25,13 @@ class TestFloatOptions(TestNumericalOptions):
     
     def test_is_numeric_stats_enabled(self):
         super().test_is_numeric_stats_enabled()
+
+    def test_eq(self):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.precision.is_enabled = False
+        self.assertFalse(options == options2)
+        options2.precision.is_enabled = False
+        self.assertTrue(options == options2)

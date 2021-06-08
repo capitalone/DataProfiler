@@ -101,3 +101,13 @@ class TestPrecisionOptions(TestBooleanOption):
         )
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()
+
+    def test_eq(self):
+        options = self.get_options()
+        self.assertTrue(options == options)
+        options2 = self.get_options()
+        self.assertTrue(options == options2)
+        options.sample_ratio = 0.3
+        self.assertFalse(options == options2)
+        options2.sample_ratio = 0.3
+        self.assertTrue(options == options2)

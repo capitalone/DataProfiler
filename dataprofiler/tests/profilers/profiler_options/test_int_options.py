@@ -24,3 +24,6 @@ class TestIntOptions(TestNumericalOptions):
     
     def test_is_numeric_stats_enabled(self):
         super().test_is_numeric_stats_enabled()
+
+    def test_eq(self):
+        super().test_eq()

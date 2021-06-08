@@ -176,3 +176,18 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
             "or list of strings.")
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()
+
+    def test_eq(self):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.is_case_sensitive = False
+        self.assertNotEqual(options, options2)
+        options2.is_case_sensitive = False
+        self.assertEqual(options, options2)
+
+        options.words.is_enabled = False
+        self.assertNotEqual(options, options2)
+        options2.words.is_enabled = False
+        self.assertEqual(options, options2)

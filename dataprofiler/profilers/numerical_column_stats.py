@@ -7,6 +7,7 @@ respective parameters.
 from __future__ import print_function
 from __future__ import division
 
+from scipy.stats import skew, kurtosis
 from future.utils import with_metaclass
 import copy
 import abc
@@ -52,6 +53,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.max = None
         self.sum = 0
         self.variance = 0
+        self.skewness = 0
+        # TODO: self.kurtosis = 0
         self.max_histogram_bin = 100000
         self.min_histogram_bin = 1000
         self.histogram_bin_method_names = [
@@ -96,6 +99,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             "max": NumericStatsMixin._get_max,
             "sum": NumericStatsMixin._get_sum,
             "variance": NumericStatsMixin._get_variance,
+            "skewness": NumericStatsMixin._get_skewness,
+            # TODO: "kurtosis": NumericStatsMixin._get_kurtosis,
             "histogram_and_quantiles":
                 NumericStatsMixin._get_histogram_and_quantiles
         }
@@ -206,6 +211,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 self.max = other2.max
         if "sum" in self.__calculations.keys():
             self.sum = other1.sum + other2.sum
+        if "skewness" in self.__calculations.keys():
+            self.skewness = self._merge_skewness(other1.match_count, other1.skewness,
+                                                 other1.variance, other1.mean,
+                                                 other2.match_count, other2.skewness,
+                                                 other2.variance, other2.mean)
+        # TODO: Merge kurtosis here
 
     @property
     def mean(self):
@@ -264,6 +275,43 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             (curr_count + match_count2)
         new_variance = M2 / (curr_count + match_count2 - 1)
         return new_variance
+
+    @staticmethod
+    def _merge_skewness(match_count1, skewness1, variance1, mean1,
+                        match_count2, skewness2, variance2, mean2):
+
+        if np.isnan(skewness1):
+            skewness1 = 0
+        if np.isnan(skewness2):
+            skewness2 = 0
+        if match_count1 < 1:
+            return skewness2
+        elif match_count2 < 1:
+            return skewness1
+
+        delta = mean2 - mean1
+        M2_1 = (match_count1 - 1) * variance1
+        M2_2 = (match_count2 - 1) * variance2
+        M3_1 = skewness1 * np.sqrt(M2_1**3) / np.sqrt(match_count1)
+        M3_2 = skewness2 * np.sqrt(M2_2**3) / np.sqrt(match_count2)
+
+        first_term = M3_1 + M3_2
+        second_term = delta**3 * (match_count1 * match_count2 * (match_count1 - match_count2)) \
+                        / ((match_count1 + match_count2)**2)
+        third_term = 3 * delta * (match_count1 * M2_2 - match_count2 * M2_1) \
+                       / (match_count1 + match_count2)
+        M3 = first_term + second_term + third_term
+        M2 = (match_count1 + match_count2 - 1) * \
+             NumericStatsMixin._merge_variance(match_count1, variance1, mean1,
+                                               match_count2, variance2, mean2)
+        return np.sqrt(match_count1 + match_count2) * M3 / np.sqrt(M2**3)
+
+
+    @staticmethod
+    def _merge_kurtosis(match_count1, kurtosis1, skewness1, variance1, mean1,
+                        match_count2, kurtosis2, skewness2, variance2, mean2):
+        # TODO: Implement this
+        pass
 
     def _estimate_stats_from_histogram(self):
         # test estimated mean and var
@@ -666,7 +714,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if df_series_clean.empty:
             return
 
-        prev_dependent_properties = {"mean": self.mean}
+        prev_dependent_properties = {"mean": self.mean,
+                                     "variance": self.variance}
         subset_properties = copy.deepcopy(profile)
         df_series_clean = df_series_clean.astype(float)
         super(NumericStatsMixin, self)._perform_property_calcs(self.__calculations,
@@ -709,6 +758,28 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                                              batch_count,
                                              variance,
                                              batch_mean)
+
+    @BaseColumnProfiler._timeit(name = "skewness")
+    def _get_skewness(self, df_series, prev_dependent_properties,
+                      subset_properties):
+        batch_skewness = skew(df_series.to_numpy())
+        subset_properties["skewness"] = batch_skewness
+        sum_value = subset_properties["sum"]
+        batch_count = subset_properties["match_count"]
+        batch_var = subset_properties["variance"]
+        batch_mean = 0. if not batch_count else \
+            float(sum_value) / batch_count
+
+        self.skewness = self._merge_skewness(self.match_count, self.skewness,
+                                             prev_dependent_properties["variance"],
+                                             prev_dependent_properties["mean"], batch_count,
+                                             batch_skewness, batch_var, batch_mean)
+
+    @BaseColumnProfiler._timeit(name = "kurtosis")
+    def _get_kurtosis(self, df_series, prev_dependent_properties,
+                      subset_properties):
+        # TODO: Implement
+        pass
 
     @BaseColumnProfiler._timeit(name="histogram_and_quantiles")
     def _get_histogram_and_quantiles(self, df_series,

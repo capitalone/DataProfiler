@@ -259,11 +259,13 @@ class NumericalOptions(BaseInspectorOptions):
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
+        TODO: Add comments for skew/kurt here
         """
         self.min = BooleanOption(is_enabled=True)
         self.max = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
+        self.skewness = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
         BaseInspectorOptions.__init__(self)
 
@@ -278,8 +280,8 @@ class NumericalOptions(BaseInspectorOptions):
         :rtype bool:
         """
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
-                or self.variance.is_enabled \
-                or self.histogram_and_quantiles.is_enabled:
+                or self.variance.is_enabled or self.skewness.is_enabled \
+                or self.histogram_and_quantiles.is_enabled: \
             return True
         return False
 
@@ -297,6 +299,7 @@ class NumericalOptions(BaseInspectorOptions):
         self.max.is_enabled = value
         self.sum.is_enabled = value
         self.variance.is_enabled = value
+        self.skewness.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
 
     @property
@@ -323,7 +326,7 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance"]:
+                     "variance", "skewness"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
                               .format(variable_path, item))
@@ -336,7 +339,7 @@ class NumericalOptions(BaseInspectorOptions):
             errors.append("{}: The numeric stats must toggle on the sum "
                           "if the variance is toggled on."
                           .format(variable_path))
-
+        # TODO: Add error check for skewness if variance/sum isn't turned on
         # warn user if all stats are disabled
         if not errors:
             if not self.is_numeric_stats_enabled:

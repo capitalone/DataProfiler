@@ -37,6 +37,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             'mean': None,
             'var': None,
             'std': None,
+            # TODO: skew, kurt here
             'sum': None,
             'sample_size': None,
             'margin_of_error': None,
@@ -127,6 +128,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             mean=self.np_type_to_type(self.mean),
             variance=self.np_type_to_type(self.variance),
             stddev=self.np_type_to_type(self.stddev),
+            skewness=self.np_type_to_type(self.skewness),
+            # TODO: Kurtosis here
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             times=self.times,
@@ -136,6 +139,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                 mean=self.np_type_to_type(self.precision['mean']),
                 var=self.np_type_to_type(self.precision['var']),
                 std=self.np_type_to_type(self.precision['std']),
+                # TODO: Add skewness, kurtosis here
                 sample_size=self.np_type_to_type(self.precision['sample_size']),
                 margin_of_error=self.np_type_to_type(self.precision['margin_of_error']),
                 confidence_level=self.np_type_to_type(self.precision['confidence_level'])

@@ -266,6 +266,7 @@ class NumericalOptions(BaseInspectorOptions):
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
         self.skewness = BooleanOption(is_enabled=True)
+        self.kurtosis = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
         BaseInspectorOptions.__init__(self)
 
@@ -300,6 +301,7 @@ class NumericalOptions(BaseInspectorOptions):
         self.sum.is_enabled = value
         self.variance.is_enabled = value
         self.skewness.is_enabled = value
+        self.kurtosis.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
 
     @property
@@ -326,7 +328,7 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance", "skewness"]:
+                     "variance", "skewness", "kurtosis"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
                               .format(variable_path, item))
@@ -334,12 +336,24 @@ class NumericalOptions(BaseInspectorOptions):
                 errors += self.properties[item]._validate_helper(
                     variable_path=variable_path + '.' + item)
 
-        if not self.properties["sum"].is_enabled and \
-                self.properties["variance"].is_enabled:
-            errors.append("{}: The numeric stats must toggle on the sum "
-                          "if the variance is toggled on."
-                          .format(variable_path))
-        # TODO: Add error check for skewness if variance/sum isn't turned on
+        # Sum is not toggled
+        if not self.properties["sum"].is_enabled:
+            if self.properties["variance"].is_enabled:
+                errors.append("{}: The numeric stats must toggle on the sum "
+                              "if the variance is toggled on."
+                              .format(variable_path))
+            # Variance is also not toggled
+            else:
+                if self.properties["skewness"].is_enabled:
+                    errors.append("{}: The numeric stats must toggle on the "
+                                  "sum and variance if skewness is toggled on."
+                                  .format(variable_path))
+                # Skewness is also not toggled
+                else:
+                    if self.properties["kurtosis"].is_enabled:
+                        errors.append("{}: The numeric stats must toggle on sum,"
+                                      "variance, and skewness if kurtosis is "
+                                      "toggled on.".format(variable_path))
         # warn user if all stats are disabled
         if not errors:
             if not self.is_numeric_stats_enabled:

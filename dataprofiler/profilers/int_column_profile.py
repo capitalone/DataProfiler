@@ -67,7 +67,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             variance=self.np_type_to_type(self.variance),
             stddev=self.np_type_to_type(self.stddev),
             skewness=self.np_type_to_type(self.skewness),
-            # TODO: Kurtosis here
+            kurtosis=self.np_type_to_type(self.kurtosis),
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             times=self.times

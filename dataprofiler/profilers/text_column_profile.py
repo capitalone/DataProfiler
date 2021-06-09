@@ -72,7 +72,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             variance=self.variance,
             stddev=self.stddev,
             skewness=self.skewness,
-            # TODO: kurtosis here
+            kurtosis=self.kurtosis,
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             vocab=self.vocab,

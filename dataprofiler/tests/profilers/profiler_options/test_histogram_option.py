@@ -114,3 +114,15 @@ class TestHistogramOption(TestBooleanOption):
             r"\['auto', 'fd', 'doane', 'scott', 'rice', 'sturges', 'sqrt'].")
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate()
+
+    def test_eq(self):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.bin_count_or_method = "sturges"
+        self.assertNotEqual(options, options2)
+        options2.bin_count_or_method = "doane"
+        self.assertNotEqual(options, options2)
+        options2.bin_count_or_method = "sturges"
+        self.assertEqual(options, options2)

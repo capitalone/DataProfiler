@@ -1,5 +1,4 @@
-from dataprofiler.profilers.profiler_options \
-     import BooleanOption, NumericalOptions
+from dataprofiler.profilers.profiler_options import NumericalOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options \
      import TestBaseInspectorOptions
 
@@ -110,3 +109,12 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         for key in numeric_keys:            
             self.assertFalse(options.is_numeric_stats_enabled)
 
+    def test_eq(self):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.min.is_enabled = False
+        self.assertNotEqual(options, options2)
+        options2.min.is_enabled = False
+        self.assertEqual(options, options2)

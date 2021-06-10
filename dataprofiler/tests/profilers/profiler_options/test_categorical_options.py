@@ -24,3 +24,6 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
 
     def test_is_prop_enabled(self):
         super().test_is_prop_enabled()
+
+    def test_eq(self):
+        super().test_eq()

@@ -282,7 +282,8 @@ class NumericalOptions(BaseInspectorOptions):
         """
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
-                or self.histogram_and_quantiles.is_enabled: \
+                or self.kurtosis.is_enabled \
+                or self.histogram_and_quantiles.is_enabled:
             return True
         return False
 
@@ -352,7 +353,7 @@ class NumericalOptions(BaseInspectorOptions):
         if (sum_disabled or var_disabled or skew_disabled) \
             and not kurt_disabled:
             errors.append("{}: The numeric stats must toggle on sum,"
-                          "variance, and skewness if kurtosis is "
+                          " variance, and skewness if kurtosis is "
                           "toggled on.".format(variable_path))
 
         # warn user if all stats are disabled

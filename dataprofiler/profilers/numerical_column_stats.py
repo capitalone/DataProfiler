@@ -7,7 +7,6 @@ respective parameters.
 from __future__ import print_function
 from __future__ import division
 
-from scipy.stats import skew, kurtosis
 from future.utils import with_metaclass
 import copy
 import abc
@@ -332,25 +331,32 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         delta = mean2 - mean1
         M2_1 = (match_count1 - 1) * variance1
         M2_2 = (match_count2 - 1) * variance2
-        M3_1 = skewness1 * np.sqrt(M2_1**3) / np.sqrt(match_count1)
-        M3_2 = skewness2 * np.sqrt(M2_2**3) / np.sqrt(match_count2)
-        M4_1 = (kurtosis1 + 3) * (M2_1**2) / match_count1
-        M4_2 = (kurtosis2 + 3) * (M2_2**2) / match_count2
+        M3_1 = skewness1 * np.sqrt(M2_1**3) * (match_count1 - 2) \
+               / np.sqrt(match_count1**3 - match_count1**2)
+        M3_2 = skewness2 * np.sqrt(M2_2**3) * (match_count2 - 2) \
+               / np.sqrt(match_count2**3 - match_count2**2)
+        M4_1 = (M2_1**2 * (kurtosis1 * (match_count1**2 - 5 * match_count1
+                + 6) + 3 * (match_count1 - 1)**2)) \
+               / (match_count1**3 - match_count1)
+        M4_2 = (M2_2**2 * (kurtosis2 * (match_count2**2 - 5 * match_count2
+                + 6) + 3 * (match_count2 - 1)**2)) \
+               / (match_count2**3 - match_count2)
+        N = match_count1 + match_count2
 
         first_term = M4_1 + M4_2
-        second_term = delta**4 * (match_count1 * match_count2 * \
-                        (match_count1**2 - match_count1*match_count2 + \
-                         match_count2**2)) / (match_count1 + match_count2)**3
-        third_term = 6 * delta**2 * (match_count1**2 * M2_2 + \
-                       match_count2**2 * M2_1) / (match_count1 + match_count2)**2
-        fourth_term = 4 * delta * (match_count1 * M3_2 - match_count2 * M3_1) / \
-                        (match_count1 + match_count2)
-
+        second_term = delta**4 * (match_count1 * match_count2 *
+                      (match_count1**2 - match_count1*match_count2 +
+                       match_count2**2)) / N**3
+        third_term = 6 * delta**2 * (match_count1**2 * M2_2 +
+                     match_count2**2 * M2_1) / N**2
+        fourth_term = 4 * delta * (match_count1 * M3_2 - match_count2
+                      * M3_1) / N
         M4 = first_term + second_term + third_term + fourth_term
-        M2 = (match_count1 + match_count2 - 1) * \
-             NumericStatsMixin._merge_variance(match_count1, variance1, mean1,
-                                               match_count2, variance2, mean2)
-        return (match_count1 + match_count2) * M4 / M2**2 - 3
+        M2 = M2_1 + M2_2 + delta ** 2 * match_count1 * match_count2 / N
+
+        kurtosis = (N - 1) / ((N - 2) * (N - 3)) * ((N + 1) * N *
+                    M4 / M2**2 - 3 * (N - 1))
+        return kurtosis
 
     def _estimate_stats_from_histogram(self):
         # test estimated mean and var
@@ -793,6 +799,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         batch_count = subset_properties["match_count"]
         batch_mean = 0. if not batch_count else \
             float(sum_value) / batch_count
+        subset_properties["mean"] = batch_mean
         self.variance = self._merge_variance(self.match_count, self.variance,
                                              prev_dependent_properties["mean"],
                                              batch_count,
@@ -804,11 +811,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                       subset_properties):
         batch_skewness = df_series.skew()
         subset_properties["skewness"] = batch_skewness
-        sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]
         batch_var = subset_properties["variance"]
-        batch_mean = 0. if not batch_count else \
-            float(sum_value) / batch_count
+        batch_mean = subset_properties["mean"]
 
         self.skewness = self._merge_skewness(self.match_count, self.skewness,
                                              prev_dependent_properties["variance"],
@@ -818,14 +823,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name = "kurtosis")
     def _get_kurtosis(self, df_series, prev_dependent_properties,
                       subset_properties):
-        batch_kurtosis = kurtosis(df_series.to_numpy())
+        batch_kurtosis = df_series.kurtosis()
         subset_properties["kurtosis"] = batch_kurtosis
-        sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]
         batch_var = subset_properties["variance"]
         batch_skewness = subset_properties["skewness"]
-        batch_mean = 0. if not batch_count else \
-            float(sum_value) / batch_count
+        batch_mean = subset_properties["mean"]
 
         self.kurtosis = self._merge_kurtosis(self.match_count, self.kurtosis,
                                              prev_dependent_properties["skewness"],

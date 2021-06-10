@@ -284,7 +284,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _merge_skewness(match_count1, skewness1, variance1, mean1,
                         match_count2, skewness2, variance2, mean2):
-
+        """
+        # TODO: Documentation
+        """
         if np.isnan(skewness1):
             skewness1 = 0
         if np.isnan(skewness2):
@@ -297,19 +299,22 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         delta = mean2 - mean1
         M2_1 = (match_count1 - 1) * variance1
         M2_2 = (match_count2 - 1) * variance2
-        M3_1 = skewness1 * np.sqrt(M2_1**3) / np.sqrt(match_count1)
-        M3_2 = skewness2 * np.sqrt(M2_2**3) / np.sqrt(match_count2)
+        M3_1 = skewness1 * np.sqrt(M2_1**3) * (match_count1 - 2) \
+               / np.sqrt(match_count1**3 - match_count1**2)
+        M3_2 = skewness2 * np.sqrt(M2_2**3) * (match_count2 - 2) \
+               / np.sqrt(match_count2**3 - match_count2**2)
+        N = match_count1 + match_count2
 
         first_term = M3_1 + M3_2
-        second_term = delta**3 * (match_count1 * match_count2 * (match_count1 - match_count2)) \
-                        / ((match_count1 + match_count2)**2)
-        third_term = 3 * delta * (match_count1 * M2_2 - match_count2 * M2_1) \
-                       / (match_count1 + match_count2)
+        second_term = delta**3 * match_count1 * match_count2 \
+                      * (match_count1 - match_count2) / N**2
+        third_term = 3 * delta * (match_count1 * M2_2
+                     - match_count2 * M2_1) / N
         M3 = first_term + second_term + third_term
-        M2 = (match_count1 + match_count2 - 1) * \
-             NumericStatsMixin._merge_variance(match_count1, variance1, mean1,
-                                               match_count2, variance2, mean2)
-        return np.sqrt(match_count1 + match_count2) * M3 / np.sqrt(M2**3)
+        M2 = M2_1 + M2_2 + delta**2 * match_count1 * match_count2 / N
+
+        skewness = np.sqrt(N**3 - N**2) / (N - 2) * M3 / np.sqrt(M2**3)
+        return skewness
 
 
     @staticmethod
@@ -797,7 +802,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name = "skewness")
     def _get_skewness(self, df_series, prev_dependent_properties,
                       subset_properties):
-        batch_skewness = skew(df_series.to_numpy())
+        batch_skewness = df_series.skew()
         subset_properties["skewness"] = batch_skewness
         sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]

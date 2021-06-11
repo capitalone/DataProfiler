@@ -321,8 +321,7 @@ class NumericalOptions(BaseInspectorOptions):
     def is_numeric_stats_enabled(self, value):
         """
         This property will enable or disable all numeric stats properties:
-        min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles,
-        num_zeros, num_negatives
+        min, max, sum, variance, histogram_and_quantiles
 
         :param value: boolean to enable/disable all numeric stats properties
         :type value: bool
@@ -528,7 +527,7 @@ class FloatOptions(NumericalOptions):
     def _validate_helper(self, variable_path='FloatOptions'):
         """
         Validates the options do not conflict and cause errors.
-
+        
         :param variable_path: current path to variable set.
         :type variable_path: str
         :return: list of errors (if raise_error is false)
@@ -690,7 +689,7 @@ class OrderOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path) 
+        return super()._validate_helper(variable_path)
 
 
 class CategoricalOptions(BaseInspectorOptions):
@@ -713,7 +712,7 @@ class CategoricalOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path)
+        return super()._validate_helper(variable_path) 
 
 
 class DataLabelerOptions(BaseInspectorOptions):
@@ -777,12 +776,12 @@ class DataLabelerOptions(BaseInspectorOptions):
         :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path=variable_path)
-
+        
         if self.data_labeler_dirpath is not None and \
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
-
+            
         if self.data_labeler_object is not None and \
                 not isinstance(self.data_labeler_object, BaseDataLabeler):
             errors.append("{}.data_labeler_object must be a BaseDataLabeler "

@@ -302,7 +302,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     def _merge_biased_skewness(match_count1, biased_skewness1, variance1, mean1,
                                match_count2, biased_skewness2, variance2, mean2):
         """
-        # TODO: Documentation
+        Calculate the combined skewness of two data chunks
+
+        :param match_count1: # of samples in 1st chunk
+        :param biased_skewness1: skewness of 1st chunk without bias correction
+        :param variance1: variance of 1st chunk
+        :param mean1: mean of 1st chunk
+        :param match_count2: # of samples in 2nd chunk
+        :param biased_skewness2: skewness of 2nd chunk without bias correction
+        :param variance2: variance of 2nd chunk
+        :param mean2: mean of 2nd chunk
+        :return: combined skewness
+        :rtype: float
         """
         if np.isnan(biased_skewness1):
             biased_skewness1 = 0
@@ -336,7 +347,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @staticmethod
     def _correct_bias_skewness(match_count, biased_skewness):
-        """ TODO: Documentation """
+        """
+        Apply bias correction to skewness
+
+        :param match_count: number of samples
+        :param biased_skewness: skewness without bias correction
+        :return: unbiased estimator of skewness
+        :rtype: NaN if sample size is too small, float otherwise
+        """
         if biased_skewness is None or np.isnan(biased_skewness) or match_count < 3:
             return np.nan
 
@@ -345,8 +363,25 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         return skewness
 
     @staticmethod
-    def _merge_biased_kurtosis(match_count1, biased_kurtosis1, biased_skewness1, variance1, mean1,
-                        match_count2, biased_kurtosis2, biased_skewness2, variance2, mean2):
+    def _merge_biased_kurtosis(match_count1, biased_kurtosis1, biased_skewness1,
+                               variance1, mean1, match_count2, biased_kurtosis2,
+                               biased_skewness2, variance2, mean2):
+        """
+        Calculate the combined kurtosis of two sets of data
+
+        :param match_count1: # of samples in 1st chunk
+        :param biased_kurtosis1: kurtosis of 1st chunk without bias correction
+        :param biased_skewness1: skewness of 1st chunk without bias correction
+        :param variance1: variance of 1st chunk
+        :param mean1: mean of 1st chunk
+        :param match_count2: # of samples in 2nd chunk
+        :param biased_kurtosis2: kurtosis of 2nd chunk without bias correction
+        :param biased_skewness2: skewness of 2nd chunk without bias correction
+        :param variance2: variance of 2nd chunk
+        :param mean2: mean of 2nd chunk
+        :return: combined skewness
+        :rtype: float
+        """
         if np.isnan(biased_kurtosis1):
             biased_kurtosis1 = 0
         if np.isnan(biased_kurtosis2):
@@ -384,6 +419,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @staticmethod
     def _correct_bias_kurtosis(match_count, biased_kurtosis):
+        """
+        Apply bias correction to kurtosis
+
+        :param match_count: number of samples
+        :param biased_kurtosis: skewness without bias correction
+        :return: unbiased estimator of kurtosis
+        :rtype: NaN if sample size is too small, float otherwise
+        """
         if biased_kurtosis is None or np.isnan(biased_kurtosis) or match_count < 4:
             return np.nan
 
@@ -850,11 +893,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         batch_var = subset_properties["variance"]
         batch_mean = subset_properties["mean"]
 
-        self._biased_skewness = self._merge_biased_skewness(self.match_count, self._biased_skewness,
-                                                            prev_dependent_properties["variance"],
-                                                            prev_dependent_properties["mean"],
-                                                            batch_count, batch_biased_skewness,
-                                                            batch_var, batch_mean)
+        self._biased_skewness = self._merge_biased_skewness(
+            self.match_count, self._biased_skewness,
+            prev_dependent_properties["variance"],
+            prev_dependent_properties["mean"],
+            batch_count, batch_biased_skewness,
+            batch_var, batch_mean)
 
     @BaseColumnProfiler._timeit(name = "kurtosis")
     def _get_kurtosis(self, df_series, prev_dependent_properties,
@@ -866,13 +910,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         batch_biased_skewness = subset_properties["biased_skewness"]
         batch_mean = subset_properties["mean"]
 
-        self._biased_kurtosis = self._merge_biased_kurtosis(self.match_count, self._biased_kurtosis,
-                                             prev_dependent_properties["biased_skewness"],
-                                             prev_dependent_properties["variance"],
-                                             prev_dependent_properties["mean"],
-                                             batch_count, batch_biased_kurtosis,
-                                             batch_biased_skewness,
-                                             batch_var, batch_mean)
+        self._biased_kurtosis = self._merge_biased_kurtosis(
+            self.match_count, self._biased_kurtosis,
+            prev_dependent_properties["biased_skewness"],
+            prev_dependent_properties["variance"],
+            prev_dependent_properties["mean"],
+            batch_count, batch_biased_kurtosis,
+            batch_biased_skewness,
+            batch_var, batch_mean)
 
     @BaseColumnProfiler._timeit(name="histogram_and_quantiles")
     def _get_histogram_and_quantiles(self, df_series,

@@ -7,6 +7,7 @@ respective parameters.
 from __future__ import print_function
 from __future__ import division
 
+import pandas
 from future.utils import with_metaclass
 import copy
 import abc
@@ -62,6 +63,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         ]
         self.histogram_selection = None
         self.user_set_histogram_bin = None
+        self.num_zeros = 0
+        self.num_negatives = 0
         if options:
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
@@ -102,7 +105,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             "skewness": NumericStatsMixin._get_skewness,
             "kurtosis": NumericStatsMixin._get_kurtosis,
             "histogram_and_quantiles":
-                NumericStatsMixin._get_histogram_and_quantiles
+                NumericStatsMixin._get_histogram_and_quantiles,
+            "num_zeros": NumericStatsMixin._get_num_zeros,
+            "num_negatives": NumericStatsMixin._get_num_negatives
         }
 
         self._filter_properties_w_options(self.__calculations, options)
@@ -958,6 +963,26 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             warnings.warn(
                 'Histogram error. Histogram and quantile results will not be '
                 'available')
+
+    @BaseColumnProfiler._timeit(name="num_zeros")
+    def _get_num_zeros(self, df_series, prev_dependent_properties,
+                 subset_properties):
+        """
+        To be implemented
+        """
+        num_zeros_value = (df_series == 0).sum()
+        subset_properties["num_zeros"] = num_zeros_value
+        self.num_zeros = self.num_zeros + num_zeros_value
+
+    @BaseColumnProfiler._timeit(name="num_negatives")
+    def _get_num_negatives(self, df_series, prev_dependent_properties,
+                 subset_properties):
+        """
+        To be implemented
+        """
+        num_negatives_value = (df_series < 0).sum()
+        subset_properties["num_negatives"] = num_negatives_value
+        self.num_negatives = self.num_negatives + num_negatives_value
 
     @abc.abstractmethod
     def update(self, df_series):

@@ -250,7 +250,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     def kurtosis(self):
         return self._correct_bias_kurtosis(
             self.match_count,
-            self._biased_skewness)
+            self._biased_kurtosis)
 
     def _update_variance(self, batch_mean, batch_var, batch_count):
         """
@@ -314,11 +314,15 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             return biased_skewness1
 
         delta = mean2 - mean1
+        N = match_count1 + match_count2
         M2_1 = (match_count1 - 1) * variance1
         M2_2 = (match_count2 - 1) * variance2
+        M2 = M2_1 + M2_2 + delta**2 * match_count1 * match_count2 / N
+        if not M2:
+            return 0.0
+
         M3_1 = biased_skewness1 * np.sqrt(M2_1**3) / np.sqrt(match_count1)
         M3_2 = biased_skewness2 * np.sqrt(M2_2**3) / np.sqrt(match_count2)
-        N = match_count1 + match_count2
 
         first_term = M3_1 + M3_2
         second_term = delta**3 * match_count1 * match_count2 \
@@ -326,7 +330,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         third_term = 3 * delta * (match_count1 * M2_2
                      - match_count2 * M2_1) / N
         M3 = first_term + second_term + third_term
-        M2 = M2_1 + M2_2 + delta**2 * match_count1 * match_count2 / N
 
         biased_skewness = np.sqrt(N) * M3 / np.sqrt(M2**3)
         return biased_skewness
@@ -334,7 +337,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _correct_bias_skewness(match_count, biased_skewness):
         """ TODO: Documentation """
-        if match_count < 3:
+        if biased_skewness is None or np.isnan(biased_skewness) or match_count < 3:
             return np.nan
 
         skewness = np.sqrt(match_count * (match_count - 1)) \
@@ -349,18 +352,22 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if np.isnan(biased_kurtosis2):
             biased_kurtosis1 = 0
         if match_count1 < 1:
-            return biased_kurtosis2;
+            return biased_kurtosis2
         elif match_count2 < 1:
             return biased_kurtosis1
 
         delta = mean2 - mean1
+        N = match_count1 + match_count2
         M2_1 = (match_count1 - 1) * variance1
         M2_2 = (match_count2 - 1) * variance2
+        M2 = M2_1 + M2_2 + delta ** 2 * match_count1 * match_count2 / N
+        if not M2:
+            return 0
+
         M3_1 = biased_skewness1 * np.sqrt(M2_1**3) / np.sqrt(match_count1)
         M3_2 = biased_skewness2 * np.sqrt(M2_2**3) / np.sqrt(match_count2)
         M4_1 = (biased_kurtosis1 + 3) * M2_1**2 / match_count1
         M4_2 = (biased_kurtosis2 + 3) * M2_2**2 / match_count2
-        N = match_count1 + match_count2
 
         first_term = M4_1 + M4_2
         second_term = delta**4 * (match_count1 * match_count2 *
@@ -371,14 +378,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         fourth_term = 4 * delta * (match_count1 * M3_2 - match_count2
                       * M3_1) / N
         M4 = first_term + second_term + third_term + fourth_term
-        M2 = M2_1 + M2_2 + delta ** 2 * match_count1 * match_count2 / N
 
         biased_kurtosis = N * M4 / M2**2 - 3
         return biased_kurtosis
 
     @staticmethod
     def _correct_bias_kurtosis(match_count, biased_kurtosis):
-        if match_count < 4:
+        if biased_kurtosis is None or np.isnan(biased_kurtosis) or match_count < 4:
             return np.nan
 
         kurtosis = (match_count - 1) / ((match_count - 2) *

@@ -223,7 +223,9 @@ class TestNumericStatsMixin(unittest.TestCase):
         num_profiler = TestColumn()
 
         # Dummy data to make min call
-        prev_dependent_properties = {"mean": 0}
+        prev_dependent_properties = {"mean": 0,
+                                     "variance": 0,
+                                     "biased_skewness": 0}
         data = np.array([0, 0, 0, 0, 0])
         df_series = pd.Series(data)
         subset_properties = {"min": 0, "match_count": 0}
@@ -261,6 +263,22 @@ class TestNumericStatsMixin(unittest.TestCase):
             # Validate _get_variance is timed.
             expected['variance'] = 1.0
             num_profiler._get_variance(
+                df_series,
+                prev_dependent_properties,
+                subset_properties)
+            self.assertEqual(expected, num_profiler.times)
+
+            # Validate _get_skewness is timed
+            expected['skewness'] = 1.0
+            num_profiler._get_skewness(
+                df_series,
+                prev_dependent_properties,
+                subset_properties)
+            self.assertEqual(expected, num_profiler.times)
+
+            # Validate _get_kurtosis is timed
+            expected['kurtosis'] = 1.0
+            num_profiler._get_kurtosis(
                 df_series,
                 prev_dependent_properties,
                 subset_properties)
@@ -371,4 +389,3 @@ class TestNumericStatsMixin(unittest.TestCase):
         best_histogram = num_profiler._get_best_histogram_for_profile()
 
         assert best_histogram == "hist_1"
-

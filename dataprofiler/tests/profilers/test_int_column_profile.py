@@ -219,17 +219,17 @@ class TestIntColumn(unittest.TestCase):
         num_profiler = IntColumn(df1.name)
         num_profiler.update(df1.apply(str))
 
-        self.assertAlmostEqual(df1.skew(), num_profiler.skewness)
+        self.assertEqual(0, num_profiler.skewness)
 
         df2_ints = df2[df2 == df2.round()]
         num_profiler.update(df2.apply(str))
         df = pd.concat([df1, df2_ints])
-        self.assertAlmostEqual(df.skew(), num_profiler.skewness)
+        self.assertAlmostEqual(11 * np.sqrt(102 / 91) / 91, num_profiler.skewness)
 
         df3_ints = df3[df3 == df3.round()]
         num_profiler.update(df3.apply(str))
         df = pd.concat([df1, df2_ints, df3_ints])
-        self.assertAlmostEqual(df.skew(), num_profiler.skewness)
+        self.assertAlmostEqual(-6789 * np.sqrt(39 / 463) / 4630, num_profiler.skewness)
 
     def test_profiled_kurtosis(self):
         data = np.linspace(-5, 5, 11).tolist()
@@ -244,17 +244,17 @@ class TestIntColumn(unittest.TestCase):
         num_profiler = IntColumn(df1.name)
         num_profiler.update(df1.apply(str))
 
-        self.assertAlmostEqual(df1.kurtosis(), num_profiler.kurtosis)
+        self.assertAlmostEqual(-6 / 5, num_profiler.kurtosis)
 
         df2_ints = df2[df2 == df2.round()]
         num_profiler.update(df2.apply(str))
         df = pd.concat([df1, df2_ints])
-        self.assertAlmostEqual(df.kurtosis(), num_profiler.kurtosis)
+        self.assertAlmostEqual(-29886 / 41405, num_profiler.kurtosis)
 
         df3_ints = df3[df3 == df3.round()]
         num_profiler.update(df3.apply(str))
         df = pd.concat([df1, df2_ints, df3_ints])
-        self.assertAlmostEqual(df.kurtosis(), num_profiler.kurtosis)
+        self.assertAlmostEqual(16015779 / 42873800, num_profiler.kurtosis)
 
     def test_profiled_histogram(self):
         """

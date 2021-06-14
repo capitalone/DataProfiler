@@ -337,16 +337,16 @@ class TestFloatColumn(unittest.TestCase):
         num_profiler = FloatColumn(df1.name)
         num_profiler.update(df1.apply(str))
 
-        self.assertEqual(df1.skew(), num_profiler.skewness)
+        self.assertEqual(0, num_profiler.skewness)
 
         num_profiler.update(df2.apply(str))
         df = pd.concat([df1, df2])
         print(num_profiler.skewness)
-        self.assertAlmostEqual(df.skew(), num_profiler.skewness)
+        self.assertAlmostEqual(np.sqrt(22 * 21) / 20 * 133 / 750, num_profiler.skewness)
 
         num_profiler.update(df3.apply(str))
         df = pd.concat([df1, df2, df3])
-        self.assertAlmostEqual(df.skew(), num_profiler.skewness)
+        self.assertAlmostEqual(-0.3109967, num_profiler.skewness)
 
     def test_profiled_kurtosis(self):
         data = np.linspace(-5, 5, 11).tolist()
@@ -361,15 +361,15 @@ class TestFloatColumn(unittest.TestCase):
         num_profiler = FloatColumn(df1.name)
         num_profiler.update(df1.apply(str))
 
-        self.assertAlmostEqual(df1.kurtosis(), num_profiler.kurtosis)
+        self.assertAlmostEqual(-6 / 5, num_profiler.kurtosis)
 
         num_profiler.update(df2.apply(str))
         df = pd.concat([df1, df2])
-        self.assertAlmostEqual(df.kurtosis(), num_profiler.kurtosis)
+        self.assertAlmostEqual(-0.390358, num_profiler.kurtosis)
 
         num_profiler.update(df3.apply(str))
         df = pd.concat([df1, df2, df3])
-        self.assertAlmostEqual(df.kurtosis(), num_profiler.kurtosis)
+        self.assertAlmostEqual(0.3311739, num_profiler.kurtosis)
 
     def test_null_values_for_histogram(self):
         data = pd.Series(['-inf', 'inf'])

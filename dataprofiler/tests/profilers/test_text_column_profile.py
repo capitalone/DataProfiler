@@ -137,6 +137,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertEqual(profiler.match_count, 0)
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
+        self.assertEqual(profiler.sum, 0)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_data_ratio(self):
@@ -183,6 +184,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         expected_profile = dict(
             min=1.0,
             max=4.0,
+            sum=20.0,
             mean=20.0 / 10.0,
             variance=14.0 / 9.0,
             skewness=45.0 / (14.0 * np.sqrt(14.0)),
@@ -213,8 +215,8 @@ class TestTextColumnProfiler(unittest.TestCase):
             quantiles = profile.pop('quantiles')
             histogram = profile.pop('histogram')
             vocab = profile.pop('vocab')
+
             # key and value populated correctly
-            self.maxDiff = None
             self.assertDictEqual(expected_profile, profile)
             self.assertTrue(np.all(
                 expected_histogram['bin_counts'] == histogram['bin_counts']
@@ -295,6 +297,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                          profiler.sample_size + profiler2.sample_size)
         self.assertEqual(profiler3.max, profiler2.max)
         self.assertCountEqual(expected_vocab, profiler3.vocab)
+        self.assertEqual(49, profiler3.sum)
 
     def test_merge_timing(self):
         profiler1 = TextColumn("placeholder_name")

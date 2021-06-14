@@ -79,9 +79,12 @@ The format for a structured profile is below:
             "data_type_representation": [string, list(string)],
             "min": [null, float],
             "max": [null, float],
+            "sum": float,
             "mean": float,
             "variance": float,
             "stddev": float,
+            "skewness": float,
+            "kurtosis": float,
             "histogram": { 
                 "bin_counts": list(int),
 		"bin_edges": list(float),
@@ -101,6 +104,8 @@ The format for a structured profile is below:
 		'mean': float,
 		'var': float,
 		'std': float,
+		'skewness': float,
+		'kurtosis': float,
 		'sample_size': int,
 		'margin_of_error': float,
 		'confidence_level': float		

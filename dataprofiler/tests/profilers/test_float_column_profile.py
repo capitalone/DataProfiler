@@ -24,6 +24,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.match_count, 0)
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
+        self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
         self.assertEqual(profiler.variance, 0)
         self.assertTrue(profiler.skewness is np.nan)
@@ -727,6 +728,7 @@ class TestFloatColumn(unittest.TestCase):
         expected_profile = dict(
             min=2.5,
             max=12.5,
+            sum=20.0,
             mean=20/3.0,
             variance=27 + 1/12.0,
             skewness=35/13*np.sqrt(3/13),
@@ -865,6 +867,7 @@ class TestFloatColumn(unittest.TestCase):
         expected_profile = dict(
             min=2.0,
             max=15.0,
+            sum=33.0,
             mean=8.25,
             variance=30.916666666666668,
             stddev=np.sqrt(30.916),
@@ -912,7 +915,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler2.update(df2)
 
         profiler3 = profiler1 + profiler2
-        self.assertEqual(profiler3.stddev,profiler2.stddev)
+        self.assertEqual(profiler3.stddev, profiler2.stddev)
 
         # test merge with empty data
         df1 = pd.Series([], dtype=object)

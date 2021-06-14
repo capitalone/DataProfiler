@@ -68,6 +68,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile = dict(
             min=self.min,
             max=self.max,
+            sum=self.sum,
             mean=self.mean,
             variance=self.variance,
             stddev=self.stddev,

@@ -9,7 +9,7 @@ First off, thanks for your input! We love to hear feedback from the community an
 ## We Develop with Github
 We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
-## Creating Pull Requests
+## Creating [Pull Requests](https://github.com/capitalone/DataProfiler/pulls)
 Pull requests are the best way to propose changes to the codebase. We actively welcome your pull requests:
 
 1. Fork the repo and create your branch from `main`.

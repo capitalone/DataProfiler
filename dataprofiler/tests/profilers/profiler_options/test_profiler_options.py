@@ -140,6 +140,8 @@ class TestProfilerOptions(unittest.TestCase):
             "min.is_enabled": False,
             "max.is_enabled": False,
             "sum.is_enabled": False,
+            "num_zeros.is_enabled": False,
+            "num_negatives.is_enabled": False,
             "variance.is_enabled": False
         }
         options.set(statistical_options)
@@ -160,6 +162,7 @@ class TestProfilerOptions(unittest.TestCase):
         # Assert that the stats are non-existent
         for column_name in profile.profile.keys():
             profile_column = profile.profile[column_name].profile
+            print(profile_column)
             if profile_column["statistics"] \
                     and "histogram" in profile_column["statistics"].keys() \
                     and profile_column["statistics"]["histogram"]:

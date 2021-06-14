@@ -23,6 +23,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.match_count, 0)
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
+        self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
         self.assertEqual(profiler.variance, 0)
         self.assertTrue(profiler.stddev is np.nan)
@@ -36,12 +37,14 @@ class TestIntColumn(unittest.TestCase):
         profiler = IntColumn(data.name)
         profiler.update(data)
         self.assertEqual(profiler.match_count, 1)
+        self.assertEqual(profiler.sum, 1)
         self.assertEqual(profiler.mean, 1)
         self.assertEqual(profiler.variance, 0)
 
         data = pd.Series([2])
         profiler.update(data)
         self.assertEqual(profiler.match_count, 2)
+        self.assertEqual(profiler.sum, 3)
         self.assertEqual(profiler.mean, 1.5)
         self.assertEqual(profiler.variance, 0.5)
 
@@ -269,6 +272,7 @@ class TestIntColumn(unittest.TestCase):
         expected_profile = dict(
             min=2.0,
             max=6.0,
+            sum=8,
             mean=4.0,
             variance=8.0,
             stddev=np.sqrt(8.0),
@@ -366,6 +370,7 @@ class TestIntColumn(unittest.TestCase):
         expected_profile = dict(
             min=2.0,
             max=15.0,
+            sum=33,
             mean=8.25,
             variance=30.916666666666668,
             stddev=np.sqrt(30.916),
@@ -385,10 +390,11 @@ class TestIntColumn(unittest.TestCase):
                                expected_profile.pop('stddev'),places=3)
         self.assertAlmostEqual(profiler3.variance,
                                expected_profile.pop('variance'), places=3)
-        self.assertEqual(profiler3.mean,expected_profile.pop('mean'))
+        self.assertEqual(profiler3.mean, expected_profile.pop('mean'))
         self.assertEqual(profiler3.histogram_selection, 'doane')
-        self.assertEqual(profiler3.min,expected_profile.pop('min'))
-        self.assertEqual(profiler3.max,expected_profile.pop('max'))
+        self.assertEqual(profiler3.min, expected_profile.pop('min'))
+        self.assertEqual(profiler3.max, expected_profile.pop('max'))
+        self.assertEqual(profiler3.sum, expected_profile.pop('sum'))
         self.assertEqual(histogram['bin_counts'].tolist(),
                          expected_histogram['bin_counts'].tolist())
         self.assertCountEqual(histogram['bin_edges'],

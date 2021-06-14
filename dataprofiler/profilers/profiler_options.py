@@ -253,13 +253,16 @@ class NumericalOptions(BaseInspectorOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
-        TODO: Add comments for skew/kurt here
         """
         self.min = BooleanOption(is_enabled=True)
         self.max = BooleanOption(is_enabled=True)
@@ -291,7 +294,7 @@ class NumericalOptions(BaseInspectorOptions):
     def is_numeric_stats_enabled(self, value):
         """
         This property will enable or disable all numeric stats properties:
-        min, max, sum, variance, histogram_and_quantiles
+        min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles
 
         :param value: boolean to enable/disable all numeric stats properties
         :type value: bool
@@ -382,6 +385,10 @@ class IntOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -459,6 +466,10 @@ class FloatOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -504,6 +515,10 @@ class TextOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption

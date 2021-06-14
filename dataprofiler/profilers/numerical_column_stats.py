@@ -355,7 +355,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: unbiased estimator of skewness
         :rtype: NaN if sample size is too small, float otherwise
         """
-        if biased_skewness is None or np.isnan(biased_skewness) or match_count < 3:
+        if np.isnan(biased_skewness) or match_count < 3:
             return np.nan
 
         skewness = np.sqrt(match_count * (match_count - 1)) \
@@ -427,7 +427,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: unbiased estimator of kurtosis
         :rtype: NaN if sample size is too small, float otherwise
         """
-        if biased_kurtosis is None or np.isnan(biased_kurtosis) or match_count < 4:
+        if np.isnan(biased_kurtosis) or match_count < 4:
             return np.nan
 
         kurtosis = (match_count - 1) / ((match_count - 2) *
@@ -887,6 +887,19 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name = "skewness")
     def _get_skewness(self, df_series, prev_dependent_properties,
                       subset_properties):
+        """
+        Computes and updates the skewness of the current dataset given
+        new chunk
+
+        :param df_series: incoming data
+        :type df_series: pandas series
+        :param prev_dependent_properties: pre-update values needed
+            for computation
+        :type prev_dependent_properties: dict
+        :param subset_properties: incoming data statistics
+        :type subset_properties: dict
+        :return None
+        """
         batch_biased_skewness = skew(df_series)
         subset_properties["biased_skewness"] = batch_biased_skewness
         batch_count = subset_properties["match_count"]
@@ -903,6 +916,19 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name = "kurtosis")
     def _get_kurtosis(self, df_series, prev_dependent_properties,
                       subset_properties):
+        """
+        Computes and updates the kurtosis of the current dataset given
+        new chunk
+
+        :param df_series: incoming data
+        :type df_series: pandas series
+        :param prev_dependent_properties: pre-update values needed
+            for computation
+        :type prev_dependent_properties: dict
+        :param subset_properties: incoming data statistics
+        :type subset_properties: dict
+        :return None
+        """
         batch_biased_kurtosis = kurtosis(df_series)
         subset_properties["biased_kurtosis"] = batch_biased_kurtosis
         batch_count = subset_properties["match_count"]

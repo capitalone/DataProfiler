@@ -110,6 +110,16 @@ class BaseOption(object):
         elif errors: 
             return errors
 
+    def __eq__(self, other):
+        """
+        Determines equality by ensuring equality of all attributes, some of
+        which may be Options objects themselves.
+        """
+        if not isinstance(other, self.__class__):
+            return False
+
+        return self.__dict__ == other.__dict__
+
 
 class BooleanOption(BaseOption):
 
@@ -583,6 +593,8 @@ class DataLabelerOptions(BaseInspectorOptions):
         :vartype data_labeler_dirpath: str
         :ivar max_sample_size: Int to decide sample size
         :vartype max_sample_size: int
+        :ivar data_labeler_object: DataLabeler object used in profiler
+        :vartype max_sample_size: BaseDataLabeler
         """
         BaseInspectorOptions.__init__(self)
         self.data_labeler_dirpath = None

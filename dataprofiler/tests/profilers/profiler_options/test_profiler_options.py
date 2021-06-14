@@ -387,6 +387,21 @@ class TestProfilerOptions(unittest.TestCase):
         self.assertFalse(options.structured_options.text.vocab.is_enabled)
         self.assertTrue(options.unstructured_options.text.vocab.is_enabled)
 
+    def test_eq(self, *mocks):
+        options = ProfilerOptions()
+        options2 = ProfilerOptions()
+        options.unstructured_options.data_labeler.is_enabled = False
+        self.assertNotEqual(options, options2)
+        options2.unstructured_options.data_labeler.is_enabled = False
+        self.assertEqual(options, options2)
+
+        options.structured_options.float.precision.sample_ratio = 0.1
+        self.assertNotEqual(options, options2)
+        options2.structured_options.float.precision.sample_ratio = 0.15
+        self.assertNotEqual(options, options2)
+        options.structured_options.float.precision.sample_ratio = 0.1
+        self.assertNotEqual(options, options2)
+
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
             'DataLabelerColumn.update', return_value=None)

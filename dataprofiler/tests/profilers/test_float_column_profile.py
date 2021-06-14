@@ -124,8 +124,6 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(10, float_profiler.precision['sample_size'])
         self.assertEqual(0, float_profiler.precision['var'])
         self.assertEqual(0, float_profiler.precision['std'])
-        self.assertEqual(0, float_profiler.precision['skewness'])
-        self.assertAlmostEqual(-4.3392857, float_profiler.precision['kurtosis'])
 
         # random precision
         df_random = pd.Series(['+ 9', '-.3', '-1e-3', '3.2343', '0',
@@ -138,8 +136,6 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(9, float_profiler.precision['sample_size'])
         self.assertEqual(2.7778, float_profiler.precision['var'])
         self.assertEqual(1.6667, float_profiler.precision['std'])
-        self.assertAlmostEqual(0.1242857, float_profiler.precision['skewness'])
-        self.assertAlmostEqual(-1.1365714, float_profiler.precision['kurtosis'])
 
         # Ensure order doesn't change anything
         df_random_order = pd.Series(['1230', '0.33', '4.3', '302.1', '-4.322',
@@ -147,15 +143,9 @@ class TestFloatColumn(unittest.TestCase):
         float_profiler_order = FloatColumn("Name")
         float_profiler_order.update(df_random)
 
-        skew = float_profiler.precision.pop('skewness')
-        order_skew = float_profiler_order.precision.pop('skewness')
-        kurt = float_profiler.precision.pop('kurtosis')
-        order_kurt = float_profiler_order.precision.pop('kurtosis')
         self.assertDictEqual(
             float_profiler.precision, float_profiler_order.precision
         )
-        self.assertAlmostEqual(skew, order_skew)
-        self.assertAlmostEqual(kurt, order_kurt)
 
         # check to make sure all formats of precision are correctly predicted
         samples = [
@@ -753,8 +743,6 @@ class TestFloatColumn(unittest.TestCase):
                 'mean': 2.0,
                 'var': 1.0,
                 'std': 1.0,
-                'skewness': 0.0,
-                'kurtosis': np.nan,
                 'sample_size': 3,
                 'margin_of_error': 1.9,
                 'confidence_level': 0.999

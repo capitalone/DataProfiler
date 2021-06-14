@@ -38,15 +38,11 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             'mean': None,
             'var': None,
             'std': None,
-            'skewness': None,
-            'kurtosis': None,
             'sum': None,
             'sample_size': None,
             'margin_of_error': None,
             'confidence_level': 0.999
         }
-        self._precision_biased_skewness = np.nan
-        self._precision_biased_kurtosis = np.nan
 
         # https://www.calculator.net/confidence-interval-calculator.html
         self.__z_value_precision = 3.291
@@ -110,38 +106,12 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                 merged_profile.precision['std'] = math.sqrt(
                     merged_profile.precision['var'])
 
-                merged_profile._precision_biased_skewness = self._merge_biased_skewness(
-                    self.precision['sample_size'], self._precision_biased_skewness,
-                    self.precision['var'], self.precision['mean'],
-                    other.precision['sample_size'],
-                    other._precision_biased_skewness, other.precision['var'],
-                    other.precision['mean'])
-
-                merged_profile.precision['skewness'] = self._correct_bias_skewness(
-                    merged_profile.precision['sample_size'],
-                    merged_profile._precision_biased_skewness)
-
-                merged_profile._precision_biased_kurtosis = self._merge_biased_kurtosis(
-                    self.precision['sample_size'],
-                    self._precision_biased_kurtosis,
-                    self._precision_biased_skewness, self.precision['var'],
-                    self.precision['mean'],
-                    other.precision['sample_size'],
-                    other._precision_biased_kurtosis,
-                    other._precision_biased_skewness, other.precision['var'],
-                    other.precision['mean'])
-
-                merged_profile.precision['kurtosis'] = self._correct_bias_kurtosis(
-                    merged_profile.precision['sample_size'],
-                    merged_profile._precision_biased_kurtosis)
-
                 # Margin of error, 99.9% confidence level
                 merged_profile.precision['margin_of_error'] = \
                     merged_profile.__z_value_precision * (
                         merged_profile.precision['std']
                         / math.sqrt(merged_profile.precision['sample_size'])
                 )
-
 
         return merged_profile
 
@@ -170,8 +140,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                 mean=self.np_type_to_type(self.precision['mean']),
                 var=self.np_type_to_type(self.precision['var']),
                 std=self.np_type_to_type(self.precision['std']),
-                skewness=self.np_type_to_type(self.precision['skewness']),
-                kurtosis=self.np_type_to_type(self.precision['kurtosis']),
                 sample_size=self.np_type_to_type(self.precision['sample_size']),
                 margin_of_error=self.np_type_to_type(self.precision['margin_of_error']),
                 confidence_level=self.np_type_to_type(self.precision['confidence_level'])
@@ -229,8 +197,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             'max': len_per_float.max(),
             'mean': precision_sum / sample_size,
             'var': float(len_per_float.var()),
-            'biased_skewness': float(skew(len_per_float)),
-            'biased_kurtosis': float(kurtosis(len_per_float)),
             'sum': precision_sum,
             'sample_size': sample_size
         }
@@ -274,13 +240,11 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if self.__precision_sample_ratio is not None:
             sample_ratio = self.__precision_sample_ratio
         
-        # (min, max, var, skewness, kurtosis, sum, sample_size)
+        # (min, max, var, sum, sample_size)
         subset_precision = self._get_float_precision(df_series, sample_ratio)
         if subset_precision is None:
             return
         elif self.precision['min'] is None:
-            self._precision_biased_kurtosis = subset_precision.pop('biased_kurtosis')
-            self._precision_biased_skewness = subset_precision.pop('biased_skewness')
             self.precision.update(subset_precision)
         else:
             # Update the calculations as data is valid
@@ -289,26 +253,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             self.precision['max'] = max(
                 self.precision['max'], subset_precision['max'])            
             self.precision['sum'] += subset_precision['sum']
-
-            self._precision_biased_kurtosis = self._merge_biased_kurtosis(
-                self.precision['sample_size'],
-                self._precision_biased_kurtosis,
-                self._precision_biased_skewness, self.precision['var'],
-                self.precision['mean'],
-                subset_precision['sample_size'],
-                subset_precision['biased_kurtosis'],
-                subset_precision['biased_skewness'],
-                subset_precision['var'],
-                subset_precision['mean'])
-
-            self._precision_biased_skewness = self._merge_biased_skewness(
-                self.precision['sample_size'],
-                self._precision_biased_skewness, self.precision['var'],
-                self.precision['mean'],
-                subset_precision['sample_size'],
-                subset_precision['biased_skewness'],
-                subset_precision['var'],
-                subset_precision['mean'])
 
             self.precision['var'] = self._merge_variance(
                 self.precision['sample_size'], self.precision['var'],
@@ -332,13 +276,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         for key in ['mean', 'var', 'std', 'margin_of_error']:
             self.precision[key] = \
                 float('{:.{p}g}'.format(self.precision[key], p=sigfigs))
-
-        self.precision['skewness'] = self._correct_bias_skewness(
-            self.precision['sample_size'],
-            self._precision_biased_skewness)
-        self.precision['kurtosis'] = self._correct_bias_kurtosis(
-            self.precision['sample_size'],
-            self._precision_biased_kurtosis)
 
     def _update_helper(self, df_series_clean, profile):
         """

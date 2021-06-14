@@ -104,8 +104,6 @@ The format for a structured profile is below:
 		'mean': float,
 		'var': float,
 		'std': float,
-		'skewness': float,
-		'kurtosis': float,
 		'sample_size': int,
 		'margin_of_error': float,
 		'confidence_level': float		

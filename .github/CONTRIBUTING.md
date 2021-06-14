@@ -26,7 +26,7 @@ In short, when you submit code changes, your submissions are understood to be un
 We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/capitalone/DataProfiler/issues/new/choose); it's that easy!
 
 ## Write bug reports with detail, background, and sample code
-[This is an example](http://stackoverflow.com/q/12488905/180626) of a bug report I wrote, and I think it's not a bad model. Here's [another example from Craig Hockenberry](http://www.openradar.me/11905408), an app developer whom I greatly respect.
+Detailed bug reports will make fixing the bug significatnly easier.
 
 **Great Bug Reports** tend to have:
 - General information of the working environment
@@ -41,13 +41,6 @@ We use GitHub issues to track public bugs. Report a bug by [opening a new issue]
 People *love* thorough bug reports. I'm not even kidding.
 
 ## Use a Consistent Coding Style
-I'm again borrowing these from [Facebook's Guidelines]()
-
-* 2 spaces for indentation rather than tabs
-* You can try running `npm run lint` for style unification
-
-## License
-By contributing, you agree that your contributions will be licensed under its MIT License.
-
-## References
-This document was adapted from the open-source contribution guidelines for [Facebook's Draft](https://github.com/facebook/draft-js/blob/a9316a723f9e918afde44dea68b5f9f39b7d9b00/CONTRIBUTING.md)
+Please follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) coding conventions to maintain consistency in the repo. For 
+docstrings, please follow [reStructuredText](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html) format as Sphinx is used to autogenerate
+the documentation. 

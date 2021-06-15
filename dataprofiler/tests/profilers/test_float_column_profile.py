@@ -371,6 +371,38 @@ class TestFloatColumn(unittest.TestCase):
         df = pd.concat([df1, df2, df3])
         self.assertAlmostEqual(0.3311739, num_profiler.kurtosis)
 
+    def test_bias_correction_option(self):
+        data = np.linspace(-5, 5, 11).tolist()
+        df1 = pd.Series(data)
+
+        data = np.linspace(-3, 2, 11).tolist()
+        df2 = pd.Series(data)
+
+        data = np.full((10,), 1)
+        df3 = pd.Series(data)
+
+        # Enable bias option to get biased values
+        options = FloatOptions(); options.bias.is_enabled = True
+        num_profiler = FloatColumn(df1.name, options=options)
+        num_profiler.update(df1.apply(str))
+        self.assertAlmostEqual(10, num_profiler.variance)
+        self.assertAlmostEqual(0, num_profiler.skewness)
+        self.assertAlmostEqual(89/50 - 3, num_profiler.kurtosis)
+
+        df2_ints = df2[df2 == df2.round()]
+        num_profiler.update(df2.apply(str))
+        df = pd.concat([df1, df2_ints])
+        self.assertAlmostEqual(6.3125, num_profiler.variance)
+        self.assertAlmostEqual(0.17733336, num_profiler.skewness)
+        self.assertAlmostEqual(-0.56798353, num_profiler.kurtosis)
+
+        df3_ints = df3[df3 == df3.round()]
+        num_profiler.update(df3.apply(str))
+        df = pd.concat([df1, df2_ints, df3_ints])
+        self.assertAlmostEqual(4.6755371, num_profiler.variance)
+        self.assertAlmostEqual(-0.29622465, num_profiler.skewness)
+        self.assertAlmostEqual(0.099825352, num_profiler.kurtosis)
+
     def test_null_values_for_histogram(self):
         data = pd.Series(['-inf', 'inf'])
         profiler = FloatColumn(data.name)

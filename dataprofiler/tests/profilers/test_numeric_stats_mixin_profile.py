@@ -286,7 +286,8 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         # Sum of errors should be difference of each input value to midpoint of bin squared
         # bin_midpoints = [2, 6, 10, 14]   ids = [1, 1, 2, 3, 3, 4]
-        assert sum_error == (2 - 0) ** 2 + (2 - 3) ** 2 + (6 - 5) ** 2 + (10 - 9) ** 2 + (10 - 11) ** 2 + (17 - 14) ** 2
+        assert sum_error == (2 - 0) ** 2 + (2 - 3) ** 2 + \
+               (6 - 5) ** 2 + (10 - 9) ** 2 + (10 - 11) ** 2 + (17 - 14) ** 2
 
         # Max value test
         input_array = [sys.float_info.max, 1.2e308, 1.3e308, 1.5e308]
@@ -377,19 +378,21 @@ class TestNumericStatsMixin(unittest.TestCase):
         prev_dependent_properties = {"mean": 0}
         subset_properties = {"num_zeros": 0}
 
-        data = np.array([])
-        df_series = pd.Series(data)
-        num_profiler._get_num_zeros(df_series, prev_dependent_properties, subset_properties)
+        df_series = pd.Series([])
+        num_profiler._get_num_zeros(df_series, prev_dependent_properties,
+                                    subset_properties)
         self.assertEqual(subset_properties["num_zeros"], 0)
 
         data = np.array([0, 0, 0, 0, 0])
         df_series = pd.Series(data)
-        num_profiler._get_num_zeros(df_series, prev_dependent_properties, subset_properties)
+        num_profiler._get_num_zeros(df_series, prev_dependent_properties,
+                                    subset_properties)
         self.assertEqual(subset_properties["num_zeros"], 5)
 
         data = np.array([000., 0.00, .000, 1.11234, 0, -1])
         df_series = pd.Series(data)
-        num_profiler._get_num_zeros(df_series, prev_dependent_properties, subset_properties)
+        num_profiler._get_num_zeros(df_series, prev_dependent_properties,
+                                    subset_properties)
         self.assertEqual(subset_properties["num_zeros"], 4)
 
     def test_num_negatives(self):
@@ -399,19 +402,21 @@ class TestNumericStatsMixin(unittest.TestCase):
         prev_dependent_properties = {"mean": 0}
         subset_properties = {"num_negatives": 0}
 
-        data = np.array([])
-        df_series = pd.Series(data)
-        num_profiler._get_num_negatives(df_series, prev_dependent_properties, subset_properties)
+        df_series = pd.Series([])
+        num_profiler._get_num_negatives(df_series, prev_dependent_properties,
+                                        subset_properties)
         self.assertEqual(subset_properties["num_negatives"], 0)
 
         data = np.array([0, 0, 0, 0, 0])
         df_series = pd.Series(data)
-        num_profiler._get_num_negatives(df_series, prev_dependent_properties, subset_properties)
+        num_profiler._get_num_negatives(df_series, prev_dependent_properties,
+                                        subset_properties)
         self.assertEqual(subset_properties["num_negatives"], 0)
 
         data = np.array([1, 0, -.003, -16, -1., -24.45])
         df_series = pd.Series(data)
-        num_profiler._get_num_negatives(df_series, prev_dependent_properties, subset_properties)
+        num_profiler._get_num_negatives(df_series, prev_dependent_properties,
+                                        subset_properties)
         self.assertEqual(subset_properties["num_negatives"], 4)
 
     def test_timeit_num_zeros_and_negatives(self):

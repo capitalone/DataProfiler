@@ -7,7 +7,6 @@ respective parameters.
 from __future__ import print_function
 from __future__ import division
 
-import pandas
 from future.utils import with_metaclass
 import copy
 import abc
@@ -733,7 +732,15 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     def _get_num_zeros(self, df_series, prev_dependent_properties,
                  subset_properties):
         """
-        To be implemented
+        Method for getting the count of zeros in the numerical column.
+
+        :param df_series: df series
+        :type df_series: pandas.core.series.Series
+        :param prev_dependent_properties: previous dependent properties
+        :type prev_dependent_properties: dict
+        :param subset_properties: subset of properties
+        :type subset_properties: dict
+        :return: None
         """
         num_zeros_value = (df_series == 0).sum()
         subset_properties["num_zeros"] = num_zeros_value
@@ -743,7 +750,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     def _get_num_negatives(self, df_series, prev_dependent_properties,
                  subset_properties):
         """
-        To be implemented
+        Method for getting the count of negative numbers
+        in the numerical column.
+
+        :param df_series: df series
+        :type df_series: pandas.core.series.Series
+        :param prev_dependent_properties: previous dependent properties
+        :type prev_dependent_properties: dict
+        :param subset_properties: subset of properties
+        :type subset_properties: dict
+        :return: None
         """
         num_negatives_value = (df_series < 0).sum()
         subset_properties["num_negatives"] = num_negatives_value

@@ -7,7 +7,6 @@ respective parameters.
 from __future__ import print_function
 from __future__ import division
 
-from scipy.stats import skew, kurtosis
 from future.utils import with_metaclass
 import copy
 import abc
@@ -15,6 +14,7 @@ import warnings
 import sys
 
 import numpy as np
+import scipy.stats
 
 from . import histogram_utils
 from .base_column_profilers import BaseColumnProfiler
@@ -900,7 +900,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return None
         """
-        batch_biased_skewness = skew(df_series)
+        batch_biased_skewness = scipy.stats.skew(df_series)
         subset_properties["biased_skewness"] = batch_biased_skewness
         batch_count = subset_properties["match_count"]
         batch_var = subset_properties["variance"]
@@ -929,7 +929,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return None
         """
-        batch_biased_kurtosis = kurtosis(df_series)
+        batch_biased_kurtosis = scipy.stats.kurtosis(df_series)
         subset_properties["biased_kurtosis"] = batch_biased_kurtosis
         batch_count = subset_properties["match_count"]
         batch_var = subset_properties["variance"]

@@ -3,7 +3,6 @@ import copy
 import math
 import numpy as np
 
-from scipy.stats import skew, kurtosis
 from .numerical_column_stats import NumericStatsMixin
 from .base_column_profilers import BaseColumnProfiler, \
     BaseColumnPrimitiveTypeProfiler
@@ -43,6 +42,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             'margin_of_error': None,
             'confidence_level': 0.999
         }
+        self._biased_precision_var = np.nan
 
         # https://www.calculator.net/confidence-interval-calculator.html
         self.__z_value_precision = 3.291
@@ -94,14 +94,21 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                 merged_profile.precision['sample_size'] = \
                     self.precision['sample_size'] + other.precision['sample_size']
 
-                merged_profile.precision['var'] = self._merge_variance(
+                merged_profile._biased_precision_var = self._merge_biased_variance(
                     self.precision['sample_size'],
-                    self.precision['var'], self.precision['mean'],
-                    other.precision['sample_size'], other.precision['var'],
+                    self._biased_precision_var, self.precision['mean'],
+                    other.precision['sample_size'],
+                    other._biased_precision_var,
                     other.precision['mean'])
+
                 merged_profile.precision['mean'] = \
                     merged_profile.precision['sum'] \
                     / merged_profile.precision['sample_size']
+
+                merged_profile.precision['var'] = self._correct_bias_variance(
+                    self.precision['sample_size'],
+                    self._biased_precision_var
+                )
             
                 merged_profile.precision['std'] = math.sqrt(
                     merged_profile.precision['var'])
@@ -196,7 +203,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             'min': len_per_float.min(),
             'max': len_per_float.max(),
             'mean': precision_sum / sample_size,
-            'var': float(len_per_float.var()),
+            'biased_var': float(np.var(len_per_float)),
             'sum': precision_sum,
             'sample_size': sample_size
         }
@@ -245,6 +252,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if subset_precision is None:
             return
         elif self.precision['min'] is None:
+            self._biased_precision_var = subset_precision.pop('biased_var')
             self.precision.update(subset_precision)
         else:
             # Update the calculations as data is valid
@@ -254,10 +262,10 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                 self.precision['max'], subset_precision['max'])            
             self.precision['sum'] += subset_precision['sum']
 
-            self.precision['var'] = self._merge_variance(
-                self.precision['sample_size'], self.precision['var'],
+            self._biased_precision_var = self._merge_biased_variance(
+                self.precision['sample_size'], self._biased_precision_var,
                 self.precision['mean'],
-                subset_precision['sample_size'], subset_precision['var'],
+                subset_precision['sample_size'], subset_precision['biased_var'],
                 subset_precision['mean'])
 
             self.precision['sample_size'] += subset_precision['sample_size']            
@@ -265,6 +273,10 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                 / self.precision['sample_size']
 
         # Calculated outside
+        self.precision['var'] = self._correct_bias_variance(
+            self.precision['sample_size'],
+            self._biased_precision_var)
+
         self.precision['std'] = math.sqrt(self.precision['var'])
 
         # Margin of error, 99.9% confidence level

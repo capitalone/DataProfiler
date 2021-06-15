@@ -301,7 +301,7 @@ class NumericalOptions(BaseInspectorOptions):
     def is_numeric_stats_enabled(self, value):
         """
         This property will enable or disable all numeric stats properties:
-        min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles ,
+        min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles,
         num_zeros, num_negatives
 
         :param value: boolean to enable/disable all numeric stats properties
@@ -453,15 +453,15 @@ class PrecisionOptions(BooleanOption):
         errors = super()._validate_helper(variable_path=variable_path)
         if self.sample_ratio is not None:
             if not isinstance(self.sample_ratio, float) \
-                    and not isinstance(self.sample_ratio, int):
+               and not isinstance(self.sample_ratio, int):
                 errors.append("{}.sample_ratio must be a float."
-                              .format(variable_path))
+                              .format(variable_path))                
             if (isinstance(self.sample_ratio, float) \
-                or isinstance(self.sample_ratio, int)) \
-                    and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
+               or isinstance(self.sample_ratio, int)) \
+               and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
                 errors.append("{}.sample_ratio must be a float between 0 and 1."
-                              .format(variable_path))
-
+                              .format(variable_path))                
+        
         return errors
 
 
@@ -627,7 +627,7 @@ class OrderOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path)
+        return super()._validate_helper(variable_path) 
 
 
 class CategoricalOptions(BaseInspectorOptions):
@@ -700,7 +700,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         :rtype: dict
         """
         props = {k: copy.deepcopy(v)
-                 for k, v in self.__dict__.items() if k != 'data_labeler_object'}
+                 for k,v in self.__dict__.items() if k != 'data_labeler_object'}
         props['data_labeler_object'] = self.data_labeler_object
         return props
 
@@ -738,7 +738,6 @@ class DataLabelerOptions(BaseInspectorOptions):
             errors.append("{}.max_sample_size must be greater than 0."
                           .format(variable_path))
         return errors
-
 
 class TextProfilerOptions(BaseInspectorOptions):
 

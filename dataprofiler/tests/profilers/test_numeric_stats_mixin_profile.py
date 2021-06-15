@@ -21,7 +21,7 @@ class TestColumn(NumericStatsMixin):
 
     def update(self, df_series):
         pass
-
+    
     def _filter_properties_w_options(self, calculations, options):
         pass
 

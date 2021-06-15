@@ -88,6 +88,8 @@ class TestNumericalOptions(TestBaseInspectorOptions):
                      "kurtosis.is_enabled": True})
         self.assertEqual([var_error, skew_error, kurt_error], options._validate_helper())
 
+        #self.assertEqual([expected_error], options._validate_helper())
+
     def test_validate(self):
         super().test_validate()
         options = self.get_options()
@@ -116,6 +118,12 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         with self.assertRaisesRegex(ValueError, var_error):
             options.validate(raise_error=True)
         self.assertEqual([var_error], options.validate(raise_error=False))
+
+        """
+        with self.assertRaisesRegex(ValueError, expected_error):
+            options.validate(raise_error=True)    
+        self.assertEqual([expected_error]
+        """
 
         # Disable Sum and Variance, Enable Skewness
         options.set({"sum.is_enabled": False,
@@ -149,6 +157,11 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         with self.assertRaisesRegex(ValueError, kurt_error):
             options.validate(raise_error=True)
         self.assertEqual([var_error, skew_error, kurt_error], options.validate(raise_error=False))
+        """
+        with self.assertRaisesRegex(ValueError, expected_error):
+            options.validate(raise_error=True)    
+        self.assertEqual([expected_error], options.validate(raise_error=False))
+        """
 
     def test_is_numeric_stats_enabled(self):
         options = self.get_options()

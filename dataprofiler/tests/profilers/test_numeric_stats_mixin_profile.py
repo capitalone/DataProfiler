@@ -95,11 +95,11 @@ class TestNumericStatsMixin(unittest.TestCase):
         var1 = ((-3.0 - mean1) ** 2 + (2.0 - mean1)
                 ** 2 + (11.0 - mean1) ** 2) / 2
         count1 = len(data1)
-        num_profiler.variance = num_profiler._update_variance(
-            mean1, var1, count1)
-        self.assertEqual(var1, num_profiler.variance)
+        num_profiler._biased_variance = num_profiler._update_variance(
+            mean1, var1 * 2 / 3, count1)
         num_profiler.match_count = count1
         num_profiler.sum = sum(data1)
+        self.assertAlmostEqual(var1, num_profiler.variance)
 
         # test streaming update variance with new data
         data2 = [-5.0, 5.0, 11.0]
@@ -107,8 +107,10 @@ class TestNumericStatsMixin(unittest.TestCase):
         var2 = ((-5.0 - mean2) ** 2 + (5.0 - mean2)
                 ** 2 + (11.0 - mean2) ** 2) / 2
         count2 = len(data2)
-        num_profiler.variance = num_profiler._update_variance(
-            mean2, var2, count2)
+        num_profiler._biased_variance = num_profiler._update_variance(
+            mean2, var2 * 2 / 3, count2)
+        num_profiler.match_count += count2
+        num_profiler.sum += sum(data2)
         var_from_profile_updated = num_profiler.variance
 
         data_all = [-5.0, 5.0, 11.0, -3.0, 2.0, 11.0]
@@ -117,7 +119,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                    (11.0 - mean_all) ** 2 + (-3.0 - mean_all) ** 2 + \
                    (2.0 - mean_all) ** 2 + (11.0 - mean_all) ** 2) / 5
 
-        self.assertEqual(var_all, var_from_profile_updated)
+        self.assertAlmostEqual(var_all, var_from_profile_updated)
 
     def test_update_variance_with_varying_data_length(self):
         """
@@ -126,21 +128,25 @@ class TestNumericStatsMixin(unittest.TestCase):
         """
         # empty data
         data1 = []
-        mean1, var1, count1 = 0, 0, 0
+        mean1, var1, count1 = 0, np.nan, 0
 
         num_profiler = TestColumn()
-        num_profiler.variance = num_profiler._update_variance(
+        num_profiler._biased_variance = num_profiler._update_variance(
             mean1, var1, count1)
-        self.assertEqual(var1, num_profiler.variance)
+        num_profiler.match_count = count1
+        num_profiler.sum = 0
+        self.assertTrue(num_profiler.variance is np.nan)
 
         # data with 1 element
         data2 = [5.0]
         mean2, var2, count2 = 5.0, 0, 1
 
         num_profiler = TestColumn()
-        num_profiler.variance = num_profiler._update_variance(
+        num_profiler._biased_variance = num_profiler._update_variance(
             mean2, var2, count2)
-        self.assertEqual(var2, num_profiler.variance)
+        num_profiler.match_count += count2
+        num_profiler.sum += 5.0
+        self.assertTrue(num_profiler.variance is np.nan)
 
         # data with multiple elements
         data3 = [-5.0, 5.0, 11.0, -11.0]
@@ -149,8 +155,10 @@ class TestNumericStatsMixin(unittest.TestCase):
                 (11.0 - mean3) ** 2 + (-11.0 - mean3) ** 2) / 3
 
         num_profiler = TestColumn()
-        num_profiler.variance = num_profiler._update_variance(
-            mean3, var3, count3)
+        num_profiler._biased_variance = num_profiler._update_variance(
+            mean3, var3 * 3 / 4, count3)
+        num_profiler.match_count += count3
+        num_profiler.sum += sum(data3)
         self.assertEqual(var3, num_profiler.variance)
 
     def test_update_variance_with_empty_data(self):
@@ -165,17 +173,19 @@ class TestNumericStatsMixin(unittest.TestCase):
         var1 = ((-3.0 - mean1) ** 2 + (2.0 - mean1)
                 ** 2 + (11.0 - mean1) ** 2) / 2
         count1 = len(data1)
-        num_profiler.variance = num_profiler._update_variance(
-            mean1, var1, count1)
-        self.assertEqual(var1, num_profiler.variance)
+        num_profiler._biased_variance = num_profiler._update_variance(
+            mean1, var1 * 2 / 3, count1)
         num_profiler.match_count = count1
         num_profiler.sum = sum(data1)
+        self.assertEqual(var1, num_profiler.variance)
 
         # test adding data which would not have anything
         # data + empty
         mean2, var2, count2 = 0, 0, 0
-        num_profiler.variance = num_profiler._update_variance(
+        num_profiler._biased_variance = num_profiler._update_variance(
             mean2, var2, count2)
+        num_profiler.match_count = count1
+        num_profiler.sum = sum(data1)
         var_from_profile_updated = num_profiler.variance
 
         # simulate not having data
@@ -193,8 +203,8 @@ class TestNumericStatsMixin(unittest.TestCase):
             'bin_edges': np.array([2., 5.25, 8.5, 11.75, 15.])
         }
 
-        other1.min, other1.max, other1.variance, other1.sum = 0, 0, 0, 0
-        other2.min, other2.max, other2.variance, other2.sum = 1, 1, 1, 1
+        other1.min, other1.max, other1._biased_variance, other1.sum = 0, 0, 0, 0
+        other2.min, other2.max, other2._biased_variance, other2.sum = 1, 1, 1, 1
 
         # set auto as only histogram to merge
         other1.histogram_selection = "auto"
@@ -224,7 +234,7 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         # Dummy data to make min call
         prev_dependent_properties = {"mean": 0,
-                                     "variance": 0,
+                                     "biased_variance": 0,
                                      "biased_skewness": 0}
         data = np.array([0, 0, 0, 0, 0])
         df_series = pd.Series(data)

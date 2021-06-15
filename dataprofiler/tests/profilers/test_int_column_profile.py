@@ -25,7 +25,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.max, None)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
-        self.assertEqual(profiler.variance, 0)
+        self.assertTrue(profiler.variance is np.nan)
         self.assertTrue(profiler.skewness is np.nan)
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
@@ -41,7 +41,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.match_count, 1)
         self.assertEqual(profiler.sum, 1)
         self.assertEqual(profiler.mean, 1)
-        self.assertEqual(profiler.variance, 0)
+        self.assertTrue(profiler.variance is np.nan)
 
         data = pd.Series([2])
         profiler.update(data)
@@ -203,8 +203,8 @@ class TestIntColumn(unittest.TestCase):
 
         df = pd.concat([df1, df2_ints, df3_ints])
         self.assertEqual(mean(df), num_profiler.mean)
-        self.assertEqual(variance, num_profiler.variance)
-        self.assertEqual(np.sqrt(variance), num_profiler.stddev)
+        self.assertAlmostEqual(variance, num_profiler.variance)
+        self.assertAlmostEqual(np.sqrt(variance), num_profiler.stddev)
 
     def test_profiled_skewness(self):
         data = np.linspace(-5, 5, 11).tolist()

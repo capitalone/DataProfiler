@@ -26,7 +26,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, None)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
-        self.assertEqual(profiler.variance, 0)
+        self.assertTrue(profiler.variance is np.nan)
         self.assertTrue(profiler.skewness is np.nan)
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
@@ -40,7 +40,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(data)
         self.assertEqual(profiler.match_count, 1.0)
         self.assertEqual(profiler.mean, 1.5)
-        self.assertEqual(profiler.variance, 0.0)
+        self.assertTrue(profiler.variance is np.nan)
 
         data = pd.Series([2.5]).apply(str)
         profiler.update(data)
@@ -763,7 +763,10 @@ class TestFloatColumn(unittest.TestCase):
             expected_quantiles = expected_profile.pop('quantiles')
             skewness = profile.pop('skewness')
             expected_skewness = expected_profile.pop('skewness')
+            variance = profile.pop('variance')
+            expected_variance = expected_profile.pop('variance')
 
+            self.maxDiff = None
             self.assertDictEqual(expected_profile, profile)
             self.assertDictEqual(expected_profile['precision'], profile['precision'])
             self.assertEqual(expected_histogram['bin_counts'].tolist(),
@@ -775,6 +778,7 @@ class TestFloatColumn(unittest.TestCase):
             self.assertAlmostEqual(expected_quantiles[1], quantiles[499])
             self.assertAlmostEqual(expected_quantiles[2], quantiles[749])
             self.assertAlmostEqual(expected_skewness, skewness)
+            self.assertAlmostEqual(expected_variance, variance)
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)

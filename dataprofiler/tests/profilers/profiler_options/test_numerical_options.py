@@ -6,7 +6,8 @@ from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options \
 class TestNumericalOptions(TestBaseInspectorOptions):
     
     option_class = NumericalOptions
-    keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]
+    keys = ["min", "max", "sum", "variance", "histogram_and_quantiles",
+            "num_zeros", "num_negatives"]
 
     def test_init(self):
         options = self.get_options()
@@ -54,7 +55,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         options.set({"sum.is_enabled": False, "variance.is_enabled": True})
         expected_error = "{}: The numeric stats must toggle on the sum if " \
                          "the variance is toggled on.".format(optpth)
-        self.assertEqual([expected_error], options._validate_helper()) 
+        self.assertEqual([expected_error], options._validate_helper())
     
     def test_validate(self):
         super().test_validate()
@@ -81,11 +82,12 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)    
         self.assertEqual([expected_error], options.validate(raise_error=False))
-    
+
     def test_is_numeric_stats_enabled(self):
         options = self.get_options()
         numeric_keys = ["min", "max", "sum", "variance", 
-                        "histogram_and_quantiles"] 
+                        "histogram_and_quantiles",
+                        "num_zeros", "num_negatives"]
 
         # Disable All Numeric Stats
         options.set({'{}.is_enabled'.format(key):False 

@@ -2,6 +2,7 @@ h5py>=2.10.0
 wheel>=0.33.1
 future>=0.18.2
 numpy>=1.18.5
+scipy>=1.4.1
 pandas>=1.1.2
 python-dateutil>=2.7.5
 pytz>=2020.1

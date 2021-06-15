@@ -83,6 +83,8 @@ The format for a structured profile is below:
             "mean": float,
             "variance": float,
             "stddev": float,
+            "skewness": float,
+            "kurtosis": float,
             "histogram": { 
                 "bin_counts": list(int),
 		"bin_edges": list(float),

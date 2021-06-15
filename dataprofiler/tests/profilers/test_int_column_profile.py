@@ -26,6 +26,8 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
         self.assertEqual(profiler.variance, 0)
+        self.assertTrue(profiler.skewness is np.nan)
+        self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
         self.assertDictEqual({k: profiler.quantiles.get(k, 'fail')
@@ -204,6 +206,56 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(variance, num_profiler.variance)
         self.assertEqual(np.sqrt(variance), num_profiler.stddev)
 
+    def test_profiled_skewness(self):
+        data = np.linspace(-5, 5, 11).tolist()
+        df1 = pd.Series(data)
+
+        data = np.linspace(-3, 2, 11).tolist()
+        df2 = pd.Series(data)
+
+        data = np.full((10,), 1)
+        df3 = pd.Series(data)
+
+        num_profiler = IntColumn(df1.name)
+        num_profiler.update(df1.apply(str))
+
+        self.assertEqual(0, num_profiler.skewness)
+
+        df2_ints = df2[df2 == df2.round()]
+        num_profiler.update(df2.apply(str))
+        df = pd.concat([df1, df2_ints])
+        self.assertAlmostEqual(11 * np.sqrt(102 / 91) / 91, num_profiler.skewness)
+
+        df3_ints = df3[df3 == df3.round()]
+        num_profiler.update(df3.apply(str))
+        df = pd.concat([df1, df2_ints, df3_ints])
+        self.assertAlmostEqual(-6789 * np.sqrt(39 / 463) / 4630, num_profiler.skewness)
+
+    def test_profiled_kurtosis(self):
+        data = np.linspace(-5, 5, 11).tolist()
+        df1 = pd.Series(data)
+
+        data = np.linspace(-3, 2, 11).tolist()
+        df2 = pd.Series(data)
+
+        data = np.full((10,), 1)
+        df3 = pd.Series(data)
+
+        num_profiler = IntColumn(df1.name)
+        num_profiler.update(df1.apply(str))
+
+        self.assertAlmostEqual(-6 / 5, num_profiler.kurtosis)
+
+        df2_ints = df2[df2 == df2.round()]
+        num_profiler.update(df2.apply(str))
+        df = pd.concat([df1, df2_ints])
+        self.assertAlmostEqual(-29886 / 41405, num_profiler.kurtosis)
+
+        df3_ints = df3[df3 == df3.round()]
+        num_profiler.update(df3.apply(str))
+        df = pd.concat([df1, df2_ints, df3_ints])
+        self.assertAlmostEqual(16015779 / 42873800, num_profiler.kurtosis)
+
     def test_profiled_histogram(self):
         """
         Checks the histogram of profiled numerical columns.
@@ -275,6 +327,8 @@ class TestIntColumn(unittest.TestCase):
             sum=8,
             mean=4.0,
             variance=8.0,
+            skewness=np.nan,
+            kurtosis=np.nan,
             stddev=np.sqrt(8.0),
             histogram={
                 'bin_counts': np.array([1, 0, 1]),
@@ -287,7 +341,8 @@ class TestIntColumn(unittest.TestCase):
             },
             times=defaultdict(
                 float, {'histogram_and_quantiles': 1.0, 'max': 1.0, 'min': 1.0,
-                        'sum': 1.0, 'variance': 1.0})
+                        'sum': 1.0, 'variance': 1.0, 'skewness': 1.0,
+                        'kurtosis': 1.0})
             
         )
         time_array = [float(i) for i in range(100, 0, -1)]
@@ -317,6 +372,7 @@ class TestIntColumn(unittest.TestCase):
 
             expected = defaultdict(
                 float, {'min': 1.0, 'max': 1.0, 'sum': 1.0, 'variance': 1.0,
+                        'skewness': 1.0, 'kurtosis': 1.0,
                         'histogram_and_quantiles': 1.0})
             self.assertEqual(expected, profile['times'])
 
@@ -325,6 +381,7 @@ class TestIntColumn(unittest.TestCase):
             profiler.update(df)
             expected = defaultdict(
                 float, {'min': 2.0, 'max': 2.0, 'sum': 2.0, 'variance': 2.0,
+                        'skewness': 2.0, 'kurtosis': 2.0,
                         'histogram_and_quantiles': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
 
@@ -346,13 +403,15 @@ class TestIntColumn(unittest.TestCase):
             # Validate the time in the datetime class has the expected time.
             profile = profiler.profile
 
-            expected = defaultdict(float, {'max': 1.0, 'sum': 1.0, 'variance': 1.0, \
+            expected = defaultdict(float, {'max': 1.0, 'sum': 1.0, 'variance': 1.0,
+                                           'skewness': 1.0, 'kurtosis': 1.0,
                                            'histogram_and_quantiles': 1.0})
             self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
-            expected = defaultdict(float, {'max': 2.0, 'sum': 2.0, 'variance': 2.0, \
+            expected = defaultdict(float, {'max': 2.0, 'sum': 2.0, 'variance': 2.0,
+                                           'skewness': 2.0, 'kurtosis': 2.0,
                                            'histogram_and_quantiles': 2.0})
             self.assertCountEqual(expected, profiler.profile['times'])
 
@@ -373,6 +432,8 @@ class TestIntColumn(unittest.TestCase):
             sum=33,
             mean=8.25,
             variance=30.916666666666668,
+            skewness=918 * np.sqrt(3 / 371) / 371,
+            kurtosis=-16068/19663,
             stddev=np.sqrt(30.916),
             histogram={
                 'bin_counts': np.array([1, 1, 1, 1]),
@@ -390,7 +451,11 @@ class TestIntColumn(unittest.TestCase):
                                expected_profile.pop('stddev'),places=3)
         self.assertAlmostEqual(profiler3.variance,
                                expected_profile.pop('variance'), places=3)
-        self.assertEqual(profiler3.mean, expected_profile.pop('mean'))
+        self.assertAlmostEqual(profiler3.skewness,
+                               expected_profile.pop('skewness'),places=3)
+        self.assertAlmostEqual(profiler3.kurtosis,
+                               expected_profile.pop('kurtosis'), places=3)
+        self.assertEqual(profiler3.mean,expected_profile.pop('mean'))
         self.assertEqual(profiler3.histogram_selection, 'doane')
         self.assertEqual(profiler3.min, expected_profile.pop('min'))
         self.assertEqual(profiler3.max, expected_profile.pop('max'))
@@ -427,6 +492,8 @@ class TestIntColumn(unittest.TestCase):
         profiler = profiler1 + profiler2
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
+        self.assertTrue(np.isnan(profiler.skewness))
+        self.assertTrue(np.isnan(profiler.kurtosis))
         self.assertIsNone(profiler.histogram_selection)
 
         df3 = pd.Series([2, 3]).apply(str)
@@ -436,6 +503,8 @@ class TestIntColumn(unittest.TestCase):
         profiler = profiler1 + profiler3
         self.assertEqual(profiler.min, 2)
         self.assertEqual(profiler.max, 3)
+        self.assertTrue(np.isnan(profiler.skewness))
+        self.assertTrue(np.isnan(profiler.kurtosis))
 
         df4 = pd.Series([4, 5]).apply(str)
         profiler4 = IntColumn("Int")
@@ -444,6 +513,8 @@ class TestIntColumn(unittest.TestCase):
         profiler = profiler3 + profiler4
         self.assertEqual(profiler.min, 2)
         self.assertEqual(profiler.max, 5)
+        self.assertEqual(profiler.skewness, 0)
+        self.assertAlmostEqual(profiler.kurtosis, -1.2)
 
     def test_custom_bin_count_merge(self):
 
@@ -599,4 +670,3 @@ class TestIntColumn(unittest.TestCase):
         profile_2.update(data_2)
 
         profile_1 + profile_2
-

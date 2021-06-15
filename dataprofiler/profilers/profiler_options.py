@@ -253,6 +253,10 @@ class NumericalOptions(BaseInspectorOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -264,6 +268,8 @@ class NumericalOptions(BaseInspectorOptions):
         self.max = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
+        self.skewness = BooleanOption(is_enabled=True)
+        self.kurtosis = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
         BaseInspectorOptions.__init__(self)
 
@@ -278,7 +284,8 @@ class NumericalOptions(BaseInspectorOptions):
         :rtype bool:
         """
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
-                or self.variance.is_enabled \
+                or self.variance.is_enabled or self.skewness.is_enabled \
+                or self.kurtosis.is_enabled \
                 or self.histogram_and_quantiles.is_enabled:
             return True
         return False
@@ -287,7 +294,7 @@ class NumericalOptions(BaseInspectorOptions):
     def is_numeric_stats_enabled(self, value):
         """
         This property will enable or disable all numeric stats properties:
-        min, max, sum, variance, histogram_and_quantiles
+        min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles
 
         :param value: boolean to enable/disable all numeric stats properties
         :type value: bool
@@ -297,6 +304,8 @@ class NumericalOptions(BaseInspectorOptions):
         self.max.is_enabled = value
         self.sum.is_enabled = value
         self.variance.is_enabled = value
+        self.skewness.is_enabled = value
+        self.kurtosis.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
 
     @property
@@ -323,7 +332,7 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance"]:
+                     "variance", "skewness", "kurtosis"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
                               .format(variable_path, item))
@@ -331,11 +340,24 @@ class NumericalOptions(BaseInspectorOptions):
                 errors += self.properties[item]._validate_helper(
                     variable_path=variable_path + '.' + item)
 
-        if not self.properties["sum"].is_enabled and \
-                self.properties["variance"].is_enabled:
+        # Error checks for dependent calculations
+        sum_disabled = not self.properties["sum"].is_enabled
+        var_disabled = not self.properties["variance"].is_enabled
+        skew_disabled = not self.properties["skewness"].is_enabled
+        kurt_disabled = not self.properties["kurtosis"].is_enabled
+        if sum_disabled and not var_disabled:
             errors.append("{}: The numeric stats must toggle on the sum "
                           "if the variance is toggled on."
                           .format(variable_path))
+        if (sum_disabled or var_disabled) and not skew_disabled:
+            errors.append("{}: The numeric stats must toggle on the "
+                          "sum and variance if skewness is toggled on."
+                          .format(variable_path))
+        if (sum_disabled or var_disabled or skew_disabled) \
+            and not kurt_disabled:
+            errors.append("{}: The numeric stats must toggle on sum,"
+                          " variance, and skewness if kurtosis is "
+                          "toggled on.".format(variable_path))
 
         # warn user if all stats are disabled
         if not errors:
@@ -363,6 +385,10 @@ class IntOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -440,6 +466,10 @@ class FloatOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -485,6 +515,10 @@ class TextOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption

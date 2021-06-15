@@ -63,9 +63,12 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile = dict(
             min=self.np_type_to_type(self.min),
             max=self.np_type_to_type(self.max),
+            sum=self.np_type_to_type(self.sum),
             mean=self.np_type_to_type(self.mean),
             variance=self.np_type_to_type(self.variance),
             stddev=self.np_type_to_type(self.stddev),
+            skewness=self.np_type_to_type(self.skewness),
+            kurtosis=self.np_type_to_type(self.kurtosis),
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             times=self.times

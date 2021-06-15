@@ -3,6 +3,7 @@ import copy
 import math
 import numpy as np
 
+from scipy.stats import skew, kurtosis
 from .numerical_column_stats import NumericStatsMixin
 from .base_column_profilers import BaseColumnProfiler, \
     BaseColumnPrimitiveTypeProfiler
@@ -42,7 +43,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             'margin_of_error': None,
             'confidence_level': 0.999
         }
-        
+
         # https://www.calculator.net/confidence-interval-calculator.html
         self.__z_value_precision = 3.291
 
@@ -111,7 +112,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                         merged_profile.precision['std']
                         / math.sqrt(merged_profile.precision['sample_size'])
                 )
-            
+
         return merged_profile
 
     @property
@@ -124,9 +125,12 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile = dict(
             min=self.np_type_to_type(self.min),
             max=self.np_type_to_type(self.max),
+            sum=self.np_type_to_type(self.sum),
             mean=self.np_type_to_type(self.mean),
             variance=self.np_type_to_type(self.variance),
             stddev=self.np_type_to_type(self.stddev),
+            skewness=self.np_type_to_type(self.skewness),
+            kurtosis=self.np_type_to_type(self.kurtosis),
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             times=self.times,
@@ -232,7 +236,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
-
         sample_ratio = None
         if self.__precision_sample_ratio is not None:
             sample_ratio = self.__precision_sample_ratio
@@ -243,20 +246,20 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             return
         elif self.precision['min'] is None:
             self.precision.update(subset_precision)
-        else:        
+        else:
             # Update the calculations as data is valid
             self.precision['min'] = min(
                 self.precision['min'], subset_precision['min'])
             self.precision['max'] = max(
                 self.precision['max'], subset_precision['max'])            
             self.precision['sum'] += subset_precision['sum']
-            
+
             self.precision['var'] = self._merge_variance(
                 self.precision['sample_size'], self.precision['var'],
                 self.precision['mean'],
                 subset_precision['sample_size'], subset_precision['var'],
                 subset_precision['mean'])
-            
+
             self.precision['sample_size'] += subset_precision['sample_size']            
             self.precision['mean'] = self.precision['sum'] \
                 / self.precision['sample_size']
@@ -273,7 +276,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         for key in ['mean', 'var', 'std', 'margin_of_error']:
             self.precision[key] = \
                 float('{:.{p}g}'.format(self.precision[key], p=sigfigs))
-                        
+
     def _update_helper(self, df_series_clean, profile):
         """
         Method for updating the column profile properties with a cleaned

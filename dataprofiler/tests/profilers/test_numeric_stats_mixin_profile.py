@@ -21,7 +21,7 @@ class TestColumn(NumericStatsMixin):
 
     def update(self, df_series):
         pass
-
+    
     def _filter_properties_w_options(self, calculations, options):
         pass
 
@@ -229,6 +229,7 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         time_array = [float(i) for i in range(24, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), num_profiler.times)
 
@@ -259,6 +260,22 @@ class TestNumericStatsMixin(unittest.TestCase):
             # Validate _get_variance is timed.
             expected['variance'] = 1.0
             num_profiler._get_variance(
+                df_series,
+                prev_dependent_properties,
+                subset_properties)
+            self.assertEqual(expected, num_profiler.times)
+
+            # Validate _get_skewness is timed
+            expected['skewness'] = 1.0
+            num_profiler._get_skewness(
+                df_series,
+                prev_dependent_properties,
+                subset_properties)
+            self.assertEqual(expected, num_profiler.times)
+
+            # Validate _get_kurtosis is timed
+            expected['kurtosis'] = 1.0
+            num_profiler._get_kurtosis(
                 df_series,
                 prev_dependent_properties,
                 subset_properties)

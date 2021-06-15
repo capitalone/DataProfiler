@@ -253,6 +253,10 @@ class NumericalOptions(BaseInspectorOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -268,6 +272,8 @@ class NumericalOptions(BaseInspectorOptions):
         self.max = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
+        self.skewness = BooleanOption(is_enabled=True)
+        self.kurtosis = BooleanOption(is_enabled=True)
         self.num_zeros = BooleanOption(is_enabled=False)
         self.num_negatives = BooleanOption(is_enabled=False)
         self.histogram_and_quantiles = HistogramOption()
@@ -284,7 +290,9 @@ class NumericalOptions(BaseInspectorOptions):
         :rtype bool:
         """
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
-                or self.variance.is_enabled or self.histogram_and_quantiles.is_enabled \
+                or self.variance.is_enabled or self.skewness.is_enabled \
+                or self.kurtosis.is_enabled \
+                or self.histogram_and_quantiles.is_enabled \ 
                 or self.num_zeros.is_enabled or self.num_negatives.is_enabled:
             return True
         return False
@@ -293,7 +301,8 @@ class NumericalOptions(BaseInspectorOptions):
     def is_numeric_stats_enabled(self, value):
         """
         This property will enable or disable all numeric stats properties:
-        min, max, sum, variance, histogram_and_quantiles, num_zeros, num_negatives
+        min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles,
+        num_zeros, num_negatives
 
         :param value: boolean to enable/disable all numeric stats properties
         :type value: bool
@@ -303,6 +312,8 @@ class NumericalOptions(BaseInspectorOptions):
         self.max.is_enabled = value
         self.sum.is_enabled = value
         self.variance.is_enabled = value
+        self.skewness.is_enabled = value
+        self.kurtosis.is_enabled = value
         self.num_zeros.is_enabled = value
         self.num_negatives.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
@@ -331,7 +342,8 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance", "num_zeros", "num_negatives"]:
+                     "variance", "skewness", "kurtosis"
+                        ,"num_zeros", "num_negatives"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
                               .format(variable_path, item))
@@ -374,10 +386,6 @@ class IntOptions(NumericalOptions):
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
-        :ivar num_zeros: boolean option to enable/disable num_zeros
-        :vartype num_zeros: BooleanOption
-        :ivar num_negatives: boolean option to enable/disable num_negatives
-        :vartype num_negatives: BooleanOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
         :vartype is_numeric_stats_enabled: bool
@@ -424,15 +432,15 @@ class PrecisionOptions(BooleanOption):
         errors = super()._validate_helper(variable_path=variable_path)
         if self.sample_ratio is not None:
             if not isinstance(self.sample_ratio, float) \
-                    and not isinstance(self.sample_ratio, int):
+               and not isinstance(self.sample_ratio, int):
                 errors.append("{}.sample_ratio must be a float."
-                              .format(variable_path))
+                              .format(variable_path))                
             if (isinstance(self.sample_ratio, float) \
-                or isinstance(self.sample_ratio, int)) \
-                    and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
+               or isinstance(self.sample_ratio, int)) \
+               and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
                 errors.append("{}.sample_ratio must be a float between 0 and 1."
-                              .format(variable_path))
-
+                              .format(variable_path))                
+        
         return errors
 
 
@@ -452,6 +460,10 @@ class FloatOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -501,6 +513,10 @@ class TextOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -590,7 +606,7 @@ class OrderOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path)
+        return super()._validate_helper(variable_path) 
 
 
 class CategoricalOptions(BaseInspectorOptions):
@@ -613,7 +629,7 @@ class CategoricalOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path)
+        return super()._validate_helper(variable_path) 
 
 
 class DataLabelerOptions(BaseInspectorOptions):
@@ -663,7 +679,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         :rtype: dict
         """
         props = {k: copy.deepcopy(v)
-                 for k, v in self.__dict__.items() if k != 'data_labeler_object'}
+                 for k,v in self.__dict__.items() if k != 'data_labeler_object'}
         props['data_labeler_object'] = self.data_labeler_object
         return props
 
@@ -677,12 +693,12 @@ class DataLabelerOptions(BaseInspectorOptions):
         :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path=variable_path)
-
+        
         if self.data_labeler_dirpath is not None and \
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
-
+            
         if self.data_labeler_object is not None and \
                 not isinstance(self.data_labeler_object, BaseDataLabeler):
             errors.append("{}.data_labeler_object must be a BaseDataLabeler "
@@ -692,7 +708,7 @@ class DataLabelerOptions(BaseInspectorOptions):
                 self.data_labeler_dirpath is not None:
             warnings.warn("The data labeler passed in will be used,"
                           " not through the directory of the default model")
-
+            
         if self.max_sample_size is not None and \
                 not isinstance(self.max_sample_size, int):
             errors.append("{}.max_sample_size must be an integer."
@@ -701,7 +717,6 @@ class DataLabelerOptions(BaseInspectorOptions):
             errors.append("{}.max_sample_size must be greater than 0."
                           .format(variable_path))
         return errors
-
 
 class TextProfilerOptions(BaseInspectorOptions):
 

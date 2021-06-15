@@ -2,6 +2,7 @@ import os
 import unittest
 from unittest import mock
 
+import numpy as np
 import pandas as pd
 
 from dataprofiler import Data, ProfilerOptions, Profiler
@@ -140,6 +141,9 @@ class TestProfilerOptions(unittest.TestCase):
             "min.is_enabled": False,
             "max.is_enabled": False,
             "sum.is_enabled": False,
+            "variance.is_enabled": False,
+            "skewness.is_enabled": False,
+            "kurtosis.is_enabled": False
             "num_zeros.is_enabled": False,
             "num_negatives.is_enabled": False,
             "variance.is_enabled": False
@@ -173,6 +177,8 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertIsNone(profile_column["statistics"]["max"])
                 self.assertEqual(0, profile_column["statistics"]["variance"])
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
+                self.assertTrue(profile_column["statistics"]["skewness"] is np.nan)
+                self.assertTrue(profile_column["statistics"]["kurtosis"] is np.nan)
 
     def test_validate(self, *mocks):
         options = ProfilerOptions()
@@ -198,7 +204,9 @@ class TestProfilerOptions(unittest.TestCase):
             "min.is_enabled": False,
             "max.is_enabled": False,
             "sum.is_enabled": False,
-            "variance.is_enabled": True
+            "variance.is_enabled": True,
+            "skewness.is_enabled": False,
+            "kurtosis.is_enabled": False
         }
         # Asserts error since sum must be toggled on if variance is
         expected_error = (

@@ -42,6 +42,13 @@ class BaseOption(object):
         for option in options:
             option_list = option.split(".", 1)
             option_name = option_list[0]
+
+            is_check_all = False
+            if option_name == '*':
+                option_list = option_list[1].split(".", 1)
+                option_name = option_list[0]
+                is_check_all = True
+
             option_variable_path = variable_path + '.' + option_name \
                 if variable_path else option_name
             if option_name in self.properties:
@@ -58,13 +65,20 @@ class BaseOption(object):
                             option_variable_path, option_list[1]))
                 else:
                     setattr(self, option_name, options[option])
-
-        for option_name in self.properties:
-            option = getattr(self, option_name)
-            if isinstance(option, BaseOption):
-                option_variable_path = variable_path + '.' + option_name \
-                    if variable_path else option_name
-                option._set_helper(options, variable_path=option_variable_path)
+            elif len(option_list) > 1 or is_check_all:
+                for class_option_name in self.properties:
+                    class_option = getattr(self, class_option_name)
+                    if isinstance(class_option, BaseOption):
+                        option_variable_path = (
+                            variable_path + '.' + class_option_name
+                            if variable_path else class_option_name)
+                        class_option._set_helper(
+                            {option: options[option]},
+                            variable_path=option_variable_path)
+            else:
+                raise AttributeError(
+                    "type object '{}' has no attribute '{}'".format(
+                        variable_path, option))
 
     def set(self, options):
         """

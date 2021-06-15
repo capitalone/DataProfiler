@@ -551,10 +551,14 @@ class TextOptions(NumericalOptions):
         """
         NumericalOptions.__init__(self)
         self.vocab = BooleanOption(is_enabled=True)
+        self.num_zeros = BooleanOption(is_enabled=False)
+        self.num_negatives = BooleanOption(is_enabled=False)
 
     def _validate_helper(self, variable_path='TextOptions'):
         """
-        Validates the options do not conflict and cause errors.
+        Validates the options do not conflict and cause errors. Also validates
+        that some options (num_zeros and num_negatives) are set to be disabled
+        by default
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -566,6 +570,17 @@ class TextOptions(NumericalOptions):
             errors.append("{}.vocab must be a BooleanOption."
                           .format(variable_path))
         errors += self.vocab._validate_helper(variable_path + '.vocab')
+        """
+        if self.properties["num_zeros"].is_enabled:
+            errors.append("{}: num_zeros should always be disabled,"
+                          " but was found enabled"
+                          .format(variable_path))
+
+        if self.properties["num_negatives"].is_enabled:
+            errors.append("{}: num_negatives should always be disabled,"
+                          " but was found enabled"
+                          .format(variable_path))
+        """
         return errors
 
 

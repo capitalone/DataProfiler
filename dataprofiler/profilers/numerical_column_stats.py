@@ -231,6 +231,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                                                                 other2._biased_kurtosis,
                                                                 other2._biased_skewness,
                                                                 other2.variance, other2.mean)
+        if "num_zeros" in self.__calculations.keys():
+            self.num_zeros = other1.num_zeros + other2.num_zeros
+
+        if "num_negatives" in self.__calculations.keys():
+            self.num_negatives = other1.num_negatives + other2.num_negatives
 
     @property
     def mean(self):

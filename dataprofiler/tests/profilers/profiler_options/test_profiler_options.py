@@ -36,6 +36,8 @@ class TestProfilerOptions(unittest.TestCase):
             self.assertTrue(column.properties["sum"])
             self.assertTrue(column.properties["variance"])
             self.assertTrue(column.properties["is_numeric_stats_enabled"])
+            self.assertFalse(column.properties["num_zeros"].is_enabled)
+            self.assertFalse(column.properties["num_negatives"].is_enabled)
 
         # Using ProfilerOptions with the default options
         options = ProfilerOptions()
@@ -62,6 +64,10 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertIsNone(profile_column["statistics"]["max"])
                 self.assertEqual(0, profile_column["statistics"]["variance"])
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
+                self.assertTrue(
+                    profile_column["statistics"]["skewness"] is np.nan)
+                self.assertTrue(
+                    profile_column["statistics"]["kurtosis"] is np.nan)
 
         # Assert that the stats are enabled
         options.set({"is_numeric_stats_enabled": True})
@@ -141,7 +147,9 @@ class TestProfilerOptions(unittest.TestCase):
             "sum.is_enabled": False,
             "variance.is_enabled": False,
             "skewness.is_enabled": False,
-            "kurtosis.is_enabled": False
+            "kurtosis.is_enabled": False,
+            "num_zeros.is_enabled": False,
+            "num_negatives.is_enabled": False,
         }
         options.set(statistical_options)
 
@@ -150,7 +158,8 @@ class TestProfilerOptions(unittest.TestCase):
         float_options = options.structured_options.float.properties
         int_options = options.structured_options.int.properties
         for option in ["histogram_and_quantiles", "min", "max", "sum",
-                          "variance"]:
+                          "variance","skewness", "kurtosis",
+                       "num_zeros", "num_negatives"]:
             self.assertFalse(text_options[option].is_enabled)
             self.assertFalse(float_options[option].is_enabled)
             self.assertFalse(int_options[option].is_enabled)

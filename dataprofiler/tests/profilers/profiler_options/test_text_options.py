@@ -19,7 +19,7 @@ class TestTextOptions(TestNumericalOptions):
     
     def test_validate_helper(self):
         super().test_validate_helper()
-    
+
     def test_validate(self):
         super().test_validate()
     

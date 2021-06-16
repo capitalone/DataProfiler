@@ -7,7 +7,9 @@ class TestNumericalOptions(TestBaseInspectorOptions):
     
     option_class = NumericalOptions
     keys = ["min", "max", "sum", "variance", "skewness",
-            "kurtosis", "bias_correction", "histogram_and_quantiles"]
+            "kurtosis", "bias_correction",
+            "num_zeros", "num_negatives",
+            "histogram_and_quantiles"]
 
     def test_init(self):
         options = self.get_options()
@@ -154,7 +156,8 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         numeric_keys = ["min", "max", "sum", "variance",
                         "skewness", "kurtosis",
                         "bias_correction",
-                        "histogram_and_quantiles"] 
+                        "histogram_and_quantiles",
+                        "num_zeros", "num_negatives"]
 
         # Disable All Numeric Stats
         options.set({'{}.is_enabled'.format(key):False 

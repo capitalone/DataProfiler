@@ -356,7 +356,7 @@ class TestIntColumn(unittest.TestCase):
         expected_profile = dict(
             min=2.0,
             max=6.0,
-            sum=8,
+            sum=8.0,
             mean=4.0,
             variance=8.0,
             skewness=np.nan,
@@ -374,7 +374,8 @@ class TestIntColumn(unittest.TestCase):
             times=defaultdict(
                 float, {'histogram_and_quantiles': 1.0, 'max': 1.0, 'min': 1.0,
                         'sum': 1.0, 'variance': 1.0, 'skewness': 1.0,
-                        'kurtosis': 1.0})
+                        'kurtosis': 1.0, 'num_negatives': 1.0,
+                        'num_zeros': 1.0})
             
         )
         time_array = [float(i) for i in range(100, 0, -1)]
@@ -405,7 +406,9 @@ class TestIntColumn(unittest.TestCase):
             expected = defaultdict(
                 float, {'min': 1.0, 'max': 1.0, 'sum': 1.0, 'variance': 1.0,
                         'skewness': 1.0, 'kurtosis': 1.0,
-                        'histogram_and_quantiles': 1.0})
+                        'histogram_and_quantiles': 1.0,
+                        'num_negatives': 1.0, 'num_zeros': 1.0,
+                        })
             self.assertEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second
@@ -414,7 +417,8 @@ class TestIntColumn(unittest.TestCase):
             expected = defaultdict(
                 float, {'min': 2.0, 'max': 2.0, 'sum': 2.0, 'variance': 2.0,
                         'skewness': 2.0, 'kurtosis': 2.0,
-                        'histogram_and_quantiles': 2.0})
+                        'histogram_and_quantiles': 2.0, 'num_negatives': 2.0,
+                        'num_zeros': 2.0,})
             self.assertEqual(expected, profiler.profile['times'])
 
     def test_option_timing(self):

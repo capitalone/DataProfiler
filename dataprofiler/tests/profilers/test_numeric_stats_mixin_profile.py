@@ -135,7 +135,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             mean1, var1, count1)
         num_profiler.match_count = count1
         num_profiler.sum = 0
-        self.assertTrue(num_profiler.variance is np.nan)
+        self.assertEqual(num_profiler.variance, 0)
 
         # data with 1 element
         data2 = [5.0]
@@ -146,7 +146,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             mean2, var2, count2)
         num_profiler.match_count += count2
         num_profiler.sum += 5.0
-        self.assertTrue(num_profiler.variance is np.nan)
+        self.assertEqual(num_profiler.variance, 0)
 
         # data with multiple elements
         data3 = [-5.0, 5.0, 11.0, -11.0]

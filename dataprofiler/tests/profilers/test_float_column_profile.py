@@ -26,7 +26,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, None)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
-        self.assertTrue(profiler.variance is np.nan)
+        self.assertEqual(profiler.variance, 0)
         self.assertTrue(profiler.skewness is np.nan)
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
@@ -40,7 +40,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(data)
         self.assertEqual(profiler.match_count, 1.0)
         self.assertEqual(profiler.mean, 1.5)
-        self.assertTrue(profiler.variance is np.nan)
+        self.assertEqual(profiler.variance, 0)
 
         data = pd.Series([2.5]).apply(str)
         profiler.update(data)

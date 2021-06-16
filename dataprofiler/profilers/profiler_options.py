@@ -342,8 +342,8 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance", "skewness", "kurtosis",
-                     "num_zeros", "num_negatives"]:
+                     "variance", "skewness", "kurtosis"
+                        ,"num_zeros", "num_negatives"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
                               .format(variable_path, item))
@@ -357,15 +357,16 @@ class NumericalOptions(BaseInspectorOptions):
         skew_disabled = not self.properties["skewness"].is_enabled
         kurt_disabled = not self.properties["kurtosis"].is_enabled
         if sum_disabled and not var_disabled:
-            errors.append("{}: The numeric stats must toggle on the sum "
-                          "if the variance is toggled on."
-                          .format(variable_path))
+            errors.append(
+                "{}: The numeric stats must toggle on the sum "
+                "if the variance is toggled on."
+                .format(variable_path))
         if (sum_disabled or var_disabled) and not skew_disabled:
             errors.append("{}: The numeric stats must toggle on the "
                           "sum and variance if skewness is toggled on."
                           .format(variable_path))
         if (sum_disabled or var_disabled or skew_disabled) \
-            and not kurt_disabled:
+                and not kurt_disabled:
             errors.append("{}: The numeric stats must toggle on sum,"
                           " variance, and skewness if kurtosis is "
                           "toggled on.".format(variable_path))
@@ -375,8 +376,9 @@ class NumericalOptions(BaseInspectorOptions):
             if not self.is_numeric_stats_enabled:
                 variable_path = variable_path + '.numeric_stats' \
                     if variable_path else self.__class__.__name__
-                warnings.warn("{}: The numeric stats are completely disabled."
-                              .format(variable_path))
+                warnings.warn(
+                    "{}: The numeric stats are completely disabled."
+                    .format(variable_path))
         return errors
 
 

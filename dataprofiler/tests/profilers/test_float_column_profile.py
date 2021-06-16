@@ -381,8 +381,8 @@ class TestFloatColumn(unittest.TestCase):
         data = np.full((10,), 1)
         df3 = pd.Series(data)
 
-        # Enable bias option to get biased values
-        options = FloatOptions(); options.bias.is_enabled = True
+        # Disable bias correction
+        options = FloatOptions(); options.bias_correction.is_enabled = False
         num_profiler = FloatColumn(df1.name, options=options)
         num_profiler.update(df1.apply(str))
         self.assertAlmostEqual(10, num_profiler.variance)

@@ -28,16 +28,21 @@ class TestProfilerOptions(unittest.TestCase):
         for column in profile.options.properties:
             self.assertTrue(profile.options.properties[column].is_enabled)
 
-        for column in ["int", "float", "text"]:
-            column = profile.options.properties[column]
+        for column_type in ["int", "float", "text"]:
+            column = profile.options.properties[column_type]
             self.assertTrue(column.properties["histogram_and_quantiles"])
             self.assertTrue(column.properties["min"])
             self.assertTrue(column.properties["max"])
             self.assertTrue(column.properties["sum"])
             self.assertTrue(column.properties["variance"])
             self.assertTrue(column.properties["is_numeric_stats_enabled"])
-            self.assertFalse(column.properties["num_zeros"].is_enabled)
-            self.assertFalse(column.properties["num_negatives"].is_enabled)
+            if(column_type is not "text"):
+                self.assertTrue(column.properties["num_zeros"].is_enabled)
+                self.assertTrue(column.properties["num_negatives"].is_enabled)
+            else:
+                self.assertFalse(column.properties["num_zeros"].is_enabled)
+                self.assertFalse(column.properties["num_negatives"].is_enabled)
+
 
         # Using ProfilerOptions with the default options
         options = ProfilerOptions()
@@ -158,7 +163,7 @@ class TestProfilerOptions(unittest.TestCase):
         float_options = options.structured_options.float.properties
         int_options = options.structured_options.int.properties
         for option in ["histogram_and_quantiles", "min", "max", "sum",
-                          "variance","skewness", "kurtosis",
+                       "variance","skewness", "kurtosis",
                        "num_zeros", "num_negatives"]:
             self.assertFalse(text_options[option].is_enabled)
             self.assertFalse(float_options[option].is_enabled)

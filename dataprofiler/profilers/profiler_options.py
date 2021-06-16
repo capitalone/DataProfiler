@@ -342,8 +342,8 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance", "skewness", "kurtosis"
-                        ,"num_zeros", "num_negatives"]:
+                     "variance", "skewness", "kurtosis",
+                     "num_zeros", "num_negatives"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
                               .format(variable_path, item))
@@ -572,19 +572,7 @@ class TextOptions(NumericalOptions):
             errors.append("{}.vocab must be a BooleanOption."
                           .format(variable_path))
         errors += self.vocab._validate_helper(variable_path + '.vocab')
-        """
-        if self.properties["num_zeros"].is_enabled:
-            errors.append("{}: num_zeros should always be disabled,"
-                          " but was found enabled"
-                          .format(variable_path))
-
-        if self.properties["num_negatives"].is_enabled:
-            errors.append("{}: num_negatives should always be disabled,"
-                          " but was found enabled"
-                          .format(variable_path))
-        """
         return errors
-
 
 class DateTimeOptions(BaseInspectorOptions):
 

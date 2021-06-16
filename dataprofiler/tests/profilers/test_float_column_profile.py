@@ -736,7 +736,8 @@ class TestFloatColumn(unittest.TestCase):
             times=defaultdict(float, {'histogram_and_quantiles': 1.0,
                                       'precision': 1.0, 'max': 1.0, 'min': 1.0,
                                       'skewness': 1.0, 'kurtosis': 1.0,
-                                      'sum': 1.0, 'variance': 1.0, 'num_zeros': 1.0, 'num_negatives': 1.0}),
+                                      'sum': 1.0, 'variance': 1.0,
+                                      'num_zeros': 1.0, 'num_negatives': 1.0}),
             precision={
                 'min': 1,
                 'max': 3,

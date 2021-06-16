@@ -7,6 +7,7 @@ import warnings
 import psutil
 import numpy as np
 import multiprocessing as mp
+from dataprofiler import settings
 
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
@@ -88,7 +89,15 @@ def shuffle_in_chunks(data_length, chunk_size):
         return []
     
     rng = np.random.default_rng()
-    if 'DATAPROFILER_SEED' in os.environ:
+
+    if settings._seed is not None:
+        try:
+            seed_value = int(settings._seed)
+            rng = np.random.default_rng(seed_value)
+        except ValueError as e:
+            warnings.warn("Seed should be an integer", RuntimeWarning)
+
+    elif 'DATAPROFILER_SEED' in os.environ:
         try:
             seed_value = int(os.environ.get('DATAPROFILER_SEED'))
             rng = np.random.default_rng(seed_value)

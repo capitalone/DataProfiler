@@ -994,7 +994,8 @@ class ProfilerOptions(BaseOption):
                            "text.is_enabled", "text.vocab"}
 
         # Specification needed for overlap_options above
-        option_specifications = {"structured_options", "unstructured_options"}
+        option_specifications = {
+            "*", "structured_options", "unstructured_options"}
 
         # Function to see if any overlap options present in option being set
         def overlap_opt_set(opt):

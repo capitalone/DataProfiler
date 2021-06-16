@@ -76,9 +76,11 @@ class BaseOption(object):
                             {option: options[option]},
                             variable_path=option_variable_path)
             else:
+                error_path = (variable_path if variable_path
+                              else self.__class__.__name__)
                 raise AttributeError(
                     "type object '{}' has no attribute '{}'".format(
-                        variable_path, option))
+                        error_path, option))
 
     def set(self, options):
         """

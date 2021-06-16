@@ -50,7 +50,8 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
 
         # check if no '*.' it raises an error bc attribute not found
-        expected_error = "type object '' has no attribute 'is_enabled'"
+        expected_error = ("type object 'ProfilerOptions' has no attribute "
+                          "'is_enabled'")
         with self.assertRaisesRegex(AttributeError, expected_error):
             options.set({"is_enabled": False})
 

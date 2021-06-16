@@ -327,6 +327,8 @@ class TestIntColumn(unittest.TestCase):
             sum=8.0,
             mean=4.0,
             variance=8.0,
+            num_zeros = 0,
+            num_negatives = 0,
             skewness=np.nan,
             kurtosis=np.nan,
             stddev=np.sqrt(8.0),
@@ -409,6 +411,8 @@ class TestIntColumn(unittest.TestCase):
 
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0, 'variance': 1.0,
                                            'skewness': 1.0, 'kurtosis': 1.0,
+                                           'num_zeros': 1.0,
+                                           'num_negatives': 1.0,
                                            'histogram_and_quantiles': 1.0})
             self.assertCountEqual(expected, profile['times'])
 
@@ -416,6 +420,8 @@ class TestIntColumn(unittest.TestCase):
             profiler.update(df)
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0, 'variance': 2.0,
                                            'skewness': 2.0, 'kurtosis': 2.0,
+                                           'num_zeros': 2.0,
+                                           'num_negatives': 2.0,
                                            'histogram_and_quantiles': 2.0})
             self.assertCountEqual(expected, profiler.profile['times'])
 

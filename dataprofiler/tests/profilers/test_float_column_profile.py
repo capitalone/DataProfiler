@@ -723,6 +723,8 @@ class TestFloatColumn(unittest.TestCase):
             variance=27 + 1/12.0,
             skewness=35/13*np.sqrt(3/13),
             kurtosis=np.nan,
+            num_negatives = 0,
+            num_zeros = 0,
             stddev=np.sqrt(27+1/12.0),
             histogram={
                 'bin_counts': np.array([1, 1, 0, 1]),
@@ -833,6 +835,8 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0,\
                                            'variance': 1.0, 'precision': 1.0,
                                            'skewness': 1.0, 'kurtosis': 1.0,
+                                           'num_negatives': 1.0,
+                                           'num_zeros': 1.0,
                                            'histogram_and_quantiles': 15.0})
             self.assertCountEqual(expected, profile['times'])
 
@@ -841,6 +845,8 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0,\
                                            'variance': 2.0, 'precision': 2.0,
                                            'skewness': 2.0, 'kurtosis': 2.0,
+                                           'num_negatives': 2.0,
+                                           'num_zeros': 2.0,
                                            'histogram_and_quantiles': 30.0})
             self.assertCountEqual(expected, profiler.profile['times'])
 

@@ -62,9 +62,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         ]
         self.histogram_selection = None
         self.user_set_histogram_bin = None
-        self.bias = False  # By default, we correct for bias
+        self.bias_correction = True  # By default, we correct for bias
         if options:
-            self.bias = options.bias.is_enabled
+            self.bias_correction = options.bias_correction.is_enabled
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
             if isinstance(bin_count_or_method, str):
@@ -240,7 +240,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @property
     def variance(self):
-        return self._biased_variance if self.bias \
+        return self._biased_variance if not self.bias_correction \
             else self._correct_bias_variance(
                     self.match_count,
                     self._biased_variance)
@@ -253,14 +253,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @property
     def skewness(self):
-        return self._biased_skewness if self.bias \
+        return self._biased_skewness if not self.bias_correction \
             else self._correct_bias_skewness(
                     self.match_count,
                     self._biased_skewness)
 
     @property
     def kurtosis(self):
-        return self._biased_kurtosis if self.bias \
+        return self._biased_kurtosis if not self.bias_correction \
             else self._correct_bias_kurtosis(
                     self.match_count,
                     self._biased_kurtosis)

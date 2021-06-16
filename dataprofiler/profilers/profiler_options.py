@@ -260,7 +260,7 @@ class NumericalOptions(BaseInspectorOptions):
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
-        :ivar bias : boolean option to enable/disable existence of bias
+        :ivar bias_correction : boolean option to enable/disable existence of bias
         :vartype bias: BooleanOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
@@ -273,9 +273,8 @@ class NumericalOptions(BaseInspectorOptions):
         self.skewness = BooleanOption(is_enabled=True)
         self.kurtosis = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
-        # By default, we do NOT want bias, hence bias is false. This
-        # convention is made to maintain consistency with scipy.stats
-        self.bias = BooleanOption(is_enabled=False)
+        # By default, we correct for bias
+        self.bias_correction = BooleanOption(is_enabled=True)
         BaseInspectorOptions.__init__(self)
 
     @property
@@ -290,7 +289,7 @@ class NumericalOptions(BaseInspectorOptions):
         """
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
-                or self.kurtosis.is_enabled or self.bias.is_enabled \
+                or self.kurtosis.is_enabled or self.bias_correction.is_enabled \
                 or self.histogram_and_quantiles.is_enabled:
             return True
         return False
@@ -311,7 +310,7 @@ class NumericalOptions(BaseInspectorOptions):
         self.variance.is_enabled = value
         self.skewness.is_enabled = value
         self.kurtosis.is_enabled = value
-        self.bias.is_enabled = value
+        self.bias_correction.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
 
     @property
@@ -338,7 +337,7 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance", "skewness", "kurtosis"]:
+                     "variance", "skewness", "kurtosis", "bias_correction"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
                               .format(variable_path, item))
@@ -398,7 +397,7 @@ class IntOptions(NumericalOptions):
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
-        :ivar bias : boolean option to enable/disable existence of bias
+        :ivar bias_correction : boolean option to enable/disable existence of bias
         :vartype bias: BooleanOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
@@ -481,7 +480,7 @@ class FloatOptions(NumericalOptions):
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
-        :ivar bias : boolean option to enable/disable existence of bias
+        :ivar bias_correction : boolean option to enable/disable existence of bias
         :vartype bias: BooleanOption
         :ivar is_numeric_stats_enabled: boolean to enable/disable all numeric
             stats
@@ -529,7 +528,7 @@ class TextOptions(NumericalOptions):
         :vartype skewness: BooleanOption
         :ivar kurtosis: boolean option to enable/disable kurtosis
         :vartype kurtosis: BooleanOption
-        :ivar bias : boolean option to enable/disable existence of bias
+        :ivar bias_correction : boolean option to enable/disable existence of bias
         :vartype bias: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles

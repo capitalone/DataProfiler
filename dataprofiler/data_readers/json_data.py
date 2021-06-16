@@ -257,7 +257,6 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 )
             return data
 
-
     def _get_data_as_records(self, data):
         """
         Extracts the data as a record format.

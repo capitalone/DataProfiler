@@ -45,10 +45,26 @@ class TestProfilerOptions(unittest.TestCase):
         # Stored in Profiler as StructuredOptions
         self.assertEqual(profile2.options, options.structured_options)
 
+    def test_set_failures(self, *mocks):
+
+        options = ProfilerOptions()
+
+        # check if no '*.' it raises an error bc attribute not found
+        expected_error = ("type object 'ProfilerOptions' has no attribute "
+                          "'is_enabled'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            options.set({"is_enabled": False})
+
+        # check if attribute doesn't exist, it raises an error
+        expected_error = ("type object 'structured_options' has no attribute "
+                          "'test'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            options.set({"structured_options.test": False})
+
     def test_numerical_stats_option(self, *mocks):
         # Assert that the stats are disabled
         options = ProfilerOptions()
-        options.set({"is_numeric_stats_enabled": False})
+        options.set({"*.is_numeric_stats_enabled": False})
         profile = Profiler(self.data, options=options)
 
         for column_name in profile.profile.keys():
@@ -68,7 +84,7 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertEqual(profile_column["statistics"]["kurtosis"], 0)
 
         # Assert that the stats are enabled
-        options.set({"is_numeric_stats_enabled": True})
+        options.set({"*.is_numeric_stats_enabled": True})
         profile = Profiler(self.data, options=options)
 
         for column_name in profile.profile.keys():
@@ -158,7 +174,7 @@ class TestProfilerOptions(unittest.TestCase):
         float_options = options.structured_options.float.properties
         int_options = options.structured_options.int.properties
         for option in ["histogram_and_quantiles", "min", "max", "sum",
-                          "variance","skewness", "kurtosis",
+                       "variance", "skewness", "kurtosis",
                        "num_zeros", "num_negatives"]:
             self.assertFalse(text_options[option].is_enabled)
             self.assertFalse(float_options[option].is_enabled)
@@ -228,7 +244,7 @@ class TestProfilerOptions(unittest.TestCase):
 
         # test warns if is_numeric_stats_enabled = False
         numerical_options = {
-            "is_numeric_stats_enabled": False,
+            "*.is_numeric_stats_enabled": False,
         }
         options.set(numerical_options)
         with self.assertWarnsRegex(UserWarning,
@@ -241,10 +257,11 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
 
         # Ensure set works appropriately
-        options.set({"data_labeler.is_enabled": False,
-                     "min.is_enabled": False,
-                     "structured_options.data_labeler_dirpath": "test",
-                     "max_sample_size": 15})
+        options.set({
+            "data_labeler.is_enabled": False,
+            "min.is_enabled": False,
+            "structured_options.data_labeler.data_labeler_dirpath": "test",
+            "data_labeler.max_sample_size": 15})
 
         text_options = options.structured_options.text.properties
         float_options = options.structured_options.float.properties
@@ -276,7 +293,7 @@ class TestProfilerOptions(unittest.TestCase):
         float_options = FloatOptions()
         float_options.set({"precision.is_enabled": False,
                            "min.is_enabled": False,
-                           "is_enabled": False})
+                           "*.is_enabled": False})
 
         self.assertFalse(float_options.precision.is_enabled)
         self.assertFalse(float_options.min.is_enabled)
@@ -292,8 +309,7 @@ class TestProfilerOptions(unittest.TestCase):
                 ValueError, "ProfilerOptions.structured_options.text.max."
                             "is_enabled must be a Boolean."):
             profile_options = ProfilerOptions()
-            profile_options.structured_options.text.max.is_enabled \
-                = "String"
+            profile_options.structured_options.text.max.is_enabled = "String"
             profile_options.validate()
 
     def test_invalid_options_type(self, *mocks):

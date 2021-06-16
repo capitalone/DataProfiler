@@ -143,7 +143,7 @@ class TestProfilerOptions(unittest.TestCase):
             "sum.is_enabled": False,
             "variance.is_enabled": False,
             "skewness.is_enabled": False,
-            "kurtosis.is_enabled": False
+            "kurtosis.is_enabled": False,
             "num_zeros.is_enabled": False,
             "num_negatives.is_enabled": False,
         }

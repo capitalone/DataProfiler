@@ -188,10 +188,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             other2._NumericStatsMixin__calculations)
 
         # Check and potentially override bias correction computation
-        if other1.bias_correction == False or other2.bias_correction == False:
+        self.bias_correction = True
+        if not other1.bias_correction or not other2.bias_correction:
             self.bias_correction = False
-        else:
-            self.bias_correction = True
 
         # Merge variance, histogram, min, max, and sum
         if "variance" in self.__calculations.keys():

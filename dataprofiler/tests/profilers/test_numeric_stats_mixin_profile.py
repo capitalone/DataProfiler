@@ -192,8 +192,10 @@ class TestNumericStatsMixin(unittest.TestCase):
             'bin_edges': np.array([2., 5.25, 8.5, 11.75, 15.])
         }
 
-        other1.min, other1.max, other1.variance, other1.sum = 0, 0, 0, 0
-        other2.min, other2.max, other2.variance, other2.sum = 1, 1, 1, 1
+        other1.min, other1.max, other1.variance, other1.sum, \
+        other1.num_zeros, other1.num_negatives = 0, 0, 0, 0, 0, 0
+        other2.min, other2.max, other2.variance, other2.sum, \
+        other2.num_zeros, other2.num_negatives = 1, 1, 1, 1, 1, 1
 
         # set auto as only histogram to merge
         other1.histogram_selection = "auto"

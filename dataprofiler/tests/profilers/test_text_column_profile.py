@@ -203,6 +203,8 @@ class TestTextColumnProfiler(unittest.TestCase):
                                       'sum': 1.0,
                                       'variance': 1.0,
                                       'skewness': 1.0,
+                                      'num_negatives': 1.0,
+                                      'num_zeros': 1.0,
                                       'kurtosis': 1.0})
         )
         time_array = [float(x) for x in range(30, 0, -1)]

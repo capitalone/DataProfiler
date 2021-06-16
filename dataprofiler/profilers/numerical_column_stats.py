@@ -313,7 +313,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @staticmethod
     def _correct_bias_variance(match_count, biased_variance):
-        if match_count < 2:
+        if match_count is None or biased_variance is None or match_count < 2:
             return 0.0
 
         variance = match_count / (match_count - 1) * biased_variance

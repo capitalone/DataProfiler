@@ -174,7 +174,7 @@ class TestProfilerOptions(unittest.TestCase):
         float_options = options.structured_options.float.properties
         int_options = options.structured_options.int.properties
         for option in ["histogram_and_quantiles", "min", "max", "sum",
-                       "variance","skewness", "kurtosis",
+                       "variance", "skewness", "kurtosis",
                        "num_zeros", "num_negatives"]:
             self.assertFalse(text_options[option].is_enabled)
             self.assertFalse(float_options[option].is_enabled)

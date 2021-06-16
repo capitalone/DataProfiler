@@ -274,8 +274,8 @@ class NumericalOptions(BaseInspectorOptions):
         self.variance = BooleanOption(is_enabled=True)
         self.skewness = BooleanOption(is_enabled=True)
         self.kurtosis = BooleanOption(is_enabled=True)
-        self.num_zeros = BooleanOption(is_enabled=False)
-        self.num_negatives = BooleanOption(is_enabled=False)
+        self.num_zeros = BooleanOption(is_enabled=True)
+        self.num_negatives = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
         BaseInspectorOptions.__init__(self)
 

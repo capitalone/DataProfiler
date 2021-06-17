@@ -69,7 +69,7 @@ def _combine_unique_sets(a, b):
     elif not b:
         combined_list = set(a)
     else:
-        combined_list = set().union(a,b)
+        combined_list = set().union(a, b)
     return list(combined_list)
 
     

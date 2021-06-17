@@ -36,7 +36,7 @@ class TestProfilerOptions(unittest.TestCase):
             self.assertTrue(column.properties["sum"])
             self.assertTrue(column.properties["variance"])
             self.assertTrue(column.properties["is_numeric_stats_enabled"])
-            if(column_type is not "text"):
+            if column_type != "text":
                 self.assertTrue(column.properties["num_zeros"].is_enabled)
                 self.assertTrue(column.properties["num_negatives"].is_enabled)
             else:

@@ -10,7 +10,6 @@ import numpy as np
 from dataprofiler.profilers import NumericStatsMixin
 from dataprofiler.profilers.profiler_options import NumericalOptions
 
-
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
@@ -306,7 +305,8 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         # Sum of errors should be difference of each input value to midpoint of bin squared
         # bin_midpoints = [2, 6, 10, 14]   ids = [1, 1, 2, 3, 3, 4]
-        assert sum_error == (2-0)**2 + (2-3)**2 + (6-5)**2 + (10-9)**2 + (10-11)**2 + (17-14)**2
+        assert sum_error == (2-0)**2 + (2-3)**2 + (6-5)**2 + \
+               (10-9)**2 + (10-11)**2 + (17-14)**2
 
         # Max value test
         input_array = [sys.float_info.max, 1.2e308, 1.3e308, 1.5e308]
@@ -389,3 +389,85 @@ class TestNumericStatsMixin(unittest.TestCase):
         best_histogram = num_profiler._get_best_histogram_for_profile()
 
         assert best_histogram == "hist_1"
+
+    def test_num_zeros(self):
+        num_profiler = TestColumn()
+
+        # Dummy data to make num_zeros call
+        prev_dependent_properties = {"mean": 0}
+        subset_properties = {"num_zeros": 0}
+
+        df_series = pd.Series([])
+        num_profiler._get_num_zeros(df_series, prev_dependent_properties,
+                                    subset_properties)
+        self.assertEqual(subset_properties["num_zeros"], 0)
+
+        data = np.array([0, 0, 0, 0, 0])
+        df_series = pd.Series(data)
+        num_profiler._get_num_zeros(df_series, prev_dependent_properties,
+                                    subset_properties)
+        self.assertEqual(subset_properties["num_zeros"], 5)
+
+        data = np.array([000., 0.00, .000, 1.11234, 0, -1])
+        df_series = pd.Series(data)
+        num_profiler._get_num_zeros(df_series, prev_dependent_properties,
+                                    subset_properties)
+        self.assertEqual(subset_properties["num_zeros"], 4)
+
+    def test_num_negatives(self):
+        num_profiler = TestColumn()
+
+        # Dummy data to make num_negatives call
+        prev_dependent_properties = {"mean": 0}
+        subset_properties = {"num_negatives": 0}
+
+        df_series = pd.Series([])
+        num_profiler._get_num_negatives(df_series, prev_dependent_properties,
+                                        subset_properties)
+        self.assertEqual(subset_properties["num_negatives"], 0)
+
+        data = np.array([0, 0, 0, 0, 0])
+        df_series = pd.Series(data)
+        num_profiler._get_num_negatives(df_series, prev_dependent_properties,
+                                        subset_properties)
+        self.assertEqual(subset_properties["num_negatives"], 0)
+
+        data = np.array([1, 0, -.003, -16, -1., -24.45])
+        df_series = pd.Series(data)
+        num_profiler._get_num_negatives(df_series, prev_dependent_properties,
+                                        subset_properties)
+        self.assertEqual(subset_properties["num_negatives"], 4)
+
+    def test_timeit_num_zeros_and_negatives(self):
+        """
+        Checks num_zeros and num_negatives have been timed
+        :return:
+        """
+        num_profiler = TestColumn()
+
+        # Dummy data to make min call
+        prev_dependent_properties = {"mean": 0}
+        data = np.array([0, 0, 0, 0, 0])
+        df_series = pd.Series(data)
+        subset_properties = {"num_zeros": 0, "num_negatives": 0}
+
+        time_array = [float(i) for i in range(4, 0, -1)]
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+            # Validate that the times dictionary is empty
+            self.assertEqual(defaultdict(float), num_profiler.times)
+
+            # Validate _get_min is timed.
+            expected = defaultdict(float, {'num_zeros': 1.0})
+            num_profiler._get_num_zeros(
+                df_series,
+                prev_dependent_properties,
+                subset_properties)
+            self.assertEqual(expected, num_profiler.times)
+
+            # Validate _get_max is timed.
+            expected['num_negatives'] = 1.0
+            num_profiler._get_num_negatives(
+                df_series,
+                prev_dependent_properties,
+                subset_properties)
+            self.assertEqual(expected, num_profiler.times)

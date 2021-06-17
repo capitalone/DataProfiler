@@ -276,3 +276,62 @@ def add_nested_dictionaries(first_dict, second_dict):
             merged_dict[item] = copy.deepcopy(second_dict[item])
 
     return merged_dict
+
+def biased_skew(df_series):
+    """
+    Calculates the biased estimator for skewness of the given data.
+    The definition is formalized as g_1 here:
+        https://en.wikipedia.org/wiki/Skewness#Sample_skewness
+    :param df_series: data to get skewness of, assuming floats
+    :type df_series: pandas Series
+    :return: biased skewness
+    :rtype: float
+    """
+    n = len(df_series)
+    if n < 1:
+        return np.nan
+
+    mean = sum(df_series) / n
+    diffs = df_series - mean
+    squared_diffs = diffs ** 2
+    cubed_diffs = squared_diffs * diffs
+    M2 = sum(squared_diffs)
+    M3 = sum(cubed_diffs)
+    # Zero out if possible to prevent floating point errors
+    M2 = 0 if np.abs(M2) < 1e-14 else M2
+    M3 = 0 if np.abs(M3) < 1e-14 else M3
+
+    if (M2 == 0):
+        return 0.0
+
+    skew = np.sqrt(n) * M3 / M2 ** 1.5
+    return skew
+
+def biased_kurt(df_series):
+    """
+    Calculates the biased estimator for kurtosis of the given data
+    The definition is formalized as g_2 here:
+        https://en.wikipedia.org/wiki/Kurtosis#A_natural_but_biased_estimator
+    :param df_series: data to get kurtosis of, assuming floats
+    :type df_series: pandas Series
+    :return: biased kurtosis
+    :rtype: float
+    """
+    n = len(df_series)
+    if (n < 1):
+        return np.nan
+
+    mean = sum(df_series) / n
+    diffs = df_series - mean
+    squared_diffs = diffs ** 2
+    fourth_diffs = squared_diffs * squared_diffs
+    M2 = sum(squared_diffs)
+    M4 = sum(fourth_diffs)
+    M2 = 0 if np.abs(M2) < 1e-14 else M2
+    M4 = 0 if np.abs(M4) < 1e-14 else M4
+
+    if (M2 == 0):
+        return 0.0
+
+    kurt = n * M4 / M2 ** 2 - 3
+    return kurt

@@ -25,7 +25,8 @@ except ImportError:
     )
 
 def set_seed(seed=None):
-    if seed is None or seed >= 0:
-        settings._seed = seed
-    else:
-        warnings.warn("Seed should be a positive integer", RuntimeWarning)
+    # also check it's an integer
+    if seed is not None and (seed < 0 or int(seed)!=float(seed)):
+        raise ValueError("Seed should be a non-negative integer.")
+    settings._seed = seed
+    

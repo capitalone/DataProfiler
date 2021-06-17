@@ -1,1 +1,1 @@
-_seed = 0
+_seed = None

@@ -7,13 +7,9 @@ import pandas as pd
 import dataprofiler as dp
 from dataprofiler.labelers.character_level_cnn_model import \
     CharacterLevelCnnModel
-from . import utils as test_utils
 
 
 class TestStructuredDataLabeler(unittest.TestCase):
-    @classmethod
-    def setUp(cls):
-        test_utils.set_seed(seed=0)
 
     @classmethod
     def setUpClass(cls) -> None:

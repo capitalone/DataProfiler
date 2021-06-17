@@ -8,6 +8,7 @@ import psutil
 import numpy as np
 import multiprocessing as mp
 
+
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
     # Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
@@ -67,7 +68,7 @@ def _combine_unique_sets(a, b):
     elif not b:
         combined_list = set(a)
     else:
-        combined_list = set().union(a,b)
+        combined_list = set().union(a, b)
     return list(combined_list)
 
     

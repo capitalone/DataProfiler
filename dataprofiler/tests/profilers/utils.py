@@ -3,7 +3,8 @@ import shutil
 import random
 
 import numpy as np
-from dataprofiler import settings
+
+import dataprofiler as dp
 
 
 def set_seed(seed=None):
@@ -12,7 +13,9 @@ def set_seed(seed=None):
     :param seed:
     :return:
     """
-    settings._seed = seed
+    np.random.seed(seed)
+    random.seed(seed)
+    dp.set_seed(seed)
 
 
 def delete_folder(path):

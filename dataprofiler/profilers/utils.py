@@ -7,6 +7,7 @@ import warnings
 import psutil
 import numpy as np
 import multiprocessing as mp
+
 from dataprofiler import settings
 
 def dict_merge(dct, merge_dct):
@@ -87,17 +88,10 @@ def shuffle_in_chunks(data_length, chunk_size):
     if not data_length or data_length == 0 \
        or not chunk_size or chunk_size == 0:
         return []
-    
-    rng = np.random.default_rng()
 
-    if settings._seed is not None:
-        try:
-            seed_value = int(settings._seed)
-            rng = np.random.default_rng(seed_value)
-        except ValueError as e:
-            warnings.warn("Seed should be an integer", RuntimeWarning)
+    rng = np.random.default_rng(int(settings._seed))
 
-    elif 'DATAPROFILER_SEED' in os.environ:
+    if 'DATAPROFILER_SEED' in os.environ:
         try:
             seed_value = int(os.environ.get('DATAPROFILER_SEED'))
             rng = np.random.default_rng(seed_value)

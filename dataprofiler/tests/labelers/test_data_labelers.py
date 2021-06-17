@@ -3,6 +3,7 @@ import unittest
 from unittest import mock
 import json
 from io import StringIO
+import sys
 
 import pandas as pd
 import numpy as np
@@ -17,6 +18,7 @@ from dataprofiler.labelers.data_labelers import BaseDataLabeler, \
     TrainableDataLabeler
 from dataprofiler.labelers import data_processing
 from dataprofiler.labelers.base_model import BaseModel, BaseTrainableModel
+from . import utils as test_utils
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -30,6 +32,9 @@ def setup_save_mock_open(mock_open):
 
 
 class TestDataLabelerTrainer(unittest.TestCase):
+    @classmethod
+    def setUp(cls):
+        test_utils.set_seed(seed=0)
 
     def test_train_method_exists(self):
 

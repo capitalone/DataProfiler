@@ -403,6 +403,41 @@ class TestFloatColumn(unittest.TestCase):
         self.assertAlmostEqual(-0.29622465, num_profiler.skewness)
         self.assertAlmostEqual(0.099825352, num_profiler.kurtosis)
 
+    def test_bias_correction_merge(self):
+        data = np.linspace(-5, 5, 11).tolist()
+        df1 = pd.Series(data)
+
+        data = np.linspace(-3, 2, 11).tolist()
+        df2 = pd.Series(data)
+
+        data = np.full((10,), 1)
+        df3 = pd.Series(data)
+
+        # Disable bias correction
+        options = FloatOptions();
+        options.bias_correction.is_enabled = False
+        num_profiler1 = FloatColumn(df1.name, options=options)
+        num_profiler1.update(df1.apply(str))
+        self.assertAlmostEqual(10, num_profiler1.variance)
+        self.assertAlmostEqual(0, num_profiler1.skewness)
+        self.assertAlmostEqual(89 / 50 - 3, num_profiler1.kurtosis)
+
+        num_profiler2 = FloatColumn(df2.name)
+        num_profiler2.update(df2.apply(str))
+        num_profiler = num_profiler1 + num_profiler2
+        self.assertFalse(num_profiler.bias_correction)
+        self.assertAlmostEqual(6.3125, num_profiler.variance)
+        self.assertAlmostEqual(0.17733336, num_profiler.skewness)
+        self.assertAlmostEqual(-0.56798353, num_profiler.kurtosis)
+
+        num_profiler3 = FloatColumn(df3.name)
+        num_profiler3.update(df3.apply(str))
+        num_profiler = num_profiler1 + num_profiler2 + num_profiler3
+        self.assertFalse(num_profiler.bias_correction)
+        self.assertAlmostEqual(4.6755371, num_profiler.variance)
+        self.assertAlmostEqual(-0.29622465, num_profiler.skewness)
+        self.assertAlmostEqual(0.099825352, num_profiler.kurtosis)
+
     def test_null_values_for_histogram(self):
         data = pd.Series(['-inf', 'inf'])
         profiler = FloatColumn(data.name)

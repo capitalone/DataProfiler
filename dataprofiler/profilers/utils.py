@@ -331,7 +331,7 @@ def biased_kurt(df_series):
     M4 = 0 if np.abs(M4) < 1e-14 else M4
 
     if (M2 == 0):
-        return 0.0
+        return -3.0
 
     kurt = n * M4 / M2 ** 2 - 3
     return kurt

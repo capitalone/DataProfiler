@@ -91,7 +91,7 @@ def shuffle_in_chunks(data_length, chunk_size):
 
     rng = np.random.default_rng(int(settings._seed))
 
-    if 'DATAPROFILER_SEED' in os.environ:
+    if 'DATAPROFILER_SEED' in os.environ and settings._seed is None:
         try:
             seed_value = int(os.environ.get('DATAPROFILER_SEED'))
             rng = np.random.default_rng(seed_value)

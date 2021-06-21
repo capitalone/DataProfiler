@@ -426,29 +426,31 @@ class TestIntColumn(unittest.TestCase):
             self.assertCountEqual(expected, profiler.profile['times'])
 
     def test_profile_merge(self):
-        data = [2.0, 12.5, 'not an int', 6.0, 'not an int']
+        data = [2.0, 12.5, 'not an int', 6.0, 'not an int', 0]
         df = pd.Series(data).apply(str)
         profiler1 = IntColumn("Int")
         profiler1.update(df)
 
-        data2 = [10.0, 3.5, 'not an int', 15.0, 'not an int']
+        data2 = [10.0, 3.5, 'not an int', 15.0, 'not an int', 0]
         df2 = pd.Series(data2).apply(str)
         profiler2 = IntColumn("Int")
         profiler2.update(df2)
 
         expected_profile = dict(
-            min=2.0,
+            min=0.0,
             max=15.0,
             sum=33,
-            mean=8.25,
-            variance=30.916666666666668,
-            skewness=918 * np.sqrt(3 / 371) / 371,
-            kurtosis=-16068/19663,
-            stddev=np.sqrt(30.916),
+            mean=5.50,
+            variance=36.7,
+            skewness=0.7731731792752186,
+            kurtosis=-0.7745992620035813,
+            stddev=np.sqrt(36.7),
             histogram={
-                'bin_counts': np.array([1, 1, 1, 1]),
-                'bin_edges': np.array([2., 5.25, 8.5, 11.75, 15.])
+                'bin_counts': np.array([3, 0, 1, 1, 1]),
+                'bin_edges': np.array([0, 3, 6, 9, 12, 15.0])
             },
+            num_zeros=2,
+            num_negatives=0
         )
 
         profiler3 = profiler1 + profiler2
@@ -474,6 +476,9 @@ class TestIntColumn(unittest.TestCase):
                          expected_histogram['bin_counts'].tolist())
         self.assertCountEqual(histogram['bin_edges'],
                               expected_histogram['bin_edges'])
+        self.assertEqual(profiler3.num_zeros, expected_profile.pop('num_zeros'))
+        self.assertEqual(profiler3.num_negatives,
+                         expected_profile.pop('num_negatives'))
 
     def test_profile_merge_edge_case(self):
         data = [2.0, 12.5, 'not a float', 6.0, 'not a float']
@@ -515,6 +520,8 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.max, 3)
         self.assertTrue(np.isnan(profiler.skewness))
         self.assertTrue(np.isnan(profiler.kurtosis))
+        self.assertEqual(profiler.num_zeros, 0)
+        self.assertEqual(profiler.num_negatives, 0)
 
         df4 = pd.Series([4, 5]).apply(str)
         profiler4 = IntColumn("Int")
@@ -525,6 +532,20 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.max, 5)
         self.assertEqual(profiler.skewness, 0)
         self.assertAlmostEqual(profiler.kurtosis, -1.2)
+        self.assertEqual(profiler.num_zeros, 0)
+        self.assertEqual(profiler.num_negatives,0)
+
+        df5 = pd.Series([0, 0, -1]).apply(str)
+        profiler5 = IntColumn("Int")
+        profiler5.update(df5)
+
+        profiler = profiler4 + profiler5
+        self.assertEqual(profiler.min, -1)
+        self.assertEqual(profiler.max, 5)
+        self.assertAlmostEqual(profiler.skewness, 0.5779903148118289)
+        self.assertAlmostEqual(profiler.kurtosis, -2.7078251079001676)
+        self.assertEqual(profiler.num_zeros, 2)
+        self.assertEqual(profiler.num_negatives, 1)
 
     def test_custom_bin_count_merge(self):
 

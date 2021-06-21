@@ -527,6 +527,7 @@ class TestIntColumn(unittest.TestCase):
         profile3 = profiler3.profile
         histogram = profile3.pop('histogram')
 
+        self.assertTrue(profiler3.bias_correction)
         self.assertAlmostEqual(profiler3.stddev,
                                expected_profile.pop('stddev'),places=3)
         self.assertAlmostEqual(profiler3.variance,

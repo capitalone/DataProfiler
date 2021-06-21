@@ -83,10 +83,8 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertIsNone(profile_column["statistics"]["max"])
                 self.assertEqual(0, profile_column["statistics"]["variance"])
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
-                self.assertTrue(
-                    profile_column["statistics"]["skewness"] is np.nan)
-                self.assertTrue(
-                    profile_column["statistics"]["kurtosis"] is np.nan)
+                self.assertEqual(0, profile_column["statistics"]["skewness"])
+                self.assertEqual(0, profile_column["statistics"]["kurtosis"])
 
         # Assert that the stats are enabled
         options.set({"*.is_numeric_stats_enabled": True})
@@ -106,6 +104,8 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertNotEqual(0, profile_column["statistics"]["variance"])
                 self.assertIsNotNone(
                     profile_column["statistics"]["quantiles"][0])
+                self.assertTrue(profile_column["statistics"]["skewness"] is np.nan)
+                self.assertTrue(profile_column["statistics"]["kurtosis"] is np.nan)
 
     def test_disable_labeler_in_profiler_options(self, *mocks):
         options = ProfilerOptions()

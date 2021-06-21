@@ -85,6 +85,8 @@ The format for a structured profile is below:
             "stddev": float,
             "skewness": float,
             "kurtosis": float,
+            "num_zeros": int
+            "num_negatives": int
             "histogram": { 
                 "bin_counts": list(int),
 		"bin_edges": list(float),

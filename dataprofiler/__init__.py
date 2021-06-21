@@ -9,6 +9,7 @@ from .validators.base_validators import Validator
 from .version import __version__
 from . import settings
 
+
 try:
     import snappy
 except ImportError:
@@ -26,7 +27,6 @@ except ImportError:
 
 def set_seed(seed=None):
     # also check it's an integer
-    if seed is not None and (seed < 0 or int(seed)!=float(seed)):
+    if seed is not None and (not isinstance(seed, int) or seed < 0):
         raise ValueError("Seed should be a non-negative integer.")
     settings._seed = seed
-    

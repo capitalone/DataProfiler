@@ -10,6 +10,7 @@ import multiprocessing as mp
 
 from dataprofiler import settings
 
+
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
     # Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
@@ -89,7 +90,7 @@ def shuffle_in_chunks(data_length, chunk_size):
        or not chunk_size or chunk_size == 0:
         return []
 
-    rng = np.random.default_rng(int(settings._seed))
+    rng = np.random.default_rng(settings._seed)
 
     if 'DATAPROFILER_SEED' in os.environ and settings._seed is None:
         try:

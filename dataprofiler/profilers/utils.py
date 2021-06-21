@@ -297,7 +297,9 @@ def biased_skew(df_series):
     cubed_diffs = squared_diffs * diffs
     M2 = sum(squared_diffs)
     M3 = sum(cubed_diffs)
-    # Zero out if possible to prevent floating point errors
+    # This correction comes from the pandas implementation of
+    # skewness, which zeroes these values out before computation
+    # due to possible floating point errors that can occur.
     M2 = 0 if np.abs(M2) < 1e-14 else M2
     M3 = 0 if np.abs(M3) < 1e-14 else M3
 
@@ -327,6 +329,9 @@ def biased_kurt(df_series):
     fourth_diffs = squared_diffs * squared_diffs
     M2 = sum(squared_diffs)
     M4 = sum(fourth_diffs)
+    # This correction comes from the pandas implementation of
+    # kurtosis, which zeroes these values out before computation
+    # due to possible floating point errors that can occur.
     M2 = 0 if np.abs(M2) < 1e-14 else M2
     M4 = 0 if np.abs(M4) < 1e-14 else M4
 

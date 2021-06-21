@@ -840,7 +840,6 @@ class TestFloatColumn(unittest.TestCase):
             variance = profile.pop('variance')
             expected_variance = expected_profile.pop('variance')
 
-            self.maxDiff = None
             self.assertDictEqual(expected_profile, profile)
             self.assertDictEqual(expected_profile['precision'], profile['precision'])
             self.assertEqual(expected_histogram['bin_counts'].tolist(),

@@ -372,12 +372,15 @@ class TestFloatColumn(unittest.TestCase):
         self.assertAlmostEqual(0.3311739, num_profiler.kurtosis)
 
     def test_bias_correction_option(self):
+        # df1 = [-5, -4, ..., 3, 4, 5]
         data = np.linspace(-5, 5, 11).tolist()
         df1 = pd.Series(data)
 
+        # df2 = [-3, -2.5, -2, ..., 1.5, 2]
         data = np.linspace(-3, 2, 11).tolist()
         df2 = pd.Series(data)
 
+        # df3 = [1, 1, ... , 1] (ten '1's)
         data = np.full((10,), 1)
         df3 = pd.Series(data)
 
@@ -385,6 +388,7 @@ class TestFloatColumn(unittest.TestCase):
         options = FloatOptions(); options.bias_correction.is_enabled = False
         num_profiler = FloatColumn(df1.name, options=options)
         num_profiler.update(df1.apply(str))
+        # Test biased values of variance, skewness, kurtosis
         self.assertAlmostEqual(10, num_profiler.variance)
         self.assertAlmostEqual(0, num_profiler.skewness)
         self.assertAlmostEqual(89/50 - 3, num_profiler.kurtosis)

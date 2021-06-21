@@ -80,8 +80,8 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertIsNone(profile_column["statistics"]["max"])
                 self.assertEqual(0, profile_column["statistics"]["variance"])
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
-                self.assertEqual(profile_column["statistics"]["skewness"], 0)
-                self.assertEqual(profile_column["statistics"]["kurtosis"], 0)
+                self.assertEqual(0, profile_column["statistics"]["skewness"])
+                self.assertEqual(0, profile_column["statistics"]["kurtosis"])
 
         # Assert that the stats are enabled
         options.set({"*.is_numeric_stats_enabled": True})

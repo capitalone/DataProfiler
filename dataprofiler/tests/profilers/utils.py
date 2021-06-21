@@ -9,7 +9,7 @@ import dataprofiler as dp
 
 def set_seed(seed=None):
     """
-    Sets the see for all possible random state libraries
+    Sets the seed for all possible random state libraries
     :param seed:
     :return:
     """

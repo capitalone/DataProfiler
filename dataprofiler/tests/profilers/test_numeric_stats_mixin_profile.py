@@ -202,8 +202,10 @@ class TestNumericStatsMixin(unittest.TestCase):
             'bin_edges': np.array([2., 5.25, 8.5, 11.75, 15.])
         }
 
-        other1.min, other1.max, other1._biased_variance, other1.sum = 0, 0, 0, 0
-        other2.min, other2.max, other2._biased_variance, other2.sum = 1, 1, 1, 1
+        other1.min, other1.max, other1._biased_variance, other1.sum, \
+        other1.num_zeros, other1.num_negatives = 0, 0, 0, 0, 0, 0
+        other2.min, other2.max, other2._biased_variance, other2.sum, \
+        other2.num_zeros, other2.num_negatives = 1, 1, 1, 1, 1, 1
 
         # set auto as only histogram to merge
         other1.histogram_selection = "auto"
@@ -481,3 +483,22 @@ class TestNumericStatsMixin(unittest.TestCase):
                 prev_dependent_properties,
                 subset_properties)
             self.assertEqual(expected, num_profiler.times)
+
+    def test_merge_num_zeros_and_negatives(self):
+        """
+        Checks num_zeros and num_negatives can be merged
+        :return:
+        """
+        num_profiler, other1, other2 = TestColumn(), TestColumn(), TestColumn()
+        other1.num_zeros, other1.num_negatives = 3, 1
+        other2.num_zeros, other2.num_negatives = 7, 1
+        num_profiler._add_helper(other1, other2)
+        self.assertEqual(num_profiler.num_zeros, 10)
+        self.assertEqual(num_profiler.num_negatives, 2)
+
+        num_profiler, other1, other2 = TestColumn(), TestColumn(), TestColumn()
+        other1.num_zeros, other1.num_negatives = 0, 0
+        other2.num_zeros, other2.num_negatives = 0, 0
+        num_profiler._add_helper(other1, other2)
+        self.assertEqual(num_profiler.num_zeros, 0)
+        self.assertEqual(num_profiler.num_negatives, 0)

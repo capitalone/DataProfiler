@@ -8,6 +8,8 @@ import psutil
 import numpy as np
 import multiprocessing as mp
 
+from dataprofiler import settings
+
 
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
@@ -87,9 +89,10 @@ def shuffle_in_chunks(data_length, chunk_size):
     if not data_length or data_length == 0 \
        or not chunk_size or chunk_size == 0:
         return []
-    
-    rng = np.random.default_rng()
-    if 'DATAPROFILER_SEED' in os.environ:
+
+    rng = np.random.default_rng(settings._seed)
+
+    if 'DATAPROFILER_SEED' in os.environ and settings._seed is None:
         try:
             seed_value = int(os.environ.get('DATAPROFILER_SEED'))
             rng = np.random.default_rng(seed_value)

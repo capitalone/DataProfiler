@@ -8,6 +8,8 @@ import psutil
 import numpy as np
 import multiprocessing as mp
 
+from dataprofiler import settings
+
 
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
@@ -87,9 +89,10 @@ def shuffle_in_chunks(data_length, chunk_size):
     if not data_length or data_length == 0 \
        or not chunk_size or chunk_size == 0:
         return []
-    
-    rng = np.random.default_rng()
-    if 'DATAPROFILER_SEED' in os.environ:
+
+    rng = np.random.default_rng(settings._seed)
+
+    if 'DATAPROFILER_SEED' in os.environ and settings._seed is None:
         try:
             seed_value = int(os.environ.get('DATAPROFILER_SEED'))
             rng = np.random.default_rng(seed_value)
@@ -276,3 +279,67 @@ def add_nested_dictionaries(first_dict, second_dict):
             merged_dict[item] = copy.deepcopy(second_dict[item])
 
     return merged_dict
+
+def biased_skew(df_series):
+    """
+    Calculates the biased estimator for skewness of the given data.
+    The definition is formalized as g_1 here:
+        https://en.wikipedia.org/wiki/Skewness#Sample_skewness
+    :param df_series: data to get skewness of, assuming floats
+    :type df_series: pandas Series
+    :return: biased skewness
+    :rtype: float
+    """
+    n = len(df_series)
+    if n < 1:
+        return np.nan
+
+    mean = sum(df_series) / n
+    diffs = df_series - mean
+    squared_diffs = diffs ** 2
+    cubed_diffs = squared_diffs * diffs
+    M2 = sum(squared_diffs)
+    M3 = sum(cubed_diffs)
+    # This correction comes from the pandas implementation of
+    # skewness, which zeroes these values out before computation
+    # due to possible floating point errors that can occur.
+    M2 = 0 if np.abs(M2) < 1e-14 else M2
+    M3 = 0 if np.abs(M3) < 1e-14 else M3
+
+    if (M2 == 0):
+        return 0.0
+
+    skew = np.sqrt(n) * M3 / M2 ** 1.5
+    return skew
+
+def biased_kurt(df_series):
+    """
+    Calculates the biased estimator for kurtosis of the given data
+    The definition is formalized as g_2 here:
+        https://en.wikipedia.org/wiki/Kurtosis#A_natural_but_biased_estimator
+    :param df_series: data to get kurtosis of, assuming floats
+    :type df_series: pandas Series
+    :return: biased kurtosis
+    :rtype: float
+    """
+    n = len(df_series)
+    if (n < 1):
+        return np.nan
+
+    mean = sum(df_series) / n
+    diffs = df_series - mean
+    squared_diffs = diffs ** 2
+    fourth_diffs = squared_diffs * squared_diffs
+    M2 = sum(squared_diffs)
+    M4 = sum(fourth_diffs)
+    # This correction comes from the pandas implementation of
+    # kurtosis, which zeroes these values out before computation
+    # due to possible floating point errors that can occur.
+    M2 = 0 if np.abs(M2) < 1e-14 else M2
+    M4 = 0 if np.abs(M4) < 1e-14 else M4
+
+    if (M2 == 0):
+        return -3.0
+
+    kurt = n * M4 / M2 ** 2 - 3
+    return kurt

@@ -144,8 +144,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         Property reporting statistics on the significant figures of each
         element in the data.
-        :return
-        :rtype dict
+        :return: Precision statistics
+        :rtype: dict
         """
         # First add the stats that don't need to be re-calculated
         precision = dict(

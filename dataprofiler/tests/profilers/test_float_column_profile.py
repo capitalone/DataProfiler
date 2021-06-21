@@ -723,6 +723,8 @@ class TestFloatColumn(unittest.TestCase):
             variance=27 + 1/12.0,
             skewness=35/13*np.sqrt(3/13),
             kurtosis=np.nan,
+            num_negatives = 0,
+            num_zeros = 0,
             stddev=np.sqrt(27+1/12.0),
             histogram={
                 'bin_counts': np.array([1, 1, 0, 1]),
@@ -833,6 +835,8 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0,\
                                            'variance': 1.0, 'precision': 1.0,
                                            'skewness': 1.0, 'kurtosis': 1.0,
+                                           'num_negatives': 1.0,
+                                           'num_zeros': 1.0,
                                            'histogram_and_quantiles': 15.0})
             self.assertCountEqual(expected, profile['times'])
 
@@ -841,6 +845,8 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0,\
                                            'variance': 2.0, 'precision': 2.0,
                                            'skewness': 2.0, 'kurtosis': 2.0,
+                                           'num_negatives': 2.0,
+                                           'num_zeros': 2.0,
                                            'histogram_and_quantiles': 30.0})
             self.assertCountEqual(expected, profiler.profile['times'])
 
@@ -893,6 +899,29 @@ class TestFloatColumn(unittest.TestCase):
         self.assertCountEqual(histogram['bin_edges'],
                               expected_histogram['bin_edges'])
 
+    def test_profile_merge_for_zeros_and_negatives(self):
+        data = [2.0, 8.5, 'not an int', 6.0, -3, 0]
+        df = pd.Series(data).apply(str)
+        profiler1 = FloatColumn("Float")
+        profiler1.update(df)
+
+        data2 = [0.0, 3.5, 'not an int', 125.0, 0, -0.1, -88]
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = FloatColumn("Float")
+        profiler2.update(df2)
+
+        expected_profile = dict(
+            num_zeros=3,
+            num_negatives=3
+        )
+
+        profiler3 = profiler1 + profiler2
+
+        self.assertEqual(profiler3.num_zeros,
+                         expected_profile.pop('num_zeros'))
+        self.assertEqual(profiler3.num_negatives,
+                         expected_profile.pop('num_negatives'))
+
     def test_profile_merge_edge_case(self):
         data = [2.0, 'not a float', 6.0, 'not a float']
         df = pd.Series(data).apply(str)
@@ -942,6 +971,18 @@ class TestFloatColumn(unittest.TestCase):
         self.assertAlmostEqual(profiler.kurtosis, -1.2)
         self.assertEqual(profiler.min, 2.0)
         self.assertEqual(profiler.max, 5.0)
+        self.assertEqual(profiler.num_zeros, 0)
+        self.assertEqual(profiler.num_negatives, 0)
+
+        df5 = pd.Series([0.0, 0.0, -1.1, -1.0]).apply(str)
+        profiler5 = FloatColumn("Float")
+        profiler5.update(df5)
+
+        profiler = profiler4 + profiler5
+        self.assertEqual(profiler.min, -1.1)
+        self.assertEqual(profiler.max, 5)
+        self.assertEqual(profiler.num_zeros, 2)
+        self.assertEqual(profiler.num_negatives, 2)
 
     def test_custom_bin_count_merge(self):
 

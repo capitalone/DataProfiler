@@ -1166,6 +1166,11 @@ class StructuredProfiler(BaseProfiler):
         if data is not None:
             self.update_profile(data)
 
+    @property
+    def duplicate_cols_present(self):
+        num_cols = [len(idxs) for idxs in self._col_name_to_idx.values()]
+        return any([num > 1 for num in num_cols])
+
     def _add_error_checks(self, other):
         """
         StructuredProfiler specific checks to ensure two profiles can be added
@@ -1390,10 +1395,7 @@ class StructuredProfiler(BaseProfiler):
         elif isinstance(data, list):
             data = pd.DataFrame(data)
 
-        if len(data.columns) != len(data.columns.unique()):
-            raise ValueError('`StructuredProfiler` does not currently support '
-                             'data which contains columns with duplicate '
-                             'names.')
+        duplicate_cols_given = len(data.columns) != len(data.columns.unique())
 
         try:
             from tqdm import tqdm
@@ -1419,16 +1421,27 @@ class StructuredProfiler(BaseProfiler):
         sample_ids = np.array(sample_ids)
 
         # Create structured profile objects
-        new_cols = set()
-        for col in data.columns:
-            if col not in self._profile:
-                self._profile[col] = StructuredColProfiler(
-                    sample_size=sample_size,
-                    min_true_samples=min_true_samples,
-                    sample_ids=sample_ids,
-                    options=self.options
-                )
-                new_cols.add(col)
+        new_cols = False
+        if self.duplicate_cols_present:
+            # If column names are duplicated, schema must be rigorously enforced
+            # Columns in update data must exactly match the order in which they
+            # were in during initialization (no new cols, no subset of cols)
+            pass
+        elif duplicate_cols_given and len(self._profile) == 0:
+            # This may be able to be consolidated with else block
+            pass
+        else:
+            # If duplicate columns present, can take in new columns
+            for col in data.columns:
+                if col not in self._col_name_to_idx:
+                    self._col_name_to_idx[col] = len(self._profile)
+                    self._profile.append(StructuredColProfiler(
+                        sample_size=sample_size,
+                        min_true_samples=min_true_samples,
+                        sample_ids=sample_ids,
+                        options=self.options
+                    ))
+                    new_cols = True
                 
         # Generate pool and estimate datasize
         pool = None
@@ -1441,7 +1454,7 @@ class StructuredProfiler(BaseProfiler):
 
         # Format the data
         notification_str = "Finding the Null values in the columns..."        
-        if pool and len(new_cols) > 0:
+        if pool and new_cols:
             notification_str += " (with " + str(pool_size) + " processes)"
         
         clean_sampled_dict = {}

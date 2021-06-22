@@ -103,8 +103,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             options.set({skey: "Hello World"})
             with self.assertRaisesRegex(ValueError, expected_error):
                 options.validate(raise_error=True)    
-            self.assertIn(expected_error,
-                             options.validate(raise_error=False))
+            self.assertIn(expected_error, options.validate(raise_error=False))
             options.set({skey: default_bool})
 
         # Disable Sum and Enable Variance

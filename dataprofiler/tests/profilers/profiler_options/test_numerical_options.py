@@ -48,10 +48,10 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             skey = '{}.is_enabled'.format(key)
             expected_error = "{}.{}.is_enabled must be a Boolean." \
                              .format(optpth, key)
-            
+            default_bool = options.properties[key].is_enabled
             options.set({skey: "Hello World"})
-            self.assertEqual([expected_error], options._validate_helper())
-            options.set({skey: True})
+            self.assertIn(expected_error, options._validate_helper())
+            options.set({skey: default_bool})
 
         # Disable Sum and Enable Variance
         options.set({"sum.is_enabled": False,
@@ -99,13 +99,13 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             skey = '{}.is_enabled'.format(key)
             expected_error = "{}.{}.is_enabled must be a Boolean."\
                 .format(optpth, key)
-            
+            default_bool = options.properties[key].is_enabled
             options.set({skey: "Hello World"})
             with self.assertRaisesRegex(ValueError, expected_error):
                 options.validate(raise_error=True)    
-            self.assertEqual([expected_error], 
+            self.assertIn(expected_error,
                              options.validate(raise_error=False))
-            options.set({skey: True})
+            options.set({skey: default_bool})
 
         # Disable Sum and Enable Variance
         options.set({"sum.is_enabled": False,

@@ -492,3 +492,30 @@ class TestNumericStatsMixin(unittest.TestCase):
         num_profiler._add_helper(other1, other2)
         self.assertEqual(num_profiler.num_zeros, 0)
         self.assertEqual(num_profiler.num_negatives, 0)
+
+    def test_diff_helper(self):
+        """
+        Checks _diff_helper() works appropriately.
+        """
+        other1, other2 = TestColumn(), TestColumn()
+        other1.min = 3
+        other1.max = 4
+        other1.variance = 1
+        other1.sum = 6
+        other1.match_count = 10
+        
+        other2.min = 3
+        other2.max = None
+        other2.variance = 4
+        other2.sum = 6
+        other2.match_count = 20
+        
+        expected_diff = {
+            'min': 'unchanged',
+            'max': [4, None],
+            'sum': 'unchanged',
+            'mean': 0.3,
+            'variance': -3,
+            'stddev': -1.0
+        }
+        self.assertDictEqual(expected_diff, other1._diff_helper(other2))

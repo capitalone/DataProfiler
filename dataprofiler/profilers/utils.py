@@ -343,3 +343,39 @@ def biased_kurt(df_series):
 
     kurt = n * M4 / M2 ** 2 - 3
     return kurt
+
+def find_diff(stat1, stat2):
+    """
+    Finds the difference between two stats. If there is no difference, returns
+    "unchanged". For ints/floats, returns stat1 - stat2. For strings, returns
+    list containing [stat1, stat2]. For lists/sets, removes duplicates and
+    returns [unique values of stat1, shared values, unique values of stat2].
+    
+    :param stat1: the first statistical input
+    :type stat1: Union[int, float, str, list, set]
+    :param stat2: the second statistical input
+    :type stat2: Union[int, float, str, list, set]
+    :return: the difference of the stats
+    """
+    diff = "unchanged"
+
+    # Checks if types are incompatible to find difference
+    if type(stat1) is not type(stat2) and \
+            not (isinstance(stat1, (int, float)) and
+                 isinstance(stat2, (int, float))) and \
+            not (isinstance(stat1, (set, list)) and
+                 isinstance(stat2, (set, list))):
+        diff = [stat1, stat2]
+    # if the values are different, find the difference
+    elif stat1 != stat2:
+        if isinstance(stat1, int) or isinstance(stat1, float):
+            diff = stat1 - stat2
+        elif isinstance(stat1, str):
+            diff = [stat1, stat2]
+        elif (isinstance(stat1, set) or isinstance(stat1, list)) and \
+                set(stat1) != set(stat2):
+            unique1 = [element for element in stat1 if element not in stat2]
+            shared = [element for element in stat1 if element in stat2]
+            unique2 = [element for element in stat2 if element not in stat1]
+            diff = [unique1, shared, unique2]
+    return diff

@@ -510,13 +510,13 @@ class TestNumericStatsMixin(unittest.TestCase):
         other1, other2 = TestColumn(), TestColumn()
         other1.min = 3
         other1.max = 4
-        other1.variance = 1
+        other1._biased_variance = 1
         other1.sum = 6
         other1.match_count = 10
         
         other2.min = 3
         other2.max = None
-        other2.variance = 4
+        other2._biased_variance = 9
         other2.sum = 6
         other2.match_count = 20
         
@@ -525,7 +525,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             'max': [4, None],
             'sum': 'unchanged',
             'mean': 0.3,
-            'variance': -3,
-            'stddev': -1.0
+            'variance': -8.362573099415204,
+            'stddev': -2.0238425028660023
         }
         self.assertDictEqual(expected_diff, other1._diff_helper(other2))

@@ -685,10 +685,10 @@ class BaseProfiler(object):
             data_labeler_options.data_labeler_object = None
 
         # get all profiles, unstructured is a single profile and hence needs to
-        # be in a list, whereas structured is a dict and needs to be a list
+        # be in a list, whereas structured is already a list
         profilers = [self._profile]
         if isinstance(self, StructuredProfiler):
-            profilers = self._profile.values()
+            profilers = self._profile
 
         # Remove data labelers for all columns
         for profiler in profilers:
@@ -746,10 +746,10 @@ class BaseProfiler(object):
                 self.options.set({'data_labeler.is_enabled': False})
 
         # get all profiles, unstructured is a single profile and hence needs to
-        # be in a list, whereas structured is a dict and needs to be a list
+        # be in a list, whereas structured is already a list
         profilers = [self._profile]
         if isinstance(self, StructuredProfiler):
-            profilers = self._profile.values()
+            profilers = self._profile
 
         # Restore data labelers for all columns
         for profiler in profilers:
@@ -1160,7 +1160,8 @@ class StructuredProfiler(BaseProfiler):
         self.row_has_null_count = 0
         self.row_is_null_count = 0
         self.hashed_row_dict = dict()
-        self._profile = dict()
+        self._profile = []
+        self._col_name_to_idx = dict()
 
         if data is not None:
             self.update_profile(data)
@@ -1170,11 +1171,12 @@ class StructuredProfiler(BaseProfiler):
         StructuredProfiler specific checks to ensure two profiles can be added
         together.
         """
-        if set(self._profile) != set(other._profile):
+
+        if self._col_name_to_idx != other._col_name_to_idx:
             raise ValueError('Profiles do not have the same schema.')
-        elif not all([isinstance(other._profile[p_name],
-                                 type(self._profile[p_name]))
-                      for p_name in self._profile]):  # options check
+        elif not all([isinstance(other._profile[idx],
+                                 type(self._profile[idx]))
+                      for idx in range(len(self._profile))]):  # options check
             raise ValueError('The two profilers were not setup with the same '
                              'options, hence they do not calculate the same '
                              'profiles and cannot be added together.')
@@ -1199,10 +1201,10 @@ class StructuredProfiler(BaseProfiler):
         merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
         # merge profiles
-        for profile_name in self._profile:
-            merged_profile._profile[profile_name] = (
-                self._profile[profile_name] + other._profile[profile_name]
-            )
+        for idx in range(len(self._profile)):
+            merged_profile._profile.append(self._profile[idx] +
+                                           other._profile[idx])
+        merged_profile._col_name_to_idx = copy.deepcopy(self._col_name_to_idx)
         return merged_profile
 
     @property
@@ -1211,8 +1213,7 @@ class StructuredProfiler(BaseProfiler):
         Calculates and returns the maximum samples used in any of the columns.
         """
         samples_used = 0
-        columns = list(self._profile.values())
-        for col in columns:
+        for col in self._profile:
             samples_used = max(samples_used, col.sample_size)
         return samples_used
 
@@ -1223,8 +1224,7 @@ class StructuredProfiler(BaseProfiler):
         i.e. every column in the Profile was read up to this row (possibly
         further in some cols)
         """
-        return min([self._profile[col].sample_size
-                    for col in self._profile], default=0)
+        return min([col.sample_size for col in self._profile], default=0)
 
     @property
     def _min_sampled_from_batch(self):
@@ -1232,8 +1232,7 @@ class StructuredProfiler(BaseProfiler):
         Calculates and returns the number of rows that were completely sampled
         in the most previous batch
         """
-        return min([self._profile[col]._last_batch_size
-                    for col in self._profile], default=0)
+        return min([col._last_batch_size for col in self._profile], default=0)
 
     def report(self, report_options=None):
         if not report_options:
@@ -1246,11 +1245,10 @@ class StructuredProfiler(BaseProfiler):
         omit_keys = report_options.get("omit_keys", [])
         num_quantile_groups = report_options.get("num_quantile_groups", 4)
 
-        columns = list(self._profile.values())
         report = OrderedDict([
             ("global_stats", {
                 "samples_used": self._max_col_samples_used,
-                "column_count": len(columns),
+                "column_count": len(self._profile),
                 "row_count": self.total_samples,
                 "row_has_null_ratio": self._get_row_has_null_ratio(),
                 "row_is_null_ratio": self._get_row_is_null_ratio(),
@@ -1261,13 +1259,31 @@ class StructuredProfiler(BaseProfiler):
             }),
             ("data_stats", OrderedDict()),
         ])
-        for key in self._profile.keys():
-            report["data_stats"][key] = self._profile[key].profile
-            quantiles = report["data_stats"][key]["statistics"].get(
-                'quantiles')
-            if quantiles:
-                quantiles = calculate_quantiles(num_quantile_groups, quantiles)
-                report["data_stats"][key]["statistics"]["quantiles"] = quantiles
+        for col in self._col_name_to_idx:
+            idxs = self._col_name_to_idx[col]
+            # Case where column only appears once in data
+            # Report has 1 entry of data stats for this column
+            if len(idxs) == 1:
+                idx = idxs[0]
+                report["data_stats"][col] = self._profile[idx].profile
+                quantiles = report["data_stats"][col]["statistics"].get(
+                    'quantiles')
+                if quantiles:
+                    quantiles = calculate_quantiles(num_quantile_groups,
+                                                    quantiles)
+                    report["data_stats"][col]["statistics"]["quantiles"] = \
+                        quantiles
+            # Case where column appears multiple times
+            # Report has a list of entries under this column
+            else:
+                report["data_stats"][col] = [self._profile[idx].profile
+                                             for idx in idxs]
+                for profile in report["data_stats"][col]:
+                    quantiles = profile["statistics"].get('quantiles')
+                    if quantiles:
+                        quantiles = calculate_quantiles(num_quantile_groups,
+                                                        quantiles)
+                        profile["statistics"]["quantiles"] = quantiles
 
         return _prepare_report(report, output_format, omit_keys)
 
@@ -1317,7 +1333,7 @@ class StructuredProfiler(BaseProfiler):
         null_in_row_count = set()
         first_col_flag = True
         for column in self._profile:
-            null_type_dict = self._profile[column].null_types_index
+            null_type_dict = column.null_types_index
             null_row_indices = set()
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
@@ -1327,7 +1343,7 @@ class StructuredProfiler(BaseProfiler):
             if sample_ids is not None:
                 # This is the amount (integer) indices were shifted by in the
                 # event of overlap
-                shift = self._profile[column]._index_shift
+                shift = column._index_shift
                 if shift is None:
                     # Shift is None if index is str or if no overlap detected
                     null_row_indices = null_row_indices.intersection(

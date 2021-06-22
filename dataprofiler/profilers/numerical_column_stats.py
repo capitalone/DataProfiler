@@ -248,12 +248,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :rtype: dict
         """
         differences = {
-            "min": utils.find_diff(self.min, other_profile.min),
-            "max": utils.find_diff(self.max, other_profile.max),
-            "sum": utils.find_diff(self.sum, other_profile.sum),
-            "mean": utils.find_diff(self.mean, other_profile.mean),
-            "variance": utils.find_diff(self.variance, other_profile.variance),
-            "stddev": utils.find_diff(self.stddev, other_profile.stddev),
+            "min": utils.find_diff_of_numbers(self.min, other_profile.min),
+            "max": utils.find_diff_of_numbers(self.max, other_profile.max),
+            "sum": utils.find_diff_of_numbers(self.sum, other_profile.sum),
+            "mean": utils.find_diff_of_numbers(self.mean, other_profile.mean),
+            "variance": utils.find_diff_of_numbers(self.variance,
+                                                   other_profile.variance),
+            "stddev": utils.find_diff_of_numbers(self.stddev,
+                                                 other_profile.stddev),
         }
         return differences
 

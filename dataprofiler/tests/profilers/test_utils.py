@@ -50,33 +50,36 @@ class TestShuffleInChunks(unittest.TestCase):
         Checks to see if the find difference function is operating
         appropriately.
         """
-        
+
         # Ensure lists and sets are handled appropriately
-        self.assertEqual("unchanged", utils.find_diff([3, 2], [2, 3, 2]))
+        self.assertEqual("unchanged",
+                         utils.find_diff_of_lists_and_sets([3, 2], [2, 3, 2]))
         self.assertEqual([[1], [2, 3], [4]],
-                         utils.find_diff([1, 2, 3], [2, 3, 4]))
-        self.assertEqual("unchanged", utils.find_diff({3, 2}, {2, 3}))
+                         utils.find_diff_of_lists_and_sets([1, 2, 3], [2, 3, 4]))
+        self.assertEqual("unchanged",
+                         utils.find_diff_of_lists_and_sets({3, 2}, {2, 3}))
         self.assertEqual([[1], [2, 3], [4]],
-                         utils.find_diff({1, 2, 3}, {2, 3, 4}))
-        self.assertEqual("unchanged", utils.find_diff({2, 3}, [2, 3]))
+                         utils.find_diff_of_lists_and_sets({1, 2, 3}, {2, 3, 4}))
+        self.assertEqual("unchanged",
+                         utils.find_diff_of_lists_and_sets({2, 3}, [2, 3]))
         self.assertEqual([[1], [2, 3], [4]],
-                         utils.find_diff([1, 2, 3], {2, 3, 4}))
+                         utils.find_diff_of_lists_and_sets([1, 2, 3], {2, 3, 4}))
+        self.assertEqual([None, {1, 2}],
+                         utils.find_diff_of_lists_and_sets(None, {1, 2}))
 
         # Ensure ints and floats are handled appropriately
-        self.assertEqual(1, utils.find_diff(5, 4))
-        self.assertEqual(1.0, utils.find_diff(5.0, 4.0))
-        self.assertEqual(1.0, utils.find_diff(5.0, 4))
-        self.assertEqual("unchanged", utils.find_diff(5.0, 5.0))
-        self.assertEqual("unchanged", utils.find_diff(5, 5.0))
+        self.assertEqual(1, utils.find_diff_of_numbers(5, 4))
+        self.assertEqual(1.0, utils.find_diff_of_numbers(5.0, 4.0))
+        self.assertEqual(1.0, utils.find_diff_of_numbers(5.0, 4))
+        self.assertEqual("unchanged", utils.find_diff_of_numbers(5.0, 5.0))
+        self.assertEqual("unchanged", utils.find_diff_of_numbers(5, 5.0))
+        self.assertEqual([4, None],
+                         utils.find_diff_of_numbers(4, None))
 
         # Ensure strings are handled appropriately
-        self.assertEqual("unchanged", utils.find_diff("Hello", "Hello"))
-        self.assertEqual(["Hello", "team"], utils.find_diff("Hello", "team"))
-
-        # Ensure Different Var Types are appropriately handled
-        self.assertEqual([4, {2, 3, 5}], utils.find_diff(4, {2, 3, 5}))
-
-        # Ensure None is handled appropriately
-        self.assertEqual("unchanged", utils.find_diff(None, None))
-        self.assertEqual([4, None], utils.find_diff(4, None))
-        self.assertEqual([None, {1, 2}], utils.find_diff(None, {1, 2}))
+        self.assertEqual("unchanged",
+                         utils.find_diff_of_strings("Hello", "Hello"))
+        self.assertEqual(["Hello", "team"],
+                         utils.find_diff_of_strings("Hello", "team"))
+        self.assertEqual("unchanged",
+                         utils.find_diff_of_strings(None, None))

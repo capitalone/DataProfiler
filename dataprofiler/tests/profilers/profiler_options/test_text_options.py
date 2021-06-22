@@ -19,6 +19,18 @@ class TestTextOptions(TestNumericalOptions):
     
     def test_validate_helper(self):
         super().test_validate_helper()
+        options = self.get_options()
+        optpth = self.get_options_path()
+
+        # Check to make sure num_zeros/num_negatives is False as a TextOption
+        for key in ["num_zeros", "num_negatives"]:
+            skey = '{}.is_enabled'.format(key)
+            expected_error = "{}.{} should always be disabled, "\
+                             "{}.is_enabled = False".format(optpth, key, key)
+            default_bool = options.properties[key].is_enabled
+            options.set({skey: True})
+            self.assertEqual([expected_error], options._validate_helper())
+            options.set({skey: default_bool})
 
     def test_validate(self):
         super().test_validate()

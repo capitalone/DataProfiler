@@ -1166,11 +1166,6 @@ class StructuredProfiler(BaseProfiler):
         if data is not None:
             self.update_profile(data)
 
-    @property
-    def duplicate_cols_present(self):
-        num_cols = [len(idxs) for idxs in self._col_name_to_idx.values()]
-        return any([num > 1 for num in num_cols])
-
     def _add_error_checks(self, other):
         """
         StructuredProfiler specific checks to ensure two profiles can be added
@@ -1396,6 +1391,8 @@ class StructuredProfiler(BaseProfiler):
             data = pd.DataFrame(data)
 
         duplicate_cols_given = len(data.columns) != len(data.columns.unique())
+        num_cols = [len(idxs) for idxs in self._col_name_to_idx.values()]
+        duplicate_cols_present = any([num > 1 for num in num_cols])
 
         try:
             from tqdm import tqdm
@@ -1420,21 +1417,26 @@ class StructuredProfiler(BaseProfiler):
         # Newly introduced features (python3.8) improves the situation
         sample_ids = np.array(sample_ids)
 
-        # Create structured profile objects
+        # Create StructuredColProfilers (must be either first initialization
+        # or unique column names)
         new_cols = False
-        if self.duplicate_cols_present:
-            # If column names are duplicated, schema must be rigorously enforced
-            # Columns in update data must exactly match the order in which they
-            # were in during initialization (no new cols, no subset of cols)
-            pass
-        elif duplicate_cols_given and len(self._profile) == 0:
-            # This may be able to be consolidated with else block
-            pass
-        else:
-            # If duplicate columns present, can take in new columns
+        if not duplicate_cols_present:
+            # Given duplicate columns despite duplicate columns not being
+            # present in nonempty _profile
+            if len(self._profile) > 0 and duplicate_cols_given:
+                raise ValueError("Attempted to update data with duplicate "
+                                 "column names that weren't present before "
+                                 "update. Schema must be identical when "
+                                 "profiling data with duplicate column names.")
+
+            # Either initializing _profile for the first time or updating
+            # _profile that doesn't contain duplicate column names
             for col in data.columns:
                 if col not in self._col_name_to_idx:
-                    self._col_name_to_idx[col] = len(self._profile)
+                    # Append StructuredColProfiler to list of profiles and
+                    # record index where it was appended to in list
+                    self._col_name_to_idx.setdefault(col, []).append(
+                        len(self._profile))
                     self._profile.append(StructuredColProfiler(
                         sample_size=sample_size,
                         min_true_samples=min_true_samples,

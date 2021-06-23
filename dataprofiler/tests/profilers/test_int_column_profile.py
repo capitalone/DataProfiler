@@ -788,7 +788,7 @@ class TestIntColumn(unittest.TestCase):
         profile_2.update(data_2)
 
         profile_1 + profile_2
-        
+
     def test_diff(self):
         """
         Makes sure the IntColumn Diff() works appropriately.

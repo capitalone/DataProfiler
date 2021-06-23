@@ -52,21 +52,6 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                                  self.__calculations,
                                  other.__calculations)
         return merged_profile
-    
-    def diff(self, other_profile):
-        """
-        Finds the difference between int column profiles.
-        
-        :param other_profile: Profile to find the difference with
-        :type other_profile: IntColumn
-        :return: All the different int statistics
-        :rtype: dict
-        """
-        if not isinstance(other_profile, IntColumn):
-            raise TypeError("Unsupported operand type(s) for diff: 'IntColumn' "
-                            "and '{}'".format(other_profile.__class__.__name__))
-        
-        return NumericStatsMixin.diff(self, other_profile)
 
     @property
     def profile(self):

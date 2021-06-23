@@ -1479,7 +1479,9 @@ class StructuredProfiler(BaseProfiler):
             # Create a bunch of simultaneous column conversions
             for col in data.columns.unique():
                 df_or_ser = data[col]
+                # Only one column under the name "col"
                 if isinstance(df_or_ser, pd.Series):
+                    # Calculate index in _profile that corresponds to "col""
                     idx = self._col_name_to_idx[col][0]
                     if min_true_samples is None:
                         min_true_samples = self._profile[idx]._min_true_samples
@@ -1491,9 +1493,14 @@ class StructuredProfiler(BaseProfiler):
                     except Exception as e:
                         print(e)
                         single_process_list.add(idx)
+                # Multiple columns under the name "col"
                 else:
+                    # Calculate indices in _profile that correspond to "col"
                     for data_idx in range(len(df_or_ser.columns)):
                         df_or_ser = df_or_ser.iloc[:, data_idx]
+                        # Order in _profile matches order in data
+                        # Pull out entry in _col_name_to_idx that corresponds
+                        # to multiple columns under name "col" (df_or_ser)
                         idx = self._col_name_to_idx[col][data_idx]
                         if min_true_samples is None:
                             min_true_samples = \
@@ -1539,7 +1546,9 @@ class StructuredProfiler(BaseProfiler):
             print(notification_str)
             for col in tqdm(data.columns.unique()):
                 df_or_ser = data[col]
+                # Only 1 column under the name "col"
                 if isinstance(df_or_ser, pd.Series):
+                    # Calculate index in _profile that corresponds to "col"
                     idx = self._col_name_to_idx[col][0]
                     if min_true_samples is None:
                         min_true_samples = self._profile[idx]._min_true_samples
@@ -1550,8 +1559,13 @@ class StructuredProfiler(BaseProfiler):
                             sample_ids=sample_ids
                         )
                     self._profile[idx]._update_base_stats(base_stats)
+                # Multiple columns under the name "col"
                 else:
+                    # Calculate indices in _profile that correspond to "col"
                     for data_idx in range(len(df_or_ser.columns)):
+                        # Order in _profile matches order in data
+                        # Pull out entry in _col_name_to_idx that corresponds
+                        # to multiple columns under name "col" (df_or_ser)
                         df_or_ser = df_or_ser.iloc[:, data_idx]
                         idx = self._col_name_to_idx[col][data_idx]
                         if min_true_samples is None:

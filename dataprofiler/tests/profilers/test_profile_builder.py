@@ -380,10 +380,10 @@ class TestStructuredProfiler(unittest.TestCase):
         trained_schema = dp.StructuredProfiler(self.aws_dataset, samples_per_update=5)
         report = trained_schema.report()
         has_non_null_column = False
-        for key in report['data_stats']:
+        for i in range(len(report['data_stats'])):
             # only test non-null columns
-            if report['data_stats'][key]['data_type'] is not None:
-                self.assertIsNotNone(report['data_stats'][key]['data_label'])
+            if report['data_stats'][i]['data_type'] is not None:
+                self.assertIsNotNone(report['data_stats'][i]['data_label'])
                 has_non_null_column = True
         if not has_non_null_column:
             self.fail(
@@ -447,8 +447,8 @@ class TestStructuredProfiler(unittest.TestCase):
 
         def _clean_report(report):
             data_stats = report["data_stats"]
-            for key in data_stats:
-                stats = data_stats[key]["statistics"]
+            for i in range(len(data_stats)):
+                stats = data_stats[i]["statistics"]
                 if "histogram" in stats:
                     if "bin_counts" in stats["histogram"]:
                         stats["histogram"]["bin_counts"] = \
@@ -491,14 +491,14 @@ class TestStructuredProfiler(unittest.TestCase):
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
             load_report = _clean_report(load_profile.report())
-            self.assertDictEqual(save_report, load_report)
+            self.assertEqual(save_report, load_report)
 
     def test_save_and_load_no_labeler(self):
 
         def _clean_report(report):
             data_stats = report["data_stats"]
-            for key in data_stats:
-                stats = data_stats[key]["statistics"]
+            for i in range(len(data_stats)):
+                stats = data_stats[i]["statistics"]
                 if "histogram" in stats:
                     if "bin_counts" in stats["histogram"]:
                         stats["histogram"]["bin_counts"] = \
@@ -529,7 +529,7 @@ class TestStructuredProfiler(unittest.TestCase):
         # Check that reports are equivalent
         save_report = _clean_report(save_profile.report())
         load_report = _clean_report(load_profile.report())
-        self.assertDictEqual(save_report, load_report)
+        self.assertEqual(save_report, load_report)
 
         # validate both are still usable after
         save_profile.update_profile(pd.DataFrame(['test', 'test2']))
@@ -1677,8 +1677,8 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
         def _clean_report(report):
             data_stats = report["data_stats"]
-            for key in data_stats:
-                stats = data_stats[key]["statistics"]
+            for i in range(len(data_stats)):
+                stats = data_stats[i]["statistics"]
                 if "histogram" in stats:
                     if "bin_counts" in stats["histogram"]:
                         stats["histogram"]["bin_counts"] = \
@@ -1721,7 +1721,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
             load_report = _clean_report(load_profile.report())
-            self.assertDictEqual(save_report, load_report)
+            self.assertEqual(save_report, load_report)
 
             # validate both are still usable after
             save_profile.update_profile(data.data.iloc[:2])

@@ -1279,35 +1279,18 @@ class StructuredProfiler(BaseProfiler):
                 "unique_row_ratio": self._get_unique_row_ratio(),
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
-                "encoding": self.encoding
+                "encoding": self.encoding,
+                "profile_schema": copy.deepcopy(self._col_name_to_idx)
             }),
-            ("data_stats", OrderedDict()),
+            ("data_stats", []),
         ])
-        for col in self._col_name_to_idx:
-            idxs = self._col_name_to_idx[col]
-            # Case where column only appears once in data
-            # Report has 1 entry of data stats for this column
-            if len(idxs) == 1:
-                idx = idxs[0]
-                report["data_stats"][col] = self._profile[idx].profile
-                quantiles = report["data_stats"][col]["statistics"].get(
-                    'quantiles')
-                if quantiles:
-                    quantiles = calculate_quantiles(num_quantile_groups,
-                                                    quantiles)
-                    report["data_stats"][col]["statistics"]["quantiles"] = \
-                        quantiles
-            # Case where column appears multiple times
-            # Report has a list of entries under this column
-            else:
-                report["data_stats"][col] = [self._profile[idx].profile
-                                             for idx in idxs]
-                for profile in report["data_stats"][col]:
-                    quantiles = profile["statistics"].get('quantiles')
-                    if quantiles:
-                        quantiles = calculate_quantiles(num_quantile_groups,
-                                                        quantiles)
-                        profile["statistics"]["quantiles"] = quantiles
+
+        for i in range(len(self._profile)):
+            report["data_stats"].append(self._profile[i].profile)
+            quantiles = report["data_stats"][i]["statistics"].get('quantiles')
+            if quantiles:
+                quantiles = calculate_quantiles(num_quantile_groups, quantiles)
+                report["data_stats"][i]["statistics"]["quantiles"] = quantiles
 
         return _prepare_report(report, output_format, omit_keys)
 

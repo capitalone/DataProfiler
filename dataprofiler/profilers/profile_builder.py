@@ -1250,6 +1250,13 @@ class StructuredProfiler(BaseProfiler):
                     if col_idxs[i] == prof_idx:
                         return data[col][i]
 
+    def profile_by_name(self, name):
+        """
+        Return first profile that comes up for a given name
+        """
+        if name in self._col_name_to_idx:
+            return self._profile[self._col_name_to_idx[name][0]]
+        return None
 
     def report(self, report_options=None):
         if not report_options:

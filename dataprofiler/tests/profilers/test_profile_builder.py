@@ -93,7 +93,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(7, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertListEqual([0], list(profiler._profile.keys()))
+        self.assertListEqual([0], list(profiler._col_name_to_idx.keys()))
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -115,7 +115,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(7, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertListEqual([0], list(profiler._profile.keys()))
+        self.assertListEqual([0], list(profiler._col_name_to_idx.keys()))
 
         # test properties when series has name
         data.name = 'test'
@@ -127,7 +127,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(7, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertListEqual(['test'], list(profiler._profile.keys()))
+        self.assertListEqual(['test'], list(profiler._col_name_to_idx.keys()))
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -149,13 +149,15 @@ class TestStructuredProfiler(unittest.TestCase):
             profile1 + 3
 
         # test mismatched profiles
-        popped_profile = profile2._profile.pop(0)
+        profile2._profile.pop(0)
+        profile2._col_name_to_idx.pop(0)
         with self.assertRaisesRegex(ValueError,
                                     'Profiles do not have the same schema.'):
             profile1 + profile2
 
         # test mismatched profiles due to options
-        profile2._profile[0] = None
+        profile2._profile.append(None)
+        profile2._col_name_to_idx[0] = [0]
         with self.assertRaisesRegex(ValueError,
                                     'The two profilers were not setup with the '
                                     'same options, hence they do not calculate '
@@ -164,10 +166,13 @@ class TestStructuredProfiler(unittest.TestCase):
             profile1 + profile2
 
         # test success
-        profile1._profile = dict(test=1)
-        profile2._profile = dict(test=2)
+        profile1._profile = [1]
+        profile1._col_name_to_idx = {"test": [0]}
+        profile2._profile = [2]
+        profile2._col_name_to_idx = {"test": [0]}
         merged_profile = profile1 + profile2
-        self.assertEqual(3, merged_profile._profile['test'])
+        self.assertEqual(3, merged_profile._profile[
+            merged_profile._col_name_to_idx["test"][0]])
         self.assertIsNone(merged_profile.encoding)
         self.assertEqual(
             "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type)
@@ -240,7 +245,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(0.0, self.trained_schema._get_duplicate_row_count())
 
     def test_correct_datatime_schema_test(self):
-        profile = self.trained_schema.profile["datetime"]
+        profile = self.trained_schema.profile_by_name("datetime")
         col_schema_info = \
             profile.profiles['data_type_profile']._profiles["datetime"]
 
@@ -252,7 +257,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(['%m/%d/%y %H:%M'], col_schema_info['date_formats'])
 
     def test_correct_integer_column_detection_src(self):
-        profile = self.trained_schema.profile["src"]
+        profile = self.trained_schema.profile_by_name("src")
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
 
         self.assertEqual(2999, profile.sample_size)
@@ -261,7 +266,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(3, profile.null_count)
 
     def test_correct_integer_column_detection_int_col(self):
-        profile = self.trained_schema.profile["int_col"]
+        profile = self.trained_schema.profile_by_name("int_col")
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size,
@@ -269,7 +274,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profile.null_count)
 
     def test_correct_integer_column_detection_port(self):
-        profile = self.trained_schema.profile["srcport"]
+        profile = self.trained_schema.profile_by_name("srcport")
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size,
@@ -277,7 +282,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(197, profile.null_count)
 
     def test_correct_integer_column_detection_destport(self):
-        profile = self.trained_schema.profile["destport"]
+        profile = self.trained_schema.profile_by_name("destport")
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size,
@@ -384,22 +389,6 @@ class TestStructuredProfiler(unittest.TestCase):
             self.fail(
                 "Dataset tested did not have a non-null column and therefore "
                 "could not validate the test.")
-    
-    @mock.patch('dataprofiler.profilers.profile_builder.StructuredProfiler._update_row_statistics')
-    def test_duplicate_column_names(self, *mocks):
-        # validate works first
-        valid_data = pd.DataFrame([[1, 2]], columns=['a', 'b'])
-        profile = dp.StructuredProfiler(valid_data)
-        self.assertIn('a', profile._profile)
-        self.assertIn('b', profile._profile)
-
-        # data has duplicate column names
-        invalid_data = pd.DataFrame([[1, 2]], columns=['a', 'a'])
-        with self.assertRaisesRegex(ValueError,
-                                    '`StructuredProfiler` does not currently support '
-                                    'data which contains columns with duplicate'
-                                    ' names.'):
-            profile = dp.StructuredProfiler(invalid_data)
 
     def test_text_data_raises_error(self):
         text_file_path = os.path.join(
@@ -493,7 +482,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
                 # only checks first columns
                 # get first column
-                first_column_profile = list(load_profile.profile.values())[0]
+                first_column_profile = load_profile.profile[0]
                 self.assertIsInstance(
                     first_column_profile.profiles['data_label_profile']
                         ._profiles['data_labeler'].data_labeler,
@@ -1418,15 +1407,15 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
                                                options=profiler_options)
 
         self.assertCountEqual(['', 'nan', 'None', 'null'],
-                         trained_schema.profile['1'].null_types)
-        self.assertEqual(5, trained_schema.profile['1'].null_count)
-        self.assertEqual({'': {4}, 'nan': {0}, 'None': {2, 3}, 'null': {
-                         1}}, trained_schema.profile['1'].null_types_index)
+                         trained_schema.profile[trained_schema._col_name_to_idx['1'][0]].null_types)
+        self.assertEqual(5, trained_schema.profile[trained_schema._col_name_to_idx['1'][0]].null_count)
+        self.assertEqual({'': {4}, 'nan': {0}, 'None': {2, 3}, 'null': {1}},
+                         trained_schema.profile[trained_schema._col_name_to_idx['1'][0]].null_types_index)
         self.assertCountEqual(['', 'nan', 'None', 'null'],
-                         trained_schema.profile[1].null_types)
-        self.assertEqual(5, trained_schema.profile[1].null_count)
-        self.assertEqual({'': {4}, 'nan': {0}, 'None': {1, 3}, 'null': {
-                         2}}, trained_schema.profile[1].null_types_index)
+                         trained_schema.profile[trained_schema._col_name_to_idx[1][0]].null_types)
+        self.assertEqual(5, trained_schema.profile[trained_schema._col_name_to_idx[1][0]].null_count)
+        self.assertEqual({'': {4}, 'nan': {0}, 'None': {1, 3}, 'null': {2}},
+                         trained_schema.profile[trained_schema._col_name_to_idx[1][0]].null_types_index)
 
     def test_correct_null_row_counts(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
@@ -1723,7 +1712,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
             # only checks first columns
             # get first column
-            first_column_profile = list(load_profile.profile.values())[0]
+            first_column_profile = load_profile.profile[0]
             self.assertIsInstance(
                 first_column_profile.profiles['data_label_profile']
                     ._profiles['data_labeler'].data_labeler,

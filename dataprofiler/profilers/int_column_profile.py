@@ -62,6 +62,10 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: All the different int statistics
         :rtype: dict
         """
+        if not isinstance(other_profile, IntColumn):
+            raise TypeError("Unsupported operand type(s) for diff: 'IntColumn' and"
+                            " '{}'".format(other_profile.__class__.__name__))
+        
         return NumericStatsMixin._diff_helper(other_profile)
 
     @property

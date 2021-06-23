@@ -805,3 +805,8 @@ class TestIntColumn(unittest.TestCase):
 
         expected_diff = {}
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
+
+        with self.assertRaisesRegex(TypeError,
+                                    "Unsupported operand type(s) for diff: 'IntColumn' and 'str'"):
+            profiler1.diff("Inproper input")
+        

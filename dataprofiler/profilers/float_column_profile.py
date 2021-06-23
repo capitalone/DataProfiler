@@ -40,7 +40,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             'sample_size': None,
             'confidence_level': 0.999
         }
-        self._biased_precision_var = np.nan
 
         # https://www.calculator.net/confidence-interval-calculator.html
         self.__z_value_precision = 3.291

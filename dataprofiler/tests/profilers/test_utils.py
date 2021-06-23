@@ -66,6 +66,8 @@ class TestShuffleInChunks(unittest.TestCase):
                          utils.find_diff_of_lists_and_sets([1, 2, 3], {2, 3, 4}))
         self.assertEqual([None, {1, 2}],
                          utils.find_diff_of_lists_and_sets(None, {1, 2}))
+        self.assertEqual("unchanged",
+                         utils.find_diff_of_lists_and_sets(None, None))
 
         # Ensure ints and floats are handled appropriately
         self.assertEqual(1, utils.find_diff_of_numbers(5, 4))
@@ -75,6 +77,7 @@ class TestShuffleInChunks(unittest.TestCase):
         self.assertEqual("unchanged", utils.find_diff_of_numbers(5, 5.0))
         self.assertEqual([4, None],
                          utils.find_diff_of_numbers(4, None))
+        self.assertEqual("unchanged", utils.find_diff_of_numbers(None, None))
 
         # Ensure strings are handled appropriately
         self.assertEqual("unchanged",

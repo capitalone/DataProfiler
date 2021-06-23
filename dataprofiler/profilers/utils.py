@@ -347,18 +347,18 @@ def biased_kurt(df_series):
 def find_diff_of_numbers(stat1, stat2):
     """
     Finds the difference between two stats. If there is no difference, returns
-    "unchanged". For ints/floats, returns stat1 - stat2. For strings, returns
-    list containing [stat1, stat2]. For lists/sets, removes duplicates and
-    returns [unique values of stat1, shared values, unique values of stat2].
+    "unchanged". For ints/floats, returns stat1 - stat2.
 
     :param stat1: the first statistical input
-    :type stat1: Union[int, float, str, list, set]
+    :type stat1: Union[int, float]
     :param stat2: the second statistical input
-    :type stat2: Union[int, float, str, list, set]
+    :type stat2: Union[int, float]
     :return: the difference of the stats
     """
     diff = "unchanged"
-    if stat1 is None or stat2 is None:
+    if stat1 is None and stat2 is None:
+        pass
+    elif stat1 is None or stat2 is None:
         diff = [stat1, stat2]
     elif stat1 != stat2:
         diff = stat1 - stat2
@@ -368,12 +368,12 @@ def find_diff_of_numbers(stat1, stat2):
 def find_diff_of_strings(stat1, stat2):
     """
     Finds the difference between two stats. If there is no difference, returns
-    "unchanged". For strings, returns list containing [stat1, stat2]. 
+    "unchanged". For strings, returns list containing [stat1, stat2].
 
     :param stat1: the first statistical input
-    :type stat1: Union[str]
+    :type stat1: str
     :param stat2: the second statistical input
-    :type stat2: Union[str]
+    :type stat2: str
     :return: the difference of the stats
     """
     diff = "unchanged"
@@ -395,7 +395,9 @@ def find_diff_of_lists_and_sets(stat1, stat2):
     :return: the difference of the stats
     """
     diff = "unchanged"
-    if stat1 is None or stat2 is None:
+    if stat1 is None and stat2 is None:
+        pass
+    elif stat1 is None or stat2 is None:
         diff = [stat1, stat2]
     elif set(stat1) != set(stat2):
         unique1 = [element for element in stat1 if element not in stat2]

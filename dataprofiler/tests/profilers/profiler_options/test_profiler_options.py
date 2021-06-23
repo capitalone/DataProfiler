@@ -81,10 +81,10 @@ class TestProfilerOptions(unittest.TestCase):
                     profile_column["statistics"]["histogram"]["bin_edges"])
                 self.assertIsNone(profile_column["statistics"]["min"])
                 self.assertIsNone(profile_column["statistics"]["max"])
-                self.assertEqual(0, profile_column["statistics"]["variance"])
+                self.assertTrue(np.isnan(profile_column["statistics"]["variance"]))
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
-                self.assertEqual(0, profile_column["statistics"]["skewness"])
-                self.assertEqual(0, profile_column["statistics"]["kurtosis"])
+                self.assertTrue(np.isnan(profile_column["statistics"]["skewness"]))
+                self.assertTrue(np.isnan(profile_column["statistics"]["kurtosis"]))
 
         # Assert that the stats are enabled
         options.set({"*.is_numeric_stats_enabled": True})
@@ -101,7 +101,7 @@ class TestProfilerOptions(unittest.TestCase):
                     profile_column["statistics"]["histogram"]["bin_edges"])
                 self.assertIsNotNone(profile_column["statistics"]["min"])
                 self.assertIsNotNone(profile_column["statistics"]["max"])
-                self.assertNotEqual(0, profile_column["statistics"]["variance"])
+                self.assertEqual(0.5, profile_column["statistics"]["variance"])
                 self.assertIsNotNone(
                     profile_column["statistics"]["quantiles"][0])
                 self.assertTrue(profile_column["statistics"]["skewness"] is np.nan)
@@ -198,7 +198,7 @@ class TestProfilerOptions(unittest.TestCase):
                     profile_column["statistics"]["histogram"]["bin_edges"])
                 self.assertIsNone(profile_column["statistics"]["min"])
                 self.assertIsNone(profile_column["statistics"]["max"])
-                self.assertEqual(0, profile_column["statistics"]["variance"])
+                self.assertTrue(np.isnan(profile_column["statistics"]["variance"]))
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
                 self.assertTrue(profile_column["statistics"]["skewness"] is np.nan)
                 self.assertTrue(profile_column["statistics"]["kurtosis"] is np.nan)

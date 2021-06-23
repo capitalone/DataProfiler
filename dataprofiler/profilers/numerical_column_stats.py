@@ -53,9 +53,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.min = None
         self.max = None
         self.sum = 0
-        self._biased_variance = 0
-        self._biased_skewness = 0
-        self._biased_kurtosis = 0
+        self._biased_variance = np.nan
+        self._biased_skewness = np.nan
+        self._biased_kurtosis = np.nan
         self.max_histogram_bin = 100000
         self.min_histogram_bin = 1000
         self.histogram_bin_method_names = [
@@ -350,7 +350,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _correct_bias_variance(match_count, biased_variance):
         if match_count is None or biased_variance is None or match_count < 2:
-            return 0.0
+            return np.nan
 
         variance = match_count / (match_count - 1) * biased_variance
         return variance

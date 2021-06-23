@@ -788,3 +788,20 @@ class TestIntColumn(unittest.TestCase):
         profile_2.update(data_2)
 
         profile_1 + profile_2
+        
+    def test_diff(self):
+        """
+        Makes sure the Int Column Diff() works appropriately.
+        """
+        data = [2, 'not an int', 6, 4]
+        df = pd.Series(data).apply(str)
+        profiler1 = IntColumn("Int")
+        profiler1.update(df)
+
+        data = [1, 3]
+        df = pd.Series(data).apply(str)
+        profiler2 = IntColumn("Int")
+        profiler2.update(df)
+
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, profiler1.diff(profiler2))

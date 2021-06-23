@@ -53,9 +53,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.min = None
         self.max = None
         self.sum = 0
-        self._biased_variance = 0
-        self._biased_skewness = 0
-        self._biased_kurtosis = 0
+        self._biased_variance = np.nan
+        self._biased_skewness = np.nan
+        self._biased_kurtosis = np.nan
         self.max_histogram_bin = 100000
         self.min_histogram_bin = 1000
         self.histogram_bin_method_names = [
@@ -247,6 +247,27 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if "num_negatives" in self.__calculations.keys():
             self.num_negatives = other1.num_negatives + other2.num_negatives
 
+    def _diff_helper(self, other_profile):
+        """
+        Finds the differences for several numerical stats.
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: NumericStatsMixin Profile
+        :return: the numerical stats differences
+        :rtype: dict
+        """
+        differences = {
+            "min": utils.find_diff_of_numbers(self.min, other_profile.min),
+            "max": utils.find_diff_of_numbers(self.max, other_profile.max),
+            "sum": utils.find_diff_of_numbers(self.sum, other_profile.sum),
+            "mean": utils.find_diff_of_numbers(self.mean, other_profile.mean),
+            "variance": utils.find_diff_of_numbers(self.variance,
+                                                   other_profile.variance),
+            "stddev": utils.find_diff_of_numbers(self.stddev,
+                                                 other_profile.stddev),
+        }
+        return differences
+
     @property
     def mean(self):
         if self.match_count == 0:
@@ -329,7 +350,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _correct_bias_variance(match_count, biased_variance):
         if match_count is None or biased_variance is None or match_count < 2:
-            return 0.0
+            return np.nan
 
         variance = match_count / (match_count - 1) * biased_variance
         return variance

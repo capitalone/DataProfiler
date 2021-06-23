@@ -134,7 +134,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             mean1, var1, count1)
         num_profiler.match_count = count1
         num_profiler.sum = 0
-        self.assertEqual(num_profiler.variance, 0)
+        self.assertTrue(num_profiler.variance is np.nan)
 
         # data with 1 element
         data2 = [5.0]
@@ -145,7 +145,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             mean2, var2, count2)
         num_profiler.match_count += count2
         num_profiler.sum += 5.0
-        self.assertEqual(num_profiler.variance, 0)
+        self.assertTrue(num_profiler.variance is np.nan)
 
         # data with multiple elements
         data3 = [-5.0, 5.0, 11.0, -11.0]
@@ -502,3 +502,30 @@ class TestNumericStatsMixin(unittest.TestCase):
         num_profiler._add_helper(other1, other2)
         self.assertEqual(num_profiler.num_zeros, 0)
         self.assertEqual(num_profiler.num_negatives, 0)
+
+    def test_diff_helper(self):
+        """
+        Checks _diff_helper() works appropriately.
+        """
+        other1, other2 = TestColumn(), TestColumn()
+        other1.min = 3
+        other1.max = 4
+        other1._biased_variance = 1
+        other1.sum = 6
+        other1.match_count = 10
+        
+        other2.min = 3
+        other2.max = None
+        other2._biased_variance = 9
+        other2.sum = 6
+        other2.match_count = 20
+        
+        expected_diff = {
+            'min': 'unchanged',
+            'max': [4, None],
+            'sum': 'unchanged',
+            'mean': 0.3,
+            'variance': -8.362573099415204,
+            'stddev': -2.0238425028660023
+        }
+        self.assertDictEqual(expected_diff, other1._diff_helper(other2))

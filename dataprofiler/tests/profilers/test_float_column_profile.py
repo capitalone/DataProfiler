@@ -26,7 +26,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, None)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
-        self.assertEqual(profiler.variance, 0)
+        self.assertTrue(profiler.variance is np.nan)
         self.assertTrue(profiler.skewness is np.nan)
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
@@ -40,7 +40,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(data)
         self.assertEqual(profiler.match_count, 1.0)
         self.assertEqual(profiler.mean, 1.5)
-        self.assertEqual(profiler.variance, 0)
+        self.assertTrue(profiler.variance is np.nan)
 
         data = pd.Series([2.5]).apply(str)
         profiler.update(data)
@@ -340,12 +340,9 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(0, num_profiler.skewness)
 
         num_profiler.update(df2.apply(str))
-        df = pd.concat([df1, df2])
-        print(num_profiler.skewness)
         self.assertAlmostEqual(np.sqrt(22 * 21) / 20 * 133 / 750, num_profiler.skewness)
 
         num_profiler.update(df3.apply(str))
-        df = pd.concat([df1, df2, df3])
         self.assertAlmostEqual(-0.3109967, num_profiler.skewness)
 
     def test_profiled_kurtosis(self):
@@ -364,11 +361,9 @@ class TestFloatColumn(unittest.TestCase):
         self.assertAlmostEqual(-6 / 5, num_profiler.kurtosis)
 
         num_profiler.update(df2.apply(str))
-        df = pd.concat([df1, df2])
         self.assertAlmostEqual(-0.390358, num_profiler.kurtosis)
 
         num_profiler.update(df3.apply(str))
-        df = pd.concat([df1, df2, df3])
         self.assertAlmostEqual(0.3311739, num_profiler.kurtosis)
 
     def test_bias_correction_option(self):

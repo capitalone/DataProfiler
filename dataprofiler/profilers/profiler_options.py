@@ -311,7 +311,7 @@ class NumericalOptions(BaseInspectorOptions):
         """
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
-                or self.kurtosis.is_enabled or self.bias_correction.is_enabled \
+                or self.kurtosis.is_enabled \
                 or self.histogram_and_quantiles.is_enabled \
                 or self.num_zeros.is_enabled or self.num_negatives.is_enabled:
             return True
@@ -334,7 +334,6 @@ class NumericalOptions(BaseInspectorOptions):
         self.variance.is_enabled = value
         self.skewness.is_enabled = value
         self.kurtosis.is_enabled = value
-        self.bias_correction.is_enabled = value
         self.num_zeros.is_enabled = value
         self.num_negatives.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
@@ -599,7 +598,54 @@ class TextOptions(NumericalOptions):
             errors.append("{}.vocab must be a BooleanOption."
                           .format(variable_path))
         errors += self.vocab._validate_helper(variable_path + '.vocab')
+
+        if self.properties["num_zeros"].is_enabled:
+            errors.append("{}.num_zeros should always be disabled,"
+                          " num_zeros.is_enabled = False"
+                          .format(variable_path))
+
+        if self.properties["num_negatives"].is_enabled:
+            errors.append("{}.num_negatives should always be disabled,"
+                          " num_negatives.is_enabled = False"
+                          .format(variable_path))
         return errors
+
+    @property
+    def is_numeric_stats_enabled(self):
+        """
+        Returns the state of numeric stats being enabled / disabled. If any
+        numeric stats property is enabled it will return True, otherwise it
+        will return False. Although it seems redundant, this method is needed
+        in order for the function below, the setter function
+        also called is_numeric_stats_enabled, to properly work.
+
+        :return: true if any numeric stats property is enabled, otherwise false
+        :rtype bool:
+        """
+        if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
+                or self.variance.is_enabled or self.skewness.is_enabled \
+                or self.kurtosis.is_enabled \
+                or self.histogram_and_quantiles.is_enabled:
+            return True
+        return False
+
+    @is_numeric_stats_enabled.setter
+    def is_numeric_stats_enabled(self, value):
+        """
+        This property will enable or disable all numeric stats properties:
+        min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles,
+
+        :param value: boolean to enable/disable all numeric stats properties
+        :type value: bool
+        :return: None
+        """
+        self.min.is_enabled = value
+        self.max.is_enabled = value
+        self.sum.is_enabled = value
+        self.variance.is_enabled = value
+        self.skewness.is_enabled = value
+        self.kurtosis.is_enabled = value
+        self.histogram_and_quantiles.is_enabled = value
 
 class DateTimeOptions(BaseInspectorOptions):
 

@@ -67,7 +67,8 @@ class TestProfilerOptions(unittest.TestCase):
     def test_numerical_stats_option(self, *mocks):
         # Assert that the stats are disabled
         options = ProfilerOptions()
-        options.set({"*.is_numeric_stats_enabled": False})
+        options.set({"*.is_numeric_stats_enabled": False,
+                     "bias_correction.is_enabled": False})
         profile = Profiler(self.data, options=options)
 
         for column_name in profile.profile.keys():
@@ -87,7 +88,8 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertTrue(np.isnan(profile_column["statistics"]["kurtosis"]))
 
         # Assert that the stats are enabled
-        options.set({"*.is_numeric_stats_enabled": True})
+        options.set({"*.is_numeric_stats_enabled": True,
+                     "bias_correction.is_enabled": True})
         profile = Profiler(self.data, options=options)
 
         for column_name in profile.profile.keys():

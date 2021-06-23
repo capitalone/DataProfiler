@@ -203,8 +203,8 @@ class TestIntColumn(unittest.TestCase):
 
         df = pd.concat([df1, df2_ints, df3_ints])
         self.assertEqual(mean(df), num_profiler.mean)
-        self.assertEqual(variance, num_profiler.variance)
-        self.assertEqual(np.sqrt(variance), num_profiler.stddev)
+        self.assertAlmostEqual(variance, num_profiler.variance)
+        self.assertAlmostEqual(np.sqrt(variance), num_profiler.stddev)
 
     def test_profiled_skewness(self):
         data = np.linspace(-5, 5, 11).tolist()
@@ -255,6 +255,76 @@ class TestIntColumn(unittest.TestCase):
         num_profiler.update(df3.apply(str))
         df = pd.concat([df1, df2_ints, df3_ints])
         self.assertAlmostEqual(16015779 / 42873800, num_profiler.kurtosis)
+
+    def test_bias_correction_option(self):
+        data = np.linspace(-5, 5, 11).tolist()
+        df1 = pd.Series(data)
+
+        data = np.linspace(-3, 2, 11).tolist()
+        df2 = pd.Series(data)
+
+        data = np.full((10,), 1)
+        df3 = pd.Series(data)
+
+        # Disable bias correction
+        options = IntOptions(); options.bias_correction.is_enabled = False
+        num_profiler = IntColumn(df1.name, options=options)
+        num_profiler.update(df1.apply(str))
+        self.assertAlmostEqual(10, num_profiler.variance)
+        self.assertAlmostEqual(0, num_profiler.skewness)
+        self.assertAlmostEqual(89/50 - 3, num_profiler.kurtosis)
+
+        df2_ints = df2[df2 == df2.round()]
+        num_profiler.update(df2.apply(str))
+        df = pd.concat([df1, df2_ints])
+        self.assertAlmostEqual(2184 / 289, num_profiler.variance)
+        self.assertAlmostEqual(165 * np.sqrt(3 / 182) / 182, num_profiler.skewness)
+        self.assertAlmostEqual(60769 / 28392 - 3, num_profiler.kurtosis)
+
+        df3_ints = df3[df3 == df3.round()]
+        num_profiler.update(df3.apply(str))
+        df = pd.concat([df1, df2_ints, df3_ints])
+        self.assertAlmostEqual(3704 / 729, num_profiler.variance)
+        self.assertAlmostEqual(-11315 / (926 * np.sqrt(926)), num_profiler.skewness)
+        self.assertAlmostEqual(5305359 / 1714952 - 3, num_profiler.kurtosis)
+
+    def test_bias_correction_merge(self):
+        data = np.linspace(-5, 5, 11).tolist()
+        df1 = pd.Series(data)
+
+        data = np.linspace(-3, 2, 11).tolist()
+        df2 = pd.Series(data)
+
+        data = np.full((10,), 1)
+        df3 = pd.Series(data)
+
+        # Disable bias correction
+        options = IntOptions(); options.bias_correction.is_enabled = False
+        num_profiler1 = IntColumn(df1.name, options=options)
+        num_profiler1.update(df1.apply(str))
+        self.assertAlmostEqual(10, num_profiler1.variance)
+        self.assertAlmostEqual(0, num_profiler1.skewness)
+        self.assertAlmostEqual(89/50 - 3, num_profiler1.kurtosis)
+
+        df2_ints = df2[df2 == df2.round()]
+        num_profiler2 = IntColumn(df2.name)
+        num_profiler2.update(df2.apply(str))
+        num_profiler_merged = num_profiler1 + num_profiler2
+        # Values should stay biased values
+        self.assertFalse(num_profiler_merged.bias_correction)
+        self.assertAlmostEqual(2184 / 289, num_profiler_merged.variance)
+        self.assertAlmostEqual(165 * np.sqrt(3 / 182) / 182,
+                               num_profiler_merged.skewness)
+        self.assertAlmostEqual(60769 / 28392 - 3, num_profiler_merged.kurtosis)
+
+        df3_ints = df3[df3 == df3.round()]
+        num_profiler3 = IntColumn(df3.name)
+        num_profiler3.update(df3.apply(str))
+        num_profiler_merged = num_profiler1 + num_profiler2 + num_profiler3
+        self.assertFalse(num_profiler_merged.bias_correction)
+        self.assertAlmostEqual(3704 / 729, num_profiler_merged.variance)
+        self.assertAlmostEqual(-11315 / (926 * np.sqrt(926)), num_profiler_merged.skewness)
+        self.assertAlmostEqual(5305359 / 1714952 - 3, num_profiler_merged.kurtosis)
 
     def test_profiled_histogram(self):
         """
@@ -457,6 +527,7 @@ class TestIntColumn(unittest.TestCase):
         profile3 = profiler3.profile
         histogram = profile3.pop('histogram')
 
+        self.assertTrue(profiler3.bias_correction)
         self.assertAlmostEqual(profiler3.stddev,
                                expected_profile.pop('stddev'),places=3)
         self.assertAlmostEqual(profiler3.variance,

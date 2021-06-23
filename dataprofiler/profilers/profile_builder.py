@@ -1234,6 +1234,23 @@ class StructuredProfiler(BaseProfiler):
         """
         return min([col._last_batch_size for col in self._profile], default=0)
 
+    def _profile_idx_to_data(self, data, prof_idx):
+        """
+        Go from _profile list index to the column in data that corresponds to
+        the index in _profile
+        """
+        # Find column name that corresponds to index in _profile
+        for col in self._col_name_to_idx:
+            col_idxs = self._col_name_to_idx[col]
+            if prof_idx in col_idxs:
+                # If there are duplicate columns under the same name, need
+                # to figure place in list of indexes, as this corresponds
+                # to place in list of series returned by data[col]
+                for i in range(len(col_idxs)):
+                    if col_idxs[i] == prof_idx:
+                        return data[col][i]
+
+
     def report(self, report_options=None):
         if not report_options:
             report_options = {
@@ -1470,54 +1487,93 @@ class StructuredProfiler(BaseProfiler):
 
         if pool is not None:
             # Create a bunch of simultaneous column conversions
-            for col in data.columns:
-                if min_true_samples is None:
-                    min_true_samples = self._profile[col]._min_true_samples
-                try:
-                    multi_process_dict[col] = pool.apply_async(
-                        self._profile[col].clean_data_and_get_base_stats,
-                        (data[col], sample_size, min_true_samples, sample_ids))
-                except Exception as e:
-                    print(e)
-                    single_process_list.add(col)
+            for col in data.columns.unique():
+                df_or_ser = data[col]
+                if isinstance(df_or_ser, pd.Series):
+                    idx = self._col_name_to_idx[col][0]
+                    if min_true_samples is None:
+                        min_true_samples = self._profile[idx]._min_true_samples
+                    try:
+                        multi_process_dict[idx] = pool.apply_async(
+                            self._profile[idx].clean_data_and_get_base_stats,
+                            (df_or_ser, sample_size, min_true_samples,
+                             sample_ids))
+                    except Exception as e:
+                        print(e)
+                        single_process_list.add(idx)
+                else:
+                    for data_idx in range(len(df_or_ser.columns)):
+                        df_or_ser = df_or_ser.iloc[:, data_idx]
+                        idx = self._col_name_to_idx[col][data_idx]
+                        if min_true_samples is None:
+                            min_true_samples = \
+                                self._profile[idx]._min_true_samples
+                        try:
+                            multi_process_dict[idx] = pool.apply_async(
+                                self._profile[idx].clean_data_and_get_base_stats,
+                                (df_or_ser, sample_size, min_true_samples,
+                                 sample_ids))
+                        except Exception as e:
+                            print(e)
+                            single_process_list.add(idx)
                 
             # Iterate through multiprocessed columns collecting results
             print(notification_str)
-            for col in tqdm(multi_process_dict.keys()):
+            for col_idx in tqdm(multi_process_dict.keys()):
                 try:
-                    clean_sampled_dict[col], base_stats = \
-                        multi_process_dict[col].get()
-                    self._profile[col]._update_base_stats(base_stats)
+                    clean_sampled_dict[col_idx], base_stats = \
+                        multi_process_dict[col_idx].get()
+                    self._profile[col_idx]._update_base_stats(base_stats)
                 except Exception as e:
                     print(e)
-                    single_process_list.add(col)
+                    single_process_list.add(col_idx)
 
             # Clean up any columns which errored
             if len(single_process_list) > 0:
                 print("Errors in multiprocessing occured:",
                       len(single_process_list), "errors, reprocessing...")
-                for col in tqdm(single_process_list):
+                for col_idx in tqdm(single_process_list):
                     if min_true_samples is None:
-                        min_true_samples = self._profile[col]._min_true_samples
-                    clean_sampled_dict[col], base_stats = \
-                        self._profile[col].clean_data_and_get_base_stats(
-                            data[col], sample_size, min_true_samples, sample_ids)
-                    self._profile[col]._update_base_stats(base_stats)
+                        min_true_samples = \
+                            self._profile[col_idx]._min_true_samples
+                    clean_sampled_dict[col_idx], base_stats = \
+                        self._profile[col_idx].clean_data_and_get_base_stats(
+                            self._profile_idx_to_data(data, col_idx),
+                            sample_size, min_true_samples, sample_ids)
+                    self._profile[col_idx]._update_base_stats(base_stats)
             
             pool.close()  # Close pool for new tasks
             pool.join()  # Wait for all workers to complete
 
         else:  # No pool
             print(notification_str)
-            for col in tqdm(data.columns):
-                if min_true_samples is None:
-                    min_true_samples = self._profile[col]._min_true_samples
-                clean_sampled_dict[col], base_stats = \
-                    self._profile[col].clean_data_and_get_base_stats(
-                        df_series=data[col], sample_size=sample_size,
-                        min_true_samples=min_true_samples, sample_ids=sample_ids
-                    )
-                self._profile[col]._update_base_stats(base_stats)
+            for col in tqdm(data.columns.unique()):
+                df_or_ser = data[col]
+                if isinstance(df_or_ser, pd.Series):
+                    idx = self._col_name_to_idx[col][0]
+                    if min_true_samples is None:
+                        min_true_samples = self._profile[idx]._min_true_samples
+                    clean_sampled_dict[idx], base_stats = \
+                        self._profile[idx].clean_data_and_get_base_stats(
+                            df_series=df_or_ser, sample_size=sample_size,
+                            min_true_samples=min_true_samples,
+                            sample_ids=sample_ids
+                        )
+                    self._profile[idx]._update_base_stats(base_stats)
+                else:
+                    for data_idx in range(len(df_or_ser.columns)):
+                        df_or_ser = df_or_ser.iloc[:, data_idx]
+                        idx = self._col_name_to_idx[col][data_idx]
+                        if min_true_samples is None:
+                            min_true_samples = self._profile[idx]._min_true_samples
+                        clean_sampled_dict[idx], base_stats = \
+                            self._profile[idx].clean_data_and_get_base_stats(
+                                df_series=df_or_ser,
+                                sample_size=sample_size,
+                                min_true_samples=min_true_samples,
+                                sample_ids=sample_ids
+                            )
+                        self._profile[idx]._update_base_stats(base_stats)
             
         # Process and label the data
         notification_str = "Calculating the statistics... "
@@ -1528,9 +1584,9 @@ class StructuredProfiler(BaseProfiler):
                 notification_str += " (with " + str(pool_size) + " processes)"
         print(notification_str)
         
-        for col in tqdm(data.columns):
-            self._profile[col].update_column_profilers(
-                clean_sampled_dict[col], pool)
+        for col_idx in tqdm(range(len(self._profile))):
+            self._profile[col_idx].update_column_profilers(
+                clean_sampled_dict[col_idx], pool)
 
         if pool is not None:
             pool.close()  # Close pool for new tasks

@@ -247,7 +247,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if "num_negatives" in self.__calculations.keys():
             self.num_negatives = other1.num_negatives + other2.num_negatives
 
-    def _diff_helper(self, other_profile):
+    def diff(self, other_profile):
         """
         Finds the differences for several numerical stats.
 

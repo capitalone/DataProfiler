@@ -528,4 +528,4 @@ class TestNumericStatsMixin(unittest.TestCase):
             'variance': -8.362573099415204,
             'stddev': -2.0238425028660023
         }
-        self.assertDictEqual(expected_diff, other1._diff_helper(other2))
+        self.assertDictEqual(expected_diff, other1.diff(other2))

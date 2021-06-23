@@ -66,7 +66,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             raise TypeError("Unsupported operand type(s) for diff: 'IntColumn' "
                             "and '{}'".format(other_profile.__class__.__name__))
         
-        return NumericStatsMixin._diff_helper(self, other_profile)
+        return NumericStatsMixin.diff(self, other_profile)
 
     @property
     def profile(self):

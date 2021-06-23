@@ -311,7 +311,7 @@ class NumericalOptions(BaseInspectorOptions):
         """
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
-                or self.kurtosis.is_enabled or self.bias_correction.is_enabled \
+                or self.kurtosis.is_enabled \
                 or self.histogram_and_quantiles.is_enabled \
                 or self.num_zeros.is_enabled or self.num_negatives.is_enabled:
             return True
@@ -334,7 +334,6 @@ class NumericalOptions(BaseInspectorOptions):
         self.variance.is_enabled = value
         self.skewness.is_enabled = value
         self.kurtosis.is_enabled = value
-        self.bias_correction.is_enabled = value
         self.num_zeros.is_enabled = value
         self.num_negatives.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
@@ -616,12 +615,19 @@ class TextOptions(NumericalOptions):
         """
         Returns the state of numeric stats being enabled / disabled. If any
         numeric stats property is enabled it will return True, otherwise it
-        will return False.
+        will return False. Although it seems redundant, this method is needed
+        in order for the function below, the setter function
+        also called is_numeric_stats_enabled, to properly work.
 
         :return: true if any numeric stats property is enabled, otherwise false
         :rtype bool:
         """
-        return super().is_numeric_stats_enabled
+        if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
+                or self.variance.is_enabled or self.skewness.is_enabled \
+                or self.kurtosis.is_enabled \
+                or self.histogram_and_quantiles.is_enabled:
+            return True
+        return False
 
     @is_numeric_stats_enabled.setter
     def is_numeric_stats_enabled(self, value):
@@ -639,7 +645,6 @@ class TextOptions(NumericalOptions):
         self.variance.is_enabled = value
         self.skewness.is_enabled = value
         self.kurtosis.is_enabled = value
-        self.bias_correction.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
 
 class DateTimeOptions(BaseInspectorOptions):

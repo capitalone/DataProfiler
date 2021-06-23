@@ -7,6 +7,9 @@ class TestTextOptions(TestNumericalOptions):
     
     option_class = TextOptions
     keys = TestNumericalOptions.keys + ["vocab"]
+    numeric_keys = TestNumericalOptions.numeric_keys.copy()
+    numeric_keys.remove("num_zeros")
+    numeric_keys.remove("num_negatives")
 
     def test_init(self):
         super().test_init()
@@ -37,6 +40,23 @@ class TestTextOptions(TestNumericalOptions):
     
     def test_is_numeric_stats_enabled(self):
         super().test_is_numeric_stats_enabled()
+
+        options = self.get_options()
+
+        # Disable All Numeric Stats but cheeck num_zeros and num_negatives
+        # will not affect is_numeric_stats_enabled
+        options.set({'{}.is_enabled'.format(key): False
+                     for key in self.numeric_keys})
+        options.set({'num_zeros.is_enabled': True})
+        self.assertFalse(options.is_numeric_stats_enabled)
+        options.set({'num_negatives.is_enabled': True})
+        self.assertFalse(options.is_numeric_stats_enabled)
+
+        # Make sure these two variables cannot be influenced by
+        # changing is_numeric_stats_enabled
+        options.is_numeric_stats_enabled = False
+        self.assertTrue(options.num_zeros.is_enabled)
+        self.assertTrue(options.num_negatives.is_enabled)
 
     def test_eq(self):
         super().test_eq()

@@ -10,6 +10,10 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             "kurtosis", "bias_correction",
             "num_zeros", "num_negatives",
             "histogram_and_quantiles"]
+    numeric_keys = ["min", "max", "sum", "variance",
+                    "skewness", "kurtosis",
+                    "histogram_and_quantiles",
+                    "num_zeros", "num_negatives"]
 
     def test_init(self):
         options = self.get_options()
@@ -152,19 +156,14 @@ class TestNumericalOptions(TestBaseInspectorOptions):
 
     def test_is_numeric_stats_enabled(self):
         options = self.get_options()
-        numeric_keys = ["min", "max", "sum", "variance",
-                        "skewness", "kurtosis",
-                        "bias_correction",
-                        "histogram_and_quantiles",
-                        "num_zeros", "num_negatives"]
 
         # Disable All Numeric Stats
         options.set({'{}.is_enabled'.format(key):False 
-                     for key in numeric_keys})
+                     for key in self.numeric_keys})
         self.assertFalse(options.is_numeric_stats_enabled)
         
         # Enable Only One Numeric Stat
-        for key in numeric_keys:
+        for key in self.numeric_keys:
             skey = '{}.is_enabled'.format(key)
             options.set({skey: True})
             self.assertTrue(options.is_numeric_stats_enabled)
@@ -172,12 +171,12 @@ class TestNumericalOptions(TestBaseInspectorOptions):
 
         # Enable All Numeric Stats
         options.is_numeric_stats_enabled = True
-        for key in numeric_keys:            
+        for key in self.numeric_keys:
             self.assertTrue(options.is_numeric_stats_enabled)
 
         # Disable All Numeric Stats
         options.is_numeric_stats_enabled = False
-        for key in numeric_keys:            
+        for key in self.numeric_keys:
             self.assertFalse(options.is_numeric_stats_enabled)
 
     def test_eq(self):

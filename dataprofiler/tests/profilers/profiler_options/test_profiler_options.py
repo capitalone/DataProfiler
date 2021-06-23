@@ -101,7 +101,6 @@ class TestProfilerOptions(unittest.TestCase):
                     profile_column["statistics"]["histogram"]["bin_edges"])
                 self.assertIsNotNone(profile_column["statistics"]["min"])
                 self.assertIsNotNone(profile_column["statistics"]["max"])
-                print(profile_column["statistics"]["variance"])
                 self.assertEqual(0.5, profile_column["statistics"]["variance"])
                 self.assertIsNotNone(
                     profile_column["statistics"]["quantiles"][0])

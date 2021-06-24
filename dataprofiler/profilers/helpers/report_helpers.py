@@ -118,13 +118,13 @@ def _prepare_report(report, output_format=None, omit_keys=None):
         if isinstance(value, set):
             value = sorted(list(value))
 
-        # For data_stats, need to specially recurse through a list
-        # As well as account for omit_keys containing indices instead of
-        # keys
-        if key == "data_stats":
+        # For data_stats (in structured case), need to recurse through a list
+        # As well as account for omit_keys containing indices instead of keys
+        if key == "data_stats" and isinstance(value, list):
             fmt_report["data_stats"] = []
             # split off any remaining keys for the recursion
             # i.e. [test0, test1.test2] -> omit_keys => [test1.test2]
+            # This will filter out all the data_stats omit keys
             data_stat_omit_keys = []
             for omit_key in omit_keys:
                 omit_key_split = omit_key.split('.', 1)
@@ -137,8 +137,11 @@ def _prepare_report(report, output_format=None, omit_keys=None):
                         if prior_key_layer == '*' or prior_key_layer == key:
                             data_stat_omit_keys.append(next_key_layer)
 
+            # Recurse throw indices in data_stats and call report_helper for
+            # each entry
             for i in range(len(value)):
                 i_index_omit_keys = []
+                # Filter off data_stats omit keys depending on index
                 for nl_key in data_stat_omit_keys:
                     key_split = nl_key.split(".", 1)
 

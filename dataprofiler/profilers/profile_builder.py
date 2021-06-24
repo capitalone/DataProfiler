@@ -1622,7 +1622,8 @@ class StructuredProfiler(BaseProfiler):
                 "_samples_per_update": self._samples_per_update,
                 "_min_true_samples": self._min_true_samples,
                 "options": self.options,
-                "_profile": self.profile
+                "_profile": self.profile,
+                "_col_name_to_idx": self._col_name_to_idx
                } 
 
         self._save_helper(filepath, data_dict)

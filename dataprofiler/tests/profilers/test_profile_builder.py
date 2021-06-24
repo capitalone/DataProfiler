@@ -493,7 +493,7 @@ class TestStructuredProfiler(unittest.TestCase):
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
             load_report = _clean_report(load_profile.report())
-            self.assertEqual(save_report, load_report)
+            self.assertDictEqual(save_report, load_report)
 
     def test_save_and_load_no_labeler(self):
 
@@ -531,7 +531,7 @@ class TestStructuredProfiler(unittest.TestCase):
         # Check that reports are equivalent
         save_report = _clean_report(save_profile.report())
         load_report = _clean_report(load_profile.report())
-        self.assertEqual(save_report, load_report)
+        self.assertDictEqual(save_report, load_report)
 
         # validate both are still usable after
         save_profile.update_profile(pd.DataFrame(['test', 'test2']))
@@ -1725,7 +1725,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
             # Check that reports are equivalent
             save_report = _clean_report(save_profile.report())
             load_report = _clean_report(load_profile.report())
-            self.assertEqual(save_report, load_report)
+            self.assertDictEqual(save_report, load_report)
 
             # validate both are still usable after
             save_profile.update_profile(data.data.iloc[:2])

@@ -503,7 +503,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertEqual(num_profiler.num_zeros, 0)
         self.assertEqual(num_profiler.num_negatives, 0)
 
-    def test_diff_helper(self):
+    def test_diff(self):
         """
         Checks _diff_helper() works appropriately.
         """

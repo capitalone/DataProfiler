@@ -122,6 +122,7 @@ def _prepare_report(report, output_format=None, omit_keys=None):
         # As well as account for omit_keys containing indices instead of
         # keys
         if key == "data_stats":
+            fmt_report["data_stats"] = []
             # split off any remaining keys for the recursion
             # i.e. [test0, test1.test2] -> omit_keys => [test1.test2]
             data_stat_omit_keys = []
@@ -151,9 +152,8 @@ def _prepare_report(report, output_format=None, omit_keys=None):
                                 i_index_omit_keys.append(next_key_layer)
 
                 # Recursively prepare each column in data_stats list
-                fmt_report["data_stats"][i] = _prepare_report(value[i],
-                                                              output_format,
-                                                              i_index_omit_keys)
+                fmt_report["data_stats"].append(
+                    _prepare_report(value[i], output_format, i_index_omit_keys))
 
         # Do not recurse or modify profile_schema
         elif key == "profile_schema":

@@ -96,6 +96,11 @@ def _prepare_report(report, output_format=None, omit_keys=None):
         
         value = report[key]
 
+        # Do not recurse or modify profile_schema
+        if key == "profile_schema":
+            fmt_report[key] = value
+            continue
+
         # Convert set to list, for report generation
         if isinstance(value, set):
             value = sorted(list(value))

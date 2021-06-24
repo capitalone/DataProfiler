@@ -107,7 +107,7 @@ class BaseOption(object):
         errors = self._validate_helper()
         if raise_error and errors:
             raise ValueError('\n'.join(errors))
-        elif errors: 
+        elif errors:
             return errors
 
     def __eq__(self, other):
@@ -178,7 +178,7 @@ class HistogramOption(BooleanOption):
         if self.bin_count_or_method is not None:
             valid_methods = ['auto', 'fd', 'doane', 'scott', 'rice', 'sturges',
                              'sqrt']
-            
+
             value = self.bin_count_or_method
             if isinstance(value, str):
                 value = [value]
@@ -214,7 +214,7 @@ class BaseInspectorOptions(BooleanOption):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path) 
+        return super()._validate_helper(variable_path)
 
     def is_prop_enabled(self, prop):
         """
@@ -253,6 +253,10 @@ class NumericalOptions(BaseInspectorOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -264,6 +268,8 @@ class NumericalOptions(BaseInspectorOptions):
         self.max = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
+        self.skewness = BooleanOption(is_enabled=True)
+        self.kurtosis = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
         BaseInspectorOptions.__init__(self)
 
@@ -278,7 +284,8 @@ class NumericalOptions(BaseInspectorOptions):
         :rtype bool:
         """
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
-                or self.variance.is_enabled \
+                or self.variance.is_enabled or self.skewness.is_enabled \
+                or self.kurtosis.is_enabled \
                 or self.histogram_and_quantiles.is_enabled:
             return True
         return False
@@ -287,7 +294,7 @@ class NumericalOptions(BaseInspectorOptions):
     def is_numeric_stats_enabled(self, value):
         """
         This property will enable or disable all numeric stats properties:
-        min, max, sum, variance, histogram_and_quantiles
+        min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles
 
         :param value: boolean to enable/disable all numeric stats properties
         :type value: bool
@@ -297,6 +304,8 @@ class NumericalOptions(BaseInspectorOptions):
         self.max.is_enabled = value
         self.sum.is_enabled = value
         self.variance.is_enabled = value
+        self.skewness.is_enabled = value
+        self.kurtosis.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
 
     @property
@@ -323,7 +332,7 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance"]:
+                     "variance", "skewness", "kurtosis"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
                               .format(variable_path, item))
@@ -331,11 +340,24 @@ class NumericalOptions(BaseInspectorOptions):
                 errors += self.properties[item]._validate_helper(
                     variable_path=variable_path + '.' + item)
 
-        if not self.properties["sum"].is_enabled and \
-                self.properties["variance"].is_enabled:
+        # Error checks for dependent calculations
+        sum_disabled = not self.properties["sum"].is_enabled
+        var_disabled = not self.properties["variance"].is_enabled
+        skew_disabled = not self.properties["skewness"].is_enabled
+        kurt_disabled = not self.properties["kurtosis"].is_enabled
+        if sum_disabled and not var_disabled:
             errors.append("{}: The numeric stats must toggle on the sum "
                           "if the variance is toggled on."
                           .format(variable_path))
+        if (sum_disabled or var_disabled) and not skew_disabled:
+            errors.append("{}: The numeric stats must toggle on the "
+                          "sum and variance if skewness is toggled on."
+                          .format(variable_path))
+        if (sum_disabled or var_disabled or skew_disabled) \
+                and not kurt_disabled:
+            errors.append("{}: The numeric stats must toggle on sum,"
+                          " variance, and skewness if kurtosis is "
+                          "toggled on.".format(variable_path))
 
         # warn user if all stats are disabled
         if not errors:
@@ -363,6 +385,10 @@ class IntOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -381,11 +407,11 @@ class IntOptions(NumericalOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path) 
+        return super()._validate_helper(variable_path)
 
 
 class PrecisionOptions(BooleanOption):
-    
+
     def __init__(self, is_enabled=True, sample_ratio=None):
         """
         Options for precision
@@ -403,24 +429,24 @@ class PrecisionOptions(BooleanOption):
     def _validate_helper(self, variable_path='PrecisionOptions'):
         """
         Validates the options do not conflict and cause errors.
-        
+
         :param variable_path: current path to variable set.
         :type variable_path: str
         :return: list of errors (if raise_error is false)
         :rtype: List of strings
         """
-        errors = super()._validate_helper(variable_path=variable_path)    
+        errors = super()._validate_helper(variable_path=variable_path)
         if self.sample_ratio is not None:
             if not isinstance(self.sample_ratio, float) \
-               and not isinstance(self.sample_ratio, int):
+                    and not isinstance(self.sample_ratio, int):
                 errors.append("{}.sample_ratio must be a float."
-                              .format(variable_path))                
+                              .format(variable_path))
             if (isinstance(self.sample_ratio, float) \
-               or isinstance(self.sample_ratio, int)) \
-               and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
+                or isinstance(self.sample_ratio, int)) \
+                    and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
                 errors.append("{}.sample_ratio must be a float between 0 and 1."
-                              .format(variable_path))                
-        
+                              .format(variable_path))
+
         return errors
 
 
@@ -440,6 +466,10 @@ class FloatOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -453,7 +483,7 @@ class FloatOptions(NumericalOptions):
     def _validate_helper(self, variable_path='FloatOptions'):
         """
         Validates the options do not conflict and cause errors.
-        
+
         :param variable_path: current path to variable set.
         :type variable_path: str
         :return: list of errors (if raise_error is false)
@@ -463,7 +493,7 @@ class FloatOptions(NumericalOptions):
         if not isinstance(self.precision, PrecisionOptions):
             errors.append("{}.precision must be a PrecisionOptions."
                           .format(variable_path))
-        errors += self.precision._validate_helper(variable_path+'.precision')
+        errors += self.precision._validate_helper(variable_path + '.precision')
         return errors
 
 
@@ -485,6 +515,10 @@ class TextOptions(NumericalOptions):
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
         :vartype variance: BooleanOption
+        :ivar skewness: boolean option to enable/disable skewness
+        :vartype skewness: BooleanOption
+        :ivar kurtosis: boolean option to enable/disable kurtosis
+        :vartype kurtosis: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -532,7 +566,7 @@ class DateTimeOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path) 
+        return super()._validate_helper(variable_path)
 
 
 class OrderOptions(BaseInspectorOptions):
@@ -555,7 +589,7 @@ class OrderOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path) 
+        return super()._validate_helper(variable_path)
 
 
 class CategoricalOptions(BaseInspectorOptions):
@@ -578,7 +612,43 @@ class CategoricalOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path) 
+        return super()._validate_helper(variable_path)
+
+
+class ColumnsCorrelationOptions(BaseInspectorOptions):
+
+    def __init__(self):
+        """
+        Options for the Correlation between Columns
+
+        :ivar is_enabled: boolean option to enable/disable.
+        :vartype is_enabled: bool
+        :ivar columns: Columns considered to calculate correlation
+        :vartype columns: list()
+        """
+        BaseInspectorOptions.__init__(self)
+        self.columns = None
+
+    def _validate_helper(self, variable_path='ColumnsCorrelationOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if (self.columns is not None and
+                (not isinstance(self.columns, list)
+                 or len(self.columns) <= 1
+                 or not all(isinstance(item, str)
+                            for item in self.columns))):
+            errors.append("{}.columns must be None "
+                          "or list of strings "
+                          "with at least two elements.".format(variable_path))
+        return errors
 
 
 class DataLabelerOptions(BaseInspectorOptions):
@@ -628,7 +698,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         :rtype: dict
         """
         props = {k: copy.deepcopy(v)
-                 for k,v in self.__dict__.items() if k != 'data_labeler_object'}
+                 for k, v in self.__dict__.items() if k != 'data_labeler_object'}
         props['data_labeler_object'] = self.data_labeler_object
         return props
 
@@ -642,12 +712,12 @@ class DataLabelerOptions(BaseInspectorOptions):
         :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path=variable_path)
-        
+
         if self.data_labeler_dirpath is not None and \
                 not isinstance(self.data_labeler_dirpath, str):
             errors.append("{}.data_labeler_dirpath must be a string."
                           .format(variable_path))
-            
+
         if self.data_labeler_object is not None and \
                 not isinstance(self.data_labeler_object, BaseDataLabeler):
             errors.append("{}.data_labeler_object must be a BaseDataLabeler "
@@ -657,7 +727,7 @@ class DataLabelerOptions(BaseInspectorOptions):
                 self.data_labeler_dirpath is not None:
             warnings.warn("The data labeler passed in will be used,"
                           " not through the directory of the default model")
-            
+
         if self.max_sample_size is not None and \
                 not isinstance(self.max_sample_size, int):
             errors.append("{}.max_sample_size must be an integer."
@@ -749,6 +819,8 @@ class StructuredOptions(BaseOption):
         :vartype category: CategoricalOptions
         :ivar data_labeler: option set for data_labeler profiling.
         :vartype data_labeler: DataLabelerOptions
+        :ivar correlation: option set for correlation profiling.
+        :vartype correlation: ColumnsCorrelationOptions
         """
         self.multiprocess = BooleanOption()
         self.int = IntOptions()
@@ -758,6 +830,7 @@ class StructuredOptions(BaseOption):
         self.order = OrderOptions()
         self.category = CategoricalOptions()
         self.data_labeler = DataLabelerOptions()
+        self.correlation = ColumnsCorrelationOptions()
 
     @property
     def enabled_profiles(self):
@@ -790,7 +863,8 @@ class StructuredOptions(BaseOption):
             ('text', TextOptions),
             ('order', OrderOptions),
             ('category', CategoricalOptions),
-            ('data_labeler', DataLabelerOptions)
+            ('data_labeler', DataLabelerOptions),
+            ('correlation', ColumnsCorrelationOptions)
         ])
 
         for column in self.properties:

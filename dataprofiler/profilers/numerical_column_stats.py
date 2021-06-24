@@ -247,7 +247,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if "num_negatives" in self.__calculations.keys():
             self.num_negatives = other1.num_negatives + other2.num_negatives
 
-    def _diff_helper(self, other_profile):
+    def diff(self, other_profile, options=None):
         """
         Finds the differences for several numerical stats.
 
@@ -256,6 +256,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: the numerical stats differences
         :rtype: dict
         """
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+        
         differences = {
             "min": utils.find_diff_of_numbers(self.min, other_profile.min),
             "max": utils.find_diff_of_numbers(self.max, other_profile.max),

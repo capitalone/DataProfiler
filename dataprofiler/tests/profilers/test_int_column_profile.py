@@ -825,3 +825,35 @@ class TestIntColumn(unittest.TestCase):
             # to make sure NO warnings were thrown since we have
             # a sufficient match count.
             self.assertEqual(0, len(w))
+
+    def test_diff(self):
+        """
+        Makes sure the IntColumn Diff() works appropriately.
+        """
+        data = [2, 'not an int', 6, 4]
+        df = pd.Series(data).apply(str)
+        profiler1 = IntColumn("Int")
+        profiler1.update(df)
+
+        data = [1, 15]
+        df = pd.Series(data).apply(str)
+        profiler2 = IntColumn("Int")
+        profiler2.update(df)
+
+        # Assert the difference report is correct
+        expected_diff = {
+            'max': -9.0,
+            'mean': -4.0,
+            'min': 1.0,
+            'stddev': -7.899494936611665,
+            'sum': -4.0,
+            'variance': -94.0
+        }
+        self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
+        
+        # Assert type error is properly called
+        with self.assertRaises(TypeError) as exc:
+            profiler1.diff("Inproper input")
+        self.assertEqual(str(exc.exception),
+                         "Unsupported operand type(s) for diff: 'IntColumn' and"
+                         " 'str'")

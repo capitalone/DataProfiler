@@ -298,14 +298,16 @@ class TestStructuredProfiler(unittest.TestCase):
             [
                 "samples_used", "column_count", "row_count", 
                 "row_has_null_ratio", 'row_is_null_ratio',
-                "unique_row_ratio", "duplicate_row_count", "file_type", "encoding"
+                "unique_row_ratio", "duplicate_row_count", "file_type",
+                "encoding", "profile_schema"
             ]
         )
         flat_report = self.trained_schema.report(report_options={"output_format":"flat"})
         self.assertEqual(test_utils.get_depth(flat_report), 1)
         with mock.patch('dataprofiler.profilers.helpers.report_helpers._prepare_report') as pr_mock:
             self.trained_schema.report(report_options={"output_format":'pretty'})
-            self.assertEqual(pr_mock.call_count, 2)
+            # Once for global_stats, once for each of 16 columns
+            self.assertEqual(pr_mock.call_count, 17)
 
     def test_report_quantiles(self):
         report_none = self.trained_schema.report(

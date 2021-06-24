@@ -1445,14 +1445,16 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         profile = dp.StructuredProfiler(data, options=profiler_options)
 
         report = profile.report(report_options={"output_format":"pretty"})
+        count_idx = report["global_stats"]["profile_schema"]["COUNT"][0]
+        numbers_idx = report["global_stats"]["profile_schema"][" NUMBERS"][0]
         
         self.assertEqual(
-            report['data_stats']['COUNT']['statistics']['null_types_index'],
+            report['data_stats'][count_idx]['statistics']['null_types_index'],
             {'': '[2, 3, 4, 5, 7, 8]'}
         )
         
         self.assertEqual(
-            report['data_stats'][' NUMBERS']['statistics']['null_types_index'],
+            report['data_stats'][numbers_idx]['statistics']['null_types_index'],
             {'': '[5, 6, 8]', ' ': '[2, 4]'}
         )
        

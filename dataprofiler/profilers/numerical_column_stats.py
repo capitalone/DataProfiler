@@ -329,14 +329,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: combined variance
         :rtype: float
         """
-        if np.isnan(biased_variance1):
-            biased_variance1 = 0
-        if np.isnan(biased_variance2):
-            biased_variance2 = 0
         if match_count1 < 1:
             return biased_variance2
         elif match_count2 < 1:
             return biased_variance1
+        if np.isnan(biased_variance1):
+            biased_variance1 = 0
+        if np.isnan(biased_variance2):
+            biased_variance2 = 0
 
         curr_count = match_count1
         delta = mean2 - mean1
@@ -372,14 +372,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: combined skewness
         :rtype: float
         """
-        if np.isnan(biased_skewness1):
-            biased_skewness1 = 0
-        if np.isnan(biased_skewness2):
-            biased_skewness2 = 0
         if match_count1 < 1:
             return biased_skewness2
         elif match_count2 < 1:
             return biased_skewness1
+        if np.isnan(biased_skewness1):
+            biased_skewness1 = 0
+        if np.isnan(biased_skewness2):
+            biased_skewness2 = 0
 
         delta = mean2 - mean1
         N = match_count1 + match_count2
@@ -439,14 +439,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: combined skewness
         :rtype: float
         """
-        if np.isnan(biased_kurtosis1):
-            biased_kurtosis1 = 0
-        if np.isnan(biased_kurtosis2):
-            biased_kurtosis1 = 0
         if match_count1 < 1:
             return biased_kurtosis2
         elif match_count2 < 1:
             return biased_kurtosis1
+        if np.isnan(biased_kurtosis1):
+            biased_kurtosis1 = 0
+        if np.isnan(biased_kurtosis2):
+            biased_kurtosis1 = 0
 
         delta = mean2 - mean1
         N = match_count1 + match_count2

@@ -529,3 +529,10 @@ class TestNumericStatsMixin(unittest.TestCase):
             'stddev': -2.0238425028660023
         }
         self.assertDictEqual(expected_diff, other1.diff(other2))
+        
+        # Assert type error is properly called
+        with self.assertRaises(TypeError) as exc:
+            other1.diff("Inproper input")
+        self.assertEqual(str(exc.exception),
+                         "Unsupported operand type(s) for diff: 'TestColumn' and"
+                         " 'str'")

@@ -127,6 +127,23 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             return float(self.match_count) / self.sample_size
         return None
 
+    def diff(self, other_profile, options=None):
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+
+        # We can use find_diff_of_numbers for max/min to get a timedelta object,
+        # since datetime objects can be compared and subtracted naturally
+        differences = {
+            "min": str(utils.find_diff_of_numbers(self._dt_obj_min, other_profile._dt_obj_min)),
+            "max": str(utils.find_diff_of_numbers(self._dt_obj_max, other_profile._dt_obj_max)),
+            "format": utils.find_diff_of_lists_and_sets(
+                self.date_formats, other_profile.date_formats)
+        }
+        return differences
+
     @staticmethod
     def _validate_datetime(date, date_format):
         """

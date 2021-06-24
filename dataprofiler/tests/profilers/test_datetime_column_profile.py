@@ -371,3 +371,45 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
                                    "DateTimeColumn parameter 'options' must be"
                                    " of type DateTimeOptions."):
             profiler = DateTimeColumn("Datetime", options="wrong_data_type")
+
+    def test_diff(self):
+        data1 = [None, 'Mar 12, 2013', "2013-05-18", "2014-03-01"]
+        df1 = pd.Series(data1).apply(str)
+        profiler1 = DateTimeColumn(df1.name)
+        profiler1.update(df1)
+
+
+        data2 = [
+            2.5, 12.5, '2013-03-10 15:43:30', 5, '03/10/14 15:43',
+            'Mar 11, 2013'
+        ]
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = DateTimeColumn(df2.name)
+        profiler2.update(df2)
+
+        expected_diff = {
+            'min': "1 days 08:16:30",
+            'max': "-10 days +08:17:00",
+            'format': [['%Y-%m-%d'], ['%b %d, %Y'], ['%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M']]
+        }
+        expected_format = expected_diff.pop('format')
+        expected_unique1 = expected_format[0]
+        expected_shared = expected_format[1]
+        expected_unique2 = expected_format[2]
+
+        diff = profiler1.diff(profiler2)
+        format = diff.pop('format')
+        unique1 = format[0]
+        shared = format[1]
+        unique2 = format[2]
+        self.assertDictEqual(expected_diff, diff)
+        self.assertEqual(set(expected_unique1), set(unique1))
+        self.assertEqual(set(expected_shared), set(shared))
+        self.assertEqual(set(expected_unique2), set(unique2))
+
+        # Assert type error is properly called
+        with self.assertRaises(TypeError) as exc:
+            profiler1.diff("Inproper input")
+        self.assertEqual(str(exc.exception),
+                         "Unsupported operand type(s) for diff: "
+                         "'DateTimeColumn' and 'str'")

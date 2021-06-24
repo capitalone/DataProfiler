@@ -1231,3 +1231,71 @@ class TestFloatColumn(unittest.TestCase):
         profile_2.update(data_2)
 
         profile_1 + profile_2
+
+    def test_invalid_values_skew_kurt(self):
+        data = pd.Series(['-inf', 'inf'])
+        profiler = FloatColumn(data.name)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            profiler.update(data)
+            # Verify values are NaN
+            self.assertTrue(np.isnan(profiler._biased_skewness))
+            self.assertTrue(np.isnan(profiler._biased_kurtosis))
+            # Verify warning was raised properly
+            self.assertEqual(2, len(w))
+            for i in range(0, len(w)):
+                self.assertEqual(w[i].category, RuntimeWarning)
+                self.assertTrue("Invalid values found in data. Future values of" \
+                                in str(w[i].message))
+
+        # Update the data
+        data2 = pd.Series(['-2', '-1', '1', '2', '-inf', 'inf'])
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            profiler.update(data2)
+            # Verify values are still NaN
+            self.assertTrue(np.isnan(profiler._biased_skewness))
+            self.assertTrue(np.isnan(profiler._biased_kurtosis))
+            # Verify warning-related things. In this case, we check
+            # to make sure NO warnings were thrown since nothing should
+            # even be updated
+            self.assertEqual(0, len(w))
+
+    def test_insufficient_count_skew_kurt(self):
+        data = pd.Series(['0'])
+        profiler = FloatColumn(data.name)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            profiler.update(data)
+            skew = profiler.skewness
+            kurt = profiler.kurtosis
+            # Verify values are NaN
+            self.assertTrue(np.isnan(skew))
+            self.assertTrue(np.isnan(kurt))
+            # Verify warning was raised properly
+            self.assertEqual(2, len(w))
+            for i in range(0, len(w)):
+                self.assertEqual(w[i].category, RuntimeWarning)
+                self.assertTrue("Insufficient match count to correct bias in" \
+                                in str(w[i].message))
+
+        # Update the data so that the match count is good
+        data2 = pd.Series(['-2', '-1', '1', '2'])
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            profiler.update(data2)
+            skew = profiler.skewness
+            kurt = profiler.kurtosis
+            # Verify values are no longer NaN
+            self.assertFalse(np.isnan(skew))
+            self.assertFalse(np.isnan(kurt))
+            # Verify warning-related things. In this case, we check
+            # to make sure NO warnings were thrown since we have
+            # a sufficient match count.
+            self.assertEqual(0, len(w))

@@ -958,6 +958,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return None
         """
+        # If skewness is still NaN but has a valid match count, this
+        # must mean that there were previous invalid values in
+        # the dataset.
+        if np.isnan(self._biased_skewness) and self.match_count > 0:
+            return
+
         batch_biased_skewness = utils.biased_skew(df_series)
         subset_properties["biased_skewness"] = batch_biased_skewness
         batch_count = subset_properties["match_count"]
@@ -987,6 +993,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return None
         """
+        # If kurtosis is still NaN but has a valid match count, this
+        # must mean that there were previous invalid values in
+        # the dataset.
+        if np.isnan(self._biased_kurtosis) and self.match_count > 0:
+            return
         batch_biased_kurtosis = utils.biased_kurt(df_series)
         subset_properties["biased_kurtosis"] = batch_biased_kurtosis
         batch_count = subset_properties["match_count"]

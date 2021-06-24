@@ -312,16 +312,16 @@ class TestStructuredProfiler(unittest.TestCase):
             report_options={"num_quantile_groups": None})
         report = self.trained_schema.report()
         self.assertEqual(report_none, report)
-        for key, val in report["data_stats"].items():
-            if key == "int_col":
-                report_quantiles = val["statistics"]["quantiles"]
+        for col in report["data_stats"]:
+            if col["column_name"] == "int_col":
+                report_quantiles = col["statistics"]["quantiles"]
                 break
         self.assertEqual(len(report_quantiles), 3)
         report2 = self.trained_schema.report(
             report_options={"num_quantile_groups": 1000})
-        for key, val in report2["data_stats"].items():
-            if key == "int_col":
-                report2_1000_quant = val["statistics"]["quantiles"]
+        for col in report2["data_stats"]:
+            if col["column_name"] == "int_col":
+                report2_1000_quant = col["statistics"]["quantiles"]
                 break
         self.assertEqual(len(report2_1000_quant), 999)
         self.assertEqual(report_quantiles, {

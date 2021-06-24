@@ -503,7 +503,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertEqual(num_profiler.num_zeros, 0)
         self.assertEqual(num_profiler.num_negatives, 0)
 
-    def test_diff_helper(self):
+    def test_diff(self):
         """
         Checks _diff_helper() works appropriately.
         """
@@ -528,4 +528,11 @@ class TestNumericStatsMixin(unittest.TestCase):
             'variance': -8.362573099415204,
             'stddev': -2.0238425028660023
         }
-        self.assertDictEqual(expected_diff, other1._diff_helper(other2))
+        self.assertDictEqual(expected_diff, other1.diff(other2))
+        
+        # Assert type error is properly called
+        with self.assertRaises(TypeError) as exc:
+            other1.diff("Inproper input")
+        self.assertEqual(str(exc.exception),
+                         "Unsupported operand type(s) for diff: 'TestColumn' and"
+                         " 'str'")

@@ -1588,7 +1588,7 @@ class StructuredProfiler(BaseProfiler):
                 notification_str += " (with " + str(pool_size) + " processes)"
         print(notification_str)
         
-        for col_idx in tqdm(range(len(self._profile))):
+        for col_idx in tqdm(clean_sampled_dict.keys()):
             self._profile[col_idx].update_column_profilers(
                 clean_sampled_dict[col_idx], pool)
 

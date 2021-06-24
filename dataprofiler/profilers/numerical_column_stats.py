@@ -413,6 +413,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :rtype: NaN if sample size is too small, float otherwise
         """
         if np.isnan(biased_skewness) or match_count < 3:
+            warnings.warn("Insufficient match count to correct bias in skewness. Bias correction"
+                          "can be manually disabled by setting bias_correction.is_enabled to"
+                          "False in ProfilerOptions.", RuntimeWarning)
             return np.nan
 
         skewness = np.sqrt(match_count * (match_count - 1)) \
@@ -485,6 +488,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :rtype: NaN if sample size is too small, float otherwise
         """
         if np.isnan(biased_kurtosis) or match_count < 4:
+            warnings.warn("Insufficient match count to correct bias in kurtosis. Bias correction"
+                          "can be manually disabled by setting bias_correction.is_enabled to"
+                          "False in ProfilerOptions.", RuntimeWarning)
             return np.nan
 
         kurtosis = (match_count - 1) / ((match_count - 2) *

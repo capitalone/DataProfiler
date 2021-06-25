@@ -523,25 +523,6 @@ class TestStructuredProfiler(unittest.TestCase):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
-        def _clean_report(report):
-            global_stats = report["global_stats"]
-            if "correlation_matrix" in global_stats and \
-                    report["global_stats"]["correlation_matrix"] is not None:
-                report["global_stats"]["correlation_matrix"] = np.concatenate(
-                    report["global_stats"]["correlation_matrix"].values).tolist()
-
-            data_stats = report["data_stats"]
-            for key in data_stats:
-                stats = data_stats[key]["statistics"]
-                if "histogram" in stats:
-                    if "bin_counts" in stats["histogram"]:
-                        stats["histogram"]["bin_counts"] = \
-                            stats["histogram"]["bin_counts"].tolist()
-                    if "bin_edges" in stats["histogram"]:
-                        stats["histogram"]["bin_edges"] = \
-                            stats["histogram"]["bin_edges"].tolist()
-            return report
-
         for test_file in test_files:
             # Create Data and StructuredProfiler objects
             data = dp.Data(os.path.join(datapth, test_file))
@@ -573,31 +554,11 @@ class TestStructuredProfiler(unittest.TestCase):
                     data_labeler.__class__)
 
             # Check that reports are equivalent
-            save_report = _clean_report(save_profile.report())
-            load_report = _clean_report(load_profile.report())
+            save_report = test_utils.clean_report(save_profile.report())
+            load_report = test_utils.clean_report(load_profile.report())
             self.assertDictEqual(save_report, load_report)
 
     def test_save_and_load_no_labeler(self):
-
-        def _clean_report(report):
-            global_stats = report["global_stats"]
-            if "correlation_matrix" in global_stats and \
-                    report["global_stats"]["correlation_matrix"] is not None:
-                report["global_stats"]["correlation_matrix"] = np.concatenate(
-                    report["global_stats"]["correlation_matrix"].values).tolist()
-
-            data_stats = report["data_stats"]
-            for key in data_stats:
-                stats = data_stats[key]["statistics"]
-                if "histogram" in stats:
-                    if "bin_counts" in stats["histogram"]:
-                        stats["histogram"]["bin_counts"] = \
-                            stats["histogram"]["bin_counts"].tolist()
-                    if "bin_edges" in stats["histogram"]:
-                        stats["histogram"]["bin_edges"] = \
-                            stats["histogram"]["bin_edges"].tolist()
-            return report
-
         # Create Data and UnstructuredProfiler objects
         data = pd.DataFrame([1, 2, 3], columns=["a"])
 
@@ -617,8 +578,8 @@ class TestStructuredProfiler(unittest.TestCase):
                 load_profile = dp.StructuredProfiler.load("mock.pkl")
 
         # Check that reports are equivalent
-        save_report = _clean_report(save_profile.report())
-        load_report = _clean_report(load_profile.report())
+        save_report = test_utils.clean_report(save_profile.report())
+        load_report = test_utils.clean_report(load_profile.report())
         self.assertDictEqual(save_report, load_report)
 
         # validate both are still usable after
@@ -1773,25 +1734,6 @@ class TestProfilerFactoryClass(unittest.TestCase):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
-        def _clean_report(report):
-            global_stats = report["global_stats"]
-            if "correlation_matrix" in global_stats and \
-                    report["global_stats"]["correlation_matrix"] is not None:
-                report["global_stats"]["correlation_matrix"] = np.concatenate(
-                    report["global_stats"]["correlation_matrix"].values).tolist()
-
-            data_stats = report["data_stats"]
-            for key in data_stats:
-                stats = data_stats[key]["statistics"]
-                if "histogram" in stats:
-                    if "bin_counts" in stats["histogram"]:
-                        stats["histogram"]["bin_counts"] = \
-                            stats["histogram"]["bin_counts"].tolist()
-                    if "bin_edges" in stats["histogram"]:
-                        stats["histogram"]["bin_edges"] = \
-                            stats["histogram"]["bin_edges"].tolist()
-            return report
-
         for test_file in test_files:
             # Create Data and StructuredProfiler objects
             data = dp.Data(os.path.join(datapth, test_file))
@@ -1823,8 +1765,8 @@ class TestProfilerFactoryClass(unittest.TestCase):
                 data_labeler.__class__)
 
             # Check that reports are equivalent
-            save_report = _clean_report(save_profile.report())
-            load_report = _clean_report(load_profile.report())
+            save_report = test_utils.clean_report(save_profile.report())
+            load_report = test_utils.clean_report(load_profile.report())
             self.assertDictEqual(save_report, load_report)
 
             # validate both are still usable after

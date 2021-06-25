@@ -561,6 +561,11 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(1, profiler.row_is_null_count)
         self.assertEqual(2, profiler.total_samples)
 
+    def test_duplicate_columns(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        profiler = dp.StructuredProfiler(data)
 
 class TestStructuredColProfilerClass(unittest.TestCase):
 

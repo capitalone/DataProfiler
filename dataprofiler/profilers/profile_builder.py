@@ -1400,6 +1400,17 @@ class StructuredProfiler(BaseProfiler):
         duplicate_cols_given = len(data.columns) != len(data.columns.unique())
         num_cols = [len(idxs) for idxs in self._col_name_to_idx.values()]
         duplicate_cols_present = any([num > 1 for num in num_cols])
+        initialized = len(self._profile) > 0
+
+        # Profile initialized with unique columns, can't update with duplicates
+        # Profile initialized with duplicate columns must respect initial schema
+        if initialized and duplicate_cols_present != duplicate_cols_given:
+            raise ValueError("Schema must be consistent when profiling data "
+                             "with duplicate column names. i.e. Profiler must "
+                             "be initialized with duplicate column names and "
+                             "then updated with the same column order, or "
+                             "initialized with unique column names and never "
+                             "given duplicates at update.")
 
         try:
             from tqdm import tqdm
@@ -1438,8 +1449,8 @@ class StructuredProfiler(BaseProfiler):
 
             # Either initializing _profile for the first time or updating
             # _profile that doesn't contain duplicate column names
-            for col in data.columns:
-                if col not in self._col_name_to_idx:
+            if not initialized:
+                for col in data.columns:
                     # Append StructuredColProfiler to list of profiles and
                     # record index where it was appended to in list
                     self._col_name_to_idx.setdefault(col, []).append(
@@ -1451,6 +1462,30 @@ class StructuredProfiler(BaseProfiler):
                         options=self.options
                     ))
                     new_cols = True
+            else:
+                if not duplicate_cols_present:
+                    for col in data.columns:
+                        if col not in self._col_name_to_idx:
+                            # Append StructuredColProfiler to list of profiles
+                            # and record index where it was appended to in list
+                            self._col_name_to_idx[col] = [len(self._profile)]
+                            self._profile.append(StructuredColProfiler(
+                                sample_size=sample_size,
+                                min_true_samples=min_true_samples,
+                                sample_ids=sample_ids,
+                                options=self.options
+                            ))
+                            new_cols = True
+                else:
+                    # Ensure same schema if initialized with duplicate columns
+                    mapping_given = dict()
+                    for i in range(len(data.columns)):
+                        col = data.columns[i]
+                        mapping_given.setdefault(col, []).append(i)
+                    if mapping_given != self._col_name_to_idx:
+                        raise ValueError("Schema of data with duplicate "
+                                         "column names not respected when "
+                                         "updating profile.")
                 
         # Generate pool and estimate datasize
         pool = None
@@ -1497,7 +1532,7 @@ class StructuredProfiler(BaseProfiler):
                 else:
                     # Calculate indices in _profile that correspond to "col"
                     for data_idx in range(len(df_or_ser.columns)):
-                        df_or_ser = df_or_ser.iloc[:, data_idx]
+                        ser = df_or_ser.iloc[:, data_idx]
                         # Order in _profile matches order in data
                         # Pull out entry in _col_name_to_idx that corresponds
                         # to multiple columns under name "col" (df_or_ser)
@@ -1508,7 +1543,7 @@ class StructuredProfiler(BaseProfiler):
                         try:
                             multi_process_dict[idx] = pool.apply_async(
                                 self._profile[idx].clean_data_and_get_base_stats,
-                                (df_or_ser, sample_size, min_true_samples,
+                                (ser, sample_size, min_true_samples,
                                  sample_ids))
                         except Exception as e:
                             print(e)
@@ -1566,13 +1601,13 @@ class StructuredProfiler(BaseProfiler):
                         # Order in _profile matches order in data
                         # Pull out entry in _col_name_to_idx that corresponds
                         # to multiple columns under name "col" (df_or_ser)
-                        df_or_ser = df_or_ser.iloc[:, data_idx]
+                        ser = df_or_ser.iloc[:, data_idx]
                         idx = self._col_name_to_idx[col][data_idx]
                         if min_true_samples is None:
                             min_true_samples = self._profile[idx]._min_true_samples
                         clean_sampled_dict[idx], base_stats = \
                             self._profile[idx].clean_data_and_get_base_stats(
-                                df_series=df_or_ser,
+                                df_series=ser,
                                 sample_size=sample_size,
                                 min_true_samples=min_true_samples,
                                 sample_ids=sample_ids

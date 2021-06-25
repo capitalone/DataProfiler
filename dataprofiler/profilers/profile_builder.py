@@ -1439,10 +1439,13 @@ class StructuredProfiler(BaseProfiler):
 
             # Either initializing _profile for the first time or updating
             # _profile that doesn't contain duplicate column names
-            if not initialized:
-                for col in data.columns:
-                    # Append StructuredColProfiler to list of profiles and
-                    # record index where it was appended to in list
+            for col in data.columns:
+                # If initializing for the first time, must fill mapping
+                # If initialized, with no duplicate columns, only add to mapping
+                # if not already there, since this means we are updating
+                if not initialized or col not in self._col_name_to_idx:
+                    # Append StructuredColProfiler to list of profiles
+                    # and record index where it was appended to in list
                     self._col_name_to_idx.setdefault(col, []).append(
                         len(self._profile))
                     self._profile.append(StructuredColProfiler(

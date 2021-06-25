@@ -1386,7 +1386,7 @@ class StructuredProfiler(BaseProfiler):
         :param clean_samples: the input cleaned dataset
         :type clean_samples: dict()
         """
-        if self.correlation_matrix is not None:
+        if self.total_samples > 0:
             # currently return None with the exising correlation
             # TODO: implement the update with the exising correlation
             warnings.warn("Currently, the updating correlations is disabled "
@@ -1415,18 +1415,18 @@ class StructuredProfiler(BaseProfiler):
 
         mean1 = np.array(
             [self._profile[profile_name].profile['statistics']['mean']
-             for profile_name in corr_mat1.correlation_matrix])
+             for profile_name in corr_mat1.columns])
         std1 = np.array(
             [self._profile[profile_name].profile['statistics']['stddev']
-             for profile_name in corr_mat1.correlation_matrix])
+             for profile_name in corr_mat1.columns])
         n1 = self.total_samples
 
         mean2 = np.array(
             [other._profile[profile_name].profile['statistics']['mean']
-             for profile_name in corr_mat1.correlation_matrix])
+             for profile_name in corr_mat1.columns])
         std2 = np.array(
             [other._profile[profile_name].profile['statistics']['stddev']
-             for profile_name in corr_mat1.correlation_matrix])
+             for profile_name in corr_mat1.columns])
         n2 = other.total_samples
         return self._merge_correlation_helper(corr_mat1, mean1, std1, n1,
                                               corr_mat2, mean2, std2, n2)

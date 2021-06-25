@@ -296,8 +296,6 @@ def biased_skew(df_series):
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        warnings.warn("Invalid values found in data. Future values of skew "
-                      "will not be computed.", RuntimeWarning)
         return np.nan
 
     diffs = df_series - mean
@@ -333,8 +331,6 @@ def biased_kurt(df_series):
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        warnings.warn("Invalid values found in data. Future values of kurtosis"
-                      " will not be computed.", RuntimeWarning)
         return np.nan
 
     diffs = df_series - mean

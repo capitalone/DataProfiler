@@ -335,14 +335,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: combined variance
         :rtype: float
         """
-        if np.isnan(biased_variance1):
-            biased_variance1 = 0
-        if np.isnan(biased_variance2):
-            biased_variance2 = 0
         if match_count1 < 1:
             return biased_variance2
         elif match_count2 < 1:
             return biased_variance1
+        elif np.isnan(biased_variance1) or np.isnan(biased_variance2):
+            return np.nan
 
         curr_count = match_count1
         delta = mean2 - mean1
@@ -356,6 +354,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _correct_bias_variance(match_count, biased_variance):
         if match_count is None or biased_variance is None or match_count < 2:
+            warnings.warn("Insufficient match count to correct bias in variance. Bias correction"
+                          "can be manually disabled by setting bias_correction.is_enabled to"
+                          "False in ProfilerOptions.", RuntimeWarning)
             return np.nan
 
         variance = match_count / (match_count - 1) * biased_variance
@@ -378,14 +379,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: combined skewness
         :rtype: float
         """
-        if np.isnan(biased_skewness1):
-            biased_skewness1 = 0
-        if np.isnan(biased_skewness2):
-            biased_skewness2 = 0
         if match_count1 < 1:
             return biased_skewness2
         elif match_count2 < 1:
             return biased_skewness1
+        elif np.isnan(biased_skewness1) or np.isnan(biased_skewness2):
+            return np.nan
 
         delta = mean2 - mean1
         N = match_count1 + match_count2
@@ -419,6 +418,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :rtype: NaN if sample size is too small, float otherwise
         """
         if np.isnan(biased_skewness) or match_count < 3:
+            warnings.warn("Insufficient match count to correct bias in skewness. Bias correction"
+                          "can be manually disabled by setting bias_correction.is_enabled to"
+                          "False in ProfilerOptions.", RuntimeWarning)
             return np.nan
 
         skewness = np.sqrt(match_count * (match_count - 1)) \
@@ -445,14 +447,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: combined skewness
         :rtype: float
         """
-        if np.isnan(biased_kurtosis1):
-            biased_kurtosis1 = 0
-        if np.isnan(biased_kurtosis2):
-            biased_kurtosis1 = 0
         if match_count1 < 1:
             return biased_kurtosis2
         elif match_count2 < 1:
             return biased_kurtosis1
+        elif np.isnan(biased_kurtosis1) or np.isnan(biased_kurtosis2):
+            return np.nan
 
         delta = mean2 - mean1
         N = match_count1 + match_count2
@@ -491,6 +491,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :rtype: NaN if sample size is too small, float otherwise
         """
         if np.isnan(biased_kurtosis) or match_count < 4:
+            warnings.warn("Insufficient match count to correct bias in kurtosis. Bias correction"
+                          "can be manually disabled by setting bias_correction.is_enabled to"
+                          "False in ProfilerOptions.", RuntimeWarning)
             return np.nan
 
         kurtosis = (match_count - 1) / ((match_count - 2) *
@@ -927,14 +930,29 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name="sum")
     def _get_sum(self, df_series, prev_dependent_properties,
                  subset_properties):
+        if np.isinf(self.sum) or (np.isnan(self.sum) and self.match_count > 0):
+            return
+
         sum_value = df_series.sum()
+        if np.isinf(sum_value) or (len(df_series) > 0 and np.isnan(sum_value)):
+            warnings.warn("Infinite or invalid values found in data. " 
+                          "Future statistics (mean, variance, skewness, kurtosis) "
+                          "will not be computed.", RuntimeWarning)
+
         subset_properties["sum"] = sum_value
         self.sum = self.sum + sum_value
 
     @BaseColumnProfiler._timeit(name="variance")
     def _get_variance(self, df_series, prev_dependent_properties,
                       subset_properties):
-        batch_biased_variance = np.var(df_series) # Obtains biased variance
+        if np.isinf(self._biased_variance) or \
+                (np.isnan(self._biased_variance) and self.match_count > 0):
+            return
+
+        # Suppress any numpy warnings as we have a custom warning for invalid
+        # or infinite data already
+        with np.errstate(all='ignore'):
+            batch_biased_variance = np.var(df_series) # Obtains biased variance
         subset_properties["biased_variance"] = batch_biased_variance
         sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]
@@ -964,6 +982,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return None
         """
+        # If skewness is still NaN but has a valid match count, this
+        # must mean that there were previous invalid values in
+        # the dataset.
+        if np.isinf(self._biased_skewness) or \
+                (np.isnan(self._biased_skewness) and self.match_count > 0):
+            return
+
         batch_biased_skewness = utils.biased_skew(df_series)
         subset_properties["biased_skewness"] = batch_biased_skewness
         batch_count = subset_properties["match_count"]
@@ -993,6 +1018,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return None
         """
+        # If kurtosis is still NaN but has a valid match count, this
+        # must mean that there were previous invalid values in
+        # the dataset.
+        if np.isinf(self._biased_kurtosis) or \
+                (np.isnan(self._biased_kurtosis) and self.match_count > 0):
+            return
+
         batch_biased_kurtosis = utils.biased_kurt(df_series)
         subset_properties["biased_kurtosis"] = batch_biased_kurtosis
         batch_count = subset_properties["match_count"]

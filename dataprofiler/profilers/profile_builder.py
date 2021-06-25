@@ -1389,9 +1389,10 @@ class StructuredProfiler(BaseProfiler):
         if self.correlation_matrix is not None:
             # currently return None with the exising correlation
             # TODO: implement the update with the exising correlation
-            warnings.warn("Currently, the updated correlation is kept the same "
-                          "as the existing value. Updating correlations with "
-                          "existing value will be available in a future update")
+            warnings.warn("Currently, the updating correlations is disabled "
+                          "and will remain unchanged from its current value. "
+                          "Updating correlations will be available in a "
+                          "future update.")
             return
 
         self._get_correlation(clean_samples)
@@ -1409,7 +1410,7 @@ class StructuredProfiler(BaseProfiler):
         if len(corr_mat1.columns) != len(corr_mat2.columns) or \
                 len(corr_mat1.columns) <= 1:
             return None
-        if set(corr_mat1.columns) == set(corr_mat2.columns):
+        if set(corr_mat1.columns) != set(corr_mat2.columns):
             return None
 
         mean1 = np.array(

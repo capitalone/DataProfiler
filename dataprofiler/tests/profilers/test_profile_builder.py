@@ -567,6 +567,51 @@ class TestStructuredProfiler(unittest.TestCase):
                             columns=["a", "b", "a", "b", "c", "d"])
         profiler = dp.StructuredProfiler(data)
 
+        # Ensure columns are correctly allocated to profiles in list
+        expected_mapping = {"a": [0, 2], "b": [1, 3], "c": [4], "d": [5]}
+        self.assertDictEqual(expected_mapping, profiler._col_name_to_idx)
+        for col in profiler._col_name_to_idx:
+            for idx in profiler._col_name_to_idx[col]:
+                # Make sure every index that a column name maps to represents
+                # A profile for that named column
+                self.assertEqual(col, profiler._profile[idx].name)
+
+        # Check a few stats to ensure calculation with data occurred
+        # Initialization ensures column ids and profile ids are identical
+        for col_idx in range(len(profiler._profile)):
+            col_min = data.iloc[0, col_idx]
+            col_max = data.iloc[1, col_idx]
+            col_sum = col_min + col_max
+            self.assertEqual(col_min, profiler._profile[col_idx].
+                             profile["statistics"]["min"])
+            self.assertEqual(col_max, profiler._profile[col_idx].
+                             profile["statistics"]["max"])
+            self.assertEqual(col_sum, profiler._profile[col_idx].
+                             profile["statistics"]["sum"])
+
+        # Check that update works as expected
+        new_data = pd.DataFrame([[100, 200, 300, 400, 500, 600]],
+                                columns=["a", "b", "a", "b", "c", "d"])
+        profiler.update_profile(new_data)
+        self.assertDictEqual(expected_mapping, profiler._col_name_to_idx)
+        for col in profiler._col_name_to_idx:
+            for idx in profiler._col_name_to_idx[col]:
+                # Make sure every index that a column name maps to represents
+                # A profile for that named column
+                self.assertEqual(col, profiler._profile[idx].name)
+
+        for col_idx in range(len(profiler._profile)):
+            col_min = data.iloc[0, col_idx]
+            col_max = new_data.iloc[0, col_idx]
+            col_sum = col_min + col_max + data.iloc[1, col_idx]
+            self.assertEqual(col_min, profiler._profile[col_idx].
+                             profile["statistics"]["min"])
+            self.assertEqual(col_max, profiler._profile[col_idx].
+                             profile["statistics"]["max"])
+            self.assertEqual(col_sum, profiler._profile[col_idx].
+                             profile["statistics"]["sum"])
+
+
 class TestStructuredColProfilerClass(unittest.TestCase):
 
     def setUp(self):

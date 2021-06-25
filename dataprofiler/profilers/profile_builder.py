@@ -1402,16 +1402,6 @@ class StructuredProfiler(BaseProfiler):
         duplicate_cols_present = any([num > 1 for num in num_cols])
         initialized = len(self._profile) > 0
 
-        # Profile initialized with unique columns, can't update with duplicates
-        # Profile initialized with duplicate columns must respect initial schema
-        if initialized and duplicate_cols_present != duplicate_cols_given:
-            raise ValueError("Schema must be consistent when profiling data "
-                             "with duplicate column names. i.e. Profiler must "
-                             "be initialized with duplicate column names and "
-                             "then updated with the same column order, or "
-                             "initialized with unique column names and never "
-                             "given duplicates at update.")
-
         try:
             from tqdm import tqdm
         except ImportError:
@@ -1462,30 +1452,15 @@ class StructuredProfiler(BaseProfiler):
                         options=self.options
                     ))
                     new_cols = True
-            else:
-                if not duplicate_cols_present:
-                    for col in data.columns:
-                        if col not in self._col_name_to_idx:
-                            # Append StructuredColProfiler to list of profiles
-                            # and record index where it was appended to in list
-                            self._col_name_to_idx[col] = [len(self._profile)]
-                            self._profile.append(StructuredColProfiler(
-                                sample_size=sample_size,
-                                min_true_samples=min_true_samples,
-                                sample_ids=sample_ids,
-                                options=self.options
-                            ))
-                            new_cols = True
-                else:
-                    # Ensure same schema if initialized with duplicate columns
-                    mapping_given = dict()
-                    for i in range(len(data.columns)):
-                        col = data.columns[i]
-                        mapping_given.setdefault(col, []).append(i)
-                    if mapping_given != self._col_name_to_idx:
-                        raise ValueError("Schema of data with duplicate "
-                                         "column names not respected when "
-                                         "updating profile.")
+        else:
+            # Ensure same schema if initialized with duplicate columns
+            mapping_given = dict()
+            for i in range(len(data.columns)):
+                col = data.columns[i]
+                mapping_given.setdefault(col, []).append(i)
+            if mapping_given != self._col_name_to_idx:
+                raise ValueError("Schema of data with duplicate column names "
+                                 "not respected when updating profile.")
                 
         # Generate pool and estimate datasize
         pool = None

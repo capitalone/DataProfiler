@@ -1404,21 +1404,28 @@ class StructuredProfiler(BaseProfiler):
         :return:
         """
         corr_mat1 = self.correlation_matrix
+        corr_mat2 = other.correlation_matrix
+
+        if len(corr_mat1.columns) != len(corr_mat2.columns) or \
+                len(corr_mat1.columns) <= 1:
+            return None
+        if set(corr_mat1.columns) == set(corr_mat2.columns):
+            return None
+
         mean1 = np.array(
             [self._profile[profile_name].profile['statistics']['mean']
-             for profile_name in self._profile])
+             for profile_name in corr_mat1.correlation_matrix])
         std1 = np.array(
             [self._profile[profile_name].profile['statistics']['stddev']
-             for profile_name in self._profile])
+             for profile_name in corr_mat1.correlation_matrix])
         n1 = self.total_samples
 
-        corr_mat2 = other.correlation_matrix
         mean2 = np.array(
             [other._profile[profile_name].profile['statistics']['mean']
-             for profile_name in other._profile])
+             for profile_name in corr_mat1.correlation_matrix])
         std2 = np.array(
             [other._profile[profile_name].profile['statistics']['stddev']
-             for profile_name in other._profile])
+             for profile_name in corr_mat1.correlation_matrix])
         n2 = other.total_samples
         return self._merge_correlation_helper(corr_mat1, mean1, std1, n1,
                                               corr_mat2, mean2, std2, n2)
@@ -1443,12 +1450,6 @@ class StructuredProfiler(BaseProfiler):
         :type std2: np.array
         :return: merged correlation matrix
         """
-        if len(corr_mat1.columns) != len(corr_mat2.columns) or \
-                len(corr_mat1.columns) <= 1:
-            return None
-        if set(corr_mat1.columns).difference(set(corr_mat2.columns)):
-            return None
-
         std_mat1 = np.outer(std1, std1)
         std_mat2 = np.outer(std2, std2)
         mean_diff_vector = mean1 - mean2

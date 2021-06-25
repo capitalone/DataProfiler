@@ -790,7 +790,7 @@ class TestIntColumn(unittest.TestCase):
 
         profile_1 + profile_2
 
-    def test_insufficient_count_skew_kurt(self):
+    def test_insufficient_counts(self):
         data = pd.Series(['1'])
         profiler = IntColumn(data.name)
 
@@ -798,13 +798,15 @@ class TestIntColumn(unittest.TestCase):
             warnings.simplefilter("always")
 
             profiler.update(data)
+            var = profiler.variance
             skew = profiler.skewness
             kurt = profiler.kurtosis
             # Verify values are NaN
+            self.assertTrue(np.isnan(var))
             self.assertTrue(np.isnan(skew))
             self.assertTrue(np.isnan(kurt))
             # Verify warning was raised properly
-            self.assertEqual(2, len(w))
+            self.assertEqual(3, len(w))
             for i in range(0, len(w)):
                 self.assertEqual(w[i].category, RuntimeWarning)
                 self.assertTrue("Insufficient match count to correct bias in" \
@@ -816,9 +818,11 @@ class TestIntColumn(unittest.TestCase):
             warnings.simplefilter("always")
 
             profiler.update(data2)
+            var = profiler.variance
             skew = profiler.skewness
             kurt = profiler.kurtosis
             # Verify values are no longer NaN
+            self.assertFalse(np.isnan(var))
             self.assertFalse(np.isnan(skew))
             self.assertFalse(np.isnan(kurt))
             # Verify warning-related things. In this case, we check

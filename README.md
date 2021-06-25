@@ -33,7 +33,7 @@ reStructuredText Docstring Format is the standard. Here is an example:
 
 ### How to update the documentation:  
 To update the docs branch, checkout the gh-pages branch. Make sure it is up to
-date, then copy the data_profile folder from the feature branch you want to
+date, then copy the dataprofiler folder from the feature branch you want to 
 update the documentation with (probably master).
 
 In /docs run:
@@ -56,3 +56,8 @@ and run:
 ```bash
 python update_documentation.py
 ```
+
+Make sure you run sphinx version Sphinx==3.5.4 since the Furo theme library
+doesn't work with the latest version of Sphinx. This will mean you have to 
+overwrite the generated underscore.js with the latest version to prevent a
+security risk.

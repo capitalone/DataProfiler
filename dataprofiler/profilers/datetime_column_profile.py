@@ -128,6 +128,13 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         return None
 
     def diff(self, other_profile, options=None):
+        """
+        Generates the differences between max, min, and formats of two DateTime columns
+
+        :return: Dict containing the differences between max, min, and format in their
+        appropriate output formats
+        :rtype: dict
+        """
         cls = self.__class__
         if not isinstance(other_profile, cls):
             raise TypeError("Unsupported operand type(s) for diff: '{}' "

@@ -354,6 +354,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _correct_bias_variance(match_count, biased_variance):
         if match_count is None or biased_variance is None or match_count < 2:
+            warnings.warn("Insufficient match count to correct bias in variance. Bias correction"
+                          "can be manually disabled by setting bias_correction.is_enabled to"
+                          "False in ProfilerOptions.", RuntimeWarning)
             return np.nan
 
         variance = match_count / (match_count - 1) * biased_variance
@@ -933,7 +936,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         sum_value = df_series.sum()
         if np.isinf(sum_value) or (len(df_series) > 0 and np.isnan(sum_value)):
             warnings.warn("Infinite or invalid values found in data. " 
-                          "Future statistics will not be computed.", RuntimeWarning)
+                          "Future statistics (mean, variance, skewness, kurtosis) "
+                          "will not be computed.", RuntimeWarning)
 
         subset_properties["sum"] = sum_value
         self.sum = self.sum + sum_value
@@ -945,7 +949,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 (np.isnan(self._biased_variance) and self.match_count > 0):
             return
 
-        batch_biased_variance = np.var(df_series) # Obtains biased variance
+        # Suppress any numpy warnings as we have a custom warning for invalid
+        # or infinite data already
+        with np.errstate(all='ignore'):
+            batch_biased_variance = np.var(df_series) # Obtains biased variance
         subset_properties["biased_variance"] = batch_biased_variance
         sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]

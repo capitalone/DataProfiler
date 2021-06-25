@@ -309,6 +309,71 @@ class TestStructuredProfiler(unittest.TestCase):
             # Once for global_stats, once for each of 16 columns
             self.assertEqual(pr_mock.call_count, 17)
 
+    def test_report_data_stats_accessible(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report()
+        schema = report["global_stats"]["profile_schema"]
+        data_stats = report["data_stats"]
+        expected_schema = {"a": [0, 2], "b": [1, 3], "c": [4], "d": [5]}
+        self.assertDictEqual(expected_schema, schema)
+        for name in schema:
+            for idx in schema[name]:
+                col_min = data.iloc[0, idx]
+                col_max = data.iloc[1, idx]
+                col_sum = col_min + col_max
+                self.assertEqual(name, data_stats[idx]["column_name"])
+                self.assertEqual(col_min, data_stats[idx]["statistics"]["min"])
+                self.assertEqual(col_max, data_stats[idx]["statistics"]["max"])
+                self.assertEqual(col_sum, data_stats[idx]["statistics"]["sum"])
+
+    def test_pretty_report_doesnt_cast_schema(self):
+        report = self.trained_schema.report(
+            report_options={"output_format": "pretty"})
+        self.assertIsInstance(report["global_stats"]["profile_schema"], dict)
+        self.assertIsInstance(report["data_stats"], list)
+        for idx_list in report["global_stats"]["profile_schema"].values():
+            self.assertIsInstance(idx_list, list)
+            for idx in idx_list:
+                self.assertIsInstance(idx, int)
+                self.assertTrue(idx >= 0)
+
+    def test_omit_keys_with_duplicate_cols(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={
+            "omit_keys": ["data_stats.a.statistics.min",
+                          "data_stats.d.statistics.max",
+                          "data_stats.*.statistics.null_types_index"]})
+        # Correctness of schema asserted in prior test
+        schema = report["global_stats"]["profile_schema"]
+        data_stats = report["data_stats"]
+
+        for idx in range(len(report["data_stats"])):
+            # Assert that min is absent from a's data_stats and not the others
+            if idx in schema["a"]:
+                self.assertNotIn("min", data_stats[idx]["statistics"])
+            else:
+                self.assertIn("min", report["data_stats"][idx]["statistics"])
+
+            # Assert that max is absent from d's data_stats and not the others
+            if idx in schema["d"]:
+                self.assertNotIn("max", report["data_stats"][idx]["statistics"])
+            else:
+                self.assertIn("max", report["data_stats"][idx]["statistics"])
+
+            # Assert that null_types_index not present in any
+            self.assertNotIn("null_types_index",
+                             report["data_stats"][idx]["statistics"])
+
     def test_report_quantiles(self):
         report_none = self.trained_schema.report(
             report_options={"num_quantile_groups": None})

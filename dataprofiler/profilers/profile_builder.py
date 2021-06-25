@@ -1431,7 +1431,7 @@ class StructuredProfiler(BaseProfiler):
         if not duplicate_cols_present:
             # Given duplicate columns despite duplicate columns not being
             # present in nonempty _profile
-            if len(self._profile) > 0 and duplicate_cols_given:
+            if initialized and duplicate_cols_given:
                 raise ValueError("Attempted to update data with duplicate "
                                  "column names that weren't present before "
                                  "update. Schema must be identical when "
@@ -1457,6 +1457,7 @@ class StructuredProfiler(BaseProfiler):
                     new_cols = True
         else:
             # Ensure same schema if initialized with duplicate columns
+            # No adding columns to _profile after initialization in this case
             mapping_given = dict()
             for i in range(len(data.columns)):
                 col = data.columns[i]

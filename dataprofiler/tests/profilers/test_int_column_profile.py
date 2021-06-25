@@ -5,6 +5,7 @@ from collections import defaultdict
 
 import pandas as pd
 import numpy as np
+import warnings
 
 from dataprofiler.profilers import IntColumn
 from dataprofiler.profilers.profiler_options import IntOptions
@@ -788,6 +789,46 @@ class TestIntColumn(unittest.TestCase):
         profile_2.update(data_2)
 
         profile_1 + profile_2
+
+    def test_insufficient_counts(self):
+        data = pd.Series(['1'])
+        profiler = IntColumn(data.name)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            profiler.update(data)
+            var = profiler.variance
+            skew = profiler.skewness
+            kurt = profiler.kurtosis
+            # Verify values are NaN
+            self.assertTrue(np.isnan(var))
+            self.assertTrue(np.isnan(skew))
+            self.assertTrue(np.isnan(kurt))
+            # Verify warning was raised properly
+            self.assertEqual(3, len(w))
+            for i in range(0, len(w)):
+                self.assertEqual(w[i].category, RuntimeWarning)
+                self.assertTrue("Insufficient match count to correct bias in" \
+                                in str(w[i].message))
+
+        # Update the data so that the match count is good
+        data2 = pd.Series(['-2', '-1', '1', '2'])
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            profiler.update(data2)
+            var = profiler.variance
+            skew = profiler.skewness
+            kurt = profiler.kurtosis
+            # Verify values are no longer NaN
+            self.assertFalse(np.isnan(var))
+            self.assertFalse(np.isnan(skew))
+            self.assertFalse(np.isnan(kurt))
+            # Verify warning-related things. In this case, we check
+            # to make sure NO warnings were thrown since we have
+            # a sufficient match count.
+            self.assertEqual(0, len(w))
 
     def test_diff(self):
         """

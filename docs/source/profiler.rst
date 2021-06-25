@@ -251,6 +251,18 @@ In addition, it utilizes only the first 10,000 rows.
     profile = Profiler(data)
     print(json.dumps(profile.report(report_options={"output_format": "pretty"}), indent=4))
 
+Setting Profiler Seed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Example of specifying a seed for reproducibility.
+
+.. code-block:: python
+
+    import dataprofiler as dp
+
+    # Set seed to non-negative integer value or None
+    dp.set_seed(0)
+
 
 
 Profile Options

@@ -10,7 +10,6 @@ import numpy as np
 from dataprofiler.profilers import NumericStatsMixin
 from dataprofiler.profilers.profiler_options import NumericalOptions
 
-
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
@@ -95,11 +94,11 @@ class TestNumericStatsMixin(unittest.TestCase):
         var1 = ((-3.0 - mean1) ** 2 + (2.0 - mean1)
                 ** 2 + (11.0 - mean1) ** 2) / 2
         count1 = len(data1)
-        num_profiler.variance = num_profiler._update_variance(
-            mean1, var1, count1)
-        self.assertEqual(var1, num_profiler.variance)
+        num_profiler._biased_variance = num_profiler._update_variance(
+            mean1, var1 * 2 / 3, count1)
         num_profiler.match_count = count1
         num_profiler.sum = sum(data1)
+        self.assertAlmostEqual(var1, num_profiler.variance)
 
         # test streaming update variance with new data
         data2 = [-5.0, 5.0, 11.0]
@@ -107,8 +106,10 @@ class TestNumericStatsMixin(unittest.TestCase):
         var2 = ((-5.0 - mean2) ** 2 + (5.0 - mean2)
                 ** 2 + (11.0 - mean2) ** 2) / 2
         count2 = len(data2)
-        num_profiler.variance = num_profiler._update_variance(
-            mean2, var2, count2)
+        num_profiler._biased_variance = num_profiler._update_variance(
+            mean2, var2 * 2 / 3, count2)
+        num_profiler.match_count += count2
+        num_profiler.sum += sum(data2)
         var_from_profile_updated = num_profiler.variance
 
         data_all = [-5.0, 5.0, 11.0, -3.0, 2.0, 11.0]
@@ -117,7 +118,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                    (11.0 - mean_all) ** 2 + (-3.0 - mean_all) ** 2 + \
                    (2.0 - mean_all) ** 2 + (11.0 - mean_all) ** 2) / 5
 
-        self.assertEqual(var_all, var_from_profile_updated)
+        self.assertAlmostEqual(var_all, var_from_profile_updated)
 
     def test_update_variance_with_varying_data_length(self):
         """
@@ -126,21 +127,25 @@ class TestNumericStatsMixin(unittest.TestCase):
         """
         # empty data
         data1 = []
-        mean1, var1, count1 = 0, 0, 0
+        mean1, var1, count1 = 0, np.nan, 0
 
         num_profiler = TestColumn()
-        num_profiler.variance = num_profiler._update_variance(
+        num_profiler._biased_variance = num_profiler._update_variance(
             mean1, var1, count1)
-        self.assertEqual(var1, num_profiler.variance)
+        num_profiler.match_count = count1
+        num_profiler.sum = 0
+        self.assertTrue(num_profiler.variance is np.nan)
 
         # data with 1 element
         data2 = [5.0]
         mean2, var2, count2 = 5.0, 0, 1
 
         num_profiler = TestColumn()
-        num_profiler.variance = num_profiler._update_variance(
+        num_profiler._biased_variance = num_profiler._update_variance(
             mean2, var2, count2)
-        self.assertEqual(var2, num_profiler.variance)
+        num_profiler.match_count += count2
+        num_profiler.sum += 5.0
+        self.assertTrue(num_profiler.variance is np.nan)
 
         # data with multiple elements
         data3 = [-5.0, 5.0, 11.0, -11.0]
@@ -149,8 +154,10 @@ class TestNumericStatsMixin(unittest.TestCase):
                 (11.0 - mean3) ** 2 + (-11.0 - mean3) ** 2) / 3
 
         num_profiler = TestColumn()
-        num_profiler.variance = num_profiler._update_variance(
-            mean3, var3, count3)
+        num_profiler._biased_variance = num_profiler._update_variance(
+            mean3, var3 * 3 / 4, count3)
+        num_profiler.match_count += count3
+        num_profiler.sum += sum(data3)
         self.assertEqual(var3, num_profiler.variance)
 
     def test_update_variance_with_empty_data(self):
@@ -165,17 +172,19 @@ class TestNumericStatsMixin(unittest.TestCase):
         var1 = ((-3.0 - mean1) ** 2 + (2.0 - mean1)
                 ** 2 + (11.0 - mean1) ** 2) / 2
         count1 = len(data1)
-        num_profiler.variance = num_profiler._update_variance(
-            mean1, var1, count1)
-        self.assertEqual(var1, num_profiler.variance)
+        num_profiler._biased_variance = num_profiler._update_variance(
+            mean1, var1 * 2 / 3, count1)
         num_profiler.match_count = count1
         num_profiler.sum = sum(data1)
+        self.assertEqual(var1, num_profiler.variance)
 
         # test adding data which would not have anything
         # data + empty
         mean2, var2, count2 = 0, 0, 0
-        num_profiler.variance = num_profiler._update_variance(
+        num_profiler._biased_variance = num_profiler._update_variance(
             mean2, var2, count2)
+        num_profiler.match_count = count1
+        num_profiler.sum = sum(data1)
         var_from_profile_updated = num_profiler.variance
 
         # simulate not having data
@@ -193,8 +202,10 @@ class TestNumericStatsMixin(unittest.TestCase):
             'bin_edges': np.array([2., 5.25, 8.5, 11.75, 15.])
         }
 
-        other1.min, other1.max, other1.variance, other1.sum = 0, 0, 0, 0
-        other2.min, other2.max, other2.variance, other2.sum = 1, 1, 1, 1
+        other1.min, other1.max, other1._biased_variance, other1.sum, \
+        other1.num_zeros, other1.num_negatives = 0, 0, 0, 0, 0, 0
+        other2.min, other2.max, other2._biased_variance, other2.sum, \
+        other2.num_zeros, other2.num_negatives = 1, 1, 1, 1, 1, 1
 
         # set auto as only histogram to merge
         other1.histogram_selection = "auto"
@@ -224,7 +235,7 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         # Dummy data to make min call
         prev_dependent_properties = {"mean": 0,
-                                     "variance": 0,
+                                     "biased_variance": 0,
                                      "biased_skewness": 0}
         data = np.array([0, 0, 0, 0, 0])
         df_series = pd.Series(data)
@@ -306,7 +317,8 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         # Sum of errors should be difference of each input value to midpoint of bin squared
         # bin_midpoints = [2, 6, 10, 14]   ids = [1, 1, 2, 3, 3, 4]
-        assert sum_error == (2-0)**2 + (2-3)**2 + (6-5)**2 + (10-9)**2 + (10-11)**2 + (17-14)**2
+        assert sum_error == (2-0)**2 + (2-3)**2 + (6-5)**2 + \
+               (10-9)**2 + (10-11)**2 + (17-14)**2
 
         # Max value test
         input_array = [sys.float_info.max, 1.2e308, 1.3e308, 1.5e308]
@@ -389,3 +401,138 @@ class TestNumericStatsMixin(unittest.TestCase):
         best_histogram = num_profiler._get_best_histogram_for_profile()
 
         assert best_histogram == "hist_1"
+
+    def test_num_zeros(self):
+        num_profiler = TestColumn()
+
+        # Dummy data to make num_zeros call
+        prev_dependent_properties = {"mean": 0}
+        subset_properties = {"num_zeros": 0}
+
+        df_series = pd.Series([])
+        num_profiler._get_num_zeros(df_series, prev_dependent_properties,
+                                    subset_properties)
+        self.assertEqual(subset_properties["num_zeros"], 0)
+
+        data = np.array([0, 0, 0, 0, 0])
+        df_series = pd.Series(data)
+        num_profiler._get_num_zeros(df_series, prev_dependent_properties,
+                                    subset_properties)
+        self.assertEqual(subset_properties["num_zeros"], 5)
+
+        data = np.array([000., 0.00, .000, 1.11234, 0, -1])
+        df_series = pd.Series(data)
+        num_profiler._get_num_zeros(df_series, prev_dependent_properties,
+                                    subset_properties)
+        self.assertEqual(subset_properties["num_zeros"], 4)
+
+    def test_num_negatives(self):
+        num_profiler = TestColumn()
+
+        # Dummy data to make num_negatives call
+        prev_dependent_properties = {"mean": 0}
+        subset_properties = {"num_negatives": 0}
+
+        df_series = pd.Series([])
+        num_profiler._get_num_negatives(df_series, prev_dependent_properties,
+                                        subset_properties)
+        self.assertEqual(subset_properties["num_negatives"], 0)
+
+        data = np.array([0, 0, 0, 0, 0])
+        df_series = pd.Series(data)
+        num_profiler._get_num_negatives(df_series, prev_dependent_properties,
+                                        subset_properties)
+        self.assertEqual(subset_properties["num_negatives"], 0)
+
+        data = np.array([1, 0, -.003, -16, -1., -24.45])
+        df_series = pd.Series(data)
+        num_profiler._get_num_negatives(df_series, prev_dependent_properties,
+                                        subset_properties)
+        self.assertEqual(subset_properties["num_negatives"], 4)
+
+    def test_timeit_num_zeros_and_negatives(self):
+        """
+        Checks num_zeros and num_negatives have been timed
+        :return:
+        """
+        num_profiler = TestColumn()
+
+        # Dummy data to make min call
+        prev_dependent_properties = {"mean": 0}
+        data = np.array([0, 0, 0, 0, 0])
+        df_series = pd.Series(data)
+        subset_properties = {"num_zeros": 0, "num_negatives": 0}
+
+        time_array = [float(i) for i in range(4, 0, -1)]
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+            # Validate that the times dictionary is empty
+            self.assertEqual(defaultdict(float), num_profiler.times)
+
+            # Validate _get_min is timed.
+            expected = defaultdict(float, {'num_zeros': 1.0})
+            num_profiler._get_num_zeros(
+                df_series,
+                prev_dependent_properties,
+                subset_properties)
+            self.assertEqual(expected, num_profiler.times)
+
+            # Validate _get_max is timed.
+            expected['num_negatives'] = 1.0
+            num_profiler._get_num_negatives(
+                df_series,
+                prev_dependent_properties,
+                subset_properties)
+            self.assertEqual(expected, num_profiler.times)
+
+    def test_merge_num_zeros_and_negatives(self):
+        """
+        Checks num_zeros and num_negatives can be merged
+        :return:
+        """
+        num_profiler, other1, other2 = TestColumn(), TestColumn(), TestColumn()
+        other1.num_zeros, other1.num_negatives = 3, 1
+        other2.num_zeros, other2.num_negatives = 7, 1
+        num_profiler._add_helper(other1, other2)
+        self.assertEqual(num_profiler.num_zeros, 10)
+        self.assertEqual(num_profiler.num_negatives, 2)
+
+        num_profiler, other1, other2 = TestColumn(), TestColumn(), TestColumn()
+        other1.num_zeros, other1.num_negatives = 0, 0
+        other2.num_zeros, other2.num_negatives = 0, 0
+        num_profiler._add_helper(other1, other2)
+        self.assertEqual(num_profiler.num_zeros, 0)
+        self.assertEqual(num_profiler.num_negatives, 0)
+
+    def test_diff(self):
+        """
+        Checks _diff_helper() works appropriately.
+        """
+        other1, other2 = TestColumn(), TestColumn()
+        other1.min = 3
+        other1.max = 4
+        other1._biased_variance = 1
+        other1.sum = 6
+        other1.match_count = 10
+        
+        other2.min = 3
+        other2.max = None
+        other2._biased_variance = 9
+        other2.sum = 6
+        other2.match_count = 20
+        
+        expected_diff = {
+            'min': 'unchanged',
+            'max': [4, None],
+            'sum': 'unchanged',
+            'mean': 0.3,
+            'variance': -8.362573099415204,
+            'stddev': -2.0238425028660023
+        }
+        self.assertDictEqual(expected_diff, other1.diff(other2))
+        
+        # Assert type error is properly called
+        with self.assertRaises(TypeError) as exc:
+            other1.diff("Inproper input")
+        self.assertEqual(str(exc.exception),
+                         "Unsupported operand type(s) for diff: 'TestColumn' and"
+                         " 'str'")

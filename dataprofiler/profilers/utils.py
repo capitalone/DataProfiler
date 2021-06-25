@@ -8,6 +8,9 @@ import psutil
 import numpy as np
 import multiprocessing as mp
 
+from dataprofiler import settings
+
+
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
     # Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
@@ -67,7 +70,7 @@ def _combine_unique_sets(a, b):
     elif not b:
         combined_list = set(a)
     else:
-        combined_list = set().union(a,b)
+        combined_list = set().union(a, b)
     return list(combined_list)
 
     
@@ -86,9 +89,10 @@ def shuffle_in_chunks(data_length, chunk_size):
     if not data_length or data_length == 0 \
        or not chunk_size or chunk_size == 0:
         return []
-    
-    rng = np.random.default_rng()
-    if 'DATAPROFILER_SEED' in os.environ:
+
+    rng = np.random.default_rng(settings._seed)
+
+    if 'DATAPROFILER_SEED' in os.environ and settings._seed is None:
         try:
             seed_value = int(os.environ.get('DATAPROFILER_SEED'))
             rng = np.random.default_rng(seed_value)
@@ -275,3 +279,135 @@ def add_nested_dictionaries(first_dict, second_dict):
             merged_dict[item] = copy.deepcopy(second_dict[item])
 
     return merged_dict
+
+def biased_skew(df_series):
+    """
+    Calculates the biased estimator for skewness of the given data.
+    The definition is formalized as g_1 here:
+        https://en.wikipedia.org/wiki/Skewness#Sample_skewness
+    :param df_series: data to get skewness of, assuming floats
+    :type df_series: pandas Series
+    :return: biased skewness
+    :rtype: float
+    """
+    n = len(df_series)
+    if n < 1:
+        return np.nan
+
+    mean = sum(df_series) / n
+    if np.isinf(mean) or np.isnan(mean):
+        return np.nan
+
+    diffs = df_series - mean
+    squared_diffs = diffs ** 2
+    cubed_diffs = squared_diffs * diffs
+    M2 = sum(squared_diffs)
+    M3 = sum(cubed_diffs)
+    # This correction comes from the pandas implementation of
+    # skewness, which zeroes these values out before computation
+    # due to possible floating point errors that can occur.
+    M2 = 0 if np.abs(M2) < 1e-14 else M2
+    M3 = 0 if np.abs(M3) < 1e-14 else M3
+
+    if (M2 == 0):
+        return 0.0
+
+    skew = np.sqrt(n) * M3 / M2 ** 1.5
+    return skew
+
+def biased_kurt(df_series):
+    """
+    Calculates the biased estimator for kurtosis of the given data
+    The definition is formalized as g_2 here:
+        https://en.wikipedia.org/wiki/Kurtosis#A_natural_but_biased_estimator
+    :param df_series: data to get kurtosis of, assuming floats
+    :type df_series: pandas Series
+    :return: biased kurtosis
+    :rtype: float
+    """
+    n = len(df_series)
+    if (n < 1):
+        return np.nan
+
+    mean = sum(df_series) / n
+    if np.isinf(mean) or np.isnan(mean):
+        return np.nan
+
+    diffs = df_series - mean
+    squared_diffs = diffs ** 2
+    fourth_diffs = squared_diffs * squared_diffs
+    M2 = sum(squared_diffs)
+    M4 = sum(fourth_diffs)
+    # This correction comes from the pandas implementation of
+    # kurtosis, which zeroes these values out before computation
+    # due to possible floating point errors that can occur.
+    M2 = 0 if np.abs(M2) < 1e-14 else M2
+    M4 = 0 if np.abs(M4) < 1e-14 else M4
+
+    if (M2 == 0):
+        return -3.0
+
+    kurt = n * M4 / M2 ** 2 - 3
+    return kurt
+
+def find_diff_of_numbers(stat1, stat2):
+    """
+    Finds the difference between two stats. If there is no difference, returns
+    "unchanged". For ints/floats, returns stat1 - stat2.
+
+    :param stat1: the first statistical input
+    :type stat1: Union[int, float]
+    :param stat2: the second statistical input
+    :type stat2: Union[int, float]
+    :return: the difference of the stats
+    """
+    diff = "unchanged"
+    if stat1 is None and stat2 is None:
+        pass
+    elif stat1 is None or stat2 is None:
+        diff = [stat1, stat2]
+    elif stat1 != stat2:
+        diff = stat1 - stat2
+    return diff
+
+
+def find_diff_of_strings(stat1, stat2):
+    """
+    Finds the difference between two stats. If there is no difference, returns
+    "unchanged". For strings, returns list containing [stat1, stat2].
+
+    :param stat1: the first statistical input
+    :type stat1: str
+    :param stat2: the second statistical input
+    :type stat2: str
+    :return: the difference of the stats
+    """
+    diff = "unchanged"
+    if stat1 != stat2:
+       diff = [stat1, stat2]
+    return diff
+
+
+def find_diff_of_lists_and_sets(stat1, stat2):
+    """
+    Finds the difference between two stats. If there is no difference, returns
+    "unchanged". Removes duplicates and returns [unique values of stat1, 
+    shared values, unique values of stat2].
+
+    :param stat1: the first statistical input
+    :type stat1: Union[list, set]
+    :param stat2: the second statistical input
+    :type stat2: Union[list, set]
+    :return: the difference of the stats
+    """
+    diff = "unchanged"
+    if stat1 is None and stat2 is None:
+        pass
+    elif stat1 is None or stat2 is None:
+        diff = [stat1, stat2]
+    elif set(stat1) != set(stat2):
+        unique1 = [element for element in stat1 if element not in stat2]
+        shared = [element for element in stat1 if element in stat2]
+        unique2 = [element for element in stat2 if element not in stat1]
+        diff = [unique1, shared, unique2]
+    return diff

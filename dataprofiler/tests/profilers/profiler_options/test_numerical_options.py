@@ -6,7 +6,14 @@ from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options \
 class TestNumericalOptions(TestBaseInspectorOptions):
     
     option_class = NumericalOptions
-    keys = ["min", "max", "sum", "variance", "histogram_and_quantiles"]
+    keys = ["min", "max", "sum", "variance", "skewness",
+            "kurtosis", "bias_correction",
+            "num_zeros", "num_negatives",
+            "histogram_and_quantiles"]
+    numeric_keys = ["min", "max", "sum", "variance",
+                    "skewness", "kurtosis",
+                    "histogram_and_quantiles",
+                    "num_zeros", "num_negatives"]
 
     def test_init(self):
         options = self.get_options()
@@ -45,17 +52,47 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             skey = '{}.is_enabled'.format(key)
             expected_error = "{}.{}.is_enabled must be a Boolean." \
                              .format(optpth, key)
-            
+            default_bool = options.properties[key].is_enabled
             options.set({skey: "Hello World"})
-            self.assertEqual([expected_error], options._validate_helper())
-            options.set({skey: True})
+            self.assertIn(expected_error, options._validate_helper())
+            options.set({skey: default_bool})
 
         # Disable Sum and Enable Variance
-        options.set({"sum.is_enabled": False, "variance.is_enabled": True})
-        expected_error = "{}: The numeric stats must toggle on the sum if " \
+        options.set({"sum.is_enabled": False,
+                     "variance.is_enabled": True,
+                     "skewness.is_enabled": False,
+                     "kurtosis.is_enabled": False})
+        var_error = "{}: The numeric stats must toggle on the sum if " \
                          "the variance is toggled on.".format(optpth)
-        self.assertEqual([expected_error], options._validate_helper()) 
-    
+        self.assertEqual([var_error], options._validate_helper())
+
+        # Disable Sum and Variance, Enable Skewness
+        options.set({"sum.is_enabled": False,
+                     "variance.is_enabled": False,
+                     "skewness.is_enabled": True,
+                     "kurtosis.is_enabled": False})
+        skew_error = "{}: The numeric stats must toggle on the " \
+                         "sum and variance if skewness is toggled on." \
+            .format(optpth)
+        self.assertEqual([skew_error], options._validate_helper())
+
+        # Disable Sum, Variance, and Skewness, Enable Kurtosis
+        options.set({"sum.is_enabled": False,
+                     "variance.is_enabled": False,
+                     "skewness.is_enabled": False,
+                     "kurtosis.is_enabled": True})
+        kurt_error = "{}: The numeric stats must toggle on sum," \
+                         " variance, and skewness if kurtosis is " \
+                         "toggled on.".format(optpth)
+        self.assertEqual([kurt_error], options._validate_helper())
+
+        # Test multiple errors
+        options.set({"sum.is_enabled": False,
+                     "variance.is_enabled": True,
+                     "skewness.is_enabled": True,
+                     "kurtosis.is_enabled": True})
+        self.assertEqual([var_error, skew_error, kurt_error], options._validate_helper())
+
     def test_validate(self):
         super().test_validate()
         options = self.get_options()
@@ -66,34 +103,67 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             skey = '{}.is_enabled'.format(key)
             expected_error = "{}.{}.is_enabled must be a Boolean."\
                 .format(optpth, key)
-            
+            default_bool = options.properties[key].is_enabled
             options.set({skey: "Hello World"})
             with self.assertRaisesRegex(ValueError, expected_error):
                 options.validate(raise_error=True)    
-            self.assertEqual([expected_error], 
-                             options.validate(raise_error=False))
-            options.set({skey: True})
+            self.assertIn(expected_error, options.validate(raise_error=False))
+            options.set({skey: default_bool})
 
         # Disable Sum and Enable Variance
-        options.set({"sum.is_enabled": False, "variance.is_enabled": True})
-        expected_error = "{}: The numeric stats must toggle on the sum if " \
+        options.set({"sum.is_enabled": False,
+                     "variance.is_enabled": True,
+                     "skewness.is_enabled": False,
+                     "kurtosis.is_enabled": False})
+        var_error = "{}: The numeric stats must toggle on the sum if " \
                          "the variance is toggled on.".format(optpth)
-        with self.assertRaisesRegex(ValueError, expected_error):
-            options.validate(raise_error=True)    
-        self.assertEqual([expected_error], options.validate(raise_error=False))
-    
+        with self.assertRaisesRegex(ValueError, var_error):
+            options.validate(raise_error=True)
+        self.assertEqual([var_error], options.validate(raise_error=False))
+
+        # Disable Sum and Variance, Enable Skewness
+        options.set({"sum.is_enabled": False,
+                     "variance.is_enabled": False,
+                     "skewness.is_enabled": True,
+                     "kurtosis.is_enabled": False})
+        skew_error = "{}: The numeric stats must toggle on the " \
+                         "sum and variance if skewness is toggled on." \
+            .format(optpth)
+        with self.assertRaisesRegex(ValueError, skew_error):
+            options.validate(raise_error=True)
+        self.assertEqual([skew_error], options.validate(raise_error=False))
+
+        # Disable Sum, Variance, and Skewness, Enable Kurtosis
+        options.set({"sum.is_enabled": False,
+                     "variance.is_enabled": False,
+                     "skewness.is_enabled": False,
+                     "kurtosis.is_enabled": True})
+        kurt_error = "{}: The numeric stats must toggle on sum," \
+                         " variance, and skewness if kurtosis is " \
+                         "toggled on.".format(optpth)
+        with self.assertRaisesRegex(ValueError, kurt_error):
+            options.validate(raise_error=True)
+        self.assertEqual([kurt_error], options.validate(raise_error=False))
+
+        # Test multiple errors
+        options.set({"sum.is_enabled": False,
+                     "variance.is_enabled": True,
+                     "skewness.is_enabled": True,
+                     "kurtosis.is_enabled": True})
+        with self.assertRaisesRegex(ValueError, kurt_error):
+            options.validate(raise_error=True)
+        self.assertEqual([var_error, skew_error, kurt_error], options.validate(raise_error=False))
+
     def test_is_numeric_stats_enabled(self):
         options = self.get_options()
-        numeric_keys = ["min", "max", "sum", "variance", 
-                        "histogram_and_quantiles"] 
 
         # Disable All Numeric Stats
         options.set({'{}.is_enabled'.format(key):False 
-                     for key in numeric_keys})
+                     for key in self.numeric_keys})
         self.assertFalse(options.is_numeric_stats_enabled)
         
         # Enable Only One Numeric Stat
-        for key in numeric_keys:
+        for key in self.numeric_keys:
             skey = '{}.is_enabled'.format(key)
             options.set({skey: True})
             self.assertTrue(options.is_numeric_stats_enabled)
@@ -101,12 +171,12 @@ class TestNumericalOptions(TestBaseInspectorOptions):
 
         # Enable All Numeric Stats
         options.is_numeric_stats_enabled = True
-        for key in numeric_keys:            
+        for key in self.numeric_keys:
             self.assertTrue(options.is_numeric_stats_enabled)
 
         # Disable All Numeric Stats
         options.is_numeric_stats_enabled = False
-        for key in numeric_keys:            
+        for key in self.numeric_keys:
             self.assertFalse(options.is_numeric_stats_enabled)
 
     def test_eq(self):

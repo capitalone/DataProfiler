@@ -7,7 +7,7 @@ class TestStructuredOptions(TestBaseOption):
     
     option_class = StructuredOptions
     keys = ["int", "float", "datetime", "text", "order", "category",
-            "data_labeler", "multiprocess"]
+            "data_labeler", "multiprocess", "correlation"]
 
     @classmethod
     def get_options(self, **params):
@@ -94,6 +94,7 @@ class TestStructuredOptions(TestBaseOption):
         option.category = StructuredOptions()
         option.data_labeler = StructuredOptions()
         option.multiprocess = StructuredOptions()
+        option.correlation = StructuredOptions()
 
         expected_error = set()
         for key in self.keys:
@@ -147,6 +148,7 @@ class TestStructuredOptions(TestBaseOption):
         option.category = StructuredOptions()
         option.data_labeler = StructuredOptions()
         option.multiprocess = StructuredOptions()
+        option.correlation = StructuredOptions()
 
         expected_error = set()
         for key in self.keys:

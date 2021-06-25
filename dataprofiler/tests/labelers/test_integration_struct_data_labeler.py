@@ -323,7 +323,10 @@ class TestStructuredDataLabeler(unittest.TestCase):
                 columns.append(col)
                 predictions.append(results['data_stats'][col]['data_label'])
 
-    def test_warning_tf_run_dp_merge(self):
+    from unittest import mock
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'StructuredProfiler._merge_correlation')
+    def test_warning_tf_run_dp_merge(self, *mocks):
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         test_dir = os.path.join(test_root_path, 'data')
         path = os.path.join(test_dir, 'csv/diamonds.csv')

@@ -1200,7 +1200,7 @@ class StructuredProfiler(BaseProfiler):
         # merge profiles
         for profile_name in self._profile:
             merged_profile._profile[profile_name] = (
-                    self._profile[profile_name] + other._profile[profile_name]
+                self._profile[profile_name] + other._profile[profile_name]
             )
 
         # merge correlation
@@ -1369,28 +1369,27 @@ class StructuredProfiler(BaseProfiler):
         :param clean_samples: the input cleaned dataset
         :type clean_samples: dict()
         """
+        if self.correlation_matrix is not None:
+            # currently return None with the exising correlation
+            # TODO: implement the update with the exising correlation
+            warnings.warn("Currently the update with existing correlation "
+                          "doesnt work. The updated value is kept the same "
+                          "as the previous value. Updating correlations with "
+                          "existing value will be available in a future update")
+            return
+
         columns = self.options.correlation.columns
         if columns is None:
             for col in self._profile:
-                if self._profile[col].profile['data_type'] not in ['int', 'float'] \
-                or self._profile[col].profile['statistics']['null_count'] > 0:
+                if (self._profile[col].profile['data_type'] not in ['int', 'float']
+                        or self._profile[col].profile['statistics']['null_count'] > 0):
                     clean_samples.pop(col)
         if len(clean_samples) <= 1:
             return
 
         data = pd.DataFrame(clean_samples)
         data = data.apply(pd.to_numeric, errors='coerce')
-        correlation_matrix = data.corr()
-
-        if self.correlation_matrix is None:
-            self.correlation_matrix = correlation_matrix
-            return
-
-        # currently return None with the exising correlation
-        # TODO: implement the update with the exising correlation
-        warnings.warn("Currently the update with existing correlation "
-                      "doesnt work.")
-        return
+        self.correlation_matrix = data.corr()
 
     def _merge_correlation(self, other):
         """

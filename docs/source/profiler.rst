@@ -343,6 +343,12 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * num_zeros - Finds the count of zeros in a column
+
+        * is_enabled - (Boolean) Enables or disables num_zeros
+      * num_negatives - Finds the count of negative numbers in a column
+
+        * is_enabled - (Boolean) Enables or disables num_negatives
       * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
 
         * is_enabled - (Boolean) Enables or disables bias correction
@@ -381,6 +387,12 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * num_zeros - Finds the count of zeros in a column
+
+        * is_enabled - (Boolean) Enables or disables num_zeros
+      * num_negatives - Finds the count of negative numbers in a column
+
+        * is_enabled - (Boolean) Enables or disables num_negatives
       * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
 
         * is_enabled - (Boolean) Enables or disables bias correction

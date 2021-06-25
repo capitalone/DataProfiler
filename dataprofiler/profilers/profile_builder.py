@@ -1372,9 +1372,8 @@ class StructuredProfiler(BaseProfiler):
         if self.correlation_matrix is not None:
             # currently return None with the exising correlation
             # TODO: implement the update with the exising correlation
-            warnings.warn("Currently the update with existing correlation "
-                          "doesnt work. The updated value is kept the same "
-                          "as the previous value. Updating correlations with "
+            warnings.warn("Currently, the updated correlation is kept the same "
+                          "as the existing value. Updating correlations with "
                           "existing value will be available in a future update")
             return
 

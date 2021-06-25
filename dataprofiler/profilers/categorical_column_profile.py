@@ -1,7 +1,8 @@
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
 from . import utils
-
+from collections import Counter
+from collections import defaultdict
 
 class CategoricalColumn(BaseColumnProfiler):
     """
@@ -29,7 +30,7 @@ class CategoricalColumn(BaseColumnProfiler):
             raise ValueError("CategoricalColumn parameter 'options' must be of"
                              " type CategoricalOptions.")
         super(CategoricalColumn, self).__init__(name)
-        self._categories = list()
+        self._categories = defaultdict(int)
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
 
@@ -47,10 +48,10 @@ class CategoricalColumn(BaseColumnProfiler):
             raise TypeError("Unsupported operand type(s) for +: "
                             "'CategoricalColumn' and '{}'".format(
                                 other.__class__.__name__))
-
+        print(self._categories)
+        print(other._categories)
         merged_profile = CategoricalColumn(None)
-        merged_profile._categories = self._categories.copy()
-        merged_profile._update_categories(other._categories)
+        merged_profile._categories =  utils.add_nested_dictionaries(self._categories, other._categories)
         BaseColumnProfiler._add_helper(merged_profile, self, other)
         self._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,
@@ -82,7 +83,9 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         Property for categories.
         """
-        return self._categories
+        print(self._categories)
+        print(list(self._categories.keys()))
+        return list(self._categories.keys())
 
     @property
     def unique_ratio(self):
@@ -126,11 +129,15 @@ class CategoricalColumn(BaseColumnProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        if hasattr(df_series, 'tolist'):
-            df_series = df_series.tolist()
+        #if hasattr(df_series, 'tolist'):
+        #    df_series = df_series.tolist()
 
-        self._categories = utils._combine_unique_sets(
-            self._categories, df_series)
+        #self._categories = utils._combine_unique_sets(
+        #    self._categories, df_series)
+
+        self._categories = df_series.value_counts().to_dict()
+
+
 
     def _update_helper(self, df_series_clean, profile):
         """

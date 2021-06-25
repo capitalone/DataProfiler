@@ -1261,7 +1261,7 @@ class StructuredProfiler(BaseProfiler):
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
                 "encoding": self.encoding,
-                "correlation_matrix": self._get_correlation()
+                "correlation_matrix": self.correlation_matrix
             }),
             ("data_stats", OrderedDict()),
         ])
@@ -1288,9 +1288,6 @@ class StructuredProfiler(BaseProfiler):
 
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)
-
-    def _get_correlation(self):
-        return self.correlation_matrix
 
     def _update_row_statistics(self, data, sample_ids=None):
         """
@@ -1362,6 +1359,26 @@ class StructuredProfiler(BaseProfiler):
             self.row_has_null_count = len(null_in_row_count)
             self.row_is_null_count = len(null_rows)
 
+    def _get_correlation(self, clean_samples):
+        """
+        Calculate correlation matrix on the cleaned data.
+
+        :param clean_samples: the input cleaned dataset
+        :type clean_samples: dict()
+        """
+        columns = self.options.correlation.columns
+        if columns is None:
+            for col in self._profile:
+                if (self._profile[col].profile['data_type'] not in ['int', 'float']
+                        or self._profile[col].profile['statistics']['null_count'] > 0):
+                    clean_samples.pop(col)
+        if len(clean_samples) <= 1:
+            return
+
+        data = pd.DataFrame(clean_samples)
+        data = data.apply(pd.to_numeric, errors='coerce')
+        self.correlation_matrix = data.corr()
+
     def _update_correlation(self, clean_samples):
         """
         Update correlation matrix for cleaned data.
@@ -1377,18 +1394,7 @@ class StructuredProfiler(BaseProfiler):
                           "existing value will be available in a future update")
             return
 
-        columns = self.options.correlation.columns
-        if columns is None:
-            for col in self._profile:
-                if (self._profile[col].profile['data_type'] not in ['int', 'float']
-                        or self._profile[col].profile['statistics']['null_count'] > 0):
-                    clean_samples.pop(col)
-        if len(clean_samples) <= 1:
-            return
-
-        data = pd.DataFrame(clean_samples)
-        data = data.apply(pd.to_numeric, errors='coerce')
-        self.correlation_matrix = data.corr()
+        self._get_correlation(clean_samples)
 
     def _merge_correlation(self, other):
         """

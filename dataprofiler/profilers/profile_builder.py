@@ -1630,9 +1630,9 @@ class StructuredProfiler(BaseProfiler):
         if min_true_samples not in [None, 0]:
             samples_for_row_stats = np.concatenate(sample_ids)
 
-        self._update_row_statistics(data, samples_for_row_stats)
         if self.options.correlation.is_enabled:
             self._update_correlation(clean_sampled_dict)
+        self._update_row_statistics(data, samples_for_row_stats)
 
     def save(self, filepath=None):
         """

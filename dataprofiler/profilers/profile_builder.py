@@ -1370,7 +1370,7 @@ class StructuredProfiler(BaseProfiler):
         if columns is None:
             for col in self._profile:
                 if (self._profile[col].profile['data_type'] not in ['int', 'float']
-                        or self._profile[col].profile['statistics']['null_count'] > 0):
+                        or self._profile[col].null_count > 0):
                     clean_samples.pop(col)
         if len(clean_samples) <= 1:
             return

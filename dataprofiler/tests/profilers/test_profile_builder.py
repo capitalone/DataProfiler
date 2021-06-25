@@ -245,7 +245,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(0.0, self.trained_schema._get_duplicate_row_count())
 
     def test_correct_datatime_schema_test(self):
-        profile = self.trained_schema.profile_by_name("datetime")
+        profile_idx = self.trained_schema._col_name_to_idx["datetime"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = \
             profile.profiles['data_type_profile']._profiles["datetime"]
 
@@ -257,7 +258,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(['%m/%d/%y %H:%M'], col_schema_info['date_formats'])
 
     def test_correct_integer_column_detection_src(self):
-        profile = self.trained_schema.profile_by_name("src")
+        profile_idx = self.trained_schema._col_name_to_idx["src"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
 
         self.assertEqual(2999, profile.sample_size)
@@ -266,7 +268,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(3, profile.null_count)
 
     def test_correct_integer_column_detection_int_col(self):
-        profile = self.trained_schema.profile_by_name("int_col")
+        profile_idx = self.trained_schema._col_name_to_idx["int_col"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size,
@@ -274,7 +277,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profile.null_count)
 
     def test_correct_integer_column_detection_port(self):
-        profile = self.trained_schema.profile_by_name("srcport")
+        profile_idx = self.trained_schema._col_name_to_idx["srcport"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size,
@@ -282,7 +286,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(197, profile.null_count)
 
     def test_correct_integer_column_detection_destport(self):
-        profile = self.trained_schema.profile_by_name("destport")
+        profile_idx = self.trained_schema._col_name_to_idx["destport"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size,

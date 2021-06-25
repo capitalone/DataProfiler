@@ -337,6 +337,15 @@ Below is an breakdown of all the options.
       * variance - Finds variance of all values in a column
 
         * is_enabled - (Boolean) Enables or disables variance
+      * skewness - Finds skewness of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables skewness
+      * kurtosis - Finds kurtosis of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables kurtosis
+      * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
+
+        * is_enabled - (Boolean) Enables or disables bias correction
       * histogram_and_quantiles - Generates a histogram and quantiles
         from the column values
 
@@ -352,7 +361,7 @@ Below is an breakdown of all the options.
       * precision - Finds the precision (significant figures) within the column
 
         * is_enabled - (Boolean) Enables or disables precision
-	  * sample_ratio - (Float) The ratio of 0 to 1 how much data (identified as floats) to utilize as samples in determining precision 
+      * sample_ratio - (Float) The ratio of 0 to 1 how much data (identified as floats) to utilize as samples in determining precision
 
       * min - Finds minimum value in a column
 
@@ -366,6 +375,15 @@ Below is an breakdown of all the options.
       * variance - Finds variance of all values in a column
 
         * is_enabled - (Boolean) Enables or disables variance
+      * skewness - Finds skewness of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables skewness
+      * kurtosis - Finds kurtosis of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables kurtosis
+      * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
+
+        * is_enabled - (Boolean) Enables or disables bias correction
       * histogram_and_quantiles - Generates a histogram and quantiles
         from the column values
 
@@ -393,6 +411,15 @@ Below is an breakdown of all the options.
       * variance - Finds variance of all values in a column
 
         * is_enabled - (Boolean) Enables or disables variance
+      * skewness - Finds skewness of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables skewness
+      * kurtosis - Finds kurtosis of all values in a column
+
+        * is_enabled - (Boolean) Enables or disables kurtosis
+      * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
+
+        * is_enabled - (Boolean) Enables or disables bias correction
       * histogram_and_quantiles - Generates a histogram and quantiles
         from the column values
 

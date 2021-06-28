@@ -1162,6 +1162,8 @@ class StructuredProfiler(BaseProfiler):
         self.hashed_row_dict = dict()
         self._profile = []
         self._col_name_to_idx = dict()
+        self._initialized = False
+        self._duplicate_cols_present = False
 
         if data is not None:
             self.update_profile(data)
@@ -1393,19 +1395,17 @@ class StructuredProfiler(BaseProfiler):
             data = pd.DataFrame(data)
 
         duplicate_cols_given = len(data.columns) != len(data.columns.unique())
-        num_cols = [len(idxs) for idxs in self._col_name_to_idx.values()]
-        duplicate_cols_present = any([num > 1 for num in num_cols])
-        initialized = len(self._profile) > 0
 
         # Error out if initialized with unique columns but given duplicates
-        if initialized and duplicate_cols_given and not duplicate_cols_present:
+        if self._initialized and duplicate_cols_given \
+                and not self._duplicate_cols_present:
             raise ValueError("Attempted to update data with duplicate "
                              "column names that weren't present before "
                              "update. Schema must be identical when "
                              "profiling data with duplicate column names.")
 
         # Error out if duplicate columns present and given schema doesn't match
-        if duplicate_cols_present:
+        if self._duplicate_cols_present:
             mapping_given = dict()
             for i in range(len(data.columns)):
                 col = data.columns[i]
@@ -1440,14 +1440,14 @@ class StructuredProfiler(BaseProfiler):
         # Create StructuredColProfilers (must be either first initialization
         # or unique column names)
         new_cols = False
-        if not duplicate_cols_present:
+        if not self._duplicate_cols_present:
             # Either initializing _profile for the first time or updating
             # _profile that doesn't contain duplicate column names
             for col in data.columns:
                 # If initializing for the first time, must fill mapping
                 # If initialized, with no duplicate columns, only add to mapping
                 # if not already there, since this means we are updating
-                if not initialized or col not in self._col_name_to_idx:
+                if not self._initialized or col not in self._col_name_to_idx:
                     # Append StructuredColProfiler to list of profiles
                     # and record index where it was appended to in list
                     self._col_name_to_idx.setdefault(col, []).append(
@@ -1610,6 +1610,11 @@ class StructuredProfiler(BaseProfiler):
             samples_for_row_stats = np.concatenate(sample_ids)
 
         self._update_row_statistics(data, samples_for_row_stats)
+
+        # Update personal attributes about state of profile
+        if not self._initialized:
+            self._duplicate_cols_present = duplicate_cols_given
+        self._initialized = True
 
     def save(self, filepath=None):
         """

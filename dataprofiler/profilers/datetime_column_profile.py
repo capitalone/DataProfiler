@@ -141,14 +141,9 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
                             "and '{}'".format(cls.__name__,
                                               other_profile.__class__.__name__))
 
-        # We can use find_diff_of_numbers for max/min to get a timedelta object,
-        # since datetime objects can be compared and subtracted naturally
-        min_diff = utils.find_diff_of_numbers(self._dt_obj_min, other_profile._dt_obj_min)
-        max_diff = utils.find_diff_of_numbers(self._dt_obj_max, other_profile._dt_obj_max)
-
         differences = {
-            "min": utils.timedelta_to_readable_output(min_diff),
-            "max": utils.timedelta_to_readable_output(max_diff),
+            "min": utils.find_diff_of_dates(self._dt_obj_min, other_profile._dt_obj_min),
+            "max": utils.find_diff_of_dates(self._dt_obj_max, other_profile._dt_obj_max),
             "format": utils.find_diff_of_lists_and_sets(
                 self.date_formats, other_profile.date_formats)
         }

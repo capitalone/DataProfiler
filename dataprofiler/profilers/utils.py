@@ -407,19 +407,33 @@ def find_diff_of_lists_and_sets(stat1, stat2):
     return diff
 
 
-def timedelta_to_readable_output(diff):
+def find_diff_of_dates(stat1, stat2):
     """
+    Finds the difference between two dates. If there is no difference, returns
+    "unchanged". For dates, returns the difference in time.
+
     Because only days can be stored as negative values internally
     for timedelta objects, the output for these negative values is
     less readable due to the combination of signs in the default
     output. This returns a readable output for timedelta that
     accounts for potential negative differences.
 
-    :param diff: The difference in time to get the readable output
-    :type diff: datetime.timedelta object
-    :return: Readable output
+    :param stat1: the first statistical input
+    :type stat1: datetime.datetime object
+    :param stat2: the second statistical input
+    :type stat2: datetime.datetime object
+    :return: Difference in stats
     :rtype: str
     """
+    # We can use find_diff_of_numbers since datetime objects
+    # can be compared and subtracted naturally
+    diff = find_diff_of_numbers(stat1, stat2)
+    if isinstance(diff, str):
+        return diff
+    if isinstance(diff, list):
+        return [None if i is None else i.strftime("%x %X") for i in diff]
+
+    # Must be timedelta object
     if diff.days >= 0:
         return "+" + str(diff)
 

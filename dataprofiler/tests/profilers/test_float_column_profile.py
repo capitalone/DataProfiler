@@ -26,7 +26,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, None)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
-        self.assertEqual(profiler.variance, 0)
+        self.assertTrue(profiler.variance is np.nan)
         self.assertTrue(profiler.skewness is np.nan)
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
@@ -40,7 +40,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(data)
         self.assertEqual(profiler.match_count, 1.0)
         self.assertEqual(profiler.mean, 1.5)
-        self.assertEqual(profiler.variance, 0.0)
+        self.assertTrue(profiler.variance is np.nan)
 
         data = pd.Series([2.5]).apply(str)
         profiler.update(data)
@@ -340,12 +340,9 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(0, num_profiler.skewness)
 
         num_profiler.update(df2.apply(str))
-        df = pd.concat([df1, df2])
-        print(num_profiler.skewness)
         self.assertAlmostEqual(np.sqrt(22 * 21) / 20 * 133 / 750, num_profiler.skewness)
 
         num_profiler.update(df3.apply(str))
-        df = pd.concat([df1, df2, df3])
         self.assertAlmostEqual(-0.3109967, num_profiler.skewness)
 
     def test_profiled_kurtosis(self):
@@ -364,12 +361,81 @@ class TestFloatColumn(unittest.TestCase):
         self.assertAlmostEqual(-6 / 5, num_profiler.kurtosis)
 
         num_profiler.update(df2.apply(str))
-        df = pd.concat([df1, df2])
         self.assertAlmostEqual(-0.390358, num_profiler.kurtosis)
 
         num_profiler.update(df3.apply(str))
-        df = pd.concat([df1, df2, df3])
         self.assertAlmostEqual(0.3311739, num_profiler.kurtosis)
+
+    def test_bias_correction_option(self):
+        # df1 = [-5, -4, ..., 3, 4, 5]
+        data = np.linspace(-5, 5, 11).tolist()
+        df1 = pd.Series(data)
+
+        # df2 = [-3, -2.5, -2, ..., 1.5, 2]
+        data = np.linspace(-3, 2, 11).tolist()
+        df2 = pd.Series(data)
+
+        # df3 = [1, 1, ... , 1] (ten '1's)
+        data = np.full((10,), 1)
+        df3 = pd.Series(data)
+
+        # Disable bias correction
+        options = FloatOptions(); options.bias_correction.is_enabled = False
+        num_profiler = FloatColumn(df1.name, options=options)
+        num_profiler.update(df1.apply(str))
+        # Test biased values of variance, skewness, kurtosis
+        self.assertAlmostEqual(10, num_profiler.variance)
+        self.assertAlmostEqual(0, num_profiler.skewness)
+        self.assertAlmostEqual(89/50 - 3, num_profiler.kurtosis)
+
+        df2_ints = df2[df2 == df2.round()]
+        num_profiler.update(df2.apply(str))
+        df = pd.concat([df1, df2_ints])
+        self.assertAlmostEqual(6.3125, num_profiler.variance)
+        self.assertAlmostEqual(0.17733336, num_profiler.skewness)
+        self.assertAlmostEqual(-0.56798353, num_profiler.kurtosis)
+
+        df3_ints = df3[df3 == df3.round()]
+        num_profiler.update(df3.apply(str))
+        df = pd.concat([df1, df2_ints, df3_ints])
+        self.assertAlmostEqual(4.6755371, num_profiler.variance)
+        self.assertAlmostEqual(-0.29622465, num_profiler.skewness)
+        self.assertAlmostEqual(0.099825352, num_profiler.kurtosis)
+
+    def test_bias_correction_merge(self):
+        data = np.linspace(-5, 5, 11).tolist()
+        df1 = pd.Series(data)
+
+        data = np.linspace(-3, 2, 11).tolist()
+        df2 = pd.Series(data)
+
+        data = np.full((10,), 1)
+        df3 = pd.Series(data)
+
+        # Disable bias correction
+        options = FloatOptions();
+        options.bias_correction.is_enabled = False
+        num_profiler1 = FloatColumn(df1.name, options=options)
+        num_profiler1.update(df1.apply(str))
+        self.assertAlmostEqual(10, num_profiler1.variance)
+        self.assertAlmostEqual(0, num_profiler1.skewness)
+        self.assertAlmostEqual(89 / 50 - 3, num_profiler1.kurtosis)
+
+        num_profiler2 = FloatColumn(df2.name)
+        num_profiler2.update(df2.apply(str))
+        num_profiler = num_profiler1 + num_profiler2
+        self.assertFalse(num_profiler.bias_correction)
+        self.assertAlmostEqual(6.3125, num_profiler.variance)
+        self.assertAlmostEqual(0.17733336, num_profiler.skewness)
+        self.assertAlmostEqual(-0.56798353, num_profiler.kurtosis)
+
+        num_profiler3 = FloatColumn(df3.name)
+        num_profiler3.update(df3.apply(str))
+        num_profiler = num_profiler1 + num_profiler2 + num_profiler3
+        self.assertFalse(num_profiler.bias_correction)
+        self.assertAlmostEqual(4.6755371, num_profiler.variance)
+        self.assertAlmostEqual(-0.29622465, num_profiler.skewness)
+        self.assertAlmostEqual(0.099825352, num_profiler.kurtosis)
 
     def test_null_values_for_histogram(self):
         data = pd.Series(['-inf', 'inf'])
@@ -723,6 +789,8 @@ class TestFloatColumn(unittest.TestCase):
             variance=27 + 1/12.0,
             skewness=35/13*np.sqrt(3/13),
             kurtosis=np.nan,
+            num_negatives = 0,
+            num_zeros = 0,
             stddev=np.sqrt(27+1/12.0),
             histogram={
                 'bin_counts': np.array([1, 1, 0, 1]),
@@ -764,6 +832,8 @@ class TestFloatColumn(unittest.TestCase):
             expected_quantiles = expected_profile.pop('quantiles')
             skewness = profile.pop('skewness')
             expected_skewness = expected_profile.pop('skewness')
+            variance = profile.pop('variance')
+            expected_variance = expected_profile.pop('variance')
 
             self.assertDictEqual(expected_profile, profile)
             self.assertDictEqual(expected_profile['precision'], profile['precision'])
@@ -776,6 +846,7 @@ class TestFloatColumn(unittest.TestCase):
             self.assertAlmostEqual(expected_quantiles[1], quantiles[499])
             self.assertAlmostEqual(expected_quantiles[2], quantiles[749])
             self.assertAlmostEqual(expected_skewness, skewness)
+            self.assertAlmostEqual(expected_variance, variance)
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
@@ -833,6 +904,8 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0,\
                                            'variance': 1.0, 'precision': 1.0,
                                            'skewness': 1.0, 'kurtosis': 1.0,
+                                           'num_negatives': 1.0,
+                                           'num_zeros': 1.0,
                                            'histogram_and_quantiles': 15.0})
             self.assertCountEqual(expected, profile['times'])
 
@@ -841,6 +914,8 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0,\
                                            'variance': 2.0, 'precision': 2.0,
                                            'skewness': 2.0, 'kurtosis': 2.0,
+                                           'num_negatives': 2.0,
+                                           'num_zeros': 2.0,
                                            'histogram_and_quantiles': 30.0})
             self.assertCountEqual(expected, profiler.profile['times'])
 
@@ -876,6 +951,7 @@ class TestFloatColumn(unittest.TestCase):
         profile3 = profiler3.profile
         histogram = profile3.pop('histogram')
 
+        self.assertTrue(profiler3.bias_correction)
         self.assertAlmostEqual(profiler3.stddev,
                                expected_profile.pop('stddev'), places=3)
         self.assertAlmostEqual(profiler3.variance,
@@ -892,6 +968,29 @@ class TestFloatColumn(unittest.TestCase):
                          expected_histogram['bin_counts'].tolist())
         self.assertCountEqual(histogram['bin_edges'],
                               expected_histogram['bin_edges'])
+
+    def test_profile_merge_for_zeros_and_negatives(self):
+        data = [2.0, 8.5, 'not an int', 6.0, -3, 0]
+        df = pd.Series(data).apply(str)
+        profiler1 = FloatColumn("Float")
+        profiler1.update(df)
+
+        data2 = [0.0, 3.5, 'not an int', 125.0, 0, -0.1, -88]
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = FloatColumn("Float")
+        profiler2.update(df2)
+
+        expected_profile = dict(
+            num_zeros=3,
+            num_negatives=3
+        )
+
+        profiler3 = profiler1 + profiler2
+
+        self.assertEqual(profiler3.num_zeros,
+                         expected_profile.pop('num_zeros'))
+        self.assertEqual(profiler3.num_negatives,
+                         expected_profile.pop('num_negatives'))
 
     def test_profile_merge_edge_case(self):
         data = [2.0, 'not a float', 6.0, 'not a float']
@@ -942,6 +1041,18 @@ class TestFloatColumn(unittest.TestCase):
         self.assertAlmostEqual(profiler.kurtosis, -1.2)
         self.assertEqual(profiler.min, 2.0)
         self.assertEqual(profiler.max, 5.0)
+        self.assertEqual(profiler.num_zeros, 0)
+        self.assertEqual(profiler.num_negatives, 0)
+
+        df5 = pd.Series([0.0, 0.0, -1.1, -1.0]).apply(str)
+        profiler5 = FloatColumn("Float")
+        profiler5.update(df5)
+
+        profiler = profiler4 + profiler5
+        self.assertEqual(profiler.min, -1.1)
+        self.assertEqual(profiler.max, 5)
+        self.assertEqual(profiler.num_zeros, 2)
+        self.assertEqual(profiler.num_negatives, 2)
 
     def test_custom_bin_count_merge(self):
 
@@ -1120,3 +1231,71 @@ class TestFloatColumn(unittest.TestCase):
         profile_2.update(data_2)
 
         profile_1 + profile_2
+
+    def test_invalid_values(self):
+        data = pd.Series(['-inf', 'inf'])
+        profiler = FloatColumn(data.name)
+
+        with self.assertWarnsRegex(RuntimeWarning, "Infinite or invalid values found in data."):
+            profiler.update(data)
+            # Verify values
+            self.assertTrue(np.isnan(profiler.sum))
+            self.assertTrue(np.isnan(profiler._biased_variance))
+            self.assertTrue(np.isnan(profiler._biased_skewness))
+            self.assertTrue(np.isnan(profiler._biased_kurtosis))
+
+        # Update the data
+        data2 = pd.Series(['-2', '-1', '1', '2', '-inf', 'inf'])
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            profiler.update(data2)
+            # Verify values are still NaN
+            self.assertTrue(np.isnan(profiler.sum))
+            self.assertTrue(np.isnan(profiler._biased_variance))
+            self.assertTrue(np.isnan(profiler._biased_skewness))
+            self.assertTrue(np.isnan(profiler._biased_kurtosis))
+            # Verify warning-related things. In this case, we check
+            # to make sure NO warnings were thrown since nothing should
+            # even be updated
+            self.assertEqual(0, len(w))
+
+    def test_insufficient_counts(self):
+        data = pd.Series(['0'])
+        profiler = FloatColumn(data.name)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            profiler.update(data)
+            var = profiler.variance
+            skew = profiler.skewness
+            kurt = profiler.kurtosis
+            # Verify values are NaN
+            self.assertTrue(np.isnan(var))
+            self.assertTrue(np.isnan(skew))
+            self.assertTrue(np.isnan(kurt))
+            # Verify warning was raised properly
+            self.assertEqual(3, len(w))
+            for i in range(0, len(w)):
+                self.assertEqual(w[i].category, RuntimeWarning)
+                self.assertTrue("Insufficient match count to correct bias in" \
+                                in str(w[i].message))
+
+        # Update the data so that the match count is good
+        data2 = pd.Series(['-2', '-1', '1', '2'])
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            profiler.update(data2)
+            var = profiler.variance
+            skew = profiler.skewness
+            kurt = profiler.kurtosis
+            # Verify values are no longer NaN
+            self.assertFalse(np.isnan(var))
+            self.assertFalse(np.isnan(skew))
+            self.assertFalse(np.isnan(kurt))
+            # Verify warning-related things. In this case, we check
+            # to make sure NO warnings were thrown since we have
+            # a sufficient match count.
+            self.assertEqual(0, len(w))

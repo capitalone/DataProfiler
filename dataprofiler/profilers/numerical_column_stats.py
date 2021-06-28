@@ -14,8 +14,8 @@ import warnings
 import sys
 
 import numpy as np
-import scipy.stats
 
+from . import utils
 from . import histogram_utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import NumericalOptions
@@ -52,9 +52,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.min = None
         self.max = None
         self.sum = 0
-        self.variance = 0
-        self._biased_skewness = 0
-        self._biased_kurtosis = 0
+        self._biased_variance = np.nan
+        self._biased_skewness = np.nan
+        self._biased_kurtosis = np.nan
         self.max_histogram_bin = 100000
         self.min_histogram_bin = 1000
         self.histogram_bin_method_names = [
@@ -62,9 +62,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         ]
         self.histogram_selection = None
         self.user_set_histogram_bin = None
+        self.bias_correction = True  # By default, we correct for bias
         self.num_zeros = 0
         self.num_negatives = 0
         if options:
+            self.bias_correction = options.bias_correction.is_enabled
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
             if isinstance(bin_count_or_method, str):
@@ -185,11 +187,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             other1._NumericStatsMixin__calculations,
             other2._NumericStatsMixin__calculations)
 
+        # Check and potentially override bias correction computation
+        self.bias_correction = True
+        if not other1.bias_correction or not other2.bias_correction:
+            self.bias_correction = False
+
         # Merge variance, histogram, min, max, and sum
         if "variance" in self.__calculations.keys():
-            self.variance = self._merge_variance(
-                other1.match_count, other1.variance, other1.mean,
-                other2.match_count, other2.variance, other2.mean)
+            self._biased_variance = self._merge_biased_variance(
+                other1.match_count, other1._biased_variance, other1.mean,
+                other2.match_count, other2._biased_variance, other2.mean)
         if "histogram_and_quantiles" in self.__calculations.keys():
             if other1._has_histogram and other2._has_histogram:
                 self._add_helper_merge_profile_histograms(other1, other2)
@@ -216,27 +223,68 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if "sum" in self.__calculations.keys():
             self.sum = other1.sum + other2.sum
         if "skewness" in self.__calculations.keys():
-            self._biased_skewness = self._merge_biased_skewness(other1.match_count,
-                                                                other1._biased_skewness,
-                                                                other1.variance, other1.mean,
-                                                                other2.match_count,
-                                                                other2._biased_skewness,
-                                                                other2.variance, other2.mean)
+            self._biased_skewness = self._merge_biased_skewness(
+                other1.match_count,
+                other1._biased_skewness,
+                other1._biased_variance, other1.mean,
+                other2.match_count,
+                other2._biased_skewness,
+                other2._biased_variance, other2.mean)
         if "kurtosis" in self.__calculations.keys():
-            self._biased_kurtosis = self._merge_biased_kurtosis(other1.match_count,
-                                                                other1._biased_kurtosis,
-                                                                other1._biased_skewness,
-                                                                other1.variance,
-                                                                other1.mean, other2.match_count,
-                                                                other2._biased_kurtosis,
-                                                                other2._biased_skewness,
-                                                                other2.variance, other2.mean)
+            self._biased_kurtosis = self._merge_biased_kurtosis(
+                other1.match_count,
+                other1._biased_kurtosis,
+                other1._biased_skewness,
+                other1._biased_variance,
+                other1.mean, other2.match_count,
+                other2._biased_kurtosis,
+                other2._biased_skewness,
+                other2._biased_variance, other2.mean)
+        if "num_zeros" in self.__calculations.keys():
+            self.num_zeros = other1.num_zeros + other2.num_zeros
+
+        if "num_negatives" in self.__calculations.keys():
+            self.num_negatives = other1.num_negatives + other2.num_negatives
+
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for several numerical stats.
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: NumericStatsMixin Profile
+        :return: the numerical stats differences
+        :rtype: dict
+        """
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+        
+        differences = {
+            "min": utils.find_diff_of_numbers(self.min, other_profile.min),
+            "max": utils.find_diff_of_numbers(self.max, other_profile.max),
+            "sum": utils.find_diff_of_numbers(self.sum, other_profile.sum),
+            "mean": utils.find_diff_of_numbers(self.mean, other_profile.mean),
+            "variance": utils.find_diff_of_numbers(self.variance,
+                                                   other_profile.variance),
+            "stddev": utils.find_diff_of_numbers(self.stddev,
+                                                 other_profile.stddev),
+        }
+        return differences
 
     @property
     def mean(self):
         if self.match_count == 0:
             return 0
         return float(self.sum) / self.match_count
+
+    @property
+    def variance(self):
+        return self._biased_variance if not self.bias_correction \
+            else self._correct_bias_variance(
+                    self.match_count,
+                    self._biased_variance)
 
     @property
     def stddev(self):
@@ -246,92 +294,101 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @property
     def skewness(self):
-        return self._correct_bias_skewness(
-                self.match_count,
-                self._biased_skewness)
+        return self._biased_skewness if not self.bias_correction \
+            else self._correct_bias_skewness(
+                    self.match_count,
+                    self._biased_skewness)
 
     @property
     def kurtosis(self):
-        return self._correct_bias_kurtosis(
-            self.match_count,
-            self._biased_kurtosis)
+        return self._biased_kurtosis if not self.bias_correction \
+            else self._correct_bias_kurtosis(
+                    self.match_count,
+                    self._biased_kurtosis)
 
     def _update_variance(self, batch_mean, batch_var, batch_count):
         """
-        Calculate the combined variance of the current values and new dataset.
+        Calculate the combined biased variance of the current values and new dataset.
 
         :param batch_mean: mean of new chunk
-        :param batch_var: variance of new chunk
+        :param batch_var: biased variance of new chunk
         :param batch_count: number of samples in new chunk
-        :return: combined variance
+        :return: combined biased variance
         :rtype: float
         """
-        return self._merge_variance(self.match_count, self.variance, self.mean,
+        return self._merge_biased_variance(self.match_count, self._biased_variance, self.mean,
                                     batch_count, batch_var, batch_mean)
 
     @staticmethod
-    def _merge_variance(match_count1, variance1, mean1,
-                        match_count2, variance2, mean2):
+    def _merge_biased_variance(match_count1, biased_variance1, mean1,
+                               match_count2, biased_variance2, mean2):
         """
-        Calculate the combined variance of the current values and new dataset.
+        Calculate the combined biased variance of the current values and new dataset.
 
         :param match_count1: number of samples in new chunk 1
         :param mean1: mean of chunk 1
-        :param variance1: variance of chunk 1
+        :param biased_variance1: variance of chunk 1 without bias correction
         :param match_count2: number of samples in new chunk 2
         :param mean2: mean of chunk 2
-        :param variance2: variance of chunk 2
+        :param biased_variance2: variance of chunk 2 without bias correction
         :return: combined variance
         :rtype: float
         """
-        if np.isnan(variance1):
-            variance1 = 0
-        if np.isnan(variance2):
-            variance2 = 0
         if match_count1 < 1:
-            return variance2
+            return biased_variance2
         elif match_count2 < 1:
-            return variance1
+            return biased_variance1
+        elif np.isnan(biased_variance1) or np.isnan(biased_variance2):
+            return np.nan
 
         curr_count = match_count1
         delta = mean2 - mean1
-        m_curr = variance1 * (curr_count - 1)
-        m_batch = variance2 * (match_count2 - 1)
+        m_curr = biased_variance1 * curr_count
+        m_batch = biased_variance2 * match_count2
         M2 = m_curr + m_batch + delta ** 2 * curr_count * match_count2 / \
             (curr_count + match_count2)
-        new_variance = M2 / (curr_count + match_count2 - 1)
+        new_variance = M2 / (curr_count + match_count2)
         return new_variance
 
     @staticmethod
-    def _merge_biased_skewness(match_count1, biased_skewness1, variance1, mean1,
-                               match_count2, biased_skewness2, variance2, mean2):
+    def _correct_bias_variance(match_count, biased_variance):
+        if match_count is None or biased_variance is None or match_count < 2:
+            warnings.warn("Insufficient match count to correct bias in variance. Bias correction"
+                          "can be manually disabled by setting bias_correction.is_enabled to"
+                          "False in ProfilerOptions.", RuntimeWarning)
+            return np.nan
+
+        variance = match_count / (match_count - 1) * biased_variance
+        return variance
+
+    @staticmethod
+    def _merge_biased_skewness(match_count1, biased_skewness1, biased_variance1, mean1,
+                               match_count2, biased_skewness2, biased_variance2, mean2):
         """
         Calculate the combined skewness of two data chunks
 
         :param match_count1: # of samples in 1st chunk
         :param biased_skewness1: skewness of 1st chunk without bias correction
-        :param variance1: variance of 1st chunk
+        :param biased_variance1: variance of 1st chunk without bias correction
         :param mean1: mean of 1st chunk
         :param match_count2: # of samples in 2nd chunk
         :param biased_skewness2: skewness of 2nd chunk without bias correction
-        :param variance2: variance of 2nd chunk
+        :param biased_variance2: variance of 2nd chunk without bias correction
         :param mean2: mean of 2nd chunk
         :return: combined skewness
         :rtype: float
         """
-        if np.isnan(biased_skewness1):
-            biased_skewness1 = 0
-        if np.isnan(biased_skewness2):
-            biased_skewness2 = 0
         if match_count1 < 1:
             return biased_skewness2
         elif match_count2 < 1:
             return biased_skewness1
+        elif np.isnan(biased_skewness1) or np.isnan(biased_skewness2):
+            return np.nan
 
         delta = mean2 - mean1
         N = match_count1 + match_count2
-        M2_1 = (match_count1 - 1) * variance1
-        M2_2 = (match_count2 - 1) * variance2
+        M2_1 = match_count1 * biased_variance1
+        M2_2 = match_count2 * biased_variance2
         M2 = M2_1 + M2_2 + delta**2 * match_count1 * match_count2 / N
         if not M2:
             return 0.0
@@ -360,6 +417,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :rtype: NaN if sample size is too small, float otherwise
         """
         if np.isnan(biased_skewness) or match_count < 3:
+            warnings.warn("Insufficient match count to correct bias in skewness. Bias correction"
+                          "can be manually disabled by setting bias_correction.is_enabled to"
+                          "False in ProfilerOptions.", RuntimeWarning)
             return np.nan
 
         skewness = np.sqrt(match_count * (match_count - 1)) \
@@ -368,37 +428,35 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @staticmethod
     def _merge_biased_kurtosis(match_count1, biased_kurtosis1, biased_skewness1,
-                               variance1, mean1, match_count2, biased_kurtosis2,
-                               biased_skewness2, variance2, mean2):
+                               biased_variance1, mean1, match_count2, biased_kurtosis2,
+                               biased_skewness2, biased_variance2, mean2):
         """
         Calculate the combined kurtosis of two sets of data
 
         :param match_count1: # of samples in 1st chunk
         :param biased_kurtosis1: kurtosis of 1st chunk without bias correction
         :param biased_skewness1: skewness of 1st chunk without bias correction
-        :param variance1: variance of 1st chunk
+        :param biased_variance1: variance of 1st chunk without bias correction
         :param mean1: mean of 1st chunk
         :param match_count2: # of samples in 2nd chunk
         :param biased_kurtosis2: kurtosis of 2nd chunk without bias correction
         :param biased_skewness2: skewness of 2nd chunk without bias correction
-        :param variance2: variance of 2nd chunk
+        :param biased_variance2: variance of 2nd chunk without bias correction
         :param mean2: mean of 2nd chunk
         :return: combined skewness
         :rtype: float
         """
-        if np.isnan(biased_kurtosis1):
-            biased_kurtosis1 = 0
-        if np.isnan(biased_kurtosis2):
-            biased_kurtosis1 = 0
         if match_count1 < 1:
             return biased_kurtosis2
         elif match_count2 < 1:
             return biased_kurtosis1
+        elif np.isnan(biased_kurtosis1) or np.isnan(biased_kurtosis2):
+            return np.nan
 
         delta = mean2 - mean1
         N = match_count1 + match_count2
-        M2_1 = (match_count1 - 1) * variance1
-        M2_2 = (match_count2 - 1) * variance2
+        M2_1 = match_count1 * biased_variance1
+        M2_2 = match_count2 * biased_variance2
         M2 = M2_1 + M2_2 + delta ** 2 * match_count1 * match_count2 / N
         if not M2:
             return 0
@@ -432,6 +490,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :rtype: NaN if sample size is too small, float otherwise
         """
         if np.isnan(biased_kurtosis) or match_count < 4:
+            warnings.warn("Insufficient match count to correct bias in kurtosis. Bias correction"
+                          "can be manually disabled by setting bias_correction.is_enabled to"
+                          "False in ProfilerOptions.", RuntimeWarning)
             return np.nan
 
         kurtosis = (match_count - 1) / ((match_count - 2) *
@@ -841,7 +902,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             return
 
         prev_dependent_properties = {"mean": self.mean,
-                                     "variance": self.variance,
+                                     "biased_variance": self._biased_variance,
                                      "biased_skewness": self._biased_skewness,
                                      "biased_kurtosis": self._biased_kurtosis}
         subset_properties = copy.deepcopy(profile)
@@ -868,25 +929,41 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name="sum")
     def _get_sum(self, df_series, prev_dependent_properties,
                  subset_properties):
+        if np.isinf(self.sum) or (np.isnan(self.sum) and self.match_count > 0):
+            return
+
         sum_value = df_series.sum()
+        if np.isinf(sum_value) or (len(df_series) > 0 and np.isnan(sum_value)):
+            warnings.warn("Infinite or invalid values found in data. " 
+                          "Future statistics (mean, variance, skewness, kurtosis) "
+                          "will not be computed.", RuntimeWarning)
+
         subset_properties["sum"] = sum_value
         self.sum = self.sum + sum_value
 
     @BaseColumnProfiler._timeit(name="variance")
     def _get_variance(self, df_series, prev_dependent_properties,
                       subset_properties):
-        variance = df_series.var()
-        subset_properties["variance"] = variance
+        if np.isinf(self._biased_variance) or \
+                (np.isnan(self._biased_variance) and self.match_count > 0):
+            return
+
+        # Suppress any numpy warnings as we have a custom warning for invalid
+        # or infinite data already
+        with np.errstate(all='ignore'):
+            batch_biased_variance = np.var(df_series) # Obtains biased variance
+        subset_properties["biased_variance"] = batch_biased_variance
         sum_value = subset_properties["sum"]
         batch_count = subset_properties["match_count"]
         batch_mean = 0. if not batch_count else \
             float(sum_value) / batch_count
         subset_properties["mean"] = batch_mean
-        self.variance = self._merge_variance(self.match_count, self.variance,
-                                             prev_dependent_properties["mean"],
-                                             batch_count,
-                                             variance,
-                                             batch_mean)
+        self._biased_variance = self._merge_biased_variance(
+             self.match_count, self._biased_variance,
+             prev_dependent_properties["mean"],
+             batch_count,
+             batch_biased_variance,
+             batch_mean)
 
     @BaseColumnProfiler._timeit(name = "skewness")
     def _get_skewness(self, df_series, prev_dependent_properties,
@@ -904,18 +981,25 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return None
         """
-        batch_biased_skewness = scipy.stats.skew(df_series)
+        # If skewness is still NaN but has a valid match count, this
+        # must mean that there were previous invalid values in
+        # the dataset.
+        if np.isinf(self._biased_skewness) or \
+                (np.isnan(self._biased_skewness) and self.match_count > 0):
+            return
+
+        batch_biased_skewness = utils.biased_skew(df_series)
         subset_properties["biased_skewness"] = batch_biased_skewness
         batch_count = subset_properties["match_count"]
-        batch_var = subset_properties["variance"]
+        batch_biased_var = subset_properties["biased_variance"]
         batch_mean = subset_properties["mean"]
 
         self._biased_skewness = self._merge_biased_skewness(
             self.match_count, self._biased_skewness,
-            prev_dependent_properties["variance"],
+            prev_dependent_properties["biased_variance"],
             prev_dependent_properties["mean"],
             batch_count, batch_biased_skewness,
-            batch_var, batch_mean)
+            batch_biased_var, batch_mean)
 
     @BaseColumnProfiler._timeit(name = "kurtosis")
     def _get_kurtosis(self, df_series, prev_dependent_properties,
@@ -933,21 +1017,28 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type subset_properties: dict
         :return None
         """
-        batch_biased_kurtosis = scipy.stats.kurtosis(df_series)
+        # If kurtosis is still NaN but has a valid match count, this
+        # must mean that there were previous invalid values in
+        # the dataset.
+        if np.isinf(self._biased_kurtosis) or \
+                (np.isnan(self._biased_kurtosis) and self.match_count > 0):
+            return
+
+        batch_biased_kurtosis = utils.biased_kurt(df_series)
         subset_properties["biased_kurtosis"] = batch_biased_kurtosis
         batch_count = subset_properties["match_count"]
-        batch_var = subset_properties["variance"]
+        batch_biased_var = subset_properties["biased_variance"]
         batch_biased_skewness = subset_properties["biased_skewness"]
         batch_mean = subset_properties["mean"]
 
         self._biased_kurtosis = self._merge_biased_kurtosis(
             self.match_count, self._biased_kurtosis,
             prev_dependent_properties["biased_skewness"],
-            prev_dependent_properties["variance"],
+            prev_dependent_properties["biased_variance"],
             prev_dependent_properties["mean"],
             batch_count, batch_biased_kurtosis,
             batch_biased_skewness,
-            batch_var, batch_mean)
+            batch_biased_var, batch_mean)
 
     @BaseColumnProfiler._timeit(name="histogram_and_quantiles")
     def _get_histogram_and_quantiles(self, df_series,

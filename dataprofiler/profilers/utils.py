@@ -295,6 +295,9 @@ def biased_skew(df_series):
         return np.nan
 
     mean = sum(df_series) / n
+    if np.isinf(mean) or np.isnan(mean):
+        return np.nan
+
     diffs = df_series - mean
     squared_diffs = diffs ** 2
     cubed_diffs = squared_diffs * diffs
@@ -327,6 +330,9 @@ def biased_kurt(df_series):
         return np.nan
 
     mean = sum(df_series) / n
+    if np.isinf(mean) or np.isnan(mean):
+        return np.nan
+
     diffs = df_series - mean
     squared_diffs = diffs ** 2
     fourth_diffs = squared_diffs * squared_diffs

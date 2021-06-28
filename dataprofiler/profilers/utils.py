@@ -406,6 +406,7 @@ def find_diff_of_lists_and_sets(stat1, stat2):
         diff = [unique1, shared, unique2]
     return diff
 
+
 def timedelta_to_readable_output(diff):
     """
     Because only days can be stored as negative values internally
@@ -420,6 +421,6 @@ def timedelta_to_readable_output(diff):
     :rtype: str
     """
     if diff.days >= 0:
-        return str(diff)
+        return "+" + str(diff)
 
-    return "-"+str(abs(diff))
+    return "-" + str(abs(diff))

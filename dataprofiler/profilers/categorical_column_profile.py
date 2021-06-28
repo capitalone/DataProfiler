@@ -127,8 +127,9 @@ class CategoricalColumn(BaseColumnProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
-
-        self._categories.update(df_series.value_counts(dropna=False).to_dict())
+        category_count = df_series.value_counts(dropna=False).to_dict()
+        self._categories = utils.add_nested_dictionaries(self._categories,
+                                                         category_count)
 
     def _update_helper(self, df_series_clean, profile):
         """

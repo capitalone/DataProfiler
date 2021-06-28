@@ -1,8 +1,8 @@
+from collections import defaultdict
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
 from . import utils
-from collections import Counter
-from collections import defaultdict
+
 
 class CategoricalColumn(BaseColumnProfiler):
     """

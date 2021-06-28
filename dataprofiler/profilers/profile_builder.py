@@ -1636,7 +1636,9 @@ class StructuredProfiler(BaseProfiler):
                 "_min_true_samples": self._min_true_samples,
                 "options": self.options,
                 "_profile": self.profile,
-                "_col_name_to_idx": self._col_name_to_idx
+                "_col_name_to_idx": self._col_name_to_idx,
+                "_initialized": self._initialized,
+                "_duplicate_cols_present": self._duplicate_cols_present
                } 
 
         self._save_helper(filepath, data_dict)

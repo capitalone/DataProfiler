@@ -1,7 +1,7 @@
 from builtins import next
 import re
 import json
-from io import open
+from io import open, StringIO, BytesIO
 from collections import OrderedDict
 import dateutil
 
@@ -564,3 +564,22 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=10,
                 break
             
     return data_as_str
+
+def is_stream_buffer(filepath_or_buffer, encoding=None, seek=None):
+    """
+    Determines whether a given argument is a filepath or buffer.
+    
+    :param filepath_or_buffer: path to the file or buffer 
+    :type filepath_or_buffer: str
+    :param encoding: File encoding
+    :type encoding: str
+    :param seek: position to start in buffer
+    :type seek: int
+    :return: true if string is a buffer or false if string is a filepath
+    :rtype: boolean
+    """
+
+    if (type(filepath_or_buffer) == StringIO or type(filepath_or_buffer) == BytesIO):
+        return True
+    else:
+        return False

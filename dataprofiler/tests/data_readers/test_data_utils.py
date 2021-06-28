@@ -1,6 +1,7 @@
 import os
 import unittest
 from itertools import islice
+from io import StringIO
 
 from dataprofiler.data_readers import data_utils
 
@@ -45,6 +46,49 @@ class TestDataReadingWriting(unittest.TestCase):
         for input_file in input_files:
             detected_encoding = \
                 data_utils.detect_file_encoding(file_path=input_file["path"])
+            with open(input_file['path'], "rb") as infile:
+                # Read a max of 1 MB of data
+                content = infile.read(1024*1024)
+                # Assert at least 99.9% of the content was correctly decoded
+                match_acc = get_match_acc(content.decode(input_file["encoding"]),
+                                          content.decode(detected_encoding))
+                self.assertGreaterEqual(match_acc, .999)
+
+    def test_file_as_stream_UTF_encoding_detection(self):
+        """
+        Tests the ability for `data_utils.detect_file_encoding` to detect the
+        encoding of streams. This test is specifically for UTF-8, UTF-16,
+        and UTF-32 of any stream.
+        :return:
+        """
+        test_dir = os.path.join(test_root_path, 'data')
+        input_files = [
+            dict(path=os.path.join(test_dir, 'csv/iris-utf-8.csv'),
+                 encoding="utf-8"),
+            dict(path=os.path.join(test_dir, 'csv/iris-utf-16.csv'),
+                 encoding="utf-16"),
+            dict(path=os.path.join(test_dir, 'csv/iris-utf-32.csv'),
+                 encoding="utf-32"),
+            dict(path=os.path.join(test_dir, 'json/iris-utf-8.json'),
+                 encoding="utf-8"),
+            dict(path=os.path.join(test_dir, 'json/iris-utf-16.json'),
+                 encoding="utf-16"),
+            dict(path=os.path.join(test_dir, 'json/iris-utf-32.json'),
+                 encoding="utf-32"),
+            dict(path=os.path.join(test_dir, 'txt/utf8.txt'),
+                 encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/zomato.csv'),
+                 encoding='ISO-8859-1'), 
+            dict(path=os.path.join(test_dir, 'csv/reddit_wsb.csv'),
+                 encoding='utf-8') 
+        ]
+
+        get_match_acc = lambda s, s2: sum([s[i] == s2[i] for i 
+                                           in range(len(s))])/len(s)
+        
+        for input_file in input_files:
+            detected_encoding = \
+                data_utils.detect_file_encoding(file_path=StringIO(open(input_file["path"], 'r').read()))
             with open(input_file['path'], "rb") as infile:
                 # Read a max of 1 MB of data
                 content = infile.read(1024*1024)

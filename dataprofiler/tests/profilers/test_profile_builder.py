@@ -43,7 +43,6 @@ class TestStructuredProfiler(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        test_utils.set_seed(seed=0)
 
         cls.input_file_path = os.path.join(
             test_root_path, 'data', 'csv/aws_honeypot_marx_geo.csv'
@@ -578,7 +577,6 @@ class TestStructuredColProfilerClass(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        test_utils.set_seed(seed=0)
         cls.input_file_path = os.path.join(
             test_root_path, 'data', 'csv/aws_honeypot_marx_geo.csv'
         )

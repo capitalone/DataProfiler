@@ -3,6 +3,7 @@ import operator
 import numpy as np
 
 from . import BaseColumnProfiler
+from . import utils
 from ..labelers.data_labelers import DataLabeler
 from .profiler_options import DataLabelerOptions
 
@@ -237,6 +238,15 @@ class DataLabelerColumn(BaseColumnProfiler):
             "times": self.times
         }
         return profile
+
+    def diff(self, other_profile, options=None):
+        labels = self.data_label.split('|')
+        other_labels = other_profile.data_label.split('|')
+
+        differences = {
+            "data_label": utils.find_diff_of_lists_and_sets(labels, other_labels)
+        }
+        return differences
 
     @BaseColumnProfiler._timeit(name='data_labeler_predict')
     def _update_predictions(self, df_series, prev_dependent_properties=None,

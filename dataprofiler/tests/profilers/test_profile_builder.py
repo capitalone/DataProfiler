@@ -644,6 +644,12 @@ class TestStructuredProfiler(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, msg):
             dupe_profile.update_profile(unique_data)
 
+        perm_data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                                  [10, 20, 30, 40, 50, 60]],
+                                 columns=["a", "a", "b", "b", "c", "d"])
+        with self.assertRaisesRegex(ValueError, msg):
+            dupe_profile.update_profile(perm_data)
+
         msg = ("Attempted to update data with duplicate "
                "column names that weren't present before "
                "update. Schema must be identical when "

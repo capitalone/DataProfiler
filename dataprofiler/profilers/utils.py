@@ -437,6 +437,7 @@ def find_diff_of_dates(stat1, stat2):
     if isinstance(diff, str):
         return diff
     if isinstance(diff, list):
+        # Deal with the case where one stat is None
         return [None if i is None else i.strftime("%x %X") for i in diff]
 
     # Must be timedelta object

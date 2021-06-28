@@ -164,3 +164,10 @@ class CategoricalColumn(BaseColumnProfiler):
         self._update_helper(df_series, profile)
 
         return self
+
+    def counts(self):
+        """
+        Returns the dict of categories with the number of occurrences
+        for each category.
+        """
+        return dict(self._categories.items())

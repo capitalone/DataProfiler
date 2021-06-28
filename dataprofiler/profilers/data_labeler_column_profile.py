@@ -240,6 +240,19 @@ class DataLabelerColumn(BaseColumnProfiler):
         return profile
 
     def diff(self, other_profile, options=None):
+        """
+        Generates the differences between the orders of two OrderColumns
+
+        :return: Dict containing the differences between orders in their
+        appropriate output formats
+        :rtype: dict
+        """
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+        
         labels = self.data_label.split('|')
         other_labels = other_profile.data_label.split('|')
 

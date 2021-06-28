@@ -48,10 +48,8 @@ class CategoricalColumn(BaseColumnProfiler):
             raise TypeError("Unsupported operand type(s) for +: "
                             "'CategoricalColumn' and '{}'".format(
                                 other.__class__.__name__))
-        print(self._categories)
-        print(other._categories)
         merged_profile = CategoricalColumn(None)
-        merged_profile._categories =  utils.add_nested_dictionaries(self._categories, other._categories)
+        merged_profile._categories = utils.add_nested_dictionaries(self._categories, other._categories)
         BaseColumnProfiler._add_helper(merged_profile, self, other)
         self._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,
@@ -83,8 +81,6 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         Property for categories.
         """
-        print(self._categories)
-        print(list(self._categories.keys()))
         return list(self._categories.keys())
 
     @property
@@ -134,8 +130,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
         #self._categories = utils._combine_unique_sets(
         #    self._categories, df_series)
-
-        self._categories = df_series.value_counts().to_dict()
+        self._categories.update(df_series.value_counts(dropna = False).to_dict())
 
 
 

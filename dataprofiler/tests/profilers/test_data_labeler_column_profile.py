@@ -301,3 +301,43 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
                                     "sample size are not the same for both column "
                                     "profiles."):
             profiler3 = profiler + profiler2
+
+    def test_diff(self, mock_instance):
+        self._setup_data_labeler_mock(mock_instance)
+
+        data = pd.Series(['1', '2', '3', '11'])
+
+        profiler = DataLabelerColumn(data.name)
+        profiler.update(data)
+
+        mock_DataLabeler = mock_instance.return_value
+        mock_DataLabeler.label_mapping = {"b": 0, "c": 1, "d": 2, "e": 3}
+        mock_DataLabeler.reverse_label_mapping = \
+            {0: "b", 1: "c", 2: "d", 3: "e"}
+        mock_DataLabeler.model.num_labels = 4
+        mock_DataLabeler.model.requires_zero_mapping = False
+        def mock_low_predict(data, *args, **kwargs):
+            return {'pred': None, 'conf': np.array([
+                [1, 0, 0, 0],  # 4 repeated
+                [1, 0, 0, 0],
+                [1, 0, 0, 0],
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],  # 2 repeated
+                [0, 1, 0, 0],
+                [0, 0, 1, 0],  # 3 repeated
+                [0, 0, 1, 0],
+                [0, 0, 1, 0],
+                [0, 0, 0, 1],  # 1 repeated
+            ])}  # counts [4, 2, 3, 1] => [a, b, c, d]
+        mock_instance.return_value.predict.side_effect = mock_low_predict
+
+        data2 = pd.Series(['1'] * 10)
+        profiler2 = DataLabelerColumn(data2.name)
+        profiler2.update(data2)
+
+        diff = profiler.diff(profiler2)
+
+        expected_diff = {
+            "data_label": [["a"], ["b"], ["d", "c"]]
+        }
+        self.assertDictEqual(expected_diff, diff)

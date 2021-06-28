@@ -335,3 +335,29 @@ class TestCategoricalSentence(unittest.TestCase):
                                    "CategoricalColumn parameter 'options' must"
                                    " be of type CategoricalOptions."):
             profiler = CategoricalColumn("Categorical", options="wrong_data_type")
+
+    def test_categorical_column_is_counted(self):
+        df_categorical = pd.Series([
+            "a", "a", "a", "b", "b", "b", "b", "c", "c", "c", "c", "c",
+        ])
+        profile = CategoricalColumn(df_categorical.name)
+        # Check that _categories counts in profile is empty after init.
+        self.assertEqual(0, len(profile.dict_of_categories()))
+
+        profile.update(df_categorical)
+        # Check that _categories counts is correct after update function
+        self.assertEqual(profile.dict_of_categories()['a'], 3)
+        self.assertEqual(profile.dict_of_categories()['b'], 4)
+        self.assertEqual(profile.dict_of_categories()['c'], 5)
+
+        df_categorical2 = pd.Series([
+            "a", "a", "d", "d"
+        ])
+        profile2 = CategoricalColumn(df_categorical2.name)
+        profile2.update(df_categorical2)
+        profile3 = profile + profile2
+        # Check that _categories dict_of_categories is correct after merge/add function
+        self.assertEqual(profile3.dict_of_categories()['a'], 5)
+        self.assertEqual(profile3.dict_of_categories()['b'], 4)
+        self.assertEqual(profile3.dict_of_categories()['c'], 5)
+        self.assertTrue(profile3.dict_of_categories()['d'], 2)

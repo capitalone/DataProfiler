@@ -28,17 +28,20 @@ class TestProfilerOptions(unittest.TestCase):
         for column in profile.options.properties:
             self.assertTrue(profile.options.properties[column].is_enabled)
 
-        for column in ["int", "float", "text"]:
-            column = profile.options.properties[column]
+        for column_type in ["int", "float", "text"]:
+            column = profile.options.properties[column_type]
             self.assertTrue(column.properties["histogram_and_quantiles"])
             self.assertTrue(column.properties["min"])
             self.assertTrue(column.properties["max"])
             self.assertTrue(column.properties["sum"])
             self.assertTrue(column.properties["variance"])
             self.assertTrue(column.properties["is_numeric_stats_enabled"])
-            self.assertFalse(column.properties["num_zeros"].is_enabled)
-            self.assertFalse(column.properties["num_negatives"].is_enabled)
-
+            if column_type != "text":
+                self.assertTrue(column.properties["num_zeros"].is_enabled)
+                self.assertTrue(column.properties["num_negatives"].is_enabled)
+            else:
+                self.assertFalse(column.properties["num_zeros"].is_enabled)
+                self.assertFalse(column.properties["num_negatives"].is_enabled)
         # Using ProfilerOptions with the default options
         options = ProfilerOptions()
         profile2 = Profiler(self.data, options=options)
@@ -64,7 +67,8 @@ class TestProfilerOptions(unittest.TestCase):
     def test_numerical_stats_option(self, *mocks):
         # Assert that the stats are disabled
         options = ProfilerOptions()
-        options.set({"*.is_numeric_stats_enabled": False})
+        options.set({"*.is_numeric_stats_enabled": False,
+                     "bias_correction.is_enabled": False})
         profile = Profiler(self.data, options=options)
 
         for column_name in profile.profile.keys():
@@ -78,15 +82,14 @@ class TestProfilerOptions(unittest.TestCase):
                     profile_column["statistics"]["histogram"]["bin_edges"])
                 self.assertIsNone(profile_column["statistics"]["min"])
                 self.assertIsNone(profile_column["statistics"]["max"])
-                self.assertEqual(0, profile_column["statistics"]["variance"])
+                self.assertTrue(np.isnan(profile_column["statistics"]["variance"]))
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
-                self.assertTrue(
-                    profile_column["statistics"]["skewness"] is np.nan)
-                self.assertTrue(
-                    profile_column["statistics"]["kurtosis"] is np.nan)
+                self.assertTrue(np.isnan(profile_column["statistics"]["skewness"]))
+                self.assertTrue(np.isnan(profile_column["statistics"]["kurtosis"]))
 
         # Assert that the stats are enabled
-        options.set({"*.is_numeric_stats_enabled": True})
+        options.set({"*.is_numeric_stats_enabled": True,
+                     "bias_correction.is_enabled": True})
         profile = Profiler(self.data, options=options)
 
         for column_name in profile.profile.keys():
@@ -100,9 +103,11 @@ class TestProfilerOptions(unittest.TestCase):
                     profile_column["statistics"]["histogram"]["bin_edges"])
                 self.assertIsNotNone(profile_column["statistics"]["min"])
                 self.assertIsNotNone(profile_column["statistics"]["max"])
-                self.assertNotEqual(0, profile_column["statistics"]["variance"])
+                self.assertEqual(0.5, profile_column["statistics"]["variance"])
                 self.assertIsNotNone(
                     profile_column["statistics"]["quantiles"][0])
+                self.assertTrue(profile_column["statistics"]["skewness"] is np.nan)
+                self.assertTrue(profile_column["statistics"]["kurtosis"] is np.nan)
 
     def test_disable_labeler_in_profiler_options(self, *mocks):
         options = ProfilerOptions()
@@ -195,7 +200,7 @@ class TestProfilerOptions(unittest.TestCase):
                     profile_column["statistics"]["histogram"]["bin_edges"])
                 self.assertIsNone(profile_column["statistics"]["min"])
                 self.assertIsNone(profile_column["statistics"]["max"])
-                self.assertEqual(0, profile_column["statistics"]["variance"])
+                self.assertTrue(np.isnan(profile_column["statistics"]["variance"]))
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
                 self.assertTrue(profile_column["statistics"]["skewness"] is np.nan)
                 self.assertTrue(profile_column["statistics"]["kurtosis"] is np.nan)

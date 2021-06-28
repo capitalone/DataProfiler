@@ -276,6 +276,8 @@ class NumericalOptions(BaseInspectorOptions):
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
+        :ivar bias_correction : boolean option to enable/disable existence of bias
+        :vartype bias: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -290,9 +292,11 @@ class NumericalOptions(BaseInspectorOptions):
         self.variance = BooleanOption(is_enabled=True)
         self.skewness = BooleanOption(is_enabled=True)
         self.kurtosis = BooleanOption(is_enabled=True)
-        self.num_zeros = BooleanOption(is_enabled=False)
-        self.num_negatives = BooleanOption(is_enabled=False)
+        self.num_zeros = BooleanOption(is_enabled=True)
+        self.num_negatives = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
+        # By default, we correct for bias
+        self.bias_correction = BooleanOption(is_enabled=True)
         BaseInspectorOptions.__init__(self)
 
     @property
@@ -358,7 +362,7 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance", "skewness", "kurtosis",
+                     "variance", "skewness", "kurtosis", "bias_correction",
                      "num_zeros", "num_negatives"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
@@ -421,6 +425,8 @@ class IntOptions(NumericalOptions):
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
+        :ivar bias_correction : boolean option to enable/disable existence of bias
+        :vartype bias: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -506,6 +512,8 @@ class FloatOptions(NumericalOptions):
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
+        :ivar bias_correction : boolean option to enable/disable existence of bias
+        :vartype bias: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -556,6 +564,8 @@ class TextOptions(NumericalOptions):
         :vartype skewness: BooleanOption
         :ivar kurtosis: boolean option to enable/disable kurtosis
         :vartype kurtosis: BooleanOption
+        :ivar bias_correction : boolean option to enable/disable existence of bias
+        :vartype bias: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -588,7 +598,54 @@ class TextOptions(NumericalOptions):
             errors.append("{}.vocab must be a BooleanOption."
                           .format(variable_path))
         errors += self.vocab._validate_helper(variable_path + '.vocab')
+
+        if self.properties["num_zeros"].is_enabled:
+            errors.append("{}.num_zeros should always be disabled,"
+                          " num_zeros.is_enabled = False"
+                          .format(variable_path))
+
+        if self.properties["num_negatives"].is_enabled:
+            errors.append("{}.num_negatives should always be disabled,"
+                          " num_negatives.is_enabled = False"
+                          .format(variable_path))
         return errors
+
+    @property
+    def is_numeric_stats_enabled(self):
+        """
+        Returns the state of numeric stats being enabled / disabled. If any
+        numeric stats property is enabled it will return True, otherwise it
+        will return False. Although it seems redundant, this method is needed
+        in order for the function below, the setter function
+        also called is_numeric_stats_enabled, to properly work.
+
+        :return: true if any numeric stats property is enabled, otherwise false
+        :rtype bool:
+        """
+        if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
+                or self.variance.is_enabled or self.skewness.is_enabled \
+                or self.kurtosis.is_enabled \
+                or self.histogram_and_quantiles.is_enabled:
+            return True
+        return False
+
+    @is_numeric_stats_enabled.setter
+    def is_numeric_stats_enabled(self, value):
+        """
+        This property will enable or disable all numeric stats properties:
+        min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles,
+
+        :param value: boolean to enable/disable all numeric stats properties
+        :type value: bool
+        :return: None
+        """
+        self.min.is_enabled = value
+        self.max.is_enabled = value
+        self.sum.is_enabled = value
+        self.variance.is_enabled = value
+        self.skewness.is_enabled = value
+        self.kurtosis.is_enabled = value
+        self.histogram_and_quantiles.is_enabled = value
 
 class DateTimeOptions(BaseInspectorOptions):
 

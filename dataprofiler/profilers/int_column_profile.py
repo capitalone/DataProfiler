@@ -70,6 +70,8 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             skewness=self.np_type_to_type(self.skewness),
             kurtosis=self.np_type_to_type(self.kurtosis),
             histogram=self._get_best_histogram_for_profile(),
+            num_zeros=self.np_type_to_type(self.num_zeros),
+            num_negatives=self.np_type_to_type(self.num_negatives),
             quantiles=self.quantiles,
             times=self.times
         )

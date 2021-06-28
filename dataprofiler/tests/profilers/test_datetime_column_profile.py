@@ -389,7 +389,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         expected_diff = {
             'min': "1 days 08:16:30",
-            'max': "-10 days +08:17:00",
+            'max': "-9 days 15:43:00",
             'format': [['%Y-%m-%d'], ['%b %d, %Y'], ['%Y-%m-%d %H:%M:%S', '%m/%d/%y %H:%M']]
         }
         expected_format = expected_diff.pop('format')

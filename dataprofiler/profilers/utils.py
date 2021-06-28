@@ -405,3 +405,21 @@ def find_diff_of_lists_and_sets(stat1, stat2):
         unique2 = [element for element in stat2 if element not in stat1]
         diff = [unique1, shared, unique2]
     return diff
+
+def timedelta_to_readable_output(diff):
+    """
+    Because only days can be stored as negative values internally
+    for timedelta objects, the output for these negative values is
+    less readable due to the combination of signs in the default
+    output. This returns a readable output for timedelta that
+    accounts for potential negative differences.
+
+    :param diff: The difference in time to get the readable output
+    :type diff: datetime.timedelta object
+    :return: Readable output
+    :rtype: str
+    """
+    if diff.days >= 0:
+        return str(diff)
+
+    return "-"+str(abs(diff))

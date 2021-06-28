@@ -125,11 +125,6 @@ class CategoricalColumn(BaseColumnProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        #if hasattr(df_series, 'tolist'):
-        #    df_series = df_series.tolist()
-
-        #self._categories = utils._combine_unique_sets(
-        #    self._categories, df_series)
         self._categories.update(df_series.value_counts(dropna = False).to_dict())
 
 

@@ -1564,17 +1564,19 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         profiler_options.set({'data_labeler.is_enabled': False})
         trained_schema = dp.StructuredProfiler(test_dataset, len(test_dataset),
                                                options=profiler_options)
+        ts_profile = trained_schema.profile
+        ts_mapping = trained_schema._col_name_to_idx
 
         self.assertCountEqual(['', 'nan', 'None', 'null'],
-                         trained_schema.profile[trained_schema._col_name_to_idx['1'][0]].null_types)
-        self.assertEqual(5, trained_schema.profile[trained_schema._col_name_to_idx['1'][0]].null_count)
+                              ts_profile[ts_mapping['1'][0]].null_types)
+        self.assertEqual(5, ts_profile[ts_mapping['1'][0]].null_count)
         self.assertEqual({'': {4}, 'nan': {0}, 'None': {2, 3}, 'null': {1}},
-                         trained_schema.profile[trained_schema._col_name_to_idx['1'][0]].null_types_index)
+                         ts_profile[ts_mapping['1'][0]].null_types_index)
         self.assertCountEqual(['', 'nan', 'None', 'null'],
-                         trained_schema.profile[trained_schema._col_name_to_idx[1][0]].null_types)
-        self.assertEqual(5, trained_schema.profile[trained_schema._col_name_to_idx[1][0]].null_count)
+                              ts_profile[ts_mapping[1][0]].null_types)
+        self.assertEqual(5, ts_profile[ts_mapping[1][0]].null_count)
         self.assertEqual({'': {4}, 'nan': {0}, 'None': {1, 3}, 'null': {2}},
-                         trained_schema.profile[trained_schema._col_name_to_idx[1][0]].null_types_index)
+                         ts_profile[ts_mapping[1][0]].null_types_index)
 
     def test_correct_null_row_counts(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')

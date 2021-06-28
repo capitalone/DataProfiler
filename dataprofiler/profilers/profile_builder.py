@@ -1243,6 +1243,9 @@ class StructuredProfiler(BaseProfiler):
         for col in self._col_name_to_idx:
             col_idxs = self._col_name_to_idx[col]
             if prof_idx in col_idxs:
+                # Case where col isn't duplicated, no need to look through ids
+                if len(col_idxs) == 1:
+                    return data[col]
                 # If there are duplicate columns under the same name, need
                 # to figure place in list of indexes, as this corresponds
                 # to place in list of series returned by data[col]

@@ -1,7 +1,6 @@
 import os
 import unittest
 from itertools import islice
-from io import StringIO
 
 from dataprofiler.data_readers import data_utils
 

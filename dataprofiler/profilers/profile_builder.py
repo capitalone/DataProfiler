@@ -1218,7 +1218,7 @@ class StructuredProfiler(BaseProfiler):
             # If columns unique, order may be permutated
             if not self._duplicate_cols_present:
                 # Determine which index in other._profile corresponds to idx
-                col_name = self._profile[idx].name.lower()
+                col_name = self._get_col_name_from_idx(idx)
                 other_idx = other._col_name_to_idx[col_name][0]
             merged_profile._profile.append(self._profile[idx] +
                                            other._profile[other_idx])

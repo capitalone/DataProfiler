@@ -328,15 +328,17 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
                 [0, 0, 1, 0],
                 [0, 0, 1, 0],
                 [0, 0, 0, 1],  # 1 repeated
-            ])}  # counts [4, 2, 3, 1] => [a, b, c, d]
+            ])}  # counts [4, 2, 3, 1] => [b, c, d, e]
         mock_instance.return_value.predict.side_effect = mock_low_predict
 
         data2 = pd.Series(['1'] * 10)
         profiler2 = DataLabelerColumn(data2.name)
         profiler2.update(data2)
 
-        diff = profiler.diff(profiler2)
+        self.assertEqual("a|b", profiler.data_label)
+        self.assertEqual("b|d|c", profiler2.data_label)
 
+        diff = profiler.diff(profiler2)
         expected_diff = {
             "data_label": [["a"], ["b"], ["d", "c"]]
         }

@@ -189,11 +189,11 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for several numerical stats.
+        Finds the differences for columns.
 
         :param other_profile: profile to find the difference with
-        :type other_profile: NumericStatsMixin Profile
-        :return: the numerical stats differences
+        :type other_profile: BaseColumnProfiler
+        :return: the stat differences
         :rtype: dict
         """
         cls = self.__class__

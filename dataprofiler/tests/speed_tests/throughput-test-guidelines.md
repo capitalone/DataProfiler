@@ -31,7 +31,7 @@ The script has a set of parameters which can be tuned to evaluate how specific
 conditions affect profiling speed. The parameters are as follows:
 
   * multiprocess:      turns on or off multiprocessing (True / False)
-  * data_labeler       turns on or off the datalabeler (True / False)
+  * data_labeler       turns on or off the data labeler (True / False)
   * ALLOW_SUBSAMPLING: turns on or off subsampling for large data (True / False)
   * PERCENT_TO_NAN:    percentage of data in each column to set as NaN (0 - 100)
   * sample_sizes:      list of dataset sizes to evaluate

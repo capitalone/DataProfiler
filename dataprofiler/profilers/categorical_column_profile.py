@@ -1,4 +1,6 @@
 from collections import defaultdict
+from operator import itemgetter
+
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
 from . import utils
@@ -63,6 +65,7 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         Property for profile. Returns the profile of the column.
         """
+        num_top_categories = 5
 
         profile = dict(
             categorical=self.is_match,
@@ -76,6 +79,9 @@ class CategoricalColumn(BaseColumnProfiler):
             profile["statistics"].update(
                 dict(categories=self.categories)
             )
+            profile["statistics"]['categorical_count'] = dict(
+                sorted(self._categories.items(), key=itemgetter(1),
+                       reverse=True)[:num_top_categories])
         return profile
 
     @property
@@ -166,3 +172,10 @@ class CategoricalColumn(BaseColumnProfiler):
         self._update_helper(df_series, profile)
 
         return self
+
+    def counts(self):
+        """
+        Returns the dict of categories with the number of occurrences
+        for each category.
+        """
+        return dict(self._categories.items())

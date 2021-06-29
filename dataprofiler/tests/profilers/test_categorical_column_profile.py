@@ -160,13 +160,17 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertTrue(report["categorical"])
         six.assertCountEqual(
             self,
-            ['unique_count', 'unique_ratio', 'categories'], report['statistics']
+            ['unique_count', 'unique_ratio', 'categories', 'categorical_count'], report['statistics']
         )
         self.assertEqual(3, report["statistics"]["unique_count"])
         self.assertEqual(0.25, report["statistics"]["unique_ratio"])
         self.assertCountEqual(
             ["a", "b", "c"], report["statistics"]["categories"]
         )
+        expected_dict = {"a": 3, "b": 4, "c": 5}
+        self.assertDictEqual(expected_dict, report["statistics"]
+        ["categorical_count"])
+
 
     def test_false_categorical_report(self):
         df_non_categorical = pd.Series(list(map(str, range(0, 20))))
@@ -348,3 +352,29 @@ class TestCategoricalSentence(unittest.TestCase):
                                    "CategoricalColumn parameter 'options' must"
                                    " be of type CategoricalOptions."):
             profiler = CategoricalColumn("Categorical", options="wrong_data_type")
+
+    def test_categorical_column_is_counted(self):
+       df_categorical = pd.Series([
+           "a", "a", "a", "b", "b", "b", "b", "c", "c", "c", "c", "c",
+       ])
+       profile = CategoricalColumn(df_categorical.name)
+       # Check that _categories counts in profile is empty after init.
+       self.assertEqual(0, len(profile.counts()))
+
+       profile.update(df_categorical)
+       # Check that _categories counts is correct after update function
+       self.assertEqual(profile.counts()['a'], 3)
+       self.assertEqual(profile.counts()['b'], 4)
+       self.assertEqual(profile.counts()['c'], 5)
+
+       df_categorical2 = pd.Series([
+           "a", "a", "d", "d"
+       ])
+       profile2 = CategoricalColumn(df_categorical2.name)
+       profile2.update(df_categorical2)
+       profile3 = profile + profile2
+       # Check that _categories counts is correct after merge/add function
+       self.assertEqual(profile3.counts()['a'], 5)
+       self.assertEqual(profile3.counts()['b'], 4)
+       self.assertEqual(profile3.counts()['c'], 5)
+       self.assertTrue(profile3.counts()['d'], 2)

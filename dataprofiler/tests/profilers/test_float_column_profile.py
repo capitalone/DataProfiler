@@ -1299,3 +1299,45 @@ class TestFloatColumn(unittest.TestCase):
             # to make sure NO warnings were thrown since we have
             # a sufficient match count.
             self.assertEqual(0, len(w))
+
+    def test_diff(self):
+        data = [2.5, 12.5, 'not a float', 5, 'not a float']
+        df = pd.Series(data).apply(str)
+        profiler1 = FloatColumn(df.name)
+        profiler1.update(df)
+
+        data = [1, 15, 0.5, 0]
+        df = pd.Series(data).apply(str)
+        profiler2 = FloatColumn(df.name)
+        profiler2.update(df)
+
+        # Assert the difference report is correct
+        diff = profiler1.diff(profiler2)
+
+        expected_diff = {
+            'max': -2.5,
+            'mean': 2.5416667,
+            'min': 2.5,
+            'stddev': -2.0573202,
+            'sum': 3.5,
+            'variance': -25.6458333
+        }
+        expected_mean = expected_diff.pop("mean")
+        expected_std = expected_diff.pop("stddev")
+        expected_var = expected_diff.pop('variance')
+
+        mean = diff.pop("mean")
+        std = diff.pop("stddev")
+        var = diff.pop("variance")
+
+        self.assertDictEqual(expected_diff, diff)
+        self.assertAlmostEqual(expected_mean, mean)
+        self.assertAlmostEqual(expected_std, std)
+        self.assertAlmostEqual(expected_var, var)
+
+        # Assert type error is properly called
+        with self.assertRaises(TypeError) as exc:
+            profiler1.diff("Inproper input")
+        self.assertEqual(str(exc.exception),
+                         "Unsupported operand type(s) for diff: 'FloatColumn' and"
+                         " 'str'")

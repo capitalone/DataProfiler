@@ -3,12 +3,13 @@ import json
 import random
 from collections import defaultdict
 
+import pandas as pd
 import numpy as np
 import tensorflow as tf
 
 try:
     import sys
-    sys.path.insert(0, '..')
+    sys.path.insert(0, '../../..')
     import dataprofiler as dp
 except ImportError:
     import dataprofiler as dp

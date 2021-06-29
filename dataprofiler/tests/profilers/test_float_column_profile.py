@@ -1313,27 +1313,47 @@ class TestFloatColumn(unittest.TestCase):
 
         # Assert the difference report is correct
         diff = profiler1.diff(profiler2)
-
         expected_diff = {
             'max': -2.5,
             'mean': 2.5416667,
             'min': 2.5,
             'stddev': -2.0573202,
             'sum': 3.5,
-            'variance': -25.6458333
+            'variance': -25.6458333,
+            'precision': {
+                'min': 1,
+                'max': 1,
+                'mean': 1.0,
+                'var': 0.33,
+                'std': 0.18,
+                'sample_size': -1,
+                'margin_of_error': 0.6
+            }
         }
         expected_mean = expected_diff.pop("mean")
         expected_std = expected_diff.pop("stddev")
         expected_var = expected_diff.pop('variance')
+        expected_prec = expected_diff.pop('precision')
+        expected_prec_var = expected_prec.pop('var')
+        expected_prec_std = expected_prec.pop('std')
+        expected_prec_moe = expected_prec.pop('margin_of_error')
 
         mean = diff.pop("mean")
         std = diff.pop("stddev")
         var = diff.pop("variance")
-
+        prec = diff.pop('precision')
+        prec_var = prec.pop('var')
+        prec_std = prec.pop('std')
+        prec_moe = prec.pop('margin_of_error')
         self.assertDictEqual(expected_diff, diff)
         self.assertAlmostEqual(expected_mean, mean)
         self.assertAlmostEqual(expected_std, std)
         self.assertAlmostEqual(expected_var, var)
+
+        self.assertDictEqual(expected_prec, prec)
+        self.assertAlmostEqual(expected_prec_var, prec_var)
+        self.assertAlmostEqual(expected_prec_std, prec_std)
+        self.assertAlmostEqual(expected_prec_moe, prec_moe)
 
         # Assert type error is properly called
         with self.assertRaises(TypeError) as exc:

@@ -604,8 +604,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertDictEqual(save_report, load_report)
 
         # validate both are still usable after
-        save_profile.update_profile(pd.DataFrame(['test', 'test2']))
-        load_profile.update_profile(pd.DataFrame(['test', 'test2']))
+        save_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
+        load_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -706,8 +706,8 @@ class TestStructuredProfiler(unittest.TestCase):
         dupe_profile = dp.StructuredProfiler(dupe_data)
         unique_profile = dp.StructuredProfiler(unique_data)
 
-        msg = ("Schema of data with duplicate column names not respected when "
-               "updating profile.")
+        msg = ("Schema of data given to StructuredProfiler.update does not "
+               "match schema calculated at initialization.")
         with self.assertRaisesRegex(ValueError, msg):
             dupe_profile.update_profile(unique_data)
 
@@ -717,10 +717,6 @@ class TestStructuredProfiler(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, msg):
             dupe_profile.update_profile(perm_data)
 
-        msg = ("Attempted to update data with duplicate "
-               "column names that weren't present before "
-               "update. Schema must be identical when "
-               "profiling data with duplicate column names.")
         with self.assertRaisesRegex(ValueError, msg):
             unique_profile.update_profile(dupe_data)
 
@@ -1611,7 +1607,7 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         data = dp.Data(filename_null_in_file)
         profile = dp.StructuredProfiler(data, options=profiler_options)
 
-        report = profile.report(report_options={"output_format":"pretty"})
+        report = profile.report(report_options={"output_format": "pretty"})
         count_idx = report["global_stats"]["profile_schema"]["COUNT"][0]
         numbers_idx = report["global_stats"]["profile_schema"][" NUMBERS"][0]
         

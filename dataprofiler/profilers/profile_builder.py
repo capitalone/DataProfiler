@@ -1480,12 +1480,13 @@ class StructuredProfiler(BaseProfiler):
             # If duplicates present, schema enforced, so col_idx = prof_idx
             col_idx_to_prof_idx = {i: i for i in range(len(self._profile))}
             if not self._duplicate_cols_present:
+                # If columns unique, can allow permutation
                 for col_idx in range(data.shape[1]):
                     col_name = data.columns[col_idx]
                     if isinstance(col_name, str):
                         col_name = col_name.lower()
                     col_idx_to_prof_idx[col_idx] = \
-                    self._col_name_to_idx[col_name][0]
+                        self._col_name_to_idx[col_name][0]
 
         # Generate pool and estimate datasize
         pool = None

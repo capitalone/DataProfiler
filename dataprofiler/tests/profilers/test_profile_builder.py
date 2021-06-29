@@ -720,6 +720,46 @@ class TestStructuredProfiler(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, msg):
             unique_profile.update_profile(dupe_data)
 
+    def test_unique_col_permutation(self, *mocks):
+        data = pd.DataFrame([[1, 2, 3, 4],
+                             [5, 6, 7, 8]],
+                            columns=["a", "b", "c", "d"])
+        perm_data = pd.DataFrame([[4, 3, 2, 1],
+                                  [8, 7, 6, 5]],
+                                 columns=["d", "c", "b", "a"])
+
+        # Test via add
+        first_profiler = dp.StructuredProfiler(data)
+        perm_profiler = dp.StructuredProfiler(perm_data)
+        profiler = first_profiler + perm_profiler
+
+        for col_idx in range(len(profiler._profile)):
+            col_min = data.iloc[0, col_idx]
+            col_max = data.iloc[1, col_idx]
+            # Sum is doubled since it was updated with the same vals
+            col_sum = 2 * (col_min + col_max)
+            self.assertEqual(col_min, profiler._profile[col_idx].
+                             profile["statistics"]["min"])
+            self.assertEqual(col_max, profiler._profile[col_idx].
+                             profile["statistics"]["max"])
+            self.assertEqual(col_sum, profiler._profile[col_idx].
+                             profile["statistics"]["sum"])
+
+        # Test via update
+        profiler = dp.StructuredProfiler(data)
+        profiler.update_profile(perm_data)
+
+        for col_idx in range(len(profiler._profile)):
+            col_min = data.iloc[0, col_idx]
+            col_max = data.iloc[1, col_idx]
+            # Sum is doubled since it was updated with the same vals
+            col_sum = 2 * (col_min + col_max)
+            self.assertEqual(col_min, profiler._profile[col_idx].
+                             profile["statistics"]["min"])
+            self.assertEqual(col_max, profiler._profile[col_idx].
+                             profile["statistics"]["max"])
+            self.assertEqual(col_sum, profiler._profile[col_idx].
+                             profile["statistics"]["sum"])
 
 class TestStructuredColProfilerClass(unittest.TestCase):
 

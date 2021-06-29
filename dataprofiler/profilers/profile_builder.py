@@ -1162,7 +1162,6 @@ class StructuredProfiler(BaseProfiler):
         self.hashed_row_dict = dict()
         self._profile = []
         self._col_name_to_idx = dict()
-        self._initialized = False
         self._duplicate_cols_present = False
 
         if data is not None:
@@ -1405,9 +1404,10 @@ class StructuredProfiler(BaseProfiler):
             data = pd.DataFrame(data)
 
         duplicate_cols_given = len(data.columns) != len(data.columns.unique())
+        initialized = self.total_samples > 0
 
         # Error out if schema given does not match schema present in data
-        if self._initialized:
+        if initialized:
             mapping_given = dict()
             for i in range(len(data.columns)):
                 col = data.columns[i]
@@ -1461,7 +1461,7 @@ class StructuredProfiler(BaseProfiler):
         # Create StructuredColProfilers upon initialization
         # Record correlation between columns in data and index in _profile
         new_cols = False
-        if not self._initialized:
+        if not initialized:
             for col_idx in range(data.shape[1]):
                 col_name = data.columns[col_idx]
                 if isinstance(col_name, str):
@@ -1602,11 +1602,10 @@ class StructuredProfiler(BaseProfiler):
         self._update_row_statistics(data, samples_for_row_stats)
 
         # Update personal attributes about state of profile
-        if not self._initialized:
+        if not initialized:
             num_cols = [len(self._col_name_to_idx[col])
                         for col in self._col_name_to_idx]
             self._duplicate_cols_present = any(num > 1 for num in num_cols)
-        self._initialized = True
 
     def save(self, filepath=None):
         """
@@ -1629,7 +1628,6 @@ class StructuredProfiler(BaseProfiler):
                 "options": self.options,
                 "_profile": self.profile,
                 "_col_name_to_idx": self._col_name_to_idx,
-                "_initialized": self._initialized,
                 "_duplicate_cols_present": self._duplicate_cols_present
                } 
 

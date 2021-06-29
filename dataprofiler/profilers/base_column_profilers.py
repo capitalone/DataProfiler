@@ -186,6 +186,22 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
                                                    other2.times)
 
         self.sample_size = other1.sample_size + other2.sample_size
+        
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for several numerical stats.
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: NumericStatsMixin Profile
+        :return: the numerical stats differences
+        :rtype: dict
+        """
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+        return {}
 
     def _update_column_base_properties(self, profile):
         """

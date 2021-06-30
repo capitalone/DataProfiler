@@ -14,7 +14,6 @@ import warnings
 import sys
 
 import numpy as np
-import scipy.stats
 
 from . import utils
 from . import histogram_utils

@@ -127,6 +127,28 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             return float(self.match_count) / self.sample_size
         return None
 
+    def diff(self, other_profile, options=None):
+        """
+        Generates the differences between max, min, and formats of two DateTime columns
+
+        :return: Dict containing the differences between max, min, and format in their
+        appropriate output formats
+        :rtype: dict
+        """
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+
+        differences = {
+            "min": utils.find_diff_of_dates(self._dt_obj_min, other_profile._dt_obj_min),
+            "max": utils.find_diff_of_dates(self._dt_obj_max, other_profile._dt_obj_max),
+            "format": utils.find_diff_of_lists_and_sets(
+                self.date_formats, other_profile.date_formats)
+        }
+        return differences
+
     @staticmethod
     def _validate_datetime(date, date_format):
         """

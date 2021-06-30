@@ -8,6 +8,7 @@ import warnings
 import pandas as pd
 import numpy as np
 
+from dataprofiler.profilers import utils
 from dataprofiler.tests.profilers import utils as test_utils
 from dataprofiler.profilers import TextColumn
 from dataprofiler.profilers.profiler_options import TextOptions
@@ -428,3 +429,38 @@ class TestTextColumnProfiler(unittest.TestCase):
 
         histogram, _ = num_profiler._histogram_for_profile('custom')
         self.assertEqual(100, len(histogram['bin_counts']))
+
+    def test_diff(self):
+        df = pd.Series(
+            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
+        ).apply(str)
+
+        df2 = pd.Series(
+            ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
+        ).apply(str)
+
+        expected_vocab = [
+            'a', 'b', 'c', 'd', '4', '3', '2', 'f', 'h', 'e', 'l', 'o', 'm',
+            'y', 'n', 'i', 's', 'G', 'r', 't', 'I', 'v', '6', '7', 'g'
+        ]
+
+        profiler = TextColumn(df.name)
+        profiler.update(df)
+        profile1 = profiler.profile
+
+        profiler2 = TextColumn(df2.name)
+        profiler2.update(df2)
+        profile2 = profiler2.profile
+
+        expected_diff = {'min': "unchanged",
+                         'max': -1.0,
+                         'sum': -9.0,
+                         'mean': profile1['mean'] - profile2['mean'],
+                         'variance': profile1['variance'] - profile2['variance'],
+                         'stddev': profile1['stddev'] - profiler2['stddev'],
+                         'vocab': utils.find_diff_of_lists_and_sets(
+                             profile1['vocab'], profile2['vocab'])
+                         }
+        diff = profiler.diff(profiler2)
+        self.assertDictEqual(expected_diff, diff)
+        

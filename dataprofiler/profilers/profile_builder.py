@@ -1173,21 +1173,11 @@ class StructuredProfiler(BaseProfiler):
         together.
         """
 
-        schemas_differ = True
-        # Schemas must completely match if both contain duplicates
-        if self._duplicate_cols_present and other._duplicate_cols_present \
-                and self._col_name_to_idx == other._col_name_to_idx:
-            schemas_differ = False
-        # Can allow permutation of unique columns
-        elif not self._duplicate_cols_present and not other._duplicate_cols_present \
-                and self._col_name_to_idx.keys() == other._col_name_to_idx.keys():
-            schemas_differ = False
-
-        if schemas_differ:
-            raise ValueError('Profiles do not have the same schema.')
-        elif not all([isinstance(other._profile[idx],
-                                 type(self._profile[idx]))
-                      for idx in range(len(self._profile))]):  # options check
+        self_to_other_idx = self._get_and_validate_schema(self._col_name_to_idx,
+                                                          other._col_name_to_idx)
+        if not all([isinstance(other._profile[self_to_other_idx[idx]],
+                               type(self._profile[idx]))
+                    for idx in range(len(self._profile))]):  # options check
             raise ValueError('The two profilers were not setup with the same '
                              'options, hence they do not calculate the same '
                              'profiles and cannot be added together.')
@@ -1211,14 +1201,12 @@ class StructuredProfiler(BaseProfiler):
         merged_profile.hashed_row_dict.update(self.hashed_row_dict)
         merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
+        self_to_other_idx = self._get_and_validate_schema(self._col_name_to_idx,
+                                                          other._col_name_to_idx)
+
         # merge profiles
         for idx in range(len(self._profile)):
-            other_idx = idx
-            # If columns unique, order may be permutated
-            if not self._duplicate_cols_present:
-                # Determine which index in other._profile corresponds to idx
-                col_name = self._get_col_name_from_idx(idx)
-                other_idx = other._col_name_to_idx[col_name][0]
+            other_idx = self_to_other_idx[idx]
             merged_profile._profile.append(self._profile[idx] +
                                            other._profile[other_idx])
         merged_profile._col_name_to_idx = copy.deepcopy(self._col_name_to_idx)
@@ -1453,34 +1441,19 @@ class StructuredProfiler(BaseProfiler):
         elif isinstance(data, list):
             data = pd.DataFrame(data)
 
-        duplicate_cols_given = len(data.columns) != len(data.columns.unique())
         initialized = self.is_initialized
 
-        # Error out if schema given does not match schema present in data
-        if initialized:
-            mapping_given = dict()
-            for i in range(len(data.columns)):
-                col = data.columns[i]
-                if isinstance(col, str):
-                    col = col.lower()
-                mapping_given.setdefault(col, []).append(i)
+        # Calculate schema of incoming data
+        mapping_given = dict()
+        for i in range(len(data.columns)):
+            col = data.columns[i]
+            if isinstance(col, str):
+                col = col.lower()
+            mapping_given.setdefault(col, []).append(i)
 
-            # Determine if incoming schema is compatible with existing
-            schemas_differ = True
-            # If duplicates present, must completely match
-            if self._duplicate_cols_present and \
-                    mapping_given == self._col_name_to_idx:
-                schemas_differ = False
-            # If no duplicates present, can allow permutation of col order
-            # But cannot allow introduction of duplicates
-            elif not self._duplicate_cols_present and not duplicate_cols_given \
-                    and mapping_given.keys() == self._col_name_to_idx.keys():
-                schemas_differ = False
-
-            if schemas_differ:
-                raise ValueError("Schema of data given to "
-                                 "StructuredProfiler.update does not match "
-                                 "schema calculated at initialization.")
+        # Validate schema compatibility and index mapping from data to _profile
+        col_idx_to_prof_idx = self._get_and_validate_schema(mapping_given,
+                                                            self._col_name_to_idx)
 
         try:
             from tqdm import tqdm
@@ -1505,9 +1478,6 @@ class StructuredProfiler(BaseProfiler):
         # Newly introduced features (python3.8) improves the situation
         sample_ids = np.array(sample_ids)
 
-        # Initialize data column index -> _profile index mapping
-        col_idx_to_prof_idx = dict()
-
         # Create StructuredColProfilers upon initialization
         # Record correlation between columns in data and index in _profile
         new_cols = False
@@ -1519,8 +1489,6 @@ class StructuredProfiler(BaseProfiler):
                 # Record index in _profile corresponding to current col profile
                 self._col_name_to_idx.setdefault(col_name, []).append(
                     len(self._profile))
-                # Record where this column of data corresponds to _profile id
-                col_idx_to_prof_idx[col_idx] = len(self._profile)
                 # Add blank StructuredColProfiler to _profile
                 self._profile.append(StructuredColProfiler(
                     sample_size=sample_size,
@@ -1529,16 +1497,6 @@ class StructuredProfiler(BaseProfiler):
                     options=self.options
                 ))
                 new_cols = True
-        # Determine data column index -> profile index for unique col case
-        else:
-            # If duplicates present, schema enforced, so col_idx = prof_idx
-            col_idx_to_prof_idx = {i: i for i in range(len(self._profile))}
-            if not self._duplicate_cols_present:
-                for col_idx in range(data.shape[1]):
-                    col_name = data.columns[col_idx]
-                    if isinstance(col_name, str):
-                        col_name = col_name.lower()
-                    col_idx_to_prof_idx[col_idx] = self._col_name_to_idx[col_name][0]
                 
         # Generate pool and estimate datasize
         pool = None

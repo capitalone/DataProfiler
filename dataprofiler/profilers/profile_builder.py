@@ -1172,23 +1172,14 @@ class StructuredProfiler(BaseProfiler):
         StructuredProfiler specific checks to ensure two profiles can be added
         together.
         """
-        schemas_differ = True
-        # Schemas must completely match if both contain duplicates
-        if self._duplicate_cols_present and other._duplicate_cols_present \
-                and self._col_name_to_idx == other._col_name_to_idx:
-            schemas_differ = False
-        # Can allow permutation of unique columns
-        elif not self._duplicate_cols_present and not \
-                other._duplicate_cols_present \
-                and self._col_name_to_idx.keys() == \
-                other._col_name_to_idx.keys():
-            schemas_differ = False
 
-        if schemas_differ:
-            raise ValueError('Profiles do not have the same schema.')
-        elif not all([isinstance(other._profile[idx],
-                                 type(self._profile[idx]))
-                      for idx in range(len(self._profile))]):  # options check
+        # Pass with strict = True to enforce both needing to be non-empty
+        self_to_other_idx = self._get_and_validate_schema(self._col_name_to_idx,
+                                                          other._col_name_to_idx,
+                                                          True)
+        if not all([isinstance(other._profile[self_to_other_idx[idx]],
+                               type(self._profile[idx]))
+                    for idx in range(len(self._profile))]):  # options check
             raise ValueError('The two profilers were not setup with the same '
                              'options, hence they do not calculate the same '
                              'profiles and cannot be added together.')
@@ -1196,7 +1187,6 @@ class StructuredProfiler(BaseProfiler):
     def __add__(self, other):
         """
         Merges two Structured profiles together overriding the `+` operator.
-
         :param other: profile being added to this one.
         :type other: StructuredProfiler
         :return: merger of the two profiles
@@ -1212,14 +1202,12 @@ class StructuredProfiler(BaseProfiler):
         merged_profile.hashed_row_dict.update(self.hashed_row_dict)
         merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
+        self_to_other_idx = self._get_and_validate_schema(self._col_name_to_idx,
+                                                          other._col_name_to_idx)
+
         # merge profiles
         for idx in range(len(self._profile)):
-            other_idx = idx
-            # If columns unique, order may be permutated
-            if not self._duplicate_cols_present:
-                # Determine which index in other._profile corresponds to idx
-                col_name = self._get_col_name_from_idx(idx)
-                other_idx = other._col_name_to_idx[col_name][0]
+            other_idx = self_to_other_idx[idx]
             merged_profile._profile.append(self._profile[idx] +
                                            other._profile[other_idx])
         merged_profile._col_name_to_idx = copy.deepcopy(self._col_name_to_idx)
@@ -1268,7 +1256,7 @@ class StructuredProfiler(BaseProfiler):
                 return col_name
 
     @staticmethod
-    def _get_and_validate_schema(schema1, schema2):
+    def _get_and_validate_schema(schema1, schema2, strict=False):
         """
         Validate compatibility between schema1 and schema2 and return a dict
         mapping indices in schema1 to their corresponding indices in schema2.
@@ -1278,9 +1266,17 @@ class StructuredProfiler(BaseProfiler):
         :type schema1: Dict[str, list[int]]
         :param schema2: a column name to index mapping
         :type schema2: Dict[str, list[int]]
+        :param strict: whether or not to strictly match (__add__ case)
+        :type strict: bool
         :return: a mapping of indices in schema1 to indices in schema2
         :rtype: Dict[int, int]
         """
+        one_schema_empty = (len(schema1) == 0 and len(schema2) > 0) \
+                           or (len(schema1) > 0 and len(schema2) == 0)
+        # In the case of __add__ with one of the schemas not initialized
+        if strict and one_schema_empty:
+            raise ValueError("Cannot merge profiles due to schema mismatch")
+
         # In the case of _update_from_chunk with uninitialized schema
         if len(schema2) == 0:
             return {col_ind: col_ind for col_ind_list in schema1.values()
@@ -1290,7 +1286,10 @@ class StructuredProfiler(BaseProfiler):
         schema_mapping = dict()
 
         for key in schema1:
-            if key.lower() not in schema2:
+            # Pandas columns are int by default, but need to fuzzy match strs
+            if isinstance(key, str):
+                key = key.lower()
+            if key not in schema2:
                 raise ValueError("Columns do not match, cannot update "
                                  "or merge profiles.")
 

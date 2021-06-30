@@ -152,7 +152,8 @@ class TestStructuredProfiler(unittest.TestCase):
         profile2._profile.pop(0)
         profile2._col_name_to_idx.pop(0)
         with self.assertRaisesRegex(ValueError,
-                                    'Profiles do not have the same schema.'):
+                                    'Cannot merge profiles due to schema '
+                                    'mismatch'):
             profile1 + profile2
 
         # test mismatched profiles due to options

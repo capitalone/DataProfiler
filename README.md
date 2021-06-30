@@ -154,6 +154,7 @@ The format for an unstructured profile is below:
 * Parquet file
 * Text file
 * Pandas DataFrame
+* Text file
 
 ### Data Types
 
@@ -204,6 +205,7 @@ The Data Profiler can profile the following data/file types:
 * Parquet file
 * Text file
 * Pandas DataFrame
+* Text file
 
 The profiler should automatically identify the file type and load the data into a `Data Class`.
 
@@ -338,10 +340,17 @@ import pandas as pd
 import json
 
 text_data = pd.Series(['first string', 'second string'])
+<<<<<<< HEAD
+profile = dp.Profiler(text_data)
+
+# print the report using json to prettify.
+report = profile.report(report_options={"output_format":"pretty"})
+=======
 profile = dp.Profiler(text_data, profiler_type='unstructured')
 
 # print the report using json to prettify.
 report = profile.report(report_options={"output_format": "pretty"})
+>>>>>>> c9b1daab625432fa3e29b0d538f42e0497616e70
 print(json.dumps(report, indent=4))
 ```
 **Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**

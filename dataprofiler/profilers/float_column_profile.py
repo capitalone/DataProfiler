@@ -115,7 +115,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: the FloatColumn differences
         :rtype: dict
         """
-        differences = super().diff(other_profile, options=None)
+        differences = NumericStatsMixin.diff(self, other_profile, options=None)
         other_precision = other_profile.profile['precision']
         precision_diff = dict()
         for key in self.profile['precision'].keys():

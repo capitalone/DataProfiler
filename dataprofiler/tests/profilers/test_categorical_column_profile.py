@@ -168,9 +168,9 @@ class TestCategoricalColumn(unittest.TestCase):
             ["a", "b", "c"], report["statistics"]["categories"]
         )
         expected_dict = {"a": 3, "b": 4, "c": 5}
-        self.assertDictEqual(expected_dict, report["statistics"]
-        ["categorical_count"])
-
+        self.assertTrue(report["statistics"]["categories"])
+        self.assertEqual(expected_dict,
+                             report["statistics"]["categorical_count"])
 
     def test_false_categorical_report(self):
         df_non_categorical = pd.Series(list(map(str, range(0, 20))))
@@ -178,14 +178,25 @@ class TestCategoricalColumn(unittest.TestCase):
         profile.update(df_non_categorical)
 
         report = profile.profile
+        report.pop("times")
         six.assertCountEqual(
-            self, ['categorical', 'statistics', 'times'], report)
+            self, ['categorical', 'statistics'], report)
         self.assertFalse(report["categorical"])
         six.assertCountEqual(
             self, ['unique_count', 'unique_ratio'], report['statistics']
         )
         self.assertEqual(20, report["statistics"]["unique_count"])
         self.assertEqual(1.0, report["statistics"]["unique_ratio"])
+        self.assertFalse("categorical_count" in report["statistics"])
+
+        expected_profile = dict(
+            categorical=False,
+            statistics=dict([
+                ('unique_count', 20),
+                ('unique_ratio', 1),
+            ]),
+        )
+        self.assertEqual(report, expected_profile)
 
     def test_categorical_merge(self):
         df1 = pd.Series(["abcd", "aa", "abcd", "aa", "b", "4", "3", "2",
@@ -220,6 +231,17 @@ class TestCategoricalColumn(unittest.TestCase):
                          "NaN": 1, "None": 1, "nan": 1, "null": 1}
         self.assertDictEqual(expected_dict, profile3._categories)
 
+        report = profile3.profile
+        report.pop("times")
+        expected_profile = dict(
+            categorical=False,
+            statistics=dict([
+                ('unique_count', 16),
+                ('unique_ratio', 16/22)
+            ]),
+        )
+        self.assertEqual(report, expected_profile)
+
         # Add again
         profile3 = profile + profile3
         self.assertCountEqual(expected_categories, profile3.categories)
@@ -229,10 +251,73 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(profile3.is_match, False)
         self.assertEqual(profile3.unique_ratio, 16 / 33)
 
+        report = profile3.profile
+        report.pop("times")
+        expected_profile = dict(
+            categorical=False,
+            statistics=dict([
+                ('unique_count', 16),
+                ('unique_ratio', 16 / 33),
+            ]),
+        )
+        self.assertEqual(report, expected_profile)
+
         # Check is_match and unique_ratio if the sample size was large
         profile3.sample_size = 1000
         self.assertEqual(profile3.is_match, True)
         self.assertEqual(profile3.unique_ratio, 16 / 1000)
+
+        report = profile3.profile
+        report.pop("times")
+        var = report['statistics'].pop('categories')
+        expected_profile = dict(
+            categorical=True,
+            statistics=dict([
+                ('unique_count', 16),
+                ('unique_ratio', 16 / 1000),
+                ('categorical_count', dict({'aa': 5, '2': 4, 'abcd': 4,
+                                            'b': 3, np.nan: 2}))
+            ]),
+        )
+        self.assertEqual(report, expected_profile)
+        self.assertCountEqual(var, ['abcd', 'aa', '2', np.nan, '4', 'b', '3', 'dfd',
+                                'ee', 'ff', 'nan', 'None', '1', 'gg', 'null',
+                                'NaN'])
+
+    def test_categorical_column_is_counted(self):
+       df_categorical = pd.Series([
+           "a", "a", "a", "b", "b", "b", "b", "c", "c", "c", "c", "c",
+       ])
+       profile = CategoricalColumn(df_categorical.name)
+
+       # Check that _categories counts in profile is empty after init.
+       report = profile.profile
+       counts = report["statistics"]["categorical_count"]
+       self.assertEqual(0, len(counts))
+       profile.update(df_categorical)
+
+       report = profile.profile
+       counts = report["statistics"]["categorical_count"]
+
+       # Check that _categories counts is correct after update function
+       self.assertEqual(counts['a'], 3)
+       self.assertEqual(counts['b'], 4)
+       self.assertEqual(counts['c'], 5)
+
+       df_categorical2 = pd.Series([
+           "a", "a", "d", "d"
+       ])
+       profile2 = CategoricalColumn(df_categorical2.name)
+       profile2.update(df_categorical2)
+       profile3 = profile + profile2
+       report = profile3.profile
+       counts = report["statistics"]["categorical_count"]
+       # Check that _categories counts is correct after merge/add function
+       self.assertEqual(counts['a'], 5)
+       self.assertEqual(counts['b'], 4)
+       self.assertEqual(counts['c'], 5)
+       self.assertTrue(counts['d'], 2)
+
 
 
 class TestCategoricalSentence(unittest.TestCase):
@@ -352,29 +437,3 @@ class TestCategoricalSentence(unittest.TestCase):
                                    "CategoricalColumn parameter 'options' must"
                                    " be of type CategoricalOptions."):
             profiler = CategoricalColumn("Categorical", options="wrong_data_type")
-
-    def test_categorical_column_is_counted(self):
-       df_categorical = pd.Series([
-           "a", "a", "a", "b", "b", "b", "b", "c", "c", "c", "c", "c",
-       ])
-       profile = CategoricalColumn(df_categorical.name)
-       # Check that _categories counts in profile is empty after init.
-       self.assertEqual(0, len(profile.counts()))
-
-       profile.update(df_categorical)
-       # Check that _categories counts is correct after update function
-       self.assertEqual(profile.counts()['a'], 3)
-       self.assertEqual(profile.counts()['b'], 4)
-       self.assertEqual(profile.counts()['c'], 5)
-
-       df_categorical2 = pd.Series([
-           "a", "a", "d", "d"
-       ])
-       profile2 = CategoricalColumn(df_categorical2.name)
-       profile2.update(df_categorical2)
-       profile3 = profile + profile2
-       # Check that _categories counts is correct after merge/add function
-       self.assertEqual(profile3.counts()['a'], 5)
-       self.assertEqual(profile3.counts()['b'], 4)
-       self.assertEqual(profile3.counts()['c'], 5)
-       self.assertTrue(profile3.counts()['d'], 2)

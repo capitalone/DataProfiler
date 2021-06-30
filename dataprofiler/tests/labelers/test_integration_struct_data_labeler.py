@@ -5,8 +5,7 @@ import numpy as np
 import pandas as pd
 
 import dataprofiler as dp
-from dataprofiler.labelers.character_level_cnn_model import \
-    CharacterLevelCnnModel
+from unittest import mock
 
 
 class TestStructuredDataLabeler(unittest.TestCase):
@@ -323,7 +322,6 @@ class TestStructuredDataLabeler(unittest.TestCase):
                 columns.append(col)
                 predictions.append(results['data_stats'][col]['data_label'])
 
-    from unittest import mock
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._merge_correlation')
     def test_warning_tf_run_dp_merge(self, *mocks):

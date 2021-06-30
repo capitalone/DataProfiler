@@ -1251,6 +1251,13 @@ class StructuredProfiler(BaseProfiler):
         """
         return min([col._last_batch_size for col in self._profile], default=0)
 
+    @property
+    def is_initialized(self):
+        """
+        Determines if profiler has been initialized with data
+        """
+        return self.total_samples > 0
+
     def _get_col_name_from_idx(self, idx):
         """
         Determine which column name corresponds to a _profile index
@@ -1258,6 +1265,49 @@ class StructuredProfiler(BaseProfiler):
         for col_name in self._col_name_to_idx:
             if idx in self._col_name_to_idx[col_name]:
                 return col_name
+
+    @staticmethod
+    def _get_and_validate_schema(schema1, schema2):
+        """
+        Validate compatibility between schema1 and schema2 and return a dict
+        mapping indices in schema1 to their corresponding indices in schema2.
+        In __add__: want to map self _profile idx -> other _profile idx
+        In _update_profile_from_chunk: want to map data idx -> _profile idx
+
+        :param schema1: a column name to index mapping
+        :type schema1: Dict[str, list[int]]
+        :param schema2: a column name to index mapping
+        :type schema2: Dict[str, list[int]]
+        :return: a mapping of indices in schema1 to indices in schema2
+        :rtype: Dict[int, int]
+        """
+        # In the case of _update_from_chunk with uninitialized schema
+        if len(schema2) == 0:
+            return {col_ind: col_ind for col_ind_list in schema1.values()
+                    for col_ind in col_ind_list}
+
+        # Map indices in schema1 to indices in schema2
+        schema_mapping = dict()
+
+        for key in schema1:
+            if key.lower() not in schema2:
+                raise ValueError("Columns do not match, cannot update "
+                                 "or merge profiles.")
+
+            elif len(schema1[key]) != len(schema2[key]):
+                raise ValueError(f"Different number of columns detected for "
+                                 f"'{key}', cannot update or merge profiles.")
+
+            is_duplicate_col = len(schema1[key]) > 1
+            for schema1_col_ind, schema2_col_ind in zip(schema1[key],
+                                                        schema2[key]):
+                if is_duplicate_col and (schema1_col_ind != schema2_col_ind):
+                    raise ValueError(f"Different column indices under "
+                                     f"duplicate name '{key}', cannot update "
+                                     f"or merge unless schema is identical.")
+                schema_mapping[schema1_col_ind] = schema2_col_ind
+
+        return schema_mapping
 
     def report(self, report_options=None):
         if not report_options:
@@ -1404,7 +1454,7 @@ class StructuredProfiler(BaseProfiler):
             data = pd.DataFrame(data)
 
         duplicate_cols_given = len(data.columns) != len(data.columns.unique())
-        initialized = self.total_samples > 0
+        initialized = self.is_initialized
 
         # Error out if schema given does not match schema present in data
         if initialized:

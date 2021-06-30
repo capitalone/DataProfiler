@@ -1187,7 +1187,7 @@ class StructuredProfiler(BaseProfiler):
     def __add__(self, other):
         """
         Merges two Structured profiles together overriding the `+` operator.
-        
+
         :param other: profile being added to this one.
         :type other: StructuredProfiler
         :return: merger of the two profiles
@@ -1273,6 +1273,7 @@ class StructuredProfiler(BaseProfiler):
         :return: a mapping of indices in schema1 to indices in schema2
         :rtype: Dict[int, int]
         """
+
         one_schema_empty = (len(schema1) == 0 and len(schema2) > 0) \
                            or (len(schema1) > 0 and len(schema2) == 0)
         # In the case of __add__ with one of the schemas not initialized

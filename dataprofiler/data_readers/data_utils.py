@@ -565,7 +565,7 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=10,
             
     return data_as_str
 
-def is_stream_buffer(filepath_or_buffer, encoding=None, seek=None):
+def is_stream_buffer(filepath_or_buffer):
     """
     Determines whether a given argument is a filepath or buffer.
     
@@ -579,7 +579,6 @@ def is_stream_buffer(filepath_or_buffer, encoding=None, seek=None):
     :rtype: boolean
     """
 
-    if (type(filepath_or_buffer) == StringIO or type(filepath_or_buffer) == BytesIO):
+    if isinstance(filepath_or_buffer, (StringIO, BytesIO)):
         return True
-    else:
-        return False
+    return False

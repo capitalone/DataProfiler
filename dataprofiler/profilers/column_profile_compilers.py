@@ -209,7 +209,8 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
             )
         return profile
 
-    def find_data_type(self):
+    @property
+    def selected_data_type(self):
         """
         Finds the selected data_type in a primitive compiler
         
@@ -217,9 +218,10 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
         :rtype: str
         """
         matched_profile = None
-        for key, profiler in self._profiles.items():
-            if matched_profile is None and profiler.data_type_ratio == 1.0:
-                matched_profile = key
+        if self._profiles:
+            for key, profiler in self._profiles.items():
+                if matched_profile is None and profiler.data_type_ratio == 1.0:
+                    matched_profile = key
         return matched_profile
 
     def diff(self, other, options=None):
@@ -252,8 +254,8 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
 
 
         # Find data_type diff
-        data_type1 = self.find_data_type()
-        data_type2 = other.find_data_type()
+        data_type1 = self.selected_data_type
+        data_type2 = other.selected_data_type
         if data_type1 is not None or data_type2 is not None:
             diff_profile["data_type"] = utils.find_diff_of_strings(data_type1,
                                                                    data_type2)

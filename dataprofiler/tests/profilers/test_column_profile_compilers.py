@@ -245,7 +245,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             {'profile'},
             col_pro_compilers.BaseCompiler.__abstractmethods__
         )
-    
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

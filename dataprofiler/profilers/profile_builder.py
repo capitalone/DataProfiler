@@ -1187,6 +1187,7 @@ class StructuredProfiler(BaseProfiler):
     def __add__(self, other):
         """
         Merges two Structured profiles together overriding the `+` operator.
+        
         :param other: profile being added to this one.
         :type other: StructuredProfiler
         :return: merger of the two profiles
@@ -1262,6 +1263,7 @@ class StructuredProfiler(BaseProfiler):
         mapping indices in schema1 to their corresponding indices in schema2.
         In __add__: want to map self _profile idx -> other _profile idx
         In _update_profile_from_chunk: want to map data idx -> _profile idx
+
         :param schema1: a column name to index mapping
         :type schema1: Dict[str, list[int]]
         :param schema2: a column name to index mapping

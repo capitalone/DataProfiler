@@ -8,6 +8,7 @@ import warnings
 import pandas as pd
 import numpy as np
 
+from dataprofiler.profilers import utils
 from dataprofiler.tests.profilers import utils as test_utils
 from dataprofiler.profilers import TextColumn
 from dataprofiler.profilers.profiler_options import TextOptions
@@ -456,22 +457,10 @@ class TestTextColumnProfiler(unittest.TestCase):
                          'sum': -9.0,
                          'mean': profile1['mean'] - profile2['mean'],
                          'variance': profile1['variance'] - profile2['variance'],
-                         'stddev': profiler['stddev'] - profiler2['stddev'],
-                         'vocab': [['2', '4', 'f', 'c', '3', 'b'], ['a', 'd'],
-                                   ['G', 'n', 'I', 'm', 'r', 'e', '6', 'v', 'o', 'y', 'g', 'l',
-                                    't', 'i', 's', 'h', '7']]
+                         'stddev': profile1['stddev'] - profiler2['stddev'],
+                         'vocab': utils.find_diff_of_lists_and_sets(
+                             profile1['vocab'], profile2['vocab'])
                          }
-        expected_vocab = expected_diff.pop('vocab')
-        expected_unique1 = expected_vocab[0]
-        expected_shared = expected_vocab[1]
-        expected_unique2 = expected_vocab[2]
-
         diff = profiler.diff(profiler2)
-        vocab = diff.pop('vocab')
-        unique1 = vocab[0]
-        shared = vocab[1]
-        unique2 = vocab[2]
         self.assertDictEqual(expected_diff, diff)
-        self.assertEqual(set(expected_unique1), set(unique1))
-        self.assertEqual(set(expected_shared), set(shared))
-        self.assertEqual(set(expected_unique2), set(unique2))
+        

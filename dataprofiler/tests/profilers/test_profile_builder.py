@@ -220,7 +220,6 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profiler.row_is_null_count)
         self.assertEqual(3, profiler.total_samples)
         self.assertEqual(2, len(profiler.hashed_row_dict))
-        self.assertIsNone(profiler.correlation_matrix)
 
         # check after update
         profiler.update_profile(data[3:])
@@ -232,7 +231,6 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(8, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertIsNone(profiler.correlation_matrix)
 
     def test_correct_unique_row_ratio_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))

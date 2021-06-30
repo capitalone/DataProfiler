@@ -64,8 +64,10 @@ class CategoricalColumn(BaseColumnProfiler):
     def profile(self):
         """
         Property for profile. Returns the profile of the column.
+        For categorical_count, it will display the top k categories most
+        frequently occurred in descending order.
         """
-        num_top_categories = 5
+        top_k_categories = 5
 
         profile = dict(
             categorical=self.is_match,
@@ -81,7 +83,7 @@ class CategoricalColumn(BaseColumnProfiler):
             )
             profile["statistics"]['categorical_count'] = dict(
                 sorted(self._categories.items(), key=itemgetter(1),
-                       reverse=True)[:num_top_categories])
+                       reverse=True)[:top_k_categories])
         return profile
 
     @property
@@ -172,10 +174,3 @@ class CategoricalColumn(BaseColumnProfiler):
         self._update_helper(df_series, profile)
 
         return self
-
-    def counts(self):
-        """
-        Returns the dict of categories with the number of occurrences
-        for each category.
-        """
-        return dict(self._categories.items())

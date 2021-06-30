@@ -730,17 +730,17 @@ class TestStructuredProfiler(unittest.TestCase):
 
         msg = "Columns do not match, cannot update or merge profiles."
         with self.assertRaisesRegex(ValueError, msg):
-            dp.StructuredProfiler._get_and_validate_schema(unique_schema_1,
-                                                           unique_schema_3)
+            dp.StructuredProfiler._get_and_validate_schema_mapping(unique_schema_1,
+                                                                   unique_schema_3)
 
         expected_schema = {0: 0, 1: 1, 2: 2}
         actual_schema = dp.StructuredProfiler.\
-            _get_and_validate_schema(unique_schema_1, {})
+            _get_and_validate_schema_mapping(unique_schema_1, {})
         self.assertDictEqual(actual_schema, expected_schema)
 
         expected_schema = {0: 2, 1: 0, 2: 1}
         actual_schema = dp.StructuredProfiler.\
-            _get_and_validate_schema(unique_schema_1, unique_schema_2)
+            _get_and_validate_schema_mapping(unique_schema_1, unique_schema_2)
         self.assertDictEqual(actual_schema, expected_schema)
 
         dupe_schema_1 = {"a": [0], "b": [1, 2], "c": [3, 4, 5]}
@@ -750,19 +750,19 @@ class TestStructuredProfiler(unittest.TestCase):
         msg = ("Different number of columns detected for "
                "'a', cannot update or merge profiles.")
         with self.assertRaisesRegex(ValueError, msg):
-            dp.StructuredProfiler._get_and_validate_schema(dupe_schema_1,
-                                                           dupe_schema_3)
+            dp.StructuredProfiler._get_and_validate_schema_mapping(dupe_schema_1,
+                                                                   dupe_schema_3)
 
         msg = ("Different column indices under "
                "duplicate name 'b', cannot update "
                "or merge unless schema is identical.")
         with self.assertRaisesRegex(ValueError, msg):
-            dp.StructuredProfiler._get_and_validate_schema(dupe_schema_1,
-                                                           dupe_schema_2)
+            dp.StructuredProfiler._get_and_validate_schema_mapping(dupe_schema_1,
+                                                                   dupe_schema_2)
 
         expected_schema = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
         actual_schema = dp.StructuredProfiler.\
-            _get_and_validate_schema(dupe_schema_1, dupe_schema_1)
+            _get_and_validate_schema_mapping(dupe_schema_1, dupe_schema_1)
         self.assertDictEqual(actual_schema, expected_schema)
 
 class TestStructuredColProfilerClass(unittest.TestCase):

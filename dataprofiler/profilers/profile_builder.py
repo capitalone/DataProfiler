@@ -1174,9 +1174,9 @@ class StructuredProfiler(BaseProfiler):
         """
 
         # Pass with strict = True to enforce both needing to be non-empty
-        self_to_other_idx = self._get_and_validate_schema(self._col_name_to_idx,
-                                                          other._col_name_to_idx,
-                                                          True)
+        self_to_other_idx = self._get_and_validate_schema_mapping(self._col_name_to_idx,
+                                                                  other._col_name_to_idx,
+                                                                  True)
         if not all([isinstance(other._profile[self_to_other_idx[idx]],
                                type(self._profile[idx]))
                     for idx in range(len(self._profile))]):  # options check
@@ -1203,8 +1203,8 @@ class StructuredProfiler(BaseProfiler):
         merged_profile.hashed_row_dict.update(self.hashed_row_dict)
         merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
-        self_to_other_idx = self._get_and_validate_schema(self._col_name_to_idx,
-                                                          other._col_name_to_idx)
+        self_to_other_idx = self._get_and_validate_schema_mapping(self._col_name_to_idx,
+                                                                  other._col_name_to_idx)
 
         # merge profiles
         for idx in range(len(self._profile)):
@@ -1257,7 +1257,7 @@ class StructuredProfiler(BaseProfiler):
                 return col_name
 
     @staticmethod
-    def _get_and_validate_schema(schema1, schema2, strict=False):
+    def _get_and_validate_schema_mapping(schema1, schema2, strict=False):
         """
         Validate compatibility between schema1 and schema2 and return a dict
         mapping indices in schema1 to their corresponding indices in schema2.
@@ -1467,8 +1467,8 @@ class StructuredProfiler(BaseProfiler):
             mapping_given[col].append(col_idx)
 
         # Validate schema compatibility and index mapping from data to _profile
-        col_idx_to_prof_idx = self._get_and_validate_schema(mapping_given,
-                                                            self._col_name_to_idx)
+        col_idx_to_prof_idx = self._get_and_validate_schema_mapping(mapping_given,
+                                                                    self._col_name_to_idx)
 
         try:
             from tqdm import tqdm

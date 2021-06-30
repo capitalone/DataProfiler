@@ -90,9 +90,9 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: the text columns differences
         :rtype: dict
         """
+        differences = NumericStatsMixin.diff(self, other_profile, options)
         vocab_diff = utils.find_diff_of_lists_and_sets(
             self.vocab, other_profile.vocab)
-        differences = super().diff(other_profile, options)
         differences["vocab"] = vocab_diff
         return differences
 

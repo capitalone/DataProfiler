@@ -284,7 +284,7 @@ class TestCategoricalColumn(unittest.TestCase):
                                                   'ff', 'nan', 'None', '1',
                                                   'gg', 'null', 'NaN'])
         expected_dict = dict({'aa': 5, '2': 4, 'abcd': 4, 'b': 3, np.nan: 2})
-        self.assertCountEqual(report_count, expected_dict)
+        self.assertEqual(len(report_count), len(expected_dict))
         self.assertEqual(report_count['aa'], expected_dict['aa'])
         self.assertEqual(report_count['2'], expected_dict['2'])
         self.assertEqual(report_count['abcd'], expected_dict['abcd'])

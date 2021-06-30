@@ -252,7 +252,10 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2999, self.trained_schema.total_samples)
         self.assertEqual(0.0, self.trained_schema._get_duplicate_row_count())
 
-    def test_correlation(self):
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_correlation(self, *mock):
         # data with one column, correlation not updated
         data = pd.DataFrame([1.0, None, 1.0, None, 5.0])
         profiler = dp.StructuredProfiler(data)
@@ -284,7 +287,18 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data)
         self.assertIsNone(profiler.correlation_matrix)
 
-    def test_merge_correlation(self):
+        # data with only one numerical columns without nan values
+        data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
+                             'b': [10, 11, np.nan, 4, 2, 5, 6, 3, 9, 8],
+                             'c': [1, 5, 3, 5, 7, 2, 6, 8, np.nan, np.nan]})
+        profiler = dp.StructuredProfiler(data)
+        self.assertIsNone(profiler.correlation_matrix)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
+    def test_merge_correlation(self, *mock):
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})

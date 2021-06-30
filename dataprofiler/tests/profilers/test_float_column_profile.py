@@ -1299,3 +1299,45 @@ class TestFloatColumn(unittest.TestCase):
             # to make sure NO warnings were thrown since we have
             # a sufficient match count.
             self.assertEqual(0, len(w))
+
+    def test_diff(self):
+        data = [2.5, 12.5, 'not a float', 5, 'not a float']
+        df = pd.Series(data).apply(str)
+        profiler1 = FloatColumn(df.name)
+        profiler1.update(df)
+        profile1 = profiler1.profile
+
+        data = [1, 15, 0.5, 0]
+        df = pd.Series(data).apply(str)
+        profiler2 = FloatColumn(df.name)
+        profiler2.update(df)
+        profile2 = profiler2.profile
+
+        # Assert the difference report is correct
+        diff = profiler1.diff(profiler2)
+        expected_diff = {
+            'max': -2.5,
+            'mean': profile1['mean'] - profile2['mean'],
+            'min': 2.5,
+            'stddev': profile1['stddev'] - profile2['stddev'],
+            'sum': 3.5,
+            'variance': profile1['variance'] - profile2['variance'],
+            'precision': {
+                'min': 1,
+                'max': 1,
+                'mean': 1,
+                'var': profile1['precision']['var'] - profile2['precision']['var'],
+                'std': profile1['precision']['std'] - profile2['precision']['std'],
+                'sample_size': -1,
+                'margin_of_error':
+                    profile1['precision']['margin_of_error'] - profiler2['precision']['margin_of_error']
+            }
+        }
+        self.assertDictEqual(expected_diff, diff)
+
+        # Assert type error is properly called
+        with self.assertRaises(TypeError) as exc:
+            profiler1.diff("Inproper input")
+        self.assertEqual(str(exc.exception),
+                         "Unsupported operand type(s) for diff: 'FloatColumn' and"
+                         " 'str'")

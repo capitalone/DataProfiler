@@ -11,7 +11,7 @@ from __future__ import division
 import copy
 import random
 import re
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import warnings
 import pickle
 from datetime import datetime
@@ -1161,7 +1161,7 @@ class StructuredProfiler(BaseProfiler):
         self.row_is_null_count = 0
         self.hashed_row_dict = dict()
         self._profile = []
-        self._col_name_to_idx = dict()
+        self._col_name_to_idx = defaultdict(list)
         self._duplicate_cols_present = False
 
         if data is not None:
@@ -1173,8 +1173,10 @@ class StructuredProfiler(BaseProfiler):
         together.
         """
 
+        # Pass with strict = True to enforce both needing to be non-empty
         self_to_other_idx = self._get_and_validate_schema(self._col_name_to_idx,
-                                                          other._col_name_to_idx)
+                                                          other._col_name_to_idx,
+                                                          True)
         if not all([isinstance(other._profile[self_to_other_idx[idx]],
                                type(self._profile[idx]))
                     for idx in range(len(self._profile))]):  # options check
@@ -1255,7 +1257,7 @@ class StructuredProfiler(BaseProfiler):
                 return col_name
 
     @staticmethod
-    def _get_and_validate_schema(schema1, schema2):
+    def _get_and_validate_schema(schema1, schema2, strict=False):
         """
         Validate compatibility between schema1 and schema2 and return a dict
         mapping indices in schema1 to their corresponding indices in schema2.
@@ -1266,9 +1268,18 @@ class StructuredProfiler(BaseProfiler):
         :type schema1: Dict[str, list[int]]
         :param schema2: a column name to index mapping
         :type schema2: Dict[str, list[int]]
+        :param strict: whether or not to strictly match (__add__ case)
+        :type strict: bool
         :return: a mapping of indices in schema1 to indices in schema2
         :rtype: Dict[int, int]
         """
+
+        one_schema_empty = (len(schema1) == 0 and len(schema2) > 0) \
+                           or (len(schema1) > 0 and len(schema2) == 0)
+        # In the case of __add__ with one of the schemas not initialized
+        if strict and one_schema_empty:
+            raise ValueError("Cannot merge profiles due to schema mismatch")
+
         # In the case of _update_from_chunk with uninitialized schema
         if len(schema2) == 0:
             return {col_ind: col_ind for col_ind_list in schema1.values()
@@ -1278,7 +1289,10 @@ class StructuredProfiler(BaseProfiler):
         schema_mapping = dict()
 
         for key in schema1:
-            if key.lower() not in schema2:
+            # Pandas columns are int by default, but need to fuzzy match strs
+            if isinstance(key, str):
+                key = key.lower()
+            if key not in schema2:
                 raise ValueError("Columns do not match, cannot update "
                                  "or merge profiles.")
 
@@ -1444,12 +1458,13 @@ class StructuredProfiler(BaseProfiler):
         initialized = self.is_initialized
 
         # Calculate schema of incoming data
-        mapping_given = dict()
-        for i in range(len(data.columns)):
-            col = data.columns[i]
+        mapping_given = defaultdict(list)
+        for col_idx in range(len(data.columns)):
+            col = data.columns[col_idx]
+            # Pandas columns are int by default, but need to fuzzy match strs
             if isinstance(col, str):
                 col = col.lower()
-            mapping_given.setdefault(col, []).append(i)
+            mapping_given[col].append(col_idx)
 
         # Validate schema compatibility and index mapping from data to _profile
         col_idx_to_prof_idx = self._get_and_validate_schema(mapping_given,
@@ -1484,11 +1499,11 @@ class StructuredProfiler(BaseProfiler):
         if not initialized:
             for col_idx in range(data.shape[1]):
                 col_name = data.columns[col_idx]
+                # Pandas cols are int by default, but need to fuzzy match strs
                 if isinstance(col_name, str):
                     col_name = col_name.lower()
                 # Record index in _profile corresponding to current col profile
-                self._col_name_to_idx.setdefault(col_name, []).append(
-                    len(self._profile))
+                self._col_name_to_idx[col_name].append(len(self._profile))
                 # Add blank StructuredColProfiler to _profile
                 self._profile.append(StructuredColProfiler(
                     sample_size=sample_size,

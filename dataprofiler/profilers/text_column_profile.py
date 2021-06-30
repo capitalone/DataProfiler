@@ -81,6 +81,21 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         )
         return profile
 
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for text columns
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: TextColumn Profile
+        :return: the text columns differences
+        :rtype: dict
+        """
+        differences = NumericStatsMixin.diff(self, other_profile, options)
+        vocab_diff = utils.find_diff_of_lists_and_sets(
+            self.vocab, other_profile.vocab)
+        differences["vocab"] = vocab_diff
+        return differences
+
     @property
     def data_type_ratio(self):
         """

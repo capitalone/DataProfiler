@@ -1406,6 +1406,10 @@ class StructuredProfiler(BaseProfiler):
         """
         corr_mat1 = self.correlation_matrix
         corr_mat2 = other.correlation_matrix
+        if corr_mat1 is None:
+            return corr_mat2
+        if corr_mat2 is None:
+            return corr_mat1
 
         if len(corr_mat1.columns) != len(corr_mat2.columns) or \
                 len(corr_mat1.columns) <= 1:

@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 
 import dataprofiler as dp
-from unittest import mock
 
 
 class TestStructuredDataLabeler(unittest.TestCase):
@@ -322,9 +321,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
                 columns.append(col)
                 predictions.append(results['data_stats'][col]['data_label'])
 
-    @mock.patch('dataprofiler.profilers.profile_builder.'
-                'StructuredProfiler._merge_correlation')
-    def test_warning_tf_run_dp_merge(self, *mocks):
+    def test_warning_tf_run_dp_merge(self):
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         test_dir = os.path.join(test_root_path, 'data')
         path = os.path.join(test_dir, 'csv/diamonds.csv')
@@ -337,7 +334,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp1')
         profile1 = dp.StructuredProfiler(data, options=profile_options)
@@ -350,7 +348,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp2')
         profile2 = dp.StructuredProfiler(data, options=profile_options)
@@ -370,7 +369,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp1')
         profile1 = dp.StructuredProfiler(data, options=profile_options)
@@ -383,7 +383,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp2')
         profile2 = dp.StructuredProfiler(data, options=profile_options)

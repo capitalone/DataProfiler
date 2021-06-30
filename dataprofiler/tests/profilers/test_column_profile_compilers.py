@@ -89,6 +89,24 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             'data_type': ['int', 'text']
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        
+        
+        # Test different data types with datetime specifically
+        data1 = pd.Series(['-2', '-1', '1', '2'])
+        data2 = pd.Series(["01/12/1967", "11/9/2024"])
+        compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1)
+        compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2)
+
+        expected_diff = {
+            'data_type_representation': {
+                'datetime': -1.0,
+                'int': 1.0,
+                'float': 1.0,
+                'text': 'unchanged'
+            },
+            'data_type': ['int', 'datetime']
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
         
         # Test same data types

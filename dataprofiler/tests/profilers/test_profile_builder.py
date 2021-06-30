@@ -484,17 +484,17 @@ class TestStructuredProfiler(unittest.TestCase):
                                                ' to StructuredProfiler'):
             profile = dp.StructuredProfiler(dp.Data(text_file_path))
 
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'StructuredProfiler._update_correlation')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     @mock.patch('dataprofiler.profilers.profile_builder.StructuredProfiler.'
                 '_update_row_statistics')
     @mock.patch('dataprofiler.profilers.profile_builder.StructuredColProfiler')
-    @mock.patch('dataprofiler.profilers.profile_builder.'
-                'StructuredProfiler._update_correlation')
     def test_sample_size_warning_in_the_profiler(self, *mocks):
         # structure data profile mock
         sdp_mock = mock.Mock()
         sdp_mock.clean_data_and_get_base_stats.return_value = (None, None)
-        mocks[1].return_value = sdp_mock
+        mocks[0].return_value = sdp_mock
 
         data = pd.DataFrame([1, None, 3, 4, 5, None])
         with self.assertWarnsRegex(UserWarning,

@@ -222,6 +222,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
             for key, profiler in self._profiles.items():
                 if matched_profile is None and profiler.data_type_ratio == 1.0:
                     matched_profile = key
+                    return matched_profile
         return matched_profile
 
     def diff(self, other, options=None):

@@ -269,20 +269,28 @@ class TestCategoricalColumn(unittest.TestCase):
 
         report = profile3.profile
         report.pop("times")
-        var = report['statistics'].pop('categories')
+        report_categories = report['statistics'].pop('categories')
+        report_count = report['statistics'].pop('categorical_count')
         expected_profile = dict(
             categorical=True,
             statistics=dict([
                 ('unique_count', 16),
                 ('unique_ratio', 16 / 1000),
-                ('categorical_count', dict({'aa': 5, '2': 4, 'abcd': 4,
-                                            'b': 3, np.nan: 2}))
+                #('categorical_count', dict({'aa': 5, '2': 4, 'abcd': 4,
+                #                            'b': 3, np.nan: 2}))
             ]),
         )
         self.assertEqual(report, expected_profile)
-        self.assertCountEqual(var, ['abcd', 'aa', '2', np.nan, '4', 'b', '3', 'dfd',
-                                'ee', 'ff', 'nan', 'None', '1', 'gg', 'null',
-                                'NaN'])
+        self.assertCountEqual(report_categories, ['abcd', 'aa', '2', np.nan,
+                                                  '4', 'b', '3', 'dfd', 'ee',
+                                                  'ff', 'nan', 'None', '1',
+                                                  'gg', 'null', 'NaN'])
+        expected_dict = dict({'aa': 5, '2': 4, 'abcd': 4, 'b': 3, np.nan: 2})
+        self.assertCountEqual(report_count, expected_dict)
+        self.assertEqual(report_count['aa'], expected_dict['aa'])
+        self.assertEqual(report_count['2'], expected_dict['2'])
+        self.assertEqual(report_count['abcd'], expected_dict['abcd'])
+        self.assertEqual(report_count['b'], expected_dict['b'])
 
     def test_categorical_column_is_counted(self):
        df_categorical = pd.Series([

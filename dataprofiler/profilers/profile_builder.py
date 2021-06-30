@@ -11,7 +11,7 @@ from __future__ import division
 import copy
 import random
 import re
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import warnings
 import pickle
 from datetime import datetime
@@ -1161,7 +1161,7 @@ class StructuredProfiler(BaseProfiler):
         self.row_is_null_count = 0
         self.hashed_row_dict = dict()
         self._profile = []
-        self._col_name_to_idx = dict()
+        self._col_name_to_idx = defaultdict(list)
         self._duplicate_cols_present = False
 
         if data is not None:
@@ -1451,12 +1451,13 @@ class StructuredProfiler(BaseProfiler):
         initialized = self.is_initialized
 
         # Calculate schema of incoming data
-        mapping_given = dict()
-        for i in range(len(data.columns)):
-            col = data.columns[i]
+        mapping_given = defaultdict(list)
+        for col_idx in range(len(data.columns)):
+            col = data.columns[col_idx]
+            # Pandas columns are int by default, but need to fuzzy match strs
             if isinstance(col, str):
                 col = col.lower()
-            mapping_given.setdefault(col, []).append(i)
+            mapping_given[col].append(col_idx)
 
         # Validate schema compatibility and index mapping from data to _profile
         col_idx_to_prof_idx = self._get_and_validate_schema(mapping_given,
@@ -1491,11 +1492,11 @@ class StructuredProfiler(BaseProfiler):
         if not initialized:
             for col_idx in range(data.shape[1]):
                 col_name = data.columns[col_idx]
+                # Pandas cols are int by default, but need to fuzzy match strs
                 if isinstance(col_name, str):
                     col_name = col_name.lower()
                 # Record index in _profile corresponding to current col profile
-                self._col_name_to_idx.setdefault(col_name, []).append(
-                    len(self._profile))
+                self._col_name_to_idx[col_name].append(len(self._profile))
                 # Add blank StructuredColProfiler to _profile
                 self._profile.append(StructuredColProfiler(
                     sample_size=sample_size,

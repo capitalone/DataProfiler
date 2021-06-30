@@ -150,6 +150,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                          "profile compiler type.")
         
     def test_disabling_columns_during_primitive_diff(self):
+        
         data1 = pd.Series(['-2', '-1', '1', '2'])
         data2 = pd.Series(['5', '15'])
         options = StructuredOptions()
@@ -168,7 +169,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             'data_type': ['float', 'int']
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
+        
         # Test disabled column in both compilers
         compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2,
                                                                          options)
@@ -185,7 +186,15 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 'sum': -20.0,
                 'mean': -10.0, 
                 'variance': -46.666666666666664,
-                'stddev': -5.2453259535149215
+                'stddev': -5.2453259535149215,
+                'precision': {
+                    'min': 'unchanged', 
+                    'max': -1, 
+                    'mean': -0.5,
+                    'var': -0.5, 
+                    'std': -0.71, 
+                    'sample_size': 2,
+                    'margin_of_error': -1.6}
             }
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
@@ -236,6 +245,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             {'profile'},
             col_pro_compilers.BaseCompiler.__abstractmethods__
         )
+    
 
 
 class TestUnstructuredCompiler(unittest.TestCase):

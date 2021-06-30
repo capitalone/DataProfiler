@@ -84,7 +84,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 'datetime': 'unchanged',
                 'int': 1.0,
                 'float': 1.0,
-                'string': 'unchanged'
+                'text': 'unchanged'
             },
             'data_type': ['int', 'text']
         }
@@ -102,7 +102,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 'datetime': 'unchanged',
                 'int': 'unchanged',
                 'float': 'unchanged',
-                'string': 'unchanged'
+                'text': 'unchanged'
             },
              'data_type': 'unchanged',
              'statistics': {
@@ -145,7 +145,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             'data_type_representation': {
                 'datetime': 'unchanged', 
                 'float': 'unchanged', 
-                'string': 'unchanged', 
+                'text': 'unchanged', 
                 'int': [None, 1.0]}, 
             'data_type': ['float', 'int']
         }
@@ -158,7 +158,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             'data_type_representation': {
                 'datetime': 'unchanged', 
                 'float': 'unchanged', 
-                'string': 'unchanged'
+                'text': 'unchanged'
             },
             'data_type': "unchanged",
             'statistics': {
@@ -184,7 +184,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 'datetime': [None, 0.0], 
                 'int': [None, 1.0], 
                 'float': [None, 1.0], 
-                'string': [None, 1.0]
+                'text': [None, 1.0]
             }, 
             'data_type': [None, 'int']
         }

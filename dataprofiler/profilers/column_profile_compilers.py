@@ -209,6 +209,19 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
             )
         return profile
 
+    def find_data_type(self):
+        """
+        Finds the selected data_type in a primitive compiler
+        
+        :return: name of the selected data type
+        :rtype: str
+        """
+        matched_profile = None
+        for key, profiler in self._profiles.items():
+            if matched_profile is None and profiler.data_type_ratio == 1.0:
+                matched_profile = key
+        return matched_profile
+
     def diff(self, other, options=None):
         """
         Finds the difference between 2 compilers and returns the report
@@ -219,52 +232,42 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
         :rtype: dict
         """
         # Call super for compiler instance check
-        super().diff(other)
+        diff_profile = super().diff(other, options)
 
-        # Initialize profile diff dict
-        profile = {
-            "data_type_representation": dict(),
-        }
+        # Initialize profile diff dict with data type representation
+        diff_profile["data_type_representation"] = dict()
 
-        # Iterate through self for primitive profiles
-        matched_profile1 = None
-        for key, profiler in self._profiles.items():
-            # Find data_type
-            if matched_profile1 is None and profiler.data_type_ratio == 1.0:
-                matched_profile1 = key
+        # Iterate through profiles and find the data_type_ratio diffs
+        all_profiles = set(self._profiles.keys()) | set(other._profiles.keys())
+        if all_profiles:
+            for key in all_profiles:
+                if key in self._profiles and key in other._profiles:
+                    diff = utils.find_diff_of_numbers(self._profiles[key].data_type_ratio,
+                                                      other._profiles[key].data_type_ratio)
+                elif key in self._profiles:
+                    diff = [self._profiles[key].data_type_ratio, None]
+                else:
+                    diff = [None, other._profiles[key].data_type_ratio]
+                diff_profile["data_type_representation"].update({key: diff})
 
-            # Update data representation 
-            diff = [profiler.data_type_ratio, None]
-            if key in other._profiles:
-                diff = utils.find_diff_of_numbers(profiler.data_type_ratio,
-                                                  other._profiles[key].data_type_ratio)
-            profile["data_type_representation"].update({profiler.type: diff})
-
-        # Iterate through other for primitive profiles
-        matched_profile2 = None
-        for key, profiler in other._profiles.items():
-            if matched_profile2 is None and profiler.data_type_ratio == 1.0:
-                matched_profile2 = key
-
-            if key not in self._profiles:
-                profile["data_type_representation"].update(
-                    {profiler.type: [None, profiler.data_type_ratio]})
 
         # Find data_type diff
-        if matched_profile1 is not None or matched_profile2 is not None:
-            profile["data_type"] = utils.find_diff_of_strings(matched_profile1, 
-                                                              matched_profile2)
+        data_type1 = self.find_data_type()
+        data_type2 = other.find_data_type()
+        if data_type1 is not None or data_type2 is not None:
+            diff_profile["data_type"] = utils.find_diff_of_strings(data_type1,
+                                                                   data_type2)
         
-        # Find diff of matching stats
-        if "data_type" in profile and profile["data_type"] == "unchanged":
-            profile["statistics"] = self._profiles[matched_profile2]\
-                .diff(other._profiles[matched_profile2], options)
+        # Find diff of matching profile statistics
+        if "data_type" in diff_profile and diff_profile["data_type"] == "unchanged":
+            diff_profile["statistics"] = self._profiles[data_type1]\
+                .diff(other._profiles[data_type2], options)
 
         # If there is no data, pop the data
-        if not profile["data_type_representation"]:
-            profile.pop("data_type_representation")
+        if not diff_profile["data_type_representation"]:
+            diff_profile.pop("data_type_representation")
 
-        return profile
+        return diff_profile
 
 class ColumnStatsProfileCompiler(BaseCompiler):
 

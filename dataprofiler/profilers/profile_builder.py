@@ -1248,14 +1248,6 @@ class StructuredProfiler(BaseProfiler):
         """
         return self.total_samples > 0
 
-    def _get_col_name_from_idx(self, idx):
-        """
-        Determine which column name corresponds to a _profile index
-        """
-        for col_name in self._col_name_to_idx:
-            if idx in self._col_name_to_idx[col_name]:
-                return col_name
-
     @staticmethod
     def _get_and_validate_schema_mapping(schema1, schema2, strict=False):
         """

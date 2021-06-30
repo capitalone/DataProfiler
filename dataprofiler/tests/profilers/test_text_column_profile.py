@@ -445,40 +445,33 @@ class TestTextColumnProfiler(unittest.TestCase):
 
         profiler = TextColumn(df.name)
         profiler.update(df)
+        profile1 = profiler.profile
 
         profiler2 = TextColumn(df2.name)
         profiler2.update(df2)
+        profile2 = profiler2.profile
 
         expected_diff = {'min': "unchanged",
                          'max': -1.0,
                          'sum': -9.0,
-                         'mean': -1.2222222,
-                         'variance': -0.638888888,
-                         'stddev': -0.234146572,
+                         'mean': profile1['mean'] - profile2['mean'],
+                         'variance': profile1['variance'] - profile2['variance'],
+                         'stddev': profiler['stddev'] - profiler2['stddev'],
                          'vocab': [['2', '4', 'f', 'c', '3', 'b'], ['a', 'd'],
                                    ['G', 'n', 'I', 'm', 'r', 'e', '6', 'v', 'o', 'y', 'g', 'l',
                                     't', 'i', 's', 'h', '7']]
                          }
-        expected_mean = expected_diff.pop('mean')
-        expected_var = expected_diff.pop('variance')
-        expected_stddev = expected_diff.pop('stddev')
         expected_vocab = expected_diff.pop('vocab')
         expected_unique1 = expected_vocab[0]
         expected_shared = expected_vocab[1]
         expected_unique2 = expected_vocab[2]
 
         diff = profiler.diff(profiler2)
-        mean = diff.pop('mean')
-        var = diff.pop('variance')
-        stddev = diff.pop('stddev')
         vocab = diff.pop('vocab')
         unique1 = vocab[0]
         shared = vocab[1]
         unique2 = vocab[2]
         self.assertDictEqual(expected_diff, diff)
-        self.assertAlmostEqual(expected_mean, mean)
-        self.assertAlmostEqual(expected_var, var)
-        self.assertAlmostEqual(expected_stddev, stddev)
         self.assertEqual(set(expected_unique1), set(unique1))
         self.assertEqual(set(expected_shared), set(shared))
         self.assertEqual(set(expected_unique2), set(unique2))

@@ -3,6 +3,7 @@ import copy
 import math
 import numpy as np
 
+from . import utils
 from .numerical_column_stats import NumericStatsMixin
 from .base_column_profilers import BaseColumnProfiler, \
     BaseColumnPrimitiveTypeProfiler
@@ -104,6 +105,25 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                     other._precision['mean'])
 
         return merged_profile
+
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for FloatColumnss.
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: FloatColumn
+        :return: the FloatColumn differences
+        :rtype: dict
+        """
+        differences = NumericStatsMixin.diff(self, other_profile, options=None)
+        other_precision = other_profile.profile['precision']
+        precision_diff = dict()
+        for key in self.profile['precision'].keys():
+            precision_diff[key] = utils.find_diff_of_numbers(
+                self.profile['precision'][key], other_precision[key])
+        precision_diff.pop("confidence_level")
+        differences["precision"] = precision_diff
+        return differences
 
     @property
     def profile(self):

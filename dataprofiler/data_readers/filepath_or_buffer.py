@@ -40,5 +40,6 @@ class FileOrBufferHandler():
     def __exit__(self, exc_type, exc_value, exc_traceback):
         if (self._file is None):
             self._filepath_or_buffer.seek(0)
+            self._filepath_or_buffer.close()
         else:
             self._file.close()

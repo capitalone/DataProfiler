@@ -168,7 +168,6 @@ class TestCategoricalColumn(unittest.TestCase):
             ["a", "b", "c"], report["statistics"]["categories"]
         )
         expected_dict = {"a": 3, "b": 4, "c": 5}
-        self.assertTrue(report["statistics"]["categories"])
         self.assertEqual(expected_dict,
                              report["statistics"]["categorical_count"])
 
@@ -187,7 +186,7 @@ class TestCategoricalColumn(unittest.TestCase):
         )
         self.assertEqual(20, report["statistics"]["unique_count"])
         self.assertEqual(1.0, report["statistics"]["unique_ratio"])
-        self.assertFalse("categorical_count" in report["statistics"])
+        self.assertNotIn("categorical_count", report["statistics"])
 
         expected_profile = dict(
             categorical=False,
@@ -315,6 +314,11 @@ class TestCategoricalColumn(unittest.TestCase):
        ])
        profile2 = CategoricalColumn(df_categorical2.name)
        profile2.update(df_categorical2)
+       report = profile2.profile
+       counts = report["statistics"]["categorical_count"]
+       self.assertEqual(counts['a'], 2)
+       self.assertEqual(counts['d'], 2)
+
        profile3 = profile + profile2
        report = profile3.profile
        counts = report["statistics"]["categorical_count"]

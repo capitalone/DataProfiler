@@ -614,49 +614,6 @@ class TestStructuredProfiler(unittest.TestCase):
             self.assertEqual(col_sum, profiler._profile[col_idx].
                              profile["statistics"]["sum"])
 
-    @mock.patch('dataprofiler.profilers.profile_builder.'
-                'ColumnPrimitiveTypeProfileCompiler')
-    @mock.patch('dataprofiler.profilers.profile_builder.'
-                'ColumnStatsProfileCompiler')
-    @mock.patch('dataprofiler.profilers.profile_builder.'
-                'ColumnDataLabelerCompiler')
-    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
-    def test_schema_errors(self, *mocks):
-        # Can't merge profiles with different schemas
-        empty_profile1 = dp.StructuredProfiler(None)
-        empty_profile2 = dp.StructuredProfiler(None)
-        empty_profile1._col_name_to_idx = {"profile": [0], "one": [1]}
-        empty_profile2._col_name_to_idx = {"profile": [0], "two": [2]}
-        msg = 'Profiles do not have the same schema.'
-        with self.assertRaisesRegex(ValueError, msg):
-            empty_profile1._add_error_checks(empty_profile2)
-
-        # Can't change schema when updating
-        dupe_data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
-                                  [10, 20, 30, 40, 50, 60]],
-                                 columns=["a", "b", "a", "b", "c", "d"])
-        unique_data = pd.DataFrame({"e": [1, 1], "f": [2, 2], "g": [3, 3]})
-        dupe_profile = dp.StructuredProfiler(dupe_data)
-        unique_profile = dp.StructuredProfiler(unique_data)
-
-        msg = ("Schema of data with duplicate column names not respected when "
-               "updating profile.")
-        with self.assertRaisesRegex(ValueError, msg):
-            dupe_profile.update_profile(unique_data)
-
-        perm_data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
-                                  [10, 20, 30, 40, 50, 60]],
-                                 columns=["a", "a", "b", "b", "c", "d"])
-        with self.assertRaisesRegex(ValueError, msg):
-            dupe_profile.update_profile(perm_data)
-
-        msg = ("Attempted to update data with duplicate "
-               "column names that weren't present before "
-               "update. Schema must be identical when "
-               "profiling data with duplicate column names.")
-        with self.assertRaisesRegex(ValueError, msg):
-            unique_profile.update_profile(dupe_data)
-
     def test_unique_col_permutation(self, *mocks):
         data = pd.DataFrame([[1, 2, 3, 4],
                              [5, 6, 7, 8]],
@@ -697,6 +654,48 @@ class TestStructuredProfiler(unittest.TestCase):
                              profile["statistics"]["max"])
             self.assertEqual(col_sum, profiler._profile[col_idx].
                              profile["statistics"]["sum"])
+
+    def test_get_and_validate_schema_mapping(self):
+        unique_schema_1 = {"a": [0], "b": [1], "c": [2]}
+        unique_schema_2 = {"a": [2], "b": [0], "c": [1]}
+        unique_schema_3 = {"a": [0], "b": [1], "d": [2]}
+
+        msg = "Columns do not match, cannot update or merge profiles."
+        with self.assertRaisesRegex(ValueError, msg):
+            dp.StructuredProfiler._get_and_validate_schema(unique_schema_1,
+                                                           unique_schema_3)
+
+        expected_schema = {0: 0, 1: 1, 2: 2}
+        actual_schema = dp.StructuredProfiler. \
+            _get_and_validate_schema(unique_schema_1, {})
+        self.assertDictEqual(actual_schema, expected_schema)
+
+        expected_schema = {0: 2, 1: 0, 2: 1}
+        actual_schema = dp.StructuredProfiler. \
+            _get_and_validate_schema(unique_schema_1, unique_schema_2)
+        self.assertDictEqual(actual_schema, expected_schema)
+
+        dupe_schema_1 = {"a": [0], "b": [1, 2], "c": [3, 4, 5]}
+        dupe_schema_2 = {"a": [0], "b": [1, 3], "c": [2, 4, 5]}
+        dupe_schema_3 = {"a": [0, 1], "b": [2, 3, 4], "c": [5]}
+
+        msg = ("Different number of columns detected for "
+               "'a', cannot update or merge profiles.")
+        with self.assertRaisesRegex(ValueError, msg):
+            dp.StructuredProfiler._get_and_validate_schema(dupe_schema_1,
+                                                           dupe_schema_3)
+
+        msg = ("Different column indices under "
+               "duplicate name 'b', cannot update "
+               "or merge unless schema is identical.")
+        with self.assertRaisesRegex(ValueError, msg):
+            dp.StructuredProfiler._get_and_validate_schema(dupe_schema_1,
+                                                           dupe_schema_2)
+
+        expected_schema = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
+        actual_schema = dp.StructuredProfiler. \
+            _get_and_validate_schema(dupe_schema_1, dupe_schema_1)
+        self.assertDictEqual(actual_schema, expected_schema)
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):

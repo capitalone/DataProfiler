@@ -1162,7 +1162,6 @@ class StructuredProfiler(BaseProfiler):
         self.hashed_row_dict = dict()
         self._profile = []
         self._col_name_to_idx = dict()
-        self._initialized = False
         self._duplicate_cols_present = False
 
         if data is not None:
@@ -1253,6 +1252,13 @@ class StructuredProfiler(BaseProfiler):
         """
         return min([col._last_batch_size for col in self._profile], default=0)
 
+    @property
+    def is_initialized(self):
+        """
+        Determines if profiler has been initialized with data
+        """
+        return self.total_samples > 0
+
     def _get_col_name_from_idx(self, idx):
         """
         Determine which column name corresponds to a _profile index
@@ -1260,6 +1266,48 @@ class StructuredProfiler(BaseProfiler):
         for col_name in self._col_name_to_idx:
             if idx in self._col_name_to_idx[col_name]:
                 return col_name
+
+    @staticmethod
+    def _get_and_validate_schema(schema1, schema2):
+        """
+        Validate compatibility between schema1 and schema2 and return a dict
+        mapping indices in schema1 to their corresponding indices in schema2.
+        In __add__: want to map self _profile idx -> other _profile idx
+        In _update_profile_from_chunk: want to map data idx -> _profile idx
+        :param schema1: a column name to index mapping
+        :type schema1: Dict[str, list[int]]
+        :param schema2: a column name to index mapping
+        :type schema2: Dict[str, list[int]]
+        :return: a mapping of indices in schema1 to indices in schema2
+        :rtype: Dict[int, int]
+        """
+        # In the case of _update_from_chunk with uninitialized schema
+        if len(schema2) == 0:
+            return {col_ind: col_ind for col_ind_list in schema1.values()
+                    for col_ind in col_ind_list}
+
+        # Map indices in schema1 to indices in schema2
+        schema_mapping = dict()
+
+        for key in schema1:
+            if key.lower() not in schema2:
+                raise ValueError("Columns do not match, cannot update "
+                                 "or merge profiles.")
+
+            elif len(schema1[key]) != len(schema2[key]):
+                raise ValueError(f"Different number of columns detected for "
+                                 f"'{key}', cannot update or merge profiles.")
+
+            is_duplicate_col = len(schema1[key]) > 1
+            for schema1_col_ind, schema2_col_ind in zip(schema1[key],
+                                                        schema2[key]):
+                if is_duplicate_col and (schema1_col_ind != schema2_col_ind):
+                    raise ValueError(f"Different column indices under "
+                                     f"duplicate name '{key}', cannot update "
+                                     f"or merge unless schema is identical.")
+                schema_mapping[schema1_col_ind] = schema2_col_ind
+
+        return schema_mapping
 
     def report(self, report_options=None):
         if not report_options:
@@ -1400,40 +1448,26 @@ class StructuredProfiler(BaseProfiler):
         elif isinstance(data, list):
             data = pd.DataFrame(data)
 
-        duplicate_cols_given = len(data.columns) != len(data.columns.unique())
+        initialized = self.is_initialized
 
-        # Error out if schema given does not match schema present in data
-        if self._initialized:
-            mapping_given = dict()
-            for i in range(len(data.columns)):
-                col = data.columns[i]
-                if isinstance(col, str):
-                    col = col.lower()
-                mapping_given.setdefault(col, []).append(i)
+        # Calculate schema of incoming data
+        mapping_given = dict()
+        for i in range(len(data.columns)):
+            col = data.columns[i]
+            if isinstance(col, str):
+                col = col.lower()
+            mapping_given.setdefault(col, []).append(i)
 
-            # Determine if incoming schema is compatible with existing
-            schemas_differ = True
-            # If duplicates present, must completely match
-            if self._duplicate_cols_present and \
-                    mapping_given == self._col_name_to_idx:
-                schemas_differ = False
-            # If no duplicates present, can allow permutation of col order
-            # But cannot allow introduction of duplicates
-            elif not self._duplicate_cols_present and not duplicate_cols_given \
-                    and mapping_given.keys() == self._col_name_to_idx.keys():
-                schemas_differ = False
-
-            if schemas_differ:
-                raise ValueError("Schema of data given to "
-                                 "StructuredProfiler.update does not match "
-                                 "schema calculated at initialization.")
+        # Validate schema compatibility and index mapping from data to _profile
+        col_idx_to_prof_idx = self._get_and_validate_schema(mapping_given,
+                                                            self._col_name_to_idx)
 
         try:
             from tqdm import tqdm
         except ImportError:
             def tqdm(l):
                 for i, e in enumerate(l):
-                    print("Processing Column {}/{}".format(i + 1, len(l)))
+                    print("Processing Column {}/{}".format(i+1, len(l)))
                     yield e
 
         # Shuffle indices once and share with columns
@@ -1451,13 +1485,10 @@ class StructuredProfiler(BaseProfiler):
         # Newly introduced features (python3.8) improves the situation
         sample_ids = np.array(sample_ids)
 
-        # Initialize data column index -> _profile index mapping
-        col_idx_to_prof_idx = dict()
-
         # Create StructuredColProfilers upon initialization
         # Record correlation between columns in data and index in _profile
         new_cols = False
-        if not self._initialized:
+        if not initialized:
             for col_idx in range(data.shape[1]):
                 col_name = data.columns[col_idx]
                 if isinstance(col_name, str):
@@ -1465,8 +1496,6 @@ class StructuredProfiler(BaseProfiler):
                 # Record index in _profile corresponding to current col profile
                 self._col_name_to_idx.setdefault(col_name, []).append(
                     len(self._profile))
-                # Record where this column of data corresponds to _profile id
-                col_idx_to_prof_idx[col_idx] = len(self._profile)
                 # Add blank StructuredColProfiler to _profile
                 self._profile.append(StructuredColProfiler(
                     sample_size=sample_size,
@@ -1475,24 +1504,11 @@ class StructuredProfiler(BaseProfiler):
                     options=self.options
                 ))
                 new_cols = True
-        # Determine data column index -> profile index for unique col case
-        else:
-            # If duplicates present, schema enforced, so col_idx = prof_idx
-            col_idx_to_prof_idx = {i: i for i in range(len(self._profile))}
-            if not self._duplicate_cols_present:
-                # If columns unique, can allow permutation
-                for col_idx in range(data.shape[1]):
-                    col_name = data.columns[col_idx]
-                    if isinstance(col_name, str):
-                        col_name = col_name.lower()
-                    col_idx_to_prof_idx[col_idx] = \
-                        self._col_name_to_idx[col_name][0]
 
         # Generate pool and estimate datasize
         pool = None
         if self.options.multiprocess.is_enabled:
-            est_data_size = data[:50000].memory_usage(index=False,
-                                                      deep=True).sum()
+            est_data_size = data[:50000].memory_usage(index=False, deep=True).sum()
             est_data_size = (est_data_size / min(50000, len(data))) * len(data)
             pool, pool_size = utils.generate_pool(
                 max_pool_size=None, data_size=est_data_size,
@@ -1601,11 +1617,10 @@ class StructuredProfiler(BaseProfiler):
         self._update_row_statistics(data, samples_for_row_stats)
 
         # Update personal attributes about state of profile
-        if not self._initialized:
+        if not initialized:
             num_cols = [len(self._col_name_to_idx[col])
                         for col in self._col_name_to_idx]
             self._duplicate_cols_present = any(num > 1 for num in num_cols)
-        self._initialized = True
 
     def save(self, filepath=None):
         """
@@ -1628,7 +1643,6 @@ class StructuredProfiler(BaseProfiler):
                 "options": self.options,
                 "_profile": self.profile,
                 "_col_name_to_idx": self._col_name_to_idx,
-                "_initialized": self._initialized,
                 "_duplicate_cols_present": self._duplicate_cols_present
                } 
 

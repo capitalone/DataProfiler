@@ -155,21 +155,23 @@ class TestCategoricalColumn(unittest.TestCase):
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         report = profile.profile
-        six.assertCountEqual(
-            self, ['categorical', 'statistics', 'times'], report)
-        self.assertTrue(report["categorical"])
-        six.assertCountEqual(
-            self,
-            ['unique_count', 'unique_ratio', 'categories', 'categorical_count'], report['statistics']
+        self.assertIsNotNone(report["times"])
+        report.pop("times")
+        expected_profile = dict(
+            categorical=True,
+            statistics=dict([
+                ('unique_count', 3),
+                ('unique_ratio', .25),
+                ('categories', ["a", "b", "c"]),
+                ('categorical_count', {"a": 3, "b": 4, "c": 5})
+            ]),
         )
-        self.assertEqual(3, report["statistics"]["unique_count"])
-        self.assertEqual(0.25, report["statistics"]["unique_ratio"])
-        self.assertCountEqual(
-            ["a", "b", "c"], report["statistics"]["categories"]
-        )
-        expected_dict = {"a": 3, "b": 4, "c": 5}
-        self.assertEqual(expected_dict,
-                             report["statistics"]["categorical_count"])
+        # We have to pop these values because sometimes the order changes
+        self.assertCountEqual(expected_profile['statistics'].pop('categories'),
+                              report["statistics"].pop('categories'))
+        self.assertCountEqual(expected_profile['statistics'].pop(
+            'categorical_count'), report["statistics"].pop('categorical_count'))
+        self.assertEqual(report, expected_profile)
 
     def test_false_categorical_report(self):
         df_non_categorical = pd.Series(list(map(str, range(0, 20))))
@@ -177,17 +179,8 @@ class TestCategoricalColumn(unittest.TestCase):
         profile.update(df_non_categorical)
 
         report = profile.profile
+        self.assertIsNotNone(report["times"])
         report.pop("times")
-        six.assertCountEqual(
-            self, ['categorical', 'statistics'], report)
-        self.assertFalse(report["categorical"])
-        six.assertCountEqual(
-            self, ['unique_count', 'unique_ratio'], report['statistics']
-        )
-        self.assertEqual(20, report["statistics"]["unique_count"])
-        self.assertEqual(1.0, report["statistics"]["unique_ratio"])
-        self.assertNotIn("categorical_count", report["statistics"])
-
         expected_profile = dict(
             categorical=False,
             statistics=dict([
@@ -231,6 +224,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertDictEqual(expected_dict, profile3._categories)
 
         report = profile3.profile
+        self.assertIsNotNone(report["times"])
         report.pop("times")
         expected_profile = dict(
             categorical=False,
@@ -251,6 +245,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(profile3.unique_ratio, 16 / 33)
 
         report = profile3.profile
+        self.assertIsNotNone(report["times"])
         report.pop("times")
         expected_profile = dict(
             categorical=False,
@@ -267,6 +262,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(profile3.unique_ratio, 16 / 1000)
 
         report = profile3.profile
+        self.assertIsNotNone(report["times"])
         report.pop("times")
         report_categories = report['statistics'].pop('categories')
         report_count = report['statistics'].pop('categorical_count')
@@ -288,47 +284,6 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(report_count['2'], expected_dict['2'])
         self.assertEqual(report_count['abcd'], expected_dict['abcd'])
         self.assertEqual(report_count['b'], expected_dict['b'])
-
-    def test_categorical_column_is_counted(self):
-       df_categorical = pd.Series([
-           "a", "a", "a", "b", "b", "b", "b", "c", "c", "c", "c", "c",
-       ])
-       profile = CategoricalColumn(df_categorical.name)
-
-       # Check that _categories counts in profile is empty after init.
-       report = profile.profile
-       counts = report["statistics"]["categorical_count"]
-       self.assertEqual(0, len(counts))
-       profile.update(df_categorical)
-
-       report = profile.profile
-       counts = report["statistics"]["categorical_count"]
-
-       # Check that _categories counts is correct after update function
-       self.assertEqual(counts['a'], 3)
-       self.assertEqual(counts['b'], 4)
-       self.assertEqual(counts['c'], 5)
-
-       df_categorical2 = pd.Series([
-           "a", "a", "d", "d"
-       ])
-       profile2 = CategoricalColumn(df_categorical2.name)
-       profile2.update(df_categorical2)
-       report = profile2.profile
-       counts = report["statistics"]["categorical_count"]
-       self.assertEqual(counts['a'], 2)
-       self.assertEqual(counts['d'], 2)
-
-       profile3 = profile + profile2
-       report = profile3.profile
-       counts = report["statistics"]["categorical_count"]
-       # Check that _categories counts is correct after merge/add function
-       self.assertEqual(counts['a'], 5)
-       self.assertEqual(counts['b'], 4)
-       self.assertEqual(counts['c'], 5)
-       self.assertTrue(counts['d'], 2)
-
-
 
 class TestCategoricalSentence(unittest.TestCase):
 

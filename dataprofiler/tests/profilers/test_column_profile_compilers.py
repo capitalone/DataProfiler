@@ -117,6 +117,10 @@ class TestUnstructuredCompiler(unittest.TestCase):
                 'times': {'data_labeler_predict': 1.0}},
             'statistics': {
                 'times': {'vocab': 1.0, 'words': 1.0},
+                'vocab_count': {' ': 6, '-': 2, '.': 1, '1': 2, '2': 3,
+                                '3': 3, '4': 2, 'D': 1, 'J': 1, 'a': 1,
+                                'e': 3, 'h': 2, 'i': 2, 'm': 2, 'n': 2,
+                                'o': 2, 's': 2, 't': 2, 'y': 1},
                 'vocab': [' ', '-', '.', '1', '2', '3', '4', 'D', 'J', 'a', 'e',
                           'h', 'i', 'm', 'n', 'o', 's', 't', 'y'],
                 'word_count': {'123': 1, '1234': 1, '432': 1, 'Doe': 1,

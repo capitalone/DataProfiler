@@ -188,7 +188,7 @@ class TextProfiler(object):
                                  other.__calculations)
 
         if "vocab" in merged_profile.__calculations:
-            merged_profile.vocab = self._merge_vocab(self.vocab_count,
+            merged_profile.vocab_count = self._merge_vocab(self.vocab_count,
                                                      other.vocab_count)
         if "words" in merged_profile.__calculations:
             self._merge_words(other, merged_profile)

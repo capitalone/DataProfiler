@@ -1197,6 +1197,15 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             expected_words,
             self.report['data_stats']['statistics'].pop('words'))
 
+        # test for vocab_count
+        expected_vocab_count = {' ': 55, ',': 3, '.': 5, '6': 1, '9': 1,
+                                ':': 1, 'D': 3, 'J': 1, 'R': 4, 'S': 1,
+                                'W': 1, 'Y': 1, 'a': 22, 'b': 4, 'c': 10,
+                                'd': 11, 'e': 33, 'f': 2, 'g': 9, 'h': 12,
+                                'i': 24, 'l': 16, 'm': 3, 'n': 21, 'o': 27,
+                                'p': 8, 'r': 13, 's': 23, 't': 31, 'u': 17,
+                                'v': 3, 'w': 6, 'x': 1, 'y': 7}
+
         # expected after the popping: times, vocab, words
         expected_report = {
             'global_stats': {
@@ -1207,7 +1216,8 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             'data_stats': {
                 'data_label': {},
                 'statistics': {
-                    'word_count': expected_word_count
+                    'word_count': expected_word_count,
+                    'vocab_count': expected_vocab_count
                 }
             }
         }

@@ -1360,7 +1360,7 @@ class StructuredProfiler(BaseProfiler):
             self.row_is_null_count = len(null_rows)
 
     def _get_serializable_corr_mat(self):
-        if self.correlation_matrix:
+        if self.correlation_matrix is not None:
             return self.correlation_matrix.to_json(orient='split')
         return self.correlation_matrix
 

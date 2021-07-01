@@ -663,8 +663,8 @@ class TestStructuredProfiler(unittest.TestCase):
 
         msg = "Columns do not match, cannot update or merge profiles."
         with self.assertRaisesRegex(ValueError, msg):
-            dp.StructuredProfiler._get_and_validate_schema_mapping(unique_schema_1,
-                                                                   unique_schema_3)
+            dp.StructuredProfiler._get_and_validate_schema_mapping(
+                unique_schema_1,unique_schema_3)
 
         expected_schema = {0: 0, 1: 1, 2: 2}
         actual_schema = dp.StructuredProfiler. \
@@ -685,21 +685,20 @@ class TestStructuredProfiler(unittest.TestCase):
         msg = ("Different number of columns detected for "
                "'a', cannot update or merge profiles.")
         with self.assertRaisesRegex(ValueError, msg):
-            dp.StructuredProfiler._get_and_validate_schema_mapping(dupe_schema_1,
-                                                                   dupe_schema_3)
+            dp.StructuredProfiler._get_and_validate_schema_mapping(
+                dupe_schema_1, dupe_schema_3)
 
         msg = ("Different column indices under "
                "duplicate name 'b', cannot update "
                "or merge unless schema is identical.")
         with self.assertRaisesRegex(ValueError, msg):
-            dp.StructuredProfiler._get_and_validate_schema_mapping(dupe_schema_1,
-                                                                   dupe_schema_2)
+            dp.StructuredProfiler._get_and_validate_schema_mapping(
+                dupe_schema_1, dupe_schema_2)
 
-        # In strict case, column number must match
         msg = "Attempted to merge profiles with different numbers of columns"
         with self.assertRaisesRegex(ValueError, msg):
             dp.StructuredProfiler._get_and_validate_schema_mapping(
-                dupe_schema_1, four_col_schema, True)
+                dupe_schema_1, four_col_schema)
 
         expected_schema = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
         actual_schema = dp.StructuredProfiler. \

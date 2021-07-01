@@ -1373,11 +1373,11 @@ class StructuredProfiler(BaseProfiler):
                         or self._profile[col].null_count > 0):
                     clean_samples.pop(col)
         if len(clean_samples) <= 1:
-            return
+            return None
 
         data = pd.DataFrame(clean_samples)
         data = data.apply(pd.to_numeric, errors='coerce')
-        self.correlation_matrix = data.corr()
+        return data.corr()
 
     def _update_correlation(self, clean_samples):
         """
@@ -1396,7 +1396,7 @@ class StructuredProfiler(BaseProfiler):
             self.correlation_matrix = None
             return
 
-        self._get_correlation(clean_samples)
+        self.correlation_matrix = self._get_correlation(clean_samples)
 
     def _merge_correlation(self, other):
         """

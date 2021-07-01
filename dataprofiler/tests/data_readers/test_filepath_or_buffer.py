@@ -107,9 +107,10 @@ class TestFilepathOrBuffer(unittest.TestCase):
 
     def test_make_buffer_from_filepath_and_encoding(self):
         """
-        Make sure FileOrBufferHandler can input a file and read it similarly to open()
+        Make sure FileOrBufferHandler can input a file and read it similarly to open() with encoding
         """
-        file_name =os.path.join(os.path.join(test_root_path, 'data'), 'csv/iris-utf-16.csv')
+        file_name =os.path.join(os.path.join(test_root_path, 'data'), \
+            'csv/iris-utf-16.csv')
         file_encoding='utf-16'
         with FileOrBufferHandler(file_name, 'r', encoding=file_encoding) as\
                 filepath_or_buffer, open(file_name, 'r', encoding=file_encoding) as\
@@ -126,9 +127,9 @@ class TestFilepathOrBuffer(unittest.TestCase):
 
     def test_make_buffer_error_message(self):
         """
-        Make sure FileOrBufferHandler can input a file and read it similarly to open()
+        Check FileOrBufferHandler asserts proper attribute error
         """
-        file_name = b"not a valid input"
+        file_name = dict(not_a_valid="option")
         with self.assertRaisesRegex(AttributeError, "Type.*is invalid. \
                 filepath_or_buffer must be a string or StringIO/BytesIO object"):
             with FileOrBufferHandler(file_name, 'r') as\

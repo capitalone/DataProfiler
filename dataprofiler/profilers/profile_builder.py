@@ -1482,10 +1482,6 @@ class StructuredProfiler(BaseProfiler):
             # Already calculated incoming schema for validation
             self._col_name_to_idx = mapping_given
             for col_idx in range(data.shape[1]):
-                col_name = data.columns[col_idx]
-                # Pandas cols are int by default, but need to fuzzy match strs
-                if isinstance(col_name, str):
-                    col_name = col_name.lower()
                 # Add blank StructuredColProfiler to _profile
                 self._profile.append(StructuredColProfiler(
                     sample_size=sample_size,

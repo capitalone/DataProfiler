@@ -155,8 +155,7 @@ class TestCategoricalColumn(unittest.TestCase):
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         report = profile.profile
-        self.assertIsNotNone(report["times"])
-        report.pop("times")
+        self.assertIsNotNone(report.pop("times", None))
         expected_profile = dict(
             categorical=True,
             statistics=dict([
@@ -180,7 +179,6 @@ class TestCategoricalColumn(unittest.TestCase):
 
         report = profile.profile
         self.assertIsNotNone(report["times"])
-        report.pop("times")
         expected_profile = dict(
             categorical=False,
             statistics=dict([
@@ -225,7 +223,6 @@ class TestCategoricalColumn(unittest.TestCase):
 
         report = profile3.profile
         self.assertIsNotNone(report["times"])
-        report.pop("times")
         expected_profile = dict(
             categorical=False,
             statistics=dict([
@@ -246,7 +243,6 @@ class TestCategoricalColumn(unittest.TestCase):
 
         report = profile3.profile
         self.assertIsNotNone(report["times"])
-        report.pop("times")
         expected_profile = dict(
             categorical=False,
             statistics=dict([
@@ -263,7 +259,6 @@ class TestCategoricalColumn(unittest.TestCase):
 
         report = profile3.profile
         self.assertIsNotNone(report["times"])
-        report.pop("times")
         report_categories = report['statistics'].pop('categories')
         report_count = report['statistics'].pop('categorical_count')
         expected_profile = dict(

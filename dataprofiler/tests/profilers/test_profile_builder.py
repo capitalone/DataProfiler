@@ -287,10 +287,17 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data)
         self.assertIsNone(profiler.correlation_matrix)
 
-        # data with only one numerical columns without nan values
+        # data with multiple numerical columns, with nan values in only one column
         data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
-                             'b': [10, 11, np.nan, 4, 2, 5, 6, 3, 9, 8],
-                             'c': [1, 5, 3, 5, 7, 2, 6, 8, np.nan, np.nan]})
+                             'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
+                             'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
+        profiler = dp.StructuredProfiler(data)
+        expected_corr_mat = data[['b', 'c']].corr()
+        pd.util.testing.assert_frame_equal(expected_corr_mat,
+                                           profiler.correlation_matrix)
+
+        # data with only one numerical columns without nan values
+        data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2]})
         profiler = dp.StructuredProfiler(data)
         self.assertIsNone(profiler.correlation_matrix)
 

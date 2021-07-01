@@ -1,4 +1,6 @@
 from collections import defaultdict
+from operator import itemgetter
+
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
 from . import utils
@@ -62,7 +64,10 @@ class CategoricalColumn(BaseColumnProfiler):
     def profile(self):
         """
         Property for profile. Returns the profile of the column.
+        For categorical_count, it will display the top k categories most
+        frequently occurred in descending order.
         """
+        top_k_categories = 5
 
         profile = dict(
             categorical=self.is_match,
@@ -76,6 +81,9 @@ class CategoricalColumn(BaseColumnProfiler):
             profile["statistics"].update(
                 dict(categories=self.categories)
             )
+            profile["statistics"]['categorical_count'] = dict(
+                sorted(self._categories.items(), key=itemgetter(1),
+                       reverse=True)[:top_k_categories])
         return profile
 
     @property

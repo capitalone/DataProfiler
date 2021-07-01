@@ -2,10 +2,12 @@ from io import open, StringIO, BytesIO
 
 from . import data_utils
 
+
 class FileOrBufferHandler():
     """
     FileOrBufferHandler class to read a filepath or buffer in and always return a readable buffer
     """
+
     def __init__(self, io_obj, open_method='r', encoding=None, seek_offset=None, seek_whence=0):
         """
         Context manager class used for inputing a file or buffer and returning a structure
@@ -27,9 +29,10 @@ class FileOrBufferHandler():
 
     def __enter__(self):
         if isinstance(self._io_obj, str):
-            self._io_obj = open(self._io_obj, self.open_method, encoding=self._encoding)
+            self._io_obj = open(
+                self._io_obj, self.open_method, encoding=self._encoding)
 
-        elif not isinstance(self._io_obj, (StringIO, BytesIO)):
+        elif not data_utils.is_stream_buffer(self._io_obj):
             # Raise AttributeError if attribute value not found.
             raise AttributeError(f'Type {type(self._io_obj)} is invalid.')
 

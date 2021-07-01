@@ -1258,11 +1258,19 @@ class StructuredProfiler(BaseProfiler):
         :rtype: Dict[int, int]
         """
 
-        if strict and (len(schema1) == 0 or len(schema2) == 0):
+        len_schema_1 = len(schema1)
+        len_schema_2 = len(schema2)
+
+        if strict and len_schema_1 != len_schema_2:
+            raise ValueError("Attempted to merge profiles with different "
+                             "numbers of columns")
+
+        # In the case of __add__ with one of the schemas not initialized
+        if strict and (len_schema_1 == 0 or len_schema_2 == 0):
             raise ValueError("Cannot merge empty profiles.")
 
         # In the case of _update_from_chunk with uninitialized schema
-        if not strict and len(schema2) == 0:
+        if not strict and len_schema_2 == 0:
             return {col_ind: col_ind for col_ind_list in schema1.values()
                     for col_ind in col_ind_list}
 
@@ -1469,15 +1477,14 @@ class StructuredProfiler(BaseProfiler):
 
         # Create StructuredColProfilers upon initialization
         # Record correlation between columns in data and index in _profile
-        new_cols = False
         if len(self._profile) == 0:
+            # Already calculated incoming schema for validation
+            self._col_name_to_idx = mapping_given
             for col_idx in range(data.shape[1]):
                 col_name = data.columns[col_idx]
                 # Pandas cols are int by default, but need to fuzzy match strs
                 if isinstance(col_name, str):
                     col_name = col_name.lower()
-                # Record index in _profile corresponding to current col profile
-                self._col_name_to_idx[col_name].append(len(self._profile))
                 # Add blank StructuredColProfiler to _profile
                 self._profile.append(StructuredColProfiler(
                     sample_size=sample_size,
@@ -1498,7 +1505,7 @@ class StructuredProfiler(BaseProfiler):
 
         # Format the data
         notification_str = "Finding the Null values in the columns..."
-        if pool and new_cols:
+        if pool:
             notification_str += " (with " + str(pool_size) + " processes)"
 
         # Keys are _profile indices

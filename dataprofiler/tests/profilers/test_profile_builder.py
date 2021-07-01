@@ -152,7 +152,8 @@ class TestStructuredProfiler(unittest.TestCase):
         profile2._profile.pop(0)
         profile2._col_name_to_idx.pop(0)
         with self.assertRaisesRegex(ValueError,
-                                    "Cannot merge empty profiles."):
+                                    "Attempted to merge profiles with "
+                                    "different numbers of columns"):
             profile1 + profile2
 
         # test mismatched profiles due to options
@@ -679,6 +680,8 @@ class TestStructuredProfiler(unittest.TestCase):
         dupe_schema_2 = {"a": [0], "b": [1, 3], "c": [2, 4, 5]}
         dupe_schema_3 = {"a": [0, 1], "b": [2, 3, 4], "c": [5]}
 
+        four_col_schema = {"a": [0], "b": [1, 2], "c": [3, 4, 5], "d": [6]}
+
         msg = ("Different number of columns detected for "
                "'a', cannot update or merge profiles.")
         with self.assertRaisesRegex(ValueError, msg):
@@ -691,6 +694,12 @@ class TestStructuredProfiler(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, msg):
             dp.StructuredProfiler._get_and_validate_schema_mapping(dupe_schema_1,
                                                                    dupe_schema_2)
+
+        # In strict case, column number must match
+        msg = "Attempted to merge profiles with different numbers of columns"
+        with self.assertRaisesRegex(ValueError, msg):
+            dp.StructuredProfiler._get_and_validate_schema_mapping(
+                dupe_schema_1, four_col_schema, True)
 
         expected_schema = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
         actual_schema = dp.StructuredProfiler. \

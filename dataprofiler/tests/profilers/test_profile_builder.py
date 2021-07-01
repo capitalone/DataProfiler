@@ -438,7 +438,7 @@ class TestStructuredProfiler(unittest.TestCase):
                 # same for 'null_types_index'
                 if prev_key not in ['data_stats', 'avg_predictions',
                                     'data_label_representation',
-                                    'null_types_index']:
+                                    'null_types_index', 'categorical_count']:
                     # key names should contain only alphanumeric letters or '_'
                     self.assertIsNotNone(re.match('^[a-zA-Z0-9_]+$', str(key)))
                 if isinstance(report[key], dict):

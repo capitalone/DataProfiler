@@ -308,7 +308,8 @@ class TestStructuredProfiler(unittest.TestCase):
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
-    def test_merge_correlation(self, *mock):
+    def test_merge_correlation(self, *mocks):
+        # merge between two existing correlations
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
@@ -322,6 +323,29 @@ class TestStructuredProfiler(unittest.TestCase):
         expected_corr_mat = data.corr()
         pd.util.testing.assert_frame_equal(expected_corr_mat,
                                            merged_profile.correlation_matrix)
+
+        # merge between an existing corr and None correlation (without data)
+        profile1 = dp.StructuredProfiler(None)
+        profile2 = dp.StructuredProfiler(data)
+        # remove the mock below when merge profile is update
+        with mock.patch('dataprofiler.profilers.profile_builder.'
+                        'StructuredProfiler._add_error_checks'):
+            merged_profile = profile1 + profile2
+
+        expected_corr_mat = data.corr()
+        pd.util.testing.assert_frame_equal(expected_corr_mat,
+                                           merged_profile.correlation_matrix)
+
+        # merge between an existing corr and None correlation (with data)
+        data1 = data[:5]
+        profile1 = dp.StructuredProfiler(data1)
+        data2 = data[5:]
+        profile1.update_profile(data2)
+        self.assertIsNone(profile1.correlation_matrix)
+
+        profile2 = dp.StructuredProfiler(data2)
+        profile = profile1 + profile2
+        self.assertIsNone(profile.correlation_matrix)
 
     def test_correct_datatime_schema_test(self):
         profile = self.trained_schema.profile["datetime"]

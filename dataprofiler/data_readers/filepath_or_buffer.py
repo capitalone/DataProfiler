@@ -34,7 +34,8 @@ class FileOrBufferHandler():
 
         elif not data_utils.is_stream_buffer(self._io_obj):
             # Raise AttributeError if attribute value not found.
-            raise AttributeError(f'Type {type(self._io_obj)} is invalid.')
+            raise AttributeError(f'Type {type(self._io_obj)} is invalid. \
+                io_obj must be a string or StringIO/BytesIO object')
 
         if self.seek_offset is not None:
             self._io_obj.seek(self.seek_offset, self.seek_whence)

@@ -303,30 +303,97 @@ class TestStructuredProfiler(unittest.TestCase):
             [
                 "samples_used", "column_count", "row_count", 
                 "row_has_null_ratio", 'row_is_null_ratio',
-                "unique_row_ratio", "duplicate_row_count", "file_type", "encoding"
+                "unique_row_ratio", "duplicate_row_count", "file_type",
+                "encoding", "profile_schema"
             ]
         )
         flat_report = self.trained_schema.report(report_options={"output_format":"flat"})
         self.assertEqual(test_utils.get_depth(flat_report), 1)
         with mock.patch('dataprofiler.profilers.helpers.report_helpers._prepare_report') as pr_mock:
             self.trained_schema.report(report_options={"output_format":'pretty'})
-            self.assertEqual(pr_mock.call_count, 2)
+            # Once for global_stats, once for each of 16 columns
+            self.assertEqual(pr_mock.call_count, 17)
+
+    def test_report_data_stats_accessible(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report()
+        schema = report["global_stats"]["profile_schema"]
+        data_stats = report["data_stats"]
+        expected_schema = {"a": [0, 2], "b": [1, 3], "c": [4], "d": [5]}
+        self.assertDictEqual(expected_schema, schema)
+        for name in schema:
+            for idx in schema[name]:
+                col_min = data.iloc[0, idx]
+                col_max = data.iloc[1, idx]
+                col_sum = col_min + col_max
+                self.assertEqual(name, data_stats[idx]["column_name"])
+                self.assertEqual(col_min, data_stats[idx]["statistics"]["min"])
+                self.assertEqual(col_max, data_stats[idx]["statistics"]["max"])
+                self.assertEqual(col_sum, data_stats[idx]["statistics"]["sum"])
+
+    def test_pretty_report_doesnt_cast_schema(self):
+        report = self.trained_schema.report(
+            report_options={"output_format": "pretty"})
+        self.assertIsInstance(report["global_stats"]["profile_schema"], dict)
+        self.assertIsInstance(report["data_stats"], list)
+        for idx_list in report["global_stats"]["profile_schema"].values():
+            self.assertIsInstance(idx_list, list)
+            for idx in idx_list:
+                self.assertIsInstance(idx, int)
+                self.assertTrue(idx >= 0)
+
+    def test_omit_keys_with_duplicate_cols(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={
+            "omit_keys": ["data_stats.a.statistics.min",
+                          "data_stats.d.statistics.max",
+                          "data_stats.*.statistics.null_types_index"]})
+        # Correctness of schema asserted in prior test
+        schema = report["global_stats"]["profile_schema"]
+        data_stats = report["data_stats"]
+
+        for idx in range(len(report["data_stats"])):
+            # Assert that min is absent from a's data_stats and not the others
+            if idx in schema["a"]:
+                self.assertNotIn("min", data_stats[idx]["statistics"])
+            else:
+                self.assertIn("min", report["data_stats"][idx]["statistics"])
+
+            # Assert that max is absent from d's data_stats and not the others
+            if idx in schema["d"]:
+                self.assertNotIn("max", report["data_stats"][idx]["statistics"])
+            else:
+                self.assertIn("max", report["data_stats"][idx]["statistics"])
+
+            # Assert that null_types_index not present in any
+            self.assertNotIn("null_types_index",
+                             report["data_stats"][idx]["statistics"])
 
     def test_report_quantiles(self):
         report_none = self.trained_schema.report(
             report_options={"num_quantile_groups": None})
         report = self.trained_schema.report()
         self.assertEqual(report_none, report)
-        for key, val in report["data_stats"].items():
-            if key == "int_col":
-                report_quantiles = val["statistics"]["quantiles"]
+        for col in report["data_stats"]:
+            if col["column_name"] == "int_col":
+                report_quantiles = col["statistics"]["quantiles"]
                 break
         self.assertEqual(len(report_quantiles), 3)
         report2 = self.trained_schema.report(
             report_options={"num_quantile_groups": 1000})
-        for key, val in report2["data_stats"].items():
-            if key == "int_col":
-                report2_1000_quant = val["statistics"]["quantiles"]
+        for col in report2["data_stats"]:
+            if col["column_name"] == "int_col":
+                report2_1000_quant = col["statistics"]["quantiles"]
                 break
         self.assertEqual(len(report2_1000_quant), 999)
         self.assertEqual(report_quantiles, {
@@ -385,10 +452,10 @@ class TestStructuredProfiler(unittest.TestCase):
         trained_schema = dp.StructuredProfiler(self.aws_dataset, samples_per_update=5)
         report = trained_schema.report()
         has_non_null_column = False
-        for key in report['data_stats']:
+        for i in range(len(report['data_stats'])):
             # only test non-null columns
-            if report['data_stats'][key]['data_type'] is not None:
-                self.assertIsNotNone(report['data_stats'][key]['data_label'])
+            if report['data_stats'][i]['data_type'] is not None:
+                self.assertIsNotNone(report['data_stats'][i]['data_label'])
                 has_non_null_column = True
         if not has_non_null_column:
             self.fail(
@@ -452,8 +519,8 @@ class TestStructuredProfiler(unittest.TestCase):
 
         def _clean_report(report):
             data_stats = report["data_stats"]
-            for key in data_stats:
-                stats = data_stats[key]["statistics"]
+            for i in range(len(data_stats)):
+                stats = data_stats[i]["statistics"]
                 if "histogram" in stats:
                     if "bin_counts" in stats["histogram"]:
                         stats["histogram"]["bin_counts"] = \
@@ -502,8 +569,8 @@ class TestStructuredProfiler(unittest.TestCase):
 
         def _clean_report(report):
             data_stats = report["data_stats"]
-            for key in data_stats:
-                stats = data_stats[key]["statistics"]
+            for i in range(len(data_stats)):
+                stats = data_stats[i]["statistics"]
                 if "histogram" in stats:
                     if "bin_counts" in stats["histogram"]:
                         stats["histogram"]["bin_counts"] = \
@@ -537,8 +604,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertDictEqual(save_report, load_report)
 
         # validate both are still usable after
-        save_profile.update_profile(pd.DataFrame(['test', 'test2']))
-        load_profile.update_profile(pd.DataFrame(['test', 'test2']))
+        save_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
+        load_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -1591,15 +1658,17 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         data = dp.Data(filename_null_in_file)
         profile = dp.StructuredProfiler(data, options=profiler_options)
 
-        report = profile.report(report_options={"output_format":"pretty"})
-        
+        report = profile.report(report_options={"output_format": "pretty"})
+        count_idx = report["global_stats"]["profile_schema"]["COUNT"][0]
+        numbers_idx = report["global_stats"]["profile_schema"][" NUMBERS"][0]
+
         self.assertEqual(
-            report['data_stats']['COUNT']['statistics']['null_types_index'],
+            report['data_stats'][count_idx]['statistics']['null_types_index'],
             {'': '[2, 3, 4, 5, 7, 8]'}
         )
-        
+
         self.assertEqual(
-            report['data_stats'][' NUMBERS']['statistics']['null_types_index'],
+            report['data_stats'][numbers_idx]['statistics']['null_types_index'],
             {'': '[5, 6, 8]', ' ': '[2, 4]'}
         )
        
@@ -1824,8 +1893,8 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
         def _clean_report(report):
             data_stats = report["data_stats"]
-            for key in data_stats:
-                stats = data_stats[key]["statistics"]
+            for i in range(len(data_stats)):
+                stats = data_stats[i]["statistics"]
                 if "histogram" in stats:
                     if "bin_counts" in stats["histogram"]:
                         stats["histogram"]["bin_counts"] = \

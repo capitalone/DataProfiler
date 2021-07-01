@@ -101,6 +101,21 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
                 self._profiles[profile_name] + other._profiles[profile_name]
             )
         return merged_profile_compiler
+    
+    def diff(self, other, options=None):
+        """
+        Finds the difference between 2 compilers and returns the report
+
+        :param other: profile compiler finding the difference with this one.
+        :type other: BaseCompiler
+        :return: difference of the profiles
+        :rtype: dict
+        """
+        if type(other) is not type(self):
+            raise TypeError('`{}` and `{}` are not of the same profile compiler'
+                            ' type.'.format(type(self).__name__,
+                                            type(other).__name__))
+        return {}
 
     def update_profile(self, df_series, pool=None):
         """
@@ -181,7 +196,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
             "statistics": dict()
         }
         has_found_match = False
-        
+
         for _, profiler in self._profiles.items():
             if not has_found_match and profiler.data_type_ratio == 1.0:
                 profile.update({
@@ -194,6 +209,67 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
             )
         return profile
 
+    @property
+    def selected_data_type(self):
+        """
+        Finds the selected data_type in a primitive compiler
+        
+        :return: name of the selected data type
+        :rtype: str
+        """
+        matched_profile = None
+        if self._profiles:
+            for key, profiler in self._profiles.items():
+                if matched_profile is None and profiler.data_type_ratio == 1.0:
+                    matched_profile = key
+                    return matched_profile
+        return matched_profile
+
+    def diff(self, other, options=None):
+        """
+        Finds the difference between 2 compilers and returns the report
+        
+        :param other: profile compiler finding the difference with this one.
+        :type other: ColumnPrimitiveTypeProfileCompiler
+        :return: difference of the profiles
+        :rtype: dict
+        """
+        # Call super for compiler instance check
+        diff_profile = super().diff(other, options)
+
+        # Initialize profile diff dict with data type representation
+        diff_profile["data_type_representation"] = dict()
+
+        # Iterate through profiles and find the data_type_ratio diffs
+        all_profiles = set(self._profiles.keys()) | set(other._profiles.keys())
+        if all_profiles:
+            for key in all_profiles:
+                if key in self._profiles and key in other._profiles:
+                    diff = utils.find_diff_of_numbers(self._profiles[key].data_type_ratio,
+                                                      other._profiles[key].data_type_ratio)
+                elif key in self._profiles:
+                    diff = [self._profiles[key].data_type_ratio, None]
+                else:
+                    diff = [None, other._profiles[key].data_type_ratio]
+                diff_profile["data_type_representation"].update({key: diff})
+
+
+        # Find data_type diff
+        data_type1 = self.selected_data_type
+        data_type2 = other.selected_data_type
+        if data_type1 is not None or data_type2 is not None:
+            diff_profile["data_type"] = utils.find_diff_of_strings(data_type1,
+                                                                   data_type2)
+            # Find diff of matching profile statistics
+            if diff_profile["data_type"] == "unchanged":
+                diff_profile["statistics"] = self._profiles[data_type1]\
+                    .diff(other._profiles[data_type2], options)
+
+        # If there is no data, pop the data
+        if not diff_profile["data_type_representation"]:
+            diff_profile.pop("data_type_representation")
+
+        return diff_profile
 
 class ColumnStatsProfileCompiler(BaseCompiler):
 

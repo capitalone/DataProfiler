@@ -1389,10 +1389,11 @@ class StructuredProfiler(BaseProfiler):
         if self.total_samples > 0:
             # currently return None with the exising correlation
             # TODO: implement the update with the exising correlation
-            warnings.warn("Currently, the updating correlations is disabled "
-                          "and will remain unchanged from its current value. "
-                          "Updating correlations will be available in a "
-                          "future update.")
+            warnings.warn("Currently, the correlation update is disabled "
+                          "with existing correlation, which will be reset "
+                          "to None. Updating correlations will be available "
+                          "in a future update.")
+            self.correlation_matrix = None
             return
 
         self._get_correlation(clean_samples)

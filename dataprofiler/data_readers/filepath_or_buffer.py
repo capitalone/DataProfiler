@@ -6,7 +6,7 @@ class FileOrBufferHandler():
     """
     FileOrBufferHandler class to read a filepath or buffer in and always return a readable buffer
     """
-    def __init__(self, io_obj, open_method='r', seek_offset=None, seek_whence=0):
+    def __init__(self, io_obj, open_method='r', encoding=None, seek_offset=None, seek_whence=0):
         """
         Context manager class used for inputing a file or buffer and returning a structure
         that is always a buffer.
@@ -23,10 +23,11 @@ class FileOrBufferHandler():
         self.open_method = open_method
         self.seek_offset = seek_offset
         self.seek_whence = seek_whence
+        self._encoding = encoding
 
     def __enter__(self):
         if isinstance(self._io_obj, str):
-            self._io_obj = open(self._io_obj, self.open_method)
+            self._io_obj = open(self._io_obj, self.open_method, encoding=self._encoding)
 
         elif not isinstance(self._io_obj, (StringIO, BytesIO)):
             # Raise AttributeError if attribute value not found.

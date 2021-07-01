@@ -48,7 +48,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             with FileOrBufferHandler(StringIO(open(input_file['path'], 'r')
-                                              .read())) as filepath_or_buffer, open(input_file['path'], 'r')\
+                    .read())) as filepath_or_buffer, open(input_file['path'], 'r')\
                     as input_file_check:
 
                 # check first 100 lines
@@ -64,7 +64,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
             print(input_file)
             seek_offset_test = 100
             with FileOrBufferHandler(StringIO(open(input_file['path'], 'rb')
-                                              .read().decode()), seek_offset=seek_offset_test) as filepath_or_buffer,\
+                    .read().decode()), seek_offset=seek_offset_test) as filepath_or_buffer,\
                     open(input_file['path'], 'rb') as input_file_check:
 
                 input_file_check.seek(seek_offset_test)
@@ -80,7 +80,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             with FileOrBufferHandler(BytesIO(open(input_file['path'], 'rb').
-                                             read())) as filepath_or_buffer, open(input_file['path'], 'rb')\
+                    read())) as filepath_or_buffer, open(input_file['path'], 'rb')\
                     as input_file_check:
 
                 # check first 100 lines
@@ -95,7 +95,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
         for input_file in self.input_file_names:
             seek_offset_test = 500
             with FileOrBufferHandler(BytesIO(open(input_file['path'], 'rb').
-                                             read()), seek_offset=seek_offset_test) as filepath_or_buffer,\
+                    read()), seek_offset=seek_offset_test) as filepath_or_buffer,\
                     open(input_file['path'], 'rb') as input_file_check:
 
                 input_file_check.seek(seek_offset_test)
@@ -104,6 +104,25 @@ class TestFilepathOrBuffer(unittest.TestCase):
                 for i in range(0, 100):
                     self.assertEqual(filepath_or_buffer.readline(),
                                      input_file_check.readline())
+
+    def test_make_buffer_from_filepath_and_encoding(self):
+        """
+        Make sure FileOrBufferHandler can input a file and read it similarly to open()
+        """
+        file_name =os.path.join(os.path.join(test_root_path, 'data'), 'csv/iris-utf-16.csv')
+        file_encoding='utf-16'
+        with FileOrBufferHandler(file_name, 'r', encoding=file_encoding) as\
+                filepath_or_buffer, open(file_name, 'r', encoding=file_encoding) as\
+                input_file_check:
+
+            # check first 100 lines
+            for i in range(0, 100):
+                self.assertEqual(filepath_or_buffer.readline(),
+                                    input_file_check.readline())
+
+        # check that file was properly closed
+        self.assertEqual(filepath_or_buffer.closed,
+                            input_file_check.closed)
 
 
 if __name__ == '__main__':

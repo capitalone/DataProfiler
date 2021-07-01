@@ -135,11 +135,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         appropriate output formats
         :rtype: dict
         """
-        cls = self.__class__
-        if not isinstance(other_profile, cls):
-            raise TypeError("Unsupported operand type(s) for diff: '{}' "
-                            "and '{}'".format(cls.__name__,
-                                              other_profile.__class__.__name__))
+        super().diff(other_profile, options)
 
         differences = {
             "min": utils.find_diff_of_dates(self._dt_obj_min, other_profile._dt_obj_min),

@@ -1261,7 +1261,7 @@ class StructuredProfiler(BaseProfiler):
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
                 "encoding": self.encoding,
-                "correlation_matrix": self.correlation_matrix.to_json(orient='split')
+                "correlation_matrix": self._get_serializable_corr_mat()
             }),
             ("data_stats", OrderedDict()),
         ])
@@ -1358,6 +1358,11 @@ class StructuredProfiler(BaseProfiler):
         else:
             self.row_has_null_count = len(null_in_row_count)
             self.row_is_null_count = len(null_rows)
+
+    def _get_serializable_corr_mat(self):
+        if self.correlation_matrix:
+            return self.correlation_matrix.to_json(orient='split')
+        return self.correlation_matrix
 
     def _get_correlation(self, clean_samples):
         """

@@ -1,6 +1,7 @@
 import os
 import shutil
 import random
+import json
 
 import numpy as np
 
@@ -118,7 +119,7 @@ def clean_report(report):
     if "correlation_matrix" in global_stats and \
             report["global_stats"]["correlation_matrix"] is not None:
         report["global_stats"]["correlation_matrix"] = \
-            report["global_stats"]["correlation_matrix"].values.tolist()
+            json.loads(report["global_stats"]["correlation_matrix"])["data"]
 
     data_stats = report["data_stats"]
     for key in data_stats:

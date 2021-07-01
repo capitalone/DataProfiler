@@ -319,9 +319,9 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
             columns = []
             predictions = []
-            for i in range(len(results['data_stats'])):
-                columns.append(i)
-                predictions.append(results['data_stats'][i]['data_label'])
+            for j in range(len(results['data_stats'])):
+                columns.append(j)
+                predictions.append(results['data_stats'][j]['data_label'])
 
     def test_warning_tf_run_dp_merge(self):
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

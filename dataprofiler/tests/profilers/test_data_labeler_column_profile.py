@@ -8,6 +8,7 @@ import six
 import pandas as pd
 import numpy as np
 
+from dataprofiler.profilers import utils
 from dataprofiler.profilers.data_labeler_column_profile import \
     DataLabelerColumn
 from dataprofiler.profilers.profiler_options import DataLabelerOptions
@@ -302,44 +303,59 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
                                     "profiles."):
             profiler3 = profiler + profiler2
 
+
     def test_diff(self, mock_instance):
         self._setup_data_labeler_mock(mock_instance)
 
-        data = pd.Series(['1', '2', '3', '11'])
+        profiler1 = DataLabelerColumn("")
+        profiler2 = DataLabelerColumn("")
+        
+        # Mock out the data_label, avg_predictions, and label_representation
+        # properties
+        with mock.patch("dataprofiler.profilers.data_labeler_column_profile"
+                        ".DataLabelerColumn.data_label"), \
+            mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                       "DataLabelerColumn.avg_predictions"),\
+            mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                       "DataLabelerColumn.label_representation"):
+            profiler1.data_label = "a|b|c"
+            profiler1.avg_predictions = {
+                "a": 0.25,
+                "b": 0.0,
+                "c": 0.75
+            }
+            profiler1.label_representation = {
+                "a": 0.15,
+                "b": 0.01,
+                "c": 0.84
+            }
 
-        profiler = DataLabelerColumn(data.name)
-        profiler.update(data)
+            profiler2.data_label = "b|c|d"
+            profiler2.avg_predictions = {
+                "a": 0.25,
+                "b": 0.70,
+                "c": 0.05
+            }
+            profiler2.label_representation = {
+                "a": 0.99,
+                "b": 0.01,
+                "c": 0.0
+            }
 
-        mock_DataLabeler = mock_instance.return_value
-        mock_DataLabeler.label_mapping = {"b": 0, "c": 1, "d": 2, "e": 3}
-        mock_DataLabeler.reverse_label_mapping = \
-            {0: "b", 1: "c", 2: "d", 3: "e"}
-        mock_DataLabeler.model.num_labels = 4
-        mock_DataLabeler.model.requires_zero_mapping = False
-        def mock_low_predict(data, *args, **kwargs):
-            return {'pred': None, 'conf': np.array([
-                [1, 0, 0, 0],  # 4 repeated
-                [1, 0, 0, 0],
-                [1, 0, 0, 0],
-                [1, 0, 0, 0],
-                [0, 1, 0, 0],  # 2 repeated
-                [0, 1, 0, 0],
-                [0, 0, 1, 0],  # 3 repeated
-                [0, 0, 1, 0],
-                [0, 0, 1, 0],
-                [0, 0, 0, 1],  # 1 repeated
-            ])}  # counts [4, 2, 3, 1] => [b, c, d, e]
-        mock_instance.return_value.predict.side_effect = mock_low_predict
-
-        data2 = pd.Series(['1'] * 10)
-        profiler2 = DataLabelerColumn(data2.name)
-        profiler2.update(data2)
-
-        self.assertEqual("a|b", profiler.data_label)
-        self.assertEqual("b|d|c", profiler2.data_label)
-
-        diff = profiler.diff(profiler2)
-        expected_diff = {
-            "data_label": [["a"], ["b"], ["d", "c"]]
-        }
-        self.assertDictEqual(expected_diff, diff)
+            diff = profiler1.diff(profiler2)
+            expected_diff = {
+                "data_label": utils.find_diff_of_lists_and_sets(
+                    ['a', 'b', 'c'], ['b', 'c', 'd']),
+                "avg_predictions": {
+                    "a": "unchanged",
+                    "b": -0.70,
+                    "c": 0.70
+                },
+                "label_representation": {
+                    "a": -0.84,
+                    "b": "unchanged",
+                    "c": 0.84
+                }
+            }
+            self.maxDiff = None
+            self.assertDictEqual(expected_diff, diff)

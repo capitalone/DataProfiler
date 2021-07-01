@@ -241,7 +241,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Generates the differences between the orders of two OrderColumns
+        Generates the differences between the orders of two DataLabeler columns
 
         :return: Dict containing the differences between orders in their
         appropriate output formats
@@ -254,10 +254,26 @@ class DataLabelerColumn(BaseColumnProfiler):
                                               other_profile.__class__.__name__))
         
         labels = self.data_label.split('|')
+
+        avg_preds = self.avg_predictions
+        label_rep = self.label_representation
         other_labels = other_profile.data_label.split('|')
+        other_avg_preds = other_profile.avg_predictions
+        other_label_rep = other_profile.label_representation
+
+        avg_predictions_diff = dict()
+        label_rep_diff = dict()
+        for key, value in avg_preds.items():
+            avg_predictions_diff[key] = utils.find_diff_of_numbers(
+                value, other_avg_preds[key])
+        for key, value in label_rep.items():
+            label_rep_diff[key] = utils.find_diff_of_numbers(
+                value, other_label_rep[key])
 
         differences = {
-            "data_label": utils.find_diff_of_lists_and_sets(labels, other_labels)
+            "data_label": utils.find_diff_of_lists_and_sets(labels, other_labels),
+            "avg_predictions": avg_predictions_diff,
+            "label_representation": label_rep_diff
         }
         return differences
 

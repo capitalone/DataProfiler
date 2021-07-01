@@ -204,7 +204,7 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._get_correlation')
     def test_stream_profilers(self, *mocks):
-        mocks[0].return_value = sdp_mock
+        mocks[0].return_value = None
         data = pd.DataFrame([
             ['test1', 1.0],
             ['test2', None],

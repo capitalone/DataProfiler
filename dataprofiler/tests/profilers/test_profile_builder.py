@@ -327,7 +327,7 @@ class TestStructuredProfiler(unittest.TestCase):
         # merge between an existing corr and None correlation (without data)
         profile1 = dp.StructuredProfiler(None)
         profile2 = dp.StructuredProfiler(data)
-        # remove the mock below when merge profile is update
+        # TODO: remove the mock below when merge profile is update
         with mock.patch('dataprofiler.profilers.profile_builder.'
                         'StructuredProfiler._add_error_checks'):
             merged_profile = profile1 + profile2

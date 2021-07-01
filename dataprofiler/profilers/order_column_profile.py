@@ -246,11 +246,7 @@ class OrderColumn(BaseColumnProfiler):
         appropriate output formats
         :rtype: dict
         """
-        cls = self.__class__
-        if not isinstance(other_profile, cls):
-            raise TypeError("Unsupported operand type(s) for diff: '{}' "
-                            "and '{}'".format(cls.__name__,
-                                              other_profile.__class__.__name__))
+        super().diff(other_profile, options)
 
         differences = {
             "order": utils.find_diff_of_strings(self.order, other_profile.order)

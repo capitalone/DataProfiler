@@ -152,8 +152,7 @@ class TestStructuredProfiler(unittest.TestCase):
         profile2._profile.pop(0)
         profile2._col_name_to_idx.pop(0)
         with self.assertRaisesRegex(ValueError,
-                                    "Attempted to merge profiles with "
-                                    "different numbers of columns"):
+                                    "Cannot merge empty profiles."):
             profile1 + profile2
 
         # test mismatched profiles due to options

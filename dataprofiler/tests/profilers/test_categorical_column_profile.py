@@ -178,7 +178,7 @@ class TestCategoricalColumn(unittest.TestCase):
         profile.update(df_non_categorical)
 
         report = profile.profile
-        self.assertIsNotNone(report["times"])
+        self.assertIsNotNone(report.pop("times", None))
         expected_profile = dict(
             categorical=False,
             statistics=dict([
@@ -222,7 +222,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertDictEqual(expected_dict, profile3._categories)
 
         report = profile3.profile
-        self.assertIsNotNone(report["times"])
+        self.assertIsNotNone(report.pop("times", None))
         expected_profile = dict(
             categorical=False,
             statistics=dict([
@@ -242,7 +242,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(profile3.unique_ratio, 16 / 33)
 
         report = profile3.profile
-        self.assertIsNotNone(report["times"])
+        self.assertIsNotNone(report.pop("times", None))
         expected_profile = dict(
             categorical=False,
             statistics=dict([
@@ -258,7 +258,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(profile3.unique_ratio, 16 / 1000)
 
         report = profile3.profile
-        self.assertIsNotNone(report["times"])
+        self.assertIsNotNone(report.pop("times", None))
         report_categories = report['statistics'].pop('categories')
         report_count = report['statistics'].pop('categorical_count')
         expected_profile = dict(

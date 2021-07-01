@@ -1258,19 +1258,20 @@ class StructuredProfiler(BaseProfiler):
         :rtype: Dict[int, int]
         """
 
-        len_schema_1 = len(schema1)
-        len_schema_2 = len(schema2)
+        len_schema1 = len(schema1)
+        len_schema2 = len(schema2)
 
-        if strict and len_schema_1 != len_schema_2:
+        # If both non-empty, must be same length
+        if 0 < len_schema1 != len_schema2 > 0:
             raise ValueError("Attempted to merge profiles with different "
                              "numbers of columns")
 
         # In the case of __add__ with one of the schemas not initialized
-        if strict and (len_schema_1 == 0 or len_schema_2 == 0):
+        if strict and (len_schema1 == 0 or len_schema2 == 0):
             raise ValueError("Cannot merge empty profiles.")
 
         # In the case of _update_from_chunk with uninitialized schema
-        if not strict and len_schema_2 == 0:
+        if not strict and len_schema2 == 0:
             return {col_ind: col_ind for col_ind_list in schema1.values()
                     for col_ind in col_ind_list}
 

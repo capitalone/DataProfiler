@@ -1387,8 +1387,8 @@ class StructuredProfiler(BaseProfiler):
         :type clean_samples: dict()
         """
         if self.total_samples > 0:
-            # currently return None with the exising correlation
-            # TODO: implement the update with the exising correlation
+            # currently return None with the existing correlation
+            # TODO: implement the update with the existing correlation
             warnings.warn("Currently, the correlation update is disabled "
                           "with existing correlation, which will be reset "
                           "to None. Updating correlations will be available "

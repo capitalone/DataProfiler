@@ -1493,7 +1493,6 @@ class StructuredProfiler(BaseProfiler):
                     sample_ids=sample_ids,
                     options=self.options
                 ))
-                new_cols = True
 
         # Generate pool and estimate datasize
         pool = None

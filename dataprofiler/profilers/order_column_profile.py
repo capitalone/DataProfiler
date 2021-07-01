@@ -1,4 +1,5 @@
 from . import BaseColumnProfiler
+from . import utils
 from .profiler_options import OrderOptions
 
 
@@ -236,6 +237,21 @@ class OrderColumn(BaseColumnProfiler):
         :return:
         """
         return dict(order=self.order, times=self.times)
+
+    def diff(self, other_profile, options=None):
+        """
+        Generates the differences between the orders of two OrderColumns
+
+        :return: Dict containing the differences between orders in their
+        appropriate output formats
+        :rtype: dict
+        """
+        super().diff(other_profile, options)
+
+        differences = {
+            "order": utils.find_diff_of_strings(self.order, other_profile.order)
+        }
+        return differences
 
     @BaseColumnProfiler._timeit(name="order")
     def _get_data_order(self, df_series):

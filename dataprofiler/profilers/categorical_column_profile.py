@@ -1,3 +1,6 @@
+from collections import defaultdict
+from operator import itemgetter
+
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
 from . import utils
@@ -29,7 +32,7 @@ class CategoricalColumn(BaseColumnProfiler):
             raise ValueError("CategoricalColumn parameter 'options' must be of"
                              " type CategoricalOptions.")
         super(CategoricalColumn, self).__init__(name)
-        self._categories = list()
+        self._categories = defaultdict(int)
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
 
@@ -49,8 +52,8 @@ class CategoricalColumn(BaseColumnProfiler):
                                 other.__class__.__name__))
 
         merged_profile = CategoricalColumn(None)
-        merged_profile._categories = self._categories.copy()
-        merged_profile._update_categories(other._categories)
+        merged_profile._categories = \
+            utils.add_nested_dictionaries(self._categories, other._categories)
         BaseColumnProfiler._add_helper(merged_profile, self, other)
         self._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,
@@ -61,7 +64,10 @@ class CategoricalColumn(BaseColumnProfiler):
     def profile(self):
         """
         Property for profile. Returns the profile of the column.
+        For categorical_count, it will display the top k categories most
+        frequently occurred in descending order.
         """
+        top_k_categories = 5
 
         profile = dict(
             categorical=self.is_match,
@@ -75,6 +81,9 @@ class CategoricalColumn(BaseColumnProfiler):
             profile["statistics"].update(
                 dict(categories=self.categories)
             )
+            profile["statistics"]['categorical_count'] = dict(
+                sorted(self._categories.items(), key=itemgetter(1),
+                       reverse=True)[:top_k_categories])
         return profile
 
     @property
@@ -82,7 +91,7 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         Property for categories.
         """
-        return self._categories
+        return list(self._categories.keys())
 
     @property
     def unique_ratio(self):
@@ -126,11 +135,9 @@ class CategoricalColumn(BaseColumnProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        if hasattr(df_series, 'tolist'):
-            df_series = df_series.tolist()
-
-        self._categories = utils._combine_unique_sets(
-            self._categories, df_series)
+        category_count = df_series.value_counts(dropna=False).to_dict()
+        self._categories = utils.add_nested_dictionaries(self._categories,
+                                                         category_count)
 
     def _update_helper(self, df_series_clean, profile):
         """

@@ -325,3 +325,25 @@ class TestOrderColumn(unittest.TestCase):
                                    "OrderColumn parameter 'options' must be of"
                                    " type OrderOptions."):
             profiler = OrderColumn("Order", options="wrong_data_type")
+
+    def test_diff(self):
+        data = [1, 2, 3, 4, 5, 6]
+        df = pd.Series(data).apply(str)
+        profiler = OrderColumn("placeholder_name")
+        profiler.update(df)
+
+        data2 = [7, 8, 9, 10]
+        df2 = pd.Series(data2).apply(str)
+        profiler2 = OrderColumn("placeholder_name")
+        profiler2.update(df2)
+
+        diff = profiler.diff(profiler2)
+        self.assertEqual("unchanged", diff["order"])
+
+        data3 = [4, 2, 3, 1, 5]
+        df3 = pd.Series(data3).apply(str)
+        profiler3 = OrderColumn("placeholder_name")
+        profiler3.update(df3)
+
+        diff = profiler.diff(profiler3)
+        self.assertEqual(["ascending", "random"], diff["order"])

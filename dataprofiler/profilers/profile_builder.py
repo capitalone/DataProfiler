@@ -1312,28 +1312,33 @@ class StructuredProfiler(BaseProfiler):
         omit_keys = report_options.get("omit_keys", [])
         num_quantile_groups = report_options.get("num_quantile_groups", 4)
 
-        columns = list(self._profile.values())
+        report_schema = dict()
+        for i in range(len(self._profile)):
+            col = self._profile[i].name
+            report_schema.setdefault(col, []).append(i)
+
         report = OrderedDict([
             ("global_stats", {
                 "samples_used": self._max_col_samples_used,
-                "column_count": len(columns),
+                "column_count": len(self._profile),
                 "row_count": self.total_samples,
                 "row_has_null_ratio": self._get_row_has_null_ratio(),
                 "row_is_null_ratio": self._get_row_is_null_ratio(),
                 "unique_row_ratio": self._get_unique_row_ratio(),
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
-                "encoding": self.encoding
+                "encoding": self.encoding,
+                "profile_schema": report_schema
             }),
-            ("data_stats", OrderedDict()),
+            ("data_stats", []),
         ])
-        for key in self._profile.keys():
-            report["data_stats"][key] = self._profile[key].profile
-            quantiles = report["data_stats"][key]["statistics"].get(
-                'quantiles')
+
+        for i in range(len(self._profile)):
+            report["data_stats"].append(self._profile[i].profile)
+            quantiles = report["data_stats"][i]["statistics"].get('quantiles')
             if quantiles:
                 quantiles = calculate_quantiles(num_quantile_groups, quantiles)
-                report["data_stats"][key]["statistics"]["quantiles"] = quantiles
+                report["data_stats"][i]["statistics"]["quantiles"] = quantiles
 
         return _prepare_report(report, output_format, omit_keys)
 

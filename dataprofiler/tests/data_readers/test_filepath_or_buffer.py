@@ -124,6 +124,19 @@ class TestFilepathOrBuffer(unittest.TestCase):
         self.assertEqual(filepath_or_buffer.closed,
                             input_file_check.closed)
 
+    def test_make_buffer_error_message(self):
+        """
+        Make sure FileOrBufferHandler can input a file and read it similarly to open()
+        """
+        file_name = b"not a valid input"
+        with self.assertRaisesRegex(AttributeError, "Type.*is invalid. \
+                filepath_or_buffer must be a string or StringIO/BytesIO object"):
+            with FileOrBufferHandler(file_name, 'r') as\
+                    filepath_or_buffer, open(file_name, 'r') as\
+                    input_file_check:
+                    filepath_or_buffer.readline(),
+                    input_file_check.readline()
+
 
 if __name__ == '__main__':
     unittest.main()

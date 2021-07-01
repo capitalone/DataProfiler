@@ -1240,13 +1240,6 @@ class StructuredProfiler(BaseProfiler):
         """
         return min([col._last_batch_size for col in self._profile], default=0)
 
-    @property
-    def is_initialized(self):
-        """
-        Determines if profiler has been initialized with data
-        """
-        return self.total_samples > 0
-
     @staticmethod
     def _get_and_validate_schema_mapping(schema1, schema2, strict=False):
         """
@@ -1438,8 +1431,6 @@ class StructuredProfiler(BaseProfiler):
         elif isinstance(data, list):
             data = pd.DataFrame(data)
 
-        initialized = self.is_initialized
-
         # Calculate schema of incoming data
         mapping_given = defaultdict(list)
         for col_idx in range(len(data.columns)):
@@ -1479,7 +1470,7 @@ class StructuredProfiler(BaseProfiler):
         # Create StructuredColProfilers upon initialization
         # Record correlation between columns in data and index in _profile
         new_cols = False
-        if not initialized:
+        if len(self._profile) == 0:
             for col_idx in range(data.shape[1]):
                 col_name = data.columns[col_idx]
                 # Pandas cols are int by default, but need to fuzzy match strs

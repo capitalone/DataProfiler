@@ -121,6 +121,11 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
                 'true_char_level': defaultdict(int, {'UNKNOWN': 1}),
                 'word_level': defaultdict(int)
             },
+            entity_percentages={
+                'postprocess_char_level': defaultdict(int, {'UNKNOWN': 1.0}),
+                'true_char_level': defaultdict(int, {'UNKNOWN': 1.0}),
+                'word_level': defaultdict(int)
+            },
             times=defaultdict(float, {'data_labeler_predict': 1.0})
         )
 

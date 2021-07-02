@@ -718,7 +718,7 @@ class CategoricalOptions(BaseInspectorOptions):
 
 class CorrelationOptions(BaseInspectorOptions):
 
-    def __init__(self):
+    def __init__(self, is_enabled=False, columns=None):
         """
         Options for the Correlation between Columns
 
@@ -727,8 +727,8 @@ class CorrelationOptions(BaseInspectorOptions):
         :ivar columns: Columns considered to calculate correlation
         :vartype columns: list()
         """
-        BaseInspectorOptions.__init__(self)
-        self.columns = None
+        BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
+        self.columns = columns
 
     def _validate_helper(self, variable_path='CorrelationOptions'):
         """

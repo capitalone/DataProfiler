@@ -257,11 +257,15 @@ class TestStructuredProfiler(unittest.TestCase):
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
-    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
     def test_correlation(self, *mock):
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"correlation.is_enabled": True})
+
         # data with one column, correlation not updated
         data = pd.DataFrame([1.0, None, 1.0, None, 5.0])
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         self.assertIsNone(profiler.correlation_matrix)
 
         # data with two columns, but only one is numerical,
@@ -271,14 +275,14 @@ class TestStructuredProfiler(unittest.TestCase):
             ['test2', None],
             ['test1', 1.0],
             [None, None]])
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         self.assertIsNone(profiler.correlation_matrix)
 
         # data with multiple numerical columns
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_corr_mat = data.corr()
         pd.util.testing.assert_frame_equal(expected_corr_mat,
                                            profiler.correlation_matrix)
@@ -287,21 +291,21 @@ class TestStructuredProfiler(unittest.TestCase):
         data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
                              'b': [10, 11, np.nan, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, np.nan, np.nan]})
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         self.assertIsNone(profiler.correlation_matrix)
 
         # data with multiple numerical columns, with nan values in only one column
         data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_corr_mat = data[['b', 'c']].corr()
         pd.util.testing.assert_frame_equal(expected_corr_mat,
                                            profiler.correlation_matrix)
 
         # data with only one numerical columns without nan values
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2]})
-        profiler = dp.StructuredProfiler(data)
+        profiler = dp.StructuredProfiler(data, options=profile_options)
         self.assertIsNone(profiler.correlation_matrix)
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
@@ -309,6 +313,9 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
     def test_merge_correlation(self, *mocks):
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"correlation.is_enabled": True})
+
         # merge between two existing correlations
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
@@ -316,8 +323,8 @@ class TestStructuredProfiler(unittest.TestCase):
         data1 = data[:int(len(data) / 2)]
         data2 = data[int(len(data) / 2):]
 
-        profile1 = dp.StructuredProfiler(data1)
-        profile2 = dp.StructuredProfiler(data2)
+        profile1 = dp.StructuredProfiler(data1, options=profile_options)
+        profile2 = dp.StructuredProfiler(data2, options=profile_options)
         merged_profile = profile1 + profile2
 
         expected_corr_mat = data.corr()
@@ -325,8 +332,8 @@ class TestStructuredProfiler(unittest.TestCase):
                                            merged_profile.correlation_matrix)
 
         # merge between an existing corr and None correlation (without data)
-        profile1 = dp.StructuredProfiler(None)
-        profile2 = dp.StructuredProfiler(data)
+        profile1 = dp.StructuredProfiler(None, options=profile_options)
+        profile2 = dp.StructuredProfiler(data, options=profile_options)
         # TODO: remove the mock below when merge profile is update
         with mock.patch('dataprofiler.profilers.profile_builder.'
                         'StructuredProfiler._add_error_checks'):
@@ -338,12 +345,12 @@ class TestStructuredProfiler(unittest.TestCase):
 
         # merge between an existing corr and None correlation (with data)
         data1 = data[:5]
-        profile1 = dp.StructuredProfiler(data1)
+        profile1 = dp.StructuredProfiler(data1, options=profile_options)
         data2 = data[5:]
         profile1.update_profile(data2)
         self.assertIsNone(profile1.correlation_matrix)
 
-        profile2 = dp.StructuredProfiler(data2)
+        profile2 = dp.StructuredProfiler(data2, options=profile_options)
         profile = profile1 + profile2
         self.assertIsNone(profile.correlation_matrix)
 

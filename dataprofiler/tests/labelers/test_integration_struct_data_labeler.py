@@ -5,8 +5,6 @@ import numpy as np
 import pandas as pd
 
 import dataprofiler as dp
-from dataprofiler.labelers.character_level_cnn_model import \
-    CharacterLevelCnnModel
 
 
 class TestStructuredDataLabeler(unittest.TestCase):
@@ -336,7 +334,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp1')
         profile1 = dp.StructuredProfiler(data, options=profile_options)
@@ -349,7 +348,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp2')
         profile2 = dp.StructuredProfiler(data, options=profile_options)
@@ -369,7 +369,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp1')
         profile1 = dp.StructuredProfiler(data, options=profile_options)
@@ -382,7 +383,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp2')
         profile2 = dp.StructuredProfiler(data, options=profile_options)

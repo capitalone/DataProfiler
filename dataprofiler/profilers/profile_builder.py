@@ -1312,11 +1312,6 @@ class StructuredProfiler(BaseProfiler):
         omit_keys = report_options.get("omit_keys", [])
         num_quantile_groups = report_options.get("num_quantile_groups", 4)
 
-        report_schema = dict()
-        for i in range(len(self._profile)):
-            col = self._profile[i].name
-            report_schema.setdefault(col, []).append(i)
-
         report = OrderedDict([
             ("global_stats", {
                 "samples_used": self._max_col_samples_used,
@@ -1328,12 +1323,14 @@ class StructuredProfiler(BaseProfiler):
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
                 "encoding": self.encoding,
-                "profile_schema": report_schema
+                "profile_schema": defaultdict(list)
             }),
             ("data_stats", []),
         ])
 
         for i in range(len(self._profile)):
+            col_name = self._profile[i].name
+            report["global_stats"]["profile_schema"][col_name].append(i)
             report["data_stats"].append(self._profile[i].profile)
             quantiles = report["data_stats"][i]["statistics"].get('quantiles')
             if quantiles:

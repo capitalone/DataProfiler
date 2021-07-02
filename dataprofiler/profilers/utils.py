@@ -1,4 +1,4 @@
-
+import datetime
 import os
 import collections
 import copy
@@ -445,3 +445,37 @@ def find_diff_of_dates(stat1, stat2):
         return "+" + str(diff)
 
     return "-" + str(abs(diff))
+
+def find_diff_of_dicts(dict1, dict2):
+    """
+    Finds the difference between two dicts. For each key in each dict,
+    returns "unchanged" if there's no difference, otherwise returns
+    the difference. Assumes that if the two dictionaries share the
+    same key, their values are the same type.
+
+    :param dict1: the first dict
+    :type dict1: dict
+    :param dict2: the second dict
+    :type dict2: dict
+    :return: Difference in the keys of each dict
+    :rtype: dict
+    """
+
+    diff = {}
+    for key, value1 in dict1.items():
+        value2 = dict2.get(key, None)
+        if isinstance(value1, list):
+            diff[key] = find_diff_of_lists_and_sets(value1, value2)
+        elif isinstance(value1, datetime.datetime):
+            diff[key] = find_diff_of_dates(value1, value2)
+        elif isinstance(value1, str):
+            diff[key] = find_diff_of_strings(value1, value2)
+        else:
+            diff[key] = find_diff_of_numbers(value1, value2)
+
+    # Add any keys in dict2 that weren't in dict1
+    for key, value in dict2.items():
+        if key not in diff:
+            diff[key] = [None, value]
+
+    return diff

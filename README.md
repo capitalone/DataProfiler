@@ -60,7 +60,7 @@ The format for a structured profile is below:
     "duplicate_row_count": int,
     "file_type": string,
     "encoding": string,
-    "correlation_matrix": string,
+    "correlation_matrix": string, (*)
 },
 "data_stats": {
     <column name>: {
@@ -117,6 +117,7 @@ The format for a structured profile is below:
     }
 }
 ```
+(*) Currently the correlation matrix update is toggled off. It will be reset in a later update. Users can still use it as desired with the is_enable option set to True.
 
 The format for an unstructured profile is below:
 ```

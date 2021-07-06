@@ -397,6 +397,12 @@ class TestStructuredProfiler(unittest.TestCase):
             else:
                 self.assertIsNotNone(report["data_stats"][idx])
 
+        # This will keep the data_stats key but remove all columns
+        report = profiler.report(report_options={"omit_keys": ["data_stats.*"]})
+
+        for col_report in report["data_stats"]:
+            self.assertIsNone(col_report)
+
 
     def test_report_quantiles(self):
         report_none = self.trained_schema.report(

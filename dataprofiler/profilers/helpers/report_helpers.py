@@ -113,8 +113,9 @@ def _prepare_report(report, output_format=None, omit_keys=None):
             # Cols that will have None in report since they were omitted
             none_cols = []
             for col_ind in range(len(value)):
+                col_name = str(value[col_ind].get('column_name'))
                 # column is being omitted
-                if f"data_stats.{str(value[col_ind].get('column_name'))}" \
+                if f"data_stats.{col_name}" \
                         in omit_keys:
                     none_cols.append(col_ind)
                     continue
@@ -128,7 +129,8 @@ def _prepare_report(report, output_format=None, omit_keys=None):
                     omit_key_split = omit_key.split('.', 1)
 
                     # this omit occurs only at this level, don't include
-                    if len(omit_key_split) == 1:
+                    if len(omit_key_split) == 1 and omit_key in {"*", col_name}:
+                        none_cols.append(col_ind)
                         continue
 
                     # this omit applies to everything below
@@ -136,8 +138,7 @@ def _prepare_report(report, output_format=None, omit_keys=None):
                         next_layer_omit_keys.append(omit_key_split[1])
 
                     # this omit applies to the name of this indexed column
-                    elif omit_key_split[0] == \
-                            str(value[col_ind].get("column_name")):
+                    elif omit_key_split[0] == col_name:
                         next_layer_omit_keys.append(omit_key_split[1])
 
                 # update report and list for column we are keeping

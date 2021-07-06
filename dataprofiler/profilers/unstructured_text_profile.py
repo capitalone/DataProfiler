@@ -233,7 +233,10 @@ class TextProfiler(object):
         :return: None
         """
         data_flat = list(itertools.chain(*data))
-        self.vocab_count += Counter(data_flat)
+        #self.vocab_count += Counter(data_flat)
+        import numpy as np
+        unique, counts = np.unique(data_flat, return_counts=True)
+        self.vocab_count += Counter(dict(zip(unique, counts)))
 
     @BaseColumnProfiler._timeit(name='words')
     def _update_words(self, data, prev_dependent_properties=None,

@@ -9,6 +9,8 @@ import pandas as pd
 import pyarrow.parquet as pq
 from chardet.universaldetector import UniversalDetector
 
+from .filepath_or_buffer import FileOrBufferHandler
+
 
 def data_generator(data_list):
     """
@@ -515,7 +517,7 @@ def find_nth_loc(string=None, search_query=None, n=0):
     return idx, id_count
 
 
-def load_as_str_from_file(file_path, file_encoding, max_lines=10,
+def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
                           max_bytes=65536, chunk_size_bytes=1024):
     """
     Loads data from a csv file up to a specific line OR byte_size.
@@ -537,7 +539,7 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=10,
 
     data_as_str = ""
     total_occurances = 0
-    with open(file_path, encoding=file_encoding) as csvfile:
+    with FileOrBufferHandler(file_path, encoding=file_encoding) as csvfile:
 
         sample_size_bytes = min(max_bytes, chunk_size_bytes)
         
@@ -581,4 +583,5 @@ def is_stream_buffer(filepath_or_buffer):
 
     if isinstance(filepath_or_buffer, (StringIO, BytesIO)):
         return True
+        
     return False

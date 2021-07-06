@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
 import json
 import warnings
 import types
@@ -361,8 +362,11 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         if options is None:
             options = dict()
 
-        file_encoding = data_utils.detect_file_encoding(file_path=file_path)
-        with open(file_path, 'r', encoding=file_encoding) as data_file:
+        file_encoding = None
+        if not data_utils.is_stream_buffer(file_path):
+            file_encoding = data_utils.detect_file_encoding(file_path=file_path)
+
+        with FileOrBufferHandler(file_path, 'r', encoding=file_encoding) as data_file:
             try:
                 json.load(data_file)
                 return True

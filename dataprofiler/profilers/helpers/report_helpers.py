@@ -87,24 +87,6 @@ def _prepare_report(report, output_format=None, omit_keys=None):
             "data_stats.*.statistics.histogram"
         ])
         output_format = "pretty"
-
-    # Modify omit_keys to account for data_stats being a list and not a dict
-    # With column names for keys
-    new_omit_keys = []
-    for omit_key in omit_keys:
-        key_list = omit_key.split(".")
-        if len(key_list) > 1 and key_list[0] == "data_stats" \
-                and key_list[1] != "*":
-            idxs = report["global_stats"]["profile_schema"][key_list[1]]
-            for i in idxs:
-                swapped_list = key_list
-                swapped_list[1] = str(i)
-                swapped_str = ".".join(swapped_list)
-                new_omit_keys.append(swapped_str)
-        else:
-            new_omit_keys.append(omit_key)
-
-    omit_keys = new_omit_keys
     
     for key in report:
         
@@ -118,47 +100,65 @@ def _prepare_report(report, output_format=None, omit_keys=None):
         if isinstance(value, set):
             value = sorted(list(value))
 
+        if "*" in omit_keys:
+            continue
+
         # For data_stats (in structured case), need to recurse through a list
         # As well as account for omit_keys containing indices instead of keys
-        if key == "data_stats" and isinstance(value, list):
-            fmt_report["data_stats"] = []
-            # split off any remaining keys for the recursion
-            # i.e. [test0, test1.test2] -> omit_keys => [test1.test2]
-            # This will filter out all the data_stats omit keys
-            data_stat_omit_keys = []
-            for omit_key in omit_keys:
-                omit_key_split = omit_key.split('.', 1)
+        elif key == "data_stats" and isinstance(value, list) \
+                and "data_stats" not in omit_keys:
 
-                # Must have more keys left for recursion
-                if len(omit_key_split) > 1:
-                    next_key_layer = omit_key_split[-1]
-                    prior_key_layer = omit_key_split[0]
-                    if len(next_key_layer) > 0:
-                        if prior_key_layer == '*' or prior_key_layer == key:
-                            data_stat_omit_keys.append(next_key_layer)
+            # Map cols to keep in report with their layer's omit keys
+            kept_cols_oks = dict()
+            # Cols that will have None in report since they were omitted
+            none_cols = []
+            for col_ind in range(len(value)):
+                # column is being omitted
+                if f"data_stats.{str(value[col_ind].get('column_name'))}" \
+                        in omit_keys:
+                    none_cols.append(col_ind)
+                    continue
 
-            # Recurse through indices in data_stats and call report_helper
-            for i in range(len(value)):
-                i_index_omit_keys = []
-                # Filter off data_stats omit keys depending on index
-                for nl_key in data_stat_omit_keys:
-                    key_split = nl_key.split(".", 1)
+                # update omit keys
+                next_layer_omit_keys = []
+                # Track omit_keys that pertain to data_stats
+                ds_omit_keys = [omit_key[11:] for omit_key in omit_keys
+                                if omit_key[:11] == "data_stats."]
+                for omit_key in ds_omit_keys:
+                    omit_key_split = omit_key.split('.', 1)
 
-                    # Must have more keys left for recursion
-                    if len(key_split) > 1:
-                        next_key_layer = key_split[-1]
-                        index = key_split[0]
-                        if len(next_key_layer) > 0:
-                            if (index.isdigit() and int(index) == i) \
-                                    or index == "*":
-                                i_index_omit_keys.append(next_key_layer)
+                    # this omit occurs only at this level, don't include
+                    if len(omit_key_split) == 1:
+                        continue
 
-                # Recursively prepare each column in data_stats list
-                fmt_report["data_stats"].append(
-                    _prepare_report(value[i], output_format, i_index_omit_keys))
+                    # this omit applies to everything below
+                    elif omit_key_split[0] == "*":
+                        next_layer_omit_keys.append(omit_key_split[1])
+
+                    # this omit applies to the name of this indexed column
+                    elif omit_key_split[0] == \
+                            str(value[col_ind].get("column_name")):
+                        next_layer_omit_keys.append(omit_key_split[1])
+
+                # update report and list for column we are keeping
+                kept_cols_oks[col_ind] = next_layer_omit_keys
+
+            # Helper to create reports based on whether ind is kept or omitted
+            def ds_helper(ind):
+                # Return None if col is to be omitted
+                if ind in none_cols:
+                    return None
+                # Return prepared report with this columns next level omit keys
+                # Index into report["data_stats"][ind] (value[ind])
+                return _prepare_report(value[ind], output_format,
+                                       kept_cols_oks[ind])
+
+            # Get subset of columns to keep
+            fmt_report["data_stats"] = [ds_helper(ind)
+                                        for ind in range(len(value))]
 
         # Do not recurse or modify profile_schema
-        elif key == "profile_schema":
+        elif key == "profile_schema" and "profile_schema" not in omit_keys:
             fmt_report[key] = value
 
         elif isinstance(value, dict):

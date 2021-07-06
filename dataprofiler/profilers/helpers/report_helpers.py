@@ -104,7 +104,6 @@ def _prepare_report(report, output_format=None, omit_keys=None):
             continue
 
         # For data_stats (in structured case), need to recurse through a list
-        # As well as account for omit_keys containing indices instead of keys
         elif key == "data_stats" and isinstance(value, list) \
                 and "data_stats" not in omit_keys:
 

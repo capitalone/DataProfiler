@@ -379,6 +379,25 @@ class TestStructuredProfiler(unittest.TestCase):
             self.assertNotIn("null_types_index",
                              report["data_stats"][idx]["statistics"])
 
+    def test_omit_cols_preserves_schema(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        omit_cols = ["a", "d"]
+        omit_idxs = [0, 2, 5]
+        omit_keys = [f"data_stats.{col}" for col in omit_cols]
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"omit_keys": omit_keys})
+
+        for idx in range(len(report["data_stats"])):
+            if idx in omit_idxs:
+                self.assertIsNone(report["data_stats"][idx])
+            else:
+                self.assertIsNotNone(report["data_stats"][idx])
+
+
     def test_report_quantiles(self):
         report_none = self.trained_schema.report(
             report_options={"num_quantile_groups": None})
@@ -406,8 +425,8 @@ class TestStructuredProfiler(unittest.TestCase):
         omit_keys = ['global_stats', 'data_stats']
                 
         report_omit_keys = self.trained_schema.report(
-            report_options={ "omit_keys": omit_keys })
-        
+            report_options={"omit_keys": omit_keys})
+
         self.assertCountEqual({}, report_omit_keys)
 
     def test_report_compact(self):

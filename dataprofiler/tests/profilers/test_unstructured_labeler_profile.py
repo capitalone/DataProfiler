@@ -139,6 +139,39 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
 
     @mock.patch('dataprofiler.profilers.'
                 'unstructured_labeler_profile.DataLabeler')
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.'
+                'CharPostprocessor')
+    def test_entity_percentages(self, mock1, mock2):
+        """
+        Tests to see that entity percentages match the counts given
+        """
+        profile = UnstructuredLabelerProfile()
+        profile.char_sample_size = 20
+        profile.word_sample_size = 10
+        profile.entity_counts["postprocess_char_level"]["UNKNOWN"] = 6
+        profile.entity_counts["postprocess_char_level"]["TEST"] = 14
+        profile.entity_counts["true_char_level"]["UNKNOWN"] = 4
+        profile.entity_counts["true_char_level"]["TEST"] = 16
+        profile.entity_counts["word_level"]["UNKNOWN"] = 5
+        profile.entity_counts["word_level"]["TEST"] = 5
+        profile.update(pd.Series(["a"]))
+
+        expected_percentages = {
+            'postprocess_char_level': defaultdict(int, {'UNKNOWN': 0.3,
+                                                        'TEST': 0.7}),
+            'true_char_level': defaultdict(int, {'UNKNOWN': 0.2,
+                                                 'TEST': 0.8}),
+            'word_level': defaultdict(int, {'UNKNOWN': 0.5,
+                                            'TEST': 0.5})
+        }
+
+        percentages = profile.profile['entity_percentages']
+
+        self.assertDictEqual(expected_percentages, percentages)
+
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.DataLabeler')
     def test_unstructured_labeler_profile_add(self, mock):
         # Test empty merge
         profile1 = UnstructuredLabelerProfile()

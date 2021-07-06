@@ -107,55 +107,41 @@ def _prepare_report(report, output_format=None, omit_keys=None):
         elif key == "data_stats" and isinstance(value, list) \
                 and "data_stats" not in omit_keys:
 
-            # Map cols to keep in report with their layer's omit keys
-            kept_cols_oks = dict()
-            # Cols that will have None in report since they were omitted
-            none_cols = []
+            fmt_report["data_stats"] = []
+
             for col_ind in range(len(value)):
                 col_name = str(value[col_ind].get('column_name'))
                 # column is being omitted
-                if f"data_stats.{col_name}" \
-                        in omit_keys:
-                    none_cols.append(col_ind)
+                if f"data_stats.{col_name}" in omit_keys \
+                        or "data_stats.*" in omit_keys:
+                    fmt_report["data_stats"].append(None)
                     continue
 
                 # update omit keys
                 next_layer_omit_keys = []
-                # Track omit_keys that pertain to data_stats
-                ds_omit_keys = [omit_key[11:] for omit_key in omit_keys
-                                if omit_key[:11] == "data_stats."]
-                for omit_key in ds_omit_keys:
+                for omit_key in omit_keys:
+                    # Only look at data_stats omit keys
+                    if omit_key[:11] != "data_stats.":
+                        continue
+                    else:
+                        # Pull out omit_key information given its for data_stats
+                        omit_key = omit_key[11:]
+
                     omit_key_split = omit_key.split('.', 1)
 
-                    # this omit occurs only at this level, don't include
-                    if len(omit_key_split) == 1 and omit_key in {"*", col_name}:
-                        none_cols.append(col_ind)
-                        continue
+                    if omit_key_split[0] in {"*", col_name}:
+                        # Already omitted entire column in case above
+                        # Therefore guaranteed to have further keys in this case
+                        if len(omit_key_split) < 2:
+                            raise ValueError("Invalid omit keys given to report")
 
-                    # this omit applies to everything below
-                    elif omit_key_split[0] == "*":
-                        next_layer_omit_keys.append(omit_key_split[1])
-
-                    # this omit applies to the name of this indexed column
-                    elif omit_key_split[0] == col_name:
+                        # Need to omit further stats contained in this column
                         next_layer_omit_keys.append(omit_key_split[1])
 
                 # update report and list for column we are keeping
-                kept_cols_oks[col_ind] = next_layer_omit_keys
-
-            # Helper to create reports based on whether ind is kept or omitted
-            def ds_helper(ind):
-                # Return None if col is to be omitted
-                if ind in none_cols:
-                    return None
-                # Return prepared report with this columns next level omit keys
-                # Index into report["data_stats"][ind] (value[ind])
-                return _prepare_report(value[ind], output_format,
-                                       kept_cols_oks[ind])
-
-            # Get subset of columns to keep
-            fmt_report["data_stats"] = [ds_helper(ind)
-                                        for ind in range(len(value))]
+                fmt_report["data_stats"].append(
+                    _prepare_report(value[col_ind], output_format,
+                                    next_layer_omit_keys))
 
         # Do not recurse or modify profile_schema
         elif key == "profile_schema" and "profile_schema" not in omit_keys:

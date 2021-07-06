@@ -35,7 +35,6 @@ class CategoricalColumn(BaseColumnProfiler):
         self._categories = defaultdict(int)
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
-        self._gini_impurity = 0
 
     def __add__(self, other):
         """
@@ -181,6 +180,10 @@ class CategoricalColumn(BaseColumnProfiler):
 
     @property
     def gini_impurity(self):
+        """
+        Property for gini impurity
+        :return: None or gini impurity probability
+        """
         if not self._categories:
             return None
         summation = 0

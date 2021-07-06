@@ -247,12 +247,8 @@ class DataLabelerColumn(BaseColumnProfiler):
         appropriate output formats
         :rtype: dict
         """
-        cls = self.__class__
-        if not isinstance(other_profile, cls):
-            raise TypeError("Unsupported operand type(s) for diff: '{}' "
-                            "and '{}'".format(cls.__name__,
-                                              other_profile.__class__.__name__))
-        
+        differences = super().diff(other_profile, options)
+
         labels = self.data_label.split('|')
         avg_preds = self.avg_predictions
         label_rep = self.label_representation

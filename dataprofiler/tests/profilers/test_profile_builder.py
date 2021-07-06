@@ -283,9 +283,9 @@ class TestStructuredProfiler(unittest.TestCase):
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        expected_corr_mat = data.corr()
-        pd.util.testing.assert_frame_equal(expected_corr_mat,
-                                           profiler.correlation_matrix)
+        expected_corr_mat = np.corrcoef(data, rowvar=False)
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      profiler.correlation_matrix)
 
         # data with multiple numerical columns, with nan values
         data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
@@ -299,9 +299,11 @@ class TestStructuredProfiler(unittest.TestCase):
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        expected_corr_mat = data[['b', 'c']].corr()
-        pd.util.testing.assert_frame_equal(expected_corr_mat,
-                                           profiler.correlation_matrix)
+        expected_corr_mat = np.empty((3, 3))
+        expected_corr_mat.fill(np.nan)
+        expected_corr_mat[1:3, 1:3] = np.corrcoef(data[['b', 'c']], rowvar=False)
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      profiler.correlation_matrix)
 
         # data with only one numerical columns without nan values
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2]})
@@ -320,16 +322,17 @@ class TestStructuredProfiler(unittest.TestCase):
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
-        data1 = data[:int(len(data) / 2)]
-        data2 = data[int(len(data) / 2):]
+        data1 = data[:5]
+        data2 = data[5:]
 
         profile1 = dp.StructuredProfiler(data1, options=profile_options)
         profile2 = dp.StructuredProfiler(data2, options=profile_options)
         merged_profile = profile1 + profile2
 
-        expected_corr_mat = data.corr()
-        pd.util.testing.assert_frame_equal(expected_corr_mat,
-                                           merged_profile.correlation_matrix)
+        expected_corr_mat = np.corrcoef(data, rowvar=False)
+        np.testing.assert_allclose(expected_corr_mat,
+                                   merged_profile.correlation_matrix,
+                                   rtol=1e-15, atol=1e-15)
 
         # merge between an existing corr and None correlation (without data)
         profile1 = dp.StructuredProfiler(None, options=profile_options)
@@ -339,9 +342,9 @@ class TestStructuredProfiler(unittest.TestCase):
                         'StructuredProfiler._add_error_checks'):
             merged_profile = profile1 + profile2
 
-        expected_corr_mat = data.corr()
-        pd.util.testing.assert_frame_equal(expected_corr_mat,
-                                           merged_profile.correlation_matrix)
+        expected_corr_mat = np.corrcoef(data, rowvar=False)
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      merged_profile.correlation_matrix)
 
         # merge between an existing corr and None correlation (with data)
         data1 = data[:5]

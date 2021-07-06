@@ -1261,7 +1261,7 @@ class StructuredProfiler(BaseProfiler):
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
                 "encoding": self.encoding,
-                "correlation_matrix": self._get_serializable_corr_mat()
+                "correlation_matrix": self.correlation_matrix
             }),
             ("data_stats", OrderedDict()),
         ])
@@ -1359,11 +1359,6 @@ class StructuredProfiler(BaseProfiler):
             self.row_has_null_count = len(null_in_row_count)
             self.row_is_null_count = len(null_rows)
 
-    def _get_serializable_corr_mat(self):
-        if self.correlation_matrix is not None:
-            return self.correlation_matrix.to_json(orient='split')
-        return self.correlation_matrix
-
     def _get_correlation(self, clean_samples):
         """
         Calculate correlation matrix on the cleaned data.
@@ -1372,17 +1367,26 @@ class StructuredProfiler(BaseProfiler):
         :type clean_samples: dict()
         """
         columns = self.options.correlation.columns
+        clean_column_ids = []
         if columns is None:
-            for col in self._profile:
+            for col_id, col in enumerate(self._profile.keys()):
                 if (self._profile[col].profile['data_type'] not in ['int', 'float']
                         or self._profile[col].null_count > 0):
                     clean_samples.pop(col)
+                else:
+                    clean_column_ids.append(col_id)
         if len(clean_samples) <= 1:
             return None
 
         data = pd.DataFrame(clean_samples)
         data = data.apply(pd.to_numeric, errors='coerce')
-        return data.corr()
+
+        n_cols = len(self._profile)
+        corr_mat = np.empty((n_cols, n_cols))
+        corr_mat.fill(np.nan)
+        rows = [[id] for id in clean_column_ids]
+        corr_mat[rows, clean_column_ids] = np.corrcoef(data, rowvar=False)
+        return corr_mat
 
     def _update_correlation(self, clean_samples):
         """
@@ -1420,26 +1424,32 @@ class StructuredProfiler(BaseProfiler):
         if corr_mat1 is None or corr_mat2 is None:
             return None
 
-        if len(corr_mat1.columns) != len(corr_mat2.columns) or \
-                len(corr_mat1.columns) <= 1:
+        col_ids1 = np.where(~np.isnan(corr_mat1).all(axis=0))[0]
+        col_ids2 = np.where(~np.isnan(corr_mat2).all(axis=0))[0]
+
+        if len(col_ids1) != len(col_ids2) or len(col_ids1) <= 1:
             return None
-        if set(corr_mat1.columns) != set(corr_mat2.columns):
+        if (col_ids1 != col_ids2).any():
             return None
 
         mean1 = np.array(
             [self._profile[profile_name].profile['statistics']['mean']
-             for profile_name in corr_mat1.columns])
+             for i, profile_name in enumerate(self._profile.keys())
+             if i in col_ids1])
         std1 = np.array(
             [self._profile[profile_name].profile['statistics']['stddev']
-             for profile_name in corr_mat1.columns])
+             for i, profile_name in enumerate(self._profile.keys())
+             if i in col_ids1])
         n1 = self.total_samples
 
         mean2 = np.array(
             [other._profile[profile_name].profile['statistics']['mean']
-             for profile_name in corr_mat1.columns])
+             for i, profile_name in enumerate(self._profile.keys())
+             if i in col_ids1])
         std2 = np.array(
             [other._profile[profile_name].profile['statistics']['stddev']
-             for profile_name in corr_mat1.columns])
+             for i, profile_name in enumerate(self._profile.keys())
+             if i in col_ids1])
         n2 = other.total_samples
         return self._merge_correlation_helper(corr_mat1, mean1, std1, n1,
                                               corr_mat2, mean2, std2, n2)

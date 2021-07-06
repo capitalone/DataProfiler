@@ -35,6 +35,7 @@ class CategoricalColumn(BaseColumnProfiler):
         self._categories = defaultdict(int)
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
+        self._gini_impurity = 0
 
     def __add__(self, other):
         """
@@ -80,6 +81,9 @@ class CategoricalColumn(BaseColumnProfiler):
         if self.is_match:
             profile["statistics"].update(
                 dict(categories=self.categories)
+            )
+            profile["statistics"].update(
+                dict(gini_impurity=self.gini_impurity)
             )
             profile["statistics"]['categorical_count'] = dict(
                 sorted(self._categories.items(), key=itemgetter(1),
@@ -174,3 +178,14 @@ class CategoricalColumn(BaseColumnProfiler):
         self._update_helper(df_series, profile)
 
         return self
+
+    @property
+    def gini_impurity(self):
+        if not self._categories:
+            return None
+        summation = 0
+        total = sum(self._categories.values())
+        for i in self._categories:
+            summation += (self._categories[i]/total) * \
+                         (1 - (self._categories[i]/total))
+        return summation

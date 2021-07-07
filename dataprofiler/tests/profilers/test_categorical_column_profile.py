@@ -106,7 +106,6 @@ class TestCategoricalColumn(unittest.TestCase):
 
         column_profile = StructuredColProfiler(df1)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
-
         num_null_types = 1
         num_nan_count = 1
         categories = df1.apply(str).unique().tolist()
@@ -155,6 +154,7 @@ class TestCategoricalColumn(unittest.TestCase):
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         report = profile.profile
+
         self.assertIsNotNone(report.pop("times", None))
         expected_profile = dict(
             categorical=True,
@@ -162,7 +162,8 @@ class TestCategoricalColumn(unittest.TestCase):
                 ('unique_count', 3),
                 ('unique_ratio', .25),
                 ('categories', ["a", "b", "c"]),
-                ('categorical_count', {"a": 3, "b": 4, "c": 5})
+                ('categorical_count', {"a": 3, "b": 4, "c": 5}),
+                ('gini_impurity', (27/144) + (32/144) + (35/144))
             ]),
         )
         # We have to pop these values because sometimes the order changes
@@ -261,6 +262,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertIsNotNone(report.pop("times", None))
         report_categories = report['statistics'].pop('categories')
         report_count = report['statistics'].pop('categorical_count')
+        report_gini = report['statistics'].pop('gini_impurity')
         expected_profile = dict(
             categorical=True,
             statistics=dict([
@@ -268,6 +270,12 @@ class TestCategoricalColumn(unittest.TestCase):
                 ('unique_ratio', 16 / 1000)
             ]),
         )
+        expected_gini = (1*((5/1000) * (995/1000))) + \
+                        (2*((4/1000) * (996/1000))) + \
+                        (1*((3/1000) * (997/1000))) + \
+                        (5*((2/1000) * (998/1000))) + \
+                        (7*((1/1000) * (999/1000)))
+        self.assertAlmostEqual(report_gini, expected_gini)
         self.assertEqual(report, expected_profile)
         self.assertCountEqual(report_categories, ['abcd', 'aa', '2', np.nan,
                                                   '4', 'b', '3', 'dfd', 'ee',
@@ -279,6 +287,28 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(report_count['2'], expected_dict['2'])
         self.assertEqual(report_count['abcd'], expected_dict['abcd'])
         self.assertEqual(report_count['b'], expected_dict['b'])
+
+    def test_gini_impurity(self):
+        # Normal test
+        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        expected_val = ((4/7) * (3/7)) + ((4/7) * (3/7))
+        self.assertAlmostEqual(profile.gini_impurity, expected_val)
+
+        # One class only test
+        df_categorical = pd.Series(["y", "y", "y", "y", "y", "y", "y"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        expected_val = 0
+        self.assertEqual(profile.gini_impurity, expected_val)
+
+        # Empty test
+        df_categorical = pd.Series([])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.gini_impurity, None)
+
 
 class TestCategoricalSentence(unittest.TestCase):
 

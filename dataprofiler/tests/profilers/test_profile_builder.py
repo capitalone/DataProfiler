@@ -260,6 +260,9 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
     def test_correlation(self, *mock):
+        # Use the following formular to obtain the pairwise correlation
+        # sum((x - np.mean(x))*(y-np.mean(y))) /
+        # np.sqrt(sum((x - np.mean(x)**2)))/np.sqrt(sum((y - np.mean(y)**2)))
         profile_options = dp.ProfilerOptions()
         profile_options.set({"correlation.is_enabled": True})
 
@@ -283,9 +286,13 @@ class TestStructuredProfiler(unittest.TestCase):
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        expected_corr_mat = data.corr()
-        pd.util.testing.assert_frame_equal(expected_corr_mat,
-                                           profiler.correlation_matrix)
+        expected_corr_mat = np.array([
+            [1.0, -0.26559388521279237, 0.26594894270403086],
+            [-0.26559388521279237, 1.0, -0.4907232900448271],
+            [0.26594894270403086, -0.4907232900448271, 1.0]
+        ])
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      profiler.correlation_matrix)
 
         # data with multiple numerical columns, with nan values
         data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
@@ -299,9 +306,13 @@ class TestStructuredProfiler(unittest.TestCase):
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        expected_corr_mat = data[['b', 'c']].corr()
-        pd.util.testing.assert_frame_equal(expected_corr_mat,
-                                           profiler.correlation_matrix)
+        expected_corr_mat = np.array([
+            [np.nan, np.nan, np.nan],
+            [np.nan, 1.0, -0.4907232900448271],
+            [np.nan, -0.4907232900448271, 1.0]
+        ])
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      profiler.correlation_matrix)
 
         # data with only one numerical columns without nan values
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2]})
@@ -313,6 +324,9 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
     def test_merge_correlation(self, *mocks):
+        # Use the following formular to obtain the pairwise correlation
+        # sum((x - np.mean(x))*(y-np.mean(y))) /
+        # np.sqrt(sum((x - np.mean(x)**2)))/np.sqrt(sum((y - np.mean(y)**2)))
         profile_options = dp.ProfilerOptions()
         profile_options.set({"correlation.is_enabled": True})
 
@@ -320,16 +334,21 @@ class TestStructuredProfiler(unittest.TestCase):
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
-        data1 = data[:int(len(data) / 2)]
-        data2 = data[int(len(data) / 2):]
+        data1 = data[:5]
+        data2 = data[5:]
 
         profile1 = dp.StructuredProfiler(data1, options=profile_options)
         profile2 = dp.StructuredProfiler(data2, options=profile_options)
         merged_profile = profile1 + profile2
 
-        expected_corr_mat = data.corr()
-        pd.util.testing.assert_frame_equal(expected_corr_mat,
-                                           merged_profile.correlation_matrix)
+        expected_corr_mat = np.array([
+            [1.0, -0.26559388521279237, 0.26594894270403086],
+            [-0.26559388521279237, 1.0, -0.4907232900448271],
+            [0.26594894270403086, -0.4907232900448271, 1.0]
+        ])
+        np.testing.assert_allclose(expected_corr_mat,
+                                   merged_profile.correlation_matrix,
+                                   rtol=1e-15, atol=1e-15)
 
         # merge between an existing corr and None correlation (without data)
         profile1 = dp.StructuredProfiler(None, options=profile_options)
@@ -339,9 +358,13 @@ class TestStructuredProfiler(unittest.TestCase):
                         'StructuredProfiler._add_error_checks'):
             merged_profile = profile1 + profile2
 
-        expected_corr_mat = data.corr()
-        pd.util.testing.assert_frame_equal(expected_corr_mat,
-                                           merged_profile.correlation_matrix)
+        expected_corr_mat = np.array([
+            [1.0, -0.26559388521279237, 0.26594894270403086],
+            [-0.26559388521279237, 1.0, -0.4907232900448271],
+            [0.26594894270403086, -0.4907232900448271, 1.0]
+        ])
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      merged_profile.correlation_matrix)
 
         # merge between an existing corr and None correlation (with data)
         data1 = data[:5]
@@ -1296,6 +1319,15 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             expected_words,
             self.report['data_stats']['statistics'].pop('words'))
 
+        # test for vocab_count
+        expected_vocab_count = {' ': 55, ',': 3, '.': 5, '6': 1, '9': 1,
+                                ':': 1, 'D': 3, 'J': 1, 'R': 4, 'S': 1,
+                                'W': 1, 'Y': 1, 'a': 22, 'b': 4, 'c': 10,
+                                'd': 11, 'e': 33, 'f': 2, 'g': 9, 'h': 12,
+                                'i': 24, 'l': 16, 'm': 3, 'n': 21, 'o': 27,
+                                'p': 8, 'r': 13, 's': 23, 't': 31, 'u': 17,
+                                'v': 3, 'w': 6, 'x': 1, 'y': 7}
+
         # expected after the popping: times, vocab, words
         expected_report = {
             'global_stats': {
@@ -1306,7 +1338,8 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             'data_stats': {
                 'data_label': {},
                 'statistics': {
-                    'word_count': expected_word_count
+                    'word_count': expected_word_count,
+                    'vocab_count': expected_vocab_count
                 }
             }
         }

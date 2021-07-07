@@ -339,13 +339,16 @@ class TestStructuredProfiler(unittest.TestCase):
     def test_pretty_report_doesnt_cast_schema(self):
         report = self.trained_schema.report(
             report_options={"output_format": "pretty"})
-        self.assertIsInstance(report["global_stats"]["profile_schema"], dict)
-        self.assertIsInstance(report["data_stats"], list)
-        for idx_list in report["global_stats"]["profile_schema"].values():
-            self.assertIsInstance(idx_list, list)
-            for idx in idx_list:
-                self.assertIsInstance(idx, int)
-                self.assertTrue(idx >= 0)
+        # Want to ensure the values of this dict are of type list[int]
+        # Since pretty "prettifies" lists into strings with ... to shorten
+        expected_schema = {"datetime": [0], "host": [1], "src": [2],
+                           "proto": [3], "type": [4], "srcport": [5],
+                           "destport": [6], "srcip": [7], "locale": [8],
+                           "localeabbr": [9], "postalcode": [10],
+                           "latitude": [11], "longitude": [12], "owner": [13],
+                           "comment": [14], "int_col": [15]}
+        self.assertDictEqual(expected_schema,
+                             report["global_stats"]["profile_schema"])
 
     def test_omit_keys_with_duplicate_cols(self):
         data = pd.DataFrame([[1, 2, 3, 4, 5, 6],

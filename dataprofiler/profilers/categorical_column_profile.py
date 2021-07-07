@@ -81,9 +81,7 @@ class CategoricalColumn(BaseColumnProfiler):
             profile["statistics"].update(
                 dict(categories=self.categories)
             )
-            profile["statistics"].update(
-                dict(gini_impurity=self.gini_impurity)
-            )
+            profile["statistics"]['gini_impurity'] = self.gini_impurity
             profile["statistics"]['categorical_count'] = dict(
                 sorted(self._categories.items(), key=itemgetter(1),
                        reverse=True)[:top_k_categories])

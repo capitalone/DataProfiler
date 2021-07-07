@@ -289,7 +289,7 @@ class TestCategoricalColumn(unittest.TestCase):
         df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
-        expected_val = ((4 / 7) * (3/7)) + ((4 / 7) * (3/7))
+        expected_val = ((4/7) * (3/7)) + ((4/7) * (3/7))
         self.assertAlmostEqual(profile.gini_impurity, expected_val)
 
         # One class only test

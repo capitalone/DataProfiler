@@ -149,6 +149,7 @@ The format for an unstructured profile is below:
         },
         "statistics": {
             "vocab": list(char),
+            "vocab_count": dict(int),
             "words": list(string),
             "word_count": dict(int),
             "times": dict(float)

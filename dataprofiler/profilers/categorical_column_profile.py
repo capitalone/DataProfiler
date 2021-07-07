@@ -188,10 +188,8 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         if self.sample_size == 0:
             return None
-        summation = 0
-        #total = sum(self._categories.values())
-        print(self.sample_size)
+        gini_sum = 0
         for i in self._categories:
-            summation += (self._categories[i]/self.sample_size) * \
+            gini_sum += (self._categories[i]/self.sample_size) * \
                          (1 - (self._categories[i]/self.sample_size))
-        return summation
+        return gini_sum

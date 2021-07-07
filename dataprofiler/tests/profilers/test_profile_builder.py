@@ -467,7 +467,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertNotIn("datetime", no_datetime["data_stats"])
 
         # Omit a statistic from each column
-        no_sum = no_data_stats = self.trained_schema.report(
+        no_sum = self.trained_schema.report(
             report_options={"omit_keys": ['data_stats.*.statistics.sum']})
         self.assertTrue(all(["sum" not in rep["statistics"]
                              for rep in no_sum["data_stats"]]))

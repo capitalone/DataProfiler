@@ -142,7 +142,7 @@ class TextProfiler(object):
         :param vocab_count2: vocab count of the second profile
         :type vocab_count1: Counter()
         :type vocab_count2: Counter()
-        :return:
+        :return: merged vocab count
         """
         return vocab_count1 + vocab_count2
     
@@ -189,7 +189,7 @@ class TextProfiler(object):
 
         if "vocab" in merged_profile.__calculations:
             merged_profile.vocab_count = self._merge_vocab(self.vocab_count,
-                                                     other.vocab_count)
+                                                           other.vocab_count)
         if "words" in merged_profile.__calculations:
             self._merge_words(other, merged_profile)
 
@@ -233,10 +233,7 @@ class TextProfiler(object):
         :return: None
         """
         data_flat = list(itertools.chain(*data))
-        #self.vocab_count += Counter(data_flat)
-        import numpy as np
-        unique, counts = np.unique(data_flat, return_counts=True)
-        self.vocab_count += Counter(dict(zip(unique, counts)))
+        self.vocab_count += Counter(data_flat)
 
     @BaseColumnProfiler._timeit(name='words')
     def _update_words(self, data, prev_dependent_properties=None,

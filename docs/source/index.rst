@@ -140,6 +140,11 @@ The format for an unstructured profile is below:
                 "true_char_level": dict(int),
                 "postprocess_char_level": dict(int)
             },
+            "entity_percentages": {
+                "word_level": dict(float),
+                "true_char_level": dict(float),
+                "postprocess_char_level": dict(float)
+            },
             "times": dict(float)
         },
         "statistics": {
@@ -436,4 +441,3 @@ Versions
 .. _0.5.2: ../../0.5.2/html/index.html
 
 .. _0.5.3: ../../0.5.3/html/index.html
-

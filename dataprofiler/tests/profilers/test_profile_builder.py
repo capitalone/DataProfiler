@@ -314,27 +314,29 @@ class TestStructuredProfiler(unittest.TestCase):
             # Once for global_stats, once for each of 16 columns
             self.assertEqual(pr_mock.call_count, 17)
 
-    def test_report_data_stats_accessible(self):
+    def test_report_schema_and_data_stats_match_order(self):
         data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
                              [10, 20, 30, 40, 50, 60]],
                             columns=["a", "b", "a", "b", "c", "d"])
         profiler_options = ProfilerOptions()
         profiler_options.set({'data_labeler.is_enabled': False})
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+
         report = profiler.report()
         schema = report["global_stats"]["profile_schema"]
         data_stats = report["data_stats"]
+
         expected_schema = {"a": [0, 2], "b": [1, 3], "c": [4], "d": [5]}
         self.assertDictEqual(expected_schema, schema)
+
+        # Check that the column order in the report matches the column order
+        # In the schema (and in the data)
         for name in schema:
             for idx in schema[name]:
+                # Use min of column to validate column order amongst duplicates
                 col_min = data.iloc[0, idx]
-                col_max = data.iloc[1, idx]
-                col_sum = col_min + col_max
                 self.assertEqual(name, data_stats[idx]["column_name"])
                 self.assertEqual(col_min, data_stats[idx]["statistics"]["min"])
-                self.assertEqual(col_max, data_stats[idx]["statistics"]["max"])
-                self.assertEqual(col_sum, data_stats[idx]["statistics"]["sum"])
 
     def test_pretty_report_doesnt_cast_schema(self):
         report = self.trained_schema.report(
@@ -431,12 +433,44 @@ class TestStructuredProfiler(unittest.TestCase):
         })
 
     def test_report_omit_keys(self):
-        omit_keys = ['global_stats', 'data_stats']
-                
-        report_omit_keys = self.trained_schema.report(
-            report_options={"omit_keys": omit_keys})
+        # Omit both report keys manually
+        no_report_keys = self.trained_schema.report(
+            report_options={"omit_keys": ['global_stats', 'data_stats']})
+        self.assertCountEqual({}, no_report_keys)
 
-        self.assertCountEqual({}, report_omit_keys)
+        # Omit just data_stats
+        no_data_stats = self.trained_schema.report(
+            report_options={"omit_keys": ['data_stats']})
+        self.assertCountEqual({"global_stats"}, no_data_stats)
+
+        # Omit a global stat
+        no_samples_used = self.trained_schema.report(
+            report_options={"omit_keys": ['global_stats.samples_used']})
+        self.assertNotIn("samples_used", no_samples_used["global_stats"])
+
+        # Omit all keys
+        nothing = self.trained_schema.report(
+            report_options={"omit_keys": ['*']})
+        self.assertCountEqual({}, nothing)
+
+        # Omit every data_stats column
+        empty_data_stats_cols = self.trained_schema.report(
+            report_options={"omit_keys": ['global_stats', 'data_stats.*']})
+        # data_stats key still present, but all columns are None
+        self.assertCountEqual({"data_stats"}, empty_data_stats_cols)
+        self.assertTrue(all([rep is None
+                             for rep in empty_data_stats_cols["data_stats"]]))
+
+        # Omit specific data_stats column
+        no_datetime = self.trained_schema.report(
+            report_options={"omit_keys": ['data_stats.datetime']})
+        self.assertNotIn("datetime", no_datetime["data_stats"])
+
+        # Omit a statistic from each column
+        no_sum = no_data_stats = self.trained_schema.report(
+            report_options={"omit_keys": ['data_stats.*.statistics.sum']})
+        self.assertTrue(all(["sum" not in rep["statistics"]
+                             for rep in no_sum["data_stats"]]))
 
     def test_report_compact(self):
         report = self.trained_schema.report(

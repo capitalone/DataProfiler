@@ -144,7 +144,7 @@ The format for an unstructured profile is below:
                 "word_level": dict(float),
                 "true_char_level": dict(float),
                 "postprocess_char_level": dict(float)
-            }
+            },
             "times": dict(float)
         },
         "statistics": {

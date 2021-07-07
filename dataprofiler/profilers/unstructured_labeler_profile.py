@@ -138,6 +138,7 @@ class UnstructuredLabelerProfile(object):
     def profile(self):
         profile = {
             "entity_counts": self.entity_counts,
+            "entity_percentages": self.entity_percentages,
             "times": self.times
         }
         return profile

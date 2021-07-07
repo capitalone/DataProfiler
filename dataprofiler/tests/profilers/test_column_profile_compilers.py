@@ -268,6 +268,10 @@ class TestUnstructuredCompiler(unittest.TestCase):
                     'postprocess_char_level': defaultdict(int),
                     'true_char_level': defaultdict(int),
                     'word_level': defaultdict(int)},
+                'entity_percentages': {
+                    'postprocess_char_level': defaultdict(int),
+                    'true_char_level': defaultdict(int),
+                    'word_level': defaultdict(int)},
                 'times': {'data_labeler_predict': 1.0}},
             'statistics': {
                 'times': {'vocab': 1.0, 'words': 1.0},

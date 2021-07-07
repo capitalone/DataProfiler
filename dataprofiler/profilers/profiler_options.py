@@ -477,15 +477,15 @@ class PrecisionOptions(BooleanOption):
         errors = super()._validate_helper(variable_path=variable_path)
         if self.sample_ratio is not None:
             if not isinstance(self.sample_ratio, float) \
-               and not isinstance(self.sample_ratio, int):
+                    and not isinstance(self.sample_ratio, int):
                 errors.append("{}.sample_ratio must be a float."
-                              .format(variable_path))                
+                              .format(variable_path))
             if (isinstance(self.sample_ratio, float) \
-               or isinstance(self.sample_ratio, int)) \
-               and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
+                or isinstance(self.sample_ratio, int)) \
+                    and (self.sample_ratio < 0 or self.sample_ratio > 1.0):
                 errors.append("{}.sample_ratio must be a float between 0 and 1."
-                              .format(variable_path))                
-        
+                              .format(variable_path))
+
         return errors
 
 
@@ -690,7 +690,7 @@ class OrderOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path) 
+        return super()._validate_helper(variable_path)
 
 
 class CategoricalOptions(BaseInspectorOptions):
@@ -714,6 +714,42 @@ class CategoricalOptions(BaseInspectorOptions):
         :rtype: list(str)
         """
         return super()._validate_helper(variable_path)
+
+
+class CorrelationOptions(BaseInspectorOptions):
+
+    def __init__(self, is_enabled=False, columns=None):
+        """
+        Options for the Correlation between Columns
+
+        :ivar is_enabled: boolean option to enable/disable.
+        :vartype is_enabled: bool
+        :ivar columns: Columns considered to calculate correlation
+        :vartype columns: list()
+        """
+        BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
+        self.columns = columns
+
+    def _validate_helper(self, variable_path='CorrelationOptions'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if (self.columns is not None and
+                (not isinstance(self.columns, list)
+                 or len(self.columns) <= 1
+                 or not all(isinstance(item, str)
+                            for item in self.columns))):
+            errors.append("{}.columns must be None "
+                          "or list of strings "
+                          "with at least two elements.".format(variable_path))
+        return errors
 
 
 class DataLabelerOptions(BaseInspectorOptions):
@@ -763,7 +799,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         :rtype: dict
         """
         props = {k: copy.deepcopy(v)
-                 for k,v in self.__dict__.items() if k != 'data_labeler_object'}
+                 for k, v in self.__dict__.items() if k != 'data_labeler_object'}
         props['data_labeler_object'] = self.data_labeler_object
         return props
 
@@ -883,6 +919,8 @@ class StructuredOptions(BaseOption):
         :vartype category: CategoricalOptions
         :ivar data_labeler: option set for data_labeler profiling.
         :vartype data_labeler: DataLabelerOptions
+        :ivar correlation: option set for correlation profiling.
+        :vartype correlation: CorrelationOptions
         """
         self.multiprocess = BooleanOption()
         self.int = IntOptions()
@@ -892,6 +930,7 @@ class StructuredOptions(BaseOption):
         self.order = OrderOptions()
         self.category = CategoricalOptions()
         self.data_labeler = DataLabelerOptions()
+        self.correlation = CorrelationOptions()
 
     @property
     def enabled_profiles(self):
@@ -924,7 +963,8 @@ class StructuredOptions(BaseOption):
             ('text', TextOptions),
             ('order', OrderOptions),
             ('category', CategoricalOptions),
-            ('data_labeler', DataLabelerOptions)
+            ('data_labeler', DataLabelerOptions),
+            ('correlation', CorrelationOptions)
         ])
 
         for column in self.properties:

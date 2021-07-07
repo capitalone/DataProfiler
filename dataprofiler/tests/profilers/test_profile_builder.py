@@ -260,6 +260,9 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
     def test_correlation(self, *mock):
+        # Use the following formular to obtain the pairwise correlation
+        # sum((x - np.mean(x))*(y-np.mean(y))) /
+        # np.sqrt(sum((x - np.mean(x)**2)))/np.sqrt(sum((y - np.mean(y)**2)))
         profile_options = dp.ProfilerOptions()
         profile_options.set({"correlation.is_enabled": True})
 
@@ -283,7 +286,11 @@ class TestStructuredProfiler(unittest.TestCase):
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        expected_corr_mat = np.corrcoef(data, rowvar=False)
+        expected_corr_mat = np.array([
+            [1.0, -0.26559388521279237, 0.26594894270403086],
+            [-0.26559388521279237, 1.0, -0.4907232900448271],
+            [0.26594894270403086, -0.4907232900448271, 1.0]
+        ])
         np.testing.assert_array_equal(expected_corr_mat,
                                       profiler.correlation_matrix)
 
@@ -299,9 +306,11 @@ class TestStructuredProfiler(unittest.TestCase):
                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        expected_corr_mat = np.empty((3, 3))
-        expected_corr_mat.fill(np.nan)
-        expected_corr_mat[1:3, 1:3] = np.corrcoef(data[['b', 'c']], rowvar=False)
+        expected_corr_mat = np.array([
+            [np.nan, np.nan, np.nan],
+            [np.nan, 1.0, -0.4907232900448271],
+            [np.nan, -0.4907232900448271, 1.0]
+        ])
         np.testing.assert_array_equal(expected_corr_mat,
                                       profiler.correlation_matrix)
 
@@ -315,6 +324,9 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
     def test_merge_correlation(self, *mocks):
+        # Use the following formular to obtain the pairwise correlation
+        # sum((x - np.mean(x))*(y-np.mean(y))) /
+        # np.sqrt(sum((x - np.mean(x)**2)))/np.sqrt(sum((y - np.mean(y)**2)))
         profile_options = dp.ProfilerOptions()
         profile_options.set({"correlation.is_enabled": True})
 
@@ -329,7 +341,11 @@ class TestStructuredProfiler(unittest.TestCase):
         profile2 = dp.StructuredProfiler(data2, options=profile_options)
         merged_profile = profile1 + profile2
 
-        expected_corr_mat = np.corrcoef(data, rowvar=False)
+        expected_corr_mat = np.array([
+            [1.0, -0.26559388521279237, 0.26594894270403086],
+            [-0.26559388521279237, 1.0, -0.4907232900448271],
+            [0.26594894270403086, -0.4907232900448271, 1.0]
+        ])
         np.testing.assert_allclose(expected_corr_mat,
                                    merged_profile.correlation_matrix,
                                    rtol=1e-15, atol=1e-15)
@@ -342,7 +358,11 @@ class TestStructuredProfiler(unittest.TestCase):
                         'StructuredProfiler._add_error_checks'):
             merged_profile = profile1 + profile2
 
-        expected_corr_mat = np.corrcoef(data, rowvar=False)
+        expected_corr_mat = np.array([
+            [1.0, -0.26559388521279237, 0.26594894270403086],
+            [-0.26559388521279237, 1.0, -0.4907232900448271],
+            [0.26594894270403086, -0.4907232900448271, 1.0]
+        ])
         np.testing.assert_array_equal(expected_corr_mat,
                                       merged_profile.correlation_matrix)
 

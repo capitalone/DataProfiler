@@ -1381,9 +1381,11 @@ class StructuredProfiler(BaseProfiler):
         data = pd.DataFrame(clean_samples)
         data = data.apply(pd.to_numeric, errors='coerce')
 
+        # fill correlation matrix with nan initially
         n_cols = len(self._profile)
-        corr_mat = np.empty((n_cols, n_cols))
-        corr_mat.fill(np.nan)
+        corr_mat = np.full((n_cols, n_cols), np.nan)
+
+        # then, fill in the correlations for valid columns
         rows = [[id] for id in clean_column_ids]
         corr_mat[rows, clean_column_ids] = np.corrcoef(data, rowvar=False)
         return corr_mat
@@ -1445,11 +1447,11 @@ class StructuredProfiler(BaseProfiler):
         mean2 = np.array(
             [other._profile[profile_name].profile['statistics']['mean']
              for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids1])
+             if i in col_ids2])
         std2 = np.array(
             [other._profile[profile_name].profile['statistics']['stddev']
              for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids1])
+             if i in col_ids2])
         n2 = other.total_samples
         return self._merge_correlation_helper(corr_mat1, mean1, std1, n1,
                                               corr_mat2, mean2, std2, n2)

@@ -119,7 +119,7 @@ def clean_report(report):
     if "correlation_matrix" in global_stats and \
             report["global_stats"]["correlation_matrix"] is not None:
         report["global_stats"]["correlation_matrix"] = \
-            json.loads(report["global_stats"]["correlation_matrix"])["data"]
+            report["global_stats"]["correlation_matrix"].tolist()
 
     data_stats = report["data_stats"]
     for key in data_stats:

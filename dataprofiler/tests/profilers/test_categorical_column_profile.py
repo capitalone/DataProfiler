@@ -270,7 +270,11 @@ class TestCategoricalColumn(unittest.TestCase):
                 ('unique_ratio', 16 / 1000)
             ]),
         )
-        expected_gini = .914600550
+        expected_gini = (1*((5/1000) * (995/1000))) + \
+                        (2*((4/1000) * (996/1000))) + \
+                        (1*((3/1000) * (997/1000))) + \
+                        (5*((2/1000) * (998/1000))) + \
+                        (7*((1/1000) * (999/1000)))
         self.assertAlmostEqual(report_gini, expected_gini)
         self.assertEqual(report, expected_profile)
         self.assertCountEqual(report_categories, ['abcd', 'aa', '2', np.nan,

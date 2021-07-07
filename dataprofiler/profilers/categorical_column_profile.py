@@ -78,9 +78,7 @@ class CategoricalColumn(BaseColumnProfiler):
             times=self.times
         )
         if self.is_match:
-            profile["statistics"].update(
-                dict(categories=self.categories)
-            )
+            profile["statistics"]['categories'] = self.categories
             profile["statistics"]['gini_impurity'] = self.gini_impurity
             profile["statistics"]['categorical_count'] = dict(
                 sorted(self._categories.items(), key=itemgetter(1),
@@ -163,7 +161,7 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         if len(df_series) == 0:
             return self
-        
+
         profile = dict(
             sample_size=len(df_series)
         )
@@ -179,14 +177,21 @@ class CategoricalColumn(BaseColumnProfiler):
     @property
     def gini_impurity(self):
         """
-        Property for gini impurity
-        :return: None or gini impurity probability
+        Property for Gini Impurity. Gini Impurity is a way to calculate
+        likelihood of an incorrect classification of a new instance of
+        a random variable.
+
+        G = Σ(i=1; J): P(i) * (1 - P(i)), where i is the category classes.
+        We are traversing through categories and calculating with the column
+
+        :return: None or Gini Impurity probability
         """
-        if not self._categories:
+        if self.sample_size == 0:
             return None
         summation = 0
-        total = sum(self._categories.values())
+        #total = sum(self._categories.values())
+        print(self.sample_size)
         for i in self._categories:
-            summation += (self._categories[i]/total) * \
-                         (1 - (self._categories[i]/total))
+            summation += (self._categories[i]/self.sample_size) * \
+                         (1 - (self._categories[i]/self.sample_size))
         return summation

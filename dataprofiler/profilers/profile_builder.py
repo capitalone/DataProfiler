@@ -1426,6 +1426,7 @@ class StructuredProfiler(BaseProfiler):
         if corr_mat1 is None or corr_mat2 is None:
             return None
 
+        # get column indices without nan
         col_ids1 = np.where(~np.isnan(corr_mat1).all(axis=0))[0]
         col_ids2 = np.where(~np.isnan(corr_mat2).all(axis=0))[0]
 

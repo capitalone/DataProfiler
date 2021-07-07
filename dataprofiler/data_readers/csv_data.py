@@ -513,8 +513,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
         data_as_str = data_utils.load_as_str_from_file(input_file_path,
                                                        self._file_encoding)
-        print("----")
-        print(repr(data_as_str))
 
         if not self._delimiter or not self._checked_header:
             delimiter, quotechar = None, None

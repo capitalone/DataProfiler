@@ -1,3 +1,4 @@
+from codecs import decode
 from collections import OrderedDict
 from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
 import json
@@ -377,6 +378,8 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 total_line_count += 1
                 try:
                     raw_line = data_file.readline()
+                    if (isinstance(raw_line, (bytes, bytearray))):
+                        raw_line = str(data_file.readline(), 'utf-8')
                     if not raw_line:
                         break                        
                     if raw_line.find(":") >= 0: # Ensure can be JSON

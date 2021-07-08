@@ -191,8 +191,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile3 = text_profile1 + text_profile2
         profile = text_profile3.profile
 
-        # merged profile's vocab_count length is 3
-        expected_vocab_count = {'s': 10, 't': 9, ' ': 8}
+        # as merged profile's vocab_count length is None, it is set to
+        # the length of the merged vocab_count, which is 10
+        expected_vocab_count = {'s': 10, 't': 9, ' ': 8, 'i': 7, 'e': 5,
+                                'h': 4, 'n': 2, ',': 1, 'a': 1, 'c': 1}
         self.assertDictEqual(expected_vocab_count, profile["vocab_count"])
 
         ### equal number of most common chars
@@ -239,8 +241,9 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile3 = text_profile1 + text_profile2
         profile = text_profile3.profile
 
-        # merged profile's word_count length is 3
-        expected_word_count = {'this': 4, 'is': 3, 'test': 2}
+        # as merged profile's word_count length is None, it is set to
+        # the length of the merged word_count, which is 5
+        expected_word_count = {'this': 4, 'is': 3, 'test': 2, 'a': 1, 'sentence': 1}
         self.assertDictEqual(expected_word_count, profile["word_count"])
 
         ### equal number of most common words

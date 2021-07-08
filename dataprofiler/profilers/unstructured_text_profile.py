@@ -190,19 +190,15 @@ class TextProfiler(object):
                           "since there were conflicting values for case "
                           "sensitivity between the two profiles being merged.")
 
+        merged_profile._top_k_chars = None
         if self._top_k_chars and other._top_k_chars:
             merged_profile._top_k_chars = max(
                 self._top_k_chars, other._top_k_chars)
-        else:
-            merged_profile._top_k_chars = \
-                self._top_k_chars or other._top_k_chars
 
+        merged_profile._top_k_words = None
         if self._top_k_words and other._top_k_words:
             merged_profile._top_k_words = max(
                 self._top_k_words, other._top_k_words)
-        else:
-            merged_profile._top_k_words = \
-                self._top_k_words or other._top_k_words
 
         BaseColumnProfiler._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,

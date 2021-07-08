@@ -166,84 +166,6 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                                    'friends': 1}
             self.assertDictEqual(expected_word_count, profile['word_count'])
 
-    def test_merge_most_common_words_count(self):
-        ### default values of most common words for both profiles
-        text_profile1 = TextProfiler("Name")
-        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
-        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
-        text_profile3 = text_profile1 + text_profile2
-        profile = text_profile3.profile
-
-        # as merged profile's word_count length is None, it is set to
-        # the length of the merged word_count, which is 5
-        expected_word_count = {'this': 4, 'is': 3, 'test': 2, 'a': 1, 'sentence': 1}
-        self.assertDictEqual(expected_word_count, profile["word_count"])
-
-        ### one profile has default values of most common words
-        ### the other profile has it set
-        text_profile1 = TextProfiler("Name")
-        text_profile1._top_k_words = 3
-        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
-        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
-        text_profile3 = text_profile1 + text_profile2
-        profile = text_profile3.profile
-
-        # merged profile's word_count length is 3
-        expected_word_count = {'this': 4, 'is': 3, 'test': 2}
-        self.assertDictEqual(expected_word_count, profile["word_count"])
-
-        ### equal number of most common words
-        text_profile1 = TextProfiler("Name")
-        text_profile1._top_k_words = 3
-        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
-        text_profile2._top_k_words = 3
-        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
-        text_profile3 = text_profile1 + text_profile2
-        profile = text_profile3.profile
-
-        expected_word_count = {'this': 4, 'is': 3, 'test': 2}
-        self.assertDictEqual(expected_word_count, profile["word_count"])
-
-        ### different number of most common words
-        text_profile1 = TextProfiler("Name")
-        text_profile1._top_k_words = 2
-        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
-        text_profile2._top_k_words = 3
-        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
-        text_profile3 = text_profile1 + text_profile2
-        profile = text_profile3.profile
-
-        expected_word_count = {'this': 4, 'is': 3, 'test': 2}
-        self.assertDictEqual(expected_word_count, profile["word_count"])
-
     def test_merge_most_common_chars_count(self):
         ### default values of most common chars for both profiles
         text_profile1 = TextProfiler("Name")
@@ -314,6 +236,83 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         expected_vocab_count = {'s': 10, 't': 9, ' ': 8}
         self.assertDictEqual(expected_vocab_count, profile["vocab_count"])
+
+    def test_merge_most_common_words_count(self):
+        ### default values of most common words for both profiles
+        text_profile1 = TextProfiler("Name")
+        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
+        sample1 = pd.Series(["this is test,", " this is a test sentence"])
+        text_profile1.update(sample1)
+
+        text_profile2 = TextProfiler("Name")
+        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
+        sample2 = pd.Series(["this is", "this"])
+        text_profile2.update(sample2)
+
+        text_profile3 = text_profile1 + text_profile2
+        profile = text_profile3.profile
+
+        # as merged profile's word_count length is None, it is set to
+        # the length of the merged word_count, which is 5
+        expected_word_count = {'this': 4, 'is': 3, 'test': 2, 'a': 1, 'sentence': 1}
+        self.assertDictEqual(expected_word_count, profile["word_count"])
+
+        ### one profile has default values of most common words
+        ### the other profile has it set
+        text_profile1._top_k_words = 3
+        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
+        sample1 = pd.Series(["this is test,", " this is a test sentence"])
+        text_profile1.update(sample1)
+
+        text_profile2 = TextProfiler("Name")
+        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
+        sample2 = pd.Series(["this is", "this"])
+        text_profile2.update(sample2)
+
+        text_profile3 = text_profile1 + text_profile2
+        profile = text_profile3.profile
+
+        # merged profile's word_count length is 3
+        expected_word_count = {'this': 4, 'is': 3, 'test': 2}
+        self.assertDictEqual(expected_word_count, profile["word_count"])
+
+        ### equal number of most common words
+        text_profile1 = TextProfiler("Name")
+        text_profile1._top_k_words = 3
+        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
+        sample1 = pd.Series(["this is test,", " this is a test sentence"])
+        text_profile1.update(sample1)
+
+        text_profile2 = TextProfiler("Name")
+        text_profile2._top_k_words = 3
+        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
+        sample2 = pd.Series(["this is", "this"])
+        text_profile2.update(sample2)
+
+        text_profile3 = text_profile1 + text_profile2
+        profile = text_profile3.profile
+
+        expected_word_count = {'this': 4, 'is': 3, 'test': 2}
+        self.assertDictEqual(expected_word_count, profile["word_count"])
+
+        ### different number of most common words
+        text_profile1 = TextProfiler("Name")
+        text_profile1._top_k_words = 2
+        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
+        sample1 = pd.Series(["this is test,", " this is a test sentence"])
+        text_profile1.update(sample1)
+
+        text_profile2 = TextProfiler("Name")
+        text_profile2._top_k_words = 3
+        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
+        sample2 = pd.Series(["this is", "this"])
+        text_profile2.update(sample2)
+
+        text_profile3 = text_profile1 + text_profile2
+        profile = text_profile3.profile
+
+        expected_word_count = {'this': 4, 'is': 3, 'test': 2}
+        self.assertDictEqual(expected_word_count, profile["word_count"])
 
     def test_text_profile_with_wrong_options(self):
         with self.assertRaisesRegex(ValueError,
@@ -430,6 +429,32 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, text_profile.word_count)
         self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
+    def test_options_vocab_update(self):
+        # change vocab.is_enabled, other options remain the same as default values
+
+        options = TextProfilerOptions()
+        options.vocab.is_enabled = False
+
+        # input with one sample
+        text_profile = TextProfiler("Name", options=options)
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        text_profile.update(sample)
+
+        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
+        expected_vocab = dict()
+        self.assertDictEqual(expected_word_count, text_profile.word_count)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
+
+        # input with two samples
+        text_profile = TextProfiler("Name", options=options)
+        sample = pd.Series(["This is test,", " a Test sentence.!!!"])
+        text_profile.update(sample)
+
+        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
+        expected_vocab = dict()
+        self.assertDictEqual(expected_word_count, text_profile.word_count)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
+
     def test_options_words_update(self):
         # change words.is_enabled, other options remain the same as default values
 
@@ -458,31 +483,37 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, text_profile.word_count)
         self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
-    def test_options_vocab_update(self):
-        # change vocab.is_enabled, other options remain the same as default values
-
+    def test_options_most_common_chars_count(self):
         options = TextProfilerOptions()
-        options.vocab.is_enabled = False
+        options.top_k_chars = 3
 
-        # input with one sample
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        sample = pd.Series(["this is test,", " this is a test sentence",
+                            "this is", "this"])
         text_profile.update(sample)
+        profile = text_profile.profile
 
-        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
-        expected_vocab = dict()
-        self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
+        expected_vocab_count = {'s': 10, 't': 9, ' ': 8}
+        self.assertDictEqual(expected_vocab_count, profile["vocab_count"])
 
-        # input with two samples
+        # change number of common chars
+        options.top_k_chars = 2
         text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["This is test,", " a Test sentence.!!!"])
         text_profile.update(sample)
+        profile = text_profile.profile
 
-        expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
-        expected_vocab = dict()
-        self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
+        expected_vocab_count = {'s': 10, 't': 9}
+        self.assertDictEqual(expected_vocab_count, profile["vocab_count"])
+
+        # change number of common chars greater than length of vocab_counts list
+        options.top_k_chars = 300
+        text_profile = TextProfiler("Name", options=options)
+        text_profile.update(sample)
+        profile = text_profile.profile
+
+        expected_vocab_count = {'s': 10, 't': 9, ' ': 8, 'i': 7, 'e': 5,
+                                'h': 4, 'n': 2, ',': 1, 'a': 1, 'c': 1}
+        self.assertDictEqual(expected_vocab_count, profile["vocab_count"])
 
     def test_options_most_common_words_count(self):
         options = TextProfilerOptions()
@@ -517,34 +548,3 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                                'sentence': 1}
         self.assertDictEqual(expected_word_count, profile["word_count"])
 
-    def test_options_most_common_chars_count(self):
-        options = TextProfilerOptions()
-        options.top_k_chars = 3
-
-        text_profile = TextProfiler("Name", options=options)
-        sample = pd.Series(["this is test,", " this is a test sentence",
-                            "this is", "this"])
-        text_profile.update(sample)
-        profile = text_profile.profile
-
-        expected_vocab_count = {'s': 10, 't': 9, ' ': 8}
-        self.assertDictEqual(expected_vocab_count, profile["vocab_count"])
-
-        # change number of common chars
-        options.top_k_chars = 2
-        text_profile = TextProfiler("Name", options=options)
-        text_profile.update(sample)
-        profile = text_profile.profile
-
-        expected_vocab_count = {'s': 10, 't': 9}
-        self.assertDictEqual(expected_vocab_count, profile["vocab_count"])
-
-        # change number of common chars greater than length of vocab_counts list
-        options.top_k_chars = 300
-        text_profile = TextProfiler("Name", options=options)
-        text_profile.update(sample)
-        profile = text_profile.profile
-
-        expected_vocab_count = {'s': 10, 't': 9, ' ': 8, 'i': 7, 'e': 5,
-                                'h': 4, 'n': 2, ',': 1, 'a': 1, 'c': 1}
-        self.assertDictEqual(expected_vocab_count, profile["vocab_count"])

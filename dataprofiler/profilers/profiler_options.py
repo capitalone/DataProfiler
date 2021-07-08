@@ -841,8 +841,8 @@ class DataLabelerOptions(BaseInspectorOptions):
 class TextProfilerOptions(BaseInspectorOptions):
 
     def __init__(self, is_enabled=True, is_case_sensitive=True,
-                 stop_words=None, top_k_words=None,
-                 top_k_chars=None):
+                 stop_words=None, top_k_chars=None,
+                 top_k_words=None):
         """
         Constructs the TextProfilerOption object with default values.
 
@@ -852,10 +852,10 @@ class TextProfilerOptions(BaseInspectorOptions):
         :vartype is_case_sensitive: bool
         :ivar stop_words: option set for stop words.
         :vartype stop_words: Union[None, list(str)]
-        :ivar top_k_words: option set for top common words.
-        :vartype top_k_words: Union[None, int]
         :ivar top_k_chars: option set for top common characters.
         :vartype top_k_chars: Union[None, int]
+        :ivar top_k_words: option set for top common words.
+        :vartype top_k_words: Union[None, int]
         :ivar words: option set for word update.
         :vartype words: BooleanOption
         :ivar vocab: option set for vocab update.
@@ -864,11 +864,10 @@ class TextProfilerOptions(BaseInspectorOptions):
         super().__init__(is_enabled=is_enabled)
         self.is_case_sensitive = is_case_sensitive
         self.stop_words = stop_words
-        self.top_k_words = top_k_words
         self.top_k_chars = top_k_chars
-        self.words = BooleanOption(is_enabled=True)
+        self.top_k_words = top_k_words
         self.vocab = BooleanOption(is_enabled=True)
-
+        self.words = BooleanOption(is_enabled=True)
 
     def _validate_helper(self, variable_path='TextProfilerOptions'):
         """
@@ -895,25 +894,26 @@ class TextProfilerOptions(BaseInspectorOptions):
             errors.append("{}.stop_words must be None "
                           "or list of strings.".format(variable_path))
 
+        if (self.top_k_chars is not None and
+                not isinstance(self.top_k_chars, int)):
+            errors.append("{}.top_k_chars must be None "
+                          "or integer.".format(variable_path))
+
         if (self.top_k_words is not None and
                 not isinstance(self.top_k_words, int)):
             errors.append("{}.top_k_words must be None "
                           "or integer.".format(variable_path))
 
-        if (self.top_k_chars is not None and
-                not isinstance(self.top_k_chars, int)):
-            errors.append("{}.top_k_chars must be None "
-                          "or integer.".format(variable_path))
+        if not isinstance(self.vocab, BooleanOption):
+            errors.append("{}.vocab must be a BooleanOption "
+                          "object."
+                          .format(variable_path))
 
         if not isinstance(self.words, BooleanOption):
             errors.append("{}.words must be a BooleanOption "
                           "object."
                           .format(variable_path))
 
-        if not isinstance(self.vocab, BooleanOption):
-            errors.append("{}.vocab must be a BooleanOption "
-                          "object."
-                          .format(variable_path))
         return errors
 
 

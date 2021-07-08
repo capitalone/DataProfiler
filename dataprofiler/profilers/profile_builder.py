@@ -884,6 +884,7 @@ class UnstructuredProfiler(BaseProfiler):
 
         # Unstructured specific properties
         self._empty_line_count = 0
+        self.sample = []
 
         if data is not None:
             self.update_profile(data)
@@ -1107,6 +1108,7 @@ class UnstructuredProfiler(BaseProfiler):
         # Create dictionary for all metadata, options, and profile
         data_dict = {
             "total_samples": self.total_samples,
+            "sample": self.sample,
             "encoding": self.encoding,
             "file_type": self.file_type,
             "_samples_per_update": self._samples_per_update,

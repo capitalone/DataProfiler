@@ -852,6 +852,10 @@ class TextProfilerOptions(BaseInspectorOptions):
         :vartype is_case_sensitive: bool
         :ivar stop_words: option set for stop words.
         :vartype stop_words: Union[None, list(str)]
+        :ivar top_k_words: option set for top common words.
+        :vartype top_k_words: Union[None, int]
+        :ivar top_k_chars: option set for top common characters.
+        :vartype top_k_chars: Union[None, int]
         :ivar words: option set for word update.
         :vartype words: BooleanOption
         :ivar vocab: option set for vocab update.

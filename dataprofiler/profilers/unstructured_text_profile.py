@@ -229,10 +229,6 @@ class TextProfiler(object):
         if top_k_words is None:
             top_k_words = len(self.word_count.keys())
 
-        top_k_chars = self._top_k_chars
-        if top_k_chars is None:
-            top_k_chars = len(self.vocab_count.keys())
-
         word_count = sorted(self.word_count.items(),
                             key=lambda x: x[1],
                             reverse=True)[:top_k_words]

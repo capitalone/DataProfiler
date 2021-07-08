@@ -61,10 +61,8 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
             dict(prop='is_case_sensitive', value_list=[False, True]),
             dict(prop='stop_words',
                  value_list=[None, ['word1', 'word2'], []]),
-            dict(prop='top_k_words',
-                 value_list=[None, 3]),
-            dict(prop='top_k_chars',
-                 value_list=[None, 3]),
+            dict(prop='top_k_words', value_list=[None, 3]),
+            dict(prop='top_k_chars', value_list=[None, 3]),
             dict(prop='words', value_list=[False, True]),
             dict(prop='vocab', value_list=[False, True]),
         ]

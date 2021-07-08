@@ -100,6 +100,14 @@ class TextProfiler(object):
         if options and options.stop_words is not None:
             self._stop_words = options.stop_words
 
+        self._num_most_common_words = None
+        if options:
+            self._num_most_common_words = options.num_most_common_words
+
+        self._num_most_common_chars = None
+        if options:
+            self._num_most_common_chars = options._num_most_common_chars
+
         self.__calculations = {
             "vocab": TextProfiler._update_vocab,
             "words": TextProfiler._update_words,

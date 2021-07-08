@@ -1370,7 +1370,7 @@ class StructuredProfiler(BaseProfiler):
         clean_column_ids = []
         if columns is None:
             for col_id, col in enumerate(self._profile.keys()):
-                if (self._profile[col].profile['data_type'] not in ['int', 'float']
+                if (self ._profile[col].profile['data_type'] not in ['int', 'float']
                         or self._profile[col].null_count > 0):
                     clean_samples.pop(col)
                 else:
@@ -1390,24 +1390,39 @@ class StructuredProfiler(BaseProfiler):
         corr_mat[rows, clean_column_ids] = np.corrcoef(data, rowvar=False)
         return corr_mat
 
-    def _update_correlation(self, clean_samples):
+    def _update_correlation(self, clean_samples, prev_dependent_properties):
         """
         Update correlation matrix for cleaned data.
 
         :param clean_samples: the input cleaned dataset
         :type clean_samples: dict()
         """
+        batch_corr = self._get_correlation(clean_samples)
         if self.total_samples > 0:
-            # currently return None with the existing correlation
-            # TODO: implement the update with the existing correlation
-            warnings.warn("Currently, the correlation update is disabled "
-                          "with existing correlation, which will be reset "
-                          "to None. Updating correlations will be available "
-                          "in a future update.")
-            self.correlation_matrix = None
+            data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors='coerce')
+
+            batch_means = np.full(len(self._profile.keys()), np.nan)
+            batch_stds = np.full(len(self._profile.keys()), np.nan)
+            for id, col in enumerate(self._profile.keys()):
+                if self._profile[col].profile['data_type'] in ['int', 'float'] \
+                        and col in data.columns:
+                    batch_means[id] = data[col].mean()
+                    batch_stds[id] = data[col].std()
+
+            # If these lengths are different, then some columns were added to to the
+            # profile.
+            if (len(batch_means) != len(prev_dependent_properties["mean"])):
+                warnings.warn("A new column was added when updating. Correlations cannot be calculated"
+                              " for new columns.", RuntimeWarning)
+                return
+
+            self.correlation_matrix = self._merge_correlation_helper(
+                 self.correlation_matrix, prev_dependent_properties["mean"],
+                 prev_dependent_properties["std"], self.total_samples,
+                 batch_corr, batch_means, batch_stds, len(data.index))
             return
 
-        self.correlation_matrix = self._get_correlation(clean_samples)
+        self.correlation_matrix = batch_corr
 
     def _merge_correlation(self, other):
         """
@@ -1548,6 +1563,18 @@ class StructuredProfiler(BaseProfiler):
         # Newly introduced features (python3.8) improves the situation
         sample_ids = np.array(sample_ids)
 
+        # Record the previous mean/std values of columns that need to
+        # have correlation updated. Non-numeric columns have NaN
+        # so that they stay NaN when updating.
+        prev_dependent_properties = {
+            'mean': np.full(len(self._profile.keys()), np.nan),
+            'std': np.full(len(self._profile.keys()), np.nan)
+        }
+        for id, col in enumerate(self._profile.keys()):
+            if self._profile[col].profile['data_type'] in ['int', 'float']:
+                prev_dependent_properties['mean'][id] = self._profile[col].profile['statistics']['mean']
+                prev_dependent_properties['std'][id] = self._profile[col].profile['statistics']['stddev']
+
         # Create structured profile objects
         new_cols = set()
         for col in data.columns:
@@ -1657,7 +1684,7 @@ class StructuredProfiler(BaseProfiler):
             samples_for_row_stats = np.concatenate(sample_ids)
 
         if self.options.correlation.is_enabled:
-            self._update_correlation(clean_sampled_dict)
+            self._update_correlation(clean_sampled_dict, prev_dependent_properties)
         self._update_row_statistics(data, samples_for_row_stats)
 
     def save(self, filepath=None):

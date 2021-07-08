@@ -26,7 +26,11 @@ class TestProfilerOptions(unittest.TestCase):
         self.assertIsNotNone(profile.options)
         self.assertTrue(profile.options.data_labeler.is_enabled)
         for column in profile.options.properties:
-            self.assertTrue(profile.options.properties[column].is_enabled)
+            # TODO: remove the check for correlation option once it's updated to True
+            if column == 'correlation':
+                self.assertFalse(profile.options.properties[column].is_enabled)
+            else:
+                self.assertTrue(profile.options.properties[column].is_enabled)
 
         for column_type in ["int", "float", "text"]:
             column = profile.options.properties[column_type]

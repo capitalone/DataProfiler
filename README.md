@@ -60,6 +60,7 @@ The format for a structured profile is below:
     "duplicate_row_count": int,
     "file_type": string,
     "encoding": string,
+    "correlation_matrix": string, (*)
     "profile_schema": {
         string: list(int)
     }
@@ -119,6 +120,7 @@ The format for a structured profile is below:
     }
 ]
 ```
+(*) Currently the correlation matrix update is toggled off. It will be reset in a later update. Users can still use it as desired with the is_enable option set to True.
 
 The format for an unstructured profile is below:
 ```
@@ -136,10 +138,16 @@ The format for an unstructured profile is below:
                 "true_char_level": dict(int),
                 "postprocess_char_level": dict(int)
             },
+            "entity_percentages": {
+                "word_level": dict(float),
+                "true_char_level": dict(float),
+                "postprocess_char_level": dict(float)
+            },
             "times": dict(float)
         },
         "statistics": {
             "vocab": list(char),
+            "vocab_count": dict(int),
             "words": list(string),
             "word_count": dict(int),
             "times": dict(float)

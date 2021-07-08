@@ -1,5 +1,6 @@
 import unittest
 
+from datetime import datetime
 from dataprofiler.profilers import utils
 
 
@@ -86,3 +87,40 @@ class TestShuffleInChunks(unittest.TestCase):
                          utils.find_diff_of_strings("Hello", "team"))
         self.assertEqual("unchanged",
                          utils.find_diff_of_strings(None, None))
+
+        # Ensure dates are handled appropriately
+        a = datetime(2021, 6, 28)
+        b = datetime(2021, 6, 27, 1)
+        self.assertEqual("unchanged", utils.find_diff_of_dates(a, a))
+        self.assertEqual("+23:00:00", utils.find_diff_of_dates(a, b))
+        self.assertEqual("-23:00:00", utils.find_diff_of_dates(b, a))
+        self.assertEqual(["06/28/21 00:00:00", None], utils.find_diff_of_dates(a, None))
+        self.assertEqual("unchanged", utils.find_diff_of_numbers(None, None))
+
+        # Ensure that differencing dictionaries is handled appropriately
+        dict1 = {
+            "a": 0.25,
+            "b": 0.0,
+            "c": [1, 2],
+            "d": datetime(2021, 6, 28),
+            "e": "hi",
+            "f": "hi2"
+        }
+        dict2 = {
+            "a": 0.25,
+            "b": 0.01,
+            "c": [2, 3],
+            "d": datetime(2021, 6, 27, 1),
+            "e": "hihi",
+            "g": 15
+        }
+        expected_diff = {
+            "a": "unchanged",
+            "b": -0.01,
+            "c": [[1], [2], [3]],
+            "d": "+23:00:00",
+            "e": ["hi", "hihi"],
+            "f": ["hi2", None],
+            "g": [None, 15]
+        }
+        self.assertDictEqual(expected_diff, utils.find_diff_of_dicts(dict1, dict2))

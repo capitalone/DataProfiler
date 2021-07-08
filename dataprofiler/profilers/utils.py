@@ -1,4 +1,4 @@
-
+import datetime
 import os
 import collections
 import copy
@@ -410,4 +410,72 @@ def find_diff_of_lists_and_sets(stat1, stat2):
         shared = [element for element in stat1 if element in stat2]
         unique2 = [element for element in stat2 if element not in stat1]
         diff = [unique1, shared, unique2]
+    return diff
+
+
+def find_diff_of_dates(stat1, stat2):
+    """
+    Finds the difference between two dates. If there is no difference, returns
+    "unchanged". For dates, returns the difference in time.
+
+    Because only days can be stored as negative values internally
+    for timedelta objects, the output for these negative values is
+    less readable due to the combination of signs in the default
+    output. This returns a readable output for timedelta that
+    accounts for potential negative differences.
+
+    :param stat1: the first statistical input
+    :type stat1: datetime.datetime object
+    :param stat2: the second statistical input
+    :type stat2: datetime.datetime object
+    :return: Difference in stats
+    :rtype: str
+    """
+    # We can use find_diff_of_numbers since datetime objects
+    # can be compared and subtracted naturally
+    diff = find_diff_of_numbers(stat1, stat2)
+    if isinstance(diff, str):
+        return diff
+    if isinstance(diff, list):
+        # Deal with the case where one stat is None
+        return [None if i is None else i.strftime("%x %X") for i in diff]
+
+    # Must be timedelta object
+    if diff.days >= 0:
+        return "+" + str(diff)
+
+    return "-" + str(abs(diff))
+
+def find_diff_of_dicts(dict1, dict2):
+    """
+    Finds the difference between two dicts. For each key in each dict,
+    returns "unchanged" if there's no difference, otherwise returns
+    the difference. Assumes that if the two dictionaries share the
+    same key, their values are the same type.
+
+    :param dict1: the first dict
+    :type dict1: dict
+    :param dict2: the second dict
+    :type dict2: dict
+    :return: Difference in the keys of each dict
+    :rtype: dict
+    """
+
+    diff = {}
+    for key, value1 in dict1.items():
+        value2 = dict2.get(key, None)
+        if isinstance(value1, list):
+            diff[key] = find_diff_of_lists_and_sets(value1, value2)
+        elif isinstance(value1, datetime.datetime):
+            diff[key] = find_diff_of_dates(value1, value2)
+        elif isinstance(value1, str):
+            diff[key] = find_diff_of_strings(value1, value2)
+        else:
+            diff[key] = find_diff_of_numbers(value1, value2)
+
+    # Add any keys in dict2 that weren't in dict1
+    for key, value in dict2.items():
+        if key not in diff:
+            diff[key] = [None, value]
+
     return diff

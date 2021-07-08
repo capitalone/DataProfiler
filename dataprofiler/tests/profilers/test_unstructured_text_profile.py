@@ -14,7 +14,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                             "Bob and \"Grant\", 'are' friends"])
         text_profile.update(sample)
         self.assertEqual("Name", text_profile.name)
-      
+
     def test_vocab(self):
         text_profile = TextProfiler("Name")
         sample = pd.Series(["Hello my name is: Grant.!!!",
@@ -23,8 +23,8 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         profile = text_profile.profile
 
         # Assert vocab is correct
-        expected_vocab = [' ', '!', '"', "'", ',', '.', ':', 'B', 'G', 'H', 
-                          'a', 'b', 'd', 'e', 'f', 'i', 'l', 'm', 'n', 'o', 
+        expected_vocab = [' ', '!', '"', "'", ',', '.', ':', 'B', 'G', 'H',
+                          'a', 'b', 'd', 'e', 'f', 'i', 'l', 'm', 'n', 'o',
                           'r', 's', 't', 'y']
         self.assertListEqual(sorted(expected_vocab), sorted(profile['vocab']))
 
@@ -36,7 +36,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # Assert vocab is correct
         expected_vocab = [' ', '!', '"', "'", ',', '.', ':', 'B', 'G', 'H',
-                          'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'k', 'l', 
+                          'a', 'b', 'c', 'd', 'e', 'f', 'h', 'i', 'k', 'l',
                           'm', 'n', 'o', 'r', 's', 't', 'w', 'y']
         self.assertListEqual(sorted(expected_vocab), sorted(profile['vocab']))
 
@@ -62,7 +62,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                             "Grant will code with Bob"])
         text_profile.update(sample)
         profile = text_profile.profile
-        
+
         # Assert words is correct and stop words are not present
         expected_words = ['Hello', 'name', 'Grant', 'Bob', 'friends', 'knows',
                           'code']
@@ -73,7 +73,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         expected_word_count = {'Hello': 1, 'name': 1, 'Grant': 4, 'Bob': 2,
                                'friends': 1, 'knows': 1, 'code': 2}
         self.assertDictEqual(expected_word_count, profile['word_count'])
-        
+
     def test_sample_size(self):
         text_profile = TextProfiler("Name")
         sample = pd.Series(["Hello my name is: Grant.!!!",
@@ -90,7 +90,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         # Assert sample size is accurate
         self.assertEqual(4, text_profile.sample_size)
-    
+
     def test_timing(self):
         text_profile = TextProfiler("Name")
         sample = pd.Series(["Hello my name is: Grant.!!!",
@@ -110,7 +110,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile2 = TextProfiler("Name")
         sample = pd.Series(["Bob and \"Grant\", 'are' friends"])
         text_profile2.update(sample)
-        
+
         text_profile3 = text_profile1 + text_profile2
         profile = text_profile3.profile
         
@@ -154,7 +154,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         profile = text_profile2.profile
         expected_word_count = {'Grant': 1, 'Bob': 1, 'friends': 1}
         self.assertDictEqual(expected_word_count, profile['word_count'])
-        
+
         with self.assertWarnsRegex(UserWarning,
                 "The merged Text Profile will not be case sensitive since there"
                 " were conflicting values for case sensitivity between the two "
@@ -181,10 +181,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
         # input with two samples
         text_profile = TextProfiler("Name", options=options)
@@ -192,10 +192,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
     def test_options_case_sensitive(self):
         # change is_case_sensitive, other options remain the same as default values
@@ -208,10 +208,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {'sentence': 1, 'test': 2}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
         # input with two samples
         text_profile = TextProfiler("Name", options=options)
@@ -219,10 +219,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {'sentence': 1, 'test': 2}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
     def test_options_stop_words(self):
         # change stop_words, other options remain the same as default values
@@ -237,10 +237,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {'This': 1, 'Test': 1, 'test': 1}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
         ## input with two samples
         text_profile = TextProfiler("Name", options=options)
@@ -248,10 +248,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {'This': 1, 'Test': 1, 'test': 1}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
         # with an empty list
         options = TextProfilerOptions()
@@ -264,10 +264,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         expected_word_count = {'This': 1, 'is': 1, 'test': 1, 'a': 1,
                                'Test': 1, 'sentence': 1}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
         ## input with two samples
         text_profile = TextProfiler("Name", options=options)
@@ -276,10 +276,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         expected_word_count = {'This': 1, 'is': 1, 'test': 1, 'a': 1,
                                'Test': 1, 'sentence': 1}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
     def test_options_words_update(self):
         # change words.is_enabled, other options remain the same as default values
@@ -293,10 +293,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
         # input with two samples
         text_profile = TextProfiler("Name", options=options)
@@ -304,10 +304,10 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {}
-        expected_vocab = [' ', ',', '.', '!', 'T', 'h', 'i', 's', 'a',
-                          'e', 't', 'n', 'c']
+        expected_vocab = {'s': 5, ' ': 5, 'e': 5, 't': 4, '!': 3, 'T': 2,
+                          'i': 2, 'n': 2, 'h': 1, ',': 1, 'a': 1, 'c': 1, '.': 1}
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
     def test_options_vocab_update(self):
         # change vocab.is_enabled, other options remain the same as default values
@@ -321,9 +321,9 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
-        expected_vocab = []
+        expected_vocab = dict()
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
         # input with two samples
         text_profile = TextProfiler("Name", options=options)
@@ -331,6 +331,6 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         text_profile.update(sample)
 
         expected_word_count = {'sentence': 1, 'Test': 1, 'test': 1}
-        expected_vocab = []
+        expected_vocab = dict()
         self.assertDictEqual(expected_word_count, text_profile.word_count)
-        self.assertCountEqual(expected_vocab, text_profile.vocab)
+        self.assertDictEqual(expected_vocab, text_profile.vocab_count)

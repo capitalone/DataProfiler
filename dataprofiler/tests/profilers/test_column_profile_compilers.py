@@ -3,10 +3,12 @@ from __future__ import print_function
 import six
 import unittest
 from unittest import mock
+import pandas as pd
+import numpy as np
 
 from dataprofiler.profilers import column_profile_compilers as \
     col_pro_compilers
-from dataprofiler.profilers.profiler_options import BaseOption
+from dataprofiler.profilers.profiler_options import BaseOption, StructuredOptions
 
 
 class TestBaseProfileCompilerClass(unittest.TestCase):
@@ -70,6 +72,161 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         self.assertEqual(3, merged_compiler._profiles['test'])
         self.assertEqual('compiler1', merged_compiler.name)
 
+    
+    def test_diff_primitive_compilers(self):
+        # Test different data types
+        data1 = pd.Series(['-2', '-1', '1', '2'])
+        data2 = pd.Series(["YO YO YO", "HELLO"])
+        compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1)
+        compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2)
+
+        expected_diff = {
+            'data_type_representation': {
+                'datetime': 'unchanged',
+                'int': 1.0,
+                'float': 1.0,
+                'text': 'unchanged'
+            },
+            'data_type': ['int', 'text']
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        
+        
+        # Test different data types with datetime specifically
+        data1 = pd.Series(['-2', '-1', '1', '2'])
+        data2 = pd.Series(["01/12/1967", "11/9/2024"])
+        compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1)
+        compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2)
+
+        expected_diff = {
+            'data_type_representation': {
+                'datetime': -1.0,
+                'int': 1.0,
+                'float': 1.0,
+                'text': 'unchanged'
+            },
+            'data_type': ['int', 'datetime']
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        
+        # Test same data types
+        data1 = pd.Series(['-2', '15', '1', '2'])
+        data2 = pd.Series(['5', '-1'])
+
+        compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1)
+        compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2)
+        expected_diff = {
+            'data_type_representation': {
+                'datetime': 'unchanged',
+                'int': 'unchanged',
+                'float': 'unchanged',
+                'text': 'unchanged'
+            },
+             'data_type': 'unchanged',
+             'statistics': {
+                     'min': -1.0,
+                     'max': 10.0,
+                     'sum': 12.0,
+                     'mean': 2.0,
+                     'variance': 38.666666666666664,
+                     'stddev': 3.285085839971525
+                 }
+        }
+
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        
+        # Test different compilers
+        data1 = pd.Series(['-2', '-1', '1', '2'])
+        data2 = pd.Series(['5', '15'])
+
+        compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
+        # Assert type error is properly called
+        with self.assertRaises(TypeError) as exc:
+            compiler1.diff(compiler2)
+        self.assertEqual(str(exc.exception),
+                         "`ColumnPrimitiveTypeProfileCompiler` and "
+                         "`ColumnStatsProfileCompiler` are not of the same "
+                         "profile compiler type.")
+        
+    def test_disabling_columns_during_primitive_diff(self):
+        
+        data1 = pd.Series(['-2', '-1', '1', '2'])
+        data2 = pd.Series(['5', '15'])
+        options = StructuredOptions()
+
+        # Test disabled column in one compiler
+        options.int.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1,
+                                                                         options)
+        compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2)
+        expected_diff = {
+            'data_type_representation': {
+                'datetime': 'unchanged', 
+                'float': 'unchanged', 
+                'text': 'unchanged', 
+                'int': [None, 1.0]}, 
+            'data_type': ['float', 'int']
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        
+        # Test disabled column in both compilers
+        compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2,
+                                                                         options)
+        expected_stddev = (np.sqrt(np.var([-2, -1, 1, 2], ddof=1))
+                           - np.sqrt(np.var([5, 15], ddof=1)))
+        expected_diff = {
+            'data_type_representation': {
+                'datetime': 'unchanged', 
+                'float': 'unchanged', 
+                'text': 'unchanged'
+            },
+            'data_type': "unchanged",
+            'statistics': {
+                'min': -7.0, 
+                'max': -13.0, 
+                'sum': -20.0,
+                'mean': -10.0, 
+                'variance': -46.666666666666664,
+                'stddev': expected_stddev,
+                'precision': {
+                    'min': 'unchanged', 
+                    'max': -1, 
+                    'mean': -0.5,
+                    'var': -0.5, 
+                    'std': -0.71, 
+                    'sample_size': 2,
+                    'margin_of_error': -1.6}
+            }
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        
+        # Test disabling all columns in one compiler
+        options.float.is_enabled = False
+        options.text.is_enabled = False
+        options.datetime.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1,
+                                                                         options)
+        compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2)
+        expected_diff = {
+            'data_type_representation': {
+                'datetime': [None, 0.0], 
+                'int': [None, 1.0], 
+                'float': [None, 1.0], 
+                'text': [None, 1.0]
+            }, 
+            'data_type': [None, 'int']
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling all columns in all compilers
+        compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2,
+                                                                         options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+
     @mock.patch.multiple(
         col_pro_compilers.BaseCompiler, __abstractmethods__=set())
     def test_no_profilers_error(self):
@@ -114,9 +271,17 @@ class TestUnstructuredCompiler(unittest.TestCase):
                     'postprocess_char_level': defaultdict(int),
                     'true_char_level': defaultdict(int),
                     'word_level': defaultdict(int)},
+                'entity_percentages': {
+                    'postprocess_char_level': defaultdict(int),
+                    'true_char_level': defaultdict(int),
+                    'word_level': defaultdict(int)},
                 'times': {'data_labeler_predict': 1.0}},
             'statistics': {
                 'times': {'vocab': 1.0, 'words': 1.0},
+                'vocab_count': {' ': 6, '-': 2, '.': 1, '1': 2, '2': 3,
+                                '3': 3, '4': 2, 'D': 1, 'J': 1, 'a': 1,
+                                'e': 3, 'h': 2, 'i': 2, 'm': 2, 'n': 2,
+                                'o': 2, 's': 2, 't': 2, 'y': 1},
                 'vocab': [' ', '-', '.', '1', '2', '3', '4', 'D', 'J', 'a', 'e',
                           'h', 'i', 'm', 'n', 'o', 's', 't', 'y'],
                 'word_count': {'123': 1, '1234': 1, '432': 1, 'Doe': 1,

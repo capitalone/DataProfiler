@@ -288,10 +288,10 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_corr_mat = np.array([
             [1.0, -0.26559388521279237, 0.26594894270403086],
-            [-0.26559388521279237, 1.0, -0.4907232900448271],
-            [0.26594894270403086, -0.4907232900448271, 1.0]
+            [-0.26559388521279237, 1.0, -0.49072329],
+            [0.26594894270403086, -0.49072329, 1.0]
         ])
-        np.testing.assert_array_equal(expected_corr_mat,
+        np.testing.assert_array_almost_equal(expected_corr_mat,
                                       profiler.correlation_matrix)
 
         # data with multiple numerical columns, with nan values
@@ -308,10 +308,10 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_corr_mat = np.array([
             [np.nan, np.nan, np.nan],
-            [np.nan, 1.0, -0.4907232900448271],
-            [np.nan, -0.4907232900448271, 1.0]
+            [np.nan, 1.0, -0.49072329],
+            [np.nan, -0.4907239, 1.0]
         ])
-        np.testing.assert_array_equal(expected_corr_mat,
+        np.testing.assert_array_almost_equal(expected_corr_mat,
                                       profiler.correlation_matrix)
 
         # data with only one numerical columns without nan values
@@ -343,12 +343,11 @@ class TestStructuredProfiler(unittest.TestCase):
 
         expected_corr_mat = np.array([
             [1.0, -0.26559388521279237, 0.26594894270403086],
-            [-0.26559388521279237, 1.0, -0.4907232900448271],
-            [0.26594894270403086, -0.4907232900448271, 1.0]
+            [-0.26559388521279237, 1.0, -0.49072329],
+            [0.26594894270403086, -0.49072329, 1.0]
         ])
-        np.testing.assert_allclose(expected_corr_mat,
-                                   merged_profile.correlation_matrix,
-                                   rtol=1e-15, atol=1e-15)
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                   merged_profile.correlation_matrix)
 
         # merge between an existing corr and None correlation (without data)
         profile1 = dp.StructuredProfiler(None, options=profile_options)
@@ -360,22 +359,84 @@ class TestStructuredProfiler(unittest.TestCase):
 
         expected_corr_mat = np.array([
             [1.0, -0.26559388521279237, 0.26594894270403086],
-            [-0.26559388521279237, 1.0, -0.4907232900448271],
-            [0.26594894270403086, -0.4907232900448271, 1.0]
+            [-0.26559388521279237, 1.0, -0.49072329],
+            [0.26594894270403086, -0.4907239, 1.0]
         ])
-        np.testing.assert_array_equal(expected_corr_mat,
+        np.testing.assert_array_almost_equal(expected_corr_mat,
                                       merged_profile.correlation_matrix)
 
-        # merge between an existing corr and None correlation (with data)
-        data1 = data[:5]
-        profile1 = dp.StructuredProfiler(data1, options=profile_options)
-        data2 = data[5:]
-        profile1.update_profile(data2)
-        self.assertIsNone(profile1.correlation_matrix)
+    def test_correlation_update(self):
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"correlation.is_enabled": True})
 
-        profile2 = dp.StructuredProfiler(data2, options=profile_options)
-        profile = profile1 + profile2
-        self.assertIsNone(profile.correlation_matrix)
+        # Test with all numeric columns
+        data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
+                             'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
+                             'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
+        data1 = data[:5]
+        data2 = data[5:]
+
+        profile = dp.StructuredProfiler(data1, options=profile_options)
+        profile.update_profile(data2)
+
+        expected_corr_mat = np.array([
+            [1.0, -0.26559388521279237, 0.26594894270403086],
+            [-0.26559388521279237, 1.0, -0.4907239],
+            [0.26594894270403086, -0.4907239, 1.0]
+        ])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profile.correlation_matrix)
+
+        # Test when there's a non-numeric column
+        data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
+                             'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
+                             'c': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']})
+        data1 = data[:5]
+        data2 = data[5:]
+
+        profile = dp.StructuredProfiler(data1, options=profile_options)
+        profile.update_profile(data2)
+
+        expected_corr_mat = np.array([
+            [1.0, -0.26559388521279237, np.nan],
+            [-0.26559388521279237, 1.0, np.nan],
+            [np.nan, np.nan, np.nan]
+        ])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profile.correlation_matrix)
+
+        # Data with multiple numerical and non-numeric columns, with nan values in only one column
+        data = pd.DataFrame({'a': [7, 2, 1, 7, 5, 9, 4, 10, np.nan, np.nan],
+                             'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
+                             'c': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
+                             'd': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
+        data1 = data[:5]
+        data2 = data[5:]
+
+        profile = dp.StructuredProfiler(data1, options=profile_options)
+        profile.update_profile(data2)
+        expected_corr_mat = np.array([
+            [np.nan, np.nan, np.nan, np.nan],
+            [np.nan, 1.0, np.nan, -0.4907239],
+            [np.nan, np.nan, np.nan, np.nan],
+            [np.nan, -0.490723290044827, np.nan, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profile.correlation_matrix)
+        # Test when we add a numeric column
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"correlation.is_enabled": True})
+        data1 = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
+                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8]})
+
+        data2 = pd.DataFrame({'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
+
+        profile = dp.StructuredProfiler(data1, options=profile_options)
+        with self.assertWarnsRegex(RuntimeWarning,
+                                   "A new column was added when updating. "
+                                   "Correlations cannot be calculated "
+                                   "for new columns."):
+            profile.update_profile(data2)
 
     def test_correct_datatime_schema_test(self):
         profile = self.trained_schema.profile["datetime"]

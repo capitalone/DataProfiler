@@ -5,7 +5,7 @@ name: Test Python Package
 
 on:
   pull_request:
-    branches: [ main, duplicate_column_fix ]
+    branches: [ main ]
 
 jobs:
   build:

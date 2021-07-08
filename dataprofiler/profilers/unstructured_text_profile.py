@@ -236,7 +236,7 @@ class TextProfiler(object):
         profile = dict(
             vocab=list(self.vocab_count.keys()),
             vocab_count=dict(
-                self.vocab_count.most_common(self.top_k_chars)),
+                self.vocab_count.most_common(self._top_k_chars)),
             words=list(self.word_count.keys()),
             word_count=dict(word_count),
             times=self.times,

@@ -187,15 +187,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
         ### one profile has default values of most common chars
         ### the other profile has it set
-        text_profile1 = TextProfiler("Name")
         text_profile1._top_k_chars = 3
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
         text_profile3 = text_profile1 + text_profile2
         profile = text_profile3.profile
 
@@ -204,16 +196,8 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_vocab_count, profile["vocab_count"])
 
         ### equal number of most common chars
-        text_profile1 = TextProfiler("Name")
         text_profile1._top_k_chars = 3
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
         text_profile2._top_k_chars = 3
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
         text_profile3 = text_profile1 + text_profile2
         profile = text_profile3.profile
 
@@ -221,16 +205,8 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_vocab_count, profile["vocab_count"])
 
         ### different number of most common chars
-        text_profile1 = TextProfiler("Name")
         text_profile1._top_k_chars = 2
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
         text_profile2._top_k_chars = 3
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
         text_profile3 = text_profile1 + text_profile2
         profile = text_profile3.profile
 
@@ -260,15 +236,6 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         ### one profile has default values of most common words
         ### the other profile has it set
         text_profile1._top_k_words = 3
-        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
-        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
         text_profile3 = text_profile1 + text_profile2
         profile = text_profile3.profile
 
@@ -277,18 +244,8 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, profile["word_count"])
 
         ### equal number of most common words
-        text_profile1 = TextProfiler("Name")
         text_profile1._top_k_words = 3
-        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
         text_profile2._top_k_words = 3
-        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
         text_profile3 = text_profile1 + text_profile2
         profile = text_profile3.profile
 
@@ -296,18 +253,8 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, profile["word_count"])
 
         ### different number of most common words
-        text_profile1 = TextProfiler("Name")
         text_profile1._top_k_words = 2
-        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
-        sample1 = pd.Series(["this is test,", " this is a test sentence"])
-        text_profile1.update(sample1)
-
-        text_profile2 = TextProfiler("Name")
         text_profile2._top_k_words = 3
-        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
-        sample2 = pd.Series(["this is", "this"])
-        text_profile2.update(sample2)
-
         text_profile3 = text_profile1 + text_profile2
         profile = text_profile3.profile
 

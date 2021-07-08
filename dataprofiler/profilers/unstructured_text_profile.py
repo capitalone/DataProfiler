@@ -106,7 +106,7 @@ class TextProfiler(object):
 
         self._num_most_common_chars = None
         if options:
-            self._num_most_common_chars = options._num_most_common_chars
+            self._num_most_common_chars = options.num_most_common_chars
 
         self.__calculations = {
             "vocab": TextProfiler._update_vocab,
@@ -190,7 +190,20 @@ class TextProfiler(object):
                           "since there were conflicting values for case "
                           "sensitivity between the two profiles being merged.")
 
-        
+        if self._num_most_common_words and other._num_most_common_words:
+            merged_profile._num_most_common_words = max(
+                self._num_most_common_words, other._num_most_common_words)
+        else:
+            merged_profile._num_most_common_words = \
+                self._num_most_common_words or other._num_most_common_words
+
+        if self._num_most_common_chars and other._num_most_common_chars:
+            merged_profile._num_most_common_chars = max(
+                self._num_most_common_chars, other._num_most_common_chars)
+        else:
+            merged_profile._num_most_common_chars = \
+                self._num_most_common_chars or other._num_most_common_chars
+
         BaseColumnProfiler._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,
                                  other.__calculations)
@@ -212,12 +225,22 @@ class TextProfiler(object):
 
         :return:
         """
+        num_most_common_words = self._num_most_common_words
+        if num_most_common_words is None:
+            num_most_common_words = len(self.word_count.keys())
+
+        num_most_common_chars = self._num_most_common_chars
+        if num_most_common_chars is None:
+            num_most_common_chars = len(self.vocab_count.keys())
+
         word_count = sorted(self.word_count.items(),
                             key=lambda x: x[1],
-                            reverse=True)
+                            reverse=True)[:num_most_common_words]
+
         profile = dict(
             vocab=list(self.vocab_count.keys()),
-            vocab_count=dict(self.vocab_count.most_common()),
+            vocab_count=dict(
+                self.vocab_count.most_common(num_most_common_chars)),
             words=list(self.word_count.keys()),
             word_count=dict(word_count),
             times=self.times,

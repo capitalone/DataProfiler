@@ -1106,6 +1106,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profiler._empty_line_count)
         self.assertEqual(0.2, profiler._sampling_ratio)
         self.assertEqual(5000, profiler._min_sample_size)
+        self.assertEqual([], profiler.sample)
         self.assertIsInstance(profiler.options, UnstructuredOptions)
 
         # can set samples_per_update and min_true_samples
@@ -1118,6 +1119,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         data = pd.Series(['this', 'is my', '\n\r', 'test'])
         profiler = UnstructuredProfiler(data)
         self.assertEqual(4, profiler.total_samples)
+        self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
         self.assertEqual(1, profiler._empty_line_count)
         self.assertEqual("<class 'pandas.core.series.Series'>",
                          profiler.file_type)
@@ -1134,6 +1136,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
 
         profiler = UnstructuredProfiler(mock_data_reader)
         self.assertEqual(4, profiler.total_samples)
+        self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
         self.assertEqual(1, profiler._empty_line_count)
         self.assertEqual("csv", profiler.file_type)
         self.assertEqual("utf-8", profiler.encoding)
@@ -1380,6 +1383,15 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             expected_words,
             self.report['data_stats']['statistics'].pop('words'))
 
+        # test for vocab_count
+        expected_vocab_count = {' ': 55, ',': 3, '.': 5, '6': 1, '9': 1,
+                                ':': 1, 'D': 3, 'J': 1, 'R': 4, 'S': 1,
+                                'W': 1, 'Y': 1, 'a': 22, 'b': 4, 'c': 10,
+                                'd': 11, 'e': 33, 'f': 2, 'g': 9, 'h': 12,
+                                'i': 24, 'l': 16, 'm': 3, 'n': 21, 'o': 27,
+                                'p': 8, 'r': 13, 's': 23, 't': 31, 'u': 17,
+                                'v': 3, 'w': 6, 'x': 1, 'y': 7}
+
         # expected after the popping: times, vocab, words
         expected_report = {
             'global_stats': {
@@ -1390,7 +1402,8 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             'data_stats': {
                 'data_label': {},
                 'statistics': {
-                    'word_count': expected_word_count
+                    'word_count': expected_word_count,
+                    'vocab_count': expected_vocab_count
                 }
             }
         }
@@ -1544,6 +1557,11 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             load_report = load_profile.report()
             self.assertDictEqual(save_report, load_report)
 
+            # Check that sample was properly saved and loaded
+            save_sample = save_profile.sample
+            load_sample = load_profile.sample
+            self.assertEqual(save_sample, load_sample)
+
             # validate both are still usable after
             save_profile.update_profile(pd.DataFrame(['test', 'test2']))
             load_profile.update_profile(pd.DataFrame(['test', 'test2']))
@@ -1572,6 +1590,11 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         save_report = save_profile.report()
         load_report = load_profile.report()
         self.assertDictEqual(save_report, load_report)
+
+        # Check that sample was properly saved and loaded
+        save_sample = save_profile.sample
+        load_sample = load_profile.sample
+        self.assertEqual(save_sample, load_sample)
 
         # validate both are still usable after
         save_profile.update_profile(pd.DataFrame(['test', 'test2']))

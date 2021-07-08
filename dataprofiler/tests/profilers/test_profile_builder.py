@@ -1530,6 +1530,11 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         load_report = load_profile.report()
         self.assertDictEqual(save_report, load_report)
 
+        # Check that sample was properly saved and loaded
+        save_sample = save_profile.sample
+        load_sample = load_profile.sample
+        self.assertEqual(save_sample, load_sample)
+
         # validate both are still usable after
         save_profile.update_profile(pd.DataFrame(['test', 'test2']))
         load_profile.update_profile(pd.DataFrame(['test', 'test2']))

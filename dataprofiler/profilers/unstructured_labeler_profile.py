@@ -88,6 +88,28 @@ class UnstructuredLabelerProfile(object):
 
         return merged_profile
 
+    def diff(self, other_profile, options=None):
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+
+        entity_counts_diff = {}
+        entity_percentages_diff = {}
+        for i in ['word_level', 'true_char_level', 'postprocess_char_level']:
+            entity_percentages_diff[i] = utils.find_diff_of_dicts(
+                self.entity_percentages[i], other_profile.entity_percentages[i])
+            entity_counts_diff[i] = utils.find_diff_of_dicts(
+                self.entity_counts[i], other_profile.entity_counts[i])
+
+        differences = {
+            "entity_counts": entity_counts_diff,
+            "entity_percentages": entity_percentages_diff
+        }
+
+        return differences
+
     @property
     def label_encoding(self):
         return self.data_labeler.labels

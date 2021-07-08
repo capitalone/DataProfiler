@@ -464,12 +464,14 @@ Below is an breakdown of all the options.
       
       * is_case_sensitive - (Boolean)
       * stop_words - (List of Strings)
+      * top_k_chars - (Int)
+      * top_k_words - (Int)
+      * vocab - Options for vocab count
+
+        * is_enabled - (Boolean) Enables or disables the vocab stats
       * words - Options for word count
 
         * is_enabled - (Boolean) Enables or disables the word stats
-      * vocab - Options for vocab count
-        
-        * is_enabled - (Boolean) Enables or disables the vocab stats
     * **data_labeler** - Options for the data labeler
 
       * is_enabled - (Boolean) Enables or disables the data labeler operations

@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, Counter
 import itertools
 import re
 import warnings
@@ -22,7 +22,7 @@ class TextProfiler(object):
         self.name = name
         self.sample_size = 0
         self.times = defaultdict(float)
-        self.vocab = set()
+        self.vocab_count = Counter()
         self.word_count = defaultdict(int)
         self.metadata = dict()
 
@@ -140,6 +140,19 @@ class TextProfiler(object):
                     merged_profile.word_count[word] += additive_words[word]
                 else:
                     merged_profile.word_count[word_lower] += additive_words[word]
+
+    @staticmethod
+    def _merge_vocab(vocab_count1, vocab_count2):
+        """
+        Merges the vocab counts of two TextProfiler profiles
+
+        :param vocab_count1: vocab count of the first profile
+        :param vocab_count2: vocab count of the second profile
+        :type vocab_count1: Counter()
+        :type vocab_count2: Counter()
+        :return: merged vocab count
+        """
+        return vocab_count1 + vocab_count2
     
     def __add__(self, other):
         """
@@ -183,9 +196,8 @@ class TextProfiler(object):
                                  other.__calculations)
 
         if "vocab" in merged_profile.__calculations:
-            merged_profile.vocab = self.vocab.copy()
-            merged_profile._update_vocab(other.vocab)
-            
+            merged_profile.vocab_count = self._merge_vocab(self.vocab_count,
+                                                           other.vocab_count)
         if "words" in merged_profile.__calculations:
             self._merge_words(other, merged_profile)
 
@@ -204,7 +216,8 @@ class TextProfiler(object):
                             key=lambda x: x[1],
                             reverse=True)
         profile = dict(
-            vocab=self.vocab,
+            vocab=list(self.vocab_count.keys()),
+            vocab_count=dict(self.vocab_count.most_common()),
             words=list(self.word_count.keys()),
             word_count=dict(word_count),
             times=self.times,
@@ -215,7 +228,7 @@ class TextProfiler(object):
     def _update_vocab(self, data, prev_dependent_properties=None,
                       subset_properties=None):
         """
-        Finds the unique vocabulary used in the text samples.
+        Finds the vocabulary counts used in the text samples.
 
         :param data: list or array of data from which to extract vocab
         :type data: Union[list, numpy.array, pandas.DataFrame]
@@ -228,7 +241,7 @@ class TextProfiler(object):
         :return: None
         """
         data_flat = list(itertools.chain(*data))
-        self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
+        self.vocab_count += Counter(data_flat)
 
     @BaseColumnProfiler._timeit(name='words')
     def _update_words(self, data, prev_dependent_properties=None,

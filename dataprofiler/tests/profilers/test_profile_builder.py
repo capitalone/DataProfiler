@@ -297,7 +297,8 @@ class TestStructuredProfiler(unittest.TestCase):
             [0.265948942704031, -0.49072329004483, 1.0]
         ])
         np.testing.assert_allclose(expected_corr_mat,
-                                   profiler.correlation_matrix)
+                                   profiler.correlation_matrix,
+                                   rtol=1e-14, atol=1e-14)
 
         # data with multiple numerical columns, with nan values
         data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
@@ -317,7 +318,8 @@ class TestStructuredProfiler(unittest.TestCase):
             [np.nan, -0.49072329004483, 1.0]
         ])
         np.testing.assert_allclose(expected_corr_mat,
-                                   profiler.correlation_matrix)
+                                   profiler.correlation_matrix,
+                                   rtol=1e-14, atol=1e-14)
 
         # data with only one numerical columns without nan values
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2]})
@@ -353,7 +355,7 @@ class TestStructuredProfiler(unittest.TestCase):
         ])
         np.testing.assert_allclose(expected_corr_mat,
                                    merged_profile.correlation_matrix,
-                                   rtol=1e-15, atol=1e-15)
+                                   rtol=1e-14, atol=1e-14)
 
         # merge between an existing corr and None correlation (without data)
         profile1 = dp.StructuredProfiler(None, options=profile_options)
@@ -369,7 +371,8 @@ class TestStructuredProfiler(unittest.TestCase):
             [0.265948942704031, -0.49072329004483, 1.0]
         ])
         np.testing.assert_allclose(expected_corr_mat,
-                                   merged_profile.correlation_matrix)
+                                   merged_profile.correlation_matrix,
+                                   rtol=1e-14, atol=1e-14)
 
         # merge between an existing corr and None correlation (with data)
         data1 = data[:5]

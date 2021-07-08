@@ -1441,12 +1441,12 @@ class StructuredProfiler(BaseProfiler):
         columns = self.options.correlation.columns
         clean_column_ids = []
         if columns is None:
-            for col_id, col in enumerate(self._profile.keys()):
-                if (self._profile[col].profile['data_type'] not in ['int', 'float']
-                        or self._profile[col].null_count > 0):
-                    clean_samples.pop(col)
+            for idx in range(len(self._profile)):
+                if (self._profile[idx].profile['data_type'] not in ['int', 'float']
+                        or self._profile[idx].null_count > 0):
+                    clean_samples.pop(idx)
                 else:
-                    clean_column_ids.append(col_id)
+                    clean_column_ids.append(idx)
         if len(clean_samples) <= 1:
             return None
 
@@ -1508,23 +1508,19 @@ class StructuredProfiler(BaseProfiler):
             return None
 
         mean1 = np.array(
-            [self._profile[profile_name].profile['statistics']['mean']
-             for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids1])
+            [self._profile[idx].profile['statistics']['mean']
+             for idx in range(len(self._profile)) if idx in col_ids1])
         std1 = np.array(
-            [self._profile[profile_name].profile['statistics']['stddev']
-             for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids1])
+            [self._profile[idx].profile['statistics']['stddev']
+             for idx in range(len(self._profile)) if idx in col_ids1])
         n1 = self.total_samples
 
         mean2 = np.array(
-            [other._profile[profile_name].profile['statistics']['mean']
-             for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids2])
+            [other._profile[idx].profile['statistics']['mean']
+             for idx in range(len(self._profile)) if idx in col_ids2])
         std2 = np.array(
-            [other._profile[profile_name].profile['statistics']['stddev']
-             for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids2])
+            [other._profile[idx].profile['statistics']['stddev']
+             for idx in range(len(self._profile)) if idx in col_ids2])
         n2 = other.total_samples
         return self._merge_correlation_helper(corr_mat1, mean1, std1, n1,
                                               corr_mat2, mean2, std2, n2)

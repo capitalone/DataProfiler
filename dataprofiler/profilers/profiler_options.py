@@ -841,8 +841,8 @@ class DataLabelerOptions(BaseInspectorOptions):
 class TextProfilerOptions(BaseInspectorOptions):
 
     def __init__(self, is_enabled=True, is_case_sensitive=True,
-                 stop_words=None, num_most_common_words=None,
-                 num_most_common_chars=None):
+                 stop_words=None, top_k_words=None,
+                 top_k_chars=None):
         """
         Constructs the TextProfilerOption object with default values.
 
@@ -860,8 +860,8 @@ class TextProfilerOptions(BaseInspectorOptions):
         super().__init__(is_enabled=is_enabled)
         self.is_case_sensitive = is_case_sensitive
         self.stop_words = stop_words
-        self.num_most_common_words = num_most_common_words
-        self.num_most_common_chars = num_most_common_chars
+        self.top_k_words = top_k_words
+        self.top_k_chars = top_k_chars
         self.words = BooleanOption(is_enabled=True)
         self.vocab = BooleanOption(is_enabled=True)
 
@@ -891,14 +891,14 @@ class TextProfilerOptions(BaseInspectorOptions):
             errors.append("{}.stop_words must be None "
                           "or list of strings.".format(variable_path))
 
-        if (self.num_most_common_words is not None and
-                not isinstance(self.num_most_common_words, int)):
-            errors.append("{}.num_most_common_words must be None "
+        if (self.top_k_words is not None and
+                not isinstance(self.top_k_words, int)):
+            errors.append("{}.top_k_words must be None "
                           "or integer.".format(variable_path))
 
-        if (self.num_most_common_chars is not None and
-                not isinstance(self.num_most_common_chars, int)):
-            errors.append("{}.num_most_common_chars must be None "
+        if (self.top_k_chars is not None and
+                not isinstance(self.top_k_chars, int)):
+            errors.append("{}.top_k_chars must be None "
                           "or integer.".format(variable_path))
 
         if not isinstance(self.words, BooleanOption):

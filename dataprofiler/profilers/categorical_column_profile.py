@@ -200,18 +200,20 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         Property for Unlikeability. Unikeability checks for
         "how often observations differ from one another"
+        Reference: Perry, M. and Kader, G. Variation as Unalikeability.
+        Teaching Statistics, Vol. 27, No. 2 (2005), pp. 58-60.
 
-        U = Σ(i=1,n)Σ(j=1,n): (Cij)/n**2
-        C = 0 if i!=j, 1 if i=j
+        U = Σ(i=1,n)Σ(j=1,n): (Cij)/(n**2-n)
+        C = 1 if i!=j, 0 if i=j
 
         :return: None or unlikeability probability
         """
 
         if self.sample_size == 0:
             return None
-        summation = 0
-        for i in self._categories:
-            for j in self._categories:
-                if i != j:
-                    summation += (self._categories[i]*self._categories[j])
-        return summation / (self.sample_size ** 2)
+        unalike_sum = 0
+        for category in self._categories:
+            unalike_sum += (self.sample_size - self._categories[category]) * \
+                           self._categories[category]
+        unalike = unalike_sum / (self.sample_size ** 2 - self.sample_size)
+        return unalike

@@ -1,5 +1,6 @@
 from collections import defaultdict, Counter
 import itertools
+import string
 import re
 import warnings
 
@@ -23,7 +24,8 @@ class TextProfiler(object):
         self.sample_size = 0
         self.times = defaultdict(float)
         self.vocab_count = Counter()
-        self.word_count = defaultdict(int)
+        #self.word_count = defaultdict(int)
+        self.word_count = Counter()
         self.metadata = dict()
 
         # TODO: Add line length
@@ -120,10 +122,19 @@ class TextProfiler(object):
         """
         if self._is_case_sensitive == other._is_case_sensitive:
             merged_profile.word_count = self.word_count + other.word_count
-        elif not self._is_case_sensitive:
+        else:
+            if not self._is_case_sensitive:
+                lower_word_count = self.word_count
+                upper_word_count = other.word_count
+            else:
+                lower_word_count = other.word_count
+                upper_word_count = self.word_count
+
             additive_word_count = Counter()
-            for k, v in other.word_count.items():
+            for k, v in upper_word_count.items():
                 additive_word_count.update({k.lower(): v})
+            merged_profile.word_count = lower_word_count + additive_word_count
+
 
         # if not self._is_case_sensitive:
         #     merged_profile.word_count = self.word_count.copy()
@@ -211,14 +222,15 @@ class TextProfiler(object):
 
         :return:
         """
-        word_count = sorted(self.word_count.items(),
-                            key=lambda x: x[1],
-                            reverse=True)
+        # word_count = sorted(self.word_count.items(),
+        #                     key=lambda x: x[1],
+        #                     reverse=True)
         profile = dict(
             vocab=list(self.vocab_count.keys()),
             vocab_count=dict(self.vocab_count.most_common()),
             words=list(self.word_count.keys()),
-            word_count=dict(word_count),
+            #word_count=dict(word_count),
+            word_count=dict(self.word_count.most_common()),
             times=self.times,
         )
         return profile
@@ -242,7 +254,6 @@ class TextProfiler(object):
         data_flat = list(itertools.chain(*data))
         self.vocab_count += Counter(data_flat)
 
-    import string
     @BaseColumnProfiler._timeit(name='words')
     def _update_words(self, data, prev_dependent_properties=None,
                       subset_properties=None):
@@ -266,12 +277,19 @@ class TextProfiler(object):
         #             if not self._is_case_sensitive:
         #                 word = word_lower
         #             self.word_count[word] += 1
+
+
         translator = str.maketrans('', '', string.punctuation)
         if not self._is_case_sensitive:
             linewords = (line.translate(translator).lower().split() for line in data)
         else:
-            linewords = (line.translate(translator).lower().split() for line in data)
-        return Counter(itertools.chain.from_iterable(linewords))
+            linewords = (line.translate(translator).split() for line in data)
+        word_count = Counter(itertools.chain.from_iterable(linewords))
+
+        for w, c in word_count.items():
+            if w.lower() not in self._stop_words:
+                self.word_count.update({w: c})
+
 
     def _update_helper(self, data, profile):
         """

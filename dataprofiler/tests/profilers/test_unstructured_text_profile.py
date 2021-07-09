@@ -127,7 +127,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         
         # Assert words is correct and stop words are not present
         expected_words = ['Bob', 'Grant', 'friends', 'Hello', 'name']
-        self.assertListEqual(expected_words, profile['words'])
+        self.assertCountEqual(expected_words, profile['words'])
         self.assertNotIn("is", profile['words'])
 
         # Assert word counts are correct

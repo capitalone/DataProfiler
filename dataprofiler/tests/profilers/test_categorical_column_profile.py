@@ -163,7 +163,8 @@ class TestCategoricalColumn(unittest.TestCase):
                 ('unique_ratio', .25),
                 ('categories', ["a", "b", "c"]),
                 ('categorical_count', {"a": 3, "b": 4, "c": 5}),
-                ('gini_impurity', (27/144) + (32/144) + (35/144))
+                ('gini_impurity', (27/144) + (32/144) + (35/144)),
+                ('unalikeability', 2*(12 + 15 + 20)/144)
             ]),
         )
         # We have to pop these values because sometimes the order changes
@@ -267,7 +268,8 @@ class TestCategoricalColumn(unittest.TestCase):
             categorical=True,
             statistics=dict([
                 ('unique_count', 16),
-                ('unique_ratio', 16 / 1000)
+                ('unique_ratio', 16 / 1000),
+                ('unalikeability', 1000/1000**2)
             ]),
         )
         expected_gini = (1*((5/1000) * (995/1000))) + \
@@ -309,6 +311,16 @@ class TestCategoricalColumn(unittest.TestCase):
         profile.update(df_categorical)
         self.assertEqual(profile.gini_impurity, None)
 
+    def test_unalikeability(self):
+        df_categorical = pd.Series(["a", "a", "b", "b", "b", "c", "c", "c", "c", "c"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertAlmostEqual(profile.unalikeability, 62/100)
+        df_categorical = pd.Series(
+            ["a", "a", "b", "b", "b", "a", "a", "a", "a", "a"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertAlmostEqual(profile.unalikeability, 42/100)
 
 class TestCategoricalSentence(unittest.TestCase):
 

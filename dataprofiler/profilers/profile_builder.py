@@ -1411,9 +1411,11 @@ class StructuredProfiler(BaseProfiler):
                     data_type = data_type_compiler.selected_data_type
                     if data_type in ["int", "float"]:
                         data_type_profiler = data_type_compiler._profiles[data_type]
-                        n = data_type_profiler.match_count
-                        batch_means[id] = data[col].mean()
-                        batch_stds[id] = data[col].std()
+                        batch_properties = data_type_profiler._batch_history[-1]
+                        batch_means[id] = batch_properties['mean']
+                        # Force bias correction for stddev
+                        n = batch_properties['match_count']
+                        batch_stds[id] = np.sqrt(batch_properties['biased_variance'] * n / (n - 1))
 
             # If these lengths are different, then some columns were added to to the
             # profile.

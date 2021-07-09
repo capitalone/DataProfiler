@@ -592,5 +592,4 @@ def is_stream_buffer(filepath_or_buffer):
 
     if isinstance(filepath_or_buffer, (StringIO, BytesIO)):
         return True
-
     return False

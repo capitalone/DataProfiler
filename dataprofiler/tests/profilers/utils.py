@@ -1,6 +1,7 @@
 import os
 import shutil
 import random
+import json
 
 import numpy as np
 
@@ -105,3 +106,29 @@ def get_depth(od):
     if isinstance(od, dict):
         return 1 + (max(map(get_depth, od.values())) if od else 0)
     return 0
+
+
+def clean_report(report):
+    """
+    Clean report for comparison of profiles
+
+    :param report: profile report
+    :return:
+    """
+    global_stats = report["global_stats"]
+    if "correlation_matrix" in global_stats and \
+            report["global_stats"]["correlation_matrix"] is not None:
+        report["global_stats"]["correlation_matrix"] = \
+            json.loads(report["global_stats"]["correlation_matrix"])["data"]
+
+    data_stats = report["data_stats"]
+    for key in data_stats:
+        stats = data_stats[key]["statistics"]
+        if "histogram" in stats:
+            if "bin_counts" in stats["histogram"]:
+                stats["histogram"]["bin_counts"] = \
+                    stats["histogram"]["bin_counts"].tolist()
+            if "bin_edges" in stats["histogram"]:
+                stats["histogram"]["bin_edges"] = \
+                    stats["histogram"]["bin_edges"].tolist()
+    return report

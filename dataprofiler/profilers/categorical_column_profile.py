@@ -60,6 +60,47 @@ class CategoricalColumn(BaseColumnProfiler):
                                  other.__calculations)
         return merged_profile
 
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for CategoricalColumns.
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: CategoricalColumn
+        :return: the CategoricalColumn differences
+        :rtype: dict
+        """
+        differences = super().diff(other_profile, options)
+
+        differences["categorical"] = \
+            utils.find_diff_of_strings_and_bools(self.is_match, other_profile.is_match)
+
+        differences["statistics"] = dict([
+                ('unique_count', utils.find_diff_of_numbers(len(self.categories),
+                                                            len(other_profile.categories))),
+                ('unique_ratio', utils.find_diff_of_numbers(self.unique_ratio, 
+                                                            other_profile.unique_ratio)),
+            ])
+
+        # These stats are only diffed if both profiles are categorical
+        if self.is_match and other_profile.is_match:
+            differences["statistics"]['categories'] = \
+                utils.find_diff_of_lists_and_sets(self.categories,
+                                                  other_profile.categories)
+            differences["statistics"]['gini_impurity'] = \
+                utils.find_diff_of_numbers(self.gini_impurity,
+                                           other_profile.gini_impurity)
+            cat_count1 = dict(sorted(self._categories.items(),
+                                     key=itemgetter(1),
+                                     reverse=True))
+            cat_count2 = dict(sorted(other_profile._categories.items(),
+                                     key=itemgetter(1),
+                                     reverse=True))
+
+            differences["statistics"]['categorical_count'] = \
+                utils.find_diff_of_dicts(cat_count1, cat_count2)
+
+        return differences
+
     @property
     def profile(self):
         """
@@ -114,7 +155,7 @@ class CategoricalColumn(BaseColumnProfiler):
             is_match = True
         elif self.sample_size \
                 and self.unique_ratio <= self._CATEGORICAL_THRESHOLD_DEFAULT:
-            is_match = True            
+            is_match = True
         return is_match
 
     @BaseColumnProfiler._timeit(name="categories")

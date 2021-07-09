@@ -1045,6 +1045,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profiler._empty_line_count)
         self.assertEqual(0.2, profiler._sampling_ratio)
         self.assertEqual(5000, profiler._min_sample_size)
+        self.assertEqual([], profiler.sample)
         self.assertIsInstance(profiler.options, UnstructuredOptions)
 
         # can set samples_per_update and min_true_samples
@@ -1057,6 +1058,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         data = pd.Series(['this', 'is my', '\n\r', 'test'])
         profiler = UnstructuredProfiler(data)
         self.assertEqual(4, profiler.total_samples)
+        self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
         self.assertEqual(1, profiler._empty_line_count)
         self.assertEqual("<class 'pandas.core.series.Series'>",
                          profiler.file_type)
@@ -1073,6 +1075,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
 
         profiler = UnstructuredProfiler(mock_data_reader)
         self.assertEqual(4, profiler.total_samples)
+        self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
         self.assertEqual(1, profiler._empty_line_count)
         self.assertEqual("csv", profiler.file_type)
         self.assertEqual("utf-8", profiler.encoding)
@@ -1493,6 +1496,11 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             load_report = load_profile.report()
             self.assertDictEqual(save_report, load_report)
 
+            # Check that sample was properly saved and loaded
+            save_sample = save_profile.sample
+            load_sample = load_profile.sample
+            self.assertEqual(save_sample, load_sample)
+
             # validate both are still usable after
             save_profile.update_profile(pd.DataFrame(['test', 'test2']))
             load_profile.update_profile(pd.DataFrame(['test', 'test2']))
@@ -1521,6 +1529,11 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         save_report = save_profile.report()
         load_report = load_profile.report()
         self.assertDictEqual(save_report, load_report)
+
+        # Check that sample was properly saved and loaded
+        save_sample = save_profile.sample
+        load_sample = load_profile.sample
+        self.assertEqual(save_sample, load_sample)
 
         # validate both are still usable after
         save_profile.update_profile(pd.DataFrame(['test', 'test2']))

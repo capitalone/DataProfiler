@@ -118,20 +118,27 @@ class TextProfiler(object):
         :type merged_profile: TextProfiler
         :return:
         """
-        if not self._is_case_sensitive:
-            merged_profile.word_count = self.word_count.copy()
-            additive_words = other.word_count
-        else:
-            merged_profile.word_count = other.word_count.copy()
-            additive_words = self.word_count
+        if self._is_case_sensitive == other._is_case_sensitive:
+            merged_profile.word_count = self.word_count + other.word_count
+        elif not self._is_case_sensitive:
+            additive_word_count = Counter()
+            for k, v in other.word_count.items():
+                additive_word_count.update({k.lower(): v})
 
-        for word in additive_words:
-            word_lower = word.lower()
-            if word_lower not in self._stop_words:
-                if self._is_case_sensitive:
-                    merged_profile.word_count[word] += additive_words[word]
-                else:
-                    merged_profile.word_count[word_lower] += additive_words[word]
+        # if not self._is_case_sensitive:
+        #     merged_profile.word_count = self.word_count.copy()
+        #     additive_words = other.word_count
+        # else:
+        #     merged_profile.word_count = other.word_count.copy()
+        #     additive_words = self.word_count
+        #
+        # for word in additive_words:
+        #     word_lower = word.lower()
+        #     if word_lower not in self._stop_words:
+        #         if self._is_case_sensitive:
+        #             merged_profile.word_count[word] += additive_words[word]
+        #         else:
+        #             merged_profile.word_count[word_lower] += additive_words[word]
 
     @staticmethod
     def _merge_vocab(vocab_count1, vocab_count2):
@@ -235,6 +242,7 @@ class TextProfiler(object):
         data_flat = list(itertools.chain(*data))
         self.vocab_count += Counter(data_flat)
 
+    import string
     @BaseColumnProfiler._timeit(name='words')
     def _update_words(self, data, prev_dependent_properties=None,
                       subset_properties=None):
@@ -251,13 +259,19 @@ class TextProfiler(object):
         :type subset_properties: dict
         :return: None
         """
-        for row in data:
-            for word in re.findall(r'\w+', row):
-                word_lower = word.lower()
-                if word_lower not in self._stop_words:
-                    if not self._is_case_sensitive:
-                        word = word_lower
-                    self.word_count[word] += 1
+        # for row in data:
+        #     for word in re.findall(r'\w+', row):
+        #         word_lower = word.lower()
+        #         if word_lower not in self._stop_words:
+        #             if not self._is_case_sensitive:
+        #                 word = word_lower
+        #             self.word_count[word] += 1
+        translator = str.maketrans('', '', string.punctuation)
+        if not self._is_case_sensitive:
+            linewords = (line.translate(translator).lower().split() for line in data)
+        else:
+            linewords = (line.translate(translator).lower().split() for line in data)
+        return Counter(itertools.chain.from_iterable(linewords))
 
     def _update_helper(self, data, profile):
         """

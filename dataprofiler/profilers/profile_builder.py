@@ -1406,10 +1406,14 @@ class StructuredProfiler(BaseProfiler):
             batch_means = np.full(len(self._profile.keys()), np.nan)
             batch_stds = np.full(len(self._profile.keys()), np.nan)
             for id, col in enumerate(self._profile.keys()):
-                if self._profile[col].profile['data_type'] in ['int', 'float'] \
-                        and col in data.columns:
-                    batch_means[id] = data[col].mean()
-                    batch_stds[id] = data[col].std()
+                if col in data.columns:
+                    data_type_compiler = self._profile[col].profiles["data_type_profile"]
+                    data_type = data_type_compiler.selected_data_type
+                    if data_type in ["int", "float"]:
+                        data_type_profiler = data_type_compiler._profiles[data_type]
+                        n = data_type_profiler.match_count
+                        batch_means[id] = data[col].mean()
+                        batch_stds[id] = data[col].std()
 
             # If these lengths are different, then some columns were added to to the
             # profile.
@@ -1573,9 +1577,13 @@ class StructuredProfiler(BaseProfiler):
             'std': np.full(len(self._profile.keys()), np.nan)
         }
         for id, col in enumerate(self._profile.keys()):
-            if self._profile[col].profile['data_type'] in ['int', 'float']:
-                prev_dependent_properties['mean'][id] = self._profile[col].profile['statistics']['mean']
-                prev_dependent_properties['std'][id] = self._profile[col].profile['statistics']['stddev']
+            data_type_compiler = self._profile[col].profiles["data_type_profile"]
+            data_type = data_type_compiler.selected_data_type
+            if data_type in ["int", "float"]:
+                data_type_profiler = data_type_compiler._profiles[data_type]
+                n = data_type_profiler.match_count
+                prev_dependent_properties['mean'][id] = data_type_profiler.mean
+                prev_dependent_properties['std'][id] = np.sqrt(data_type_profiler._biased_variance * n / (n - 1))
 
         # Create structured profile objects
         new_cols = set()

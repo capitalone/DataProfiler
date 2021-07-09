@@ -895,14 +895,14 @@ class TextProfilerOptions(BaseInspectorOptions):
                           "or list of strings.".format(variable_path))
 
         if (self.top_k_chars is not None and
-                not isinstance(self.top_k_chars, int)):
+                (not isinstance(self.top_k_chars, int) or self.top_k_chars < 0)):
             errors.append("{}.top_k_chars must be None "
-                          "or integer.".format(variable_path))
+                          "or non-negative integer.".format(variable_path))
 
         if (self.top_k_words is not None and
-                not isinstance(self.top_k_words, int)):
+                (not isinstance(self.top_k_words, int) or self.top_k_words < 0)):
             errors.append("{}.top_k_words must be None "
-                          "or integer.".format(variable_path))
+                          "or non-negative integer.".format(variable_path))
 
         if not isinstance(self.vocab, BooleanOption):
             errors.append("{}.vocab must be a BooleanOption "

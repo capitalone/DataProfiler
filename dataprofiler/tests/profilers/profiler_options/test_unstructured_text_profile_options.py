@@ -154,13 +154,13 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
                      "or list of strings."
                  ]),
             dict(prop='top_k_words',
-                 value_list=['a', [1, 2], ['a', 1, 'a']],
+                 value_list=['a', -1, [1, 2], ['a', 1, 'a']],
                  errors=[
                      "TextProfilerOptions.top_k_words "
                      "must be None or integer."
                  ]),
             dict(prop='top_k_chars',
-                 value_list=['a', [1, 2], ['a', 1, 'a']],
+                 value_list=['a', -1, [1, 2], ['a', 1, 'a']],
                  errors=[
                      "TextProfilerOptions.top_k_chars "
                      "must be None or integer."

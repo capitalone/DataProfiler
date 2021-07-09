@@ -1420,6 +1420,7 @@ class StructuredProfiler(BaseProfiler):
             # If these lengths are different, then some columns were added to to the
             # profile.
             if (len(batch_means) != len(prev_dependent_properties["mean"])):
+                # TODO: Remove this when adding new columns isn't supported.
                 warnings.warn("A new column was added when updating. Correlations cannot be calculated"
                               " for new columns.", RuntimeWarning)
                 return

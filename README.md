@@ -101,7 +101,7 @@ The format for a structured profile is below:
             "categories": list(str),
             "unique_count": int,
             "unique_ratio": float,
-            "categorical_count": dict(string, int),
+            "categorical_count": dict[string, int],
             "gini_impurity": float,
             "unalikeability": float,
             "precision": {

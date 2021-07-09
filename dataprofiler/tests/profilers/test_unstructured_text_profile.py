@@ -381,7 +381,6 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
     def test_options_vocab_update(self):
         # change vocab.is_enabled, other options remain the same as default values
-
         options = TextProfilerOptions()
         options.vocab.is_enabled = False
 
@@ -407,7 +406,6 @@ class TestUnstructuredTextProfile(unittest.TestCase):
 
     def test_options_words_update(self):
         # change words.is_enabled, other options remain the same as default values
-
         options = TextProfilerOptions()
         options.words.is_enabled = False
 

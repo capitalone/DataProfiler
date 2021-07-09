@@ -204,7 +204,7 @@ class CategoricalColumn(BaseColumnProfiler):
         Teaching Statistics, Vol. 27, No. 2 (2005), pp. 58-60.
 
         U = Σ(i=1,n)Σ(j=1,n): (Cij)/(n**2-n)
-        C = 1 if i!=j, 0 if i=j
+        Cij = 1 if i!=j, 0 if i=j
 
         :return: None or unlikeability probability
         """

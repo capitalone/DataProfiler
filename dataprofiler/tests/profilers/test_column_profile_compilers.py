@@ -4,7 +4,6 @@ import six
 import unittest
 from unittest import mock
 import pandas as pd
-import numpy as np
 
 from dataprofiler.profilers import column_profile_compilers as \
     col_pro_compilers

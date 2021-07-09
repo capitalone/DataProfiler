@@ -174,8 +174,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         # Test disabled column in both compilers
         compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2,
                                                                          options)
-        expected_stddev = (np.sqrt(np.var([-2, -1, 1, 2], ddof=1))
-                           - np.sqrt(np.var([5, 15], ddof=1)))
         expected_diff = {
             'data_type_representation': {
                 'datetime': 'unchanged', 
@@ -189,7 +187,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 'sum': -20.0,
                 'mean': -10.0, 
                 'variance': -46.666666666666664,
-                'stddev': expected_stddev,
+                'stddev': data1.astype(int).std() - data2.astype(int).std(),
                 'precision': {
                     'min': 'unchanged', 
                     'max': -1, 

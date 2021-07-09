@@ -1,5 +1,6 @@
 import os
 import unittest
+from io import StringIO, BytesIO
 
 import pandas as pd
 
@@ -159,6 +160,27 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=3, encoding='utf-8'),            
         ]
         cls.output_file_path = None
+
+    def test_is_match_for_string_streams(self):
+        """
+        Determine if the csv file can be automatically identified from string stream
+        """
+        for input_file in self.input_file_names:
+            print(input_file)
+            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
+                byte_string = StringIO(fp.read())
+                input_data_obj = Data(byte_string)
+                self.assertEqual(input_data_obj.data_type, 'csv')
+
+    def test_is_match_for_byte_streams(self):
+        """
+        Determine if the csv file can be automatically identified from byte stream
+        """
+        for input_file in self.input_file_names:
+            with open(input_file['path'], 'rb') as fp:
+                byte_string = BytesIO(fp.read())
+                input_data_obj = Data(byte_string)
+                self.assertEqual(input_data_obj.data_type, 'csv')
         
     def test_auto_file_identification(self):
         """

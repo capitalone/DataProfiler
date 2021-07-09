@@ -1,4 +1,5 @@
 import csv
+from io import BytesIO
 import re
 from six import StringIO
 
@@ -508,7 +509,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         """
         
         self._file_encoding = None
-        if not data_utils.is_stream_buffer(input_file_path):
+        if not data_utils.is_stream_buffer(input_file_path) or isinstance(input_file_path, BytesIO):
             self._file_encoding = data_utils.detect_file_encoding(input_file_path)
 
         data_as_str = data_utils.load_as_str_from_file(input_file_path,
@@ -579,7 +580,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             options = dict()
 
         file_encoding = None
-        if not data_utils.is_stream_buffer(file_path):
+        if not data_utils.is_stream_buffer(file_path) or isinstance(file_path, BytesIO):
             file_encoding = data_utils.detect_file_encoding(file_path=file_path)
 
         delimiter = options.get("delimiter", None)

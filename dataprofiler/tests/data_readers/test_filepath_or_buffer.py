@@ -1,6 +1,6 @@
 import unittest
 import os
-from io import open, StringIO, BytesIO
+from io import open, StringIO, BytesIO, TextIOWrapper
 
 from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
 
@@ -80,7 +80,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             with FileOrBufferHandler(BytesIO(open(input_file['path'], 'rb').
-                    read())) as filepath_or_buffer, open(input_file['path'], 'rb')\
+                    read())) as filepath_or_buffer, TextIOWrapper(open(input_file['path'], 'rb'))\
                     as input_file_check:
 
                 # check first 100 lines
@@ -96,7 +96,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
             seek_offset_test = 500
             with FileOrBufferHandler(BytesIO(open(input_file['path'], 'rb').
                     read()), seek_offset=seek_offset_test) as filepath_or_buffer,\
-                    open(input_file['path'], 'rb') as input_file_check:
+                    TextIOWrapper(open(input_file['path'], 'rb')) as input_file_check:
 
                 input_file_check.seek(seek_offset_test)
 

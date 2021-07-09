@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import os
 import unittest
+from io import BytesIO
 
 from dataprofiler.data_readers.data import Data
 from dataprofiler.data_readers.avro_data import AVROData
@@ -30,6 +31,16 @@ class TestAVRODataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'avro/deflate_compressed_intentionally_mislabeled_file.csv'), count=4),
             dict(path=os.path.join(test_dir, 'avro/snappy_compressed_intentionally_mislabeled_file.csv'), count=4),
         ]
+
+    def test_is_match_for_byte_streams(self):
+        """
+        Determine if the avro file can be automatically identified from byte stream
+        """
+        for input_file in self.input_file_names:
+            # as BytesIO Stream
+            byte_string = BytesIO(open(input_file['path'], 'rb').read())
+            input_data_obj = Data(byte_string)
+            self.assertEqual(input_data_obj.data_type, 'avro')
 
     def test_avro_file_identification(self):
         """

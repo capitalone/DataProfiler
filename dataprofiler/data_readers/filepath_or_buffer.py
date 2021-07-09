@@ -1,4 +1,4 @@
-from io import open, StringIO, BytesIO
+from io import open, StringIO, BytesIO, TextIOWrapper
 
 from . import data_utils
 
@@ -26,11 +26,15 @@ class FileOrBufferHandler():
         self.seek_offset = seek_offset
         self.seek_whence = seek_whence
         self._encoding = encoding
+        self.original_type = type(filepath_or_buffer)
 
     def __enter__(self):
         if isinstance(self._filepath_or_buffer, str):
             self._filepath_or_buffer = open(
                 self._filepath_or_buffer, self.open_method, encoding=self._encoding)
+
+        elif isinstance(self._filepath_or_buffer, BytesIO) and self.open_method == 'r':
+            self._filepath_or_buffer = DetachingTextIOWrapper(self._filepath_or_buffer, encoding=self._encoding)
 
         elif not data_utils.is_stream_buffer(self._filepath_or_buffer):
             # Raise AttributeError if attribute value not found.
@@ -43,7 +47,14 @@ class FileOrBufferHandler():
         return self._filepath_or_buffer
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if isinstance(self._filepath_or_buffer, (StringIO, BytesIO)):
+        if isinstance(self._filepath_or_buffer, (StringIO, BytesIO, DetachingTextIOWrapper)):
             self._filepath_or_buffer.seek(0)
         else:
             self._filepath_or_buffer.close()
+
+class DetachingTextIOWrapper(TextIOWrapper):
+    def close(self):
+        self.detach()
+    def __del__(self):
+        if self.buffer:
+            self.detach()

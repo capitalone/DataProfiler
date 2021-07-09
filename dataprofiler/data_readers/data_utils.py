@@ -557,7 +557,7 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
             # the index of the newline char that matches remaining_lines
             search_query_value = '\n'
             if (isinstance(sample_lines, bytes)):
-                search_query_value = b'\r\n'
+                search_query_value = b'\n'
             
             loc, occurance = find_nth_loc(sample_lines,
                                         search_query=search_query_value,

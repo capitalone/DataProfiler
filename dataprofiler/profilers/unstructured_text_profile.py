@@ -144,16 +144,17 @@ class TextProfiler(object):
             merged_profile.word_count = self.word_count + other.word_count
         else:
             if not self._is_case_sensitive:
-                lower_word_count = self.word_count
-                upper_word_count = other.word_count
+                non_case_sensitive_word_count = self.word_count
+                case_sensitive_word_count = other.word_count
             else:
-                lower_word_count = other.word_count
-                upper_word_count = self.word_count
+                non_case_sensitive_word_count = other.word_count
+                case_sensitive_word_count = self.word_count
 
             additive_word_count = Counter()
-            for k, v in upper_word_count.items():
+            for k, v in case_sensitive_word_count.items():
                 additive_word_count.update({k.lower(): v})
-            merged_profile.word_count = lower_word_count + additive_word_count
+            merged_profile.word_count = \
+                non_case_sensitive_word_count + additive_word_count
 
     @staticmethod
     def _merge_vocab(vocab_count1, vocab_count2):

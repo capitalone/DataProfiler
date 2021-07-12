@@ -100,11 +100,32 @@ class TextProfiler(object):
         if options and options.stop_words is not None:
             self._stop_words = options.stop_words
 
+        self._top_k_chars = None
+        if options:
+            self._top_k_chars = options.top_k_chars
+
+        self._top_k_words = None
+        if options:
+            self._top_k_words = options.top_k_words
+
         self.__calculations = {
             "vocab": TextProfiler._update_vocab,
             "words": TextProfiler._update_words,
         }
         BaseColumnProfiler._filter_properties_w_options(self.__calculations, options)
+
+    @staticmethod
+    def _merge_vocab(vocab_count1, vocab_count2):
+        """
+        Merges the vocab counts of two TextProfiler profiles
+
+        :param vocab_count1: vocab count of the first profile
+        :param vocab_count2: vocab count of the second profile
+        :type vocab_count1: Counter()
+        :type vocab_count2: Counter()
+        :return: merged vocab count
+        """
+        return vocab_count1 + vocab_count2
 
     def _merge_words(self, other, merged_profile):
         """
@@ -132,19 +153,6 @@ class TextProfiler(object):
                     merged_profile.word_count[word] += additive_words[word]
                 else:
                     merged_profile.word_count[word_lower] += additive_words[word]
-
-    @staticmethod
-    def _merge_vocab(vocab_count1, vocab_count2):
-        """
-        Merges the vocab counts of two TextProfiler profiles
-
-        :param vocab_count1: vocab count of the first profile
-        :param vocab_count2: vocab count of the second profile
-        :type vocab_count1: Counter()
-        :type vocab_count2: Counter()
-        :return: merged vocab count
-        """
-        return vocab_count1 + vocab_count2
     
     def __add__(self, other):
         """
@@ -182,7 +190,16 @@ class TextProfiler(object):
                           "since there were conflicting values for case "
                           "sensitivity between the two profiles being merged.")
 
-        
+        merged_profile._top_k_chars = None
+        if self._top_k_chars and other._top_k_chars:
+            merged_profile._top_k_chars = max(
+                self._top_k_chars, other._top_k_chars)
+
+        merged_profile._top_k_words = None
+        if self._top_k_words and other._top_k_words:
+            merged_profile._top_k_words = max(
+                self._top_k_words, other._top_k_words)
+
         BaseColumnProfiler._merge_calculations(merged_profile.__calculations,
                                  self.__calculations,
                                  other.__calculations)
@@ -204,12 +221,18 @@ class TextProfiler(object):
 
         :return:
         """
+        top_k_words = self._top_k_words
+        if top_k_words is None:
+            top_k_words = len(self.word_count.keys())
+
         word_count = sorted(self.word_count.items(),
                             key=lambda x: x[1],
-                            reverse=True)
+                            reverse=True)[:top_k_words]
+
         profile = dict(
             vocab=list(self.vocab_count.keys()),
-            vocab_count=dict(self.vocab_count.most_common()),
+            vocab_count=dict(
+                self.vocab_count.most_common(self._top_k_chars)),
             words=list(self.word_count.keys()),
             word_count=dict(word_count),
             times=self.times,

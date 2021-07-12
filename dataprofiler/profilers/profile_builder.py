@@ -11,7 +11,7 @@ from __future__ import division
 import copy
 import random
 import re
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import warnings
 import pickle
 from datetime import datetime
@@ -685,10 +685,10 @@ class BaseProfiler(object):
             data_labeler_options.data_labeler_object = None
 
         # get all profiles, unstructured is a single profile and hence needs to
-        # be in a list, whereas structured is a dict and needs to be a list
+        # be in a list, whereas structured is already a list
         profilers = [self._profile]
         if isinstance(self, StructuredProfiler):
-            profilers = self._profile.values()
+            profilers = self._profile
 
         # Remove data labelers for all columns
         for profiler in profilers:
@@ -746,10 +746,10 @@ class BaseProfiler(object):
                 self.options.set({'data_labeler.is_enabled': False})
 
         # get all profiles, unstructured is a single profile and hence needs to
-        # be in a list, whereas structured is a dict and needs to be a list
+        # be in a list, whereas structured is already a list
         profilers = [self._profile]
         if isinstance(self, StructuredProfiler):
-            profilers = self._profile.values()
+            profilers = self._profile
 
         # Restore data labelers for all columns
         for profiler in profilers:
@@ -1160,8 +1160,9 @@ class StructuredProfiler(BaseProfiler):
         self.row_has_null_count = 0
         self.row_is_null_count = 0
         self.hashed_row_dict = dict()
+        self._profile = []
+        self._col_name_to_idx = defaultdict(list)
         self.correlation_matrix = None
-        self._profile = dict()
 
         if data is not None:
             self.update_profile(data)
@@ -1171,11 +1172,14 @@ class StructuredProfiler(BaseProfiler):
         StructuredProfiler specific checks to ensure two profiles can be added
         together.
         """
-        if set(self._profile) != set(other._profile):
-            raise ValueError('Profiles do not have the same schema.')
-        elif not all([isinstance(other._profile[p_name],
-                                 type(self._profile[p_name]))
-                      for p_name in self._profile]):  # options check
+
+        # Pass with strict = True to enforce both needing to be non-empty
+        self_to_other_idx = self._get_and_validate_schema_mapping(self._col_name_to_idx,
+                                                                  other._col_name_to_idx,
+                                                                  True)
+        if not all([isinstance(other._profile[self_to_other_idx[idx]],
+                               type(self._profile[idx]))
+                    for idx in range(len(self._profile))]):  # options check
             raise ValueError('The two profilers were not setup with the same '
                              'options, hence they do not calculate the same '
                              'profiles and cannot be added together.')
@@ -1199,11 +1203,17 @@ class StructuredProfiler(BaseProfiler):
         merged_profile.hashed_row_dict.update(self.hashed_row_dict)
         merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
+        self_to_other_idx = self._get_and_validate_schema_mapping(self._col_name_to_idx,
+                                                                  other._col_name_to_idx)
+
         # merge profiles
-        for profile_name in self._profile:
-            merged_profile._profile[profile_name] = (
-                self._profile[profile_name] + other._profile[profile_name]
-            )
+        for idx in range(len(self._profile)):
+            other_idx = self_to_other_idx[idx]
+            merged_profile._profile.append(self._profile[idx] +
+                                           other._profile[other_idx])
+
+        # schemas are asserted to be identical
+        merged_profile._col_name_to_idx = copy.deepcopy(self._col_name_to_idx)
 
         # merge correlation
         merged_profile.correlation_matrix = self._merge_correlation(other)
@@ -1216,8 +1226,7 @@ class StructuredProfiler(BaseProfiler):
         Calculates and returns the maximum samples used in any of the columns.
         """
         samples_used = 0
-        columns = list(self._profile.values())
-        for col in columns:
+        for col in self._profile:
             samples_used = max(samples_used, col.sample_size)
         return samples_used
 
@@ -1228,8 +1237,7 @@ class StructuredProfiler(BaseProfiler):
         i.e. every column in the Profile was read up to this row (possibly
         further in some cols)
         """
-        return min([self._profile[col].sample_size
-                    for col in self._profile], default=0)
+        return min([col.sample_size for col in self._profile], default=0)
 
     @property
     def _min_sampled_from_batch(self):
@@ -1237,8 +1245,68 @@ class StructuredProfiler(BaseProfiler):
         Calculates and returns the number of rows that were completely sampled
         in the most previous batch
         """
-        return min([self._profile[col]._last_batch_size
-                    for col in self._profile], default=0)
+        return min([col._last_batch_size for col in self._profile], default=0)
+
+    @staticmethod
+    def _get_and_validate_schema_mapping(schema1, schema2, strict=False):
+        """
+        Validate compatibility between schema1 and schema2 and return a dict
+        mapping indices in schema1 to their corresponding indices in schema2.
+        In __add__: want to map self _profile idx -> other _profile idx
+        In _update_profile_from_chunk: want to map data idx -> _profile idx
+
+        :param schema1: a column name to index mapping
+        :type schema1: Dict[str, list[int]]
+        :param schema2: a column name to index mapping
+        :type schema2: Dict[str, list[int]]
+        :param strict: whether or not to strictly match (__add__ case)
+        :type strict: bool
+        :return: a mapping of indices in schema1 to indices in schema2
+        :rtype: Dict[int, int]
+        """
+
+        len_schema1 = len(schema1)
+        len_schema2 = len(schema2)
+
+        # If both non-empty, must be same length
+        if 0 < len_schema1 != len_schema2 > 0:
+            raise ValueError("Attempted to merge profiles with different "
+                             "numbers of columns")
+
+        # In the case of __add__ with one of the schemas not initialized
+        if strict and (len_schema1 == 0 or len_schema2 == 0):
+            raise ValueError("Cannot merge empty profiles.")
+
+        # In the case of _update_from_chunk with uninitialized schema
+        if not strict and len_schema2 == 0:
+            return {col_ind: col_ind for col_ind_list in schema1.values()
+                    for col_ind in col_ind_list}
+
+        # Map indices in schema1 to indices in schema2
+        schema_mapping = dict()
+
+        for key in schema1:
+            # Pandas columns are int by default, but need to fuzzy match strs
+            if isinstance(key, str):
+                key = key.lower()
+            if key not in schema2:
+                raise ValueError("Columns do not match, cannot update "
+                                 "or merge profiles.")
+
+            elif len(schema1[key]) != len(schema2[key]):
+                raise ValueError(f"Different number of columns detected for "
+                                 f"'{key}', cannot update or merge profiles.")
+
+            is_duplicate_col = len(schema1[key]) > 1
+            for schema1_col_ind, schema2_col_ind in zip(schema1[key],
+                                                        schema2[key]):
+                if is_duplicate_col and (schema1_col_ind != schema2_col_ind):
+                    raise ValueError(f"Different column indices under "
+                                     f"duplicate name '{key}', cannot update "
+                                     f"or merge unless schema is identical.")
+                schema_mapping[schema1_col_ind] = schema2_col_ind
+
+        return schema_mapping
 
     def report(self, report_options=None):
         if not report_options:
@@ -1251,11 +1319,10 @@ class StructuredProfiler(BaseProfiler):
         omit_keys = report_options.get("omit_keys", [])
         num_quantile_groups = report_options.get("num_quantile_groups", 4)
 
-        columns = list(self._profile.values())
         report = OrderedDict([
             ("global_stats", {
                 "samples_used": self._max_col_samples_used,
-                "column_count": len(columns),
+                "column_count": len(self._profile),
                 "row_count": self.total_samples,
                 "row_has_null_ratio": self._get_row_has_null_ratio(),
                 "row_is_null_ratio": self._get_row_is_null_ratio(),
@@ -1263,17 +1330,20 @@ class StructuredProfiler(BaseProfiler):
                 "duplicate_row_count": self._get_duplicate_row_count(),
                 "file_type": self.file_type,
                 "encoding": self.encoding,
-                "correlation_matrix": self.correlation_matrix
+                "correlation_matrix": self.correlation_matrix,
+                "profile_schema": defaultdict(list)
             }),
-            ("data_stats", OrderedDict()),
+            ("data_stats", []),
         ])
-        for key in self._profile.keys():
-            report["data_stats"][key] = self._profile[key].profile
-            quantiles = report["data_stats"][key]["statistics"].get(
-                'quantiles')
+
+        for i in range(len(self._profile)):
+            col_name = self._profile[i].name
+            report["global_stats"]["profile_schema"][col_name].append(i)
+            report["data_stats"].append(self._profile[i].profile)
+            quantiles = report["data_stats"][i]["statistics"].get('quantiles')
             if quantiles:
                 quantiles = calculate_quantiles(num_quantile_groups, quantiles)
-                report["data_stats"][key]["statistics"]["quantiles"] = quantiles
+                report["data_stats"][i]["statistics"]["quantiles"] = quantiles
 
         return _prepare_report(report, output_format, omit_keys)
 
@@ -1323,7 +1393,7 @@ class StructuredProfiler(BaseProfiler):
         null_in_row_count = set()
         first_col_flag = True
         for column in self._profile:
-            null_type_dict = self._profile[column].null_types_index
+            null_type_dict = column.null_types_index
             null_row_indices = set()
             if null_type_dict:
                 null_row_indices = set.union(*null_type_dict.values())
@@ -1333,7 +1403,7 @@ class StructuredProfiler(BaseProfiler):
             if sample_ids is not None:
                 # This is the amount (integer) indices were shifted by in the
                 # event of overlap
-                shift = self._profile[column]._index_shift
+                shift = column._index_shift
                 if shift is None:
                     # Shift is None if index is str or if no overlap detected
                     null_row_indices = null_row_indices.intersection(
@@ -1371,12 +1441,12 @@ class StructuredProfiler(BaseProfiler):
         columns = self.options.correlation.columns
         clean_column_ids = []
         if columns is None:
-            for col_id, col in enumerate(self._profile.keys()):
-                if (self._profile[col].profile['data_type'] not in ['int', 'float']
-                        or self._profile[col].null_count > 0):
-                    clean_samples.pop(col)
+            for idx in range(len(self._profile)):
+                if (self._profile[idx].profile['data_type'] not in ['int', 'float']
+                        or self._profile[idx].null_count > 0):
+                    clean_samples.pop(idx)
                 else:
-                    clean_column_ids.append(col_id)
+                    clean_column_ids.append(idx)
         if len(clean_samples) <= 1:
             return None
 
@@ -1438,23 +1508,19 @@ class StructuredProfiler(BaseProfiler):
             return None
 
         mean1 = np.array(
-            [self._profile[profile_name].profile['statistics']['mean']
-             for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids1])
+            [self._profile[idx].profile['statistics']['mean']
+             for idx in range(len(self._profile)) if idx in col_ids1])
         std1 = np.array(
-            [self._profile[profile_name].profile['statistics']['stddev']
-             for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids1])
+            [self._profile[idx].profile['statistics']['stddev']
+             for idx in range(len(self._profile)) if idx in col_ids1])
         n1 = self.total_samples
 
         mean2 = np.array(
-            [other._profile[profile_name].profile['statistics']['mean']
-             for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids2])
+            [other._profile[idx].profile['statistics']['mean']
+             for idx in range(len(self._profile)) if idx in col_ids2])
         std2 = np.array(
-            [other._profile[profile_name].profile['statistics']['stddev']
-             for i, profile_name in enumerate(self._profile.keys())
-             if i in col_ids2])
+            [other._profile[idx].profile['statistics']['stddev']
+             for idx in range(len(self._profile)) if idx in col_ids2])
         n2 = other.total_samples
         return self._merge_correlation_helper(corr_mat1, mean1, std1, n1,
                                               corr_mat2, mean2, std2, n2)
@@ -1522,10 +1588,18 @@ class StructuredProfiler(BaseProfiler):
         elif isinstance(data, list):
             data = pd.DataFrame(data)
 
-        if len(data.columns) != len(data.columns.unique()):
-            raise ValueError('`StructuredProfiler` does not currently support '
-                             'data which contains columns with duplicate '
-                             'names.')
+        # Calculate schema of incoming data
+        mapping_given = defaultdict(list)
+        for col_idx in range(len(data.columns)):
+            col = data.columns[col_idx]
+            # Pandas columns are int by default, but need to fuzzy match strs
+            if isinstance(col, str):
+                col = col.lower()
+            mapping_given[col].append(col_idx)
+
+        # Validate schema compatibility and index mapping from data to _profile
+        col_idx_to_prof_idx = self._get_and_validate_schema_mapping(mapping_given,
+                                                                    self._col_name_to_idx)
 
         try:
             from tqdm import tqdm
@@ -1550,17 +1624,19 @@ class StructuredProfiler(BaseProfiler):
         # Newly introduced features (python3.8) improves the situation
         sample_ids = np.array(sample_ids)
 
-        # Create structured profile objects
-        new_cols = set()
-        for col in data.columns:
-            if col not in self._profile:
-                self._profile[col] = StructuredColProfiler(
+        # Create StructuredColProfilers upon initialization
+        # Record correlation between columns in data and index in _profile
+        if len(self._profile) == 0:
+            # Already calculated incoming schema for validation
+            self._col_name_to_idx = mapping_given
+            for col_idx in range(data.shape[1]):
+                # Add blank StructuredColProfiler to _profile
+                self._profile.append(StructuredColProfiler(
                     sample_size=sample_size,
                     min_true_samples=min_true_samples,
                     sample_ids=sample_ids,
                     options=self.options
-                )
-                new_cols.add(col)
+                ))
 
         # Generate pool and estimate datasize
         pool = None
@@ -1573,10 +1649,12 @@ class StructuredProfiler(BaseProfiler):
 
         # Format the data
         notification_str = "Finding the Null values in the columns..."
-        if pool and len(new_cols) > 0:
+        if pool:
             notification_str += " (with " + str(pool_size) + " processes)"
 
+        # Keys are _profile indices
         clean_sampled_dict = {}
+        # Keys are column indices in data
         multi_process_dict = {}
         single_process_list = set()
 
@@ -1587,54 +1665,65 @@ class StructuredProfiler(BaseProfiler):
 
         if pool is not None:
             # Create a bunch of simultaneous column conversions
-            for col in data.columns:
+            for col_idx in range(data.shape[1]):
+                col_ser = data.iloc[:, col_idx]
+                prof_idx = col_idx_to_prof_idx[col_idx]
                 if min_true_samples is None:
-                    min_true_samples = self._profile[col]._min_true_samples
+                    min_true_samples = self._profile[prof_idx]._min_true_samples
                 try:
-                    multi_process_dict[col] = pool.apply_async(
-                        self._profile[col].clean_data_and_get_base_stats,
-                        (data[col], sample_size, min_true_samples, sample_ids))
+                    multi_process_dict[col_idx] = pool.apply_async(
+                        self._profile[prof_idx].clean_data_and_get_base_stats,
+                        (col_ser, sample_size, min_true_samples,
+                         sample_ids))
                 except Exception as e:
                     print(e)
-                    single_process_list.add(col)
+                    single_process_list.add(col_idx)
 
             # Iterate through multiprocessed columns collecting results
             print(notification_str)
-            for col in tqdm(multi_process_dict.keys()):
+            for col_idx in tqdm(multi_process_dict.keys()):
                 try:
-                    clean_sampled_dict[col], base_stats = \
-                        multi_process_dict[col].get()
-                    self._profile[col]._update_base_stats(base_stats)
+                    prof_idx = col_idx_to_prof_idx[col_idx]
+                    clean_sampled_dict[prof_idx], base_stats = \
+                        multi_process_dict[col_idx].get()
+                    self._profile[prof_idx]._update_base_stats(base_stats)
                 except Exception as e:
                     print(e)
-                    single_process_list.add(col)
+                    single_process_list.add(col_idx)
 
             # Clean up any columns which errored
             if len(single_process_list) > 0:
                 print("Errors in multiprocessing occured:",
                       len(single_process_list), "errors, reprocessing...")
-                for col in tqdm(single_process_list):
+                for col_idx in tqdm(single_process_list):
+                    col_ser = data.iloc[:, col_idx]
+                    prof_idx = col_idx_to_prof_idx[col_idx]
                     if min_true_samples is None:
-                        min_true_samples = self._profile[col]._min_true_samples
-                    clean_sampled_dict[col], base_stats = \
-                        self._profile[col].clean_data_and_get_base_stats(
-                            data[col], sample_size, min_true_samples, sample_ids)
-                    self._profile[col]._update_base_stats(base_stats)
+                        min_true_samples = \
+                            self._profile[prof_idx]._min_true_samples
+                    clean_sampled_dict[prof_idx], base_stats = \
+                        self._profile[prof_idx].clean_data_and_get_base_stats(
+                            col_ser, sample_size,
+                            min_true_samples, sample_ids)
+                    self._profile[prof_idx]._update_base_stats(base_stats)
 
             pool.close()  # Close pool for new tasks
             pool.join()  # Wait for all workers to complete
 
         else:  # No pool
             print(notification_str)
-            for col in tqdm(data.columns):
+            for col_idx in tqdm(range(data.shape[1])):
+                col_ser = data.iloc[:, col_idx]
+                prof_idx = col_idx_to_prof_idx[col_idx]
                 if min_true_samples is None:
-                    min_true_samples = self._profile[col]._min_true_samples
-                clean_sampled_dict[col], base_stats = \
-                    self._profile[col].clean_data_and_get_base_stats(
-                        df_series=data[col], sample_size=sample_size,
-                        min_true_samples=min_true_samples, sample_ids=sample_ids
+                    min_true_samples = self._profile[prof_idx]._min_true_samples
+                clean_sampled_dict[prof_idx], base_stats = \
+                    self._profile[prof_idx].clean_data_and_get_base_stats(
+                        df_series=col_ser, sample_size=sample_size,
+                        min_true_samples=min_true_samples,
+                        sample_ids=sample_ids
                     )
-                self._profile[col]._update_base_stats(base_stats)
+                self._profile[prof_idx]._update_base_stats(base_stats)
 
         # Process and label the data
         notification_str = "Calculating the statistics... "
@@ -1643,11 +1732,12 @@ class StructuredProfiler(BaseProfiler):
             pool, pool_size = utils.generate_pool(4, est_data_size)
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"
+
         print(notification_str)
 
-        for col in tqdm(data.columns):
-            self._profile[col].update_column_profilers(
-                clean_sampled_dict[col], pool)
+        for prof_idx in tqdm(clean_sampled_dict.keys()):
+            self._profile[prof_idx].update_column_profilers(
+                clean_sampled_dict[prof_idx], pool)
 
         if pool is not None:
             pool.close()  # Close pool for new tasks
@@ -1678,11 +1768,11 @@ class StructuredProfiler(BaseProfiler):
             "row_has_null_count": self.row_has_null_count,
             "row_is_null_count": self.row_is_null_count,
             "hashed_row_dict": self.hashed_row_dict,
-            "correlation_matrix": self.correlation_matrix,
             "_samples_per_update": self._samples_per_update,
             "_min_true_samples": self._min_true_samples,
             "options": self.options,
-            "_profile": self.profile
+            "_profile": self.profile,
+            "_col_name_to_idx": self._col_name_to_idx,
         }
 
         self._save_helper(filepath, data_dict)

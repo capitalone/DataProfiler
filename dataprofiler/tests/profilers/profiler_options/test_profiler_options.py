@@ -75,8 +75,8 @@ class TestProfilerOptions(unittest.TestCase):
                      "bias_correction.is_enabled": False})
         profile = Profiler(self.data, options=options)
 
-        for column_name in profile.profile.keys():
-            profile_column = profile.profile[column_name].profile
+        for col_profiler in profile.profile:
+            profile_column = col_profiler.profile
             if profile_column["statistics"] \
                     and "histogram" in profile_column["statistics"].keys() \
                     and profile_column["statistics"]["histogram"]:
@@ -96,8 +96,8 @@ class TestProfilerOptions(unittest.TestCase):
                      "bias_correction.is_enabled": True})
         profile = Profiler(self.data, options=options)
 
-        for column_name in profile.profile.keys():
-            profile_column = profile.profile[column_name].profile
+        for col_profiler in profile.profile:
+            profile_column = col_profiler.profile
             if profile_column["statistics"] \
                     and "histogram" in profile_column["statistics"].keys() \
                     and profile_column["statistics"]["histogram"]:
@@ -117,8 +117,8 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
         options.structured_options.data_labeler.enable = False
         profile = Profiler(self.data, options=options)
-        for column_name in profile.profile.keys():
-            profile_column = profile.profile[column_name].profile
+        for col_profiler in profile.profile:
+            profile_column = col_profiler.profile
             if profile_column["statistics"] \
                     and "data_label_probability" in \
                     profile_column["statistics"].keys():
@@ -135,8 +135,8 @@ class TestProfilerOptions(unittest.TestCase):
         options.structured_options.category.is_enabled = False
         options.structured_options.data_labeler.is_enabled = False
         profile = Profiler(self.data, options=options)
-        for column_name in profile.profile.keys():
-            profile_column = profile.profile[column_name].profile
+        for col_profiler in profile.profile:
+            profile_column = col_profiler.profile
             self.assertIsNone(profile_column["data_type"])
             self.assertTrue("data_label" not in profile_column.keys())
             self.assertIsNone(profile_column["categorical"])
@@ -193,8 +193,8 @@ class TestProfilerOptions(unittest.TestCase):
         profile = Profiler(self.data, options=options)
 
         # Assert that the stats are non-existent
-        for column_name in profile.profile.keys():
-            profile_column = profile.profile[column_name].profile
+        for col_profiler in profile.profile:
+            profile_column = col_profiler.profile
             if profile_column["statistics"] \
                     and "histogram" in profile_column["statistics"].keys() \
                     and profile_column["statistics"]["histogram"]:

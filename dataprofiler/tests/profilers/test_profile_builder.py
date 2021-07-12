@@ -95,7 +95,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(7, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertListEqual([0], list(profiler._profile.keys()))
+        self.assertListEqual([0], list(profiler._col_name_to_idx.keys()))
         self.assertIsNone(profiler.correlation_matrix)
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
@@ -120,7 +120,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(7, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertListEqual([0], list(profiler._profile.keys()))
+        self.assertListEqual([0], list(profiler._col_name_to_idx.keys()))
         self.assertIsNone(profiler.correlation_matrix)
 
         # test properties when series has name
@@ -133,7 +133,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(7, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertListEqual(['test'], list(profiler._profile.keys()))
+        self.assertListEqual(['test'], list(profiler._col_name_to_idx.keys()))
         self.assertIsNone(profiler.correlation_matrix)
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
@@ -160,13 +160,15 @@ class TestStructuredProfiler(unittest.TestCase):
             profile1 + 3
 
         # test mismatched profiles
-        popped_profile = profile2._profile.pop(0)
+        profile2._profile.pop(0)
+        profile2._col_name_to_idx.pop(0)
         with self.assertRaisesRegex(ValueError,
-                                    'Profiles do not have the same schema.'):
+                                    "Cannot merge empty profiles."):
             profile1 + profile2
 
         # test mismatched profiles due to options
-        profile2._profile[0] = None
+        profile2._profile.append(None)
+        profile2._col_name_to_idx[0] = [0]
         with self.assertRaisesRegex(ValueError,
                                     'The two profilers were not setup with the '
                                     'same options, hence they do not calculate '
@@ -175,10 +177,13 @@ class TestStructuredProfiler(unittest.TestCase):
             profile1 + profile2
 
         # test success
-        profile1._profile = dict(test=1)
-        profile2._profile = dict(test=2)
+        profile1._profile = [1]
+        profile1._col_name_to_idx = {"test": [0]}
+        profile2._profile = [2]
+        profile2._col_name_to_idx = {"test": [0]}
         merged_profile = profile1 + profile2
-        self.assertEqual(3, merged_profile._profile['test'])
+        self.assertEqual(3, merged_profile._profile[
+            merged_profile._col_name_to_idx["test"][0]])
         self.assertIsNone(merged_profile.encoding)
         self.assertEqual(
             "<class 'pandas.core.frame.DataFrame'>", merged_profile.file_type)
@@ -287,12 +292,13 @@ class TestStructuredProfiler(unittest.TestCase):
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_corr_mat = np.array([
-            [1.0, -0.26559388521279237, 0.26594894270403086],
-            [-0.26559388521279237, 1.0, -0.4907232900448271],
-            [0.26594894270403086, -0.4907232900448271, 1.0]
+            [1.0, -0.265593885212792, 0.265948942704031],
+            [-0.265593885212792, 1.0, -0.49072329004483],
+            [0.265948942704031, -0.49072329004483, 1.0]
         ])
-        np.testing.assert_array_equal(expected_corr_mat,
-                                      profiler.correlation_matrix)
+        np.testing.assert_allclose(expected_corr_mat,
+                                   profiler.correlation_matrix,
+                                   rtol=1e-14, atol=1e-14)
 
         # data with multiple numerical columns, with nan values
         data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
@@ -308,11 +314,12 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_corr_mat = np.array([
             [np.nan, np.nan, np.nan],
-            [np.nan, 1.0, -0.4907232900448271],
-            [np.nan, -0.4907232900448271, 1.0]
+            [np.nan, 1.0, -0.49072329004483],
+            [np.nan, -0.49072329004483, 1.0]
         ])
-        np.testing.assert_array_equal(expected_corr_mat,
-                                      profiler.correlation_matrix)
+        np.testing.assert_allclose(expected_corr_mat,
+                                   profiler.correlation_matrix,
+                                   rtol=1e-14, atol=1e-14)
 
         # data with only one numerical columns without nan values
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2]})
@@ -342,13 +349,13 @@ class TestStructuredProfiler(unittest.TestCase):
         merged_profile = profile1 + profile2
 
         expected_corr_mat = np.array([
-            [1.0, -0.26559388521279237, 0.26594894270403086],
-            [-0.26559388521279237, 1.0, -0.4907232900448271],
-            [0.26594894270403086, -0.4907232900448271, 1.0]
+            [1.0, -0.265593885212792, 0.265948942704031],
+            [-0.265593885212792, 1.0, -0.49072329004483],
+            [0.265948942704031, -0.49072329004483, 1.0]
         ])
         np.testing.assert_allclose(expected_corr_mat,
                                    merged_profile.correlation_matrix,
-                                   rtol=1e-15, atol=1e-15)
+                                   rtol=1e-14, atol=1e-14)
 
         # merge between an existing corr and None correlation (without data)
         profile1 = dp.StructuredProfiler(None, options=profile_options)
@@ -359,12 +366,13 @@ class TestStructuredProfiler(unittest.TestCase):
             merged_profile = profile1 + profile2
 
         expected_corr_mat = np.array([
-            [1.0, -0.26559388521279237, 0.26594894270403086],
-            [-0.26559388521279237, 1.0, -0.4907232900448271],
-            [0.26594894270403086, -0.4907232900448271, 1.0]
+            [1.0, -0.265593885212792, 0.265948942704031],
+            [-0.265593885212792, 1.0, -0.49072329004483],
+            [0.265948942704031, -0.49072329004483, 1.0]
         ])
-        np.testing.assert_array_equal(expected_corr_mat,
-                                      merged_profile.correlation_matrix)
+        np.testing.assert_allclose(expected_corr_mat,
+                                   merged_profile.correlation_matrix,
+                                   rtol=1e-14, atol=1e-14)
 
         # merge between an existing corr and None correlation (with data)
         data1 = data[:5]
@@ -378,7 +386,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertIsNone(profile.correlation_matrix)
 
     def test_correct_datatime_schema_test(self):
-        profile = self.trained_schema.profile["datetime"]
+        profile_idx = self.trained_schema._col_name_to_idx["datetime"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = \
             profile.profiles['data_type_profile']._profiles["datetime"]
 
@@ -390,7 +399,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(['%m/%d/%y %H:%M'], col_schema_info['date_formats'])
 
     def test_correct_integer_column_detection_src(self):
-        profile = self.trained_schema.profile["src"]
+        profile_idx = self.trained_schema._col_name_to_idx["src"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
 
         self.assertEqual(2999, profile.sample_size)
@@ -399,7 +409,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(3, profile.null_count)
 
     def test_correct_integer_column_detection_int_col(self):
-        profile = self.trained_schema.profile["int_col"]
+        profile_idx = self.trained_schema._col_name_to_idx["int_col"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size,
@@ -407,7 +418,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profile.null_count)
 
     def test_correct_integer_column_detection_port(self):
-        profile = self.trained_schema.profile["srcport"]
+        profile_idx = self.trained_schema._col_name_to_idx["srcport"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size,
@@ -415,7 +427,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(197, profile.null_count)
 
     def test_correct_integer_column_detection_destport(self):
-        profile = self.trained_schema.profile["destport"]
+        profile_idx = self.trained_schema._col_name_to_idx["destport"][0]
+        profile = self.trained_schema.profile[profile_idx]
         col_schema_info = profile.profiles['data_type_profile']._profiles["int"]
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size,
@@ -432,30 +445,126 @@ class TestStructuredProfiler(unittest.TestCase):
                 "samples_used", "column_count", "row_count",
                 "row_has_null_ratio", 'row_is_null_ratio',
                 "unique_row_ratio", "duplicate_row_count", "file_type",
-                "encoding", "correlation_matrix"
+                "encoding", "correlation_matrix", "profile_schema"
             ]
         )
         flat_report = self.trained_schema.report(report_options={"output_format":"flat"})
         self.assertEqual(test_utils.get_depth(flat_report), 1)
         with mock.patch('dataprofiler.profilers.helpers.report_helpers._prepare_report') as pr_mock:
             self.trained_schema.report(report_options={"output_format":'pretty'})
-            self.assertEqual(pr_mock.call_count, 2)
+            # Once for global_stats, once for each of 16 columns
+            self.assertEqual(pr_mock.call_count, 17)
+
+    def test_report_schema_and_data_stats_match_order(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+
+        report = profiler.report()
+        schema = report["global_stats"]["profile_schema"]
+        data_stats = report["data_stats"]
+
+        expected_schema = {"a": [0, 2], "b": [1, 3], "c": [4], "d": [5]}
+        self.assertDictEqual(expected_schema, schema)
+
+        # Check that the column order in the report matches the column order
+        # In the schema (and in the data)
+        for name in schema:
+            for idx in schema[name]:
+                # Use min of column to validate column order amongst duplicates
+                col_min = data.iloc[0, idx]
+                self.assertEqual(name, data_stats[idx]["column_name"])
+                self.assertEqual(col_min, data_stats[idx]["statistics"]["min"])
+
+    def test_pretty_report_doesnt_cast_schema(self):
+        report = self.trained_schema.report(
+            report_options={"output_format": "pretty"})
+        # Want to ensure the values of this dict are of type list[int]
+        # Since pretty "prettifies" lists into strings with ... to shorten
+        expected_schema = {"datetime": [0], "host": [1], "src": [2],
+                           "proto": [3], "type": [4], "srcport": [5],
+                           "destport": [6], "srcip": [7], "locale": [8],
+                           "localeabbr": [9], "postalcode": [10],
+                           "latitude": [11], "longitude": [12], "owner": [13],
+                           "comment": [14], "int_col": [15]}
+        self.assertDictEqual(expected_schema,
+                             report["global_stats"]["profile_schema"])
+
+    def test_omit_keys_with_duplicate_cols(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={
+            "omit_keys": ["data_stats.a.statistics.min",
+                          "data_stats.d.statistics.max",
+                          "data_stats.*.statistics.null_types_index"]})
+        # Correctness of schema asserted in prior test
+        schema = report["global_stats"]["profile_schema"]
+        data_stats = report["data_stats"]
+
+        for idx in range(len(report["data_stats"])):
+            # Assert that min is absent from a's data_stats and not the others
+            if idx in schema["a"]:
+                self.assertNotIn("min", data_stats[idx]["statistics"])
+            else:
+                self.assertIn("min", report["data_stats"][idx]["statistics"])
+
+            # Assert that max is absent from d's data_stats and not the others
+            if idx in schema["d"]:
+                self.assertNotIn("max", report["data_stats"][idx]["statistics"])
+            else:
+                self.assertIn("max", report["data_stats"][idx]["statistics"])
+
+            # Assert that null_types_index not present in any
+            self.assertNotIn("null_types_index",
+                             report["data_stats"][idx]["statistics"])
+
+    def test_omit_cols_preserves_schema(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        omit_cols = ["a", "d"]
+        omit_idxs = [0, 2, 5]
+        omit_keys = [f"data_stats.{col}" for col in omit_cols]
+        profiler_options = ProfilerOptions()
+        profiler_options.set({'data_labeler.is_enabled': False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"omit_keys": omit_keys})
+
+        for idx in range(len(report["data_stats"])):
+            if idx in omit_idxs:
+                self.assertIsNone(report["data_stats"][idx])
+            else:
+                self.assertIsNotNone(report["data_stats"][idx])
+
+        # This will keep the data_stats key but remove all columns
+        report = profiler.report(report_options={"omit_keys": ["data_stats.*"]})
+
+        for col_report in report["data_stats"]:
+            self.assertIsNone(col_report)
+
 
     def test_report_quantiles(self):
         report_none = self.trained_schema.report(
             report_options={"num_quantile_groups": None})
         report = self.trained_schema.report()
         self.assertEqual(report_none, report)
-        for key, val in report["data_stats"].items():
-            if key == "int_col":
-                report_quantiles = val["statistics"]["quantiles"]
+        for col in report["data_stats"]:
+            if col["column_name"] == "int_col":
+                report_quantiles = col["statistics"]["quantiles"]
                 break
         self.assertEqual(len(report_quantiles), 3)
         report2 = self.trained_schema.report(
             report_options={"num_quantile_groups": 1000})
-        for key, val in report2["data_stats"].items():
-            if key == "int_col":
-                report2_1000_quant = val["statistics"]["quantiles"]
+        for col in report2["data_stats"]:
+            if col["column_name"] == "int_col":
+                report2_1000_quant = col["statistics"]["quantiles"]
                 break
         self.assertEqual(len(report2_1000_quant), 999)
         self.assertEqual(report_quantiles, {
@@ -465,12 +574,44 @@ class TestStructuredProfiler(unittest.TestCase):
         })
 
     def test_report_omit_keys(self):
-        omit_keys = ['global_stats', 'data_stats']
+        # Omit both report keys manually
+        no_report_keys = self.trained_schema.report(
+            report_options={"omit_keys": ['global_stats', 'data_stats']})
+        self.assertCountEqual({}, no_report_keys)
 
-        report_omit_keys = self.trained_schema.report(
-            report_options={ "omit_keys": omit_keys })
+        # Omit just data_stats
+        no_data_stats = self.trained_schema.report(
+            report_options={"omit_keys": ['data_stats']})
+        self.assertCountEqual({"global_stats"}, no_data_stats)
 
-        self.assertCountEqual({}, report_omit_keys)
+        # Omit a global stat
+        no_samples_used = self.trained_schema.report(
+            report_options={"omit_keys": ['global_stats.samples_used']})
+        self.assertNotIn("samples_used", no_samples_used["global_stats"])
+
+        # Omit all keys
+        nothing = self.trained_schema.report(
+            report_options={"omit_keys": ['*']})
+        self.assertCountEqual({}, nothing)
+
+        # Omit every data_stats column
+        empty_data_stats_cols = self.trained_schema.report(
+            report_options={"omit_keys": ['global_stats', 'data_stats.*']})
+        # data_stats key still present, but all columns are None
+        self.assertCountEqual({"data_stats"}, empty_data_stats_cols)
+        self.assertTrue(all([rep is None
+                             for rep in empty_data_stats_cols["data_stats"]]))
+
+        # Omit specific data_stats column
+        no_datetime = self.trained_schema.report(
+            report_options={"omit_keys": ['data_stats.datetime']})
+        self.assertNotIn("datetime", no_datetime["data_stats"])
+
+        # Omit a statistic from each column
+        no_sum = self.trained_schema.report(
+            report_options={"omit_keys": ['data_stats.*.statistics.sum']})
+        self.assertTrue(all(["sum" not in rep["statistics"]
+                             for rep in no_sum["data_stats"]]))
 
     def test_report_compact(self):
         report = self.trained_schema.report(
@@ -514,31 +655,15 @@ class TestStructuredProfiler(unittest.TestCase):
         trained_schema = dp.StructuredProfiler(self.aws_dataset, samples_per_update=5)
         report = trained_schema.report()
         has_non_null_column = False
-        for key in report['data_stats']:
+        for i in range(len(report['data_stats'])):
             # only test non-null columns
-            if report['data_stats'][key]['data_type'] is not None:
-                self.assertIsNotNone(report['data_stats'][key]['data_label'])
+            if report['data_stats'][i]['data_type'] is not None:
+                self.assertIsNotNone(report['data_stats'][i]['data_label'])
                 has_non_null_column = True
         if not has_non_null_column:
             self.fail(
                 "Dataset tested did not have a non-null column and therefore "
                 "could not validate the test.")
-
-    @mock.patch('dataprofiler.profilers.profile_builder.StructuredProfiler._update_row_statistics')
-    def test_duplicate_column_names(self, *mocks):
-        # validate works first
-        valid_data = pd.DataFrame([[1, 2]], columns=['a', 'b'])
-        profile = dp.StructuredProfiler(valid_data)
-        self.assertIn('a', profile._profile)
-        self.assertIn('b', profile._profile)
-
-        # data has duplicate column names
-        invalid_data = pd.DataFrame([[1, 2]], columns=['a', 'a'])
-        with self.assertRaisesRegex(ValueError,
-                                    '`StructuredProfiler` does not currently support '
-                                    'data which contains columns with duplicate'
-                                    ' names.'):
-            profile = dp.StructuredProfiler(invalid_data)
 
     def test_text_data_raises_error(self):
         text_file_path = os.path.join(
@@ -623,7 +748,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
                 # only checks first columns
                 # get first column
-                first_column_profile = list(load_profile.profile.values())[0]
+                first_column_profile = load_profile.profile[0]
                 self.assertIsInstance(
                     first_column_profile.profiles['data_label_profile']
                         ._profiles['data_labeler'].data_labeler,
@@ -659,8 +784,8 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertDictEqual(save_report, load_report)
 
         # validate both are still usable after
-        save_profile.update_profile(pd.DataFrame(['test', 'test2']))
-        load_profile.update_profile(pd.DataFrame(['test', 'test2']))
+        save_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
+        load_profile.update_profile(pd.DataFrame({"a": [4, 5]}))
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -689,6 +814,146 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(pd.DataFrame([[{'test': 1}], [None]]))
         self.assertEqual(1, profiler.row_is_null_count)
         self.assertEqual(2, profiler.total_samples)
+
+    def test_duplicate_columns(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                             [10, 20, 30, 40, 50, 60]],
+                            columns=["a", "b", "a", "b", "c", "d"])
+        profiler = dp.StructuredProfiler(data)
+
+        # Ensure columns are correctly allocated to profiles in list
+        expected_mapping = {"a": [0, 2], "b": [1, 3], "c": [4], "d": [5]}
+        self.assertDictEqual(expected_mapping, profiler._col_name_to_idx)
+        for col in profiler._col_name_to_idx:
+            for idx in profiler._col_name_to_idx[col]:
+                # Make sure every index that a column name maps to represents
+                # A profile for that named column
+                self.assertEqual(col, profiler._profile[idx].name)
+
+        # Check a few stats to ensure calculation with data occurred
+        # Initialization ensures column ids and profile ids are identical
+        for col_idx in range(len(profiler._profile)):
+            col_min = data.iloc[0, col_idx]
+            col_max = data.iloc[1, col_idx]
+            col_sum = col_min + col_max
+            self.assertEqual(col_min, profiler._profile[col_idx].
+                             profile["statistics"]["min"])
+            self.assertEqual(col_max, profiler._profile[col_idx].
+                             profile["statistics"]["max"])
+            self.assertEqual(col_sum, profiler._profile[col_idx].
+                             profile["statistics"]["sum"])
+
+        # Check that update works as expected
+        new_data = pd.DataFrame([[100, 200, 300, 400, 500, 600]],
+                                columns=["a", "b", "a", "b", "c", "d"])
+        profiler.update_profile(new_data)
+        self.assertDictEqual(expected_mapping, profiler._col_name_to_idx)
+        for col in profiler._col_name_to_idx:
+            for idx in profiler._col_name_to_idx[col]:
+                # Make sure every index that a column name maps to represents
+                # A profile for that named column
+                self.assertEqual(col, profiler._profile[idx].name)
+
+        for col_idx in range(len(profiler._profile)):
+            col_min = data.iloc[0, col_idx]
+            col_max = new_data.iloc[0, col_idx]
+            col_sum = col_min + col_max + data.iloc[1, col_idx]
+            self.assertEqual(col_min, profiler._profile[col_idx].
+                             profile["statistics"]["min"])
+            self.assertEqual(col_max, profiler._profile[col_idx].
+                             profile["statistics"]["max"])
+            self.assertEqual(col_sum, profiler._profile[col_idx].
+                             profile["statistics"]["sum"])
+
+    def test_unique_col_permutation(self, *mocks):
+        data = pd.DataFrame([[1, 2, 3, 4],
+                             [5, 6, 7, 8]],
+                            columns=["a", "b", "c", "d"])
+        perm_data = pd.DataFrame([[4, 3, 2, 1],
+                                  [8, 7, 6, 5]],
+                                 columns=["d", "c", "b", "a"])
+
+        # Test via add
+        first_profiler = dp.StructuredProfiler(data)
+        perm_profiler = dp.StructuredProfiler(perm_data)
+        profiler = first_profiler + perm_profiler
+
+        for col_idx in range(len(profiler._profile)):
+            col_min = data.iloc[0, col_idx]
+            col_max = data.iloc[1, col_idx]
+            # Sum is doubled since it was updated with the same vals
+            col_sum = 2 * (col_min + col_max)
+            self.assertEqual(col_min, profiler._profile[col_idx].
+                             profile["statistics"]["min"])
+            self.assertEqual(col_max, profiler._profile[col_idx].
+                             profile["statistics"]["max"])
+            self.assertEqual(col_sum, profiler._profile[col_idx].
+                             profile["statistics"]["sum"])
+
+        # Test via update
+        profiler = dp.StructuredProfiler(data)
+        profiler.update_profile(perm_data)
+
+        for col_idx in range(len(profiler._profile)):
+            col_min = data.iloc[0, col_idx]
+            col_max = data.iloc[1, col_idx]
+            # Sum is doubled since it was updated with the same vals
+            col_sum = 2 * (col_min + col_max)
+            self.assertEqual(col_min, profiler._profile[col_idx].
+                             profile["statistics"]["min"])
+            self.assertEqual(col_max, profiler._profile[col_idx].
+                             profile["statistics"]["max"])
+            self.assertEqual(col_sum, profiler._profile[col_idx].
+                             profile["statistics"]["sum"])
+
+    def test_get_and_validate_schema_mapping(self):
+        unique_schema_1 = {"a": [0], "b": [1], "c": [2]}
+        unique_schema_2 = {"a": [2], "b": [0], "c": [1]}
+        unique_schema_3 = {"a": [0], "b": [1], "d": [2]}
+
+        msg = "Columns do not match, cannot update or merge profiles."
+        with self.assertRaisesRegex(ValueError, msg):
+            dp.StructuredProfiler._get_and_validate_schema_mapping(
+                unique_schema_1,unique_schema_3)
+
+        expected_schema = {0: 0, 1: 1, 2: 2}
+        actual_schema = dp.StructuredProfiler. \
+            _get_and_validate_schema_mapping(unique_schema_1, {})
+        self.assertDictEqual(actual_schema, expected_schema)
+
+        expected_schema = {0: 2, 1: 0, 2: 1}
+        actual_schema = dp.StructuredProfiler. \
+            _get_and_validate_schema_mapping(unique_schema_1, unique_schema_2)
+        self.assertDictEqual(actual_schema, expected_schema)
+
+        dupe_schema_1 = {"a": [0], "b": [1, 2], "c": [3, 4, 5]}
+        dupe_schema_2 = {"a": [0], "b": [1, 3], "c": [2, 4, 5]}
+        dupe_schema_3 = {"a": [0, 1], "b": [2, 3, 4], "c": [5]}
+
+        four_col_schema = {"a": [0], "b": [1, 2], "c": [3, 4, 5], "d": [6]}
+
+        msg = ("Different number of columns detected for "
+               "'a', cannot update or merge profiles.")
+        with self.assertRaisesRegex(ValueError, msg):
+            dp.StructuredProfiler._get_and_validate_schema_mapping(
+                dupe_schema_1, dupe_schema_3)
+
+        msg = ("Different column indices under "
+               "duplicate name 'b', cannot update "
+               "or merge unless schema is identical.")
+        with self.assertRaisesRegex(ValueError, msg):
+            dp.StructuredProfiler._get_and_validate_schema_mapping(
+                dupe_schema_1, dupe_schema_2)
+
+        msg = "Attempted to merge profiles with different numbers of columns"
+        with self.assertRaisesRegex(ValueError, msg):
+            dp.StructuredProfiler._get_and_validate_schema_mapping(
+                dupe_schema_1, four_col_schema)
+
+        expected_schema = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5}
+        actual_schema = dp.StructuredProfiler. \
+            _get_and_validate_schema_mapping(dupe_schema_1, dupe_schema_1)
+        self.assertDictEqual(actual_schema, expected_schema)
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):
@@ -1561,17 +1826,19 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         profiler_options.set({'data_labeler.is_enabled': False})
         trained_schema = dp.StructuredProfiler(test_dataset, len(test_dataset),
                                                options=profiler_options)
+        ts_profile = trained_schema.profile
+        ts_mapping = trained_schema._col_name_to_idx
 
         self.assertCountEqual(['', 'nan', 'None', 'null'],
-                         trained_schema.profile['1'].null_types)
-        self.assertEqual(5, trained_schema.profile['1'].null_count)
-        self.assertEqual({'': {4}, 'nan': {0}, 'None': {2, 3}, 'null': {
-                         1}}, trained_schema.profile['1'].null_types_index)
+                              ts_profile[ts_mapping['1'][0]].null_types)
+        self.assertEqual(5, ts_profile[ts_mapping['1'][0]].null_count)
+        self.assertEqual({'': {4}, 'nan': {0}, 'None': {2, 3}, 'null': {1}},
+                         ts_profile[ts_mapping['1'][0]].null_types_index)
         self.assertCountEqual(['', 'nan', 'None', 'null'],
-                         trained_schema.profile[1].null_types)
-        self.assertEqual(5, trained_schema.profile[1].null_count)
-        self.assertEqual({'': {4}, 'nan': {0}, 'None': {1, 3}, 'null': {
-                         2}}, trained_schema.profile[1].null_types_index)
+                              ts_profile[ts_mapping[1][0]].null_types)
+        self.assertEqual(5, ts_profile[ts_mapping[1][0]].null_count)
+        self.assertEqual({'': {4}, 'nan': {0}, 'None': {1, 3}, 'null': {2}},
+                         ts_profile[ts_mapping[1][0]].null_types_index)
 
     def test_correct_null_row_counts(self):
         file_path = os.path.join(test_root_path, 'data', 'csv/empty_rows.txt')
@@ -1600,15 +1867,17 @@ class TestStructuredProfilerNullValues(unittest.TestCase):
         data = dp.Data(filename_null_in_file)
         profile = dp.StructuredProfiler(data, options=profiler_options)
 
-        report = profile.report(report_options={"output_format":"pretty"})
+        report = profile.report(report_options={"output_format": "pretty"})
+        count_idx = report["global_stats"]["profile_schema"]["COUNT"][0]
+        numbers_idx = report["global_stats"]["profile_schema"][" NUMBERS"][0]
 
         self.assertEqual(
-            report['data_stats']['COUNT']['statistics']['null_types_index'],
+            report['data_stats'][count_idx]['statistics']['null_types_index'],
             {'': '[2, 3, 4, 5, 7, 8]'}
         )
 
         self.assertEqual(
-            report['data_stats'][' NUMBERS']['statistics']['null_types_index'],
+            report['data_stats'][numbers_idx]['statistics']['null_types_index'],
             {'': '[5, 6, 8]', ' ': '[2, 4]'}
         )
 
@@ -1857,7 +2126,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
             # only checks first columns
             # get first column
-            first_column_profile = list(load_profile.profile.values())[0]
+            first_column_profile = load_profile.profile[0]
             self.assertIsInstance(
                 first_column_profile.profiles['data_label_profile']
                     ._profiles['data_labeler'].data_labeler,

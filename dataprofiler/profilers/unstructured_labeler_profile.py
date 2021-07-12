@@ -88,6 +88,38 @@ class UnstructuredLabelerProfile(object):
 
         return merged_profile
 
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for two unstructured labeler profiles
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: UnstructuredLabelerProfile
+        :param options: options for diff output
+        :type options: dict
+        :return: the difference between entity counts/percentages
+        :rtype: dict
+        """
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+
+        entity_counts_diff = {}
+        entity_percentages_diff = {}
+        for key in ['word_level', 'true_char_level', 'postprocess_char_level']:
+            entity_percentages_diff[key] = utils.find_diff_of_dicts(
+                self.entity_percentages[key], other_profile.entity_percentages[key])
+            entity_counts_diff[key] = utils.find_diff_of_dicts(
+                self.entity_counts[key], other_profile.entity_counts[key])
+
+        differences = {
+            "entity_counts": entity_counts_diff,
+            "entity_percentages": entity_percentages_diff
+        }
+
+        return differences
+
     @property
     def label_encoding(self):
         return self.data_labeler.labels

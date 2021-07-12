@@ -186,7 +186,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 'sum': -20.0,
                 'mean': -10.0, 
                 'variance': -46.666666666666664,
-                'stddev': -5.2453259535149215,
+                'stddev': data1.astype(int).std() - data2.astype(int).std(),
                 'precision': {
                     'min': 'unchanged', 
                     'max': -1, 

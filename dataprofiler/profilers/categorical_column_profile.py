@@ -80,6 +80,7 @@ class CategoricalColumn(BaseColumnProfiler):
         if self.is_match:
             profile["statistics"]['categories'] = self.categories
             profile["statistics"]['gini_impurity'] = self.gini_impurity
+            profile["statistics"]['unalikeability'] = self.unalikeability
             profile["statistics"]['categorical_count'] = dict(
                 sorted(self._categories.items(), key=itemgetter(1),
                        reverse=True)[:top_k_categories])
@@ -193,3 +194,26 @@ class CategoricalColumn(BaseColumnProfiler):
             gini_sum += (self._categories[i]/self.sample_size) * \
                          (1 - (self._categories[i]/self.sample_size))
         return gini_sum
+
+    @property
+    def unalikeability(self):
+        """
+        Property for Unlikeability. Unikeability checks for
+        "how often observations differ from one another"
+        Reference: Perry, M. and Kader, G. Variation as Unalikeability.
+        Teaching Statistics, Vol. 27, No. 2 (2005), pp. 58-60.
+
+        U = Σ(i=1,n)Σ(j=1,n): (Cij)/(n**2-n)
+        Cij = 1 if i!=j, 0 if i=j
+
+        :return: None or unlikeability probability
+        """
+
+        if self.sample_size == 0:
+            return None
+        unalike_sum = 0
+        for category in self._categories:
+            unalike_sum += (self.sample_size - self._categories[category]) * \
+                           self._categories[category]
+        unalike = unalike_sum / (self.sample_size ** 2 - self.sample_size)
+        return unalike

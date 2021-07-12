@@ -296,6 +296,7 @@ class TestUnstructuredCompiler(unittest.TestCase):
                 sorted(output_profile['statistics']['vocab'])
 
         self.maxDiff = None
+        print(output_profile)
         self.assertDictEqual(expected_dict, output_profile)
 
 

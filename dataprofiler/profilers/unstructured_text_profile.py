@@ -249,7 +249,10 @@ class TextProfiler(object):
         :type subset_properties: dict
         :return: None
         """
-        translator = str.maketrans('', '', string.punctuation)
+        #translator = str.maketrans('', '', string.punctuation)
+        #translator = str.maketrans(string.punctuation, ' ' * len(string.punctuation))
+        d = {k:' ' for k in string.punctuation}
+        translator = str.maketrans(d)
         if not self._is_case_sensitive:
             linewords = (line.translate(translator).lower().split() for line in data)
         else:

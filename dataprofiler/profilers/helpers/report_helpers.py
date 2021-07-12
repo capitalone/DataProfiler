@@ -100,7 +100,51 @@ def _prepare_report(report, output_format=None, omit_keys=None):
         if isinstance(value, set):
             value = sorted(list(value))
 
-        if isinstance(value, dict):
+        if "*" in omit_keys:
+            continue
+
+        # For data_stats (in structured case), need to recurse through a list
+        elif key == "data_stats" and isinstance(value, list) \
+                and "data_stats" not in omit_keys:
+
+            fmt_report["data_stats"] = []
+
+            for col_ind in range(len(value)):
+                col_name = str(value[col_ind].get('column_name'))
+
+                # update omit keys
+                next_layer_omit_keys = []
+                is_omitted_col = False
+                for omit_key in omit_keys:
+
+                    # Omit this column
+                    if omit_key in {f"*.{col_name}", "data_stats.*",
+                                    f"data_stats.{col_name}"}:
+                        fmt_report["data_stats"].append(None)
+                        is_omitted_col = True
+                        break
+
+                    # Skip this omit_key if it doesn't involve data_stat cols
+                    omit_key_split = omit_key.split('.', 1)
+                    if len(omit_key_split) == 1 \
+                            or omit_key_split[0] not in {"data_stats", "*"}:
+                        continue
+
+                    next_key_split = omit_key_split[1].split('.', 1)
+                    if next_key_split[0] in {"*", col_name}:
+                        next_layer_omit_keys.append(next_key_split[1])
+
+                # update report and list for column we are keeping
+                if not is_omitted_col:
+                    fmt_report["data_stats"].append(
+                        _prepare_report(value[col_ind], output_format,
+                                        next_layer_omit_keys))
+
+        # Do not recurse or modify profile_schema
+        elif key == "profile_schema" and "profile_schema" not in omit_keys:
+            fmt_report[key] = value
+
+        elif isinstance(value, dict):
 
             # split off any remaining keys for the recursion
             # i.e. [test0, test1.test2] -> omit_keys => [test1.test2]

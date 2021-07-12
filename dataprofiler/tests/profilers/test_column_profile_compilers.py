@@ -281,10 +281,9 @@ class TestUnstructuredCompiler(unittest.TestCase):
                                 'o': 2, 's': 2, 't': 2, 'y': 1},
                 'vocab': [' ', '-', '.', '1', '2', '3', '4', 'D', 'J', 'a', 'e',
                           'h', 'i', 'm', 'n', 'o', 's', 't', 'y'],
-                'word_count': {'123': 1, '1234': 1, '432': 1, 'Doe': 1,
+                'word_count': {'123-432-1234': 1, 'Doe': 1,
                                'John': 1, 'hi': 1, 'name': 1, 'test': 1},
-                'words': ['test', 'hi', 'name', 'John', 'Doe', '123', '432',
-                          '1234']}}
+                'words': ['test', 'hi', 'name', 'John', 'Doe', '123-432-1234']}}
 
         output_profile = compiler.profile
 
@@ -296,7 +295,6 @@ class TestUnstructuredCompiler(unittest.TestCase):
                 sorted(output_profile['statistics']['vocab'])
 
         self.maxDiff = None
-        print(output_profile)
         self.assertDictEqual(expected_dict, output_profile)
 
 

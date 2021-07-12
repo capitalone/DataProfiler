@@ -249,20 +249,17 @@ class TextProfiler(object):
         :type subset_properties: dict
         :return: None
         """
-        #translator = str.maketrans('', '', string.punctuation)
-        #translator = str.maketrans(string.punctuation, ' ' * len(string.punctuation))
-        d = {k:' ' for k in string.punctuation}
-        translator = str.maketrans(d)
         if not self._is_case_sensitive:
-            linewords = (line.translate(translator).lower().split() for line in data)
+            linewords = ([w.strip(string.punctuation) for w in line.lower().split()]
+                         for line in data)
         else:
-            linewords = (line.translate(translator).split() for line in data)
+            linewords = ([w.strip(string.punctuation) for w in line.split()]
+                         for line in data)
         word_count = Counter(itertools.chain.from_iterable(linewords))
 
         for w, c in word_count.items():
             if w.lower() not in self._stop_words:
                 self.word_count.update({w: c})
-
 
     def _update_helper(self, data, profile):
         """

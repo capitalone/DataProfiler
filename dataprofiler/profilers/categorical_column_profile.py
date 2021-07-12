@@ -89,6 +89,9 @@ class CategoricalColumn(BaseColumnProfiler):
             differences["statistics"]['gini_impurity'] = \
                 utils.find_diff_of_numbers(self.gini_impurity,
                                            other_profile.gini_impurity)
+            differences["statistics"]['unalikeability'] = \
+                utils.find_diff_of_numbers(self.unalikeability,
+                                           other_profile.unalikeability)
             cat_count1 = dict(sorted(self._categories.items(),
                                      key=itemgetter(1),
                                      reverse=True))

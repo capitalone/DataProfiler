@@ -327,6 +327,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 'unique_ratio': -0.14285714285714285,
                 'categories': [[], ['y', 'n'], ['maybe']],
                 'gini_impurity': -0.16326530612244894,
+                'unalikeability': -0.19047619047619047,
                 'categorical_count': {
                     'y': 1,
                     'n': 1,

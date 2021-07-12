@@ -283,15 +283,15 @@ class TextProfiler(object):
         :return: None
         """
         if not self._is_case_sensitive:
-            linewords = ([w.strip(string.punctuation) for w in line.lower().split()]
-                         for line in data)
+            words = ([w.strip(string.punctuation) for w in row.lower().split()]
+                     for row in data)
         else:
-            linewords = ([w.strip(string.punctuation) for w in line.split()]
-                         for line in data)
-        word_count = Counter(itertools.chain.from_iterable(linewords))
+            words = ([w.strip(string.punctuation) for w in row.split()]
+                     for row in data)
+        word_count = Counter(itertools.chain.from_iterable(words))
 
         for w, c in word_count.items():
-            if w.lower() not in self._stop_words:
+            if w and w.lower() not in self._stop_words:
                 self.word_count.update({w: c})
 
     def _update_helper(self, data, profile):

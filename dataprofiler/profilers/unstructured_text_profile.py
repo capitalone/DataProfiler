@@ -24,7 +24,6 @@ class TextProfiler(object):
         self.sample_size = 0
         self.times = defaultdict(float)
         self.vocab_count = Counter()
-        #self.word_count = defaultdict(int)
         self.word_count = Counter()
         self.metadata = dict()
 
@@ -135,22 +134,6 @@ class TextProfiler(object):
                 additive_word_count.update({k.lower(): v})
             merged_profile.word_count = lower_word_count + additive_word_count
 
-
-        # if not self._is_case_sensitive:
-        #     merged_profile.word_count = self.word_count.copy()
-        #     additive_words = other.word_count
-        # else:
-        #     merged_profile.word_count = other.word_count.copy()
-        #     additive_words = self.word_count
-        #
-        # for word in additive_words:
-        #     word_lower = word.lower()
-        #     if word_lower not in self._stop_words:
-        #         if self._is_case_sensitive:
-        #             merged_profile.word_count[word] += additive_words[word]
-        #         else:
-        #             merged_profile.word_count[word_lower] += additive_words[word]
-
     @staticmethod
     def _merge_vocab(vocab_count1, vocab_count2):
         """
@@ -222,14 +205,10 @@ class TextProfiler(object):
 
         :return:
         """
-        # word_count = sorted(self.word_count.items(),
-        #                     key=lambda x: x[1],
-        #                     reverse=True)
         profile = dict(
             vocab=list(self.vocab_count.keys()),
             vocab_count=dict(self.vocab_count.most_common()),
             words=list(self.word_count.keys()),
-            #word_count=dict(word_count),
             word_count=dict(self.word_count.most_common()),
             times=self.times,
         )
@@ -270,15 +249,6 @@ class TextProfiler(object):
         :type subset_properties: dict
         :return: None
         """
-        # for row in data:
-        #     for word in re.findall(r'\w+', row):
-        #         word_lower = word.lower()
-        #         if word_lower not in self._stop_words:
-        #             if not self._is_case_sensitive:
-        #                 word = word_lower
-        #             self.word_count[word] += 1
-
-
         translator = str.maketrans('', '', string.punctuation)
         if not self._is_case_sensitive:
             linewords = (line.translate(translator).lower().split() for line in data)

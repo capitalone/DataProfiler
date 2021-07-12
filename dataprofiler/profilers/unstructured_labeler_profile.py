@@ -94,6 +94,8 @@ class UnstructuredLabelerProfile(object):
 
         :param other_profile: profile to find the difference with
         :type other_profile: UnstructuredLabelerProfile
+        :param options: options for diff output
+        :type options: dict
         :return: the difference between entity counts/percentages
         :rtype: dict
         """

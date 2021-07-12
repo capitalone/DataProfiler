@@ -163,7 +163,8 @@ class TestCategoricalColumn(unittest.TestCase):
                 ('unique_ratio', .25),
                 ('categories', ["a", "b", "c"]),
                 ('categorical_count', {"a": 3, "b": 4, "c": 5}),
-                ('gini_impurity', (27/144) + (32/144) + (35/144))
+                ('gini_impurity', (27/144) + (32/144) + (35/144)),
+                ('unalikeability', 2*(12 + 15 + 20)/132)
             ]),
         )
         # We have to pop these values because sometimes the order changes
@@ -267,8 +268,9 @@ class TestCategoricalColumn(unittest.TestCase):
             categorical=True,
             statistics=dict([
                 ('unique_count', 16),
-                ('unique_ratio', 16 / 1000)
-            ]),
+                ('unique_ratio', 16 / 1000),
+                ('unalikeability', 32907/(1000000-1000))
+            ])
         )
         expected_gini = (1*((5/1000) * (995/1000))) + \
                         (2*((4/1000) * (996/1000))) + \
@@ -350,6 +352,27 @@ class TestCategoricalColumn(unittest.TestCase):
         }
         self.assertDictEqual(expected_diff, profile.diff(profile2))
 
+    def test_unalikeability(self):
+        df_categorical = pd.Series(["a", "a"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.unalikeability, 0)
+
+        df_categorical = pd.Series(["a", "c", "b"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.unalikeability, 1)
+
+        df_categorical = pd.Series(["a", "a", "a", "b", "b", "b"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.unalikeability, 18 / 30)
+
+        df_categorical = pd.Series(
+            ["a", "a", "b", "b", "b", "a", "c", "c", "a", "a"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.unalikeability, 2*(10 + 15 + 6)/90)
 
 class TestCategoricalSentence(unittest.TestCase):
 

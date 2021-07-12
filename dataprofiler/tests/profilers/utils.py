@@ -122,8 +122,8 @@ def clean_report(report):
             report["global_stats"]["correlation_matrix"].tolist()
 
     data_stats = report["data_stats"]
-    for key in data_stats:
-        stats = data_stats[key]["statistics"]
+    for i in range(len(data_stats)):
+        stats = data_stats[i]["statistics"]
         if "histogram" in stats:
             if "bin_counts" in stats["histogram"]:
                 stats["histogram"]["bin_counts"] = \

@@ -230,111 +230,74 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         """
         Tests to see that entity percentages match the counts given
         """
-
-        # Test with same entity labels
         profiler1 = UnstructuredLabelerProfile()
         profiler1.char_sample_size = 20
-        profiler1.word_sample_size = 10
-        profiler1.entity_counts["postprocess_char_level"]["UNKNOWN"] = 6
-        profiler1.entity_counts["postprocess_char_level"]["TEST"] = 14
+        profiler1.word_sample_size = 15
+        profiler1.entity_counts["postprocess_char_level"]["UNKNOWN"] = 5
+        profiler1.entity_counts["postprocess_char_level"]["TEST"] = 10
+        profiler1.entity_counts["postprocess_char_level"]["UNIQUE1"] = 5
         profiler1.entity_counts["true_char_level"]["UNKNOWN"] = 4
-        profiler1.entity_counts["true_char_level"]["TEST"] = 16
+        profiler1.entity_counts["true_char_level"]["TEST"] = 8
+        profiler1.entity_counts["true_char_level"]["UNIQUE1"] = 8
         profiler1.entity_counts["word_level"]["UNKNOWN"] = 5
         profiler1.entity_counts["word_level"]["TEST"] = 5
+        profiler1.entity_counts["word_level"]["UNIQUE1"] = 5
         profiler1.update(pd.Series(["a"]))
-        profile1 = profiler1.profile
-        entity_counts1 = profile1['entity_counts']
-        entity_percentages1 = profile1['entity_percentages']
 
         profiler2 = UnstructuredLabelerProfile()
-        profiler2.char_sample_size = 10
-        profiler2.word_sample_size = 5
-        profiler2.entity_counts["postprocess_char_level"]["UNKNOWN"] = 6
-        profiler2.entity_counts["postprocess_char_level"]["TEST"] = 4
+        profiler2.char_sample_size = 20
+        profiler2.word_sample_size = 10
+        profiler2.entity_counts["postprocess_char_level"]["UNKNOWN"] = 5
+        profiler2.entity_counts["postprocess_char_level"]["TEST"] = 10
+        profiler2.entity_counts["postprocess_char_level"]["UNIQUE2"] = 5
         profiler2.entity_counts["true_char_level"]["UNKNOWN"] = 8
-        profiler2.entity_counts["true_char_level"]["TEST"] = 2
-        profiler2.entity_counts["word_level"]["UNKNOWN"] = 1
+        profiler2.entity_counts["true_char_level"]["TEST"] = 8
+        profiler2.entity_counts["true_char_level"]["UNIQUE2"] = 4
+        profiler2.entity_counts["word_level"]["UNKNOWN"] = 2
         profiler2.entity_counts["word_level"]["TEST"] = 4
-        profile2 = profiler2.profile
-        entity_counts2 = profile2['entity_counts']
-        entity_percentages2 = profile2['entity_percentages']
+        profiler2.entity_counts["word_level"]["UNIQUE2"] = 4
+        profiler2.update(pd.Series(["a"]))
 
         expected_diff = {
-            'entity_counts' : {
-                'postprocess_char_level' : utils.find_diff_of_dicts(
-                            entity_counts1['postprocess_char_level'],
-                            entity_counts2['postprocess_char_level']),
-                'true_char_level': utils.find_diff_of_dicts(
-                    entity_counts1['true_char_level'],
-                    entity_counts2['true_char_level']),
-                'word_level': utils.find_diff_of_dicts(
-                    entity_counts1['word_level'],
-                    entity_counts2['word_level'])
+            'entity_counts': {
+                'postprocess_char_level': {
+                    'UNKNOWN': "unchanged",
+                    'TEST': "unchanged",
+                    'UNIQUE1': [5, None],
+                    'UNIQUE2': [None, 5]
+                },
+                'true_char_level': {
+                    'UNKNOWN': -4,
+                    'TEST': "unchanged",
+                    'UNIQUE1': [8, None],
+                    'UNIQUE2': [None, 4]
+                },
+                'word_level': {
+                    'UNKNOWN': 3,
+                    'TEST': 1,
+                    'UNIQUE1': [5, None],
+                    'UNIQUE2': [None, 4]
+                }
             },
             'entity_percentages': {
-                'postprocess_char_level' : utils.find_diff_of_dicts(
-                    entity_percentages1['postprocess_char_level'],
-                    entity_percentages2['postprocess_char_level']),
-                'true_char_level': utils.find_diff_of_dicts(
-                    entity_percentages1['true_char_level'],
-                    entity_percentages2['true_char_level']),
-                'word_level': utils.find_diff_of_dicts(
-                    entity_percentages1['word_level'],
-                    entity_percentages2['word_level'])
-            }
-        }
-        self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
-
-        # Test with different entity labels
-        profiler1 = UnstructuredLabelerProfile()
-        profiler1.char_sample_size = 20
-        profiler1.word_sample_size = 10
-        profiler1.entity_counts["postprocess_char_level"]["UNKNOWN"] = 6
-        profiler1.entity_counts["postprocess_char_level"]["UNIQUE"] = 14
-        profiler1.entity_counts["true_char_level"]["UNKNOWN"] = 4
-        profiler1.entity_counts["true_char_level"]["UNIQUE"] = 16
-        profiler1.entity_counts["word_level"]["UNKNOWN"] = 5
-        profiler1.entity_counts["word_level"]["UNIQUE"] = 5
-        profiler1.update(pd.Series(["a"]))
-        profile1 = profiler1.profile
-        entity_counts1 = profile1['entity_counts']
-        entity_percentages1 = profile1['entity_percentages']
-
-        profiler2 = UnstructuredLabelerProfile()
-        profiler2.char_sample_size = 10
-        profiler2.word_sample_size = 5
-        profiler2.entity_counts["postprocess_char_level"]["UNKNOWN"] = 6
-        profiler2.entity_counts["postprocess_char_level"]["TEST"] = 4
-        profiler2.entity_counts["true_char_level"]["UNKNOWN"] = 8
-        profiler2.entity_counts["true_char_level"]["TEST"] = 2
-        profiler2.entity_counts["word_level"]["UNKNOWN"] = 1
-        profiler2.entity_counts["word_level"]["TEST"] = 4
-        profile2 = profiler2.profile
-        entity_counts2 = profile2['entity_counts']
-        entity_percentages2 = profile2['entity_percentages']
-
-        expected_diff = {
-            'entity_counts' : {
-                'postprocess_char_level' : utils.find_diff_of_dicts(
-                    entity_counts1['postprocess_char_level'],
-                    entity_counts2['postprocess_char_level']),
-                'true_char_level': utils.find_diff_of_dicts(
-                    entity_counts1['true_char_level'],
-                    entity_counts2['true_char_level']),
-                'word_level': utils.find_diff_of_dicts(
-                    entity_counts1['word_level'],
-                    entity_counts2['word_level'])
-            },
-            'entity_percentages': {
-                'postprocess_char_level' : utils.find_diff_of_dicts(
-                    entity_percentages1['postprocess_char_level'],
-                    entity_percentages2['postprocess_char_level']),
-                'true_char_level': utils.find_diff_of_dicts(
-                    entity_percentages1['true_char_level'],
-                    entity_percentages2['true_char_level']),
-                'word_level': utils.find_diff_of_dicts(
-                    entity_percentages1['word_level'],
-                    entity_percentages2['word_level'])
+                'postprocess_char_level': {
+                    'UNKNOWN': "unchanged",
+                    'TEST': "unchanged",
+                    'UNIQUE1': [1/4, None],
+                    'UNIQUE2': [None, 1/4]
+                },
+                'true_char_level': {
+                    'UNKNOWN': -1/5,
+                    'TEST': "unchanged",
+                    'UNIQUE1': [2/5, None],
+                    'UNIQUE2': [None, 1/5]
+                },
+                'word_level': {
+                    'UNKNOWN': 1/3 - 1/5,
+                    'TEST': 1/3 - 2/5,
+                    'UNIQUE1': [1/3, None],
+                    'UNIQUE2': [None, 2/5]
+                }
             }
         }
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
@@ -347,37 +310,32 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         profiler1.entity_counts["true_char_level"]["UNKNOWN"] = 5
         profiler1.entity_counts["word_level"]["UNKNOWN"] = 5
         profiler1.update(pd.Series(["a"]))
-        profile1 = profiler1.profile
-        entity_counts1 = profile1['entity_counts']
-        entity_percentages1 = profile1['entity_percentages']
 
         profiler2 = UnstructuredLabelerProfile()
         profile2 = profiler2.profile
-        entity_counts2 = profile2['entity_counts']
-        entity_percentages2 = profile2['entity_percentages']
 
         expected_diff = {
-            'entity_counts' : {
-                'postprocess_char_level' : utils.find_diff_of_dicts(
-                    entity_counts1['postprocess_char_level'],
-                    entity_counts2['postprocess_char_level']),
-                'true_char_level': utils.find_diff_of_dicts(
-                    entity_counts1['true_char_level'],
-                    entity_counts2['true_char_level']),
-                'word_level': utils.find_diff_of_dicts(
-                    entity_counts1['word_level'],
-                    entity_counts2['word_level'])
+            'entity_counts': {
+                'postprocess_char_level': {
+                    'UNKNOWN': [5, None],
+                },
+                'true_char_level': {
+                    'UNKNOWN': [5, None],
+                },
+                'word_level': {
+                    'UNKNOWN': [5, None],
+                }
             },
             'entity_percentages': {
-                'postprocess_char_level' : utils.find_diff_of_dicts(
-                    entity_percentages1['postprocess_char_level'],
-                    entity_percentages2['postprocess_char_level']),
-                'true_char_level': utils.find_diff_of_dicts(
-                    entity_percentages1['true_char_level'],
-                    entity_percentages2['true_char_level']),
-                'word_level': utils.find_diff_of_dicts(
-                    entity_percentages1['word_level'],
-                    entity_percentages2['word_level'])
+                'postprocess_char_level': {
+                    'UNKNOWN': [1, None],
+                },
+                'true_char_level': {
+                    'UNKNOWN': [1, None],
+                },
+                'word_level': {
+                    'UNKNOWN': [1, None],
+                }
             }
         }
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))

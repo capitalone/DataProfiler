@@ -372,7 +372,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 json.load(data_file)
                 return True
             except (json.JSONDecodeError, UnicodeDecodeError):
-                data_file.seek(0, 0)
+                data_file.seek(0)
 
             for k in range(1000):
                 total_line_count += 1

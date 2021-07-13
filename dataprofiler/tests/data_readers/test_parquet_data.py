@@ -1,6 +1,6 @@
 import os
 import unittest
-from io import BytesIO, StringIO
+from io import BytesIO
 
 from dataprofiler.data_readers.data import Data
 from dataprofiler.data_readers.parquet_data import ParquetData

@@ -166,7 +166,6 @@ class TestCSVDataClass(unittest.TestCase):
         Determine if the csv file can be automatically identified from string stream
         """
         for input_file in self.input_file_names:
-            print(input_file)
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
                 byte_string = StringIO(fp.read())
                 input_data_obj = Data(byte_string)

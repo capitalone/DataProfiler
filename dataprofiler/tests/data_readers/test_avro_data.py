@@ -38,9 +38,10 @@ class TestAVRODataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             # as BytesIO Stream
-            byte_string = BytesIO(open(input_file['path'], 'rb').read())
-            input_data_obj = Data(byte_string)
-            self.assertEqual(input_data_obj.data_type, 'avro')
+            with open(input_file['path'], 'rb') as fp:
+                byte_string = BytesIO(fp.read())
+                input_data_obj = Data(byte_string)
+                self.assertEqual(input_data_obj.data_type, 'avro')
 
     def test_avro_file_identification(self):
         """

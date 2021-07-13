@@ -53,8 +53,13 @@ class FileOrBufferHandler():
             self._filepath_or_buffer.close()
 
 class DetachingTextIOWrapper(TextIOWrapper):
+    """
+    DetachingTextIOWrapper class is used to detach buffer to avoid buffer closing before it's returned
+    """
+
     def close(self):
         self.detach()
+
     def __del__(self):
         if self.buffer:
             self.detach()

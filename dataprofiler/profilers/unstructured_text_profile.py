@@ -140,21 +140,12 @@ class TextProfiler(object):
         :type merged_profile: TextProfiler
         :return:
         """
-        if self._is_case_sensitive == other._is_case_sensitive:
-            merged_profile.word_count = self.word_count + other.word_count
-        else:
-            if not self._is_case_sensitive:
-                non_case_sensitive_word_count = self.word_count
-                case_sensitive_word_count = other.word_count
-            else:
-                non_case_sensitive_word_count = other.word_count
-                case_sensitive_word_count = self.word_count
-
-            additive_word_count = Counter()
-            for k, v in case_sensitive_word_count.items():
-                additive_word_count.update({k.lower(): v})
-            merged_profile.word_count = \
-                non_case_sensitive_word_count + additive_word_count
+        merged_profile.word_count = self.word_count + other.word_count
+        if self._is_case_sensitive != other._is_case_sensitive:
+            for w, c in list(merged_profile.word_count.items()):
+                if not w.islower():
+                    merged_profile.word_count.pop(w)
+                    merged_profile.word_count.update({w.lower(): c})
 
     @staticmethod
     def _merge_vocab(vocab_count1, vocab_count2):

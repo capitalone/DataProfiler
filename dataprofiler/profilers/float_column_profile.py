@@ -108,7 +108,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for FloatColumnss.
+        Finds the differences for FloatColumns.
 
         :param other_profile: profile to find the difference with
         :type other_profile: FloatColumn

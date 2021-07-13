@@ -249,7 +249,8 @@ class OrderColumn(BaseColumnProfiler):
         super().diff(other_profile, options)
 
         differences = {
-            "order": utils.find_diff_of_strings(self.order, other_profile.order)
+            "order": utils.find_diff_of_strings_and_bools(self.order, 
+                                                          other_profile.order)
         }
         return differences
 

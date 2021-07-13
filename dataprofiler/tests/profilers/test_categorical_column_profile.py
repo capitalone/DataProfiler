@@ -310,6 +310,48 @@ class TestCategoricalColumn(unittest.TestCase):
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         self.assertEqual(profile.gini_impurity, None)
+        
+    def test_categorical_diff(self):
+        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+
+        df_categorical = pd.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
+        profile2 = CategoricalColumn(df_categorical.name)
+        profile2.update(df_categorical)
+        
+        expected_diff = {
+            'categorical': 'unchanged',
+            'statistics': {
+                'unique_count': -1,
+                'unique_ratio': -0.14285714285714285,
+                'categories': [[], ['y', 'n'], ['maybe']],
+                'gini_impurity': -0.16326530612244894,
+                'unalikeability': -0.19047619047619047,
+                'categorical_count': {
+                    'y': 1,
+                    'n': 1,
+                    'maybe': [None, 2]
+                }
+            }
+        }
+
+        self.assertDictEqual(expected_diff, profile.diff(profile2))
+
+        # Test with one categorical column matching
+        df_not_categorical = pd.Series(["THIS", "is", "not", "a", "categorical",
+                                    "column", "for", "testing", "purposes", 
+                                    "Bada", "Bing", "Badaboom"])
+        profile2 = CategoricalColumn(df_not_categorical.name)
+        profile2.update(df_not_categorical)
+        expected_diff = {
+            'categorical': [True, False],
+            'statistics': {
+                'unique_count': -10,
+                'unique_ratio': -0.7142857142857143
+            }
+        }
+        self.assertDictEqual(expected_diff, profile.diff(profile2))
 
     def test_unalikeability(self):
         df_categorical = pd.Series(["a", "a"])

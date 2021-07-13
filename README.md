@@ -51,20 +51,20 @@ The format for a structured profile is below:
 
 ```
 "global_stats": {
-        "samples_used": int,
-        "column_count": int,
-        "row_count": int,
-        "row_has_null_ratio": float,
-        "row_is_null_ratio": float,    
-        "unique_row_ratio": float,
-        "duplicate_row_count": int,
-        "file_type": string,
-        "encoding": string,
-        "correlation_matrix": list(list(int)), (*)
-        "profile_schema": {
-            string: list(int)
-        },
+    "samples_used": int,
+    "column_count": int,
+    "row_count": int,
+    "row_has_null_ratio": float,
+    "row_is_null_ratio": float,    
+    "unique_row_ratio": float,
+    "duplicate_row_count": int,
+    "file_type": string,
+    "encoding": string,
+    "correlation_matrix": list(list(int)), (*)
+    "profile_schema": {
+        string: list(int)
     },
+},
 "data_stats": [
     {
         "column_name": string,

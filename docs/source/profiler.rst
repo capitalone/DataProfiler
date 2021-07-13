@@ -462,14 +462,16 @@ Below is an breakdown of all the options.
 
     * **text** - Options for the text profile
       
-      * is_case_sensitive - (Boolean)
-      * stop_words - (List of Strings)
+      * is_case_sensitive - (Boolean) Specify whether the profile is case sensitive
+      * stop_words - (List of Strings) List of stop words to be removed when profiling
+      * top_k_chars - (Int) Number of top characters to be retrieved when profiling
+      * top_k_words - (Int) Number of top words to be retrieved when profiling
+      * vocab - Options for vocab count
+
+        * is_enabled - (Boolean) Enables or disables the vocab stats
       * words - Options for word count
 
         * is_enabled - (Boolean) Enables or disables the word stats
-      * vocab - Options for vocab count
-        
-        * is_enabled - (Boolean) Enables or disables the vocab stats
     * **data_labeler** - Options for the data labeler
 
       * is_enabled - (Boolean) Enables or disables the data labeler operations

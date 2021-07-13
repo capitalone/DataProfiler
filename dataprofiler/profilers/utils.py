@@ -371,15 +371,15 @@ def find_diff_of_numbers(stat1, stat2):
     return diff
 
 
-def find_diff_of_strings(stat1, stat2):
+def find_diff_of_strings_and_bools(stat1, stat2):
     """
     Finds the difference between two stats. If there is no difference, returns
-    "unchanged". For strings, returns list containing [stat1, stat2].
+    "unchanged". For strings and bools, returns list containing [stat1, stat2].
 
     :param stat1: the first statistical input
-    :type stat1: str
+    :type stat1: Union[str, bool]
     :param stat2: the second statistical input
-    :type stat2: str
+    :type stat2: Union[str, bool]
     :return: the difference of the stats
     """
     diff = "unchanged"
@@ -469,7 +469,7 @@ def find_diff_of_dicts(dict1, dict2):
         elif isinstance(value1, datetime.datetime):
             diff[key] = find_diff_of_dates(value1, value2)
         elif isinstance(value1, str):
-            diff[key] = find_diff_of_strings(value1, value2)
+            diff[key] = find_diff_of_strings_and_bools(value1, value2)
         else:
             diff[key] = find_diff_of_numbers(value1, value2)
 
@@ -477,5 +477,9 @@ def find_diff_of_dicts(dict1, dict2):
     for key, value in dict2.items():
         if key not in diff:
             diff[key] = [None, value]
+
+    # If both dicts have no keys, it is unchanged
+    if diff == {}:
+        diff = "unchanged"
 
     return diff

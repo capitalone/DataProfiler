@@ -258,8 +258,8 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
         data_type1 = self.selected_data_type
         data_type2 = other.selected_data_type
         if data_type1 is not None or data_type2 is not None:
-            diff_profile["data_type"] = utils.find_diff_of_strings(data_type1,
-                                                                   data_type2)
+            diff_profile["data_type"] = utils.find_diff_of_strings_and_bools(
+                data_type1, data_type2)
             # Find diff of matching profile statistics
             if diff_profile["data_type"] == "unchanged":
                 diff_profile["statistics"] = self._profiles[data_type1]\

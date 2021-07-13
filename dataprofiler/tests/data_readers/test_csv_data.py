@@ -259,7 +259,7 @@ class TestCSVDataClass(unittest.TestCase):
         for input_file in self.input_file_names:
             with open(input_file['path'], 'rb') as fp:
                 byte_string = BytesIO(fp.read())
-                input_data_obj = Data(byte_string, data_type='csv')
+                input_data_obj = CSVData(byte_string, data_type='csv')
                 self.assertEqual(input_data_obj.data_type, 'csv')
                 self.assertIsInstance(input_data_obj.data, pd.DataFrame)
 
@@ -276,7 +276,7 @@ class TestCSVDataClass(unittest.TestCase):
 
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
                 byte_string = StringIO(fp.read())
-                input_data_obj = Data(byte_string, data_type='csv')
+                input_data_obj = CSVData(byte_string, data_type='csv')
                 self.assertEqual(input_data_obj.data_type, 'csv')
                 self.assertIsInstance(input_data_obj.data, pd.DataFrame)
 
@@ -310,7 +310,7 @@ class TestCSVDataClass(unittest.TestCase):
         for input_file in self.input_file_names:
             with open(input_file['path'], 'rb') as fp:
                 byte_string = BytesIO(fp.read())
-                input_data_obj = Data(byte_string, data_type='csv')
+                input_data_obj = CSVData(byte_string, data_type='csv')
                 input_data_obj.reload(byte_string)
                 self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
                 self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
@@ -319,7 +319,7 @@ class TestCSVDataClass(unittest.TestCase):
 
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
                 byte_string = StringIO(fp.read())
-                input_data_obj = Data(byte_string, data_type='csv')
+                input_data_obj = CSVData(byte_string, data_type='csv')
                 input_data_obj.reload(byte_string)
                 self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
                 self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
@@ -350,7 +350,7 @@ class TestCSVDataClass(unittest.TestCase):
         for input_file in self.input_file_names:
             with open(input_file['path'], 'rb') as fp:
                 byte_string = BytesIO(fp.read())
-                input_data_obj = Data(byte_string, data_type='csv')
+                input_data_obj = CSVData(byte_string, data_type='csv')
                 for data_format in list(input_data_obj._data_formats.keys()):
                     input_data_obj.data_format = data_format
                     self.assertEqual(input_data_obj.data_format, data_format)
@@ -364,7 +364,7 @@ class TestCSVDataClass(unittest.TestCase):
 
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
                 byte_string = StringIO(fp.read())
-                input_data_obj = Data(byte_string, data_type='csv')
+                input_data_obj = CSVData(byte_string, data_type='csv')
                 for data_format in list(input_data_obj._data_formats.keys()):
                     input_data_obj.data_format = data_format
                     self.assertEqual(input_data_obj.data_format, data_format)
@@ -581,7 +581,7 @@ class TestCSVDataClass(unittest.TestCase):
 
             with open(input_file['path'], 'rb') as fp:
                 byte_string = BytesIO(fp.read())
-                data = Data(byte_string, data_type='csv')
+                data = CSVData(byte_string, data_type='csv')
                 self.assertEqual(input_file['count'],
                                  len(data),
                                  msg=input_file['path'])
@@ -591,7 +591,7 @@ class TestCSVDataClass(unittest.TestCase):
 
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
                 byte_string = StringIO(fp.read())
-                data = Data(byte_string, data_type='csv')
+                data = CSVData(byte_string, data_type='csv')
                 self.assertEqual(input_file['count'],
                                  len(data),
                                  msg=input_file['path'])

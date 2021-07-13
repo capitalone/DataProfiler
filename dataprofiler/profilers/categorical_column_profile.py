@@ -35,7 +35,7 @@ class CategoricalColumn(BaseColumnProfiler):
         self._categories = defaultdict(int)
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
-        self.top_k_categories = None
+        self._top_k_categories = None
 
     def __add__(self, other):
         """
@@ -130,7 +130,7 @@ class CategoricalColumn(BaseColumnProfiler):
             profile["statistics"]['unalikeability'] = self.unalikeability
             profile["statistics"]['categorical_count'] = dict(
                 sorted(self._categories.items(), key=itemgetter(1),
-                       reverse=True)[:self.top_k_categories])
+                       reverse=True)[:self._top_k_categories])
         return profile
 
     @property
@@ -231,7 +231,7 @@ class CategoricalColumn(BaseColumnProfiler):
         :type k: int
         :return: None
         """
-        self.top_k_categories = k
+        self._top_k_categories = k
 
     @property
     def gini_impurity(self):

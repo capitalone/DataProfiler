@@ -283,12 +283,10 @@ class TestCategoricalColumn(unittest.TestCase):
                                                   '4', 'b', '3', 'dfd', 'ee',
                                                   'ff', 'nan', 'None', '1',
                                                   'gg', 'null', 'NaN'])
-        expected_dict = dict({'aa': 5, '2': 4, 'abcd': 4, 'b': 3, np.nan: 2})
-        self.assertEqual(len(report_count), len(expected_dict))
-        self.assertEqual(report_count['aa'], expected_dict['aa'])
-        self.assertEqual(report_count['2'], expected_dict['2'])
-        self.assertEqual(report_count['abcd'], expected_dict['abcd'])
-        self.assertEqual(report_count['b'], expected_dict['b'])
+        expected_dict = {'aa': 5, '2': 4, 'abcd': 4, 'b': 3, np.nan: 2,
+                         'dfd': 2, '3': 2, '4': 2, 'ee': 2, 'null': 1, 'ff': 1,
+                         'NaN': 1, '1': 1, 'nan': 1, 'gg': 1, 'None': 1}
+        self.assertCountEqual(report_count, expected_dict)
 
     def test_gini_impurity(self):
         # Normal test
@@ -374,6 +372,26 @@ class TestCategoricalColumn(unittest.TestCase):
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         self.assertEqual(profile.unalikeability, 2*(10 + 15 + 6)/90)
+
+    def test_top_k_categories_change(self):
+        df_series = pd.Series(
+            ["a", "a", "b", "c", "d", "e", "e", "e", "f", "g"])
+        profile = CategoricalColumn(df_series.name)
+        profile.update(df_series)
+        self.assertEqual(
+            len(profile.profile['statistics']['categorical_count']), 7)
+        profile.set_categorical_count_size(6)
+        self.assertEqual(
+            len(profile.profile['statistics']['categorical_count']), 6)
+
+        df_series = pd.Series(["a", "a", "b", "c", "d"])
+        profile = CategoricalColumn(df_series.name)
+        profile.update(df_series)
+        self.assertEqual(
+            len(profile.profile['statistics']['categorical_count']), 4)
+        profile.set_categorical_count_size(6)
+        self.assertEqual(
+            len(profile.profile['statistics']['categorical_count']), 4)
 
 class TestCategoricalSentence(unittest.TestCase):
 

@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import os
 import unittest
+from io import StringIO, BytesIO
 
 from dataprofiler.data_readers.data import Data, JSONData
 from dataprofiler.data_readers import json_data
@@ -44,6 +45,27 @@ class TestJSONDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.csv"), encoding='utf-8', count=14),
             dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.parquet"), encoding='utf-8', count=14)
         ]
+    
+    def test_is_match_for_string_streams(self):
+        """
+        Determine if the json file can be automatically identified from string stream
+        """
+        for input_file in self.input_file_names:
+            print(input_file)
+            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
+                byte_string = StringIO(fp.read())
+                input_data_obj = Data(byte_string)
+                self.assertEqual(input_data_obj.data_type, 'json')
+
+    def test_is_match_for_byte_streams(self):
+        """
+        Determine if the json file can be automatically identified byte stream
+        """
+        for input_file in self.input_file_names:
+            with open(input_file['path'], 'rb') as fp:
+                byte_string = BytesIO(fp.read())
+                input_data_obj = Data(byte_string)
+                self.assertEqual(input_data_obj.data_type, 'json')
 
     def test_json_file_identification(self):
         """

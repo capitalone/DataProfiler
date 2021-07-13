@@ -82,11 +82,11 @@ class TestShuffleInChunks(unittest.TestCase):
 
         # Ensure strings are handled appropriately
         self.assertEqual("unchanged",
-                         utils.find_diff_of_strings("Hello", "Hello"))
+                         utils.find_diff_of_strings_and_bools("Hello", "Hello"))
         self.assertEqual(["Hello", "team"],
-                         utils.find_diff_of_strings("Hello", "team"))
+                         utils.find_diff_of_strings_and_bools("Hello", "team"))
         self.assertEqual("unchanged",
-                         utils.find_diff_of_strings(None, None))
+                         utils.find_diff_of_strings_and_bools(None, None))
 
         # Ensure dates are handled appropriately
         a = datetime(2021, 6, 28)

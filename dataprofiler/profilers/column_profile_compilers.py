@@ -301,12 +301,11 @@ class ColumnStatsProfileCompiler(BaseCompiler):
 
         # Iterate through profiles
         all_profiles = set(self._profiles.keys()) | set(other._profiles.keys())
-        if all_profiles:
-            for key in all_profiles:
-                if key in self._profiles and key in other._profiles:
-                    diff = self._profiles[key].diff(other._profiles[key], 
-                                                    options)
-                    diff_profile.update(diff)
+        for key in all_profiles:
+            if key in self._profiles and key in other._profiles:
+                diff = self._profiles[key].diff(other._profiles[key], 
+                                                options)
+                diff_profile.update(diff)
 
         return diff_profile
 

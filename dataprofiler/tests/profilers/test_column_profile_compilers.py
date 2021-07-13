@@ -229,7 +229,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         options = StructuredOptions()
 
         # Test normal diff
-        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1,options)
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1)
         compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
         expected_diff = {
             'order': ['ascending', 'descending'], 

@@ -1400,13 +1400,12 @@ class StructuredProfiler(BaseProfiler):
         :type clean_samples: dict()
         """
         batch_corr = self._get_correlation(clean_samples)
+        batch_samples = len(list(clean_samples.values())[0])
+        batch_means = np.full(len(self._profile.keys()), np.nan)
+        batch_stds = np.full(len(self._profile.keys()), np.nan)
         if self.total_samples > 0:
-            data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors='coerce')
-
-            batch_means = np.full(len(self._profile.keys()), np.nan)
-            batch_stds = np.full(len(self._profile.keys()), np.nan)
             for id, col in enumerate(self._profile.keys()):
-                if col in data.columns:
+                if col in clean_samples.keys():
                     data_type_compiler = self._profile[col].profiles["data_type_profile"]
                     data_type = data_type_compiler.selected_data_type
                     if data_type in ["int", "float"]:
@@ -1417,21 +1416,10 @@ class StructuredProfiler(BaseProfiler):
                         n = batch_properties['match_count']
                         batch_stds[id] = np.sqrt(batch_properties['biased_variance'] * n / (n - 1))
 
-            # If these lengths are different, then some columns were added to to the
-            # profile.
-            if (len(batch_means) != len(prev_dependent_properties["mean"])):
-                # TODO: Remove this when adding new columns isn't supported.
-                warnings.warn("A new column was added when updating. Correlations cannot be calculated"
-                              " for new columns.", RuntimeWarning)
-                return
-
-            self.correlation_matrix = self._merge_correlation_helper(
-                 self.correlation_matrix, prev_dependent_properties["mean"],
-                 prev_dependent_properties["std"], self.total_samples,
-                 batch_corr, batch_means, batch_stds, len(data.index))
-            return
-
-        self.correlation_matrix = batch_corr
+        self.correlation_matrix = self._merge_correlation_helper(
+            self.correlation_matrix, prev_dependent_properties["mean"],
+            prev_dependent_properties["std"], self.total_samples,
+            batch_corr, batch_means, batch_stds, batch_samples)
 
     def _merge_correlation(self, other):
         """
@@ -1501,6 +1489,11 @@ class StructuredProfiler(BaseProfiler):
         :type std2: np.array
         :return: merged correlation matrix
         """
+        if len(mean1) == 0:
+           return corr_mat2
+        elif len(mean2) == 0:
+           return corr_mat1
+
         std_mat1 = np.outer(std1, std1)
         std_mat2 = np.outer(std2, std2)
         mean_diff_vector = mean1 - mean2

@@ -1581,9 +1581,13 @@ class StructuredProfiler(BaseProfiler):
         :return: merged correlation matrix
         """
         if corr_mat1 is None:
-           return corr_mat2
+            return corr_mat2
         elif corr_mat2 is None:
-           return corr_mat1
+            return corr_mat1
+        elif len(mean1) == 0:
+            return corr_mat2
+        elif len(mean2) == 0:
+            return corr_mat1
 
         std_mat1 = np.outer(std1, std1)
         std_mat2 = np.outer(std2, std2)

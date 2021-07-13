@@ -141,6 +141,13 @@ class TextProfiler(object):
         :return:
         """
         merged_profile.word_count = self.word_count + other.word_count
+
+        # remove stop words
+        merged_stop_words = self._stop_words.union(other._stop_words)
+        for w, c in list(merged_profile.word_count.items()):
+            if w.lower() in merged_stop_words:
+                merged_profile.word_count.pop(w)
+
         if self._is_case_sensitive != other._is_case_sensitive:
             for w, c in list(merged_profile.word_count.items()):
                 if not w.islower():

@@ -14,6 +14,8 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         self.assertTrue(option.is_enabled)
         self.assertTrue(option.is_case_sensitive)
         self.assertIsNone(option.stop_words)
+        self.assertIsNone(option.top_k_words)
+        self.assertIsNone(option.top_k_chars)
         self.assertTrue(option.words.is_enabled)
         self.assertTrue(option.vocab.is_enabled)
 
@@ -30,6 +32,16 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
                           "attribute 'is_enabled'")
         with self.assertRaisesRegex(AttributeError, expected_error):
             option._set_helper({'stop_words.is_enabled': True}, 'test')
+
+        expected_error = ("type object 'test.top_k_words' has no "
+                          "attribute 'is_enabled'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option._set_helper({'top_k_words.is_enabled': True}, 'test')
+
+        expected_error = ("type object 'test.top_k_chars' has no "
+                          "attribute 'is_enabled'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option._set_helper({'top_k_chars.is_enabled': True}, 'test')
 
         expected_error = ("type object 'test.words.is_enabled' has no attribute "
                           "'other_props'")
@@ -49,6 +61,8 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
             dict(prop='is_case_sensitive', value_list=[False, True]),
             dict(prop='stop_words',
                  value_list=[None, ['word1', 'word2'], []]),
+            dict(prop='top_k_words', value_list=[None, 3]),
+            dict(prop='top_k_chars', value_list=[None, 3]),
             dict(prop='words', value_list=[False, True]),
             dict(prop='vocab', value_list=[False, True]),
         ]
@@ -81,6 +95,16 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
         with self.assertRaisesRegex(AttributeError, expected_error):
             option.set({'stop_words.is_enabled': True})
 
+        expected_error = ("type object 'top_k_words' has no attribute "
+                          "'is_enabled'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option.set({'top_k_words.is_enabled': True})
+
+        expected_error = ("type object 'top_k_chars' has no attribute "
+                          "'is_enabled'")
+        with self.assertRaisesRegex(AttributeError, expected_error):
+            option.set({'top_k_chars.is_enabled': True})
+
         expected_error = ("type object 'words.is_enabled' has no attribute "
                           "'other_props'")
         with self.assertRaisesRegex(AttributeError, expected_error):
@@ -105,6 +129,8 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
             dict(prop='stop_words',
                  value_list=[None, ['word1', 'word2'], []],
                  errors=[]),
+            dict(prop='top_k_words', value_list=[None, 1], errors=[]),
+            dict(prop='top_k_chars', value_list=[None, 1], errors=[]),
             dict(prop='words',
                  value_list=[BooleanOption(is_enabled=False),
                              BooleanOption(is_enabled=True)],
@@ -126,6 +152,18 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
                  errors=[
                      "TextProfilerOptions.stop_words must be None "
                      "or list of strings."
+                 ]),
+            dict(prop='top_k_words',
+                 value_list=['a', -1, [1, 2], ['a', 1, 'a']],
+                 errors=[
+                     "TextProfilerOptions.top_k_words "
+                     "must be None or positive integer."
+                 ]),
+            dict(prop='top_k_chars',
+                 value_list=['a', -1, [1, 2], ['a', 1, 'a']],
+                 errors=[
+                     "TextProfilerOptions.top_k_chars "
+                     "must be None or positive integer."
                  ]),
             dict(prop='words',
                  value_list=[2, True],

@@ -9,6 +9,8 @@ import pandas as pd
 import pyarrow.parquet as pq
 from chardet.universaldetector import UniversalDetector
 
+from .filepath_or_buffer import FileOrBufferHandler
+
 
 def data_generator(data_list):
     """
@@ -347,7 +349,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     """
     detector = UniversalDetector()
     line_count = 0
-    with open(file_path, 'rb') as input_file:
+    with FileOrBufferHandler(file_path, 'rb') as input_file:
         chunk = input_file.read(buffer_size)
         while chunk and line_count < max_lines:
             detector.feed(chunk)
@@ -363,7 +365,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     # Check if encoding can be used to decode without throwing an error
     def _decode_is_valid(encoding):
         try: 
-            with open(file_path, encoding=encoding) as input_file:
+            with FileOrBufferHandler(file_path, encoding=encoding) as input_file:
                 input_file.read(1024*1024)
                 return True
         except: return False
@@ -373,7 +375,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
             from charset_normalizer import CharsetNormalizerMatches as CnM
             
             # Try with small sample 
-            with open(file_path, 'rb') as input_file:
+            with FileOrBufferHandler(file_path, 'rb') as input_file:
                 raw_data = input_file.read(10000)
                 result = CnM.from_bytes(raw_data, steps=5, 
                                         chunk_size=512, threshold=0.2,
@@ -384,7 +386,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
 
             # Try again with full sample
             if not _decode_is_valid(encoding): 
-                with open(file_path, 'rb') as input_file:
+                with FileOrBufferHandler(file_path, 'rb') as input_file:
                     raw_data = input_file.read(max_lines*buffer_size)
                     result = CnM.from_bytes(raw_data, steps=max_lines, 
                                             chunk_size=buffer_size, threshold=0.2,
@@ -515,7 +517,7 @@ def find_nth_loc(string=None, search_query=None, n=0):
     return idx, id_count
 
 
-def load_as_str_from_file(file_path, file_encoding, max_lines=10,
+def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
                           max_bytes=65536, chunk_size_bytes=1024):
     """
     Loads data from a csv file up to a specific line OR byte_size.
@@ -537,7 +539,7 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=10,
 
     data_as_str = ""
     total_occurances = 0
-    with open(file_path, encoding=file_encoding) as csvfile:
+    with FileOrBufferHandler(file_path, encoding=file_encoding) as csvfile:
 
         sample_size_bytes = min(max_bytes, chunk_size_bytes)
         
@@ -553,12 +555,21 @@ def load_as_str_from_file(file_path, file_encoding, max_lines=10,
             
             # Return either the last index of sample_lines OR
             # the index of the newline char that matches remaining_lines
+            search_query_value = '\n'
+            if (isinstance(sample_lines, bytes)):
+                search_query_value = b'\n'
+            
             loc, occurance = find_nth_loc(sample_lines,
-                                          search_query='\n',
-                                          n=remaining_lines)
+                                        search_query=search_query_value,
+                                        n=remaining_lines)
 
             # Add sample_lines to data_as_str no more than max_lines
-            data_as_str += sample_lines[:loc]
+            if (is_stream_buffer(file_path) and isinstance(sample_lines[:loc],\
+                 bytes)):
+                data_as_str += sample_lines[:loc].decode(file_encoding)
+            else:
+                data_as_str += sample_lines[:loc]
+
             total_occurances += occurance
             if total_occurances >= max_lines:
                 break

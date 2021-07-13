@@ -111,8 +111,8 @@ The format for a structured profile is below:
                 "unique_count": int,
                 "unique_ratio": float,
                 "categorical_count": dict[string, int],
-                "gini_impurity", float,
-                "unalikeability", float,
+                "gini_impurity": float,
+                "unalikeability": float,
                 "precision": {
                     'min': int,
                     'max': int,

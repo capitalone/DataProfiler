@@ -29,6 +29,7 @@ class FileOrBufferHandler:
         self.seek_whence = seek_whence
         self._encoding = encoding
         self.original_type = type(filepath_or_buffer)
+        self._is_wrapped = False
 
     def __enter__(self):
         if isinstance(self._filepath_or_buffer, str):
@@ -39,8 +40,8 @@ class FileOrBufferHandler:
         elif isinstance(self._filepath_or_buffer, BytesIO) \
                 and self.open_method == 'r':
             self._filepath_or_buffer = \
-                DetachingTextIOWrapper(self._filepath_or_buffer,
-                                       encoding=self._encoding)
+                TextIOWrapper(self._filepath_or_buffer, encoding=self._encoding)
+            self._is_wrapped = True
 
         elif not data_utils.is_stream_buffer(self._filepath_or_buffer):
             # Raise AttributeError if attribute value not found.
@@ -54,22 +55,13 @@ class FileOrBufferHandler:
         return self._filepath_or_buffer
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        if isinstance(self._filepath_or_buffer, (StringIO, BytesIO,
-                                                 DetachingTextIOWrapper)):
+        # Need to detach buffer if wrapped (i.e. BytesIO opened with 'r'
+        if self._is_wrapped:
+            wrapper = self._filepath_or_buffer
+            self._filepath_or_buffer = wrapper.buffer
+            wrapper.detach()
+
+        if isinstance(self._filepath_or_buffer, (StringIO, BytesIO)):
             self._filepath_or_buffer.seek(0)
         else:
             self._filepath_or_buffer.close()
-
-
-class DetachingTextIOWrapper(TextIOWrapper):
-    """
-    DetachingTextIOWrapper class is used to detach buffer to avoid buffer
-    closing before it's returned.
-    """
-
-    def close(self):
-        self.detach()
-
-    def __del__(self):
-        if self.buffer:
-            self.detach()

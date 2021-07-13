@@ -339,7 +339,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertDictEqual(expected_diff, profile.diff(profile2))
 
         # Test with one categorical column matching
-        df_not_categorical = pd.Series(["THIS", "is", "not", "a", "categorical", 
+        df_not_categorical = pd.Series(["THIS", "is", "not", "a", "categorical",
                                     "column", "for", "testing", "purposes", 
                                     "Bada", "Bing", "Badaboom"])
         profile2 = CategoricalColumn(df_not_categorical.name)

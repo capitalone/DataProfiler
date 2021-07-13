@@ -72,13 +72,16 @@ class CategoricalColumn(BaseColumnProfiler):
         differences = super().diff(other_profile, options)
 
         differences["categorical"] = \
-            utils.find_diff_of_strings_and_bools(self.is_match, other_profile.is_match)
+            utils.find_diff_of_strings_and_bools(self.is_match, 
+                                                 other_profile.is_match)
 
         differences["statistics"] = dict([
-                ('unique_count', utils.find_diff_of_numbers(len(self.categories),
-                                                            len(other_profile.categories))),
-                ('unique_ratio', utils.find_diff_of_numbers(self.unique_ratio, 
-                                                            other_profile.unique_ratio)),
+                ('unique_count', utils.find_diff_of_numbers(
+                    len(self.categories),
+                    len(other_profile.categories))),
+                ('unique_ratio', utils.find_diff_of_numbers(
+                    self.unique_ratio,
+                    other_profile.unique_ratio)),
             ])
 
         # These stats are only diffed if both profiles are categorical

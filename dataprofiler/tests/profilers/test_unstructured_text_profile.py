@@ -166,6 +166,18 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                                    'friends': 1}
             self.assertDictEqual(expected_word_count, profile['word_count'])
 
+        # change the merge order
+        with self.assertWarnsRegex(UserWarning,
+                "The merged Text Profile will not be case sensitive since there"
+                " were conflicting values for case sensitivity between the two "
+                "profiles being merged."):
+            text_profile3 = text_profile2 + text_profile1
+            profile = text_profile3.profile
+            # Assert word counts are correct
+            expected_word_count = {'hello': 1, 'name': 1, 'grant': 2, 'bob': 1,
+                                   'friends': 1}
+            self.assertDictEqual(expected_word_count, profile['word_count'])
+
     def test_merge_most_common_chars_count(self):
         ### default values of most common chars for both profiles
         text_profile1 = TextProfiler("Name")

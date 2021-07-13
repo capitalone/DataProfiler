@@ -130,13 +130,13 @@ class TestFilepathOrBuffer(unittest.TestCase):
         Check FileOrBufferHandler asserts proper attribute error
         """
         file_name = dict(not_a_valid="option")
-        with self.assertRaisesRegex(AttributeError, "Type.*is invalid. \
-                filepath_or_buffer must be a string or StringIO/BytesIO object"):
-            with FileOrBufferHandler(file_name, 'r') as\
-                    filepath_or_buffer, open(file_name, 'r') as\
-                    input_file_check:
-                    filepath_or_buffer.readline(),
-                    input_file_check.readline()
+        msg = (f"Type {type(file_name)} is invalid. filepath_or_buffer must "
+               f"be a string or StringIO/BytesIO object")
+        with self.assertRaisesRegex(AttributeError, msg):
+            with FileOrBufferHandler(file_name, 'r') as filepath_or_buffer, \
+                    open(file_name, 'r') as input_file_check:
+                filepath_or_buffer.readline(),
+                input_file_check.readline()
 
 
 if __name__ == '__main__':

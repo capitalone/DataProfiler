@@ -12,7 +12,7 @@ class FileOrBufferHandler:
     def __init__(self, filepath_or_buffer, open_method='r', encoding=None,
                  seek_offset=None, seek_whence=0):
         """
-        Context manager class used for inputing a file or buffer and returning
+        Context manager class used for inputting a file or buffer and returning
         a structure that is always a buffer.
 
         :param filepath_or_buffer: path to the file being loaded or buffer

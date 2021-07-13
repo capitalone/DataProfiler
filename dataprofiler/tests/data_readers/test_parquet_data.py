@@ -1,5 +1,6 @@
 import os
 import unittest
+from io import BytesIO
 
 from dataprofiler.data_readers.data import Data
 from dataprofiler.data_readers.parquet_data import ParquetData
@@ -30,6 +31,16 @@ class TestParquetDataClass(unittest.TestCase):
 
         ]
         cls.output_file_path = None
+
+    def test_is_match_for_byte_streams(self):
+        """
+        Determine if the parquet file can be automatically identified from byte stream
+        """
+        for input_file in self.input_file_names:
+            with open(input_file['path'], 'rb') as fp:
+                byte_string = BytesIO(fp.read())
+                input_data_obj = Data(byte_string)
+                self.assertEqual(input_data_obj.data_type, 'parquet')
 
     def test_auto_file_identification(self):
         """

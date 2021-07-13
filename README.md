@@ -60,7 +60,7 @@ The format for a structured profile is below:
     "duplicate_row_count": int,
     "file_type": string,
     "encoding": string,
-    "correlation_matrix": string, (*)
+    "correlation_matrix": list(list(int)), (*)
     "profile_schema": {
         string: list(int)
     }

@@ -55,7 +55,7 @@ class FileOrBufferHandler:
         return self._filepath_or_buffer
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        # Need to detach buffer if wrapped (i.e. BytesIO opened with 'r'
+        # Need to detach buffer if wrapped (i.e. BytesIO opened with 'r')
         if self._is_wrapped:
             wrapper = self._filepath_or_buffer
             self._filepath_or_buffer = wrapper.buffer

@@ -271,7 +271,14 @@ class TestStructuredProfiler(unittest.TestCase):
         profile_options = dp.ProfilerOptions()
         profile_options.set({"correlation.is_enabled": True})
 
-        # data with one column
+        # data with a sole numeric column
+        data = pd.DataFrame([1.0, 8.0, 1.0, -2.0, 5.0])
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        expected_corr_mat = np.array([[1.0]])
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      profiler.correlation_matrix)
+
+        # data with one column with non-numeric calues
         data = pd.DataFrame([1.0, None, 1.0, None, 5.0])
         profiler = dp.StructuredProfiler(data, options=profile_options)
         expected_corr_mat = np.array([[np.nan]])

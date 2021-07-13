@@ -423,20 +423,6 @@ class TestStructuredProfiler(unittest.TestCase):
         ])
         np.testing.assert_array_almost_equal(expected_corr_mat,
                                              profile.correlation_matrix)
-        # Test when we add a numeric column
-        profile_options = dp.ProfilerOptions()
-        profile_options.set({"correlation.is_enabled": True})
-        data1 = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
-                              'b': [10, 11, 1, 4, 2, 5, 6, 3, 9, 8]})
-
-        data2 = pd.DataFrame({'c': [1, 5, 3, 5, 7, 2, 6, 8, 1, 2]})
-
-        profile = dp.StructuredProfiler(data1, options=profile_options)
-        with self.assertWarnsRegex(RuntimeWarning,
-                                   "A new column was added when updating. "
-                                   "Correlations cannot be calculated "
-                                   "for new columns."):
-            profile.update_profile(data2)
 
     def test_correct_datatime_schema_test(self):
         profile = self.trained_schema.profile["datetime"]

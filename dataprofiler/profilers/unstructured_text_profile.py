@@ -100,6 +100,8 @@ class TextProfiler(object):
 
         if options and options.stop_words is not None:
             self._stop_words = options.stop_words
+            if isinstance(self._stop_words, list):
+                self._stop_words = set(self._stop_words)
 
         self._top_k_chars = None
         if options:
@@ -143,10 +145,11 @@ class TextProfiler(object):
         merged_profile.word_count = self.word_count + other.word_count
 
         # remove stop words
-        merged_stop_words = self._stop_words.union(other._stop_words)
-        for w, c in list(merged_profile.word_count.items()):
-            if w.lower() in merged_stop_words:
-                merged_profile.word_count.pop(w)
+        merged_profile._stop_words = self._stop_words.union(other._stop_words)
+        if len(merged_profile._stop_words) != len(self._stop_words):
+            for w, c in list(merged_profile.word_count.items()):
+                if w.lower() in merged_profile._stop_words:
+                    merged_profile.word_count.pop(w)
 
         if self._is_case_sensitive != other._is_case_sensitive:
             for w, c in list(merged_profile.word_count.items()):

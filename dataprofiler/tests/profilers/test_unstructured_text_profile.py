@@ -218,12 +218,12 @@ class TestUnstructuredTextProfile(unittest.TestCase):
     def test_merge_most_common_words_count(self):
         ### default values of most common words for both profiles
         text_profile1 = TextProfiler("Name")
-        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
+        text_profile1._stop_words = set()  # set stop_words to empty for easy inspection
         sample1 = pd.Series(["this is test,", " this is a test sentence"])
         text_profile1.update(sample1)
 
         text_profile2 = TextProfiler("Name")
-        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
+        text_profile2._stop_words = set()  # set stop_words to empty for easy inspection
         sample2 = pd.Series(["this is", "this"])
         text_profile2.update(sample2)
 

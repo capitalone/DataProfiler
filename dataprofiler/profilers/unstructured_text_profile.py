@@ -146,19 +146,6 @@ class TextProfiler(object):
                 if not w.islower():
                     merged_profile.word_count.pop(w)
                     merged_profile.word_count.update({w.lower(): c})
-
-    @staticmethod
-    def _merge_vocab(vocab_count1, vocab_count2):
-        """
-        Merges the vocab counts of two TextProfiler profiles
-
-        :param vocab_count1: vocab count of the first profile
-        :param vocab_count2: vocab count of the second profile
-        :type vocab_count1: Counter()
-        :type vocab_count2: Counter()
-        :return: merged vocab count
-        """
-        return vocab_count1 + vocab_count2
     
     def __add__(self, other):
         """

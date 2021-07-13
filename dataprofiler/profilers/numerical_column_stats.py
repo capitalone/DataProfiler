@@ -86,6 +86,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                     'bin_edges': None
                 }
             }
+        self._batch_history = []
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {
                 'total_loss': 0,
@@ -911,6 +912,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                                      df_series=df_series_clean,
                                      prev_dependent_properties=prev_dependent_properties,
                                      subset_properties=subset_properties)
+        if len(self._batch_history) == 5:
+            self._batch_history.pop(0)
+        self._batch_history.append(subset_properties)
 
     @BaseColumnProfiler._timeit(name="min")
     def _get_min(self, df_series, prev_dependent_properties,

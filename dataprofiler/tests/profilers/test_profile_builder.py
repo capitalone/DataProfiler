@@ -271,20 +271,26 @@ class TestStructuredProfiler(unittest.TestCase):
         profile_options = dp.ProfilerOptions()
         profile_options.set({"correlation.is_enabled": True})
 
-        # data with one column, correlation not updated
+        # data with one column
         data = pd.DataFrame([1.0, None, 1.0, None, 5.0])
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        self.assertIsNone(profiler.correlation_matrix)
+        expected_corr_mat = np.array([[np.nan]])
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      profiler.correlation_matrix)
 
-        # data with two columns, but only one is numerical,
-        # then correlation is not updated
+        # data with two columns, but one is numerical
         data = pd.DataFrame([
             ['test1', 1.0],
             ['test2', None],
             ['test1', 1.0],
             [None, None]])
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        self.assertIsNone(profiler.correlation_matrix)
+        expected_corr_mat = np.array([
+            [np.nan, np.nan],
+            [np.nan, np.nan]
+        ])
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      profiler.correlation_matrix)
 
         # data with multiple numerical columns
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
@@ -304,7 +310,14 @@ class TestStructuredProfiler(unittest.TestCase):
                              'b': [10, 11, np.nan, 4, 2, 5, 6, 3, 9, 8],
                              'c': [1, 5, 3, 5, 7, 2, 6, 8, np.nan, np.nan]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        self.assertIsNone(profiler.correlation_matrix)
+        expected_corr_mat = np.array([
+            [np.nan, np.nan, np.nan],
+            [np.nan, np.nan, np.nan],
+            [np.nan, np.nan, np.nan]
+        ])
+        np.testing.assert_array_equal(expected_corr_mat,
+                                      profiler.correlation_matrix)
+
 
         # data with multiple numerical columns, with nan values in only one column
         data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
@@ -322,7 +335,20 @@ class TestStructuredProfiler(unittest.TestCase):
         # data with only one numerical columns without nan values
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
-        self.assertIsNone(profiler.correlation_matrix)
+        expected_corr_mat = np.array([[1]])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profiler.correlation_matrix)
+
+        # data with no numeric columns
+        data = pd.DataFrame({'a': ['hi', 'hi2', 'hi3'],
+                             'b': ['test1', 'test2', 'test3']})
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        expected_corr_mat = np.array([
+            [np.nan, np.nan],
+            [np.nan, np.nan]
+        ])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profiler.correlation_matrix)
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')

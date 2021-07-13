@@ -1447,8 +1447,6 @@ class StructuredProfiler(BaseProfiler):
                     clean_samples.pop(idx)
                 else:
                     clean_column_ids.append(idx)
-        if len(clean_samples) <= 1:
-            return None
 
         data = pd.DataFrame(clean_samples)
         data = data.apply(pd.to_numeric, errors='coerce')
@@ -1582,9 +1580,9 @@ class StructuredProfiler(BaseProfiler):
         :type std2: np.array
         :return: merged correlation matrix
         """
-        if len(mean1) == 0:
+        if corr_mat1 is None:
            return corr_mat2
-        elif len(mean2) == 0:
+        elif corr_mat2 is None:
            return corr_mat1
 
         std_mat1 = np.outer(std1, std1)

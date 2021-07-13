@@ -350,6 +350,20 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal(expected_corr_mat,
                                              profiler.correlation_matrix)
 
+        # data with only one numeric column
+        # data with no numeric columns
+        data = pd.DataFrame({'a': ['hi', 'hi2', 'hi3'],
+                             'b': ['test1', 'test2', 'test3'],
+                             'c': [1, 2, 3]})
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        expected_corr_mat = np.array([
+            [np.nan, np.nan, np.nan],
+            [np.nan, np.nan, np.nan],
+            [np.nan, np.nan, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profiler.correlation_matrix)
+
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',

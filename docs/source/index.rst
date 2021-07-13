@@ -67,6 +67,9 @@ The format for a structured profile is below:
         "file_type": string,
         "encoding": string,
         "correlation_matrix": list(list(int)), (*)
+        "profile_schema": {
+            string: list(int)
+        },
     },
     "data_stats": [
         {
@@ -102,7 +105,7 @@ The format for a structured profile is below:
                     int: float
                 },
                 "vocab": list(char),
-                "avg_predictions": dict(float), 
+                "avg_predictions": dict[string, float], 
                 "data_label_representation": dict[string, float],
                 "categories": list(str),
                 "unique_count": int,

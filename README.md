@@ -80,7 +80,7 @@ The format for a structured profile is below:
             "null_types_index": {
                 string: list(int)
             },
-            "data_type_representation": string,
+            "data_type_representation": [string, list(string)],
             "min": [null, float],
             "max": [null, float],
             "sum": float,

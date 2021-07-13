@@ -1,4 +1,5 @@
 import unittest
+from dataprofiler.profilers import utils
 from unittest import mock
 from collections import defaultdict
 
@@ -121,6 +122,11 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
                 'true_char_level': defaultdict(int, {'UNKNOWN': 1}),
                 'word_level': defaultdict(int)
             },
+            entity_percentages={
+                'postprocess_char_level': defaultdict(int, {'UNKNOWN': 1.0}),
+                'true_char_level': defaultdict(int, {'UNKNOWN': 1.0}),
+                'word_level': defaultdict(int)
+            },
             times=defaultdict(float, {'data_labeler_predict': 1.0})
         )
 
@@ -131,7 +137,209 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
 
         # key and value populated correctly
         self.assertDictEqual(expected_profile, profile)
+
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.DataLabeler')
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.'
+                'CharPostprocessor')
+    def test_entity_percentages(self, mock1, mock2):
+        """
+        Tests to see that entity percentages match the counts given
+        """
+        profile = UnstructuredLabelerProfile()
+        profile.char_sample_size = 20
+        profile.word_sample_size = 10
+        profile.entity_counts["postprocess_char_level"]["UNKNOWN"] = 6
+        profile.entity_counts["postprocess_char_level"]["TEST"] = 14
+        profile.entity_counts["true_char_level"]["UNKNOWN"] = 4
+        profile.entity_counts["true_char_level"]["TEST"] = 16
+        profile.entity_counts["word_level"]["UNKNOWN"] = 5
+        profile.entity_counts["word_level"]["TEST"] = 5
+        profile.update(pd.Series(["a"]))
+
+        expected_percentages = {
+            'postprocess_char_level': defaultdict(int, {'UNKNOWN': 0.3,
+                                                        'TEST': 0.7}),
+            'true_char_level': defaultdict(int, {'UNKNOWN': 0.2,
+                                                 'TEST': 0.8}),
+            'word_level': defaultdict(int, {'UNKNOWN': 0.5,
+                                            'TEST': 0.5})
+        }
+
+        percentages = profile.profile['entity_percentages']
+
+        self.assertDictEqual(expected_percentages, percentages)
+
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.DataLabeler')
+    def test_unstructured_labeler_profile_add(self, mock):
+        # Test empty merge
+        profile1 = UnstructuredLabelerProfile()
+        profile2 = UnstructuredLabelerProfile()
+        merged_profile = profile1 + profile2
+
+        self.assertDictEqual(merged_profile.entity_counts["word_level"], {})
+        self.assertDictEqual(merged_profile.entity_counts["true_char_level"], {})
+        self.assertDictEqual(merged_profile.entity_counts
+                             ["postprocess_char_level"], {})
+        self.assertEqual(merged_profile.word_sample_size, 0)
+        self.assertEqual(merged_profile.char_sample_size, 0)
         
+        # Test merge with data
+        profile1.word_sample_size = 7
+        profile1.char_sample_size = 6
+        profile1.entity_counts["word_level"]["UNKNOWN"] = 5
+        profile1.entity_counts["word_level"]["TEST"] = 2
+        profile1.entity_counts["true_char_level"]["PAD"] = 6
+        profile1.entity_counts["postprocess_char_level"]["UNKNOWN"] = 3
+        
+        profile2.word_sample_size = 4
+        profile2.char_sample_size = 4
+        profile2.entity_counts["word_level"]["UNKNOWN"] = 3
+        profile2.entity_counts["word_level"]["PAD"] = 1
+        profile2.entity_counts["postprocess_char_level"]["UNKNOWN"] = 2
+        
+
+        merged_profile = profile1 + profile2
+        expected_word_level = {"UNKNOWN": 8, "TEST": 2, "PAD": 1}
+        expected_true_char = {"PAD": 6}
+        expected_post_char = {"UNKNOWN": 5}
+        
+        
+        self.assertDictEqual(merged_profile.entity_counts["word_level"], 
+                             expected_word_level)
+        self.assertDictEqual(merged_profile.entity_counts["true_char_level"], 
+                             expected_true_char)
+        self.assertDictEqual(merged_profile.entity_counts["postprocess_char_level"],
+                             expected_post_char)
+        
+        self.assertEqual(merged_profile.word_sample_size, 11)
+        self.assertEqual(merged_profile.char_sample_size, 10)
+
+        self.assertEqual(merged_profile.times["data_labeler_predict"],
+                         profile1.times["data_labeler_predict"] +
+                         profile2.times["data_labeler_predict"])
+
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.DataLabeler')
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.'
+                'CharPostprocessor')
+    def test_diff(self, mock1, mock2):
+        """
+        Tests to see that entity percentages match the counts given
+        """
+        profiler1 = UnstructuredLabelerProfile()
+        profiler1.char_sample_size = 20
+        profiler1.word_sample_size = 15
+        profiler1.entity_counts["postprocess_char_level"]["UNKNOWN"] = 5
+        profiler1.entity_counts["postprocess_char_level"]["TEST"] = 10
+        profiler1.entity_counts["postprocess_char_level"]["UNIQUE1"] = 5
+        profiler1.entity_counts["true_char_level"]["UNKNOWN"] = 4
+        profiler1.entity_counts["true_char_level"]["TEST"] = 8
+        profiler1.entity_counts["true_char_level"]["UNIQUE1"] = 8
+        profiler1.entity_counts["word_level"]["UNKNOWN"] = 5
+        profiler1.entity_counts["word_level"]["TEST"] = 5
+        profiler1.entity_counts["word_level"]["UNIQUE1"] = 5
+        profiler1.update(pd.Series(["a"]))
+
+        profiler2 = UnstructuredLabelerProfile()
+        profiler2.char_sample_size = 20
+        profiler2.word_sample_size = 10
+        profiler2.entity_counts["postprocess_char_level"]["UNKNOWN"] = 5
+        profiler2.entity_counts["postprocess_char_level"]["TEST"] = 10
+        profiler2.entity_counts["postprocess_char_level"]["UNIQUE2"] = 5
+        profiler2.entity_counts["true_char_level"]["UNKNOWN"] = 8
+        profiler2.entity_counts["true_char_level"]["TEST"] = 8
+        profiler2.entity_counts["true_char_level"]["UNIQUE2"] = 4
+        profiler2.entity_counts["word_level"]["UNKNOWN"] = 2
+        profiler2.entity_counts["word_level"]["TEST"] = 4
+        profiler2.entity_counts["word_level"]["UNIQUE2"] = 4
+        profiler2.update(pd.Series(["a"]))
+
+        expected_diff = {
+            'entity_counts': {
+                'postprocess_char_level': {
+                    'UNKNOWN': "unchanged",
+                    'TEST': "unchanged",
+                    'UNIQUE1': [5, None],
+                    'UNIQUE2': [None, 5]
+                },
+                'true_char_level': {
+                    'UNKNOWN': -4,
+                    'TEST': "unchanged",
+                    'UNIQUE1': [8, None],
+                    'UNIQUE2': [None, 4]
+                },
+                'word_level': {
+                    'UNKNOWN': 3,
+                    'TEST': 1,
+                    'UNIQUE1': [5, None],
+                    'UNIQUE2': [None, 4]
+                }
+            },
+            'entity_percentages': {
+                'postprocess_char_level': {
+                    'UNKNOWN': "unchanged",
+                    'TEST': "unchanged",
+                    'UNIQUE1': [1/4, None],
+                    'UNIQUE2': [None, 1/4]
+                },
+                'true_char_level': {
+                    'UNKNOWN': -1/5,
+                    'TEST': "unchanged",
+                    'UNIQUE1': [2/5, None],
+                    'UNIQUE2': [None, 1/5]
+                },
+                'word_level': {
+                    'UNKNOWN': 1/3 - 1/5,
+                    'TEST': 1/3 - 2/5,
+                    'UNIQUE1': [1/3, None],
+                    'UNIQUE2': [None, 2/5]
+                }
+            }
+        }
+        self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
+
+        # Test with empty profile
+        profiler1 = UnstructuredLabelerProfile()
+        profiler1.char_sample_size = 5
+        profiler1.word_sample_size = 5
+        profiler1.entity_counts["postprocess_char_level"]["UNKNOWN"] = 5
+        profiler1.entity_counts["true_char_level"]["UNKNOWN"] = 5
+        profiler1.entity_counts["word_level"]["UNKNOWN"] = 5
+        profiler1.update(pd.Series(["a"]))
+
+        profiler2 = UnstructuredLabelerProfile()
+        profile2 = profiler2.profile
+
+        expected_diff = {
+            'entity_counts': {
+                'postprocess_char_level': {
+                    'UNKNOWN': [5, None],
+                },
+                'true_char_level': {
+                    'UNKNOWN': [5, None],
+                },
+                'word_level': {
+                    'UNKNOWN': [5, None],
+                }
+            },
+            'entity_percentages': {
+                'postprocess_char_level': {
+                    'UNKNOWN': [1, None],
+                },
+                'true_char_level': {
+                    'UNKNOWN': [1, None],
+                },
+                'word_level': {
+                    'UNKNOWN': [1, None],
+                }
+            }
+        }
+        self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
+
 
 if __name__ == '__main__':
     unittest.main()

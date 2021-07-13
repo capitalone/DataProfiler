@@ -3,6 +3,7 @@ import copy
 import math
 import numpy as np
 
+from . import utils
 from .numerical_column_stats import NumericStatsMixin
 from .base_column_profilers import BaseColumnProfiler, \
     BaseColumnPrimitiveTypeProfiler
@@ -31,18 +32,16 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
 
-        self.precision = {
+        self._precision = {
             'min': None,
             'max': None,
-            'mean': None,
-            'var': None,
-            'std': None,
             'sum': None,
+            'mean': None,
+            'biased_var': None,
             'sample_size': None,
-            'margin_of_error': None,
             'confidence_level': 0.999
         }
-        
+
         # https://www.calculator.net/confidence-interval-calculator.html
         self.__z_value_precision = 3.291
 
@@ -79,40 +78,52 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
         if "precision" in merged_profile.__calculations:
 
-            if self.precision['min'] is None:
-                merged_profile.precision = copy.deepcopy(other.precision)
+            if self._precision['min'] is None:
+                merged_profile._precision = copy.deepcopy(other._precision)
             elif other.precision['min'] is None:
-                merged_profile.precision = copy.deepcopy(self.precision)                
+                merged_profile._precision = copy.deepcopy(self._precision)
             else:
-                merged_profile.precision['min'] = min(
-                    self.precision['min'], other.precision['min'])
-                merged_profile.precision['max'] = max(
-                    self.precision['max'], other.precision['max'])
-                merged_profile.precision['sum'] = \
-                    self.precision['sum'] + other.precision['sum']
-                merged_profile.precision['sample_size'] = \
-                    self.precision['sample_size'] + other.precision['sample_size']
+                merged_profile._precision['min'] = min(
+                    self._precision['min'], other._precision['min'])
+                merged_profile._precision['max'] = max(
+                    self._precision['max'], other._precision['max'])
+                merged_profile._precision['sum'] = \
+                    self._precision['sum'] + other._precision['sum']
+                merged_profile._precision['sample_size'] = \
+                    self._precision['sample_size'] + other._precision['sample_size']
 
-                merged_profile.precision['var'] = self._merge_variance(
-                    self.precision['sample_size'],
-                    self.precision['var'], self.precision['mean'],
-                    other.precision['sample_size'], other.precision['var'],
-                    other.precision['mean'])
-                merged_profile.precision['mean'] = \
-                    merged_profile.precision['sum'] \
-                    / merged_profile.precision['sample_size']
-            
-                merged_profile.precision['std'] = math.sqrt(
-                    merged_profile.precision['var'])
+                merged_profile._precision['mean'] = \
+                    merged_profile._precision['sum'] \
+                    / merged_profile._precision['sample_size']
 
-                # Margin of error, 99.9% confidence level
-                merged_profile.precision['margin_of_error'] = \
-                    merged_profile.__z_value_precision * (
-                        merged_profile.precision['std']
-                        / math.sqrt(merged_profile.precision['sample_size'])
-                )
-            
+                merged_profile._precision['biased_var'] = self._merge_biased_variance(
+                    self._precision['sample_size'],
+                    self._precision['biased_var'],
+                    self._precision['mean'],
+                    other._precision['sample_size'],
+                    other._precision['biased_var'],
+                    other._precision['mean'])
+
         return merged_profile
+
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for FloatColumns.
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: FloatColumn
+        :return: the FloatColumn differences
+        :rtype: dict
+        """
+        differences = NumericStatsMixin.diff(self, other_profile, options=None)
+        other_precision = other_profile.profile['precision']
+        precision_diff = dict()
+        for key in self.profile['precision'].keys():
+            precision_diff[key] = utils.find_diff_of_numbers(
+                self.profile['precision'][key], other_precision[key])
+        precision_diff.pop("confidence_level")
+        differences["precision"] = precision_diff
+        return differences
 
     @property
     def profile(self):
@@ -124,9 +135,14 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile = dict(
             min=self.np_type_to_type(self.min),
             max=self.np_type_to_type(self.max),
+            sum=self.np_type_to_type(self.sum),
             mean=self.np_type_to_type(self.mean),
             variance=self.np_type_to_type(self.variance),
             stddev=self.np_type_to_type(self.stddev),
+            skewness=self.np_type_to_type(self.skewness),
+            kurtosis=self.np_type_to_type(self.kurtosis),
+            num_zeros=self.np_type_to_type(self.num_zeros),
+            num_negatives=self.np_type_to_type(self.num_negatives),
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             times=self.times,
@@ -143,6 +159,44 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         )
         
         return profile
+
+    @property
+    def precision(self):
+        """
+        Property reporting statistics on the significant figures of each
+        element in the data.
+        :return: Precision statistics
+        :rtype: dict
+        """
+        # First add the stats that don't need to be re-calculated
+        precision = dict(
+            min=self._precision['min'],
+            max=self._precision['max'],
+            mean=self._precision['mean'],
+            sum=self._precision['sum'],
+            sample_size=self._precision['sample_size'],
+            confidence_level=0.999
+        )
+        var = self._correct_bias_variance(
+            self._precision['sample_size'],
+            self._precision['biased_var']
+        )
+
+        std = np.sqrt(var)
+        margin_of_error = None if self._precision['sample_size'] is None \
+                            else self.__z_value_precision * std / \
+                                  np.sqrt(self._precision['sample_size'])
+        precision['var'] = var
+        precision['std'] = std
+        precision['margin_of_error'] = margin_of_error
+        # Set the significant figures
+        if self._precision['max'] is not None:
+            sigfigs = int(self._precision['max'])
+            for key in ['mean', 'var', 'std', 'margin_of_error']:
+                precision[key] = \
+                    float('{:.{p}g}'.format(precision[key], p=sigfigs))
+
+        return precision
 
     @property
     def data_type_ratio(self):
@@ -191,9 +245,9 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         subset_precision = {
             'min': len_per_float.min(),
             'max': len_per_float.max(),
-            'mean': precision_sum / sample_size,
-            'var': float(len_per_float.var()),
+            'biased_var': float(np.var(len_per_float)),
             'sum': precision_sum,
+            'mean': precision_sum / sample_size,
             'sample_size': sample_size
         }
         
@@ -232,7 +286,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
-
         sample_ratio = None
         if self.__precision_sample_ratio is not None:
             sample_ratio = self.__precision_sample_ratio
@@ -241,39 +294,26 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         subset_precision = self._get_float_precision(df_series, sample_ratio)
         if subset_precision is None:
             return
-        elif self.precision['min'] is None:
-            self.precision.update(subset_precision)
-        else:        
+        elif self._precision['min'] is None:
+            self._precision.update(subset_precision)
+        else:
             # Update the calculations as data is valid
-            self.precision['min'] = min(
-                self.precision['min'], subset_precision['min'])
-            self.precision['max'] = max(
-                self.precision['max'], subset_precision['max'])            
-            self.precision['sum'] += subset_precision['sum']
-            
-            self.precision['var'] = self._merge_variance(
-                self.precision['sample_size'], self.precision['var'],
-                self.precision['mean'],
-                subset_precision['sample_size'], subset_precision['var'],
+            self._precision['min'] = min(
+                self._precision['min'], subset_precision['min'])
+            self._precision['max'] = max(
+                self._precision['max'], subset_precision['max'])
+            self._precision['sum'] += subset_precision['sum']
+            self._precision['sample_size'] += subset_precision['sample_size']
+
+            self._precision['biased_var'] = self._merge_biased_variance(
+                self._precision['sample_size'], self._precision['biased_var'],
+                self._precision['mean'],
+                subset_precision['sample_size'], subset_precision['biased_var'],
                 subset_precision['mean'])
-            
-            self.precision['sample_size'] += subset_precision['sample_size']            
-            self.precision['mean'] = self.precision['sum'] \
-                / self.precision['sample_size']
 
-        # Calculated outside
-        self.precision['std'] = math.sqrt(self.precision['var'])
+            self._precision['mean'] = self._precision['sum'] \
+                                     / self._precision['sample_size']
 
-        # Margin of error, 99.9% confidence level
-        self.precision['margin_of_error'] = self.__z_value_precision *(
-            self.precision['std'] / math.sqrt(self.precision['sample_size']))
-
-        # Set the significant figures
-        sigfigs = int(self.precision['max'])
-        for key in ['mean', 'var', 'std', 'margin_of_error']:
-            self.precision[key] = \
-                float('{:.{p}g}'.format(self.precision[key], p=sigfigs))
-                        
     def _update_helper(self, df_series_clean, profile):
         """
         Method for updating the column profile properties with a cleaned

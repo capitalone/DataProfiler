@@ -68,15 +68,33 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile = dict(
             min=self.min,
             max=self.max,
+            sum=self.sum,
             mean=self.mean,
             variance=self.variance,
             stddev=self.stddev,
+            skewness=self.skewness,
+            kurtosis=self.kurtosis,
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
             vocab=self.vocab,
             times=self.times
         )
         return profile
+
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for text columns
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: TextColumn Profile
+        :return: the text columns differences
+        :rtype: dict
+        """
+        differences = NumericStatsMixin.diff(self, other_profile, options)
+        vocab_diff = utils.find_diff_of_lists_and_sets(
+            self.vocab, other_profile.vocab)
+        differences["vocab"] = vocab_diff
+        return differences
 
     @property
     def data_type_ratio(self):

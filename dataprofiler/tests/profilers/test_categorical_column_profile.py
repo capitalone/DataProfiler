@@ -106,7 +106,6 @@ class TestCategoricalColumn(unittest.TestCase):
 
         column_profile = StructuredColProfiler(df1)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
-
         num_null_types = 1
         num_nan_count = 1
         categories = df1.apply(str).unique().tolist()
@@ -116,7 +115,9 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(
             num_nan_count, len(
                 column_profile.null_types_index["nan"]))
-
+        expected = {"abcd": 2, "aa": 2, "b": 1, "4": 1, "3": 1, "2": 2,
+                    "dfd": 1}
+        self.assertDictEqual(expected, cat_profiler._categories)
         num_null_types = 4
         num_nan_count = 2
         categories = pd.concat([df1, df2]).apply(str).unique().tolist()
@@ -127,6 +128,9 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(num_null_types, len(column_profile.null_types))
         self.assertEqual(
             num_nan_count, len(column_profile.null_types_index["nan"]))
+        expected = {"abcd": 2, "aa": 3, "b": 2, "4": 1, "3": 1, "2": 2,
+                    "dfd": 1, "1": 1, "ee": 2, "ff": 1, "gg": 1}
+        self.assertDictEqual(expected, cat_profiler._categories)
 
         num_null_types = 4
         num_nan_count = 3
@@ -150,18 +154,25 @@ class TestCategoricalColumn(unittest.TestCase):
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         report = profile.profile
-        six.assertCountEqual(
-            self, ['categorical', 'statistics', 'times'], report)
-        self.assertTrue(report["categorical"])
-        six.assertCountEqual(
-            self,
-            ['unique_count', 'unique_ratio', 'categories'], report['statistics']
+
+        self.assertIsNotNone(report.pop("times", None))
+        expected_profile = dict(
+            categorical=True,
+            statistics=dict([
+                ('unique_count', 3),
+                ('unique_ratio', .25),
+                ('categories', ["a", "b", "c"]),
+                ('categorical_count', {"a": 3, "b": 4, "c": 5}),
+                ('gini_impurity', (27/144) + (32/144) + (35/144)),
+                ('unalikeability', 2*(12 + 15 + 20)/132)
+            ]),
         )
-        self.assertEqual(3, report["statistics"]["unique_count"])
-        self.assertEqual(0.25, report["statistics"]["unique_ratio"])
-        self.assertCountEqual(
-            ["a", "b", "c"], report["statistics"]["categories"]
-        )
+        # We have to pop these values because sometimes the order changes
+        self.assertCountEqual(expected_profile['statistics'].pop('categories'),
+                              report["statistics"].pop('categories'))
+        self.assertCountEqual(expected_profile['statistics'].pop(
+            'categorical_count'), report["statistics"].pop('categorical_count'))
+        self.assertEqual(report, expected_profile)
 
     def test_false_categorical_report(self):
         df_non_categorical = pd.Series(list(map(str, range(0, 20))))
@@ -169,14 +180,15 @@ class TestCategoricalColumn(unittest.TestCase):
         profile.update(df_non_categorical)
 
         report = profile.profile
-        six.assertCountEqual(
-            self, ['categorical', 'statistics', 'times'], report)
-        self.assertFalse(report["categorical"])
-        six.assertCountEqual(
-            self, ['unique_count', 'unique_ratio'], report['statistics']
+        self.assertIsNotNone(report.pop("times", None))
+        expected_profile = dict(
+            categorical=False,
+            statistics=dict([
+                ('unique_count', 20),
+                ('unique_ratio', 1),
+            ]),
         )
-        self.assertEqual(20, report["statistics"]["unique_count"])
-        self.assertEqual(1.0, report["statistics"]["unique_ratio"])
+        self.assertEqual(report, expected_profile)
 
     def test_categorical_merge(self):
         df1 = pd.Series(["abcd", "aa", "abcd", "aa", "b", "4", "3", "2",
@@ -191,9 +203,13 @@ class TestCategoricalColumn(unittest.TestCase):
         profile = CategoricalColumn("Name")
         profile.update(df1)
 
+        expected_dict = {"abcd": 2, "aa": 2, "b": 1, "4": 1, "3": 1, "2": 2,
+                         "dfd": 1, np.nan: 1}
+        self.assertDictEqual(expected_dict, profile._categories)
+
         profile2 = CategoricalColumn("Name")
         profile2.update(df2)
-        
+
         # Add profiles
         profile3 = profile + profile2
         self.assertCountEqual(expected_categories, profile3.categories)
@@ -202,6 +218,21 @@ class TestCategoricalColumn(unittest.TestCase):
             profile.sample_size +
             profile2.sample_size)
         self.assertEqual(profile3.is_match, False)
+        expected_dict = {"abcd": 2, "aa": 3, "b": 2, "4": 1, "3": 1, "2": 2,
+                         np.nan: 1, "dfd": 1, "1": 1, "ee": 2, "ff": 1, "gg": 1,
+                         "NaN": 1, "None": 1, "nan": 1, "null": 1}
+        self.assertDictEqual(expected_dict, profile3._categories)
+
+        report = profile3.profile
+        self.assertIsNotNone(report.pop("times", None))
+        expected_profile = dict(
+            categorical=False,
+            statistics=dict([
+                ('unique_count', 16),
+                ('unique_ratio', 16/22)
+            ]),
+        )
+        self.assertEqual(report, expected_profile)
 
         # Add again
         profile3 = profile + profile3
@@ -212,11 +243,137 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(profile3.is_match, False)
         self.assertEqual(profile3.unique_ratio, 16 / 33)
 
+        report = profile3.profile
+        self.assertIsNotNone(report.pop("times", None))
+        expected_profile = dict(
+            categorical=False,
+            statistics=dict([
+                ('unique_count', 16),
+                ('unique_ratio', 16 / 33),
+            ]),
+        )
+        self.assertEqual(report, expected_profile)
+
         # Check is_match and unique_ratio if the sample size was large
         profile3.sample_size = 1000
         self.assertEqual(profile3.is_match, True)
         self.assertEqual(profile3.unique_ratio, 16 / 1000)
 
+        report = profile3.profile
+        self.assertIsNotNone(report.pop("times", None))
+        report_categories = report['statistics'].pop('categories')
+        report_count = report['statistics'].pop('categorical_count')
+        report_gini = report['statistics'].pop('gini_impurity')
+        expected_profile = dict(
+            categorical=True,
+            statistics=dict([
+                ('unique_count', 16),
+                ('unique_ratio', 16 / 1000),
+                ('unalikeability', 32907/(1000000-1000))
+            ])
+        )
+        expected_gini = (1*((5/1000) * (995/1000))) + \
+                        (2*((4/1000) * (996/1000))) + \
+                        (1*((3/1000) * (997/1000))) + \
+                        (5*((2/1000) * (998/1000))) + \
+                        (7*((1/1000) * (999/1000)))
+        self.assertAlmostEqual(report_gini, expected_gini)
+        self.assertEqual(report, expected_profile)
+        self.assertCountEqual(report_categories, ['abcd', 'aa', '2', np.nan,
+                                                  '4', 'b', '3', 'dfd', 'ee',
+                                                  'ff', 'nan', 'None', '1',
+                                                  'gg', 'null', 'NaN'])
+        expected_dict = dict({'aa': 5, '2': 4, 'abcd': 4, 'b': 3, np.nan: 2})
+        self.assertEqual(len(report_count), len(expected_dict))
+        self.assertEqual(report_count['aa'], expected_dict['aa'])
+        self.assertEqual(report_count['2'], expected_dict['2'])
+        self.assertEqual(report_count['abcd'], expected_dict['abcd'])
+        self.assertEqual(report_count['b'], expected_dict['b'])
+
+    def test_gini_impurity(self):
+        # Normal test
+        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        expected_val = ((4/7) * (3/7)) + ((4/7) * (3/7))
+        self.assertAlmostEqual(profile.gini_impurity, expected_val)
+
+        # One class only test
+        df_categorical = pd.Series(["y", "y", "y", "y", "y", "y", "y"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        expected_val = 0
+        self.assertEqual(profile.gini_impurity, expected_val)
+
+        # Empty test
+        df_categorical = pd.Series([])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.gini_impurity, None)
+        
+    def test_categorical_diff(self):
+        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+
+        df_categorical = pd.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
+        profile2 = CategoricalColumn(df_categorical.name)
+        profile2.update(df_categorical)
+        
+        expected_diff = {
+            'categorical': 'unchanged',
+            'statistics': {
+                'unique_count': -1,
+                'unique_ratio': -0.14285714285714285,
+                'categories': [[], ['y', 'n'], ['maybe']],
+                'gini_impurity': -0.16326530612244894,
+                'unalikeability': -0.19047619047619047,
+                'categorical_count': {
+                    'y': 1,
+                    'n': 1,
+                    'maybe': [None, 2]
+                }
+            }
+        }
+
+        self.assertDictEqual(expected_diff, profile.diff(profile2))
+
+        # Test with one categorical column matching
+        df_not_categorical = pd.Series(["THIS", "is", "not", "a", "categorical",
+                                    "column", "for", "testing", "purposes", 
+                                    "Bada", "Bing", "Badaboom"])
+        profile2 = CategoricalColumn(df_not_categorical.name)
+        profile2.update(df_not_categorical)
+        expected_diff = {
+            'categorical': [True, False],
+            'statistics': {
+                'unique_count': -10,
+                'unique_ratio': -0.7142857142857143
+            }
+        }
+        self.assertDictEqual(expected_diff, profile.diff(profile2))
+
+    def test_unalikeability(self):
+        df_categorical = pd.Series(["a", "a"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.unalikeability, 0)
+
+        df_categorical = pd.Series(["a", "c", "b"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.unalikeability, 1)
+
+        df_categorical = pd.Series(["a", "a", "a", "b", "b", "b"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.unalikeability, 18 / 30)
+
+        df_categorical = pd.Series(
+            ["a", "a", "b", "b", "b", "a", "c", "c", "a", "a"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(profile.unalikeability, 2*(10 + 15 + 6)/90)
 
 class TestCategoricalSentence(unittest.TestCase):
 
@@ -264,7 +421,7 @@ class TestCategoricalSentence(unittest.TestCase):
         cat_sentence_df = pd.Series(cat_sentence_list)
         column_profile = StructuredColProfiler(cat_sentence_df)
         cat_profiler = column_profile.profiles['data_stats_profile']._profiles["category"]
-        
+
         self.assertEqual(False, cat_profiler.is_match)
 
     def test_less_than_CATEGORICAL_THRESHOLD_DEFAULT(self):

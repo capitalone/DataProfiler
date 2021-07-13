@@ -5,8 +5,6 @@ import numpy as np
 import pandas as pd
 
 import dataprofiler as dp
-from dataprofiler.labelers.character_level_cnn_model import \
-    CharacterLevelCnnModel
 
 
 class TestStructuredDataLabeler(unittest.TestCase):
@@ -291,9 +289,9 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
         columns = []
         predictions = []
-        for col in results['data_stats']:
-            columns.append(col)
-            predictions.append(results['data_stats'][col]['data_label'])
+        for i in range(len(results['data_stats'])):
+            columns.append(i)
+            predictions.append(results['data_stats'][i]['data_label'])
 
     def test_warning_tf_run_dp_multiple_times(self):
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -319,9 +317,9 @@ class TestStructuredDataLabeler(unittest.TestCase):
 
             columns = []
             predictions = []
-            for col in results['data_stats']:
-                columns.append(col)
-                predictions.append(results['data_stats'][col]['data_label'])
+            for j in range(len(results['data_stats'])):
+                columns.append(j)
+                predictions.append(results['data_stats'][j]['data_label'])
 
     def test_warning_tf_run_dp_merge(self):
         test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -336,7 +334,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp1')
         profile1 = dp.StructuredProfiler(data, options=profile_options)
@@ -349,7 +348,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp2')
         profile2 = dp.StructuredProfiler(data, options=profile_options)
@@ -369,7 +369,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp1')
         profile1 = dp.StructuredProfiler(data, options=profile_options)
@@ -382,7 +383,8 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
-             "datetime.is_enabled": False}
+             "datetime.is_enabled": False,
+             "correlation.is_enabled": False}
         )
         print('running dp2')
         profile2 = dp.StructuredProfiler(data, options=profile_options)

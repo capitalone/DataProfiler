@@ -8,6 +8,7 @@ import warnings
 import pandas as pd
 import numpy as np
 
+from dataprofiler.profilers import utils
 from dataprofiler.tests.profilers import utils as test_utils
 from dataprofiler.profilers import TextColumn
 from dataprofiler.profilers.profiler_options import TextOptions
@@ -137,6 +138,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertEqual(profiler.match_count, 0)
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
+        self.assertEqual(profiler.sum, 0)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_data_ratio(self):
@@ -183,8 +185,11 @@ class TestTextColumnProfiler(unittest.TestCase):
         expected_profile = dict(
             min=1.0,
             max=4.0,
+            sum=20.0,
             mean=20.0 / 10.0,
             variance=14.0 / 9.0,
+            skewness=45.0 / (14.0 * np.sqrt(14.0)),
+            kurtosis=-1251.0 / 1372.0,
             stddev=np.sqrt(14.0 / 9.0),
             histogram={
                 'bin_counts': np.array([5, 0, 2, 0, 1, 2]),
@@ -195,9 +200,13 @@ class TestTextColumnProfiler(unittest.TestCase):
             times=defaultdict(float, {'vocab': 1.0,
                                       'max': 1.0,
                                       'min': 1.0,
-                                      'histogram_and_quantiles': 15.0,
+                                      'histogram_and_quantiles': 1.0,
                                       'sum': 1.0,
-                                      'variance': 1.0})
+                                      'variance': 1.0,
+                                      'skewness': 1.0,
+                                      'num_negatives': 1.0,
+                                      'num_zeros': 1.0,
+                                      'kurtosis': 1.0})
         )
         time_array = [float(x) for x in range(30, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
@@ -205,10 +214,13 @@ class TestTextColumnProfiler(unittest.TestCase):
             profile = profiler.profile
             expected_histogram = expected_profile.pop('histogram')
             expected_quantiles = expected_profile.pop('quantiles')
+            expected_vocab = expected_profile.pop('vocab')
             quantiles = profile.pop('quantiles')
             histogram = profile.pop('histogram')
+            vocab = profile.pop('vocab')
+
             # key and value populated correctly
-            self.assertCountEqual(expected_profile, profile)
+            self.assertDictEqual(expected_profile, profile)
             self.assertTrue(np.all(
                 expected_histogram['bin_counts'] == histogram['bin_counts']
             ))
@@ -218,6 +230,7 @@ class TestTextColumnProfiler(unittest.TestCase):
             self.assertCountEqual(
                 expected_quantiles, {
                     0: quantiles[249], 1: quantiles[499], 2: quantiles[749]})
+            self.assertCountEqual(expected_vocab, vocab)
 
     def test_option_timing(self):
         data = [2.0, 12.5, 'not a float', 6.0, 'not a float']
@@ -241,6 +254,8 @@ class TestTextColumnProfiler(unittest.TestCase):
                                    {'max': 1.0,
                                     'sum': 1.0,
                                     'variance': 1.0,
+                                    'skewness': 1.0,
+                                    'kurtosis': 1.0,
                                     'histogram_and_quantiles': 15.0,
                                     'vocab': 1.0})
             self.assertCountEqual(expected, profile['times'])
@@ -252,6 +267,8 @@ class TestTextColumnProfiler(unittest.TestCase):
                                    {'max': 2.0,
                                     'sum': 2.0,
                                     'variance': 2.0,
+                                    'skewness': 2.0,
+                                    'kurtosis': 2.0,
                                     'histogram_and_quantiles': 30.0,
                                     'vocab': 2.0})
             self.assertCountEqual(expected, profiler.profile['times'])
@@ -283,6 +300,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                          profiler.sample_size + profiler2.sample_size)
         self.assertEqual(profiler3.max, profiler2.max)
         self.assertCountEqual(expected_vocab, profiler3.vocab)
+        self.assertEqual(49, profiler3.sum)
 
     def test_merge_timing(self):
         profiler1 = TextColumn("placeholder_name")
@@ -412,3 +430,37 @@ class TestTextColumnProfiler(unittest.TestCase):
         histogram, _ = num_profiler._histogram_for_profile('custom')
         self.assertEqual(100, len(histogram['bin_counts']))
 
+    def test_diff(self):
+        df = pd.Series(
+            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
+        ).apply(str)
+
+        df2 = pd.Series(
+            ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
+        ).apply(str)
+
+        expected_vocab = [
+            'a', 'b', 'c', 'd', '4', '3', '2', 'f', 'h', 'e', 'l', 'o', 'm',
+            'y', 'n', 'i', 's', 'G', 'r', 't', 'I', 'v', '6', '7', 'g'
+        ]
+
+        profiler = TextColumn(df.name)
+        profiler.update(df)
+        profile1 = profiler.profile
+
+        profiler2 = TextColumn(df2.name)
+        profiler2.update(df2)
+        profile2 = profiler2.profile
+
+        expected_diff = {'min': "unchanged",
+                         'max': -1.0,
+                         'sum': -9.0,
+                         'mean': profile1['mean'] - profile2['mean'],
+                         'variance': profile1['variance'] - profile2['variance'],
+                         'stddev': profile1['stddev'] - profiler2['stddev'],
+                         'vocab': utils.find_diff_of_lists_and_sets(
+                             profile1['vocab'], profile2['vocab'])
+                         }
+        diff = profiler.diff(profiler2)
+        self.assertDictEqual(expected_diff, diff)
+        

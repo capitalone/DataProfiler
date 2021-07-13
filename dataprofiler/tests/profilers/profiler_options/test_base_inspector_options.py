@@ -45,3 +45,6 @@ class TestBaseInspectorOptions(TestBooleanOption):
         with self.assertRaisesRegex(AttributeError, expected_error):
             options.is_prop_enabled("Hello World")
 
+    def test_eq(self):
+        super().test_eq()
+

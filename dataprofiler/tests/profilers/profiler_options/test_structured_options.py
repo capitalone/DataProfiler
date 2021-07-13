@@ -7,7 +7,7 @@ class TestStructuredOptions(TestBaseOption):
     
     option_class = StructuredOptions
     keys = ["int", "float", "datetime", "text", "order", "category",
-            "data_labeler", "multiprocess"]
+            "data_labeler", "multiprocess", "correlation"]
 
     @classmethod
     def get_options(self, **params):
@@ -94,6 +94,7 @@ class TestStructuredOptions(TestBaseOption):
         option.category = StructuredOptions()
         option.data_labeler = StructuredOptions()
         option.multiprocess = StructuredOptions()
+        option.correlation = StructuredOptions()
 
         expected_error = set()
         for key in self.keys:
@@ -147,6 +148,7 @@ class TestStructuredOptions(TestBaseOption):
         option.category = StructuredOptions()
         option.data_labeler = StructuredOptions()
         option.multiprocess = StructuredOptions()
+        option.correlation = StructuredOptions()
 
         expected_error = set()
         for key in self.keys:
@@ -186,4 +188,21 @@ class TestStructuredOptions(TestBaseOption):
             options.set({'{}.is_enabled'.format(key): True})
             self.assertSetEqual(set([key]), set(options.enabled_profiles))
             options.set({'{}.is_enabled'.format(key): False})
+
+    def test_eq(self):
+        super().test_eq()
+
+        options = self.get_options()
+        options2 = self.get_options()
+        options.multiprocess.is_enabled = False
+        self.assertNotEqual(options, options2)
+        options2.multiprocess.is_enabled = False
+        self.assertEqual(options, options2)
+
+        options.float.precision.sample_ratio = 0.1
+        self.assertNotEqual(options, options2)
+        options2.float.precision.sample_ratio = 0.15
+        self.assertNotEqual(options, options2)
+        options2.float.precision.sample_ratio = 0.1
+        self.assertEqual(options, options2)
 

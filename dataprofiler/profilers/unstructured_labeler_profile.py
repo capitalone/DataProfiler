@@ -3,7 +3,8 @@ from collections import defaultdict
 from .base_column_profilers import BaseColumnProfiler
 from ..labelers.data_labelers import DataLabeler
 from ..labelers.data_processing import CharPostprocessor
-
+from .profiler_options import DataLabelerOptions
+from . import utils
 
 class UnstructuredLabelerProfile(object):
 
@@ -47,15 +48,89 @@ class UnstructuredLabelerProfile(object):
         self.separators = (' ', ',', ';', '"', ':', '\n', '\t', ".", "!", "'")
         self.times = defaultdict(float)
 
+    def __add__(self, other):
+        """
+        Merges the properties of two UnstructuredLabelerProfile
+
+        :param self: first profile
+        :param other: second profile
+        :type self: UnstructuredLabelerProfile
+        :type other: UnstructuredLabelerProfile
+        :return: New UnstructuredLabelerProfile merged profile
+        """
+        
+        if not isinstance(other, UnstructuredLabelerProfile):
+            raise TypeError("Unsupported operand type(s) for +: "
+                            "'UnstructuredLabelerProfile' and '{}'".format(
+                other.__class__.__name__))
+        
+        if self.data_labeler != other.data_labeler:
+            raise AttributeError("Cannot merge. The data labeler is not the "
+                                 "same for both profiles.")
+
+        # recreate options so the DataLabeler is transferred and not duplicated
+        options = DataLabelerOptions()
+        options.data_labeler_object = self.data_labeler
+
+        merged_profile = UnstructuredLabelerProfile(options=options)
+        merged_profile.entity_counts = utils.add_nested_dictionaries(
+            self.entity_counts, other.entity_counts)
+
+        merged_profile.char_sample_size = self.char_sample_size + \
+                                          other.char_sample_size
+        merged_profile.word_sample_size = self.word_sample_size + \
+                                          other.word_sample_size
+        
+        merged_profile.times = utils.add_nested_dictionaries(self.times,
+                                                             other.times)
+        
+        merged_profile._update_percentages()
+
+        return merged_profile
+
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for two unstructured labeler profiles
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: UnstructuredLabelerProfile
+        :param options: options for diff output
+        :type options: dict
+        :return: the difference between entity counts/percentages
+        :rtype: dict
+        """
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+
+        entity_counts_diff = {}
+        entity_percentages_diff = {}
+        for key in ['word_level', 'true_char_level', 'postprocess_char_level']:
+            entity_percentages_diff[key] = utils.find_diff_of_dicts(
+                self.entity_percentages[key], other_profile.entity_percentages[key])
+            entity_counts_diff[key] = utils.find_diff_of_dicts(
+                self.entity_counts[key], other_profile.entity_counts[key])
+
+        differences = {
+            "entity_counts": entity_counts_diff,
+            "entity_percentages": entity_percentages_diff
+        }
+
+        return differences
+
     @property
     def label_encoding(self):
         return self.data_labeler.labels
+    
 
     @BaseColumnProfiler._timeit(name='data_labeler_predict')
     def _update_helper(self, df_series_clean, profile):
         """
         Method for updating the column profile properties with a cleaned
         dataset and the known profile of the dataset.
+
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
         :param profile: profile dictionary
@@ -95,6 +170,7 @@ class UnstructuredLabelerProfile(object):
     def profile(self):
         profile = {
             "entity_counts": self.entity_counts,
+            "entity_percentages": self.entity_percentages,
             "times": self.times
         }
         return profile
@@ -125,8 +201,9 @@ class UnstructuredLabelerProfile(object):
             total = self.char_sample_size
 
         percentages = {}
-        for entity in self.entity_counts[level]:
-            percentages[entity] = self.entity_counts[level][entity] / total
+        if total > 0:
+            for entity in self.entity_counts[level]:
+                percentages[entity] = self.entity_counts[level][entity] / total
         return percentages
 
     def _update_percentages(self):

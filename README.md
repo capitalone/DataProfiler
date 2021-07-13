@@ -51,20 +51,20 @@ The format for a structured profile is below:
 
 ```
 "global_stats": {
-    "samples_used": int,
-    "column_count": int,
-    "row_count": int,
-    "row_has_null_ratio": float,
-    "row_is_null_ratio": float,    
-    "unique_row_ratio": float,
-    "duplicate_row_count": int,
-    "file_type": string,
-    "encoding": string,
-    "correlation_matrix": string, (*)
-    "profile_schema": {
-        string: list(int)
-    }
-},
+        "samples_used": int,
+        "column_count": int,
+        "row_count": int,
+        "row_has_null_ratio": float,
+        "row_is_null_ratio": float,    
+        "unique_row_ratio": float,
+        "duplicate_row_count": int,
+        "file_type": string,
+        "encoding": string,
+        "correlation_matrix": list(list(int)), (*)
+        "profile_schema": {
+            string: list(int)
+        },
+    },
 "data_stats": [
     {
         "column_name": string,
@@ -80,7 +80,7 @@ The format for a structured profile is below:
             "null_types_index": {
                 string: list(int)
             },
-            "data_type_representation": [string, list(string)],
+            "data_type_representation": string,
             "min": [null, float],
             "max": [null, float],
             "sum": float,
@@ -97,16 +97,16 @@ The format for a structured profile is below:
             },
             "quantiles": {
                 int: float
-            }
+            },
             "vocab": list(char),
-            "avg_predictions": dict(float), 
-            "data_label_representation": dict(float),
+            "avg_predictions": dict[string, float], 
+            "data_label_representation": dict[string, float],
             "categories": list(str),
             "unique_count": int,
             "unique_ratio": float,
             "categorical_count": dict[string, int],
-            "gini_impurity": float,
-            "unalikeability": float,
+            "gini_impurity", float,
+            "unalikeability", float,
             "precision": {
                 'min': int,
                 'max': int,
@@ -115,9 +115,9 @@ The format for a structured profile is below:
                 'std': float,
                 'sample_size': int,
                 'margin_of_error': float,
-                'confidence_level': float		
+                'confidence_level': float     
             },
-            "times": dict(float),
+            "times": dict[string, float],
             "format": string
         }
     }
@@ -127,34 +127,32 @@ The format for a structured profile is below:
 
 The format for an unstructured profile is below:
 ```
-{
-    "global_stats": {
-        "samples_used": int,
-        "empty_line_count": int,
-        "file_type": string,
-        "encoding": string
-    },
-    "data_stats": {
-        "data_label": {
-            "entity_counts": {
-                "word_level": dict(int),
-                "true_char_level": dict(int),
-                "postprocess_char_level": dict(int)
-            },
-            "entity_percentages": {
-                "word_level": dict(float),
-                "true_char_level": dict(float),
-                "postprocess_char_level": dict(float)
-            },
-            "times": dict(float)
+"global_stats": {
+    "samples_used": int,
+    "empty_line_count": int,
+    "file_type": string,
+    "encoding": string
+},
+"data_stats": {
+    "data_label": {
+        "entity_counts": {
+            "word_level": dict[string, int],
+            "true_char_level": dict[string, int],
+            "postprocess_char_level": dict[string, int]
         },
-        "statistics": {
-            "vocab": list(char),
-            "vocab_count": dict(int),
-            "words": list(string),
-            "word_count": dict(int),
-            "times": dict(float)
-        }
+        "entity_percentages": {
+            "word_level": dict[string, float],
+            "true_char_level": dict[string, float],
+            "postprocess_char_level": dict[string, float]
+        },
+        "times": dict[string, float]
+    },
+    "statistics": {
+        "vocab": list(char),
+        "vocab_count": dict[string, int],
+        "words": list(string),
+        "word_count": dict[string, int],
+        "times": dict[string, float]
     }
 }
 ```

@@ -78,9 +78,9 @@ class CategoricalColumn(BaseColumnProfiler):
             times=self.times
         )
         if self.is_match:
-            profile["statistics"].update(
-                dict(categories=self.categories)
-            )
+            profile["statistics"]['categories'] = self.categories
+            profile["statistics"]['gini_impurity'] = self.gini_impurity
+            profile["statistics"]['unalikeability'] = self.unalikeability
             profile["statistics"]['categorical_count'] = dict(
                 sorted(self._categories.items(), key=itemgetter(1),
                        reverse=True)[:top_k_categories])
@@ -162,7 +162,7 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         if len(df_series) == 0:
             return self
-        
+
         profile = dict(
             sample_size=len(df_series)
         )
@@ -174,3 +174,46 @@ class CategoricalColumn(BaseColumnProfiler):
         self._update_helper(df_series, profile)
 
         return self
+
+    @property
+    def gini_impurity(self):
+        """
+        Property for Gini Impurity. Gini Impurity is a way to calculate
+        likelihood of an incorrect classification of a new instance of
+        a random variable.
+
+        G = Σ(i=1; J): P(i) * (1 - P(i)), where i is the category classes.
+        We are traversing through categories and calculating with the column
+
+        :return: None or Gini Impurity probability
+        """
+        if self.sample_size == 0:
+            return None
+        gini_sum = 0
+        for i in self._categories:
+            gini_sum += (self._categories[i]/self.sample_size) * \
+                         (1 - (self._categories[i]/self.sample_size))
+        return gini_sum
+
+    @property
+    def unalikeability(self):
+        """
+        Property for Unlikeability. Unikeability checks for
+        "how often observations differ from one another"
+        Reference: Perry, M. and Kader, G. Variation as Unalikeability.
+        Teaching Statistics, Vol. 27, No. 2 (2005), pp. 58-60.
+
+        U = Σ(i=1,n)Σ(j=1,n): (Cij)/(n**2-n)
+        Cij = 1 if i!=j, 0 if i=j
+
+        :return: None or unlikeability probability
+        """
+
+        if self.sample_size == 0:
+            return None
+        unalike_sum = 0
+        for category in self._categories:
+            unalike_sum += (self.sample_size - self._categories[category]) * \
+                           self._categories[category]
+        unalike = unalike_sum / (self.sample_size ** 2 - self.sample_size)
+        return unalike

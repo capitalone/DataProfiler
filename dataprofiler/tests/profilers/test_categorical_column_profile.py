@@ -11,7 +11,7 @@ from . import utils as test_utils
 
 from dataprofiler.profilers import CategoricalColumn
 from dataprofiler.profilers.profile_builder import StructuredColProfiler
-
+from ...profilers.profiler_options import CategoricalOptions
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -374,24 +374,30 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(profile.unalikeability, 2*(10 + 15 + 6)/90)
 
     def test_top_k_categories_change(self):
+        options = CategoricalOptions()
         df_series = pd.Series(
             ["a", "a", "b", "c", "d", "e", "e", "e", "f", "g"])
-        profile = CategoricalColumn(df_series.name)
+        profile = CategoricalColumn(df_series.name, options)
         profile.update(df_series)
         self.assertEqual(
             len(profile.profile['statistics']['categorical_count']), 7)
-        profile.set_categorical_count_size(6)
+        profile._top_k_categories = 6
         self.assertEqual(
             len(profile.profile['statistics']['categorical_count']), 6)
 
+        options = CategoricalOptions(top_k_categories=6)
         df_series = pd.Series(["a", "a", "b", "c", "d"])
-        profile = CategoricalColumn(df_series.name)
+        profile = CategoricalColumn(df_series.name, options)
         profile.update(df_series)
         self.assertEqual(
             len(profile.profile['statistics']['categorical_count']), 4)
-        profile.set_categorical_count_size(6)
+
+        options = CategoricalOptions(top_k_categories=3)
+        df_series = pd.Series(["a", "c", "b", "c", "d"])
+        profile = CategoricalColumn(df_series.name, options)
+        profile.update(df_series)
         self.assertEqual(
-            len(profile.profile['statistics']['categorical_count']), 4)
+            len(profile.profile['statistics']['categorical_count']), 3)
 
 class TestCategoricalSentence(unittest.TestCase):
 

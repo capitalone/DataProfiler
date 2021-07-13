@@ -36,6 +36,8 @@ class CategoricalColumn(BaseColumnProfiler):
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
         self._top_k_categories = None
+        if options:
+            self._top_k_categories = options.top_k_categories
 
     def __add__(self, other):
         """
@@ -221,17 +223,6 @@ class CategoricalColumn(BaseColumnProfiler):
         self._update_helper(df_series, profile)
 
         return self
-
-    def set_categorical_count_size(self, k: int):
-        """
-        Sets the number of top categories to be displayed when we call profile
-        and categorical_count in the statistics dictionary
-
-        :param k: the number we are changing top_k_categories to
-        :type k: int
-        :return: None
-        """
-        self._top_k_categories = k
 
     @property
     def gini_impurity(self):

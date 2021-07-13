@@ -8,7 +8,12 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
     option_class = CategoricalOptions
     
     def test_init(self):
-        super().test_init()
+        option = self.get_options()
+        self.assertDictEqual({"is_enabled": True, "top_k_categories": None}, option.properties)
+        option = self.get_options(is_enabled=False)
+        self.assertDictEqual({"is_enabled": False, "top_k_categories": None}, option.properties)
+        option = self.get_options(top_k_categories=2)
+        self.assertDictEqual({"is_enabled": True, "top_k_categories": 2}, option.properties)
     
     def test_set_helper(self):
         super().test_set_helper()

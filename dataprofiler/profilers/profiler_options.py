@@ -695,14 +695,15 @@ class OrderOptions(BaseInspectorOptions):
 
 class CategoricalOptions(BaseInspectorOptions):
 
-    def __init__(self):
+    def __init__(self, is_enabled=True, top_k_categories=None):
         """
         Options for the Categorical Column
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseInspectorOptions.__init__(self)
+        BaseInspectorOptions.__init__(self, is_enabled=True)
+        self.top_k_categories = top_k_categories
 
     def _validate_helper(self, variable_path='CategoricalOptions'):
         """

@@ -304,7 +304,8 @@ class ColumnStatsProfileCompiler(BaseCompiler):
         if all_profiles:
             for key in all_profiles:
                 if key in self._profiles and key in other._profiles:
-                    diff = self._profiles[key].diff(other._profiles[key], options)
+                    diff = self._profiles[key].diff(other._profiles[key], 
+                                                    options)
                     diff_profile.update(diff)
 
         return diff_profile

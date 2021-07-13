@@ -223,7 +223,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         expected_diff = {}
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
-    def test_disabling_columns_during_stats_diff(self):
+    def test_compiler_stats_diff(self):
         data1 = pd.Series(['1', '2', '3', '4'])
         data2 = pd.Series(['10', '9'])
         options = StructuredOptions()
@@ -232,7 +232,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1,options)
         compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
         expected_diff = {'order': ['ascending', 'descending']}
-        print(compiler1.diff(compiler2))
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
         # Test disabled column in one compiler
@@ -240,7 +239,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
         compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
         expected_diff = {}
-        print(compiler1.diff(compiler2))
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
         
         # Test disabling both columns
@@ -248,7 +246,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
         compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
         expected_diff = {}
-        print(compiler1.diff(compiler2))
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
         # Test disabling everything
@@ -257,7 +254,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
         compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
         expected_diff = {}
-        print(compiler1.diff(compiler2))
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
     @mock.patch.multiple(

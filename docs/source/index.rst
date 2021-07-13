@@ -67,8 +67,8 @@ The format for a structured profile is below:
         "file_type": string,
         "encoding": string,
     },
-    "data_stats": {
-        <column name>: {
+    "data_stats": [
+        {
             "column_name": string,
             "data_type": string,
             "data_label": string,
@@ -123,7 +123,7 @@ The format for a structured profile is below:
                 "format": string
             }
         }
-    }
+    ]
 
 
 The format for an unstructured profile is below:

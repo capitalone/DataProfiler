@@ -1,4 +1,4 @@
-/Version
+Version
 =======
 
 .. automodule:: dataprofiler.version

@@ -67,9 +67,7 @@ The format for a structured profile is below:
         "file_type": string,
         "encoding": string,
         "correlation_matrix": list(list(int)), (*)
-        "profile_schema": {
-            string: list(int)
-        },
+        "profile_schema": dict[string, list(int)]
     },
     "data_stats": [
         {
@@ -83,10 +81,8 @@ The format for a structured profile is below:
                 "sample_size": int,
                 "null_count": int,
                 "null_types": list(string),
-                "null_types_index": {
-                    string: list(int)
-                },
-                "data_type_representation": [string, list(string)],
+                "null_types_index": dict[string, list(int)],
+                "data_type_representation": dict[string, list(string)],
                 "min": [null, float],
                 "max": [null, float],
                 "sum": float,

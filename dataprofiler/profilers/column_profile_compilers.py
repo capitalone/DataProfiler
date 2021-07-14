@@ -287,6 +287,27 @@ class ColumnStatsProfileCompiler(BaseCompiler):
             profile.update(profiler.profile)
         return profile
 
+    def diff(self, other, options=None):
+        """
+        Finds the difference between 2 compilers and returns the report
+
+        :param other: profile compiler finding the difference with this one.
+        :type other: ColumnStatsProfileCompiler
+        :return: difference of the profiles
+        :rtype: dict
+        """
+        # Call super for compiler instance check
+        diff_profile = super().diff(other, options)
+
+        # Iterate through profiles
+        all_profiles = set(self._profiles.keys()) | set(other._profiles.keys())
+        for key in all_profiles:
+            if key in self._profiles and key in other._profiles:
+                diff = self._profiles[key].diff(other._profiles[key], 
+                                                options)
+                diff_profile.update(diff)
+
+        return diff_profile
 
 class ColumnDataLabelerCompiler(BaseCompiler):
 

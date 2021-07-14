@@ -564,8 +564,7 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
                                           n=remaining_lines)
 
             # Add sample_lines to data_as_str no more than max_lines
-            if is_stream_buffer(file_path) \
-                    and isinstance(sample_lines[:loc], bytes):
+            if isinstance(sample_lines[:loc], bytes):
                 data_as_str += sample_lines[:loc].decode(file_encoding)
             else:
                 data_as_str += sample_lines[:loc]

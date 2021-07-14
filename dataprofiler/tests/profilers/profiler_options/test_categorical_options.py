@@ -23,6 +23,20 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
     
     def test_validate_helper(self):
         super().test_validate_helper()
+        # These ones should throw an error
+        expected_error = "top_k_categories must be either None" \
+                         " or a positive integer"
+        options = self.get_options(top_k_categories=-2)
+        self.assertEqual([expected_error], options._validate_helper())
+        options = self.get_options(top_k_categories="E")
+        self.assertEqual([expected_error], options._validate_helper())
+        options = self.get_options(top_k_categories=2.0)
+        self.assertEqual([expected_error], options._validate_helper())
+        # These ones should not
+        options = self.get_options(top_k_categories=6)
+        self.assertEqual([], options._validate_helper())
+        options = self.get_options(top_k_categories=None)
+        self.assertEqual([], options._validate_helper())
     
     def test_validate(self):
         super().test_validate()

@@ -714,7 +714,13 @@ class CategoricalOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path)
+        errors = super()._validate_helper(variable_path)
+        if not (self.top_k_categories is None or (
+                isinstance(self.top_k_categories, int) and self.top_k_categories >= 0)):
+            errors.append("top_k_categories must be either None"
+                          " or a positive integer".format(variable_path))
+        return errors
+
 
 
 class CorrelationOptions(BaseInspectorOptions):

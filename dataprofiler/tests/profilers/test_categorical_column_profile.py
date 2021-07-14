@@ -385,19 +385,19 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(
             len(profile.profile['statistics']['categorical_count']), 6)
 
-        options = CategoricalOptions(top_k_categories=6)
+        options.top_k_categories = 6
         df_series = pd.Series(["a", "a", "b", "c", "d"])
         profile = CategoricalColumn(df_series.name, options)
         profile.update(df_series)
         self.assertEqual(
             len(profile.profile['statistics']['categorical_count']), 4)
 
-        options = CategoricalOptions(top_k_categories=3)
+        options.top_k_categories = 7
         df_series = pd.Series(["a", "c", "b", "c", "d"])
         profile = CategoricalColumn(df_series.name, options)
         profile.update(df_series)
         self.assertEqual(
-            len(profile.profile['statistics']['categorical_count']), 3)
+            len(profile.profile['statistics']['categorical_count']), 4)
 
 class TestCategoricalSentence(unittest.TestCase):
 

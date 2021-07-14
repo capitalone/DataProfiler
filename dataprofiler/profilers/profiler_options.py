@@ -715,9 +715,10 @@ class CategoricalOptions(BaseInspectorOptions):
         :rtype: list(str)
         """
         errors = super()._validate_helper(variable_path)
-        if not (self.top_k_categories is None or (
-                isinstance(self.top_k_categories, int) and self.top_k_categories >= 0)):
-            errors.append("top_k_categories must be either None"
+        if self.top_k_categories is not None and (
+                not isinstance(self.top_k_categories, int)
+                or self.top_k_categories < 1):
+            errors.append("{}.top_k_categories must be either None"
                           " or a positive integer".format(variable_path))
         return errors
 

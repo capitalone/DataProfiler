@@ -1,15 +1,14 @@
 from collections import OrderedDict
-from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
 import json
 import warnings
-import types
-from io import BytesIO
+from six import StringIO
 
 import numpy as np
 import pandas as pd
 from . import data_utils
 from .base_data import BaseData
 from .structured_mixins import SpreadSheetDataMixin
+from .filepath_or_buffer import FileOrBufferHandler
 
 
 class JSONData(SpreadSheetDataMixin, BaseData):
@@ -364,10 +363,11 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             options = dict()
 
         file_encoding = None
-        if not data_utils.is_stream_buffer(file_path) or isinstance(file_path, BytesIO):
+        if not isinstance(file_path, StringIO):
             file_encoding = data_utils.detect_file_encoding(file_path=file_path)
 
-        with FileOrBufferHandler(file_path, 'r', encoding=file_encoding) as data_file:
+        with FileOrBufferHandler(file_path, 'r', encoding=file_encoding) \
+                as data_file:
             try:
                 json.load(data_file)
                 return True

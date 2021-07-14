@@ -63,7 +63,7 @@ The format for a structured profile is below:
     "correlation_matrix": list(list(int)), (*)
     "profile_schema": {
         string: list(int)
-    }
+    },
 },
 "data_stats": [
     {
@@ -97,10 +97,10 @@ The format for a structured profile is below:
             },
             "quantiles": {
                 int: float
-            }
+            },
             "vocab": list(char),
-            "avg_predictions": dict(float), 
-            "data_label_representation": dict(float),
+            "avg_predictions": dict[string, float], 
+            "data_label_representation": dict[string, float],
             "categories": list(str),
             "unique_count": int,
             "unique_ratio": float,
@@ -115,9 +115,9 @@ The format for a structured profile is below:
                 'std': float,
                 'sample_size': int,
                 'margin_of_error': float,
-                'confidence_level': float		
+                'confidence_level': float     
             },
-            "times": dict(float),
+            "times": dict[string, float],
             "format": string
         }
     }
@@ -127,34 +127,32 @@ The format for a structured profile is below:
 
 The format for an unstructured profile is below:
 ```
-{
-    "global_stats": {
-        "samples_used": int,
-        "empty_line_count": int,
-        "file_type": string,
-        "encoding": string
-    },
-    "data_stats": {
-        "data_label": {
-            "entity_counts": {
-                "word_level": dict(int),
-                "true_char_level": dict(int),
-                "postprocess_char_level": dict(int)
-            },
-            "entity_percentages": {
-                "word_level": dict(float),
-                "true_char_level": dict(float),
-                "postprocess_char_level": dict(float)
-            },
-            "times": dict(float)
+"global_stats": {
+    "samples_used": int,
+    "empty_line_count": int,
+    "file_type": string,
+    "encoding": string
+},
+"data_stats": {
+    "data_label": {
+        "entity_counts": {
+            "word_level": dict[string, int],
+            "true_char_level": dict[string, int],
+            "postprocess_char_level": dict[string, int]
         },
-        "statistics": {
-            "vocab": list(char),
-            "vocab_count": dict(int),
-            "words": list(string),
-            "word_count": dict(int),
-            "times": dict(float)
-        }
+        "entity_percentages": {
+            "word_level": dict[string, float],
+            "true_char_level": dict[string, float],
+            "postprocess_char_level": dict[string, float]
+        },
+        "times": dict[string, float]
+    },
+    "statistics": {
+        "vocab": list(char),
+        "vocab_count": dict[string, int],
+        "words": list(string),
+        "word_count": dict[string, int],
+        "times": dict[string, float]
     }
 }
 ```

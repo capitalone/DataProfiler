@@ -29,7 +29,7 @@ options.structured_options.multiprocess.is_enabled = False
 # options.structured_options.data_labeler.is_enabled = False
 
 # parameter alteration
-ALLOW_SUBSAMPLING = True # profiler to subsample the dataset if large
+ALLOW_SUBSAMPLING = True  # profiler to subsample the dataset if large
 PERCENT_TO_NAN = 0.0  # Value must be between 0 and 100
 
 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
         # time profiling
         start_time = time.time()
-        if  ALLOW_SUBSAMPLING:
+        if ALLOW_SUBSAMPLING:
             profiler = dp.Profiler(df, options=options)
         else:
             profiler = dp.Profiler(df, samples_per_update=len(df),
@@ -73,11 +73,14 @@ if __name__ == "__main__":
         
         # get overall time for merging profiles
         start_time = time.time()
-        merged_profile = profiler + profiler
+        try:
+            merged_profile = profiler + profiler
+        except ValueError:
+            pass  # empty profile merge if 0 data
         merge_time = time.time() - start_time
         
         # get times for each profile in the columns
-        for profile in profiler.profile.values():
+        for profile in profiler.profile:
             compiler_times = defaultdict(list)
             
             for compiler_name in profile.profiles:
@@ -92,7 +95,14 @@ if __name__ == "__main__":
                 'sample_size': sample_size,
                 'total_time': total_time,
                 'column': compiler_times,
-                'merge': merge_time}
+                'merge': merge_time,
+                'percent_to_nan': PERCENT_TO_NAN,
+                'allow_subsampling': ALLOW_SUBSAMPLING,
+                'is_data_labeler':
+                    options.structured_options.data_labeler.is_enabled,
+                'is_multiprocessing':
+                    options.structured_options.multiprocess.is_enabled,
+            }
             profile_times += [column_profile_time]
 
         

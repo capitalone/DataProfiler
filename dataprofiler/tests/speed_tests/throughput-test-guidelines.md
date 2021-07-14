@@ -44,8 +44,9 @@ test dataset `aws_honeypot_marx_geo.csv`. This dataset contains 4 columns such
 that it would equally test the 4 primitive data types evaluated by the
 Profilers (datetime, int, float, and text). Additionally, the dataset had all
 null values removed so that NaNs were only provided if desired by the user
-options. The following code was used to create this dataset.
+options.
 
+The following code was used to create this dataset:
 ```python
 # executed within: "dataprofiler/tests/speed_tests"
 import random

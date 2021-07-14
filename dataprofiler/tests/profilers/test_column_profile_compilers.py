@@ -269,6 +269,80 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         expected_diff = {}
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
+    @mock.patch(
+        'dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+               "DataLabelerColumn.update")
+    def test_compiler_data_labeler_diff(self, *mocked_datalabeler):
+        # Initialize dummy data
+        data = pd.Series([])
+
+        # Test normal diff
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data)
+        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data)
+
+        # Mock out the data_label, avg_predictions, and label_representation
+        # properties
+        with mock.patch("dataprofiler.profilers.data_labeler_column_profile"
+                        ".DataLabelerColumn.data_label"), \
+             mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                        "DataLabelerColumn.avg_predictions"), \
+             mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                        "DataLabelerColumn.label_representation"):
+            compiler1._profiles["data_labeler"].data_label = "a"
+            compiler1._profiles["data_labeler"].avg_predictions = {
+                "a": 0.25,
+                "b": 0.0,
+                "c": 0.75
+            }
+            compiler1._profiles["data_labeler"].label_representation = {
+                "a": 0.15,
+                "b": 0.01,
+                "c": 0.84
+            }
+        
+            compiler2._profiles["data_labeler"].data_label = "b"
+            compiler2._profiles["data_labeler"].avg_predictions = {
+                "a": 0.25,
+                "b": 0.70,
+                "c": 0.05
+            }
+            compiler2._profiles["data_labeler"].label_representation = {
+                "a": 0.99,
+                "b": 0.01,
+                "c": 0.0
+            }
+            
+            expected_diff = {
+                'statistics': {
+                    'data_label': [['a'], [], ['b']],
+                    'avg_predictions': {
+                        'a': 'unchanged',
+                        'b': -0.7,
+                        'c': 0.7
+                    },
+                    'label_representation': {
+                        'a': -0.84, 
+                        'b': 'unchanged',
+                        'c': 0.84
+                    }
+                },
+                'data_label': ['a', 'b']
+            }
+            self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling one datalabeler profile for compiler diff
+        options = StructuredOptions()
+        options.data_labeler.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling both datalabeler profiles for compiler diff
+        compiler2 = col_pro_compilers.ColumnDataLabelerCompiler(data, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
     @mock.patch.multiple(
         col_pro_compilers.BaseCompiler, __abstractmethods__=set())
     def test_no_profilers_error(self):

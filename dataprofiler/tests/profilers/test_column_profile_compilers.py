@@ -223,6 +223,51 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         expected_diff = {}
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
+    def test_compiler_stats_diff(self):
+        data1 = pd.Series(['1', '9', '9'])
+        data2 = pd.Series(['10', '9', '9', '9'])
+        options = StructuredOptions()
+
+        # Test normal diff
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
+        expected_diff = {
+            'order': ['ascending', 'descending'], 
+            'categorical': 'unchanged', 
+            'statistics': {
+                'unique_count': 'unchanged', 
+                'unique_ratio': 0.16666666666666663, 
+                'categories': [['1'], ['9'], ['10']], 
+                'gini_impurity': 0.06944444444444448, 
+                'unalikeability': 0.16666666666666663, 
+                'categorical_count': {
+                    '9': -1, 
+                    '1': [1, None], 
+                    '10': [None, 1]
+                }
+            }
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabled categorical column in one compiler
+        options.category.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2)
+        expected_diff = {'order': ['ascending', 'descending']}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        
+        # Test disabling categorical profile in both compilers
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
+        expected_diff = {'order': ['ascending', 'descending']}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test disabling everything
+        options.order.is_enabled = False
+        compiler1 = col_pro_compilers.ColumnStatsProfileCompiler(data1, options)
+        compiler2 = col_pro_compilers.ColumnStatsProfileCompiler(data2, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
     @mock.patch.multiple(
         col_pro_compilers.BaseCompiler, __abstractmethods__=set())
@@ -281,10 +326,9 @@ class TestUnstructuredCompiler(unittest.TestCase):
                                 'o': 2, 's': 2, 't': 2, 'y': 1},
                 'vocab': [' ', '-', '.', '1', '2', '3', '4', 'D', 'J', 'a', 'e',
                           'h', 'i', 'm', 'n', 'o', 's', 't', 'y'],
-                'word_count': {'123': 1, '1234': 1, '432': 1, 'Doe': 1,
+                'word_count': {'123-432-1234': 1, 'Doe': 1,
                                'John': 1, 'hi': 1, 'name': 1, 'test': 1},
-                'words': ['test', 'hi', 'name', 'John', 'Doe', '123', '432',
-                          '1234']}}
+                'words': ['test', 'hi', 'name', 'John', 'Doe', '123-432-1234']}}
 
         output_profile = compiler.profile
 

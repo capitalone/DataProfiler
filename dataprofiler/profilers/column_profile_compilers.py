@@ -325,8 +325,9 @@ class ColumnDataLabelerCompiler(BaseCompiler):
         }
         # TODO: Only works for last profiler. Abstracted for now.
         for _, profiler in self._profiles.items():
-            profile["data_label"] = profiler.data_label
-            profile["statistics"].update(profiler.profile)
+            col_profile = profiler.profile
+            profile["data_label"] = col_profile.pop("data_label")
+            profile["statistics"].update(col_profile)
         return profile
     
     def diff(self, other, options=None):
@@ -341,19 +342,16 @@ class ColumnDataLabelerCompiler(BaseCompiler):
         # Call super for compiler instance check
         diff_profile = super().diff(other, options)
         diff_profile["statistics"] = dict()
-        
+
         # Iterate through profile(s)
         all_profiles = set(self._profiles.keys()) | set(other._profiles.keys())
         for key in all_profiles:
             if key in self._profiles and key in other._profiles:
-                diff_data_label = utils.find_diff_of_strings_and_bools(
-                    self._profiles[key].data_label, 
-                    other._profiles[key].data_label)
-                diff_profile["data_label"] = diff_data_label
                 diff = self._profiles[key].diff(other._profiles[key], options)
+                diff_profile["data_label"] = diff.pop("data_label")
                 diff_profile["statistics"].update(diff)
-        
-        if diff_profile["statistics"] == {}:
+
+        if not diff_profile["statistics"]:
             diff_profile.pop("statistics")
         
         return diff_profile

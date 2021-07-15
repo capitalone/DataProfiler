@@ -315,7 +315,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             
             expected_diff = {
                 'statistics': {
-                    'data_label': [['a'], [], ['b']],
                     'avg_predictions': {
                         'a': 'unchanged',
                         'b': -0.7,
@@ -327,7 +326,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                         'c': 0.84
                     }
                 },
-                'data_label': ['a', 'b']
+                'data_label': [['a'], [], ['b']]
             }
             self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 

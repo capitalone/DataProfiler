@@ -216,6 +216,44 @@ class TextProfiler(object):
         merged_profile.sample_size = self.sample_size + other.sample_size
 
         return merged_profile
+    
+    def diff(self, other_profile, options=None):
+        """
+        Finds the differences for two unstructured text profiles
+
+        :param other_profile: profile to find the difference with
+        :type other_profile: TextProfiler
+        :param options: options for diff output
+        :type options: dict
+        :return: the difference between profiles
+        :rtype: dict
+        """
+        cls = self.__class__
+        if not isinstance(other_profile, cls):
+            raise TypeError("Unsupported operand type(s) for diff: '{}' "
+                            "and '{}'".format(cls.__name__,
+                                              other_profile.__class__.__name__))
+
+        diff = {}
+
+        diff["vocab"] = utils.find_diff_of_lists_and_sets(
+            list(self.vocab_count.keys()), list(other_profile.vocab_count.keys())
+        )
+
+        diff["vocab_count"] = utils.find_diff_of_dicts_with_different_keys(
+            dict(self.vocab_count.most_common(self._top_k_chars)),
+            dict(other_profile.vocab_count.most_common(self._top_k_chars)))
+
+        diff["words"] = utils.find_diff_of_lists_and_sets(
+            list(self.word_count.keys()),
+            list(other_profile.word_count.keys())
+        )
+        
+        diff["word_count"] = utils.find_diff_of_dicts_with_different_keys(
+            dict(self.word_count.most_common(self._top_k_words)),
+            dict(other_profile.word_count.most_common(self._top_k_words)))
+
+        return diff
 
     @property
     def profile(self):

@@ -139,6 +139,32 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertIn("vocab", profile["times"])
         self.assertIn("words", profile["times"])
         
+    def test_diff_profiles(self):
+        text_profile1 = TextProfiler("Name")
+        sample = pd.Series(["Hello my name is: Grant.!!!"])
+        text_profile1.update(sample)
+
+        text_profile2 = TextProfiler("Name")
+        sample = pd.Series(["Bob and \"Grant\", 'are' friends Grant Grant"])
+        text_profile2.update(sample)
+        
+        expected_diff = {
+            'vocab': [['H', 'l', 'm', 'y', ':', '.', '!'],
+                      ['e', 'o', ' ', 'n', 'a', 'i', 's', 'G', 'r', 't'],
+                      ['B', 'b', 'd', '"', ',', "'", 'f']],
+            'vocab_count': [
+                {'!': 3, 'l': 2, 'm': 2, 'H': 1, 'y': 1, ':': 1, '.': 1},
+                {' ': -2, 'e': 'unchanged', 'n': -3, 'a': -3, 'o': 'unchanged',
+                 'i': 'unchanged', 's': 'unchanged', 'G': -2, 'r': -4, 't': -2},
+                {'d': 2, '"': 2, "'": 2, 'B': 1, 'b': 1, ',': 1, 'f': 1}],
+            'words': [['Hello', 'name'], ['Grant'], ['Bob', 'friends']],
+            'word_count': [{'Hello': 1, 'name': 1},
+                           {'Grant': -2},
+                           {'Bob': 1, 'friends': 1}]
+        }
+
+        self.assertEqual(expected_diff, text_profile1.diff(text_profile2))
+
     def test_case_sensitivity(self):
         text_profile1 = TextProfiler("Name")
         text_profile1._is_case_sensitive = False

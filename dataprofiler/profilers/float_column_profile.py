@@ -132,21 +132,22 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return:
         """
         profile = NumericStatsMixin.profile(self)
-        additive_profile = dict(
-            num_zeros=self.np_type_to_type(self.num_zeros),
-            num_negatives=self.np_type_to_type(self.num_negatives),
-            precision=dict(
-                min=self.np_type_to_type(self.precision['min']),
-                max=self.np_type_to_type(self.precision['max']),
-                mean=self.np_type_to_type(self.precision['mean']),
-                var=self.np_type_to_type(self.precision['var']),
-                std=self.np_type_to_type(self.precision['std']),
-                sample_size=self.np_type_to_type(self.precision['sample_size']),
-                margin_of_error=self.np_type_to_type(self.precision['margin_of_error']),
-                confidence_level=self.np_type_to_type(self.precision['confidence_level'])
+        profile.update(
+            dict(
+                num_zeros=self.np_type_to_type(self.num_zeros),
+                num_negatives=self.np_type_to_type(self.num_negatives),
+                precision=dict(
+                    min=self.np_type_to_type(self.precision['min']),
+                    max=self.np_type_to_type(self.precision['max']),
+                    mean=self.np_type_to_type(self.precision['mean']),
+                    var=self.np_type_to_type(self.precision['var']),
+                    std=self.np_type_to_type(self.precision['std']),
+                    sample_size=self.np_type_to_type(self.precision['sample_size']),
+                    margin_of_error=self.np_type_to_type(self.precision['margin_of_error']),
+                    confidence_level=self.np_type_to_type(self.precision['confidence_level'])
+                )
             )
         )
-        profile.update(additive_profile)
         return profile
 
     @property

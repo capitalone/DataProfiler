@@ -65,8 +65,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return:
         """
         profile = NumericStatsMixin.profile(self)
-        additive_profile = dict(vocab=self.vocab)
-        profile.update(additive_profile)
+        profile.update(dict(vocab=self.vocab))
         return profile
 
     def diff(self, other_profile, options=None):

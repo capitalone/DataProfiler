@@ -252,7 +252,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         Property for profile. Returns the profile of the column.
         :return:
         """
-
         profile = dict(
             min=self.np_type_to_type(self.min),
             max=self.np_type_to_type(self.max),

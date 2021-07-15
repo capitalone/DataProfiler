@@ -61,13 +61,13 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return:
         """
         profile = NumericStatsMixin.profile(self)
-        additive_profile = dict(
-            num_zeros=self.np_type_to_type(self.num_zeros),
-            num_negatives=self.np_type_to_type(self.num_negatives),
+        profile.update(
+            dict(
+                num_zeros=self.np_type_to_type(self.num_zeros),
+                num_negatives=self.np_type_to_type(self.num_negatives),
+            )
         )
-        profile.update(additive_profile)
         return profile
-
 
     @property
     def data_type_ratio(self):

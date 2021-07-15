@@ -131,21 +131,10 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         Property for profile. Returns the profile of the column.
         :return:
         """
-
-        profile = dict(
-            min=self.np_type_to_type(self.min),
-            max=self.np_type_to_type(self.max),
-            sum=self.np_type_to_type(self.sum),
-            mean=self.np_type_to_type(self.mean),
-            variance=self.np_type_to_type(self.variance),
-            stddev=self.np_type_to_type(self.stddev),
-            skewness=self.np_type_to_type(self.skewness),
-            kurtosis=self.np_type_to_type(self.kurtosis),
+        profile = NumericStatsMixin.profile(self)
+        additive_profile = dict(
             num_zeros=self.np_type_to_type(self.num_zeros),
             num_negatives=self.np_type_to_type(self.num_negatives),
-            histogram=self._get_best_histogram_for_profile(),
-            quantiles=self.quantiles,
-            times=self.times,
             precision=dict(
                 min=self.np_type_to_type(self.precision['min']),
                 max=self.np_type_to_type(self.precision['max']),
@@ -157,7 +146,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                 confidence_level=self.np_type_to_type(self.precision['confidence_level'])
             )
         )
-        
+        profile.update(additive_profile)
         return profile
 
     @property

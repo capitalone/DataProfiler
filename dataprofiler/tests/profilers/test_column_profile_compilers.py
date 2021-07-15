@@ -339,8 +339,34 @@ class TestUnstructuredCompiler(unittest.TestCase):
             output_profile['statistics']['vocab'] = \
                 sorted(output_profile['statistics']['vocab'])
 
-        self.maxDiff = None
         self.assertDictEqual(expected_dict, output_profile)
+
+    def test_compiler_stats_diff(self):
+        data1 = pd.Series(['1', '9', '9'])
+        data2 = pd.Series(['10', '9', '9', '9'])
+        options = StructuredOptions()
+
+        # Test normal diff
+        compiler1 = col_pro_compilers.UnstructuredCompiler(data1)
+        compiler2 = col_pro_compilers.UnstructuredCompiler(data2)
+        expected_diff = {
+            'order': ['ascending', 'descending'], 
+            'categorical': 'unchanged', 
+            'statistics': {
+                'unique_count': 'unchanged', 
+                'unique_ratio': 0.16666666666666663, 
+                'categories': [['1'], ['9'], ['10']], 
+                'gini_impurity': 0.06944444444444448, 
+                'unalikeability': 0.16666666666666663, 
+                'categorical_count': {
+                    '9': -1, 
+                    '1': [1, None], 
+                    '10': [None, 1]
+                }
+            }
+        }
+        print(compiler1.diff(compiler2))
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
 
 if __name__ == '__main__':

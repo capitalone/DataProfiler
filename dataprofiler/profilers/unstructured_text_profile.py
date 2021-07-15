@@ -147,7 +147,7 @@ class TextProfiler(object):
         # remove stop words
         merged_profile._stop_words = self._stop_words.union(other._stop_words)
         if len(merged_profile._stop_words) != len(self._stop_words):
-            for w, c in list(merged_profile.word_count.items()):
+            for w in list(merged_profile.word_count.keys()):
                 if w.lower() in merged_profile._stop_words:
                     merged_profile.word_count.pop(w)
 

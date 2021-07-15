@@ -336,6 +336,8 @@ class ColumnDataLabelerCompiler(BaseCompiler):
 
         :param other: profile compiler finding the difference with this one.
         :type other: ColumnDataLabelerCompiler
+        :param options: options to change results of the difference
+        :type options: dict
         :return: difference of the profiles
         :rtype: dict
         """
@@ -344,12 +346,11 @@ class ColumnDataLabelerCompiler(BaseCompiler):
         diff_profile["statistics"] = dict()
 
         # Iterate through profile(s)
-        all_profiles = set(self._profiles.keys()) | set(other._profiles.keys())
+        all_profiles = set(self._profiles.keys()) & set(other._profiles.keys())
         for key in all_profiles:
-            if key in self._profiles and key in other._profiles:
-                diff = self._profiles[key].diff(other._profiles[key], options)
-                diff_profile["data_label"] = diff.pop("data_label")
-                diff_profile["statistics"].update(diff)
+            diff = self._profiles[key].diff(other._profiles[key], options)
+            diff_profile["data_label"] = diff.pop("data_label")
+            diff_profile["statistics"].update(diff)
 
         if not diff_profile["statistics"]:
             diff_profile.pop("statistics")

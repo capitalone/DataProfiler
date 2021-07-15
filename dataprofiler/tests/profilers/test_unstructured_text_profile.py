@@ -127,7 +127,7 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         
         # Assert words is correct and stop words are not present
         expected_words = ['Bob', 'Grant', 'friends', 'Hello', 'name']
-        self.assertListEqual(expected_words, profile['words'])
+        self.assertCountEqual(expected_words, profile['words'])
         self.assertNotIn("is", profile['words'])
 
         # Assert word counts are correct
@@ -160,6 +160,18 @@ class TestUnstructuredTextProfile(unittest.TestCase):
                 " were conflicting values for case sensitivity between the two "
                 "profiles being merged."):
             text_profile3 = text_profile1 + text_profile2
+            profile = text_profile3.profile
+            # Assert word counts are correct
+            expected_word_count = {'hello': 1, 'name': 1, 'grant': 2, 'bob': 1,
+                                   'friends': 1}
+            self.assertDictEqual(expected_word_count, profile['word_count'])
+
+        # change the merge order
+        with self.assertWarnsRegex(UserWarning,
+                "The merged Text Profile will not be case sensitive since there"
+                " were conflicting values for case sensitivity between the two "
+                "profiles being merged."):
+            text_profile3 = text_profile2 + text_profile1
             profile = text_profile3.profile
             # Assert word counts are correct
             expected_word_count = {'hello': 1, 'name': 1, 'grant': 2, 'bob': 1,
@@ -218,12 +230,12 @@ class TestUnstructuredTextProfile(unittest.TestCase):
     def test_merge_most_common_words_count(self):
         ### default values of most common words for both profiles
         text_profile1 = TextProfiler("Name")
-        text_profile1._stop_words = []  # set stop_words to empty list for easy inspection
+        text_profile1._stop_words = set()  # set stop_words to empty for easy inspection
         sample1 = pd.Series(["this is test,", " this is a test sentence"])
         text_profile1.update(sample1)
 
         text_profile2 = TextProfiler("Name")
-        text_profile2._stop_words = []  # set stop_words to empty list for easy inspection
+        text_profile2._stop_words = set()  # set stop_words to empty for easy inspection
         sample2 = pd.Series(["this is", "this"])
         text_profile2.update(sample2)
 

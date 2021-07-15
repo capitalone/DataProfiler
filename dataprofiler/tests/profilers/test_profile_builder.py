@@ -1764,7 +1764,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         for key in list(expected_word_count.keys()):
             if key.lower() in stop_words:
                 expected_word_count.pop(key)
-
+        
         expected_words = expected_word_count.keys()
         self.assertCountEqual(
             expected_words,

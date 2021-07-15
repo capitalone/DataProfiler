@@ -35,6 +35,9 @@ class CategoricalColumn(BaseColumnProfiler):
         self._categories = defaultdict(int)
         self.__calculations = {}
         self._filter_properties_w_options(self.__calculations, options)
+        self._top_k_categories = None
+        if options:
+            self._top_k_categories = options.top_k_categories
 
     def __add__(self, other):
         """
@@ -114,7 +117,6 @@ class CategoricalColumn(BaseColumnProfiler):
         For categorical_count, it will display the top k categories most
         frequently occurred in descending order.
         """
-        top_k_categories = 5
 
         profile = dict(
             categorical=self.is_match,
@@ -130,7 +132,7 @@ class CategoricalColumn(BaseColumnProfiler):
             profile["statistics"]['unalikeability'] = self.unalikeability
             profile["statistics"]['categorical_count'] = dict(
                 sorted(self._categories.items(), key=itemgetter(1),
-                       reverse=True)[:top_k_categories])
+                       reverse=True)[:self._top_k_categories])
         return profile
 
     @property

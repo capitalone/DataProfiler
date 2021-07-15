@@ -1,5 +1,6 @@
 from collections import defaultdict, Counter
 import itertools
+import string
 import re
 import warnings
 
@@ -23,7 +24,7 @@ class TextProfiler(object):
         self.sample_size = 0
         self.times = defaultdict(float)
         self.vocab_count = Counter()
-        self.word_count = defaultdict(int)
+        self.word_count = Counter()
         self.metadata = dict()
 
         # TODO: Add line length
@@ -99,6 +100,8 @@ class TextProfiler(object):
 
         if options and options.stop_words is not None:
             self._stop_words = options.stop_words
+            if isinstance(self._stop_words, list):
+                self._stop_words = set(self._stop_words)
 
         self._top_k_chars = None
         if options:
@@ -139,20 +142,20 @@ class TextProfiler(object):
         :type merged_profile: TextProfiler
         :return:
         """
-        if not self._is_case_sensitive:
-            merged_profile.word_count = self.word_count.copy()
-            additive_words = other.word_count
-        else:
-            merged_profile.word_count = other.word_count.copy()
-            additive_words = self.word_count
+        merged_profile.word_count = self.word_count + other.word_count
 
-        for word in additive_words:
-            word_lower = word.lower()
-            if word_lower not in self._stop_words:
-                if self._is_case_sensitive:
-                    merged_profile.word_count[word] += additive_words[word]
-                else:
-                    merged_profile.word_count[word_lower] += additive_words[word]
+        # remove stop words
+        merged_profile._stop_words = self._stop_words.union(other._stop_words)
+        if len(merged_profile._stop_words) != len(self._stop_words):
+            for w in list(merged_profile.word_count.keys()):
+                if w.lower() in merged_profile._stop_words:
+                    merged_profile.word_count.pop(w)
+
+        if self._is_case_sensitive != other._is_case_sensitive:
+            for w, c in list(merged_profile.word_count.items()):
+                if not w.islower():
+                    merged_profile.word_count.pop(w)
+                    merged_profile.word_count.update({w.lower(): c})
     
     def __add__(self, other):
         """
@@ -221,20 +224,13 @@ class TextProfiler(object):
 
         :return:
         """
-        top_k_words = self._top_k_words
-        if top_k_words is None:
-            top_k_words = len(self.word_count.keys())
-
-        word_count = sorted(self.word_count.items(),
-                            key=lambda x: x[1],
-                            reverse=True)[:top_k_words]
-
         profile = dict(
             vocab=list(self.vocab_count.keys()),
             vocab_count=dict(
                 self.vocab_count.most_common(self._top_k_chars)),
             words=list(self.word_count.keys()),
-            word_count=dict(word_count),
+            word_count=dict(
+                self.word_count.most_common(self._top_k_words)),
             times=self.times,
         )
         return profile
@@ -274,13 +270,17 @@ class TextProfiler(object):
         :type subset_properties: dict
         :return: None
         """
-        for row in data:
-            for word in re.findall(r'\w+', row):
-                word_lower = word.lower()
-                if word_lower not in self._stop_words:
-                    if not self._is_case_sensitive:
-                        word = word_lower
-                    self.word_count[word] += 1
+        if not self._is_case_sensitive:
+            words = ([w.strip(string.punctuation) for w in row.lower().split()]
+                     for row in data)
+        else:
+            words = ([w.strip(string.punctuation) for w in row.split()]
+                     for row in data)
+        word_count = Counter(itertools.chain.from_iterable(words))
+
+        for w, c in word_count.items():
+            if w and w.lower() not in self._stop_words:
+                self.word_count.update({w: c})
 
     def _update_helper(self, data, profile):
         """

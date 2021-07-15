@@ -695,14 +695,15 @@ class OrderOptions(BaseInspectorOptions):
 
 class CategoricalOptions(BaseInspectorOptions):
 
-    def __init__(self):
+    def __init__(self, is_enabled=True, top_k_categories=None):
         """
         Options for the Categorical Column
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseInspectorOptions.__init__(self)
+        BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
+        self.top_k_categories = top_k_categories
 
     def _validate_helper(self, variable_path='CategoricalOptions'):
         """
@@ -713,7 +714,14 @@ class CategoricalOptions(BaseInspectorOptions):
         :return: list of errors (if raise_error is false)
         :rtype: list(str)
         """
-        return super()._validate_helper(variable_path)
+        errors = super()._validate_helper(variable_path)
+        if self.top_k_categories is not None and (
+                not isinstance(self.top_k_categories, int)
+                or self.top_k_categories < 1):
+            errors.append("{}.top_k_categories must be either None"
+                          " or a positive integer".format(variable_path))
+        return errors
+
 
 
 class CorrelationOptions(BaseInspectorOptions):

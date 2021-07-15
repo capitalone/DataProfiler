@@ -169,8 +169,8 @@ class TestCSVDataClass(unittest.TestCase):
         for input_file in self.input_file_names:
             with open(input_file['path'], 'r',
                       encoding=input_file['encoding']) as fp:
-                byte_string = StringIO(fp.read())
-                self.assertTrue(CSVData.is_match(byte_string))
+                buffer = StringIO(fp.read())
+                self.assertTrue(CSVData.is_match(buffer))
 
     def test_is_match_for_byte_streams(self):
         """
@@ -179,8 +179,8 @@ class TestCSVDataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                self.assertTrue(CSVData.is_match(byte_string))
+                buffer = BytesIO(fp.read())
+                self.assertTrue(CSVData.is_match(buffer))
         
     def test_auto_file_identification(self):
         """
@@ -215,8 +215,8 @@ class TestCSVDataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                input_data_obj = Data(byte_string, data_type='csv')
+                buffer = BytesIO(fp.read())
+                input_data_obj = Data(buffer, data_type='csv')
                 self.assertEqual(input_data_obj.data_type, 'csv')
                 self.assertEqual(input_data_obj.data_type, 'csv', input_file["path"])
                 self.assertEqual(input_data_obj.delimiter,
@@ -224,8 +224,8 @@ class TestCSVDataClass(unittest.TestCase):
                                 input_file["path"])
 
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
-                byte_string = StringIO(fp.read())
-                input_data_obj = Data(byte_string, data_type='csv')
+                buffer = StringIO(fp.read())
+                input_data_obj = Data(buffer, data_type='csv')
                 self.assertEqual(input_data_obj.data_type, 'csv')
                 self.assertEqual(input_data_obj.data_type, 'csv', input_file["path"])
                 self.assertEqual(input_data_obj.delimiter,
@@ -259,8 +259,8 @@ class TestCSVDataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                input_data_obj = CSVData(byte_string)
+                buffer = BytesIO(fp.read())
+                input_data_obj = CSVData(buffer)
                 self.assertEqual(input_data_obj.data_type, 'csv')
                 self.assertIsInstance(input_data_obj.data, pd.DataFrame)
 
@@ -276,8 +276,8 @@ class TestCSVDataClass(unittest.TestCase):
                 )
 
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
-                byte_string = StringIO(fp.read())
-                input_data_obj = CSVData(byte_string)
+                buffer = StringIO(fp.read())
+                input_data_obj = CSVData(buffer)
                 self.assertEqual(input_data_obj.data_type, 'csv')
                 self.assertIsInstance(input_data_obj.data, pd.DataFrame)
 
@@ -310,22 +310,22 @@ class TestCSVDataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                input_data_obj = CSVData(byte_string)
-                input_data_obj.reload(byte_string)
+                buffer = BytesIO(fp.read())
+                input_data_obj = CSVData(buffer)
+                input_data_obj.reload(buffer)
                 self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
                 self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
                                 input_file['path'])
-                self.assertEqual(byte_string, input_data_obj.input_file_path)
+                self.assertEqual(buffer, input_data_obj.input_file_path)
 
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
-                byte_string = StringIO(fp.read())
-                input_data_obj = CSVData(byte_string)
-                input_data_obj.reload(byte_string)
+                buffer = StringIO(fp.read())
+                input_data_obj = CSVData(buffer)
+                input_data_obj.reload(buffer)
                 self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
                 self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
                                 input_file['path'])
-                self.assertEqual(byte_string, input_data_obj.input_file_path)
+                self.assertEqual(buffer, input_data_obj.input_file_path)
 
     def test_allowed_data_formats(self):
         """
@@ -350,8 +350,8 @@ class TestCSVDataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                input_data_obj = CSVData(byte_string)
+                buffer = BytesIO(fp.read())
+                input_data_obj = CSVData(buffer)
                 for data_format in list(input_data_obj._data_formats.keys()):
                     input_data_obj.data_format = data_format
                     self.assertEqual(input_data_obj.data_format, data_format)
@@ -364,8 +364,8 @@ class TestCSVDataClass(unittest.TestCase):
                         self.assertIsInstance(data[0], str)
 
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
-                byte_string = StringIO(fp.read())
-                input_data_obj = CSVData(byte_string)
+                buffer = StringIO(fp.read())
+                input_data_obj = CSVData(buffer)
                 for data_format in list(input_data_obj._data_formats.keys()):
                     input_data_obj.data_format = data_format
                     self.assertEqual(input_data_obj.data_format, data_format)
@@ -436,26 +436,6 @@ class TestCSVDataClass(unittest.TestCase):
 
         for filename in [BytesIO(open(os.path.join(test_dir, fp), 'rb').read()),\
                          StringIO(open(os.path.join(test_dir, fp), 'r').read())]:
-            # set bad header setting
-            options = dict(header=-2)
-            with self.assertRaisesRegex(ValueError,
-                                        '`header` must be one of following: auto, '
-                                        'none for no header, or a non-negative '
-                                        'integer for the row that represents the '
-                                        'header \(0 based index\)'):
-                csv_data = CSVData(filename, options=options)
-                first_value = csv_data.data.loc[0][0]
-
-            # set bad header setting
-            options = dict(header='abcdef')
-            with self.assertRaisesRegex(ValueError,
-                                        '`header` must be one of following: auto, '
-                                        'none for no header, or a non-negative '
-                                        'integer for the row that represents the '
-                                        'header \(0 based index\)'):
-                csv_data = CSVData(filename, options=options)
-                first_value = csv_data.data.loc[0][0]
-
             # set header auto
             options = dict(header='auto')
             csv_data = CSVData(filename, options=options)
@@ -581,8 +561,8 @@ class TestCSVDataClass(unittest.TestCase):
         for input_file in self.input_file_names:
 
             with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                data = CSVData(byte_string)
+                buffer = BytesIO(fp.read())
+                data = CSVData(buffer)
                 self.assertEqual(input_file['count'],
                                  len(data),
                                  msg=input_file['path'])
@@ -591,8 +571,8 @@ class TestCSVDataClass(unittest.TestCase):
                                  msg=input_file['path'])
 
             with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
-                byte_string = StringIO(fp.read())
-                data = CSVData(byte_string)
+                buffer = StringIO(fp.read())
+                data = CSVData(buffer)
                 self.assertEqual(input_file['count'],
                                  len(data),
                                  msg=input_file['path'])

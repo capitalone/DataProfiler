@@ -702,7 +702,7 @@ class CategoricalOptions(BaseInspectorOptions):
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
         """
-        BaseInspectorOptions.__init__(self, is_enabled=True)
+        BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
 
     def _validate_helper(self, variable_path='CategoricalOptions'):

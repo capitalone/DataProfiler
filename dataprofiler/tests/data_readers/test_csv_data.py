@@ -163,23 +163,24 @@ class TestCSVDataClass(unittest.TestCase):
 
     def test_is_match_for_string_streams(self):
         """
-        Determine if the csv file can be automatically identified from string stream
+        Determine if the csv file can be automatically identified from
+        string stream
         """
         for input_file in self.input_file_names:
-            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
-                byte_string = StringIO(fp.read())
-                input_data_obj = Data(byte_string)
-                self.assertEqual(input_data_obj.data_type, 'csv')
+            with open(input_file['path'], 'r',
+                      encoding=input_file['encoding']) as fp:
+                buffer = StringIO(fp.read())
+                self.assertTrue(CSVData.is_match(buffer))
 
     def test_is_match_for_byte_streams(self):
         """
-        Determine if the csv file can be automatically identified from byte stream
+        Determine if the csv file can be automatically identified from
+        byte stream
         """
         for input_file in self.input_file_names:
             with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                input_data_obj = Data(byte_string)
-                self.assertEqual(input_data_obj.data_type, 'csv')
+                buffer = BytesIO(fp.read())
+                self.assertTrue(CSVData.is_match(buffer))
         
     def test_auto_file_identification(self):
         """
@@ -207,6 +208,31 @@ class TestCSVDataClass(unittest.TestCase):
                              input_file['delimiter'],
                              input_file["path"])
 
+    def test_specifying_data_type_as_streams(self):
+        """
+        Determine if the csv file can be loaded with manual data_type setting
+        for streams
+        """
+        for input_file in self.input_file_names:
+            with open(input_file['path'], 'rb') as fp:
+                buffer = BytesIO(fp.read())
+                input_data_obj = Data(buffer, data_type='csv')
+                self.assertEqual(input_data_obj.data_type, 'csv')
+                self.assertEqual(input_data_obj.data_type, 'csv', input_file["path"])
+                self.assertEqual(input_data_obj.delimiter,
+                                input_file['delimiter'],
+                                input_file["path"])
+
+            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
+                buffer = StringIO(fp.read())
+                input_data_obj = Data(buffer, data_type='csv')
+                self.assertEqual(input_data_obj.data_type, 'csv')
+                self.assertEqual(input_data_obj.data_type, 'csv', input_file["path"])
+                self.assertEqual(input_data_obj.delimiter,
+                                input_file['delimiter'],
+                                input_file["path"])
+
+
     def test_data_formats(self):
         """
         Test the data format options.
@@ -227,6 +253,45 @@ class TestCSVDataClass(unittest.TestCase):
                 "['dataframe', 'records']"
             )
 
+    def test_data_formats_as_streams(self):
+        """
+        Test the data format options for streams
+        """
+        for input_file in self.input_file_names:
+            with open(input_file['path'], 'rb') as fp:
+                buffer = BytesIO(fp.read())
+                input_data_obj = CSVData(buffer)
+                self.assertEqual(input_data_obj.data_type, 'csv')
+                self.assertIsInstance(input_data_obj.data, pd.DataFrame)
+
+                input_data_obj.data_format = "records"
+                self.assertIsInstance(input_data_obj.data, list)
+
+                with self.assertRaises(ValueError) as exc:
+                    input_data_obj.data_format = "NON_EXISTENT"
+                self.assertEqual(
+                    str(exc.exception),
+                    "The data format must be one of the following: " +
+                    "['dataframe', 'records']"
+                )
+
+            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
+                buffer = StringIO(fp.read())
+                input_data_obj = CSVData(buffer)
+                self.assertEqual(input_data_obj.data_type, 'csv')
+                self.assertIsInstance(input_data_obj.data, pd.DataFrame)
+
+                input_data_obj.data_format = "records"
+                self.assertIsInstance(input_data_obj.data, list)
+
+                with self.assertRaises(ValueError) as exc:
+                    input_data_obj.data_format = "NON_EXISTENT"
+                self.assertEqual(
+                    str(exc.exception),
+                    "The data format must be one of the following: " +
+                    "['dataframe', 'records']"
+                )
+
     def test_reload_data(self):
         """
         Determine if the csv file can be reloaded
@@ -238,6 +303,29 @@ class TestCSVDataClass(unittest.TestCase):
             self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
                              input_file['path'])
             self.assertEqual(input_file['path'], input_data_obj.input_file_path)
+
+    def test_reload_data_as_streams(self):
+        """
+        Determine if the csv file can be reloaded for streams
+        """
+        for input_file in self.input_file_names:
+            with open(input_file['path'], 'rb') as fp:
+                buffer = BytesIO(fp.read())
+                input_data_obj = CSVData(buffer)
+                input_data_obj.reload(buffer)
+                self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
+                self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
+                                input_file['path'])
+                self.assertEqual(buffer, input_data_obj.input_file_path)
+
+            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
+                buffer = StringIO(fp.read())
+                input_data_obj = CSVData(buffer)
+                input_data_obj.reload(buffer)
+                self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
+                self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
+                                input_file['path'])
+                self.assertEqual(buffer, input_data_obj.input_file_path)
 
     def test_allowed_data_formats(self):
         """
@@ -255,6 +343,39 @@ class TestCSVDataClass(unittest.TestCase):
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)
                     self.assertIsInstance(data[0], str)
+
+    def test_allowed_data_formats_as_streams(self):
+        """
+        Determine if the csv file data_formats can be used for streams
+        """
+        for input_file in self.input_file_names:
+            with open(input_file['path'], 'rb') as fp:
+                buffer = BytesIO(fp.read())
+                input_data_obj = CSVData(buffer)
+                for data_format in list(input_data_obj._data_formats.keys()):
+                    input_data_obj.data_format = data_format
+                    self.assertEqual(input_data_obj.data_format, data_format)
+                    data = input_data_obj.data
+                    if data_format == "dataframe":
+                        import pandas as pd
+                        self.assertIsInstance(data, pd.DataFrame)
+                    elif data_format in ["records", "json"]:
+                        self.assertIsInstance(data, list)
+                        self.assertIsInstance(data[0], str)
+
+            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
+                buffer = StringIO(fp.read())
+                input_data_obj = CSVData(buffer)
+                for data_format in list(input_data_obj._data_formats.keys()):
+                    input_data_obj.data_format = data_format
+                    self.assertEqual(input_data_obj.data_format, data_format)
+                    data = input_data_obj.data
+                    if data_format == "dataframe":
+                        import pandas as pd
+                        self.assertIsInstance(data, pd.DataFrame)
+                    elif data_format in ["records", "json"]:
+                        self.assertIsInstance(data, list)
+                        self.assertIsInstance(data[0], str)
 
     def test_set_header(self):
         test_dir = os.path.join(test_root_path, 'data')
@@ -308,6 +429,40 @@ class TestCSVDataClass(unittest.TestCase):
         first_value = csv_data.data.loc[0][0]
         self.assertEqual(1, csv_data.header)
         self.assertEqual('1', first_value)
+
+    def test_set_header_as_streams(self):
+        test_dir = os.path.join(test_root_path, 'data')
+        fp = 'csv/sparse-first-and-last-column-two-headers.txt'
+
+        for filename in [BytesIO(open(os.path.join(test_dir, fp), 'rb').read()),\
+                         StringIO(open(os.path.join(test_dir, fp), 'r').read())]:
+            # set header auto
+            options = dict(header='auto')
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+            self.assertEqual(1, csv_data.header)
+            self.assertEqual('1', first_value)
+
+            # set header None (no header)
+            options = dict(header=None)
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+            self.assertIsNone(csv_data.header)  # should be None
+            self.assertEqual('COUNT', first_value)
+
+            # set header 0
+            options = dict(header=0)
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+            self.assertEqual(0, csv_data.header)
+            self.assertEqual('CONTAR', first_value)
+
+            # set header 1
+            options = dict(header=1)
+            csv_data = CSVData(filename, options=options)
+            first_value = csv_data.data.loc[0][0]
+            self.assertEqual(1, csv_data.header)
+            self.assertEqual('1', first_value)
 
     def test_header_check_files(self):
         """
@@ -396,6 +551,34 @@ class TestCSVDataClass(unittest.TestCase):
             self.assertEqual(input_file['count'],
                              data.length,
                              msg=input_file['path'])
+
+    def test_len_data_as_streams(self):
+        """
+        Validate that length called on CSVData is appropriately determining the
+        length value for streams.
+        """
+
+        for input_file in self.input_file_names:
+
+            with open(input_file['path'], 'rb') as fp:
+                buffer = BytesIO(fp.read())
+                data = CSVData(buffer)
+                self.assertEqual(input_file['count'],
+                                 len(data),
+                                 msg=input_file['path'])
+                self.assertEqual(input_file['count'],
+                                 data.length,
+                                 msg=input_file['path'])
+
+            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
+                buffer = StringIO(fp.read())
+                data = CSVData(buffer)
+                self.assertEqual(input_file['count'],
+                                 len(data),
+                                 msg=input_file['path'])
+                self.assertEqual(input_file['count'],
+                                 data.length,
+                                 msg=input_file['path'])
 
     def test_is_structured(self):
         # Default construction

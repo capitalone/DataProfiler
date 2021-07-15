@@ -1,7 +1,7 @@
 from builtins import next
 import re
 import json
-from io import open, StringIO, BytesIO
+from io import open, StringIO, BytesIO, TextIOWrapper
 from collections import OrderedDict
 import dateutil
 
@@ -272,9 +272,23 @@ def read_csv_df(file_path, delimiter, header, selected_columns=[],
 
     if len(selected_columns) > 0:
         args['usecols'] = selected_columns
+
+    # account for py3.6 requirement for pandas, can remove if >= py3.7
+    is_buf_wrapped = False
+    if isinstance(file_path, BytesIO):
+        # a BytesIO stream has to be wrapped in order to properly be detached
+        # in 3.6 this avoids read_csv wrapping the stream and closing too early
+        file_path = TextIOWrapper(file_path, encoding=encoding)
+        is_buf_wrapped = True
+        
     fo = pd.read_csv(file_path, **args)
     data = fo.read()
+    
+    # if the buffer was wrapped, detach it before returning
+    if is_buf_wrapped:
+        file_path.detach()
     fo.close()
+
     return data
 
 
@@ -560,12 +574,11 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
                 search_query_value = b'\n'
             
             loc, occurance = find_nth_loc(sample_lines,
-                                        search_query=search_query_value,
-                                        n=remaining_lines)
+                                          search_query=search_query_value,
+                                          n=remaining_lines)
 
             # Add sample_lines to data_as_str no more than max_lines
-            if (is_stream_buffer(file_path) and isinstance(sample_lines[:loc],\
-                 bytes)):
+            if isinstance(sample_lines[:loc], bytes):
                 data_as_str += sample_lines[:loc].decode(file_encoding)
             else:
                 data_as_str += sample_lines[:loc]
@@ -576,16 +589,13 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
             
     return data_as_str
 
+
 def is_stream_buffer(filepath_or_buffer):
     """
     Determines whether a given argument is a filepath or buffer.
     
     :param filepath_or_buffer: path to the file or buffer 
     :type filepath_or_buffer: str
-    :param encoding: File encoding
-    :type encoding: str
-    :param seek: position to start in buffer
-    :type seek: int
     :return: true if string is a buffer or false if string is a filepath
     :rtype: boolean
     """

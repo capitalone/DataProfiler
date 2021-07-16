@@ -124,3 +124,15 @@ class TestShuffleInChunks(unittest.TestCase):
             "g": [None, 15]
         }
         self.assertDictEqual(expected_diff, utils.find_diff_of_dicts(dict1, dict2))
+
+    def test_get_capacity(self):
+        """
+        Checks to see if the get capacity function is operating appropriately.
+        """
+        self.assertEqual(0, utils.get_capacity([]))
+        self.assertAlmostEqual(3.14712e-05,
+                         utils.get_capacity(["This is test, a Test sentence.!!!"]))
+        self.assertAlmostEqual(3.14712e-05,
+                         utils.get_capacity(["This is test,", " a Test sentence.!!!"]))
+        self.assertAlmostEqual(3.14712e-08,
+            utils.get_capacity(["This is test, a Test sentence.!!!"], unit='G'))

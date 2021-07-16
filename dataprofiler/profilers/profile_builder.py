@@ -884,6 +884,7 @@ class UnstructuredProfiler(BaseProfiler):
 
         # Unstructured specific properties
         self._empty_line_count = 0
+        self.capacity = 0
         self.sample = []
 
         if data is not None:
@@ -910,6 +911,7 @@ class UnstructuredProfiler(BaseProfiler):
         # unstruct specific property merging
         merged_profile._empty_line_count = (
                 self._empty_line_count + other._empty_line_count)
+        merged_profile.capacity = self.capacity + other.capacity
         samples = list(dict.fromkeys(self.sample + other.sample))
         merged_profile.sample = random.sample(list(samples),
                                               min(len(samples), 5))
@@ -931,6 +933,7 @@ class UnstructuredProfiler(BaseProfiler):
         self.total_samples += base_stats["sample_size"]
         self.sample = base_stats["sample"]
         self._empty_line_count += base_stats["empty_line_count"]
+        self.capacity += base_stats["capacity"]
 
     def report(self, report_options=None):
         """
@@ -965,7 +968,8 @@ class UnstructuredProfiler(BaseProfiler):
                 "samples_used": self.total_samples,
                 "empty_line_count": self._empty_line_count,
                 "file_type": self.file_type,
-                "encoding": self.encoding
+                "encoding": self.encoding,
+                "capacity": self.capacity,
             }),
             ("data_stats", OrderedDict()),
         ])
@@ -997,11 +1001,15 @@ class UnstructuredProfiler(BaseProfiler):
         len_data = len(data)
         if not len_data:
             return data, {
-                "sample_size": 0, "empty_line_count": dict(), "sample": [],
+                "sample_size": 0, "empty_line_count": dict(),
+                "sample": [], "capacity": 0
             }
 
         # ensure all data are of type str
         data = data.apply(str)
+
+        # get capacity
+        base_stats = {"capacity": utils.get_capacity(data)}
 
         # Setup sample generator
         sample_ind_generator = utils.shuffle_in_chunks(
@@ -1038,12 +1046,14 @@ class UnstructuredProfiler(BaseProfiler):
         data = data.loc[true_sample_list]
         total_empty = total_sample_size - len(true_sample_list)
 
-        base_stats = {
-            "sample_size": total_sample_size,
-            "empty_line_count": total_empty,
-            "sample": random.sample(list(data.values),
-                                    min(len(data), 5)),
-        }
+        base_stats.update(
+            {
+                "sample_size": total_sample_size,
+                "empty_line_count": total_empty,
+                "sample": random.sample(list(data.values),
+                                        min(len(data), 5)),
+            }
+        )
 
         return data, base_stats
 
@@ -1114,6 +1124,7 @@ class UnstructuredProfiler(BaseProfiler):
             "_samples_per_update": self._samples_per_update,
             "_min_true_samples": self._min_true_samples,
             "_empty_line_count": self._empty_line_count,
+            "capacity": self.capacity,
             "options": self.options,
             "_profile": self.profile
         }

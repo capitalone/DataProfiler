@@ -1399,6 +1399,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profiler._min_true_samples)
         self.assertEqual(0, profiler.total_samples)
         self.assertEqual(0, profiler._empty_line_count)
+        self.assertEqual(0, profiler.capacity)
         self.assertEqual(0.2, profiler._sampling_ratio)
         self.assertEqual(5000, profiler._min_sample_size)
         self.assertEqual([], profiler.sample)
@@ -1416,6 +1417,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(4, profiler.total_samples)
         self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertAlmostEqual(1.43051e-05, profiler.capacity)
         self.assertEqual("<class 'pandas.core.series.Series'>",
                          profiler.file_type)
         self.assertIsNone(profiler.encoding)
@@ -1433,6 +1435,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(4, profiler.total_samples)
         self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertAlmostEqual(1.43051e-05, profiler.capacity)
         self.assertEqual("csv", profiler.file_type)
         self.assertEqual("utf-8", profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
@@ -1455,6 +1458,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler = UnstructuredProfiler(data)
         self.assertEqual(1, profiler.total_samples)
         self.assertEqual(0, profiler._empty_line_count)
+        self.assertAlmostEqual(1.52587e-05, profiler.capacity)
         self.assertEqual("<class 'str'>", profiler.file_type)
         self.assertIsNone(profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
@@ -1464,6 +1468,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler = UnstructuredProfiler(data)
         self.assertEqual(4, profiler.total_samples)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertAlmostEqual(1.43051e-05, profiler.capacity)
         self.assertEqual("<class 'list'>", profiler.file_type)
         self.assertIsNone(profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
@@ -1473,6 +1478,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler = UnstructuredProfiler(data)
         self.assertEqual(4, profiler.total_samples)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertAlmostEqual(1.43051e-05, profiler.capacity)
         self.assertEqual("<class 'pandas.core.frame.DataFrame'>", profiler.file_type)
         self.assertIsNone(profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
@@ -1494,6 +1500,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         merged_profile = profiler1 + profiler2
         self.assertEqual(10, merged_profile.total_samples)
         self.assertEqual(4, merged_profile._empty_line_count)
+        self.assertAlmostEqual(3.81469e-05, merged_profile.capacity)
         # note how sample doesn't include whitespace lines
         self.assertCountEqual(['this', ' is', 'here\n', 'more data', 'is my'],
                               merged_profile.sample)
@@ -1532,11 +1539,13 @@ class TestUnstructuredProfiler(unittest.TestCase):
 
         # note: bc the sample size is 3, only a subset of the data was sampled
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
+        # pop out the capacity to test first
+        self.assertAlmostEqual(2.38418e-05, base_stats.pop('capacity'))
         self.assertDictEqual(
             {
                 'sample': ['more data'],  # bc of subset sampled
                 'sample_size': 3,
-                'empty_line_count': 2
+                'empty_line_count': 2,
             },
             base_stats)
 
@@ -1547,11 +1556,13 @@ class TestUnstructuredProfiler(unittest.TestCase):
 
         # note: bc the sample size is 3, only a subset of the data was sampled
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
+        # pop out the capacity to test first
+        self.assertAlmostEqual(2.38418e-05, base_stats.pop('capacity'))
         self.assertDictEqual(
             {
                 'sample': ['more data', 'here\n', 'a', ' is'],
                 'sample_size': 6,
-                'empty_line_count': 2
+                'empty_line_count': 2,
             },
             base_stats)
 
@@ -1564,6 +1575,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler = UnstructuredProfiler(data1)
         self.assertEqual(4, profiler.total_samples)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertAlmostEqual(1.43051e-05, profiler.capacity)
         # note how sample doesn't include whitespace lines
         self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
 
@@ -1571,6 +1583,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler.update_profile(data2)
         self.assertEqual(10, profiler.total_samples)
         self.assertEqual(4, profiler._empty_line_count)
+        self.assertAlmostEqual(3.81469e-05, profiler.capacity)
         # note how sample doesn't include whitespace lines
         self.assertCountEqual(['here\n', ' is', 'more data'], profiler.sample)
 
@@ -1637,6 +1650,9 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
     def test_empty_line_count(self):
         self.assertEqual(7, self.profiler._empty_line_count)
 
+    def test_get_capacity(self):
+        self.assertAlmostEqual(3.74794e-04, self.profiler.capacity)
+
     def test_text_profiler_results(self):
         # pop out times
         self.assertIsNotNone(
@@ -1692,6 +1708,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             'global_stats': {
                 'samples_used': 16,
                 'empty_line_count': 7,
+                'capacity': 3.74794e-04,
                 'file_type': "<class 'pandas.core.frame.DataFrame'>",
                 'encoding': None},
             'data_stats': {
@@ -1702,6 +1719,9 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
                 }
             }
         }
+        # pop out the capacity to test first
+        self.assertAlmostEqual(expected_report['global_stats'].pop('capacity'),
+                               self.report['global_stats'].pop('capacity'))
         self.assertDictEqual(expected_report, self.report)
 
     def test_add_profilers(self):
@@ -1710,6 +1730,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         self.assertEqual(21, merged_profiler.total_samples)
         self.assertEqual(8, merged_profiler._empty_line_count)
+        self.assertAlmostEqual(4.0245e-04, merged_profiler.capacity)
         self.assertCountEqual(
             ['test\n',
              'extra',
@@ -1766,6 +1787,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         # tests
         self.assertEqual(21, update_profiler.total_samples)
         self.assertEqual(8, update_profiler._empty_line_count)
+        self.assertAlmostEqual(4.0245e-04, update_profiler.capacity)
 
         # Note: different from merge because sample is from last update only
         self.assertCountEqual(

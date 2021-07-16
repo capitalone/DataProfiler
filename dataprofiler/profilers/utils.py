@@ -483,3 +483,18 @@ def find_diff_of_dicts(dict1, dict2):
         diff = "unchanged"
 
     return diff
+
+def get_capacity(data, unit='M'):
+    """
+    Get size (capacity) of the input data
+
+    :param data: list or array of data
+    :type data: Union[list, numpy.array, pandas.DataFrame]
+    :return: capacity of the input data
+    """
+    unit_map = {'B': 0, 'K': 1, 'M': 2, 'G': 3}
+    capacity = 0
+    for sentence in data:
+        capacity += len(sentence.encode('utf-8'))
+    capacity /= 1024.0 ** unit_map[unit]  # Conversion based on unit_map
+    return capacity

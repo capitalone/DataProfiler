@@ -260,6 +260,8 @@ class CategoricalColumn(BaseColumnProfiler):
 
         if self.sample_size == 0:
             return None
+        elif self.sample_size == 1:
+            return 0
         unalike_sum = 0
         for category in self._categories:
             unalike_sum += (self.sample_size - self._categories[category]) * \

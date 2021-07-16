@@ -70,7 +70,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         merged_compiler = compiler1 + compiler2
         self.assertEqual(3, merged_compiler._profiles['test'])
         self.assertEqual('compiler1', merged_compiler.name)
-
     
     def test_diff_primitive_compilers(self):
         # Test different data types

@@ -58,11 +58,12 @@ class StructuredColProfiler(object):
         self._min_true_samples = min_true_samples
         if self._min_true_samples is None:
             self._min_true_samples = 0
-
         self.sample_size = 0
         self.sample = list()
         self.null_count = 0
-        self.null_types = list()
+        self.null_types = None
+        if options:
+            self.null_types = options.null_values
         self.null_types_index = {}
         self._min_id = None
         self._max_id = None
@@ -323,10 +324,10 @@ class StructuredColProfiler(object):
 
     # TODO: flag column name with null values and potentially return row
     #  index number in the error as well
-    @staticmethod
-    def clean_data_and_get_base_stats(df_series, sample_size,
+
+    def clean_data_and_get_base_stats(self, df_series, sample_size,
                                       min_true_samples=None,
-                                      sample_ids=None):
+                                      sample_ids=None, ):
         """
         Identify null characters and return them in a dictionary as well as
         remove any nulls in column.
@@ -354,6 +355,7 @@ class StructuredColProfiler(object):
             "--*": NO_FLAG,
             "__*": NO_FLAG,
         }
+        null_values_and_flags = self.null_types
 
         if min_true_samples is None:
             min_true_samples = 0

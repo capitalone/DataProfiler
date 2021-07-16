@@ -701,6 +701,8 @@ class CategoricalOptions(BaseInspectorOptions):
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
+        :ivar top_k_categories: number of categories to be displayed when called
+        :vartype top_k_categories: [None, int]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
@@ -927,7 +929,7 @@ class TextProfilerOptions(BaseInspectorOptions):
 
 class StructuredOptions(BaseOption):
 
-    def __init__(self):
+    def __init__(self, null_values=None):
         """
         Constructs the StructuredOptions object with default values.
 
@@ -957,12 +959,15 @@ class StructuredOptions(BaseOption):
         self.category = CategoricalOptions()
         self.data_labeler = DataLabelerOptions()
         self.correlation = CorrelationOptions()
+        self.null_values = null_values
 
     @property
     def enabled_profiles(self):
         """Returns a list of the enabled profilers for columns."""
         enabled_profiles = list()
-        for key, value in self.properties.items():
+        properties = self.properties
+        properties.pop('null_values')
+        for key, value in properties.items():
             if value.is_enabled:
                 enabled_profiles.append(key)
         return enabled_profiles
@@ -992,8 +997,9 @@ class StructuredOptions(BaseOption):
             ('data_labeler', DataLabelerOptions),
             ('correlation', CorrelationOptions)
         ])
-
-        for column in self.properties:
+        properties = self.properties
+        properties.pop('null_values')
+        for column in (properties):
             if not isinstance(self.properties[column], prop_check[column]):
                 errors.append("{}.{} must be a(n) {}.".format(
                     variable_path, column, prop_check[column].__name__))
@@ -1001,6 +1007,17 @@ class StructuredOptions(BaseOption):
                 errors += self.properties[column]._validate_helper(
                     variable_path=(variable_path + '.' + column
                                    if variable_path else column))
+
+        #WIP
+        reskey = False
+        resvalue = False
+        if isinstance(self.null_values, dict):
+            reskey = all(isinstance(x, str) for x in self.null_values)
+            resvalue = all(isinstance(x,(int,float)) for x in self.null_values.values())
+
+        if self.null_values is not None and (not isinstance(self.null_values, dict) or not (reskey and resvalue)):
+            errors.append("{}.top_k_categories must be either None"
+                          " or a dictionary with keys ".format(variable_path))
         return errors
 
 

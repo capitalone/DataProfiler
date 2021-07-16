@@ -1431,7 +1431,7 @@ class StructuredProfiler(BaseProfiler):
             self.row_has_null_count = len(null_in_row_count)
             self.row_is_null_count = len(null_rows)
 
-    def _get_correlation(self, clean_samples):
+    def _get_correlation(self, clean_samples, batch_properties):
         """
         Calculate correlation matrix on the cleaned data.
 
@@ -1442,8 +1442,7 @@ class StructuredProfiler(BaseProfiler):
         clean_column_ids = []
         if columns is None:
             for idx in range(len(self._profile)):
-                if (self._profile[idx].profile['data_type'] not in ['int', 'float']
-                        or self._profile[idx].null_count > 0):
+                if self._profile[idx].profile['data_type'] not in ['int', 'float']:
                     clean_samples.pop(idx)
                 else:
                     clean_column_ids.append(idx)
@@ -1456,8 +1455,24 @@ class StructuredProfiler(BaseProfiler):
         corr_mat = np.full((n_cols, n_cols), np.nan)
 
         # then, fill in the correlations for valid columns
-        rows = [[id] for id in clean_column_ids]
-        corr_mat[rows, clean_column_ids] = np.corrcoef(data, rowvar=False)
+        for i in range(len(clean_column_ids)):
+            for j in range(i, len(clean_column_ids)):
+                id1 = clean_column_ids[i]
+                id2 = clean_column_ids[j]
+                if id1 == id2:
+                    corr_mat[id1][id2] = 1
+                    corr_mat[id1][id2] = 1
+                    continue
+
+                mean1 = batch_properties['mean'][id1]
+                mean2 = batch_properties['mean'][id2]
+                std1 = batch_properties['std'][id1]
+                std2 = batch_properties['std'][id2]
+                corr = utils.get_pairwise_corr(data.loc[:, id1], data.loc[:, id2],
+                                               mean1, mean2, std1, std2)
+                corr_mat[id1][id2] = corr
+                corr_mat[id2][id1] = corr
+
         return corr_mat
 
     def _update_correlation(self, clean_samples, prev_dependent_properties):
@@ -1467,17 +1482,14 @@ class StructuredProfiler(BaseProfiler):
         :param clean_samples: the input cleaned dataset
         :type clean_samples: dict()
         """
-        batch_corr = self._get_correlation(clean_samples)
-        batch_samples = np.nan
-        if len(clean_samples) > 0:
-            batch_samples = len(list(clean_samples.values())[0])
         batch_properties = self._get_correlation_dependent_properties(clean_samples)
+        batch_corr = self._get_correlation(clean_samples, batch_properties)
 
         self.correlation_matrix = self._merge_correlation_helper(
             self.correlation_matrix, prev_dependent_properties["mean"],
             prev_dependent_properties["std"], self.total_samples,
             batch_corr, batch_properties["mean"],
-            batch_properties["std"], batch_samples)
+            batch_properties["std"], batch_properties['count'])
 
     def _merge_correlation(self, other):
         """
@@ -1538,11 +1550,12 @@ class StructuredProfiler(BaseProfiler):
         """
         dependent_properties = {
             'mean': np.full(len(self._profile), np.nan),
-            'std': np.full(len(self._profile), np.nan)
+            'std': np.full(len(self._profile), np.nan),
+            'count': np.nan
         }
         for id in range(len(self._profile)):
-
-            data_type_compiler = self._profile[id].profiles["data_type_profile"]
+            compiler = self._profile[id]
+            data_type_compiler = compiler.profiles["data_type_profile"]
             data_type = data_type_compiler.selected_data_type
             if data_type in ["int", "float"]:
                 data_type_profiler = data_type_compiler._profiles[data_type]
@@ -1550,13 +1563,17 @@ class StructuredProfiler(BaseProfiler):
                     n = data_type_profiler.match_count
                     dependent_properties['mean'][id] = data_type_profiler.mean
                     dependent_properties['std'][id] = \
-                        np.sqrt(data_type_profiler._biased_variance * n / (n - 1))
+                        np.sqrt(data_type_profiler._biased_variance * n / (self.total_samples - 1))
+                    dependent_properties['count'] = self.total_samples
                 elif id in batch.keys():
                     history = data_type_profiler._batch_history[-1]
                     n = history['match_count']
+                    # Since we impute values, we want the total rows (including nulls)
+                    total = n + compiler.null_count
                     dependent_properties['mean'][id] = history['mean']
                     dependent_properties['std'][id] = \
-                        np.sqrt(history['biased_variance'] * n / (n - 1))
+                        np.sqrt(history['biased_variance'] * n / (total - 1))
+                    dependent_properties['count'] = total
 
         return dependent_properties
 

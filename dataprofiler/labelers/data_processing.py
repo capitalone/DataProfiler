@@ -1438,7 +1438,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
             column_labels, sentence = label_sentences
 
             # get count of all labels in prediction
-            column_label_counter = Counter(column_labels[:len(sentence)])
+            column_label_counter = Counter(column_labels[:len(str(sentence))])
             column_label_counter.pop(ignore_value, None)
             modes = [entity_id for entity_id, count in
                      column_label_counter.most_common() if

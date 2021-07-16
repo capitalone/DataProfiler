@@ -233,6 +233,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         Property for profile. Returns the profile of the column.
         """
         profile = {
+            "data_label": self.data_label,
             "avg_predictions": self.avg_predictions,
             "data_label_representation": self.label_representation,
             "times": self.times

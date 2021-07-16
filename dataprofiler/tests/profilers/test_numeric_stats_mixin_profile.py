@@ -524,6 +524,8 @@ class TestNumericStatsMixin(unittest.TestCase):
                 1: 3.0,
                 2: 4.0,
             },
+            num_zeros=0, # default
+            num_negatives=0, # default
             times=defaultdict(float), # default
         )
 

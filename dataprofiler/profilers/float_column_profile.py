@@ -134,8 +134,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile = NumericStatsMixin.profile(self)
         profile.update(
             dict(
-                num_zeros=self.np_type_to_type(self.num_zeros),
-                num_negatives=self.np_type_to_type(self.num_negatives),
                 precision=dict(
                     min=self.np_type_to_type(self.precision['min']),
                     max=self.np_type_to_type(self.precision['max']),

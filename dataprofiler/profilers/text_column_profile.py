@@ -65,6 +65,8 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return:
         """
         profile = NumericStatsMixin.profile(self)
+        profile.pop('num_zeros')
+        profile.pop('num_negatives')
         profile.update(dict(vocab=self.vocab))
         return profile
 

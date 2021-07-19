@@ -132,7 +132,7 @@ The format for an unstructured profile is below:
     "empty_line_count": int,
     "file_type": string,
     "encoding": string,
-    "memory_size": int,
+    "memory_size": float, # in MB
 },
 "data_stats": {
     "data_label": {

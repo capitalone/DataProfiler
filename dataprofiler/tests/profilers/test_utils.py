@@ -129,6 +129,12 @@ class TestShuffleInChunks(unittest.TestCase):
         """
         Checks to see if the get capacity function is operating appropriately.
         """
+        # wrong unit input
+        with self.assertRaisesRegex(ValueError,
+                "Currently only supports the capacity unit in \[B, K, M, G\]"):
+            utils.get_capacity([], unit="wrong_unit")
+
+        # test with different data sizes
         self.assertEqual(0, utils.get_capacity([]))
         self.assertAlmostEqual(3.14712e-05,
                          utils.get_capacity(["This is test, a Test sentence.!!!"]))

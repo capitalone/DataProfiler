@@ -356,6 +356,7 @@ def biased_kurt(df_series):
     kurt = n * M4 / M2 ** 2 - 3
     return kurt
 
+
 def find_diff_of_numbers(stat1, stat2):
     """
     Finds the difference between two stats. If there is no difference, returns
@@ -452,6 +453,7 @@ def find_diff_of_dates(stat1, stat2):
 
     return "-" + str(abs(diff))
 
+
 def find_diff_of_dicts(dict1, dict2):
     """
     Finds the difference between two dicts. For each key in each dict,
@@ -489,6 +491,27 @@ def find_diff_of_dicts(dict1, dict2):
         diff = "unchanged"
 
     return diff
+
+
+def get_memory_size(data, unit='M'):
+    """
+    Get memory size of the input data
+
+    :param data: list or array of data
+    :type data: Union[list, numpy.array, pandas.DataFrame]
+    :param unit: memory size unit (B, K, M, or G)
+    :type unit: string
+    :return: memory size of the input data
+    """
+    unit_map = collections.defaultdict(B=0, K=1, M=2, G=3)
+    if unit not in unit_map:
+        raise ValueError('Currently only supports the '
+                         'memory size unit in {}'.format(list(unit_map.keys())))
+    memory_size = 0
+    for sentence in data:
+        memory_size += len(sentence.encode('utf-8'))
+    memory_size /= 1024.0 ** unit_map[unit]  # Conversion based on unit_map
+    return memory_size
 
 
 def method_timeit(method=None, name=None):

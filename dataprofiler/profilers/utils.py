@@ -507,7 +507,7 @@ def get_memory_size(data, unit='M'):
     if unit not in unit_map:
         raise ValueError('Currently only supports the '
                          'memory size unit in {}'.format(list(unit_map.keys())))
-        memory_size = 0
+    memory_size = 0
     for sentence in data:
         memory_size += len(sentence.encode('utf-8'))
         memory_size /= 1024.0 ** unit_map[unit]  # Conversion based on unit_map

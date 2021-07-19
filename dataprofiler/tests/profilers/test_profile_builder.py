@@ -1583,7 +1583,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler.update_profile(data2)
         self.assertEqual(10, profiler.total_samples)
         self.assertEqual(4, profiler._empty_line_count)
-        self.assertEqual(66 / 1024 ** 2, profiler.capacity)
+        self.assertEqual(40 / 1024 ** 2, profiler.capacity)
         # note how sample doesn't include whitespace lines
         self.assertCountEqual(['here\n', ' is', 'more data'], profiler.sample)
 

@@ -494,10 +494,10 @@ def get_capacity(data, unit='M'):
     :type unit: string
     :return: capacity of the input data
     """
-    unit_map = {'B': 0, 'K': 1, 'M': 2, 'G': 3}
+    unit_map = collections.defaultdict(B=0, K=1, M=2, G=3)
     if unit not in unit_map:
         raise ValueError('Currently only supports the '
-                         'capacity unit in [B, K, M, G]')
+                         'capacity unit in {}'.format(list(unit_map.keys())))
     capacity = 0
     for sentence in data:
         capacity += len(sentence.encode('utf-8'))

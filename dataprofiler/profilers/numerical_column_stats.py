@@ -247,6 +247,29 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if "num_negatives" in self.__calculations.keys():
             self.num_negatives = other1.num_negatives + other2.num_negatives
 
+    def profile(self):
+        """
+        Property for profile. Returns the profile of the column.
+        :return:
+        """
+        profile = dict(
+            min=self.np_type_to_type(self.min),
+            max=self.np_type_to_type(self.max),
+            sum=self.np_type_to_type(self.sum),
+            mean=self.np_type_to_type(self.mean),
+            variance=self.np_type_to_type(self.variance),
+            stddev=self.np_type_to_type(self.stddev),
+            skewness=self.np_type_to_type(self.skewness),
+            kurtosis=self.np_type_to_type(self.kurtosis),
+            histogram=self._get_best_histogram_for_profile(),
+            quantiles=self.quantiles,
+            num_zeros=self.np_type_to_type(self.num_zeros),
+            num_negatives=self.np_type_to_type(self.num_negatives),
+            times=self.times,
+        )
+
+        return profile
+
     def diff(self, other_profile, options=None):
         """
         Finds the differences for several numerical stats.

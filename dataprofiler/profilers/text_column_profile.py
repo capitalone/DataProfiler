@@ -64,21 +64,12 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         
         :return:
         """
-
-        profile = dict(
-            min=self.min,
-            max=self.max,
-            sum=self.sum,
-            mean=self.mean,
-            variance=self.variance,
-            stddev=self.stddev,
-            skewness=self.skewness,
-            kurtosis=self.kurtosis,
-            histogram=self._get_best_histogram_for_profile(),
-            quantiles=self.quantiles,
-            vocab=self.vocab,
-            times=self.times
-        )
+        profile = NumericStatsMixin.profile(self)
+        # remove num_zeros and num_negative updated from numeric profile
+        profile.pop('num_zeros')
+        profile.pop('num_negatives')
+        # and add the vocab update for text profile
+        profile.update(dict(vocab=self.vocab))
         return profile
 
     def diff(self, other_profile, options=None):

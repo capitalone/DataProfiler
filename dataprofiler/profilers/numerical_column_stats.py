@@ -931,10 +931,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                                      "biased_kurtosis": self._biased_kurtosis}
         subset_properties = copy.deepcopy(profile)
         df_series_clean = df_series_clean.astype(float)
-        super(NumericStatsMixin, self)._perform_property_calcs(self.__calculations,
-                                     df_series=df_series_clean,
-                                     prev_dependent_properties=prev_dependent_properties,
-                                     subset_properties=subset_properties)
+        super(NumericStatsMixin, self)._perform_property_calcs(
+            self.__calculations,
+            df_series=df_series_clean,
+            prev_dependent_properties=prev_dependent_properties,
+            subset_properties=subset_properties)
         if len(self._batch_history) == 5:
             self._batch_history.pop(0)
         self._batch_history.append(subset_properties)

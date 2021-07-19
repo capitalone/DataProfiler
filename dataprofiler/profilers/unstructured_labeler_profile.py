@@ -6,6 +6,7 @@ from ..labelers.data_processing import CharPostprocessor
 from .profiler_options import DataLabelerOptions
 from . import utils
 
+
 class UnstructuredLabelerProfile(object):
 
     type = "data_labeler"
@@ -252,8 +253,10 @@ class UnstructuredLabelerProfile(object):
             index = 0
             for entity in entities:
                 char_label_counts['UNKNOWN'] += (entity[0] - index)
+
                 #Add entity char count
                 char_label_counts[entity[2]] += (entity[1] - entity[0])
+
                 #Update index
                 index = entity[1]
 

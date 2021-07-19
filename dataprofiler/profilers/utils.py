@@ -1,12 +1,15 @@
-import datetime
 import os
+import time
+import datetime
 import collections
 import copy
 import math
 import warnings
 import psutil
-import numpy as np
 import multiprocessing as mp
+import functools
+
+import numpy as np
 
 from dataprofiler import settings
 
@@ -250,6 +253,7 @@ def overlap(x1, x2, y1, y2):
             (x1 <= y1 <= x2) or
             (x1 <= y2 <= x2))
 
+
 def add_nested_dictionaries(first_dict, second_dict):
     """
     Merges two dictionaries together and adds values together
@@ -279,6 +283,7 @@ def add_nested_dictionaries(first_dict, second_dict):
             merged_dict[item] = copy.deepcopy(second_dict[item])
 
     return merged_dict
+
 
 def biased_skew(df_series):
     """
@@ -314,6 +319,7 @@ def biased_skew(df_series):
 
     skew = np.sqrt(n) * M3 / M2 ** 1.5
     return skew
+
 
 def biased_kurt(df_series):
     """
@@ -528,3 +534,33 @@ def find_diff_of_dicts_with_diff_keys(dict1, dict2):
         diff = "unchanged"
 
     return diff
+
+def method_timeit(method=None, name=None):
+    """
+    Measure execution time of provided method
+    Records time into times dictionary
+
+    :param method: method to time
+    :type method: Callable
+    :param name: key argument for the times dictionary
+    :type name: str
+    """
+
+    def decorator(method, name_dec=None):
+        @functools.wraps(method)
+        def wrapper(self, *args, **kw):
+            # necessary bc can't reassign external name
+            name_dec = name
+            if not name_dec:
+                name_dec = method.__name__
+            ts = time.time()
+            result = method(self, *args, **kw)
+            te = time.time()
+            self.times[name_dec] += (te - ts)
+            return result
+
+        return wrapper
+
+    if callable(method):
+        return decorator(method, name_dec=name)
+    return decorator

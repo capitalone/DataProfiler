@@ -237,19 +237,18 @@ class TextProfiler(object):
         diff = {}
 
         diff["vocab"] = utils.find_diff_of_lists_and_sets(
-            list(self.vocab_count.keys()), list(other_profile.vocab_count.keys())
-        )
+            list(self.vocab_count.keys()),
+            list(other_profile.vocab_count.keys()))
 
-        diff["vocab_count"] = utils.find_diff_of_dicts_with_different_keys(
+        diff["vocab_count"] = utils.find_diff_of_dicts_with_diff_keys(
             dict(self.vocab_count.most_common(self._top_k_chars)),
             dict(other_profile.vocab_count.most_common(self._top_k_chars)))
 
         diff["words"] = utils.find_diff_of_lists_and_sets(
             list(self.word_count.keys()),
-            list(other_profile.word_count.keys())
-        )
+            list(other_profile.word_count.keys()))
         
-        diff["word_count"] = utils.find_diff_of_dicts_with_different_keys(
+        diff["word_count"] = utils.find_diff_of_dicts_with_diff_keys(
             dict(self.word_count.most_common(self._top_k_words)),
             dict(other_profile.word_count.most_common(self._top_k_words)))
 

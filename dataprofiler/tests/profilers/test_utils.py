@@ -124,3 +124,19 @@ class TestShuffleInChunks(unittest.TestCase):
             "g": [None, 15]
         }
         self.assertDictEqual(expected_diff, utils.find_diff_of_dicts(dict1, dict2))
+
+    def test_diff_of_dicts_with_diff_keys(self):
+        dict1 = {"unique1": 1, "shared1": 2, "shared2": 3}
+        dict2 = {"unique2": 5, "shared1": 2, "shared2": 6}
+
+        expected = [{'unique1': 1}, 
+                    {'shared1': 'unchanged', 'shared2': -3}, 
+                    {'unique2': 5}]
+        
+        # Assert difference is appropriate
+        self.assertListEqual(expected,
+                         utils.find_diff_of_dicts_with_diff_keys(dict1, dict2))
+
+        # Assert empty dicts are unchanged
+        self.assertEqual("unchanged",
+                         utils.find_diff_of_dicts_with_diff_keys({},{}))

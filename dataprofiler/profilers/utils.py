@@ -484,7 +484,7 @@ def find_diff_of_dicts(dict1, dict2):
 
     return diff
 
-def find_diff_of_dicts_with_different_keys(dict1, dict2):
+def find_diff_of_dicts_with_diff_keys(dict1, dict2):
     """
     Finds the difference between two dicts. For each key in each dict,
     returns "unchanged" if there's no difference, otherwise returns

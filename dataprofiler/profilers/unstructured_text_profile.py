@@ -234,8 +234,21 @@ class TextProfiler(object):
                             "and '{}'".format(cls.__name__,
                                               other_profile.__class__.__name__))
 
-        diff = {}
+        self_words = list(self.word_count.keys())
+        self_word_count = dict(self.word_count.most_common(self._top_k_words))
 
+        other_words = list(other_profile.word_count.keys())
+        other_word_count = dict(other_profile.word_count
+                                .most_common(self._top_k_words))
+        
+        if self._is_case_sensitive and not other_profile._is_case_sensitive:
+            self_words = [each_string.lower() for each_string in self_words]
+            self_word_count = {k.lower(): v for k, v in self_word_count.items()}
+        if not self._is_case_sensitive and other_profile._is_case_sensitive:
+            other_words = [each_string.lower() for each_string in other_words]
+            other_word_count = {k.lower(): v for k, v in other_word_count.items()}
+
+        diff = {}
         diff["vocab"] = utils.find_diff_of_lists_and_sets(
             list(self.vocab_count.keys()),
             list(other_profile.vocab_count.keys()))
@@ -244,13 +257,12 @@ class TextProfiler(object):
             dict(self.vocab_count.most_common(self._top_k_chars)),
             dict(other_profile.vocab_count.most_common(self._top_k_chars)))
 
-        diff["words"] = utils.find_diff_of_lists_and_sets(
-            list(self.word_count.keys()),
-            list(other_profile.word_count.keys()))
+        diff["words"] = utils.find_diff_of_lists_and_sets(self_words,
+                                                          other_words)
         
         diff["word_count"] = utils.find_diff_of_dicts_with_diff_keys(
-            dict(self.word_count.most_common(self._top_k_words)),
-            dict(other_profile.word_count.most_common(self._top_k_words)))
+            self_word_count,
+            other_word_count)
 
         return diff
 

@@ -63,6 +63,14 @@ class TestStructuredDataLabeler(unittest.TestCase):
         # validate epoch id
         self.assertEqual(2, default.model._epoch_id)
 
+    def test_labeling_mixed_df(self):
+        labeler = dp.labelers.StructuredDataLabeler()
+
+        # test int, float, str, dict
+        data = pd.DataFrame([1, 1.1, 'string', {'random': 3}])
+        predictions = labeler.predict(data)
+        self.assertEqual(4, len(predictions['pred']))
+
     def test_data_labeler_change_labels(self):
         """test changing labels of data labeler with fitting data"""
         # constructing default StructuredDataLabeler()
@@ -390,6 +398,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
         profile2 = dp.StructuredProfiler(data, options=profile_options)
 
         profile1.update_profile(data)
+
 
 if __name__ == '__main__':
     unittest.main()

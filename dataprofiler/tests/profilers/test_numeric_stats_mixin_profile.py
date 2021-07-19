@@ -503,6 +503,64 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertEqual(num_profiler.num_zeros, 0)
         self.assertEqual(num_profiler.num_negatives, 0)
 
+    def test_profile(self):
+        num_profiler = TestColumn()
+
+        mock_profile = dict(
+            min=1.0,
+            max=1.0,
+            sum=1.0,
+            mean=0, # default
+            variance=np.nan, # default
+            skewness=np.nan, # default
+            kurtosis=np.nan, # default
+            stddev=np.nan, # default
+            histogram={
+                'bin_counts': np.array([1, 1, 1]),
+                'bin_edges': np.array([1.0, 2.0, 3.0, 4.0])
+            },
+            quantiles={
+                0: 2.0,
+                1: 3.0,
+                2: 4.0,
+            },
+            num_zeros=0, # default
+            num_negatives=0, # default
+            times=defaultdict(float), # default
+        )
+
+        num_profiler.match_count = 0
+        num_profiler.min = mock_profile['min']
+        num_profiler.max = mock_profile['max']
+        num_profiler.sum = mock_profile['sum']
+        num_profiler.histogram_selection = 'auto'
+        num_profiler.histogram_methods['auto']['histogram'] = \
+            mock_profile['histogram']
+        num_profiler.quantiles = mock_profile['quantiles']
+        num_profiler.times = mock_profile['times']
+
+        time_array = [float(i) for i in range(100, 0, -1)]
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+            # Validate that the times dictionary is empty
+            self.assertEqual(defaultdict(float), num_profiler.times)
+
+            profile = num_profiler.profile()
+            # pop out the histogram and quartiles to test separately from the
+            # rest of the dict as we need comparison with some precision
+            histogram = profile.pop('histogram')
+            expected_histogram = mock_profile.pop('histogram')
+            quartiles = profile.pop('quantiles')
+            expected_quartiles = mock_profile.pop('quantiles')
+
+            self.assertDictEqual(mock_profile, profile)
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
+            self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
+                                  np.round(histogram['bin_edges'], 12))
+            self.assertAlmostEqual(expected_quartiles[0], quartiles[0])
+            self.assertAlmostEqual(expected_quartiles[1], quartiles[1])
+            self.assertAlmostEqual(expected_quartiles[2], quartiles[2])
+
     def test_diff(self):
         """
         Checks _diff_helper() works appropriately.

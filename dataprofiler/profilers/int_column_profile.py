@@ -60,24 +60,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         
         :return:
         """
-        profile = dict(
-            min=self.np_type_to_type(self.min),
-            max=self.np_type_to_type(self.max),
-            sum=self.np_type_to_type(self.sum),
-            mean=self.np_type_to_type(self.mean),
-            variance=self.np_type_to_type(self.variance),
-            stddev=self.np_type_to_type(self.stddev),
-            skewness=self.np_type_to_type(self.skewness),
-            kurtosis=self.np_type_to_type(self.kurtosis),
-            histogram=self._get_best_histogram_for_profile(),
-            num_zeros=self.np_type_to_type(self.num_zeros),
-            num_negatives=self.np_type_to_type(self.num_negatives),
-            quantiles=self.quantiles,
-            times=self.times
-        )
-
-        return profile
-
+        return NumericStatsMixin.profile(self)
 
     @property
     def data_type_ratio(self):

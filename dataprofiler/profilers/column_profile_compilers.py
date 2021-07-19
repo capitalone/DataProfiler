@@ -325,9 +325,37 @@ class ColumnDataLabelerCompiler(BaseCompiler):
         }
         # TODO: Only works for last profiler. Abstracted for now.
         for _, profiler in self._profiles.items():
-            profile["data_label"] = profiler.data_label
-            profile["statistics"].update(profiler.profile)
+            col_profile = profiler.profile
+            profile["data_label"] = col_profile.pop("data_label")
+            profile["statistics"].update(col_profile)
         return profile
+    
+    def diff(self, other, options=None):
+        """
+        Finds the difference between 2 compilers and returns the report
+
+        :param other: profile compiler finding the difference with this one.
+        :type other: ColumnDataLabelerCompiler
+        :param options: options to change results of the difference
+        :type options: dict
+        :return: difference of the profiles
+        :rtype: dict
+        """
+        # Call super for compiler instance check
+        diff_profile = super().diff(other, options)
+        diff_profile["statistics"] = dict()
+
+        # Iterate through profile(s)
+        all_profiles = set(self._profiles.keys()) & set(other._profiles.keys())
+        for key in all_profiles:
+            diff = self._profiles[key].diff(other._profiles[key], options)
+            diff_profile["data_label"] = diff.pop("data_label")
+            diff_profile["statistics"].update(diff)
+
+        if not diff_profile["statistics"]:
+            diff_profile.pop("statistics")
+        
+        return diff_profile
 
 
 class UnstructuredCompiler(BaseCompiler):

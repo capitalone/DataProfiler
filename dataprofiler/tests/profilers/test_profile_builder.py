@@ -370,6 +370,39 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal(expected_corr_mat,
                                              profiler.correlation_matrix)
 
+        # Data with null rows
+        data = pd.DataFrame({'a': [np.nan, 2, 1, np.nan, 5, np.nan, 4, 10, 7, np.nan],
+                             'b': [np.nan, 11, 1, np.nan, 2, np.nan, 6, 3, 9, np.nan],
+                             'c': [np.nan, 5, 3, np.nan, 7, np.nan, 6, 8, 1, np.nan]})
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+
+        # correlation between [2, 1, 5, 4, 10, 7],
+        #                     [11, 1, 2, 6, 3, 9],
+        #                     [5, 3, 7, 6, 8, 1]
+        expected_corr_mat = np.array([
+            [1, -0.06987956, 0.32423975],
+            [-0.06987956, 1, -0.3613099],
+            [0.32423975, -0.3613099, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profiler.correlation_matrix)
+
+        # Data with null rows and some imputed values
+        data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, np.nan, 2],
+                             'b': [10, 11, 1, 4, 2, 5, np.nan, 3, np.nan, 8],
+                             'c': [1, 5, 3, 5, np.nan, 2, 6, 8, np.nan, 2]})
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        # correlation between [*38/7*, *38/7*, 1, 7, 5, 9, 4, 10, 2],
+        #                     [10, 11, 1, 4, 2, 5, *11/2*, 3, 8],
+        #                     [1, 5, 3, 5, *4*, 2, 6, 8, 2]
+        expected_corr_mat = np.array([
+            [1, -0.03283837,  0.40038038],
+            [-0.03283837, 1, -0.30346637],
+            [0.40038038, -0.30346637, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profiler.correlation_matrix)
+
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnDataLabelerCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
@@ -415,6 +448,24 @@ class TestStructuredProfiler(unittest.TestCase):
         ])
         np.testing.assert_array_almost_equal(expected_corr_mat,
                                       merged_profile.correlation_matrix)
+
+        # Merge between existing data and empty data that still has samples
+        data = pd.DataFrame({'a': [1, 2, 4, np.nan, np.nan, np.nan],
+                             'b': [5, 7, 1, np.nan, np.nan, np.nan]})
+        data1 = data[:3]
+        data2 = data[3:]
+
+        profile1 = dp.StructuredProfiler(data1, options=profile_options)
+        expected_corr_mat = np.array([
+            [1, -0.78571429],
+            [-0.78571429,  1]
+        ])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profile1.correlation_matrix)
+        profile2 = dp.StructuredProfiler(data2, options=profile_options)
+        merged_profile = profile1 + profile2
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             merged_profile.correlation_matrix)
 
     def test_correlation_update(self):
         profile_options = dp.ProfilerOptions()
@@ -473,6 +524,44 @@ class TestStructuredProfiler(unittest.TestCase):
             [np.nan, np.nan, np.nan, np.nan],
             [-0.09383408, -0.49072329, np.nan, 1]]
         )
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profile.correlation_matrix)
+
+        # Data with null rows
+        data = pd.DataFrame({'a': [np.nan, 2, 1, np.nan, 5, np.nan, 4, 10, 7, np.nan],
+                             'b': [np.nan, 11, 1, np.nan, 2, np.nan, 6, 3, 9, np.nan],
+                             'c': [np.nan, 5, 3, np.nan, 7, np.nan, 6, 8, 1, np.nan]})
+        data1 = data[:5]
+        data2 = data[5:]
+        profile = dp.StructuredProfiler(data1, options=profile_options)
+        profile.update_profile(data2)
+        # correlation between [2, 1, 5, 4, 10, 7],
+        #                     [11, 1, 2, 6, 3, 9],
+        #                     [5, 3, 7, 6, 8, 1]
+        expected_corr_mat = np.array([
+            [1, -0.06987956, 0.32423975],
+            [-0.06987956, 1, -0.3613099],
+            [0.32423975, -0.3613099, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_corr_mat,
+                                             profile.correlation_matrix)
+
+        # Data with null rows and some imputed values
+        data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, np.nan, 2],
+                             'b': [10, 11, 1, 4, 2, 5, np.nan, 3, np.nan, 8],
+                             'c': [1, 5, 3, 5, np.nan, 2, 6, 8, np.nan, 2]})
+        data1 = data[:5]
+        data2 = data[5:]
+        profile = dp.StructuredProfiler(data1, options=profile_options)
+        profile.update_profile(data2)
+        # correlation between [*13/3*, *13/3*, 1, 7, 5, 9, 4, 10, 2],
+        #                     [10, 11, 1, 4, 2, 5, *16/3*, 3, 8],
+        #                     [1, 5, 3, 5, *7/2*, 2, 6, 8, 2]
+        expected_corr_mat = np.array([
+            [1, -0.16079606,  0.43658332],
+            [-0.16079606, 1, -0.2801748],
+            [0.43658332, -0.2801748, 1]
+        ])
         np.testing.assert_array_almost_equal(expected_corr_mat,
                                              profile.correlation_matrix)
 

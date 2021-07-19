@@ -1447,8 +1447,9 @@ class StructuredProfiler(BaseProfiler):
                 else:
                     clean_column_ids.append(idx)
 
-        data = pd.DataFrame(clean_samples)
-        data = data.apply(pd.to_numeric, errors='coerce')
+        data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors='coerce')
+        means = {index:mean for index, mean in enumerate(batch_properties['mean'])}
+        data = data.fillna(value=means)
 
         # fill correlation matrix with nan initially
         n_cols = len(self._profile)
@@ -1464,12 +1465,15 @@ class StructuredProfiler(BaseProfiler):
                     corr_mat[id1][id2] = 1
                     continue
 
-                mean1 = batch_properties['mean'][id1]
-                mean2 = batch_properties['mean'][id2]
+                col1 = data.loc[:, id1]
+                col2 = data.loc[:, id2]
                 std1 = batch_properties['std'][id1]
                 std2 = batch_properties['std'][id2]
-                corr = utils.get_pairwise_corr(data.loc[:, id1], data.loc[:, id2],
-                                               mean1, mean2, std1, std2)
+
+                comoment = ((col1 * col2).sum() \
+                            - col1.sum() * col2.sum() / batch_properties['count'])
+                corr = (comoment / (batch_properties['count'] - 1)) / (std1 * std2)
+
                 corr_mat[id1][id2] = corr
                 corr_mat[id2][id1] = corr
 

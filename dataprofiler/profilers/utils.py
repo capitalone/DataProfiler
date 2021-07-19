@@ -483,33 +483,3 @@ def find_diff_of_dicts(dict1, dict2):
         diff = "unchanged"
 
     return diff
-
-def get_pairwise_corr(data1, data2, mean1, mean2, std1, std2):
-    """
-    Computes the pairwise correlation of the data if the mean and
-    unbiased standard deviation of the respective data is known.
-    One-pass calculation.
-
-    :param data1: The first set of data
-    :type data1: pd.Dataframe
-    :param data2: The second set of data
-    :type data2: pd.Dataframe
-    :param mean1: The mean of the first data
-    :type mean1: float
-    :param mean2: The mean of the second set of data
-    :type mean2: float
-    :param std1: The stddev of the first set of data
-    :type std1: float
-    :param std2: The stddev of the second set of data
-    :type std2: float
-    :return: The correlation
-    :rtype: float
-    """
-    covariance = 0
-    for i1, i2 in zip(data1, data2):
-        if (not np.isnan(i1)) and (not np.isnan(i2)):
-            a = i1 - mean1
-            b = i2 - mean2
-            covariance += a * b
-
-    return (covariance / (len(data1.index) - 1)) / (std1 * std2)

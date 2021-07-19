@@ -1,12 +1,15 @@
-import datetime
 import os
+import time
+import datetime
 import collections
 import copy
 import math
 import warnings
 import psutil
-import numpy as np
 import multiprocessing as mp
+import functools
+
+import numpy as np
 
 from dataprofiler import settings
 
@@ -250,6 +253,7 @@ def overlap(x1, x2, y1, y2):
             (x1 <= y1 <= x2) or
             (x1 <= y2 <= x2))
 
+
 def add_nested_dictionaries(first_dict, second_dict):
     """
     Merges two dictionaries together and adds values together
@@ -279,6 +283,7 @@ def add_nested_dictionaries(first_dict, second_dict):
             merged_dict[item] = copy.deepcopy(second_dict[item])
 
     return merged_dict
+
 
 def biased_skew(df_series):
     """
@@ -315,6 +320,7 @@ def biased_skew(df_series):
     skew = np.sqrt(n) * M3 / M2 ** 1.5
     return skew
 
+
 def biased_kurt(df_series):
     """
     Calculates the biased estimator for kurtosis of the given data
@@ -349,6 +355,7 @@ def biased_kurt(df_series):
 
     kurt = n * M4 / M2 ** 2 - 3
     return kurt
+
 
 def find_diff_of_numbers(stat1, stat2):
     """
@@ -446,6 +453,7 @@ def find_diff_of_dates(stat1, stat2):
 
     return "-" + str(abs(diff))
 
+
 def find_diff_of_dicts(dict1, dict2):
     """
     Finds the difference between two dicts. For each key in each dict,
@@ -483,3 +491,101 @@ def find_diff_of_dicts(dict1, dict2):
         diff = "unchanged"
 
     return diff
+
+
+def find_diff_of_dicts_with_diff_keys(dict1, dict2):
+    """
+    Finds the difference between two dicts. For each key in each dict,
+    returns "unchanged" if there's no difference, otherwise returns
+    the difference. Assumes that if the two dictionaries share the
+    same key, their values are the same type.
+
+    :param dict1: the first dict
+    :type dict1: dict
+    :param dict2: the second dict
+    :type dict2: dict
+    :return: Difference in the keys of each dict
+    :rtype: list
+    """
+
+    diff_1 = {}
+    diff_shared = {}
+    diff_2 = {}
+    for key, value1 in dict1.items():
+        if key in dict2:
+            value2 = dict2[key]
+            if isinstance(value1, list):
+                diff_shared[key] = find_diff_of_lists_and_sets(value1, value2)
+            elif isinstance(value1, datetime.datetime):
+                diff_shared[key] = find_diff_of_dates(value1, value2)
+            elif isinstance(value1, str) or isinstance(value1, bool):
+                diff_shared[key] = find_diff_of_strings_and_bools(value1, value2)
+            else:
+                diff_shared[key] = find_diff_of_numbers(value1, value2)
+        else:
+            diff_1[key] = value1
+
+    # Add any keys in dict2 that weren't in dict1
+    for key, value in dict2.items():
+        if key not in dict1:
+            diff_2[key] = value
+
+    diff = [diff_1, diff_shared, diff_2]
+
+    # If both dicts have no keys, it is unchanged
+    if diff == [{}, {}, {}]:
+        diff = "unchanged"
+
+    return diff
+
+
+def get_memory_size(data, unit='M'):
+    """
+    Get memory size of the input data
+
+    :param data: list or array of data
+    :type data: Union[list, numpy.array, pandas.DataFrame]
+    :param unit: memory size unit (B, K, M, or G)
+    :type unit: string
+    :return: memory size of the input data
+    """
+    unit_map = collections.defaultdict(B=0, K=1, M=2, G=3)
+    if unit not in unit_map:
+        raise ValueError('Currently only supports the '
+                         'memory size unit in {}'.format(list(unit_map.keys())))
+    memory_size = 0
+    for sentence in data:
+        memory_size += len(sentence.encode('utf-8'))
+    memory_size /= 1024.0 ** unit_map[unit]  # Conversion based on unit_map
+    return memory_size
+
+
+def method_timeit(method=None, name=None):
+    """
+    Measure execution time of provided method
+    Records time into times dictionary
+
+    :param method: method to time
+    :type method: Callable
+    :param name: key argument for the times dictionary
+    :type name: str
+    """
+
+    def decorator(method, name_dec=None):
+        @functools.wraps(method)
+        def wrapper(self, *args, **kw):
+            # necessary bc can't reassign external name
+            name_dec = name
+            if not name_dec:
+                name_dec = method.__name__
+            ts = time.time()
+            result = method(self, *args, **kw)
+            te = time.time()
+            self.times[name_dec] += (te - ts)
+            return result
+
+        return wrapper
+
+    if callable(method):
+        return decorator(method, name_dec=name)
+    return decorator

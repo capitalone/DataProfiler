@@ -80,25 +80,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :param name: key argument for the times dictionary
         :type name: str
         """
-
-        def decorator(method, name_dec=None):
-            @functools.wraps(method)
-            def wrapper(self, *args, **kw):
-                # necessary bc can't reassign external name
-                name_dec = name
-                if not name_dec:
-                    name_dec = method.__name__
-                ts = time.time()
-                result = method(self, *args, **kw)
-                te = time.time()
-                self.times[name_dec] += (te - ts)
-                return result
-
-            return wrapper
-
-        if callable(method):
-            return decorator(method, name_dec=name)
-        return decorator
+        return utils.method_timeit(method, name)
 
     @staticmethod
     def _filter_properties_w_options(calculations, options):

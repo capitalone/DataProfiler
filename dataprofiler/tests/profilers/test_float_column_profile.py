@@ -876,7 +876,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df)
         self.assertEqual(4, profiler.precision['sample_size'])
 
-        # Trun on precision, set 0.5 sample_size
+        # Turn on precision, set 0.5 sample_size
         options = FloatOptions()
         options.set({"precision.sample_ratio": 0.5})
         profiler = FloatColumn(df.name, options=options)

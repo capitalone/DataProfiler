@@ -1437,6 +1437,9 @@ class StructuredProfiler(BaseProfiler):
 
         :param clean_samples: the input cleaned dataset
         :type clean_samples: dict()
+        :param batch_properties: mean/std/counts of each batch column necessary
+        for correlation computation
+        :type batch_properties: dict()
         """
         columns = self.options.correlation.columns
         clean_column_ids = []

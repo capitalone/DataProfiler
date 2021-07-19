@@ -65,8 +65,10 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return:
         """
         profile = NumericStatsMixin.profile(self)
+        # remove num_zeros and num_negative updated from numeric profile
         profile.pop('num_zeros')
         profile.pop('num_negatives')
+        # and add the vocab update for text profile
         profile.update(dict(vocab=self.vocab))
         return profile
 

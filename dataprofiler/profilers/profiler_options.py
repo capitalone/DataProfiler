@@ -726,7 +726,6 @@ class CategoricalOptions(BaseInspectorOptions):
         return errors
 
 
-
 class CorrelationOptions(BaseInspectorOptions):
 
     def __init__(self, is_enabled=False, columns=None):

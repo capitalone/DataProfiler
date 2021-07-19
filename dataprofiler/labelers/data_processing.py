@@ -1434,11 +1434,11 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         if 'conf' in results:
             confs_out = np.zeros((len(results['pred']), num_labels))
 
-        for i, label_sentences in enumerate(zip(results['pred'], sentences)):
-            column_labels, sentence = label_sentences
+        for i, label_samples in enumerate(zip(results['pred'], sentences)):
+            column_labels, sample = label_samples
 
             # get count of all labels in prediction
-            column_label_counter = Counter(column_labels[:len(sentence)])
+            column_label_counter = Counter(column_labels[:len(str(sample))])
             column_label_counter.pop(ignore_value, None)
             modes = [entity_id for entity_id, count in
                      column_label_counter.most_common() if

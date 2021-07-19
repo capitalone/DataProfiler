@@ -136,6 +136,10 @@ def clean_report(report):
 
 
 def mock_timeit(*args, **kwargs):
+    """
+    Creates a mock for the time.time function that increments the time for
+    every call.
+    """
     def increment_counter():
         counter = 0
         while True:

@@ -125,21 +125,21 @@ class TestShuffleInChunks(unittest.TestCase):
         }
         self.assertDictEqual(expected_diff, utils.find_diff_of_dicts(dict1, dict2))
 
-    def test_get_capacity(self):
+    def test_get_memory_size(self):
         """
-        Checks to see if the get capacity function is operating appropriately.
+        Checks to see if the get memory size function is operating appropriately.
         """
         # wrong unit input
         with self.assertRaisesRegex(ValueError,
                                     "Currently only supports the memory size unit "
                                     "in \['B', 'K', 'M', 'G'\]"):
-            utils.get_capacity([], unit="wrong_unit")
+            utils.get_memory_size([], unit="wrong_unit")
 
         # test with different data sizes
-        self.assertEqual(0, utils.get_capacity([]))
+        self.assertEqual(0, utils.get_memory_size([]))
         self.assertEqual(33 / 1024 ** 2,
-            utils.get_capacity(["This is test, a Test sentence.!!!"]))
+            utils.get_memory_size(["This is test, a Test sentence.!!!"]))
         self.assertEqual(33 / 1024 ** 2,
-            utils.get_capacity(["This is test,", " a Test sentence.!!!"]))
+            utils.get_memory_size(["This is test,", " a Test sentence.!!!"]))
         self.assertEqual(33 / 1024 ** 3,
-            utils.get_capacity(["This is test, a Test sentence.!!!"], unit='G'))
+            utils.get_memory_size(["This is test, a Test sentence.!!!"], unit='G'))

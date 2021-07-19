@@ -1008,8 +1008,8 @@ class UnstructuredProfiler(BaseProfiler):
         # ensure all data are of type str
         data = data.apply(str)
 
-        # get capacity
-        base_stats = {"memory_size": utils.get_capacity(data, unit='M')}
+        # get memory size
+        base_stats = {"memory_size": utils.get_memory_size(data, unit='M')}
 
         # Setup sample generator
         sample_ind_generator = utils.shuffle_in_chunks(

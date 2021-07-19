@@ -1648,7 +1648,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
     def test_empty_line_count(self):
         self.assertEqual(7, self.profiler._empty_line_count)
 
-    def test_get_capacity(self):
+    def test_get_memory_size(self):
         self.assertEqual(393 / 1024 ** 2, self.profiler.memory_size)
 
     def test_text_profiler_results(self):

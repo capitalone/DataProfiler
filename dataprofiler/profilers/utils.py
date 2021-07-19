@@ -484,15 +484,15 @@ def find_diff_of_dicts(dict1, dict2):
 
     return diff
 
-def get_capacity(data, unit='M'):
+def get_memory_size(data, unit='M'):
     """
-    Get size (capacity) of the input data
+    Get memory size of the input data
 
     :param data: list or array of data
     :type data: Union[list, numpy.array, pandas.DataFrame]
-    :param unit: capacity unit (B, K, M, or G)
+    :param unit: memory size unit (B, K, M, or G)
     :type unit: string
-    :return: capacity of the input data
+    :return: memory size of the input data
     """
     unit_map = collections.defaultdict(B=0, K=1, M=2, G=3)
     if unit not in unit_map:

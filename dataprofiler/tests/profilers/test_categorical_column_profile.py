@@ -373,6 +373,16 @@ class TestCategoricalColumn(unittest.TestCase):
         profile.update(df_categorical)
         self.assertEqual(profile.unalikeability, 2*(10 + 15 + 6)/90)
 
+        df_categorical = pd.Series(["a"])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(0, profile.unalikeability)
+
+        df_categorical = pd.Series([])
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+        self.assertEqual(None, profile.unalikeability)
+
     def test_top_k_categories_change(self):
         # Test if top_k_categories is None
         options = CategoricalOptions()

@@ -497,7 +497,7 @@ def get_capacity(data, unit='M'):
     unit_map = collections.defaultdict(B=0, K=1, M=2, G=3)
     if unit not in unit_map:
         raise ValueError('Currently only supports the '
-                         'capacity unit in {}'.format(list(unit_map.keys())))
+                         'memory size unit in {}'.format(list(unit_map.keys())))
     capacity = 0
     for sentence in data:
         capacity += len(sentence.encode('utf-8'))

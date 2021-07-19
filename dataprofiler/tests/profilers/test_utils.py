@@ -131,7 +131,7 @@ class TestShuffleInChunks(unittest.TestCase):
         """
         # wrong unit input
         with self.assertRaisesRegex(ValueError,
-                                    "Currently only supports the capacity unit "
+                                    "Currently only supports the memory size unit "
                                     "in \['B', 'K', 'M', 'G'\]"):
             utils.get_capacity([], unit="wrong_unit")
 

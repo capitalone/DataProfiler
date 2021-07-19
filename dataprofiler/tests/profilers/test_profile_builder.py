@@ -1435,7 +1435,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(4, profiler.total_samples)
         self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
         self.assertEqual(1, profiler._empty_line_count)
-        self.assertEqual(13 / 1024 ** 2, profiler.capacity)
+        self.assertEqual(15 / 1024 ** 2, profiler.capacity)
         self.assertEqual("csv", profiler.file_type)
         self.assertEqual("utf-8", profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
@@ -1500,7 +1500,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         merged_profile = profiler1 + profiler2
         self.assertEqual(10, merged_profile.total_samples)
         self.assertEqual(4, merged_profile._empty_line_count)
-        self.assertEqual(41 / 1024 ** 2, merged_profile.capacity)
+        self.assertEqual(40 / 1024 ** 2, merged_profile.capacity)
         # note how sample doesn't include whitespace lines
         self.assertCountEqual(['this', ' is', 'here\n', 'more data', 'is my'],
                               merged_profile.sample)
@@ -1575,7 +1575,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler = UnstructuredProfiler(data1)
         self.assertEqual(4, profiler.total_samples)
         self.assertEqual(1, profiler._empty_line_count)
-        self.assertEqual(41 / 1024 ** 2, profiler.capacity)
+        self.assertEqual(40 / 1024 ** 2, profiler.capacity)
         # note how sample doesn't include whitespace lines
         self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
 

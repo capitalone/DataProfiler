@@ -1720,8 +1720,8 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             }
         }
         # pop out the capacity to test first
-        self.assertAlmostEqual(expected_report['global_stats'].pop('capacity'),
-                               self.report['global_stats'].pop('capacity'))
+        self.assertEqual(expected_report['global_stats'].pop('capacity'),
+                         self.report['global_stats'].pop('capacity'))
         self.assertDictEqual(expected_report, self.report)
 
     def test_add_profilers(self):
@@ -1730,7 +1730,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         self.assertEqual(21, merged_profiler.total_samples)
         self.assertEqual(8, merged_profiler._empty_line_count)
-        self.assertAlmostEqual(422 / 1024 ** 2, merged_profiler.capacity)
+        self.assertEqual(422 / 1024 ** 2, merged_profiler.capacity)
         self.assertCountEqual(
             ['test\n',
              'extra',
@@ -1787,7 +1787,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         # tests
         self.assertEqual(21, update_profiler.total_samples)
         self.assertEqual(8, update_profiler._empty_line_count)
-        self.assertAlmostEqual(422 / 1024 ** 2, update_profiler.capacity)
+        self.assertEqual(422 / 1024 ** 2, update_profiler.capacity)
 
         # Note: different from merge because sample is from last update only
         self.assertCountEqual(

@@ -137,9 +137,9 @@ class TestShuffleInChunks(unittest.TestCase):
 
         # test with different data sizes
         self.assertEqual(0, utils.get_capacity([]))
-        self.assertAlmostEqual(3.14712e-05,
+        self.assertEqual(33 / 1024 ** 2,
             utils.get_capacity(["This is test, a Test sentence.!!!"]))
-        self.assertAlmostEqual(3.14712e-05,
+        self.assertEqual(33 / 1024 ** 2,
             utils.get_capacity(["This is test,", " a Test sentence.!!!"]))
-        self.assertAlmostEqual(3.14712e-08,
+        self.assertEqual(33 / 1024 ** 3,
             utils.get_capacity(["This is test, a Test sentence.!!!"], unit='G'))

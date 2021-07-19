@@ -1539,13 +1539,12 @@ class TestUnstructuredProfiler(unittest.TestCase):
 
         # note: bc the sample size is 3, only a subset of the data was sampled
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
-        # pop out the capacity to test first
-        self.assertEqual(25 / 1024 ** 2, base_stats.pop('capacity'))
         self.assertDictEqual(
             {
                 'sample': ['more data'],  # bc of subset sampled
                 'sample_size': 3,
                 'empty_line_count': 2,
+                'capacity': 25 / 1024 ** 2
             },
             base_stats)
 
@@ -1556,13 +1555,12 @@ class TestUnstructuredProfiler(unittest.TestCase):
 
         # note: bc the sample size is 3, only a subset of the data was sampled
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
-        # pop out the capacity to test first
-        self.assertEqual(25 / 1024 ** 2, base_stats.pop('capacity'))
         self.assertDictEqual(
             {
                 'sample': ['more data', 'here\n', 'a', ' is'],
                 'sample_size': 6,
                 'empty_line_count': 2,
+                'capacity': 25 / 1024 ** 2
             },
             base_stats)
 
@@ -1719,9 +1717,6 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
                 }
             }
         }
-        # pop out the capacity to test first
-        self.assertEqual(expected_report['global_stats'].pop('capacity'),
-                         self.report['global_stats'].pop('capacity'))
         self.assertDictEqual(expected_report, self.report)
 
     def test_add_profilers(self):

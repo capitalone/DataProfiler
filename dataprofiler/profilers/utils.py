@@ -510,7 +510,7 @@ def get_memory_size(data, unit='M'):
     memory_size = 0
     for sentence in data:
         memory_size += len(sentence.encode('utf-8'))
-        memory_size /= 1024.0 ** unit_map[unit]  # Conversion based on unit_map
+    memory_size /= 1024.0 ** unit_map[unit]  # Conversion based on unit_map
     return memory_size
 
 

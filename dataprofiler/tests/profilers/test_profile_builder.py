@@ -1658,10 +1658,9 @@ class TestUnstructuredProfiler(unittest.TestCase):
         data = pd.Series(['here\n', '\t    ', 'a', ' is', '\n\r', 'more data'])
 
         # needed bc _clean_data_and_get_base_stats is not static
-        class TestProfiler:
-            # for timeit which wraps this func and uses the class
-            times = {'clean_and_base_stats': 0}
-        profiler = TestProfiler()
+        # for timeit which wraps this func and uses the class
+        profiler = mock.Mock(spec=UnstructuredProfiler)
+        profiler.times = {'clean_and_base_stats': 0}
 
         # case when min_true_samples not set and subset of data
         df_series, base_stats = \

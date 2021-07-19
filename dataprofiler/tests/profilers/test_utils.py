@@ -125,7 +125,6 @@ class TestShuffleInChunks(unittest.TestCase):
         }
         self.assertDictEqual(expected_diff, utils.find_diff_of_dicts(dict1, dict2))
 
-<<<<<<< HEAD
     def test_diff_of_dicts_with_diff_keys(self):
         dict1 = {"unique1": 1, "shared1": 2, "shared2": 3}
         dict2 = {"unique2": 5, "shared1": 2, "shared2": 6}

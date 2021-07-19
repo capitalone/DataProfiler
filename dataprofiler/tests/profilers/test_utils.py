@@ -140,3 +140,26 @@ class TestShuffleInChunks(unittest.TestCase):
         # Assert empty dicts are unchanged
         self.assertEqual("unchanged",
                          utils.find_diff_of_dicts_with_diff_keys({},{}))
+        
+        # Assert all edge cases work
+        a = datetime(2021, 6, 28)
+        b = datetime(2021, 6, 27, 1)
+        dict1 = {"unique1": 1, 
+                 "shared1": "Hello", 
+                 "shared2": a, 
+                 "shared3": ["entry1"], 
+                 "shared4": False}
+        dict2 = {"unique2": 5, 
+                 "shared1": "Hi", 
+                 "shared2": b, 
+                 "shared3": ["entry1", "entry2", 3], 
+                 "shared4": True}
+        expected = [{'unique1': 1}, 
+                    {'shared1': ['Hello', 'Hi'], 
+                     'shared2': '+23:00:00', 
+                     'shared3': [[], ['entry1'], ['entry2', 3]], 
+                     'shared4': [False, True]}, 
+                    {'unique2': 5}]
+        self.assertListEqual(expected, 
+                             utils.find_diff_of_dicts_with_diff_keys(dict1, 
+                                                                     dict2))

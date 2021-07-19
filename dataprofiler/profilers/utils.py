@@ -509,7 +509,7 @@ def find_diff_of_dicts_with_diff_keys(dict1, dict2):
                 diff_shared[key] = find_diff_of_lists_and_sets(value1, value2)
             elif isinstance(value1, datetime.datetime):
                 diff_shared[key] = find_diff_of_dates(value1, value2)
-            elif isinstance(value1, str):
+            elif isinstance(value1, str) or isinstance(value1, bool):
                 diff_shared[key] = find_diff_of_strings_and_bools(value1, value2)
             else:
                 diff_shared[key] = find_diff_of_numbers(value1, value2)

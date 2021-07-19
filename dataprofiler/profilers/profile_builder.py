@@ -62,14 +62,26 @@ class StructuredColProfiler(object):
         self.sample = list()
         self.null_count = 0
         self.null_types = None
-        if options:
-            self.null_types = options.null_values
         self.null_types_index = {}
         self._min_id = None
         self._max_id = None
         self._index_shift = None
         self._last_batch_size = None
         self.profiles = {}
+
+        NO_FLAG = 0
+        self._null_values = {
+            "": NO_FLAG,
+            "nan": re.IGNORECASE,
+            "none": re.IGNORECASE,
+            "null": re.IGNORECASE,
+            "  *": NO_FLAG,
+            "--*": NO_FLAG,
+            "__*": NO_FLAG,
+        }
+        if options:
+            if options.null_values is not None:
+                self._null_values = options.null_values
 
         if df_series is not None and len(df_series) > 0:
 
@@ -345,17 +357,6 @@ class StructuredColProfiler(object):
             parameters
         :rtype: pd.Series, dict
         """
-        NO_FLAG = 0
-        null_values_and_flags = {
-            "": NO_FLAG,
-            "nan": re.IGNORECASE,
-            "none": re.IGNORECASE,
-            "null": re.IGNORECASE,
-            "  *": NO_FLAG,
-            "--*": NO_FLAG,
-            "__*": NO_FLAG,
-        }
-        null_values_and_flags = self.null_types
 
         if min_true_samples is None:
             min_true_samples = 0
@@ -399,7 +400,7 @@ class StructuredColProfiler(object):
         na_columns = dict()
         true_sample_list = set()
         total_sample_size = 0
-        query = '|'.join(null_values_and_flags.keys())
+        query = '|'.join(self._null_values.keys())
         regex = f"^(?:{(query)})$"
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)

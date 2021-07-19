@@ -3,6 +3,7 @@
 coding=utf-8
 Specify the options when running the data profiler.
 """
+import re
 import warnings
 import abc
 import copy
@@ -950,6 +951,7 @@ class StructuredOptions(BaseOption):
         :ivar correlation: option set for correlation profiling.
         :vartype correlation: CorrelationOptions
         """
+        # Option variables
         self.multiprocess = BooleanOption()
         self.int = IntOptions()
         self.float = FloatOptions()
@@ -959,12 +961,14 @@ class StructuredOptions(BaseOption):
         self.category = CategoricalOptions()
         self.data_labeler = DataLabelerOptions()
         self.correlation = CorrelationOptions()
+        # Non-Option variables
         self.null_values = null_values
 
     @property
     def enabled_profiles(self):
         """Returns a list of the enabled profilers for columns."""
         enabled_profiles = list()
+        # null_values does not have is_enabled
         properties = self.properties
         properties.pop('null_values')
         for key, value in properties.items():
@@ -1007,17 +1011,27 @@ class StructuredOptions(BaseOption):
                 errors += self.properties[column]._validate_helper(
                     variable_path=(variable_path + '.' + column
                                    if variable_path else column))
-
-        #WIP
-        reskey = False
-        resvalue = False
-        if isinstance(self.null_values, dict):
-            reskey = all(isinstance(x, str) for x in self.null_values)
-            resvalue = all(isinstance(x,(int,float)) for x in self.null_values.values())
-
-        if self.null_values is not None and (not isinstance(self.null_values, dict) or not (reskey and resvalue)):
-            errors.append("{}.top_k_categories must be either None"
-                          " or a dictionary with keys ".format(variable_path))
+        if self.null_values:
+            import re
+            reskey = True
+            resvalue = True
+            if isinstance(self.null_values, dict):
+                for key in self.null_values:
+                    if not isinstance(key, str):
+                        reskey = False
+                        break
+                for value in self.null_values.values():
+                    if not (value == 0 or isinstance(value, re.RegexFlag)):
+                        resvalue = False
+                        break
+            else:
+                reskey = False
+                resvalue = False
+            if reskey == False or resvalue == False:
+                errors.append("{}.null_values must be either None or "
+                              "a dictionary that contains keys of str type "
+                              "and values == 0 or are instances of "
+                              "a re.RegexFlag".format(variable_path))
         return errors
 
 

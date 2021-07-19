@@ -1442,7 +1442,9 @@ class StructuredProfiler(BaseProfiler):
         clean_column_ids = []
         if columns is None:
             for idx in range(len(self._profile)):
-                if self._profile[idx].profile['data_type'] not in ['int', 'float']:
+                data_type = self._profile[idx].\
+                    profiles["data_type_profile"].selected_data_type
+                if data_type not in ["int", "float"]:
                     clean_samples.pop(idx)
                 else:
                     clean_column_ids.append(idx)
@@ -1456,26 +1458,8 @@ class StructuredProfiler(BaseProfiler):
         corr_mat = np.full((n_cols, n_cols), np.nan)
 
         # then, fill in the correlations for valid columns
-        for i in range(len(clean_column_ids)):
-            for j in range(i, len(clean_column_ids)):
-                id1 = clean_column_ids[i]
-                id2 = clean_column_ids[j]
-                if id1 == id2:
-                    corr_mat[id1][id2] = 1
-                    corr_mat[id1][id2] = 1
-                    continue
-
-                col1 = data.loc[:, id1]
-                col2 = data.loc[:, id2]
-                std1 = batch_properties['std'][id1]
-                std2 = batch_properties['std'][id2]
-
-                comoment = ((col1 * col2).sum() \
-                            - col1.sum() * col2.sum() / batch_properties['count'])
-                corr = (comoment / (batch_properties['count'] - 1)) / (std1 * std2)
-
-                corr_mat[id1][id2] = corr
-                corr_mat[id2][id1] = corr
+        rows = [[id] for id in clean_column_ids]
+        corr_mat[rows, clean_column_ids] = np.corrcoef(data, rowvar=False)
 
         return corr_mat
 

@@ -292,9 +292,10 @@ class TestStructuredProfiler(unittest.TestCase):
             ['test1', 1.0],
             [None, None]])
         profiler = dp.StructuredProfiler(data, options=profile_options)
+        # Even the correlation with itself is NaN because the variance is zero
         expected_corr_mat = np.array([
             [np.nan, np.nan],
-            [np.nan, 1]
+            [np.nan, np.nan]
         ])
         np.testing.assert_array_equal(expected_corr_mat,
                                       profiler.correlation_matrix)

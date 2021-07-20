@@ -61,7 +61,7 @@ class StructuredColProfiler(object):
         self.sample_size = 0
         self.sample = list()
         self.null_count = 0
-        self.null_types = None
+        self.null_types = list()
         self.null_types_index = {}
         self._min_id = None
         self._max_id = None

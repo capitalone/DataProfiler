@@ -1010,8 +1010,7 @@ class StructuredOptions(BaseOption):
                 errors += self.properties[column]._validate_helper(
                     variable_path=(variable_path + '.' + column
                                    if variable_path else column))
-        if self.null_values:
-            import re
+        if self.null_values is not None:
             reskey = True
             resvalue = True
             if isinstance(self.null_values, dict):

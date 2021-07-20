@@ -487,6 +487,7 @@ class BaseProfiler(object):
         self._samples_per_update = samples_per_update
         self._min_true_samples = min_true_samples
         self.total_samples = 0
+        self.times = defaultdict(float)
 
         # TODO: allow set via options
         self._sampling_ratio = 0.2
@@ -546,6 +547,9 @@ class BaseProfiler(object):
             merged_profile.file_type = 'multiple files'
 
         merged_profile.total_samples = self.total_samples + other.total_samples
+
+        merged_profile.times = utils.add_nested_dictionaries(self.times,
+                                                             other.times)
 
         return merged_profile
 
@@ -970,15 +974,15 @@ class UnstructuredProfiler(BaseProfiler):
                 "file_type": self.file_type,
                 "encoding": self.encoding,
                 "memory_size": self.memory_size,
+                "times": self.times,
             }),
             ("data_stats", OrderedDict()),
         ])
-
         report["data_stats"] = self._profile.profile
         return _prepare_report(report, output_format, omit_keys)
 
-    @staticmethod
-    def _clean_data_and_get_base_stats(data, sample_size,
+    @utils.method_timeit(name="clean_and_base_stats")
+    def _clean_data_and_get_base_stats(self, data, sample_size,
                                        min_true_samples=None):
         """
         Identify empty rows and return a cleaned version of text data without
@@ -1126,7 +1130,8 @@ class UnstructuredProfiler(BaseProfiler):
             "_empty_line_count": self._empty_line_count,
             "memory_size": self.memory_size,
             "options": self.options,
-            "_profile": self.profile
+            "_profile": self.profile,
+            "times": self.times,
         }
         self._save_helper(filepath, data_dict)
 
@@ -1342,7 +1347,8 @@ class StructuredProfiler(BaseProfiler):
                 "file_type": self.file_type,
                 "encoding": self.encoding,
                 "correlation_matrix": self.correlation_matrix,
-                "profile_schema": defaultdict(list)
+                "profile_schema": defaultdict(list),
+                "times": self.times,
             }),
             ("data_stats", []),
         ])
@@ -1372,6 +1378,7 @@ class StructuredProfiler(BaseProfiler):
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)
 
+    @utils.method_timeit(name='row_stats')
     def _update_row_statistics(self, data, sample_ids=None):
         """
         Iterate over the provided dataset row by row and calculate
@@ -1487,6 +1494,7 @@ class StructuredProfiler(BaseProfiler):
 
         return corr_mat
 
+    @utils.method_timeit(name='correlation')
     def _update_correlation(self, clean_samples, prev_dependent_properties):
         """
         Update correlation matrix for cleaned data.
@@ -1503,6 +1511,7 @@ class StructuredProfiler(BaseProfiler):
             batch_corr, batch_properties["mean"],
             batch_properties["std"], batch_properties['count'])
 
+    @utils.method_timeit(name='correlation')
     def _merge_correlation(self, other):
         """
         Merge correlation matrix from two profiles
@@ -1852,6 +1861,7 @@ class StructuredProfiler(BaseProfiler):
             "options": self.options,
             "_profile": self.profile,
             "_col_name_to_idx": self._col_name_to_idx,
+            "times": self.times,
         }
 
         self._save_helper(filepath, data_dict)

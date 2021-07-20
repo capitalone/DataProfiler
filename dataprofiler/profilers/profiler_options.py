@@ -951,7 +951,7 @@ class StructuredOptions(BaseOption):
         :vartype data_labeler: DataLabelerOptions
         :ivar correlation: option set for correlation profiling.
         :vartype correlation: CorrelationOptions
-        :ivar correlation: option set for correlation profiling.
+        :ivar null_values: option set for defined null values
         :vartype null_values: Union[None, dict[0, str]]
         """
         # Option variables

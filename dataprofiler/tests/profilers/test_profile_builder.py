@@ -547,9 +547,9 @@ class TestStructuredProfiler(unittest.TestCase):
                                              profile.correlation_matrix)
 
         # Data with null rows and some imputed values
-        data = pd.DataFrame({'a': [None, np.nan, 1, 7, 5, 9, 4, 10, np.nan, 2],
-                             'b': [10, 11, 1, 4, 2, 5, 'NaN', 3, np.nan, 8],
-                             'c': [1, 5, 3, 5, np.nan, 2, 6, 8, np.nan, 2]})
+        data = pd.DataFrame({'a': [None, np.nan, 1, 7, 5, 9, 4, 10, 'nan', 2],
+                             'b': [10, 11, 1, 4, 2, 5, 'NaN', 3, None, 8],
+                             'c': [1, 5, 3, 5, np.nan, 2, 6, 8, None, 2]})
         data1 = data[:5]
         data2 = data[5:]
         profile = dp.StructuredProfiler(data1, options=profile_options)
@@ -557,7 +557,7 @@ class TestStructuredProfiler(unittest.TestCase):
         # correlation between [*13/3*, *13/3*, 1, 7, 5]
         #                     [10, 11, 1, 4, 2]
         #                     [1, 5, 3, 5, *7/2*]
-        # then updated with correlation (9th row dropped) btwn
+        # then updated with correlation (9th row dropped) between
         #                     [9, 4, 10, 2],
         #                     [5, *16/3*, 3, 8],
         #                     [2, 6, 8, 2]

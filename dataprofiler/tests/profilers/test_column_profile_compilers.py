@@ -7,7 +7,8 @@ import pandas as pd
 
 from dataprofiler.profilers import column_profile_compilers as \
     col_pro_compilers
-from dataprofiler.profilers.profiler_options import BaseOption, StructuredOptions
+from dataprofiler.profilers.profiler_options import BaseOption,\
+    StructuredOptions, UnstructuredOptions
 
 
 class TestBaseProfileCompilerClass(unittest.TestCase):
@@ -411,8 +412,162 @@ class TestUnstructuredCompiler(unittest.TestCase):
             output_profile['statistics']['vocab'] = \
                 sorted(output_profile['statistics']['vocab'])
 
-        self.maxDiff = None
         self.assertDictEqual(expected_dict, output_profile)
+
+    @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
+                'DataLabeler')
+    @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
+                'CharPostprocessor')
+    def test_compiler_stats_diff(self, *mocks):
+        data1 = pd.Series(['Hello Hello', 'This is a test grant'])
+        data2 = pd.Series(['This is unknown', 'my name grant', '9', '9'])
+
+        # Test normal diff
+        compiler1 = col_pro_compilers.UnstructuredCompiler(data1)
+        compiler2 = col_pro_compilers.UnstructuredCompiler(data2)
+        labeler_1 = compiler1._profiles["data_labeler"]
+        labeler_2 = compiler2._profiles["data_labeler"]
+
+        labeler_1.char_sample_size = 20
+        labeler_1.word_sample_size = 15
+        entity_counts = {
+            'word_level': {
+                'UNKNOWN': 5,
+                'TEST': 5,
+                'UNIQUE1': 5
+            },
+            'true_char_level': {
+                'UNKNOWN': 4,
+                'TEST': 8,
+                'UNIQUE1': 8
+            },
+            'postprocess_char_level': {
+                'UNKNOWN': 5,
+                'TEST': 10,
+                'UNIQUE1': 5
+            }
+        }
+        labeler_1.entity_counts = entity_counts
+        labeler_1.update(pd.Series(["a"]))
+
+
+        labeler_2.char_sample_size = 20
+        labeler_2.word_sample_size = 10
+        entity_counts = {
+            'word_level': {
+                'UNKNOWN': 2,
+                'TEST': 4,
+                'UNIQUE2': 4
+            },
+            'true_char_level': {
+                'UNKNOWN': 8,
+                'TEST': 8,
+                'UNIQUE2': 4
+            },
+            'postprocess_char_level': {
+                'UNKNOWN': 5,
+                'TEST': 10,
+                'UNIQUE2': 5
+            }
+        }
+        labeler_2.entity_counts = entity_counts
+        labeler_2.update(pd.Series(["a"]))
+
+        expected_diff = {
+            'statistics': {
+                'vocab': [['H', 'l'], 
+                          ['e', 'o', ' ', 'T', 'h', 'i', 's', 'a', 't', 'g', 
+                           'r', 'n'], 
+                          ['u', 'k', 'w', 'm', 'y', '9']], 
+                'vocab_count': [{'l': 4, 'H': 2}, 
+                                {' ': 1, 'e': 2, 's': 1, 't': 2, 'o': 1, 
+                                 'i': 'unchanged', 'a': 'unchanged', 
+                                 'T': 'unchanged', 'h': 'unchanged', 
+                                 'g': 'unchanged', 'r': 'unchanged', 'n': -4}, 
+                                {'m': 2, '9': 2, 'u': 1, 'k': 1, 'w': 1, 'y': 1}], 
+                'words': [['Hello', 'test'], ['grant'], ['unknown', 'name', '9']], 
+                'word_count': [{'Hello': 2, 'test': 1}, 
+                               {'grant': 'unchanged'}, 
+                               {'9': 2, 'unknown': 1, 'name': 1}]
+            }, 
+            'data_label': {
+                'entity_counts': {
+                    'word_level': {
+                        'UNKNOWN': 3, 
+                        'TEST': 1, 
+                        'UNIQUE1': [5, None], 
+                        'UNIQUE2': [None, 4]
+                    }, 
+                    'true_char_level': {
+                        'UNKNOWN': -4, 
+                        'TEST': 'unchanged', 
+                        'UNIQUE1': [8, None], 
+                        'UNIQUE2': [None, 4]
+                    }, 
+                    'postprocess_char_level': {
+                        'UNKNOWN': 'unchanged', 
+                        'TEST': 'unchanged', 
+                        'UNIQUE1': [5, None], 
+                        'UNIQUE2': [None, 5]
+                    }
+                }, 
+                'entity_percentages': {
+                    'word_level': {
+                        'UNKNOWN': 0.1333333333333333, 
+                        'TEST': -0.06666666666666671, 
+                        'UNIQUE1': [0.3333333333333333, None], 
+                        'UNIQUE2': [None, 0.4]
+                    }, 
+                    'true_char_level': {
+                        'UNKNOWN': -0.2, 
+                        'TEST': 'unchanged', 
+                        'UNIQUE1': [0.4, None], 
+                        'UNIQUE2': [None, 0.2]
+                    }, 
+                    'postprocess_char_level': {
+                        'UNKNOWN': 'unchanged', 
+                        'TEST': 'unchanged', 
+                        'UNIQUE1': [0.25, None], 
+                        'UNIQUE2': [None, 0.25]
+                    }
+                }
+            }
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        
+        # Test while disabling a column
+        options = UnstructuredOptions()
+        options.data_labeler.is_enabled = False
+        compiler2 = col_pro_compilers.UnstructuredCompiler(data2, options)
+        expected_diff = {
+            'statistics': {
+                'vocab': [['H', 'l'],
+                          ['e', 'o', ' ', 'T', 'h', 'i', 's', 'a', 't', 'g', 
+                           'r', 'n'],
+                          ['u', 'k', 'w', 'm', 'y', '9']],
+                'vocab_count': [{'l': 4, 'H': 2}, 
+                                {' ': 1, 'e': 2, 's': 1, 't': 2, 'o': 1, 
+                                 'i': 'unchanged', 'a': 'unchanged', 
+                                 'T': 'unchanged', 'h': 'unchanged', 
+                                 'g': 'unchanged', 'r': 'unchanged', 'n': -4}, 
+                                {'m': 2, '9': 2, 'u': 1, 'k': 1, 'w': 1, 'y': 1}],
+                'words': [['Hello', 'test'], ['grant'], ['unknown', 'name', '9']],
+                'word_count': [{'Hello': 2, 'test': 1},
+                               {'grant': 'unchanged'},
+                               {'9': 2, 'unknown': 1, 'name': 1}]
+            }
+        }
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        
+        # Test while disabling 2 columns
+        options.text.is_enabled = False
+        compiler2 = col_pro_compilers.UnstructuredCompiler(data2, options)
+        expected_diff = {}
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+
+        # Test while disabling all columns
+        compiler1 = col_pro_compilers.UnstructuredCompiler(data1, options)
+        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
 
 
 if __name__ == '__main__':

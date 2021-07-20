@@ -515,7 +515,7 @@ class TestUnstructuredCompiler(unittest.TestCase):
             }
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-
+        
         # Test while disabling a column
         options = UnstructuredOptions()
         options.data_labeler.is_enabled = False
@@ -549,7 +549,6 @@ class TestUnstructuredCompiler(unittest.TestCase):
         # Test while disabling all columns
         compiler1 = col_pro_compilers.UnstructuredCompiler(data1, options)
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-        
 
 
 if __name__ == '__main__':

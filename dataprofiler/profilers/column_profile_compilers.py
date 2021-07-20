@@ -396,13 +396,12 @@ class UnstructuredCompiler(BaseCompiler):
         # Call super for compiler instance check
         diff_profile = super().diff(other, options)
 
-        # Iterate through profiles
-        all_profiles = set(self._profiles.keys()) & set(other._profiles.keys())
-        for key in all_profiles:
-            diff = self._profiles[key].diff(other._profiles[key], options)
-            if key == UnstructuredLabelerProfile.type:
-                diff_profile["data_label"] = diff
-            elif key == TextProfiler.type:
-                diff_profile["statistics"] = diff
+        if "data_labeler" in self._profiles and "data_labeler" in other._profiles:
+            diff_profile["data_label"] = self._profiles["data_labeler"].\
+                diff(other._profiles["data_labeler"], options)
+
+        if "text" in self._profiles and "text" in other._profiles:
+            diff_profile["statistics"] = self._profiles["text"].\
+                diff(other._profiles["text"], options)
 
         return diff_profile

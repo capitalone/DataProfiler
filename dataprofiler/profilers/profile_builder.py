@@ -1468,14 +1468,14 @@ class StructuredProfiler(BaseProfiler):
         data = data.fillna(value=means)
 
         # Update the counts/std if needed (i.e. if null rows or exist)
-        if (len(data.index) != batch_properties['count']).any():
+        if (len(data) != batch_properties['count']).any():
             adjusted_stds = np.sqrt(
                 batch_properties['std']**2 * (batch_properties['count'] - 1) \
-                / (len(data.index) - 1)
+                / (len(data) - 1)
             )
             batch_properties['std'] = adjusted_stds
         # Set count key to a single number now that everything's been adjusted
-        batch_properties['count'] = len(data.index)
+        batch_properties['count'] = len(data)
 
         # fill correlation matrix with nan initially
         n_cols = len(self._profile)

@@ -933,6 +933,8 @@ class StructuredOptions(BaseOption):
         """
         Constructs the StructuredOptions object with default values.
 
+        :param null_values: null values we input.
+
         :ivar int: option set for int profiling.
         :vartype int: IntOptions
         :ivar float: option set for float profiling.
@@ -949,6 +951,8 @@ class StructuredOptions(BaseOption):
         :vartype data_labeler: DataLabelerOptions
         :ivar correlation: option set for correlation profiling.
         :vartype correlation: CorrelationOptions
+        :ivar correlation: option set for correlation profiling.
+        :vartype null_values: Union[None, dict[0, str]]
         """
         # Option variables
         self.multiprocess = BooleanOption()
@@ -1010,13 +1014,14 @@ class StructuredOptions(BaseOption):
                 errors += self.properties[column]._validate_helper(
                     variable_path=(variable_path + '.' + column
                                    if variable_path else column))
+
         if self.null_values is not None and not (
                 isinstance(self.null_values, dict) and
                 all(isinstance(key, str) and
                     (isinstance(value, re.RegexFlag) or value == 0)
                     for key, value in self.null_values.items())):
             errors.append("{}.null_values must be either None or "
-                          "a dictionary that contains keys of str type "
+                          "a dictionary that contains keys of type str "
                           "and values == 0 or are instances of "
                           "a re.RegexFlag".format(variable_path))
 

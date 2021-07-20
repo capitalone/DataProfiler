@@ -1,7 +1,10 @@
 from dataprofiler.profilers.profiler_options import ProfilerOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_option \
      import TestBaseOption
+
+
 class TestProfilerOptions(TestBaseOption):
+
     option_class = ProfilerOptions
     keys = ["structured_options", "unstructured_options"]
     @classmethod

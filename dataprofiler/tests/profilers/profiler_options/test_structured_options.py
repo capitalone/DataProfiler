@@ -196,7 +196,7 @@ class TestStructuredOptions(TestBaseOption):
         self.assertEqual(expected_error, raised_error)
         option = self.get_options()
         expected_error = ['{}.null_values must be either None or a '
-                          'dictionary that contains keys of str type '
+                          'dictionary that contains keys of type str '
                           'and values == 0 or are instances of '
                           'a re.RegexFlag'.format(optpth)]
         # Test key is not a string

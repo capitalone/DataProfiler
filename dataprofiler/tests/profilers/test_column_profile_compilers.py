@@ -430,28 +430,47 @@ class TestUnstructuredCompiler(unittest.TestCase):
 
         labeler_1.char_sample_size = 20
         labeler_1.word_sample_size = 15
-        labeler_1.entity_counts["postprocess_char_level"]["UNKNOWN"] = 5
-        labeler_1.entity_counts["postprocess_char_level"]["TEST"] = 10
-        labeler_1.entity_counts["postprocess_char_level"]["UNIQUE1"] = 5
-        labeler_1.entity_counts["true_char_level"]["UNKNOWN"] = 4
-        labeler_1.entity_counts["true_char_level"]["TEST"] = 8
-        labeler_1.entity_counts["true_char_level"]["UNIQUE1"] = 8
-        labeler_1.entity_counts["word_level"]["UNKNOWN"] = 5
-        labeler_1.entity_counts["word_level"]["TEST"] = 5
-        labeler_1.entity_counts["word_level"]["UNIQUE1"] = 5
+        entity_counts = {
+            'word_level': {
+                'UNKNOWN': 5,
+                'TEST': 5,
+                'UNIQUE1': 5
+            },
+            'true_char_level': {
+                'UNKNOWN': 4,
+                'TEST': 8,
+                'UNIQUE1': 8
+            },
+            'postprocess_char_level': {
+                'UNKNOWN': 5,
+                'TEST': 10,
+                'UNIQUE1': 5
+            }
+        }
+        labeler_1.entity_counts = entity_counts
         labeler_1.update(pd.Series(["a"]))
+
 
         labeler_2.char_sample_size = 20
         labeler_2.word_sample_size = 10
-        labeler_2.entity_counts["postprocess_char_level"]["UNKNOWN"] = 5
-        labeler_2.entity_counts["postprocess_char_level"]["TEST"] = 10
-        labeler_2.entity_counts["postprocess_char_level"]["UNIQUE2"] = 5
-        labeler_2.entity_counts["true_char_level"]["UNKNOWN"] = 8
-        labeler_2.entity_counts["true_char_level"]["TEST"] = 8
-        labeler_2.entity_counts["true_char_level"]["UNIQUE2"] = 4
-        labeler_2.entity_counts["word_level"]["UNKNOWN"] = 2
-        labeler_2.entity_counts["word_level"]["TEST"] = 4
-        labeler_2.entity_counts["word_level"]["UNIQUE2"] = 4
+        entity_counts = {
+            'word_level': {
+                'UNKNOWN': 2,
+                'TEST': 4,
+                'UNIQUE2': 4
+            },
+            'true_char_level': {
+                'UNKNOWN': 8,
+                'TEST': 8,
+                'UNIQUE2': 4
+            },
+            'postprocess_char_level': {
+                'UNKNOWN': 5,
+                'TEST': 10,
+                'UNIQUE2': 5
+            }
+        }
+        labeler_2.entity_counts = entity_counts
         labeler_2.update(pd.Series(["a"]))
 
         expected_diff = {

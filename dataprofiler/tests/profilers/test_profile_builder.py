@@ -1301,7 +1301,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         # which caused errors
 
         #Tests with default null values set
-        profiler = mock.Mock(spec=StructuredProfiler)
+        profiler = mock.Mock(spec=StructuredColProfiler)
         profiler._null_values = {
             "": 0,
             "nan": re.IGNORECASE,

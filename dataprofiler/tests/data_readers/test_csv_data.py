@@ -178,12 +178,17 @@ class TestCSVDataClass(unittest.TestCase):
         cls.file_or_buf_list = cls.input_file_names + cls.buffer_list
 
         cls.output_file_path = None
-        
+    
+    @classmethod
+    def setUp(self):
+        for buffer in self.buffer_list:
+            buffer['path'].seek(0)
+
     def test_auto_file_identification(self):
         """
         Determine if the csv file can be automatically identified
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             try:
                 self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
@@ -198,7 +203,7 @@ class TestCSVDataClass(unittest.TestCase):
         """
         Determine if the csv file can be loaded with manual data_type setting
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"], data_type='csv')
             self.assertEqual(input_data_obj.data_type, 'csv', input_file["path"])
             self.assertEqual(input_data_obj.delimiter,
@@ -209,7 +214,7 @@ class TestCSVDataClass(unittest.TestCase):
         """
         Test the data format options.
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'csv')
             self.assertIsInstance(input_data_obj.data, pd.DataFrame)
@@ -229,7 +234,7 @@ class TestCSVDataClass(unittest.TestCase):
         """
         Determine if the csv file can be reloaded
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
@@ -241,7 +246,7 @@ class TestCSVDataClass(unittest.TestCase):
         """
         Determine if the csv file data_formats can be used
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             for data_format in list(input_data_obj._data_formats.keys()):
                 input_data_obj.data_format = data_format
@@ -397,7 +402,7 @@ class TestCSVDataClass(unittest.TestCase):
         length value.
         """
 
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             data = Data(input_file["path"])
             self.assertEqual(input_file['count'],
                              len(data),

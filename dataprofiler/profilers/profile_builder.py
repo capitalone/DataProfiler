@@ -487,6 +487,7 @@ class BaseProfiler(object):
         self._samples_per_update = samples_per_update
         self._min_true_samples = min_true_samples
         self.total_samples = 0
+        self.times = defaultdict(float)
 
         # TODO: allow set via options
         self._sampling_ratio = 0.2
@@ -546,6 +547,9 @@ class BaseProfiler(object):
             merged_profile.file_type = 'multiple files'
 
         merged_profile.total_samples = self.total_samples + other.total_samples
+
+        merged_profile.times = utils.add_nested_dictionaries(self.times,
+                                                             other.times)
 
         return merged_profile
 
@@ -970,15 +974,15 @@ class UnstructuredProfiler(BaseProfiler):
                 "file_type": self.file_type,
                 "encoding": self.encoding,
                 "memory_size": self.memory_size,
+                "times": self.times,
             }),
             ("data_stats", OrderedDict()),
         ])
-
         report["data_stats"] = self._profile.profile
         return _prepare_report(report, output_format, omit_keys)
 
-    @staticmethod
-    def _clean_data_and_get_base_stats(data, sample_size,
+    @utils.method_timeit(name="clean_and_base_stats")
+    def _clean_data_and_get_base_stats(self, data, sample_size,
                                        min_true_samples=None):
         """
         Identify empty rows and return a cleaned version of text data without
@@ -1126,7 +1130,8 @@ class UnstructuredProfiler(BaseProfiler):
             "_empty_line_count": self._empty_line_count,
             "memory_size": self.memory_size,
             "options": self.options,
-            "_profile": self.profile
+            "_profile": self.profile,
+            "times": self.times,
         }
         self._save_helper(filepath, data_dict)
 
@@ -1342,7 +1347,8 @@ class StructuredProfiler(BaseProfiler):
                 "file_type": self.file_type,
                 "encoding": self.encoding,
                 "correlation_matrix": self.correlation_matrix,
-                "profile_schema": defaultdict(list)
+                "profile_schema": defaultdict(list),
+                "times": self.times,
             }),
             ("data_stats", []),
         ])
@@ -1372,6 +1378,7 @@ class StructuredProfiler(BaseProfiler):
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)
 
+    @utils.method_timeit(name='row_stats')
     def _update_row_statistics(self, data, sample_ids=None):
         """
         Iterate over the provided dataset row by row and calculate
@@ -1442,25 +1449,40 @@ class StructuredProfiler(BaseProfiler):
             self.row_has_null_count = len(null_in_row_count)
             self.row_is_null_count = len(null_rows)
 
-    def _get_correlation(self, clean_samples):
+    def _get_correlation(self, clean_samples, batch_properties):
         """
         Calculate correlation matrix on the cleaned data.
 
         :param clean_samples: the input cleaned dataset
         :type clean_samples: dict()
+        :param batch_properties: mean/std/counts of each batch column necessary
+        for correlation computation
+        :type batch_properties: dict()
         """
         columns = self.options.correlation.columns
         clean_column_ids = []
         if columns is None:
             for idx in range(len(self._profile)):
-                if (self._profile[idx].profile['data_type'] not in ['int', 'float']
-                        or self._profile[idx].null_count > 0):
+                data_type = self._profile[idx].\
+                    profiles["data_type_profile"].selected_data_type
+                if data_type not in ["int", "float"]:
                     clean_samples.pop(idx)
                 else:
                     clean_column_ids.append(idx)
 
-        data = pd.DataFrame(clean_samples)
-        data = data.apply(pd.to_numeric, errors='coerce')
+        data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors='coerce')
+        means = {index:mean for index, mean in enumerate(batch_properties['mean'])}
+        data = data.fillna(value=means)
+
+        # Update the counts/std if needed (i.e. if null rows or exist)
+        if (len(data) != batch_properties['count']).any():
+            adjusted_stds = np.sqrt(
+                batch_properties['std']**2 * (batch_properties['count'] - 1) \
+                / (len(data) - 1)
+            )
+            batch_properties['std'] = adjusted_stds
+        # Set count key to a single number now that everything's been adjusted
+        batch_properties['count'] = len(data)
 
         # fill correlation matrix with nan initially
         n_cols = len(self._profile)
@@ -1469,8 +1491,10 @@ class StructuredProfiler(BaseProfiler):
         # then, fill in the correlations for valid columns
         rows = [[id] for id in clean_column_ids]
         corr_mat[rows, clean_column_ids] = np.corrcoef(data, rowvar=False)
+
         return corr_mat
 
+    @utils.method_timeit(name='correlation')
     def _update_correlation(self, clean_samples, prev_dependent_properties):
         """
         Update correlation matrix for cleaned data.
@@ -1478,18 +1502,16 @@ class StructuredProfiler(BaseProfiler):
         :param clean_samples: the input cleaned dataset
         :type clean_samples: dict()
         """
-        batch_corr = self._get_correlation(clean_samples)
-        batch_samples = np.nan
-        if len(clean_samples) > 0:
-            batch_samples = len(list(clean_samples.values())[0])
         batch_properties = self._get_correlation_dependent_properties(clean_samples)
+        batch_corr = self._get_correlation(clean_samples, batch_properties)
 
         self.correlation_matrix = self._merge_correlation_helper(
             self.correlation_matrix, prev_dependent_properties["mean"],
-            prev_dependent_properties["std"], self.total_samples,
+            prev_dependent_properties["std"], self.total_samples - self.row_is_null_count,
             batch_corr, batch_properties["mean"],
-            batch_properties["std"], batch_samples)
+            batch_properties["std"], batch_properties['count'])
 
+    @utils.method_timeit(name='correlation')
     def _merge_correlation(self, other):
         """
         Merge correlation matrix from two profiles
@@ -1499,9 +1521,11 @@ class StructuredProfiler(BaseProfiler):
         """
         corr_mat1 = self.correlation_matrix
         corr_mat2 = other.correlation_matrix
-        if self.total_samples == 0:
+        n1 = self.total_samples - self.row_is_null_count
+        n2 = other.total_samples - other.row_is_null_count
+        if n1 == 0:
             return corr_mat2
-        if other.total_samples == 0:
+        if n2 == 0:
             return corr_mat1
 
         if corr_mat1 is None or corr_mat2 is None:
@@ -1522,7 +1546,6 @@ class StructuredProfiler(BaseProfiler):
         std1 = np.array(
             [self._profile[idx].profile['statistics']['stddev']
              for idx in range(len(self._profile)) if idx in col_ids1])
-        n1 = self.total_samples
 
         mean2 = np.array(
             [other._profile[idx].profile['statistics']['mean']
@@ -1530,7 +1553,6 @@ class StructuredProfiler(BaseProfiler):
         std2 = np.array(
             [other._profile[idx].profile['statistics']['stddev']
              for idx in range(len(self._profile)) if idx in col_ids2])
-        n2 = other.total_samples
         return self._merge_correlation_helper(corr_mat1, mean1, std1, n1,
                                               corr_mat2, mean2, std2, n2)
 
@@ -1549,25 +1571,32 @@ class StructuredProfiler(BaseProfiler):
         """
         dependent_properties = {
             'mean': np.full(len(self._profile), np.nan),
-            'std': np.full(len(self._profile), np.nan)
+            'std': np.full(len(self._profile), np.nan),
+            'count': np.full(len(self._profile), np.nan)
         }
         for id in range(len(self._profile)):
-
-            data_type_compiler = self._profile[id].profiles["data_type_profile"]
+            compiler = self._profile[id]
+            data_type_compiler = compiler.profiles["data_type_profile"]
             data_type = data_type_compiler.selected_data_type
             if data_type in ["int", "float"]:
                 data_type_profiler = data_type_compiler._profiles[data_type]
+                # Finding dependent values of previous, existing data
                 if batch is None:
                     n = data_type_profiler.match_count
                     dependent_properties['mean'][id] = data_type_profiler.mean
+                    # Subtract null row count as those aren't included in corr. calc
                     dependent_properties['std'][id] = \
-                        np.sqrt(data_type_profiler._biased_variance * n / (n - 1))
+                        np.sqrt(data_type_profiler._biased_variance * n / (self.total_samples - self.row_is_null_count- 1))
+                    dependent_properties['count'][id] = n
+                # Finding the properties of the batch data if given
                 elif id in batch.keys():
                     history = data_type_profiler._batch_history[-1]
                     n = history['match_count']
+                    # Since we impute values, we want the total rows (including nulls)
                     dependent_properties['mean'][id] = history['mean']
                     dependent_properties['std'][id] = \
                         np.sqrt(history['biased_variance'] * n / (n - 1))
+                    dependent_properties['count'][id] = n
 
         return dependent_properties
 
@@ -1832,6 +1861,7 @@ class StructuredProfiler(BaseProfiler):
             "options": self.options,
             "_profile": self.profile,
             "_col_name_to_idx": self._col_name_to_idx,
+            "times": self.times,
         }
 
         self._save_helper(filepath, data_dict)

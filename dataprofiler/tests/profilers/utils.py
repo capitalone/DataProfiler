@@ -2,6 +2,7 @@ import os
 import shutil
 import random
 import json
+from unittest import mock
 
 import numpy as np
 
@@ -132,3 +133,17 @@ def clean_report(report):
                 stats["histogram"]["bin_edges"] = \
                     stats["histogram"]["bin_edges"].tolist()
     return report
+
+
+def mock_timeit(*args, **kwargs):
+    """
+    Creates a mock for the time.time function that increments the time for
+    every call.
+    """
+    def increment_counter():
+        counter = 0
+        while True:
+            counter += 1
+            yield counter
+    counter = increment_counter()
+    return mock.patch('time.time', side_effect=lambda: next(counter))

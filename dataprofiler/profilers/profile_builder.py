@@ -58,7 +58,6 @@ class StructuredColProfiler(object):
         self._min_true_samples = min_true_samples
         if self._min_true_samples is None:
             self._min_true_samples = 0
-
         self.sample_size = 0
         self.sample = list()
         self.null_count = 0
@@ -69,6 +68,20 @@ class StructuredColProfiler(object):
         self._index_shift = None
         self._last_batch_size = None
         self.profiles = {}
+
+        NO_FLAG = 0
+        self._null_values = {
+            "": NO_FLAG,
+            "nan": re.IGNORECASE,
+            "none": re.IGNORECASE,
+            "null": re.IGNORECASE,
+            "  *": NO_FLAG,
+            "--*": NO_FLAG,
+            "__*": NO_FLAG,
+        }
+        if options:
+            if options.null_values is not None:
+                self._null_values = options.null_values
 
         if df_series is not None and len(df_series) > 0:
 
@@ -323,8 +336,8 @@ class StructuredColProfiler(object):
 
     # TODO: flag column name with null values and potentially return row
     #  index number in the error as well
-    @staticmethod
-    def clean_data_and_get_base_stats(df_series, sample_size,
+
+    def clean_data_and_get_base_stats(self, df_series, sample_size,
                                       min_true_samples=None,
                                       sample_ids=None):
         """
@@ -344,16 +357,6 @@ class StructuredColProfiler(object):
             parameters
         :rtype: pd.Series, dict
         """
-        NO_FLAG = 0
-        null_values_and_flags = {
-            "": NO_FLAG,
-            "nan": re.IGNORECASE,
-            "none": re.IGNORECASE,
-            "null": re.IGNORECASE,
-            "  *": NO_FLAG,
-            "--*": NO_FLAG,
-            "__*": NO_FLAG,
-        }
 
         if min_true_samples is None:
             min_true_samples = 0
@@ -397,7 +400,7 @@ class StructuredColProfiler(object):
         na_columns = dict()
         true_sample_list = set()
         total_sample_size = 0
-        query = '|'.join(null_values_and_flags.keys())
+        query = '|'.join(self._null_values.keys())
         regex = f"^(?:{(query)})$"
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)

@@ -371,9 +371,9 @@ class TestStructuredProfiler(unittest.TestCase):
                                              profiler.correlation_matrix)
 
         # Data with null rows
-        data = pd.DataFrame({'a': [np.nan, 2, 1, np.nan, 5, np.nan, 4, 10, 7, np.nan],
-                             'b': [np.nan, 11, 1, np.nan, 2, np.nan, 6, 3, 9, np.nan],
-                             'c': [np.nan, 5, 3, np.nan, 7, np.nan, 6, 8, 1, np.nan]})
+        data = pd.DataFrame({'a': [None, 2, 1, np.nan, 5, np.nan, 4, 10, 7, np.nan],
+                             'b': [np.nan, 11, 1, 'nan', 2, np.nan, 6, 3, 9, np.nan],
+                             'c': [np.nan, 5, 3, np.nan, 7, np.nan, 6, 8, 1, None]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
 
         # correlation between [2, 1, 5, 4, 10, 7],
@@ -388,7 +388,7 @@ class TestStructuredProfiler(unittest.TestCase):
                                              profiler.correlation_matrix)
 
         # Data with null rows and some imputed values
-        data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, np.nan, 2],
+        data = pd.DataFrame({'a': [None, np.nan, 1, 7, 5, 9, 4, 10, np.nan, 2],
                              'b': [10, 11, 1, 4, 2, 5, np.nan, 3, np.nan, 8],
                              'c': [1, 5, 3, 5, np.nan, 2, 6, 8, np.nan, 2]})
         profiler = dp.StructuredProfiler(data, options=profile_options)
@@ -450,8 +450,8 @@ class TestStructuredProfiler(unittest.TestCase):
                                       merged_profile.correlation_matrix)
 
         # Merge between existing data and empty data that still has samples
-        data = pd.DataFrame({'a': [1, 2, 4, np.nan, np.nan, np.nan],
-                             'b': [5, 7, 1, np.nan, np.nan, np.nan]})
+        data = pd.DataFrame({'a': [1, 2, 4, np.nan, None, np.nan],
+                             'b': [5, 7, 1, np.nan, np.nan, 'nan']})
         data1 = data[:3]
         data2 = data[3:]
 
@@ -527,10 +527,10 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal(expected_corr_mat,
                                              profile.correlation_matrix)
 
-        # Data with null rows
-        data = pd.DataFrame({'a': [np.nan, 2, 1, np.nan, 5, np.nan, 4, 10, 7, np.nan],
+        # Data with null rows, all null rows are dropped
+        data = pd.DataFrame({'a': [np.nan, 2, 1, None, 5, np.nan, 4, 10, 7, 'NaN'],
                              'b': [np.nan, 11, 1, np.nan, 2, np.nan, 6, 3, 9, np.nan],
-                             'c': [np.nan, 5, 3, np.nan, 7, np.nan, 6, 8, 1, np.nan]})
+                             'c': [np.nan, 5, 3, np.nan, 7, None, 6, 8, 1, np.nan]})
         data1 = data[:5]
         data2 = data[5:]
         profile = dp.StructuredProfiler(data1, options=profile_options)
@@ -547,16 +547,20 @@ class TestStructuredProfiler(unittest.TestCase):
                                              profile.correlation_matrix)
 
         # Data with null rows and some imputed values
-        data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, np.nan, 2],
-                             'b': [10, 11, 1, 4, 2, 5, np.nan, 3, np.nan, 8],
+        data = pd.DataFrame({'a': [None, np.nan, 1, 7, 5, 9, 4, 10, np.nan, 2],
+                             'b': [10, 11, 1, 4, 2, 5, 'NaN', 3, np.nan, 8],
                              'c': [1, 5, 3, 5, np.nan, 2, 6, 8, np.nan, 2]})
         data1 = data[:5]
         data2 = data[5:]
         profile = dp.StructuredProfiler(data1, options=profile_options)
         profile.update_profile(data2)
-        # correlation between [*13/3*, *13/3*, 1, 7, 5, 9, 4, 10, 2],
-        #                     [10, 11, 1, 4, 2, 5, *16/3*, 3, 8],
-        #                     [1, 5, 3, 5, *7/2*, 2, 6, 8, 2]
+        # correlation between [*13/3*, *13/3*, 1, 7, 5]
+        #                     [10, 11, 1, 4, 2]
+        #                     [1, 5, 3, 5, *7/2*]
+        # then updated with correlation (9th row dropped) btwn
+        #                     [9, 4, 10, 2],
+        #                     [5, *16/3*, 3, 8],
+        #                     [2, 6, 8, 2]
         expected_corr_mat = np.array([
             [1, -0.16079606,  0.43658332],
             [-0.16079606, 1, -0.2801748],

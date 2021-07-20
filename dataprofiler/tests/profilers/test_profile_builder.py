@@ -324,7 +324,7 @@ class TestStructuredProfiler(unittest.TestCase):
             [0.26594894270403086, -0.49072329, 1.0]
         ])
         np.testing.assert_array_almost_equal(expected_corr_mat,
-                                      profiler.correlation_matrix)
+                                             profiler.correlation_matrix)
 
         # data with multiple numerical columns, with nan values
         data = pd.DataFrame({'a': [np.nan, np.nan, 1, 7, 5, 9, 4, 10, 7, 2],
@@ -337,7 +337,7 @@ class TestStructuredProfiler(unittest.TestCase):
             [0.18626508, -0.52996792, 1]
         ])
         np.testing.assert_array_almost_equal(expected_corr_mat,
-                                      profiler.correlation_matrix)
+                                             profiler.correlation_matrix)
 
         # data with multiple numerical columns, with nan values in only one
         # column
@@ -350,7 +350,7 @@ class TestStructuredProfiler(unittest.TestCase):
             [0.03673504, 1, -0.49072329],
             [0.22844891, -0.49072329, 1]])
         np.testing.assert_array_almost_equal(expected_corr_mat,
-                                      profiler.correlation_matrix)
+                                             profiler.correlation_matrix)
 
         # data with only one numerical columns without nan values
         data = pd.DataFrame({'a': [3, 2, 1, 7, 5, 9, 4, 10, 7, 2]})
@@ -446,7 +446,7 @@ class TestStructuredProfiler(unittest.TestCase):
             [0.26594894270403086, -0.49072329, 1.0]
         ])
         np.testing.assert_array_almost_equal(expected_corr_mat,
-                                   merged_profile.correlation_matrix)
+                                             merged_profile.correlation_matrix)
         self.assertDictEqual({'row_stats': 2, 'correlation': 2},
                              merged_profile.times)
 
@@ -465,7 +465,7 @@ class TestStructuredProfiler(unittest.TestCase):
             [0.26594894270403086, -0.4907239, 1.0]
         ])
         np.testing.assert_array_almost_equal(expected_corr_mat,
-                                      merged_profile.correlation_matrix)
+                                             merged_profile.correlation_matrix)
         self.assertDictEqual({'row_stats': 1, 'correlation': 1},
                              merged_profile.times)
 
@@ -547,7 +547,7 @@ class TestStructuredProfiler(unittest.TestCase):
             [-0.09383408, -0.49072329, np.nan, 1]]
         )
         np.testing.assert_array_almost_equal(expected_corr_mat,
-                                             profile.correlation_matrix)
+                                             profiler.correlation_matrix)
 
         # Data with null rows, all null rows are dropped
         data = pd.DataFrame({'a': [np.nan, 2, 1, None, 5, np.nan, 4, 10, 7, 'NaN'],
@@ -555,8 +555,8 @@ class TestStructuredProfiler(unittest.TestCase):
                              'c': [np.nan, 5, 3, np.nan, 7, None, 6, 8, 1, np.nan]})
         data1 = data[:5]
         data2 = data[5:]
-        profile = dp.StructuredProfiler(data1, options=profile_options)
-        profile.update_profile(data2)
+        profiler = dp.StructuredProfiler(data1, options=profile_options)
+        profiler.update_profile(data2)
         # correlation between [2, 1, 5, 4, 10, 7],
         #                     [11, 1, 2, 6, 3, 9],
         #                     [5, 3, 7, 6, 8, 1]
@@ -574,8 +574,8 @@ class TestStructuredProfiler(unittest.TestCase):
                              'c': [1, 5, 3, 5, np.nan, 2, 6, 8, None, 2]})
         data1 = data[:5]
         data2 = data[5:]
-        profile = dp.StructuredProfiler(data1, options=profile_options)
-        profile.update_profile(data2)
+        profiler = dp.StructuredProfiler(data1, options=profile_options)
+        profiler.update_profile(data2)
         # correlation between [*13/3*, *13/3*, 1, 7, 5]
         #                     [10, 11, 1, 4, 2]
         #                     [1, 5, 3, 5, *7/2*]
@@ -589,7 +589,7 @@ class TestStructuredProfiler(unittest.TestCase):
             [0.43658332, -0.2801748, 1]
         ])
         np.testing.assert_array_almost_equal(expected_corr_mat,
-                                             profile.correlation_matrix)
+                                             profiler.correlation_matrix)
 
     def test_correct_datatime_schema_test(self):
         profile_idx = self.trained_schema._col_name_to_idx["datetime"][0]
@@ -879,7 +879,7 @@ class TestStructuredProfiler(unittest.TestCase):
         )
         with self.assertRaisesRegex(TypeError, 'Cannot provide TextData object'
                                                ' to StructuredProfiler'):
-            profile = dp.StructuredProfiler(dp.Data(text_file_path))
+            profiler = dp.StructuredProfiler(dp.Data(text_file_path))
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._update_correlation')

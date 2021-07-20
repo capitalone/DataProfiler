@@ -328,7 +328,8 @@ class TestCSVDataClass(unittest.TestCase):
             self.assertIn(header_line, input_file['has_header'], input_file['path'])
 
         for input_buf in self.buffer_list:
-            # BytesIO is wrapped to use the isslice function to read it
+            # BytesIO is wrapped so that it is fed into guess header row 
+            # the same way it would internally
             if isinstance(input_buf['path'], BytesIO):
                 input_buf['path'] = TextIOWrapper(input_buf['path'], encoding=input_buf['encoding'])
 

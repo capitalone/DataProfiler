@@ -934,7 +934,7 @@ class StructuredOptions(BaseOption):
         Constructs the StructuredOptions object with default values.
 
         :param null_values: null values we input.
-
+        :vartype null_values: Union[None, dict[0, str]]
         :ivar int: option set for int profiling.
         :vartype int: IntOptions
         :ivar float: option set for float profiling.

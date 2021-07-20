@@ -51,10 +51,11 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             self.assertEqual(None, profiler.avg_predictions)
             six.assertCountEqual(
                 self,
-                ["avg_predictions", "data_label_representation", "times"],
+                ["data_label", "avg_predictions", "data_label_representation", "times"],
                 list(profiler.profile.keys())
             )
             self.assertEqual({
+                    "data_label": None,
                     "avg_predictions": None,
                     "data_label_representation": None,
                     "times": defaultdict()
@@ -140,6 +141,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         profiler = DataLabelerColumn(data.name)
 
         expected_profile = {
+            "data_label": 'a',
             "avg_predictions": dict(a=2/3, b=1/3),
             "data_label_representation": dict(a=2/3, b=1/3),
             "times": defaultdict(float, {'data_labeler_predict': 1.0})
@@ -187,6 +189,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         data2 = pd.Series(['4', '5', '6', '7', '9', '10', '12'])
 
         expected_profile = {
+            "data_label": "a|b",
             "avg_predictions": dict(a=54 / 99, b=45 / 99),
             "data_label_representation": dict(a=54 / 99, b=45 / 99),
             "times": defaultdict(float, {'data_labeler_predict': 2.0})
@@ -229,6 +232,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             # Check adding even more profiles together
             profiler3 = profiler + profiler3
             expected_profile = {
+                "data_label": "a|b",
                 "avg_predictions": dict(a=8 / 15, b=7 / 15),
                 "data_label_representation": dict(a=8 / 15, b=7 / 15),
                 "times": defaultdict(float, {'data_labeler_predict': 3.0})

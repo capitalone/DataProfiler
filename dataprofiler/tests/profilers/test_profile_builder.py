@@ -1399,6 +1399,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(0, profiler._min_true_samples)
         self.assertEqual(0, profiler.total_samples)
         self.assertEqual(0, profiler._empty_line_count)
+        self.assertEqual(0, profiler.memory_size)
         self.assertEqual(0.2, profiler._sampling_ratio)
         self.assertEqual(5000, profiler._min_sample_size)
         self.assertEqual([], profiler.sample)
@@ -1416,6 +1417,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(4, profiler.total_samples)
         self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual(15 / 1024 ** 2, profiler.memory_size)
         self.assertEqual("<class 'pandas.core.series.Series'>",
                          profiler.file_type)
         self.assertIsNone(profiler.encoding)
@@ -1433,6 +1435,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(4, profiler.total_samples)
         self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual(15 / 1024 ** 2, profiler.memory_size)
         self.assertEqual("csv", profiler.file_type)
         self.assertEqual("utf-8", profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
@@ -1455,6 +1458,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler = UnstructuredProfiler(data)
         self.assertEqual(1, profiler.total_samples)
         self.assertEqual(0, profiler._empty_line_count)
+        self.assertEqual(16 / 1024 ** 2, profiler.memory_size)
         self.assertEqual("<class 'str'>", profiler.file_type)
         self.assertIsNone(profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
@@ -1464,6 +1468,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler = UnstructuredProfiler(data)
         self.assertEqual(4, profiler.total_samples)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual(15 / 1024 ** 2, profiler.memory_size)
         self.assertEqual("<class 'list'>", profiler.file_type)
         self.assertIsNone(profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
@@ -1473,6 +1478,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler = UnstructuredProfiler(data)
         self.assertEqual(4, profiler.total_samples)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual(15 / 1024 ** 2, profiler.memory_size)
         self.assertEqual("<class 'pandas.core.frame.DataFrame'>", profiler.file_type)
         self.assertIsNone(profiler.encoding)
         self.assertIsInstance(profiler._profile, UnstructuredCompiler)
@@ -1494,6 +1500,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         merged_profile = profiler1 + profiler2
         self.assertEqual(10, merged_profile.total_samples)
         self.assertEqual(4, merged_profile._empty_line_count)
+        self.assertEqual(40 / 1024 ** 2, merged_profile.memory_size)
         # note how sample doesn't include whitespace lines
         self.assertCountEqual(['this', ' is', 'here\n', 'more data', 'is my'],
                               merged_profile.sample)
@@ -1536,7 +1543,8 @@ class TestUnstructuredProfiler(unittest.TestCase):
             {
                 'sample': ['more data'],  # bc of subset sampled
                 'sample_size': 3,
-                'empty_line_count': 2
+                'empty_line_count': 2,
+                'memory_size': 25 / 1024 ** 2
             },
             base_stats)
 
@@ -1551,7 +1559,8 @@ class TestUnstructuredProfiler(unittest.TestCase):
             {
                 'sample': ['more data', 'here\n', 'a', ' is'],
                 'sample_size': 6,
-                'empty_line_count': 2
+                'empty_line_count': 2,
+                'memory_size': 25 / 1024 ** 2
             },
             base_stats)
 
@@ -1564,6 +1573,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler = UnstructuredProfiler(data1)
         self.assertEqual(4, profiler.total_samples)
         self.assertEqual(1, profiler._empty_line_count)
+        self.assertEqual(15 / 1024 ** 2, profiler.memory_size)
         # note how sample doesn't include whitespace lines
         self.assertCountEqual(['this', 'is my', 'test'], profiler.sample)
 
@@ -1571,6 +1581,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         profiler.update_profile(data2)
         self.assertEqual(10, profiler.total_samples)
         self.assertEqual(4, profiler._empty_line_count)
+        self.assertEqual(40 / 1024 ** 2, profiler.memory_size)
         # note how sample doesn't include whitespace lines
         self.assertCountEqual(['here\n', ' is', 'more data'], profiler.sample)
 
@@ -1637,6 +1648,9 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
     def test_empty_line_count(self):
         self.assertEqual(7, self.profiler._empty_line_count)
 
+    def test_get_memory_size(self):
+        self.assertEqual(393 / 1024 ** 2, self.profiler.memory_size)
+
     def test_text_profiler_results(self):
         # pop out times
         self.assertIsNotNone(
@@ -1692,6 +1706,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
             'global_stats': {
                 'samples_used': 16,
                 'empty_line_count': 7,
+                'memory_size': 393 / 1024 ** 2,
                 'file_type': "<class 'pandas.core.frame.DataFrame'>",
                 'encoding': None},
             'data_stats': {
@@ -1710,6 +1725,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
 
         self.assertEqual(21, merged_profiler.total_samples)
         self.assertEqual(8, merged_profiler._empty_line_count)
+        self.assertEqual(422 / 1024 ** 2, merged_profiler.memory_size)
         self.assertCountEqual(
             ['test\n',
              'extra',
@@ -1766,6 +1782,7 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         # tests
         self.assertEqual(21, update_profiler.total_samples)
         self.assertEqual(8, update_profiler._empty_line_count)
+        self.assertEqual(422 / 1024 ** 2, update_profiler.memory_size)
 
         # Note: different from merge because sample is from last update only
         self.assertCountEqual(

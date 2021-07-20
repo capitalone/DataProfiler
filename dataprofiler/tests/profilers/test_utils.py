@@ -124,3 +124,61 @@ class TestShuffleInChunks(unittest.TestCase):
             "g": [None, 15]
         }
         self.assertDictEqual(expected_diff, utils.find_diff_of_dicts(dict1, dict2))
+
+    def test_diff_of_dicts_with_diff_keys(self):
+        dict1 = {"unique1": 1, "shared1": 2, "shared2": 3}
+        dict2 = {"unique2": 5, "shared1": 2, "shared2": 6}
+
+        expected = [{'unique1': 1}, 
+                    {'shared1': 'unchanged', 'shared2': -3}, 
+                    {'unique2': 5}]
+        
+        # Assert difference is appropriate
+        self.assertListEqual(expected,
+                         utils.find_diff_of_dicts_with_diff_keys(dict1, dict2))
+
+        # Assert empty dicts are unchanged
+        self.assertEqual("unchanged",
+                         utils.find_diff_of_dicts_with_diff_keys({},{}))
+        
+        # Assert all edge cases work
+        a = datetime(2021, 6, 28)
+        b = datetime(2021, 6, 27, 1)
+        dict1 = {"unique1": 1, 
+                 "shared1": "Hello", 
+                 "shared2": a, 
+                 "shared3": ["entry1"], 
+                 "shared4": False}
+        dict2 = {"unique2": 5, 
+                 "shared1": "Hi", 
+                 "shared2": b, 
+                 "shared3": ["entry1", "entry2", 3], 
+                 "shared4": True}
+        expected = [{'unique1': 1}, 
+                    {'shared1': ['Hello', 'Hi'], 
+                     'shared2': '+23:00:00', 
+                     'shared3': [[], ['entry1'], ['entry2', 3]], 
+                     'shared4': [False, True]}, 
+                    {'unique2': 5}]
+        self.assertListEqual(expected, 
+                             utils.find_diff_of_dicts_with_diff_keys(dict1, 
+                                                                     dict2))
+
+    def test_get_memory_size(self):
+        """
+        Checks to see if the get memory size function is operating appropriately.
+        """
+        # wrong unit input
+        with self.assertRaisesRegex(ValueError,
+                                    "Currently only supports the memory size unit "
+                                    "in \['B', 'K', 'M', 'G'\]"):
+            utils.get_memory_size([], unit="wrong_unit")
+
+        # test with different data sizes
+        self.assertEqual(0, utils.get_memory_size([]))
+        self.assertEqual(33 / 1024 ** 2,
+            utils.get_memory_size(["This is test, a Test sentence.!!!"]))
+        self.assertEqual(33 / 1024 ** 2,
+            utils.get_memory_size(["This is test,", " a Test sentence.!!!"]))
+        self.assertEqual(33 / 1024 ** 3,
+            utils.get_memory_size(["This is test, a Test sentence.!!!"], unit='G'))

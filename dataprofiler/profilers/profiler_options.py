@@ -934,7 +934,7 @@ class StructuredOptions(BaseOption):
         Constructs the StructuredOptions object with default values.
 
         :param null_values: null values we input.
-        :vartype null_values: Union[None, dict[0, str]]
+        :vartype null_values: Union[None, dict]
         :ivar int: option set for int profiling.
         :vartype int: IntOptions
         :ivar float: option set for float profiling.
@@ -952,7 +952,7 @@ class StructuredOptions(BaseOption):
         :ivar correlation: option set for correlation profiling.
         :vartype correlation: CorrelationOptions
         :ivar null_values: option set for defined null values
-        :vartype null_values: Union[None, dict[0, str]]
+        :vartype null_values: Union[None, dict]
         """
         # Option variables
         self.multiprocess = BooleanOption()

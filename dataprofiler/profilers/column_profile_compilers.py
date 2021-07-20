@@ -381,3 +381,27 @@ class UnstructuredCompiler(BaseCompiler):
             profile["statistics"] = \
                 self._profiles[TextProfiler.type].profile
         return profile
+
+    def diff(self, other, options=None):
+        """
+        Finds the difference between 2 compilers and returns the report
+
+        :param other: profile compiler finding the difference with this one.
+        :type other: UnstructuredCompiler
+        :param options: options to impact the results of the diff
+        :type options: dict
+        :return: difference of the profiles
+        :rtype: dict
+        """
+        # Call super for compiler instance check
+        diff_profile = super().diff(other, options)
+
+        if "data_labeler" in self._profiles and "data_labeler" in other._profiles:
+            diff_profile["data_label"] = self._profiles["data_labeler"].\
+                diff(other._profiles["data_labeler"], options)
+
+        if "text" in self._profiles and "text" in other._profiles:
+            diff_profile["statistics"] = self._profiles["text"].\
+                diff(other._profiles["text"], options)
+
+        return diff_profile

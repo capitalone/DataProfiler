@@ -64,6 +64,7 @@ The format for a structured profile is below:
     "profile_schema": {
         string: list(int)
     },
+    "times": dict[string, float],
 },
 "data_stats": [
     {
@@ -133,6 +134,7 @@ The format for an unstructured profile is below:
     "file_type": string,
     "encoding": string,
     "memory_size": float, # in MB
+    "times": dict[string, float],
 },
 "data_stats": {
     "data_label": {

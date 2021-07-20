@@ -1,24 +1,18 @@
 from dataprofiler.profilers.profiler_options import ProfilerOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_option \
      import TestBaseOption
-
-
 class TestProfilerOptions(TestBaseOption):
-
     option_class = ProfilerOptions
     keys = ["structured_options", "unstructured_options"]
-
     @classmethod
     def get_options(self, **params):
         options = ProfilerOptions()
         options.set(params)
         return options
-
     def test_init(self):
         options = self.get_options()
         for key in self.keys:
             self.assertIn(key, options.properties)
-
     def test_set_helper(self):
         super().test_set_helper()
         option = self.get_options()
@@ -39,7 +33,6 @@ class TestProfilerOptions(TestBaseOption):
         self.assertTrue(option.structured_options.text.is_enabled)
         option._set_helper({'unstructured_options.text.is_enabled': True}, '')
         self.assertTrue(option.unstructured_options.text.is_enabled)
-
     def test_set(self):
         super().test_set()
         option = self.get_options()
@@ -66,7 +59,6 @@ class TestProfilerOptions(TestBaseOption):
                              "has no attribute 'is_enabled'".format(key)
             with self.assertRaisesRegex(AttributeError, expected_error):
                 option.set({'{}.text.is_enabled.is_enabled'.format(key): True})
-
     def test_validate_helper(self):
         # Valid cases should return [] while invalid cases
         # should return a list of errors
@@ -98,7 +90,6 @@ class TestProfilerOptions(TestBaseOption):
                 optpth)
         ]
         self.assertEqual(expected_error, option._validate_helper())
-
     def test_validate(self):
         # Valid cases should return None while invalid cases
         # should return or throw a list of errors

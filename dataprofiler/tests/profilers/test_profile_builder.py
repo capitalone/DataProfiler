@@ -1314,8 +1314,9 @@ class TestStructuredColProfilerClass(unittest.TestCase):
 
         test_utils.set_seed(seed=0)
         df_series, base_stats = \
-            StructuredColProfiler.clean_data_and_get_base_stats(profiler,
-                df_series=data[1:], sample_size=6, min_true_samples=0)
+            StructuredColProfiler.clean_data_and_get_base_stats(
+                profiler, df_series=data[1:], sample_size=6,
+                min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
         self.assertDictEqual({'sample': ['4.0', '6.0', '3.0'],

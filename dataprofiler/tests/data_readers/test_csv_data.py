@@ -6,7 +6,6 @@ from io import StringIO, BytesIO, TextIOWrapper
 import pandas as pd
 
 from dataprofiler.data_readers.data import Data, CSVData
-import tracemalloc
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -164,15 +163,16 @@ class TestCSVDataClass(unittest.TestCase):
 
         cls.buffer_list = []
         for input_file in cls.input_file_names:
-            buffer = StringIO(open(input_file['path'], 'r', encoding=input_file['encoding']).read())
+            # add StringIO
             buffer_info = input_file.copy()
-            buffer_info['path'] = buffer
+            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
+                buffer_info['path'] = StringIO(fp.read())
             cls.buffer_list.append(buffer_info)
-        
-        for input_file in cls.input_file_names:
-            buffer = BytesIO(open(input_file['path'], 'rb').read())
+            
+            # add BytesIO
             buffer_info = input_file.copy()
-            buffer_info['path'] = buffer
+            with open(input_file['path'], 'rb') as fp:
+                buffer_info['path'] = BytesIO(fp.read())
             cls.buffer_list.append(buffer_info)
 
         cls.file_or_buf_list = cls.input_file_names + cls.buffer_list
@@ -323,13 +323,15 @@ class TestCSVDataClass(unittest.TestCase):
             self.assertIn(header_line, input_file['has_header'], input_file['path'])
 
         for input_buf in self.buffer_list:
-            print(input_buf['path'].read(30))
-            input_buf['path'].seek(0)
+            # BytesIO is wrapped to use the isslice function to read it
             if isinstance(input_buf['path'], BytesIO):
                 input_buf['path'] = TextIOWrapper(input_buf['path'], encoding=input_buf['encoding'])
+
             data_as_str = ''.join(list(islice(input_buf['path'], 5)))
             header_line = CSVData._guess_header_row(data_as_str, input_buf['delimiter'])
             self.assertIn(header_line, input_buf['has_header'], input_buf['path'])
+
+            # since BytesIO was wrapped, it now has to be detached
             if isinstance(input_buf['path'], TextIOWrapper):
                 input_buf['path'].detach()
 

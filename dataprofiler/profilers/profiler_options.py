@@ -1010,26 +1010,16 @@ class StructuredOptions(BaseOption):
                 errors += self.properties[column]._validate_helper(
                     variable_path=(variable_path + '.' + column
                                    if variable_path else column))
-        if self.null_values is not None:
-            reskey = True
-            resvalue = True
-            if isinstance(self.null_values, dict):
-                for key in self.null_values:
-                    if not isinstance(key, str):
-                        reskey = False
-                        break
-                for value in self.null_values.values():
-                    if not (value == 0 or isinstance(value, re.RegexFlag)):
-                        resvalue = False
-                        break
-            else:
-                reskey = False
-                resvalue = False
-            if reskey == False or resvalue == False:
-                errors.append("{}.null_values must be either None or "
-                              "a dictionary that contains keys of str type "
-                              "and values == 0 or are instances of "
-                              "a re.RegexFlag".format(variable_path))
+        if self.null_values is not None and not (
+                isinstance(self.null_values, dict) and
+                all(isinstance(key, str) and
+                    (isinstance(value, re.RegexFlag) or value == 0)
+                    for key, value in self.null_values.items())):
+            errors.append("{}.null_values must be either None or "
+                          "a dictionary that contains keys of str type "
+                          "and values == 0 or are instances of "
+                          "a re.RegexFlag".format(variable_path))
+
         return errors
 
 

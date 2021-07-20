@@ -339,7 +339,7 @@ class StructuredColProfiler(object):
 
     def clean_data_and_get_base_stats(self, df_series, sample_size,
                                       min_true_samples=None,
-                                      sample_ids=None, ):
+                                      sample_ids=None):
         """
         Identify null characters and return them in a dictionary as well as
         remove any nulls in column.

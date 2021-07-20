@@ -199,14 +199,22 @@ class TestStructuredOptions(TestBaseOption):
                           'dictionary that contains keys of str type '
                           'and values == 0 or are instances of '
                           'a re.RegexFlag'.format(optpth)]
+        # Test key is not a string
         option.set({'null_values': {0: 0}})
         self.assertEqual(expected_error, option._validate_helper())
+        # Test value is not correct type (0 or regex)
         option.set({'null_values': {"a": 1}})
         self.assertEqual(expected_error, option._validate_helper())
+        # Test variable is not correct variable type
+        option.set({'null_values': 1})
+        self.assertEqual(expected_error, option._validate_helper())
+        # Test 0 works for option set
         option.set({'null_values': {"a": 0}})
         self.assertEqual([], option._validate_helper())
+        # Test a regex flag works for option set
         option.set({'null_values': {"a": re.IGNORECASE}})
         self.assertEqual([], option._validate_helper())
+        # Test None works for option set
         option.set({'null_values': None})
         self.assertEqual([], option._validate_helper())
 

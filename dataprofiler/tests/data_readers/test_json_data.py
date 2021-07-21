@@ -66,28 +66,23 @@ class TestJSONDataClass(unittest.TestCase):
     def setUp(cls):
         for buffer in cls.buffer_list:
             buffer['path'].seek(0)
-    
-    def test_is_match_for_string_streams(self):
-        """
-        Determine if the json file can be automatically identified from
-        string stream
-        """
-        for input_file in self.input_file_names:
-            print(input_file)
-            with open(input_file['path'], 'r',
-                      encoding=input_file['encoding']) as fp:
-                byte_string = StringIO(fp.read())
-                self.assertTrue(JSONData.is_match(byte_string))
 
-    def test_is_match_for_byte_streams(self):
+    def test_is_match(self):
         """
         Determine if the json file can be automatically identified from
         byte stream
         """
-        for input_file in self.input_file_names:
-            with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                self.assertTrue(JSONData.is_match(byte_string))
+        for input_file in self.file_or_buf_list:
+            if isinstance(input_file, StringIO):
+                with open(input_file['path'], 'r',
+                        encoding=input_file['encoding']) as fp:
+                    byte_string = StringIO(fp.read())
+                    self.assertTrue(JSONData.is_match(byte_string))
+
+            elif isinstance(input_file, BytesIO):
+                with open(input_file['path'], 'rb') as fp:
+                    byte_string = BytesIO(fp.read())
+                    self.assertTrue(JSONData.is_match(byte_string))
 
     def test_json_file_identification(self):
         """

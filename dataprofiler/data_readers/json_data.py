@@ -249,9 +249,8 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             self._file_encoding = \
                 data_utils.detect_file_encoding(input_file_path)
                 
-        with FileOrBufferHandler(input_file_path, 'r', encoding=self.file_encoding) \
-            as input_file:
-
+        with FileOrBufferHandler(input_file_path, 'r', 
+                                    encoding=self.file_encoding)  as input_file:
             try:
                 data = json.load(input_file)
             except (json.JSONDecodeError, UnicodeDecodeError):

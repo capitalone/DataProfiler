@@ -50,7 +50,7 @@ class TestAVRODataClass(unittest.TestCase):
     def test_is_match(self):
         """
         Determine if the avro file can be automatically identified from
-        byte stream
+        byte stream or file path
         """
         for input_file in self.file_or_buf_list:
             self.assertTrue(AVROData.is_match(input_file['path']))

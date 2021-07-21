@@ -184,6 +184,19 @@ class TestCSVDataClass(unittest.TestCase):
         for buffer in cls.buffer_list:
             buffer['path'].seek(0)
 
+    def test_is_match(self):
+        for input_file in self.file_or_buf_list:
+            if isinstance(input_file, StringIO):
+                with open(input_file['path'], 'r',
+                        encoding=input_file['encoding']) as fp:
+                    byte_string = StringIO(fp.read())
+                    self.assertTrue(JSONData.is_match(byte_string))
+
+            elif isinstance(input_file, BytesIO):
+                with open(input_file['path'], 'rb') as fp:
+                    byte_string = BytesIO(fp.read())
+                    self.assertTrue(JSONData.is_match(byte_string))
+
     def test_auto_file_identification(self):
         """
         Determine if the csv file can be automatically identified

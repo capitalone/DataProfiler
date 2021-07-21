@@ -1,9 +1,7 @@
 import json
 import copy
 import os
-import sys
 import time
-import logging
 from collections import defaultdict
 import logging
 
@@ -813,12 +811,10 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         for x_train, y_train in train_data:
             model_results = self._model.train_on_batch(
                 x_train, {softmax_output_layer_name: y_train})
-            sys.stdout.flush()
             if verbose:
-                sys.stdout.write(
-                    "\rEPOCH %d, batch_id %d: loss: %f - acc: %f - "
-                    "f1_score %f" %
-                (self._epoch_id, batch_id, *model_results[1:]))
+                logger.info("\rEPOCH %d, batch_id %d: loss: %f - acc: %f - "
+                            "f1_score %f" %
+                            (self._epoch_id, batch_id, *model_results[1:]))
             batch_id += 1
 
         for i, metric_label in enumerate(self._model.metrics_names):
@@ -878,11 +874,9 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                 x_val, batch_size=batch_size_test, verbose=verbose_keras)[1])
             y_val_test.append(np.argmax(y_val, axis=-1))
             batch_id += 1
-            sys.stdout.flush()
             if verbose_log:
-                sys.stdout.write(
-                    "\rEPOCH %g, validation_batch_id %d" % (
-                        self._epoch_id, batch_id))
+                logger.info("\rEPOCH %g, validation_batch_id %d"
+                            % (self._epoch_id, batch_id))
         
         tf.keras.backend.set_floatx('float32')
         # Clean the predicted entities and the actual entities

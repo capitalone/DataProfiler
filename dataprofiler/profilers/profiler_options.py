@@ -3,6 +3,7 @@
 coding=utf-8
 Specify the options when running the data profiler.
 """
+import re
 import warnings
 import abc
 import copy
@@ -701,6 +702,8 @@ class CategoricalOptions(BaseInspectorOptions):
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
+        :ivar top_k_categories: number of categories to be displayed when called
+        :vartype top_k_categories: [None, int]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
@@ -926,10 +929,12 @@ class TextProfilerOptions(BaseInspectorOptions):
 
 class StructuredOptions(BaseOption):
 
-    def __init__(self):
+    def __init__(self, null_values=None):
         """
         Constructs the StructuredOptions object with default values.
 
+        :param null_values: null values we input.
+        :vartype null_values: Union[None, dict]
         :ivar int: option set for int profiling.
         :vartype int: IntOptions
         :ivar float: option set for float profiling.
@@ -946,7 +951,10 @@ class StructuredOptions(BaseOption):
         :vartype data_labeler: DataLabelerOptions
         :ivar correlation: option set for correlation profiling.
         :vartype correlation: CorrelationOptions
+        :ivar null_values: option set for defined null values
+        :vartype null_values: Union[None, dict]
         """
+        # Option variables
         self.multiprocess = BooleanOption()
         self.int = IntOptions()
         self.float = FloatOptions()
@@ -956,12 +964,17 @@ class StructuredOptions(BaseOption):
         self.category = CategoricalOptions()
         self.data_labeler = DataLabelerOptions()
         self.correlation = CorrelationOptions()
+        # Non-Option variables
+        self.null_values = null_values
 
     @property
     def enabled_profiles(self):
         """Returns a list of the enabled profilers for columns."""
         enabled_profiles = list()
-        for key, value in self.properties.items():
+        # null_values does not have is_enabled
+        properties = self.properties
+        properties.pop('null_values')
+        for key, value in properties.items():
             if value.is_enabled:
                 enabled_profiles.append(key)
         return enabled_profiles
@@ -991,8 +1004,9 @@ class StructuredOptions(BaseOption):
             ('data_labeler', DataLabelerOptions),
             ('correlation', CorrelationOptions)
         ])
-
-        for column in self.properties:
+        properties = self.properties
+        properties.pop('null_values')
+        for column in (properties):
             if not isinstance(self.properties[column], prop_check[column]):
                 errors.append("{}.{} must be a(n) {}.".format(
                     variable_path, column, prop_check[column].__name__))
@@ -1000,6 +1014,17 @@ class StructuredOptions(BaseOption):
                 errors += self.properties[column]._validate_helper(
                     variable_path=(variable_path + '.' + column
                                    if variable_path else column))
+
+        if self.null_values is not None and not (
+                isinstance(self.null_values, dict) and
+                all(isinstance(key, str) and
+                    (isinstance(value, re.RegexFlag) or value == 0)
+                    for key, value in self.null_values.items())):
+            errors.append("{}.null_values must be either None or "
+                          "a dictionary that contains keys of type str "
+                          "and values == 0 or are instances of "
+                          "a re.RegexFlag".format(variable_path))
+
         return errors
 
 

@@ -30,23 +30,37 @@ class TestParquetDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'snappy_compressed_intentionally_mislabeled_parquet_file.csv'), count=2999),
 
         ]
+
+        cls.buffer_list = []
+        for input_file in cls.input_file_names:
+            # add BytesIO
+            buffer_info = input_file.copy()
+            with open(input_file['path'], 'rb') as fp:
+                buffer_info['path'] = BytesIO(fp.read())
+            cls.buffer_list.append(buffer_info)
+
+        cls.file_or_buf_list = cls.input_file_names + cls.buffer_list
+
         cls.output_file_path = None
 
-    def test_is_match_for_byte_streams(self):
+    @classmethod
+    def setUp(cls):
+        for buffer in cls.buffer_list:
+            buffer['path'].seek(0)
+
+    def test_is_match(self):
         """
         Determine if the parquet file can be automatically identified from
-        byte stream
+        byte stream or file path
         """
-        for input_file in self.input_file_names:
-            with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                self.assertTrue(ParquetData.is_match(byte_string))
+        for input_file in self.file_or_buf_list:
+            self.assertTrue(ParquetData.is_match(input_file['path']))
 
     def test_auto_file_identification(self):
         """
         Determine if the parquet file can be automatically identified
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'parquet')
 
@@ -54,7 +68,7 @@ class TestParquetDataClass(unittest.TestCase):
         """
         Determine if the parquet file can be loaded with manual data_type setting
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"], data_type='parquet')
             self.assertEqual(input_data_obj.data_type, 'parquet')
 
@@ -62,7 +76,7 @@ class TestParquetDataClass(unittest.TestCase):
         """
         Determine if the parquet file can be reloaded
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'parquet')
@@ -72,7 +86,7 @@ class TestParquetDataClass(unittest.TestCase):
         """
         Determine if the parquet file data_formats can be used
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             for data_format in list(input_data_obj._data_formats.keys()):
                 input_data_obj.data_format = data_format
@@ -129,7 +143,7 @@ class TestParquetDataClass(unittest.TestCase):
         the length value.
         """
 
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             data = Data(input_file["path"])
             self.assertEqual(input_file['count'],
                              len(data),

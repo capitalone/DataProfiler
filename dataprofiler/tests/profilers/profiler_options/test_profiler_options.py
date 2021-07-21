@@ -29,6 +29,8 @@ class TestProfilerOptions(unittest.TestCase):
             # TODO: remove the check for correlation option once it's updated to True
             if column == 'correlation':
                 self.assertFalse(profile.options.properties[column].is_enabled)
+            elif column == 'null_values':
+                self.assertIsNone(profile.options.properties[column])
             else:
                 self.assertTrue(profile.options.properties[column].is_enabled)
 

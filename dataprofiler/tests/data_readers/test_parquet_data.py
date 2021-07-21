@@ -53,7 +53,7 @@ class TestParquetDataClass(unittest.TestCase):
         Determine if the parquet file can be automatically identified from
         byte stream
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             self.assertTrue(ParquetData.is_match(input_file['path']))
 
     def test_auto_file_identification(self):

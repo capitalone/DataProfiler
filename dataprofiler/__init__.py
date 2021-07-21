@@ -35,12 +35,13 @@ def set_seed(seed=None):
     settings._seed = seed
 
 
-def set_verbosity(verbose=True):
-    # Set whether or not to suppress output to console
-    settings._verbose = verbose
-    if not verbose:
+def set_verbosity(verbose=True, **kwargs):
+    if kwargs:
+        # If kwargs given, just pass straight through to basicConfig
+        logging.basicConfig(**kwargs)
+    elif not verbose:
         # Only print warnings and errors
-        logging.basicConfig(level=logging.WARNING)
+        logging.basicConfig(level=logging.WARNING, **kwargs)
     else:
         # Also print info messages
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=logging.INFO, **kwargs)

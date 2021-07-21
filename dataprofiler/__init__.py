@@ -1,3 +1,5 @@
+import logging
+
 from .data_readers.data import Data
 from .profilers.profile_builder import StructuredProfiler, \
                                        UnstructuredProfiler, Profiler
@@ -25,8 +27,20 @@ except ImportError:
         ImportWarning
     )
 
+
 def set_seed(seed=None):
     # also check it's an integer
     if seed is not None and (not isinstance(seed, int) or seed < 0):
         raise ValueError("Seed should be a non-negative integer.")
     settings._seed = seed
+
+
+def set_verbosity(verbose=True):
+    # Set whether or not to suppress output to console
+    settings._verbose = verbose
+    if not verbose:
+        # Only print warnings and errors
+        logging.basicConfig(level=logging.WARNING)
+    else:
+        # Also print info messages
+        logging.basicConfig(level=logging.INFO)

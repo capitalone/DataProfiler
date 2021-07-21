@@ -245,14 +245,13 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :return:
         """
         self._file_encoding = data_utils.detect_file_encoding(input_file_path)
-        with open(input_file_path, encoding=self.file_encoding) as input_file:
+        with FileOrBufferHandler(input_file_path, 'r', encoding=self.file_encoding) as input_file:
             try:
                 data = json.load(input_file)
             except (json.JSONDecodeError, UnicodeDecodeError):
                 input_file.seek(0)
-                data = data_utils.generator_on_file(input_file)
                 data = data_utils.read_json(
-                    data_generator=data,
+                    data_generator=input_file,
                     selected_columns=self.selected_keys,
                     read_in_string=False
                 )

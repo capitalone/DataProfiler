@@ -45,6 +45,21 @@ class TestJSONDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.csv"), encoding='utf-8', count=14),
             dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.parquet"), encoding='utf-8', count=14)
         ]
+
+        cls.buffer_list = []
+        for input_file in cls.input_file_names:
+            # add BytesIO
+            buffer_info = input_file.copy()
+            with open(input_file['path'], 'rb') as fp:
+                buffer_info['path'] = BytesIO(fp.read())
+            cls.buffer_list.append(buffer_info)
+
+        cls.file_or_buf_list = cls.input_file_names + cls.buffer_list
+
+    @classmethod
+    def setUp(self):
+        for buffer in self.buffer_list:
+            buffer['path'].seek(0)
     
     def test_is_match_for_string_streams(self):
         """
@@ -72,7 +87,7 @@ class TestJSONDataClass(unittest.TestCase):
         """
         Determine if the json file can be automatically identified
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"])
             self.assertEqual(input_data_obj.data_type, 'json')
 
@@ -80,7 +95,7 @@ class TestJSONDataClass(unittest.TestCase):
         """
         Determine if the json file can be loaded with manual data_type setting
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"], data_type='json')
             self.assertEqual(input_data_obj.data_type, 'json')
 
@@ -88,7 +103,7 @@ class TestJSONDataClass(unittest.TestCase):
         """
         Determine if the json file can be reloaded
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"])
             input_data_obj.reload(input_file["path"])
             self.assertEqual(input_data_obj.data_type, 'json')
@@ -132,7 +147,7 @@ class TestJSONDataClass(unittest.TestCase):
         """
         Determine if the json file data_formats can be used
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"])
             for data_format in list(input_data_obj._data_formats.keys()):
                 input_data_obj.data_format = data_format
@@ -151,7 +166,7 @@ class TestJSONDataClass(unittest.TestCase):
         length value.
         """
 
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             data = Data(input_file["path"])
             self.assertEqual(input_file['count'],
                              len(data),

@@ -44,8 +44,8 @@ class TestParquetDataClass(unittest.TestCase):
         cls.output_file_path = None
 
     @classmethod
-    def setUp(self):
-        for buffer in self.buffer_list:
+    def setUp(cls):
+        for buffer in cls.buffer_list:
             buffer['path'].seek(0)
 
     def test_is_match_for_byte_streams(self):

@@ -4,12 +4,15 @@ import json
 from io import open, StringIO, BytesIO, TextIOWrapper
 from collections import OrderedDict
 import dateutil
+import logging
 
 import pandas as pd
 import pyarrow.parquet as pq
 from chardet.universaldetector import UniversalDetector
 
 from .filepath_or_buffer import FileOrBufferHandler
+
+logger = logging.getLogger('DataProfiler.data_utils')
 
 
 def data_generator(data_list):
@@ -382,7 +385,8 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
             with FileOrBufferHandler(file_path, encoding=encoding) as input_file:
                 input_file.read(1024*1024)
                 return True
-        except: return False
+        except:
+            return False
 
     if not _decode_is_valid(encoding):
         try:
@@ -407,10 +411,12 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
                                             cp_isolation=None, cp_exclusion=None,
                                             preemptive_behaviour=True, explain=False)
                     result = result.best().first()
-                if result: encoding = result.encoding
+                if result:
+                    encoding = result.encoding
 
         except:
-            print("Install charset_normalizer for improved file encoding detection")
+            logger.info("Install charset_normalizer for improved file "
+                        "encoding detection")
 
     # If no encoding is still found, default to utf-8
     if not encoding:

@@ -231,9 +231,6 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                     "\rData Samples Processed: {:d}   ".format(i))
             predictions[i] = pred
 
-        if verbose:
-            print()
-
         # Trim array size to number of samples
         if len(predictions) > i+1:
             del predictions[i+1:]

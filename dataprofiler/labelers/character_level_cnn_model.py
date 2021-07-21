@@ -5,6 +5,7 @@ import sys
 import time
 import logging
 from collections import defaultdict
+import logging
 
 import tensorflow as tf
 import numpy as np
@@ -15,6 +16,8 @@ from .base_model import BaseModel, BaseTrainableModel
 from .base_model import AutoSubRegistrationMeta
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
+
+logger = logging.getLogger('DataProfiler.character_level_cnn_model')
 
 
 class NoV1ResourceMessageFilter(logging.Filter):
@@ -833,11 +836,11 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                 if f1_report else np.NAN
             if verbose:
                 epoch_time = time.time() - start_time
-                print("\rEPOCH %d (%ds), loss: %f - acc: %f - "
-                      "f1_score %f -- val_f1: %f - val_precision: %f - "
-                      "val_recall %f" %
-                      (self._epoch_id, epoch_time, *model_results[1:], val_f1,
-                       val_precision, val_recall))
+                logger.info("\rEPOCH %d (%ds), loss: %f - acc: %f - "
+                            "f1_score %f -- val_f1: %f - val_precision: %f - "
+                            "val_recall %f" %
+                            (self._epoch_id, epoch_time, *model_results[1:],
+                             val_f1, val_precision, val_recall))
 
         self._epoch_id += 1
 

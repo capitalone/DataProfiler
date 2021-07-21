@@ -1,5 +1,6 @@
 import os
 import warnings
+import logging
 
 import scipy
 import numpy as np
@@ -8,6 +9,8 @@ from sklearn.exceptions import UndefinedMetricWarning
 from .classification_report_utils import classification_report
 
 warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
+
+logger = logging.getLogger('DataProfiler.labeler_utils')
 
 
 def f1_report_dict_to_str(f1_report, label_names):
@@ -170,8 +173,7 @@ def evaluate_accuracy(predicted_entities_in_index, true_entities_in_index,
 
     if verbose:
         f1_report_str = f1_report_dict_to_str(f1_report, label_names)
-        print("(After removing non-entity tokens)\n", f1_report_str)
-        print("\n")
-        print("F1 Score: ", f1)
+        logger.info(f"(After removing non-entity tokens) {f1_report_str}")
+        logger.info(f"F1 Score: {f1}")
     
     return f1, f1_report

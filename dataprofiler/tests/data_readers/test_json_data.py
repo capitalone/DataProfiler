@@ -48,6 +48,12 @@ class TestJSONDataClass(unittest.TestCase):
 
         cls.buffer_list = []
         for input_file in cls.input_file_names:
+            # add StringIO
+            buffer_info = input_file.copy()
+            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
+                buffer_info['path'] = StringIO(fp.read())
+            cls.buffer_list.append(buffer_info)
+            
             # add BytesIO
             buffer_info = input_file.copy()
             with open(input_file['path'], 'rb') as fp:
@@ -57,8 +63,8 @@ class TestJSONDataClass(unittest.TestCase):
         cls.file_or_buf_list = cls.input_file_names + cls.buffer_list
 
     @classmethod
-    def setUp(self):
-        for buffer in self.buffer_list:
+    def setUp(cls):
+        for buffer in cls.buffer_list:
             buffer['path'].seek(0)
     
     def test_is_match_for_string_streams(self):

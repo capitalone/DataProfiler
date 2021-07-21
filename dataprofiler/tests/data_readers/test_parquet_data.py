@@ -54,9 +54,7 @@ class TestParquetDataClass(unittest.TestCase):
         byte stream
         """
         for input_file in self.input_file_names:
-            with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                self.assertTrue(ParquetData.is_match(byte_string))
+            self.assertTrue(ParquetData.is_match(input_file['path']))
 
     def test_auto_file_identification(self):
         """

@@ -2,8 +2,8 @@ import json
 import copy
 import os
 import time
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 import tensorflow as tf
 import numpy as np

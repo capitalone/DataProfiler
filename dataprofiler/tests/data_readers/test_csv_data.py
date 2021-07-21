@@ -180,8 +180,8 @@ class TestCSVDataClass(unittest.TestCase):
         cls.output_file_path = None
     
     @classmethod
-    def setUp(self):
-        for buffer in self.buffer_list:
+    def setUp(cls):
+        for buffer in cls.buffer_list:
             buffer['path'].seek(0)
 
     def test_auto_file_identification(self):
@@ -205,7 +205,8 @@ class TestCSVDataClass(unittest.TestCase):
         """
         for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"], data_type='csv')
-            self.assertEqual(input_data_obj.data_type, 'csv', input_file["path"])
+            self.assertEqual(input_data_obj.data_type, 'csv',
+                             input_file["path"])
             self.assertEqual(input_data_obj.delimiter,
                              input_file['delimiter'],
                              input_file["path"])
@@ -237,7 +238,8 @@ class TestCSVDataClass(unittest.TestCase):
         for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
-            self.assertEqual(input_data_obj.data_type, 'csv', input_file['path'])
+            self.assertEqual(input_data_obj.data_type, 'csv',
+                             input_file['path'])
             self.assertEqual(input_data_obj.delimiter, input_file['delimiter'],
                              input_file['path'])
             self.assertEqual(input_file['path'], input_data_obj.input_file_path)
@@ -317,29 +319,35 @@ class TestCSVDataClass(unittest.TestCase):
         Determine if files with no header are properly determined.
         """
         from itertools import islice
-        from dataprofiler.data_readers import data_utils
 
         # add some more files to the list to test the header detection
         # these files have some first lines which are not the header
         for input_file in self.input_file_names:
-            with open(input_file['path'], encoding=input_file['encoding']) as csvfile:
+            with open(input_file['path'],
+                      encoding=input_file['encoding']) as csvfile:
                 data_as_str = ''.join(list(islice(csvfile, 5)))
-            header_line = CSVData._guess_header_row(data_as_str, input_file['delimiter'])
-            self.assertIn(header_line, input_file['has_header'], input_file['path'])
+            header_line = CSVData._guess_header_row(data_as_str,
+                                                    input_file['delimiter'])
+            self.assertIn(header_line, input_file['has_header'],
+                          input_file['path'])
 
         for input_buf in self.buffer_list:
             # BytesIO is wrapped so that it is fed into guess header row 
             # the same way it would internally
+            buffer = input_buf['path']
             if isinstance(input_buf['path'], BytesIO):
-                input_buf['path'] = TextIOWrapper(input_buf['path'], encoding=input_buf['encoding'])
+                buffer = TextIOWrapper(
+                    input_buf['path'], encoding=input_buf['encoding'])
 
-            data_as_str = ''.join(list(islice(input_buf['path'], 5)))
-            header_line = CSVData._guess_header_row(data_as_str, input_buf['delimiter'])
-            self.assertIn(header_line, input_buf['has_header'], input_buf['path'])
+            data_as_str = ''.join(list(islice(buffer, 5)))
+            header_line = CSVData._guess_header_row(
+                data_as_str, input_buf['delimiter'])
+            self.assertIn(header_line, input_buf['has_header'],
+                          input_buf['path'])
 
             # since BytesIO was wrapped, it now has to be detached
-            if isinstance(input_buf['path'], TextIOWrapper):
-                input_buf['path'].detach()
+            if isinstance(buffer, TextIOWrapper):
+                buffer.detach()
 
     def test_options(self):
 
@@ -424,6 +432,7 @@ class TestCSVDataClass(unittest.TestCase):
         # With option specifying records as data_format
         data = CSVData(options={"data_format": "records"})
         self.assertFalse(data.is_structured)
+
 
 if __name__ == '__main__':
     unittest.main()

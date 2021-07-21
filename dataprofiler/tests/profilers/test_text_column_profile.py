@@ -431,6 +431,11 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertEqual(100, len(histogram['bin_counts']))
 
     def test_diff(self):
+        def get_welch_df(var1, n1, var2, n2):
+            return (var1 / n1 + var2 / n2) ** 2 \
+                   / ((var1 / n1) ** 2 / (n1 - 1)
+                      + (var2 / n2) ** 2 / (n2 - 1))
+
         df = pd.Series(
             ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2"]
         ).apply(str)
@@ -444,9 +449,9 @@ class TestTextColumnProfiler(unittest.TestCase):
             'y', 'n', 'i', 's', 'G', 'r', 't', 'I', 'v', '6', '7', 'g'
         ]
 
-        profiler = TextColumn(df.name)
-        profiler.update(df)
-        profile1 = profiler.profile
+        profiler1 = TextColumn(df.name)
+        profiler1.update(df)
+        profile1 = profiler1.profile
 
         profiler2 = TextColumn(df2.name)
         profiler2.update(df2)
@@ -459,8 +464,29 @@ class TestTextColumnProfiler(unittest.TestCase):
                          'variance': profile1['variance'] - profile2['variance'],
                          'stddev': profile1['stddev'] - profiler2['stddev'],
                          'vocab': utils.find_diff_of_lists_and_sets(
-                             profile1['vocab'], profile2['vocab'])
+                             profile1['vocab'], profile2['vocab']),
+                         't-test': {
+                             't-statistic': (profiler1.mean - profiler2.mean) / np.sqrt(
+                                 profiler1.variance / profiler1.match_count +
+                                 profiler2.variance / profiler2.match_count),
+                             'conservative_df': min(profiler1.match_count, profiler2.match_count) - 1,
+                             'welch_df': get_welch_df(profiler1.variance, profiler1.match_count,
+                                                      profiler2.variance, profiler2.match_count),
+                             'results': {
+                                 'conservative': {
+                                     'p-value': 0.08916903961929257,
+                                     0.1: "Reject",
+                                     0.05: "Accept",
+                                     0.01: "Accept"
+                                 },
+                                 'welch': {
+                                     'p-value': 0.07127621949432528,
+                                     0.1: "Reject",
+                                     0.05: "Accept",
+                                     0.01: "Accept"
+                                 }
+                             }
                          }
-        diff = profiler.diff(profiler2)
+                         }
+        diff = profiler1.diff(profiler2)
         self.assertDictEqual(expected_diff, diff)
-        

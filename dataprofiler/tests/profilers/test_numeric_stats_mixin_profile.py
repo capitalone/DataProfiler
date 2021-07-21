@@ -565,6 +565,11 @@ class TestNumericStatsMixin(unittest.TestCase):
         """
         Checks _diff_helper() works appropriately.
         """
+        def get_welch_df(var1, n1, var2, n2):
+            return (var1 / n1 + var2 / n2) ** 2 \
+                   / ((var1 / n1) ** 2 / (n1 - 1)
+                      + (var2 / n2) ** 2 / (n2 - 1))
+
         other1, other2 = TestColumn(), TestColumn()
         other1.min = 3
         other1.max = 4
@@ -577,14 +582,36 @@ class TestNumericStatsMixin(unittest.TestCase):
         other2._biased_variance = 9
         other2.sum = 6
         other2.match_count = 20
-        
+
         expected_diff = {
             'min': 'unchanged',
             'max': [4, None],
             'sum': 'unchanged',
             'mean': 0.3,
             'variance': -8.362573099415204,
-            'stddev': -2.0238425028660023
+            'stddev': -2.0238425028660023,
+            't-test': {
+                't-statistic': (other1.mean - other2.mean) / np.sqrt(
+                    other1.variance/other1.match_count +
+                    other2.variance/other2.match_count),
+                'conservative_df': min(other1.match_count, other2.match_count) - 1,
+                'welch_df': get_welch_df(other1.variance, other1.match_count,
+                                         other2.variance, other2.match_count),
+                'results': {
+                    'conservative': {
+                        'p-value': 0.7039643545772609,
+                        0.1: "Accept",
+                        0.05: "Accept",
+                        0.01: "Accept"
+                    },
+                    'welch': {
+                        'p-value': 0.6980401261750298,
+                        0.1: "Accept",
+                        0.05: "Accept",
+                        0.01: "Accept"
+                    }
+                }
+            }
         }
         self.assertDictEqual(expected_diff, other1.diff(other2))
         

@@ -834,6 +834,11 @@ class TestIntColumn(unittest.TestCase):
         """
         Makes sure the IntColumn Diff() works appropriately.
         """
+        def get_welch_df(var1, n1, var2, n2):
+            return (var1 / n1 + var2 / n2) ** 2 \
+                   / ((var1 / n1) ** 2 / (n1 - 1)
+                      + (var2 / n2) ** 2 / (n2 - 1))
+
         data = [2, 'not an int', 6, 4]
         df = pd.Series(data).apply(str)
         profiler1 = IntColumn("Int")
@@ -851,7 +856,29 @@ class TestIntColumn(unittest.TestCase):
             'min': 1.0,
             'stddev': -7.899494936611665,
             'sum': -4.0,
-            'variance': -94.0
+            'variance': -94.0,
+            't-test': {
+                't-statistic': (profiler1.mean - profiler2.mean) / np.sqrt(
+                    profiler1.variance/profiler1.match_count +
+                    profiler2.variance/profiler2.match_count),
+                'conservative_df': min(profiler1.match_count, profiler2.match_count) - 1,
+                'welch_df': get_welch_df(profiler1.variance, profiler1.match_count,
+                                         profiler2.variance, profiler2.match_count),
+                'results': {
+                    'conservative': {
+                        'p-value': 0.6731699660830497,
+                        0.1: "Accept",
+                        0.05: "Accept",
+                        0.01: "Accept"
+                    },
+                    'welch': {
+                        'p-value': 0.6691886269547123,
+                        0.1: "Accept",
+                        0.05: "Accept",
+                        0.01: "Accept"
+                    }
+                }
+            }
         }
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
         

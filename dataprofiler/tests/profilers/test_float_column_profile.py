@@ -1301,6 +1301,11 @@ class TestFloatColumn(unittest.TestCase):
             self.assertEqual(0, len(w))
 
     def test_diff(self):
+        def get_welch_df(var1, n1, var2, n2):
+            return (var1 / n1 + var2 / n2) ** 2 \
+                   / ((var1 / n1) ** 2 / (n1 - 1)
+                      + (var2 / n2) ** 2 / (n2 - 1))
+
         data = [2.5, 12.5, 'not a float', 5, 'not a float']
         df = pd.Series(data).apply(str)
         profiler1 = FloatColumn(df.name)
@@ -1331,6 +1336,28 @@ class TestFloatColumn(unittest.TestCase):
                 'sample_size': -1,
                 'margin_of_error':
                     profile1['precision']['margin_of_error'] - profiler2['precision']['margin_of_error']
+            },
+            't-test': {
+                't-statistic': (profiler1.mean - profiler2.mean) / np.sqrt(
+                    profiler1.variance/profiler1.match_count +
+                    profiler2.variance/profiler2.match_count),
+                'conservative_df': min(profiler1.match_count, profiler2.match_count) - 1,
+                'welch_df': get_welch_df(profiler1.variance, profiler1.match_count,
+                                         profiler2.variance, profiler2.match_count),
+                'results': {
+                    'conservative': {
+                        'p-value': 0.643676756587475,
+                        0.1: "Accept",
+                        0.05: "Accept",
+                        0.01: "Accept"
+                    },
+                    'welch': {
+                        'p-value': 0.6128117908944144,
+                        0.1: "Accept",
+                        0.05: "Accept",
+                        0.01: "Accept"
+                    }
+                }
             }
         }
         self.assertDictEqual(expected_diff, diff)

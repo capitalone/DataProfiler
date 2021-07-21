@@ -47,16 +47,13 @@ class TestAVRODataClass(unittest.TestCase):
         for buffer in cls.buffer_list:
             buffer['path'].seek(0)
 
-    def test_is_match_for_byte_streams(self):
+    def test_is_match(self):
         """
         Determine if the avro file can be automatically identified from
         byte stream
         """
-        for input_file in self.input_file_names:
-            # as BytesIO Stream
-            with open(input_file['path'], 'rb') as fp:
-                byte_string = BytesIO(fp.read())
-                self.assertTrue(AVROData.is_match(byte_string))
+        for input_file in self.file_or_buf_list:
+            self.assertTrue(AVROData.is_match(input_file['path']))
 
     def test_avro_file_identification(self):
         """

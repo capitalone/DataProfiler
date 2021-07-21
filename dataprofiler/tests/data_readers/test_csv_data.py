@@ -185,6 +185,10 @@ class TestCSVDataClass(unittest.TestCase):
             buffer['path'].seek(0)
 
     def test_is_match(self):
+        """
+        Determine if the csv file can be automatically identified from
+        byte stream or stringio stream or file path
+        """
         for input_file in self.file_or_buf_list:
             self.assertTrue(CSVData.is_match(input_file['path']))
 

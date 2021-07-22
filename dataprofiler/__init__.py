@@ -36,6 +36,10 @@ def set_seed(seed=None):
 
 
 def set_verbosity(verbose=None, **kwargs):
+    # Reset basicConfig so that verbosity can be changed
+    for handler in logging.root.handlers:
+        logging.root.removeHandler(handler)
+
     # User can specify kwargs meant to be passed to logging.basicConfig
     if verbose is None:
         # If kwargs given, just pass straight through to basicConfig

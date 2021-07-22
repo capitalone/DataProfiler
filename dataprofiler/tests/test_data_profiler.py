@@ -7,6 +7,7 @@ from unittest import mock
 from . import test_utils
 
 from dataprofiler import Data, Profiler
+from dataprofiler.labelers.regex_model import RegexModel
 
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
@@ -56,12 +57,15 @@ class TestDataProfiler(unittest.TestCase):
         # Ensure that logs are written when verbose
         dp.set_verbosity(True)
 
+        # Ensure character_level_cnn_model writes to logging.info
         with self.assertLogs('DataProfiler.character_level_cnn_model',
                              level='INFO') as cm:
             labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
             labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
 
         # Should be 3 entries written every epoch, each beginning with EPOCH i
+        # Followed by relevant statistics, but will not assert correctness on
+        # Statistics here, just that 3 logs were recorded per epoch
         for i in range(7):
             # 3 entries indices corresponding to given epoch
             idxs = [i*3, i*3 + 1, i*3 + 2]
@@ -70,6 +74,36 @@ class TestDataProfiler(unittest.TestCase):
                 exp_log_start = (f"INFO:DataProfiler."
                                  f"character_level_cnn_model:\rEPOCH {i}")
                 self.assertEqual(exp_log_start, log[:len(exp_log_start)])
+
+        # Ensure that regex_model writes to logging.info
+        with self.assertLogs('DataProfiler.regex_model', level='INFO') as cm:
+            rm = RegexModel(label_mapping={'UNKNOWN': 0})
+            rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
+
+        for i in range(5):
+            log = cm.output[i]
+            exp_log = (f"INFO:DataProfiler.regex_model:\rData Samples "
+                       f"Processed: {i}   ")
+            self.assertEqual(exp_log, log)
+
+        # Ensure that no logs written when not verbose
+        dp.set_verbosity(False)
+
+        with self.assertLogs('DataProfiler.character_level_cnn_model',
+                             level='INFO') as cm:
+            labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
+            labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
+
+        self.assertEqual([], cm.output)
+
+        with self.assertLogs('DataProfiler.regex_model', level='INFO') as cm:
+            rm = RegexModel(label_mapping={'UNKNOWN': 0})
+            rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
+
+        self.assertEqual([], cm.output)
+
+        # NEED TO ASSERT ON PRINTED OUTPUT, NOT JUST LOGGING, THIS FAILS
+
 
     def test_data_import(self):
         for file in self.input_file_names:

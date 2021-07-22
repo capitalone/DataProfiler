@@ -4,8 +4,6 @@ import os
 import unittest
 from unittest import mock
 
-import dataprofiler
-
 from . import test_utils
 
 from dataprofiler import Data, Profiler
@@ -38,11 +36,40 @@ class TestDataProfiler(unittest.TestCase):
         dp.set_seed(5)
         self.assertEqual(dp.settings._seed, 5)
 
-        with self.assertRaisesRegex(ValueError, "Seed should be a non-negative integer."):
+        with self.assertRaisesRegex(ValueError,
+                                    "Seed should be a non-negative integer."):
             dp.set_seed(-5)
 
-        with self.assertRaisesRegex(ValueError, "Seed should be a non-negative integer."):
+        with self.assertRaisesRegex(ValueError,
+                                    "Seed should be a non-negative integer."):
             dp.set_seed(5.2)
+
+    def test_set_verbosity(self):
+        import dataprofiler as dp
+
+        # All parameters are optional, but cannot pass nothing
+        msg = ("Cannot set verbosity without either verbose kwarg or kwargs "
+               "for logging.basicConfig")
+        with self.assertRaisesRegex(ValueError, msg):
+            dp.set_verbosity()
+
+        # Ensure that logs are written when verbose
+        dp.set_verbosity(True)
+
+        with self.assertLogs('DataProfiler.character_level_cnn_model',
+                             level='INFO') as cm:
+            labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
+            labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
+
+        # Should be 3 entries written every epoch, each beginning with EPOCH i
+        for i in range(7):
+            # 3 entries indices corresponding to given epoch
+            idxs = [i*3, i*3 + 1, i*3 + 2]
+            for idx in idxs:
+                log = cm.output[idx]
+                exp_log_start = (f"INFO:DataProfiler."
+                                 f"character_level_cnn_model:\rEPOCH {i}")
+                self.assertEqual(exp_log_start, log[:len(exp_log_start)])
 
     def test_data_import(self):
         for file in self.input_file_names:

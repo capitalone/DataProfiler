@@ -35,10 +35,15 @@ def set_seed(seed=None):
     settings._seed = seed
 
 
-def set_verbosity(verbose=True, **kwargs):
-    if kwargs:
+def set_verbosity(verbose=None, **kwargs):
+    # User can specify kwargs meant to be passed to logging.basicConfig
+    if verbose is None:
         # If kwargs given, just pass straight through to basicConfig
-        logging.basicConfig(**kwargs)
+        if kwargs:
+            logging.basicConfig(**kwargs)
+        else:
+            raise ValueError("Cannot set verbosity without either verbose "
+                             "kwarg or kwargs for logging.basicConfig")
     elif not verbose:
         # Only print warnings and errors
         logging.basicConfig(level=logging.WARNING, **kwargs)

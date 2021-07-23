@@ -116,14 +116,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1)
         compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2)
 
-        def get_welch_df(var1, n1, var2, n2):
-            return (var1 / n1 + var2 / n2) ** 2 \
-                   / ((var1 / n1) ** 2 / (n1 - 1)
-                      + (var2 / n2) ** 2 / (n2 - 1))
-
-        other1 = compiler1._profiles[compiler1.selected_data_type]
-        other2 = compiler2._profiles[compiler2.selected_data_type]
-
         expected_diff = {
             'data_type_representation': {
                 'datetime': 'unchanged',
@@ -140,30 +132,19 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                      'variance': 38.666666666666664,
                      'stddev': 3.285085839971525,
                      't-test': {
-                         't-statistic': (other1.mean - other2.mean) / (
-                             other1.variance / other1.match_count +
-                             other2.variance / other2.match_count) ** 0.5,
-                         'conservative_df': min(other1.match_count, other2.match_count) - 1,
-                         'welch_df': get_welch_df(other1.variance, other1.match_count,
-                                                  other2.variance, other2.match_count),
-                         'results': {
-                             'conservative': {
-                                 'p-value': 0.749287157907667,
-                                 0.1: "Accept",
-                                 0.05: "Accept",
-                                 0.01: "Accept"
-                             },
-                             'welch': {
-                                 'p-value': 0.7011367179395704,
-                                 0.1: "Accept",
-                                 0.05: "Accept",
-                                 0.01: "Accept"
-                             }
+                         't-statistic': 0.4155260166386663,
+                         'conservative': {
+                             'df': 1,
+                             'p-value': 0.749287157907667
+                         },
+                         'welch': {
+                             'df': 3.6288111187629117,
+                             'p-value': 0.7011367179395704
                          }
                      }
              }
         }
-
+        self.maxDiff = None
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
         
         # Test different compilers
@@ -204,15 +185,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         # Test disabled column in both compilers
         compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2,
                                                                          options)
-
-        def get_welch_df(var1, n1, var2, n2):
-            return (var1 / n1 + var2 / n2) ** 2 \
-                   / ((var1 / n1) ** 2 / (n1 - 1)
-                      + (var2 / n2) ** 2 / (n2 - 1))
-
-        other1 = compiler1._profiles[compiler1.selected_data_type]
-        other2 = compiler2._profiles[compiler2.selected_data_type]
-
         expected_diff = {
             'data_type_representation': {
                 'datetime': 'unchanged', 
@@ -237,28 +209,16 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                     'margin_of_error': -1.6
                 },
                 't-test': {
-                    't-statistic': (other1.mean - other2.mean) / (
-                            other1.variance / other1.match_count +
-                            other2.variance / other2.match_count) ** 0.5,
-                    'conservative_df': min(other1.match_count, other2.match_count) - 1,
-                    'welch_df': get_welch_df(other1.variance, other1.match_count,
-                                             other2.variance, other2.match_count),
-                    'results': {
-                        'conservative': {
-                            'p-value': 0.29936264581081673,
-                            0.1: "Accept",
-                            0.05: "Accept",
-                            0.01: "Accept"
-                        },
-                        'welch': {
-                            'p-value': 0.28696889329266506,
-                            0.1: "Accept",
-                            0.05: "Accept",
-                            0.01: "Accept"
-                        }
+                    't-statistic': -1.9674775073518591,
+                    'conservative': {
+                        'df': 1,
+                        'p-value': 0.29936264581081673
+                    },
+                    'welch': {
+                        'df': 1.0673824509440946,
+                        'p-value': 0.28696889329266506
                     }
                 }
-
             }
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))

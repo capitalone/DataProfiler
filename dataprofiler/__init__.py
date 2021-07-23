@@ -28,7 +28,7 @@ except ImportError:
     )
 
 # Initialize logging config
-logging.basicConfig()
+logging.basicConfig(level=logging.INFO)
 
 
 def set_seed(seed=None):

@@ -5,9 +5,11 @@ import logging
 import unittest
 from unittest import mock
 
+import dataprofiler as dp
+
 from . import test_utils
 
-from dataprofiler import Data, Profiler
+from dataprofiler import Data, Profiler, DataLabeler
 from dataprofiler.labelers.regex_model import RegexModel
 
 
@@ -47,8 +49,6 @@ class TestDataProfiler(unittest.TestCase):
             dp.set_seed(5.2)
 
     def test_set_verbosity(self):
-        import dataprofiler as dp
-
         # Ensure that logs are written when verbose
         dp.set_verbosity(True)
         # Level should be set to INFO
@@ -56,8 +56,7 @@ class TestDataProfiler(unittest.TestCase):
 
         # Will write "EPOCH i" updates with statistics
         with self.assertLogs(level=logging.INFO) as cm:
-            labeler = dp.DataLabeler(labeler_type='structured',
-                                     trainable=True)
+            labeler = DataLabeler(labeler_type='structured', trainable=True)
             labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
 
         # Check that 3 'EPOCH i' updates written for each epoch
@@ -95,8 +94,7 @@ class TestDataProfiler(unittest.TestCase):
                                                     "or higher triggered on "
                                                     "root"):
             with self.assertLogs(level=logging.WARNING) as cm:
-                labeler = dp.DataLabeler(labeler_type='structured',
-                                         trainable=True)
+                labeler = DataLabeler(labeler_type='structured', trainable=True)
                 labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
 
         with self.assertRaisesRegex(AssertionError, "no logs of level WARNING "

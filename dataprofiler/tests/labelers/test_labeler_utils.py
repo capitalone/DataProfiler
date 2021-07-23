@@ -1,6 +1,5 @@
 import unittest
 from unittest import mock
-from io import StringIO
 
 import numpy as np
 import pandas as pd
@@ -194,21 +193,23 @@ class TestEvaluateAccuracy(unittest.TestCase):
         self.assertEqual(2 / 3, f1)
         self.assertDictEqual(expected_output, f1_report)
 
-    @mock.patch("sys.stdout", new_callable=StringIO)
-    def test_verbose(self, mock_stdout):
-        f1, f1_report = labeler_utils.evaluate_accuracy(
-            self.y_pred, self.y_true, self.num_labels,
-            self.reverse_label_mapping, omitted_labels=[], verbose=True)
+    def test_verbose(self):
+        with self.assertLogs(level='INFO') as cm:
+            f1, f1_report = labeler_utils.evaluate_accuracy(
+                self.y_pred, self.y_true, self.num_labels,
+                self.reverse_label_mapping, omitted_labels=[], verbose=True)
 
-        self.assertIn('PAD', mock_stdout.getvalue())
-        self.assertIn('UNKNOWN', mock_stdout.getvalue())
-        self.assertIn('OTHER', mock_stdout.getvalue())
-        self.assertIn('weighted avg', mock_stdout.getvalue())
-        self.assertIn('accuracy', mock_stdout.getvalue())
-        self.assertIn('macro avg', mock_stdout.getvalue())
-        self.assertIn('support', mock_stdout.getvalue())
-        self.assertIn('f1-score ', mock_stdout.getvalue())
-        self.assertIn('F1 Score: ', mock_stdout.getvalue())
+        log_output = ''.join(cm.output)
+
+        self.assertIn('PAD', log_output)
+        self.assertIn('UNKNOWN', log_output)
+        self.assertIn('OTHER', log_output)
+        self.assertIn('weighted avg', log_output)
+        self.assertIn('accuracy', log_output)
+        self.assertIn('macro avg', log_output)
+        self.assertIn('support', log_output)
+        self.assertIn('f1-score ', log_output)
+        self.assertIn('F1 Score: ', log_output)
 
     @mock.patch("pandas.DataFrame")
     def test_save_conf_mat(self, mock_dataframe):

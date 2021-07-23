@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os
+from io import StringIO
 import unittest
 from unittest import mock
 
@@ -48,62 +49,45 @@ class TestDataProfiler(unittest.TestCase):
     def test_set_verbosity(self):
         import dataprofiler as dp
 
-        # All parameters are optional, but cannot pass nothing
-        msg = ("Cannot set verbosity without either verbose kwarg or kwargs "
-               "for logging.basicConfig")
-        with self.assertRaisesRegex(ValueError, msg):
-            dp.set_verbosity()
+        for verbose in [False, True]:
+            # Ensure that logs are written when verbose
+            dp.set_verbosity(verbose)
 
-        # Ensure that logs are written when verbose
-        dp.set_verbosity(True)
+            # Will write "EPOCH i" updates with statistics
+            with self.assertLogs() as cm:
+                labeler = dp.DataLabeler(labeler_type='structured',
+                                         trainable=True)
+                labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
 
-        # Ensure character_level_cnn_model writes to logging.info
-        with self.assertLogs('DataProfiler.character_level_cnn_model',
-                             level='INFO') as cm:
-            labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
-            labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
+            # If verbose, will write 3 entries beginning with 'EPOCH i' to log
+            # If not, nothing will be written
+            if verbose:
+                for i in range(7):
+                    # 3 entries indices corresponding to given epoch
+                    idxs = [i * 3, i * 3 + 1, i * 3 + 2]
+                    for idx in idxs:
+                        log = cm.output[idx]
+                        epoch_msg = (f"INFO:DataProfiler."
+                                     f"character_level_cnn_model:\rEPOCH {i}")
+                        self.assertEqual(epoch_msg, log[:len(epoch_msg)])
+            else:
+                self.assertEqual([], cm.output)
 
-        # Should be 3 entries written every epoch, each beginning with EPOCH i
-        # Followed by relevant statistics, but will not assert correctness on
-        # Statistics here, just that 3 logs were recorded per epoch
-        for i in range(7):
-            # 3 entries indices corresponding to given epoch
-            idxs = [i*3, i*3 + 1, i*3 + 2]
-            for idx in idxs:
-                log = cm.output[idx]
-                exp_log_start = (f"INFO:DataProfiler."
-                                 f"character_level_cnn_model:\rEPOCH {i}")
-                self.assertEqual(exp_log_start, log[:len(exp_log_start)])
+            # Will write "Data Samples Processed: i" updates
+            with self.assertLogs() as cm:
+                rm = RegexModel(label_mapping={'UNKNOWN': 0})
+                rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
 
-        # Ensure that regex_model writes to logging.info
-        with self.assertLogs('DataProfiler.regex_model', level='INFO') as cm:
-            rm = RegexModel(label_mapping={'UNKNOWN': 0})
-            rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
-
-        for i in range(5):
-            log = cm.output[i]
-            exp_log = (f"INFO:DataProfiler.regex_model:\rData Samples "
-                       f"Processed: {i}   ")
-            self.assertEqual(exp_log, log)
-
-        # Ensure that no logs written when not verbose
-        dp.set_verbosity(False)
-
-        with self.assertLogs('DataProfiler.character_level_cnn_model',
-                             level='INFO') as cm:
-            labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
-            labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
-
-        self.assertEqual([], cm.output)
-
-        with self.assertLogs('DataProfiler.regex_model', level='INFO') as cm:
-            rm = RegexModel(label_mapping={'UNKNOWN': 0})
-            rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
-
-        self.assertEqual([], cm.output)
-
-        # NEED TO ASSERT ON PRINTED OUTPUT, NOT JUST LOGGING, THIS FAILS
-
+            # If verbose, will write data samples processed update to log
+            # If not, nothing will be written
+            if verbose:
+                for i in range(5):
+                    log = cm.output[i]
+                    exp_log = (f"INFO:DataProfiler.regex_model:\rData Samples "
+                               f"Processed: {i}   ")
+                    self.assertEqual(exp_log, log)
+            else:
+                self.assertEqual([], cm.output)
 
     def test_data_import(self):
         for file in self.input_file_names:

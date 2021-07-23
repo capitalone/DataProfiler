@@ -27,6 +27,9 @@ except ImportError:
         ImportWarning
     )
 
+# Initialize logging config
+logging.basicConfig()
+
 
 def set_seed(seed=None):
     # also check it's an integer
@@ -35,22 +38,11 @@ def set_seed(seed=None):
     settings._seed = seed
 
 
-def set_verbosity(verbose=None, **kwargs):
-    # Reset basicConfig so that verbosity can be changed
-    for handler in logging.root.handlers:
-        logging.root.removeHandler(handler)
-
-    # User can specify kwargs meant to be passed to logging.basicConfig
-    if verbose is None:
-        # If kwargs given, just pass straight through to basicConfig
-        if kwargs:
-            logging.basicConfig(**kwargs)
-        else:
-            raise ValueError("Cannot set verbosity without either verbose "
-                             "kwarg or kwargs for logging.basicConfig")
-    elif not verbose:
-        # Only print warnings and errors
-        logging.basicConfig(level=logging.WARNING, **kwargs)
+def set_verbosity(verbose=True):
+    if verbose:
+        # INFO level will print/log update strings and other outputs as well
+        # as warnings/errors
+        logging.getLogger().setLevel(logging.INFO)
     else:
-        # Also print info messages
-        logging.basicConfig(level=logging.INFO, **kwargs)
+        # WARNING level will print/log only warnings/errors
+        logging.getLogger().setLevel(logging.WARNING)

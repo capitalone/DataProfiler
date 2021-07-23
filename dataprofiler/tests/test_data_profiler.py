@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import os
-from io import StringIO
+import logging
 import unittest
 from unittest import mock
 
@@ -49,45 +49,62 @@ class TestDataProfiler(unittest.TestCase):
     def test_set_verbosity(self):
         import dataprofiler as dp
 
-        for verbose in [False, True]:
-            # Ensure that logs are written when verbose
-            dp.set_verbosity(verbose)
+        # Ensure that logs are written when verbose
+        dp.set_verbosity(True)
+        # Level should be set to INFO
+        self.assertEqual(logging.INFO, logging.getLogger().getEffectiveLevel())
 
-            # Will write "EPOCH i" updates with statistics
-            with self.assertLogs() as cm:
+        # Will write "EPOCH i" updates with statistics
+        with self.assertLogs(level=logging.INFO) as cm:
+            labeler = dp.DataLabeler(labeler_type='structured',
+                                     trainable=True)
+            labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
+
+        # Check that 3 'EPOCH i' updates written for each epoch
+        for i in range(7):
+            # 3 entries indices corresponding to given epoch
+            idxs = [i * 3, i * 3 + 1, i * 3 + 2]
+            for idx in idxs:
+                log = cm.output[idx]
+                epoch_msg = (f"INFO:DataProfiler.character_level_cnn_model:"
+                             f"\rEPOCH {i}")
+                self.assertEqual(epoch_msg, log[:len(epoch_msg)])
+
+        # Will write "Data Samples Processed: i" updates
+        with self.assertLogs(level=logging.INFO) as cm:
+            rm = RegexModel(label_mapping={'UNKNOWN': 0})
+            rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
+
+        # Check that 'Data Samples Process: i' written for each sample
+        for i in range(5):
+            log = cm.output[i]
+            exp_log = (f"INFO:DataProfiler.regex_model:\rData Samples "
+                       f"Processed: {i}   ")
+            self.assertEqual(exp_log, log)
+
+        # Ensure that no logs written when not verbose
+        dp.set_verbosity(False)
+        # Level should be set to WARNING
+        self.assertEqual(logging.WARNING, logging.getLogger().getEffectiveLevel())
+
+        # When self.assertLogs is set with a level where no logs were written
+        # An AssertionError is thrown. This is what we expect in this case,
+        # Since the only logs we want written are WARNING and up, but only INFO
+        # Would have been written in the logic that creates output below
+        with self.assertRaisesRegex(AssertionError, "no logs of level WARNING "
+                                                    "or higher triggered on "
+                                                    "root"):
+            with self.assertLogs(level=logging.WARNING) as cm:
                 labeler = dp.DataLabeler(labeler_type='structured',
                                          trainable=True)
                 labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
 
-            # If verbose, will write 3 entries beginning with 'EPOCH i' to log
-            # If not, nothing will be written
-            if verbose:
-                for i in range(7):
-                    # 3 entries indices corresponding to given epoch
-                    idxs = [i * 3, i * 3 + 1, i * 3 + 2]
-                    for idx in idxs:
-                        log = cm.output[idx]
-                        epoch_msg = (f"INFO:DataProfiler."
-                                     f"character_level_cnn_model:\rEPOCH {i}")
-                        self.assertEqual(epoch_msg, log[:len(epoch_msg)])
-            else:
-                self.assertEqual([], cm.output)
-
-            # Will write "Data Samples Processed: i" updates
-            with self.assertLogs() as cm:
+        with self.assertRaisesRegex(AssertionError, "no logs of level WARNING "
+                                                    "or higher triggered on "
+                                                    "root"):
+            with self.assertLogs(level=logging.WARNING) as cm:
                 rm = RegexModel(label_mapping={'UNKNOWN': 0})
                 rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
-
-            # If verbose, will write data samples processed update to log
-            # If not, nothing will be written
-            if verbose:
-                for i in range(5):
-                    log = cm.output[i]
-                    exp_log = (f"INFO:DataProfiler.regex_model:\rData Samples "
-                               f"Processed: {i}   ")
-                    self.assertEqual(exp_log, log)
-            else:
-                self.assertEqual([], cm.output)
 
     def test_data_import(self):
         for file in self.input_file_names:

@@ -336,11 +336,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _perform_t_test(mean1, var1, n1,
                         mean2, var2, n2):
-        if n1 <= 1 or n2 <= 1:
-            warnings.warn("Insufficient sample size to "
-                          "perform t-test.", RuntimeWarning)
-            return None
-        
         results = {
             't-statistic': None,
             'conservative': {
@@ -351,8 +346,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 'df': None,
                 'p-value': None
             }
-
         }
+
+        if n1 <= 1 or n2 <= 1:
+            warnings.warn("Insufficient sample size to "
+                          "perform t-test.", RuntimeWarning)
+            return results
+
         s_delta = var1/n1 + var2/n2
         t = (mean1 - mean2) / np.sqrt(s_delta)
         conservative_df = min(n1, n2) - 1
@@ -361,6 +361,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         results['t-statistic'] = t
         results['conservative']['df'] = conservative_df
         results['welch']['df'] = welch_df
+        
         try:
             import scipy.stats
         except ImportError:

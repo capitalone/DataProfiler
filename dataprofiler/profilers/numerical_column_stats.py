@@ -339,8 +339,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if n1 <= 1 or n2 <= 1:
             warnings.warn("Insufficient sample size to "
                           "perform t-test.", RuntimeWarning)
-            return "null"
-
+            return None
+        
         results = {
             't-statistic': None,
             'conservative': {

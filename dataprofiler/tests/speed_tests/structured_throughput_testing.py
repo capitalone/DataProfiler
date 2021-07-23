@@ -105,6 +105,23 @@ if __name__ == "__main__":
             }
             profile_times += [column_profile_time]
 
+        # add time for for Top-level
+        if sample_size:
+            profile_times += [
+                {
+                    'name': 'StructuredProfiler',
+                    'sample_size': sample_size,
+                    'total_time': total_time,
+                    'column': profiler.times,
+                    'merge': merge_time,
+                    'percent_to_nan': PERCENT_TO_NAN,
+                    'allow_subsampling': ALLOW_SUBSAMPLING,
+                    'is_data_labeler':
+                        options.structured_options.data_labeler.is_enabled,
+                    'is_multiprocessing':
+                        options.structured_options.multiprocess.is_enabled,
+                }
+            ]
         
         print(f"COMPLETE sample size: {sample_size}")
         print(f"Profiled in {total_time} seconds")

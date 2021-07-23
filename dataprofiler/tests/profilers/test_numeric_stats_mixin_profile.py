@@ -599,7 +599,51 @@ class TestNumericStatsMixin(unittest.TestCase):
             }
         }
         self.assertDictEqual(expected_diff, other1.diff(other2))
-        
+
+        # Invalid statistics (NaN variance, insufficient match count)
+        other1, other2 = TestColumn(), TestColumn()
+        other1.min = 3
+        other1.max = 4
+        other1._biased_variance = np.nan
+        other1.sum = 6
+        other1.match_count = 10
+
+        other2.min = 3
+        other2.max = None
+        other2._biased_variance = 9
+        other2.sum = 6
+        other2.match_count = 1
+
+        expected_diff = {
+            'min': 'unchanged',
+            'max': [4, None],
+            'sum': 'unchanged',
+            'mean': -5.4,
+            'variance': np.nan,
+            'stddev': np.nan,
+            't-test': {
+                't-statistic': None,
+                'conservative': {
+                    'df': None,
+                    'p-value': None
+                },
+                'welch': {
+                    'df': None,
+                    'p-value': None
+                }
+            }
+        }
+        expected_var = expected_diff.pop('variance')
+        expected_stddev = expected_diff.pop('stddev')
+        with self.assertWarnsRegex(RuntimeWarning,
+                                   "T-test could not be performed due "
+                                   "to invalid profile statistics."):
+            difference = other1.diff(other2)
+            var = difference.pop('variance')
+            stddev = difference.pop('stddev')
+        self.assertDictEqual(expected_diff, difference)
+        self.assertTrue(np.isnan([expected_var, var, expected_stddev, stddev]).all())
+
         # Assert type error is properly called
         with self.assertRaises(TypeError) as exc:
             other1.diff("Inproper input")

@@ -1,3 +1,4 @@
+from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
 import fastavro
 
 from . import data_utils
@@ -38,7 +39,7 @@ class AVROData(JSONData, BaseData):
         JSONData.__init__(self, input_file_path, data, options)
 
     def _load_data_from_file(self, input_file_path):
-        with open(input_file_path, "rb") as input_file:
+        with FileOrBufferHandler(input_file_path, "rb") as input_file:
             # Currently, string reading with 'r' option has the unicode issue,
             # even when the option encoding='utf-8' is added. It may come from
             # some special compression codec, e.g., snappy. Then, binary mode

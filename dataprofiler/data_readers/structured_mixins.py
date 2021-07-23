@@ -2,7 +2,7 @@ import logging
 
 import pandas as pd
 
-logger = logging.getLogger('DataProfiler.structured_mixins')
+logger = logging.getLogger(__name__)
 
 
 class SpreadSheetDataMixin(object):

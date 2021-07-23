@@ -55,7 +55,8 @@ class TestDataProfiler(unittest.TestCase):
         self.assertEqual(logging.INFO, logging.getLogger().getEffectiveLevel())
 
         # Will write "EPOCH i" updates with statistics
-        with self.assertLogs(level=logging.INFO) as cm:
+        with self.assertLogs('dataprofiler.labelers.character_level_cnn_model',
+                             level=logging.INFO) as cm:
             labeler = DataLabeler(labeler_type='structured', trainable=True)
             labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
 
@@ -65,19 +66,20 @@ class TestDataProfiler(unittest.TestCase):
             idxs = [i * 3, i * 3 + 1, i * 3 + 2]
             for idx in idxs:
                 log = cm.output[idx]
-                epoch_msg = (f"INFO:DataProfiler.character_level_cnn_model:"
-                             f"\rEPOCH {i}")
+                epoch_msg = (f"INFO:dataprofiler.labelers."
+                             f"character_level_cnn_model:\rEPOCH {i}")
                 self.assertEqual(epoch_msg, log[:len(epoch_msg)])
 
         # Will write "Data Samples Processed: i" updates
-        with self.assertLogs(level=logging.INFO) as cm:
+        with self.assertLogs('dataprofiler.labelers.regex_model',
+                             level=logging.INFO) as cm:
             rm = RegexModel(label_mapping={'UNKNOWN': 0})
             rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
 
         # Check that 'Data Samples Process: i' written for each sample
         for i in range(5):
             log = cm.output[i]
-            exp_log = (f"INFO:DataProfiler.regex_model:\rData Samples "
+            exp_log = (f"INFO:dataprofiler.labelers.regex_model:\rData Samples "
                        f"Processed: {i}   ")
             self.assertEqual(exp_log, log)
 
@@ -90,17 +92,20 @@ class TestDataProfiler(unittest.TestCase):
         # An AssertionError is thrown. This is what we expect in this case,
         # Since the only logs we want written are WARNING and up, but only INFO
         # Would have been written in the logic that creates output below
-        with self.assertRaisesRegex(AssertionError, "no logs of level WARNING "
-                                                    "or higher triggered on "
-                                                    "root"):
-            with self.assertLogs(level=logging.WARNING) as cm:
+        msg = "no logs of level WARNING or higher triggered on " \
+              "dataprofiler.labelers.character_level_cnn_model"
+        with self.assertRaisesRegex(AssertionError, msg):
+            with self.assertLogs(
+                    'dataprofiler.labelers.character_level_cnn_model',
+                    level=logging.WARNING):
                 labeler = DataLabeler(labeler_type='structured', trainable=True)
                 labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
 
-        with self.assertRaisesRegex(AssertionError, "no logs of level WARNING "
-                                                    "or higher triggered on "
-                                                    "root"):
-            with self.assertLogs(level=logging.WARNING) as cm:
+        msg = "no logs of level WARNING or higher triggered on " \
+              "dataprofiler.labelers.regex_model"
+        with self.assertRaisesRegex(AssertionError, msg):
+            with self.assertLogs('dataprofiler.labelers.regex_model',
+                                 level=logging.WARNING):
                 rm = RegexModel(label_mapping={'UNKNOWN': 0})
                 rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
 

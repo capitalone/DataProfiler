@@ -235,8 +235,8 @@ class TestRegexModel(unittest.TestCase):
         # test verbose = False doesn't make any INFO logs
         with self.assertRaisesRegex(AssertionError, 'no logs of level INFO or '
                                                     'higher triggered on root'):
-            with self.assertLogs(level='INFO') as cm:
-                model_output = model.predict(['hello world.'], verbose=False)
+            with self.assertLogs(level='INFO'):
+                model.predict(['hello world.'], verbose=False)
 
     @mock.patch("tensorflow.keras.models.load_model", return_value=None)
     @mock.patch("builtins.open", side_effect=mock_open)

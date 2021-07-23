@@ -15,7 +15,7 @@ from .base_model import AutoSubRegistrationMeta
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 
-logger = logging.getLogger('DataProfiler.character_level_cnn_model')
+logger = logging.getLogger(__name__)
 
 
 class NoV1ResourceMessageFilter(logging.Filter):

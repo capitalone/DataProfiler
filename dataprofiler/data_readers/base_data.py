@@ -5,7 +5,7 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
-logger = logging.getLogger('DataProfiler.data')
+logger = logging.getLogger(__name__)
 
 
 class BaseData(object):

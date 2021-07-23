@@ -10,7 +10,7 @@ from .classification_report_utils import classification_report
 
 warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
 
-logger = logging.getLogger('DataProfiler.labeler_utils')
+logger = logging.getLogger(__name__)
 
 
 def f1_report_dict_to_str(f1_report, label_names):

@@ -9,7 +9,7 @@ import numpy as np
 from .base_model import BaseModel
 from .base_model import AutoSubRegistrationMeta
 
-logger = logging.getLogger('DataProfiler.regex_model')
+logger = logging.getLogger(__name__)
 
 
 class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):

@@ -8,7 +8,7 @@ from .text_data import TextData
 from .parquet_data import ParquetData
 from .avro_data import AVROData
 
-logger = logging.getLogger('DataProfiler.data')
+logger = logging.getLogger(__name__)
 
 
 class Data(object):

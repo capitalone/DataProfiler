@@ -579,6 +579,10 @@ class TestNumericStatsMixin(unittest.TestCase):
         other2.sum = 6
         other2.match_count = 20
 
+        # T-stat and Welch's df calculation can be found here:
+        #    https://en.wikipedia.org/wiki/Welch%27s_t-test#Calculations
+        # Conservative df = min(count1, count2) - 1
+        # P-value is found using scipy:  (1 - CDF(abs(t-stat))) * 2
         expected_diff = {
             'min': 'unchanged',
             'max': [4, None],

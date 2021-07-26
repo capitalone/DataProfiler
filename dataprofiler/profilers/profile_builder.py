@@ -1366,7 +1366,8 @@ class StructuredProfiler(BaseProfiler):
                 "profile_schema": defaultdict(list)})
         report.update({"data_stats": []})
 
-        self_profile_schema =  defaultdict(list)
+        # Extract the schema of each profile
+        self_profile_schema = defaultdict(list)
         other_profile_schema = defaultdict(list)
         for i in range(len(self._profile)):
             col_name = self._profile[i].name

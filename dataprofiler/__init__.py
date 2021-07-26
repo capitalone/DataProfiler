@@ -6,7 +6,7 @@ from .labelers.data_labelers import train_structured_labeler, DataLabeler, \
                                     StructuredDataLabeler, \
                                     UnstructuredDataLabeler
 from .validators.base_validators import Validator
-from .dp_logging import set_verbosity
+from .dp_logging import set_verbosity, get_logger
 from .version import __version__
 from . import settings
 

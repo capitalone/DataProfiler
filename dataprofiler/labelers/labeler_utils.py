@@ -10,7 +10,7 @@ from .. import dp_logging
 
 warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
 
-logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
+logger = dp_logging.get_child_logger(__name__)
 
 
 def f1_report_dict_to_str(f1_report, label_names):

@@ -2,7 +2,7 @@ import pandas as pd
 
 from .. import dp_logging
 
-logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
+logger = dp_logging.get_child_logger(__name__)
 
 
 class SpreadSheetDataMixin(object):

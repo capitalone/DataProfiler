@@ -33,6 +33,22 @@ def get_logger():
         _logger_lock.release()
 
 
-def set_verbosity(v):
-    """Set verbosity level for DataProfiler logger"""
-    get_logger().setLevel(v)
+def set_verbosity(level):
+    """
+    Set verbosity level for DataProfiler logger
+
+    :param level: Verbosity level (from logging module)
+    :type level: int
+    """
+    get_logger().setLevel(level)
+
+
+def get_child_logger(name):
+    """
+    Returns logger for given filepath
+
+    :param name: name of file in need of accessing child logger
+    :type name: str
+    :return: Logger instance for given file
+    """
+    return get_logger().getChild(name.replace('dataprofiler.', ''))

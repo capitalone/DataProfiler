@@ -16,7 +16,7 @@ from .. import dp_logging
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 
-logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
+logger = dp_logging.get_child_logger(__name__)
 
 
 class NoV1ResourceMessageFilter(logging.Filter):

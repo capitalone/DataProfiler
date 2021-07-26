@@ -12,7 +12,7 @@ from chardet.universaldetector import UniversalDetector
 from .filepath_or_buffer import FileOrBufferHandler
 from .. import dp_logging
 
-logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
+logger = dp_logging.get_child_logger(__name__)
 
 
 def data_generator(data_list):

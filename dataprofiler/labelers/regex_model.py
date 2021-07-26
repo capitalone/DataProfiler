@@ -9,7 +9,7 @@ from .base_model import BaseModel
 from .base_model import AutoSubRegistrationMeta
 from .. import dp_logging
 
-logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
+logger = dp_logging.get_child_logger(__name__)
 
 
 class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):

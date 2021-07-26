@@ -1270,7 +1270,19 @@ class TestStructuredProfiler(unittest.TestCase):
             ]
         }
         self.assertDictEqual(expected_diff, profile1.diff(profile2))
-
+    
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                "DataLabelerColumn.update")
+    def test_diff_type_checking(self, *mocks):
+        data = pd.DataFrame([[1, 2], [5, 6]],
+                            columns=["a", "b"])
+        profile = dp.StructuredProfiler(data)
+        with self.assertRaisesRegex(TypeError, 
+                                    '`StructuredProfiler` and `str` are not of '
+                                    'the same profiler type.'):
+            profile.diff("ERROR")
+        
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
                 "DataLabelerColumn.update")

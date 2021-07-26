@@ -619,6 +619,30 @@ class BaseProfiler(object):
 
         return merged_profile
 
+    def diff(self, other_profile, options=None):
+        """
+        Finds the difference of two profiles
+
+        :param other: profile being added to this one.
+        :type other: BaseProfiler
+        :return: diff of the two profiles
+        :rtype: dict
+        """
+        if type(other_profile) is not type(self):
+            raise TypeError('`{}` and `{}` are not of the same profiler type.'.
+                            format(type(self).__name__, 
+                                   type(other_profile).__name__))
+        
+        diff_profile = OrderedDict([
+            ("global_stats", {
+                "file_type": utils.find_diff_of_strings_and_bools(
+                    self.file_type, other_profile.file_type),
+                "encoding": utils.find_diff_of_strings_and_bools(
+                    self.encoding, other_profile.encoding),
+            })])
+        
+        return diff_profile
+
     def _get_sample_size(self, data):
         """
         Determines the minimum sampling size for profiling the dataset.
@@ -1315,9 +1339,8 @@ class StructuredProfiler(BaseProfiler):
         :return: difference of the profiles
         :rtype: dict
         """
-        
-        report = OrderedDict([
-            ("global_stats", {
+        report = super().diff( other_profile, options)
+        report["global_stats"].update({
                 "samples_used": utils.find_diff_of_numbers(
                     self._max_col_samples_used, 
                     other_profile._max_col_samples_used),
@@ -1337,14 +1360,8 @@ class StructuredProfiler(BaseProfiler):
                 "duplicate_row_count": utils.find_diff_of_numbers(
                     self._get_duplicate_row_count(),
                     other_profile._get_row_is_null_ratio()),
-                "file_type": utils.find_diff_of_strings_and_bools(
-                    self.file_type, other_profile.file_type),
-                "encoding": utils.find_diff_of_strings_and_bools(
-                    self.encoding, other_profile.encoding),
-                "profile_schema": defaultdict(list),
-            }),
-            ("data_stats", []),
-        ])
+                "profile_schema": defaultdict(list)})
+        report.update({"data_stats": []})
 
         self_profile_schema =  defaultdict(list)
         other_profile_schema = defaultdict(list)

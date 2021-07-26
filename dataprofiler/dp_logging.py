@@ -1,5 +1,6 @@
 import logging
 import threading
+import sys
 
 _logger = None
 _logger_lock = threading.Lock()
@@ -21,13 +22,10 @@ def get_logger():
         logger = logging.getLogger('DataProfiler')
 
         # Set formatting of logs
-        stream_handle = logging.StreamHandler()
+        stream_handle = logging.StreamHandler(stream=sys.stdout)
         stream_handle.setFormatter(
             logging.Formatter("%(levelname)s:%(name)s: %(message)s"))
         logger.addHandler(stream_handle)
-
-        # Initialize to INFO
-        logger.setLevel(logging.INFO)
 
         _logger = logger
         return _logger

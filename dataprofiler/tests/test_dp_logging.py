@@ -12,38 +12,8 @@ class TestDPLogging(unittest.TestCase):
         self.assertEqual(logging.INFO,
                          dp_logging.get_logger().getEffectiveLevel())
 
-        # Will write "EPOCH i" updates with statistics
-        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
-                             level=logging.INFO) as cm:
-            labeler = DataLabeler(labeler_type='structured', trainable=True)
-            labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
-
-        # Check that 3 'EPOCH i' updates written for each epoch
-        for i in range(7):
-            # 3 entries indices corresponding to given epoch
-            idxs = [i * 3, i * 3 + 1, i * 3 + 2]
-            for idx in idxs:
-                log = cm.output[idx]
-                epoch_msg = (f"INFO:DataProfiler.labelers."
-                             f"character_level_cnn_model:\rEPOCH {i}")
-                self.assertEqual(epoch_msg, log[:len(epoch_msg)])
-
-        # Will write "Data Samples Processed: i" updates
-        with self.assertLogs('DataProfiler.labelers.regex_model',
-                             level=logging.INFO) as cm:
-            rm = RegexModel(label_mapping={'UNKNOWN': 0})
-            rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
-
-        # Check that 'Data Samples Process: i' written for each sample
-        for i in range(5):
-            log = cm.output[i]
-            exp_log = (f"INFO:DataProfiler.labelers.regex_model:\rData Samples "
-                       f"Processed: {i}   ")
-            self.assertEqual(exp_log, log)
-
-        # Ensure that no logs written when not verbose
+        # Set verbosity to WARNING (won't print/log update messages)
         dp_logging.set_verbosity(logging.WARNING)
-        # Level should be set to WARNING
         self.assertEqual(logging.WARNING,
                          dp_logging.get_logger().getEffectiveLevel())
 
@@ -67,3 +37,26 @@ class TestDPLogging(unittest.TestCase):
                                  level=logging.WARNING):
                 rm = RegexModel(label_mapping={'UNKNOWN': 0})
                 rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
+
+        # Set verbosity to INFO (will print/log update messages)
+        dp_logging.set_verbosity(logging.INFO)
+        self.assertEqual(logging.INFO,
+                         dp_logging.get_logger().getEffectiveLevel())
+
+        # Will write "EPOCH i" updates with statistics
+        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
+                             level=logging.INFO) as cm:
+            labeler = DataLabeler(labeler_type='structured', trainable=True)
+            labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
+
+        # Ensures it got logged
+        self.assertTrue(len(cm.output) > 0)
+
+        # Will write "Data Samples Processed: i" updates
+        with self.assertLogs('DataProfiler.labelers.regex_model',
+                             level=logging.INFO) as cm:
+            rm = RegexModel(label_mapping={'UNKNOWN': 0})
+            rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
+
+        # Ensures it got logged
+        self.assertTrue(len(cm.output) > 0)

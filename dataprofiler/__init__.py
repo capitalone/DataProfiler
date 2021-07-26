@@ -1,3 +1,5 @@
+import logging
+
 from .data_readers.data import Data
 from .profilers.profile_builder import StructuredProfiler, \
                                        UnstructuredProfiler, Profiler
@@ -25,6 +27,9 @@ except ImportError:
         '\tsudo apt-get -y install libsnappy-dev`\n',
         ImportWarning
     )
+
+# Initialize DataProfiler logger to INFO
+dp_logging.set_verbosity(logging.INFO)
 
 
 def set_seed(seed=None):

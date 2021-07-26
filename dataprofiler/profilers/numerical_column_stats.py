@@ -348,10 +348,17 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             }
         }
 
-        if n1 <= 1 or n2 <= 1 or np.isnan([mean1, mean2, var1, var2]).any() \
-                or None in [mean1, mean2, var1, var2]:
-            warnings.warn("T-test could not be performed due "
-                "to invalid profile statistics.", RuntimeWarning)
+        invalid_stats = False
+        if n1 <= 1 or n2 <= 1:
+            warnings.warn("Insufficient sample size. "
+                          "T-test cannot be performed.", RuntimeWarning)
+            invalid_stats = True
+        if np.isnan([mean1, mean2, var1, var2]).any() or \
+                None in [mean1, mean2, var1, var2]:
+            warnings.warn("Null value(s) found in mean and/or variance values. "
+                          "T-test cannot be performed.", RuntimeWarning)
+            invalid_stats = True
+        if invalid_stats:
             return results
 
         s_delta = var1/n1 + var2/n2

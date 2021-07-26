@@ -2,14 +2,14 @@ import json
 import os
 import re
 import copy
-import logging
 
 import numpy as np
 
 from .base_model import BaseModel
 from .base_model import AutoSubRegistrationMeta
+from .. import dp_logging
 
-logger = logging.getLogger(__name__)
+logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
 
 
 class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):

@@ -1,16 +1,16 @@
 import os
 import warnings
-import logging
 
 import scipy
 import numpy as np
 from sklearn.exceptions import UndefinedMetricWarning
 
 from .classification_report_utils import classification_report
+from .. import dp_logging
 
 warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
 
-logger = logging.getLogger(__name__)
+logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
 
 
 def f1_report_dict_to_str(f1_report, label_names):

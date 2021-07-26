@@ -4,15 +4,15 @@ import json
 from io import open, StringIO, BytesIO, TextIOWrapper
 from collections import OrderedDict
 import dateutil
-import logging
 
 import pandas as pd
 import pyarrow.parquet as pq
 from chardet.universaldetector import UniversalDetector
 
 from .filepath_or_buffer import FileOrBufferHandler
+from .. import dp_logging
 
-logger = logging.getLogger(__name__)
+logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
 
 
 def data_generator(data_list):

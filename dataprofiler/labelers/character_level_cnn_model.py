@@ -12,10 +12,11 @@ from sklearn import decomposition
 from . import labeler_utils
 from .base_model import BaseModel, BaseTrainableModel
 from .base_model import AutoSubRegistrationMeta
+from .. import dp_logging
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 
-logger = logging.getLogger(__name__)
+logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
 
 
 class NoV1ResourceMessageFilter(logging.Filter):

@@ -1,14 +1,14 @@
 from __future__ import absolute_import
 from __future__ import division
-import logging
 
 from .csv_data import CSVData
 from .json_data import JSONData
 from .text_data import TextData
 from .parquet_data import ParquetData
 from .avro_data import AVROData
+from .. import dp_logging
 
-logger = logging.getLogger(__name__)
+logger = dp_logging.get_logger().getChild(__name__.replace('dataprofiler.', ''))
 
 
 class Data(object):

@@ -1677,52 +1677,17 @@ class TestUnstructuredProfiler(unittest.TestCase):
         mocks[2].side_effect = [UnstructuredCompiler(), UnstructuredCompiler()]
         mocks[0].return_value = {
             'statistics': {
-                'vocab': [['A', 'B'], ['C'], ['D']], 
-                'vocab_count': [{'A': 4, 'B': 2}, {'C': "unchanged"}, {'D': 2}], 
-                'words': [['Hello', 'test'], ['grant'], ['unknown', 'name', '9']], 
-                'word_count': [{'Hello': 2, 'test': 1}, 
-                               {'grant': 'unchanged'}, 
-                               {'9': 2, 'unknown': 1, 'name': 1}]
+                'all_vocab_and_word_stats': [['A', 'B'], ['C'], ['D']]
             }, 
             'data_label': {
                 'entity_counts': {
-                    'word_level': {
-                        'UNKNOWN': 3, 
-                        'TEST': 1, 
-                        'UNIQUE1': [5, None], 
-                        'UNIQUE2': [None, 4]
-                    }, 
-                    'true_char_level': {
-                        'UNKNOWN': -4, 
-                        'TEST': 'unchanged', 
-                        'UNIQUE1': [8, None], 
-                        'UNIQUE2': [None, 4]
-                    }, 
-                    'postprocess_char_level': {
-                        'UNKNOWN': 'unchanged', 
-                        'TEST': 'unchanged', 
-                        'UNIQUE1': [5, None], 
-                        'UNIQUE2': [None, 5]
+                    'word_and_char_level_stats': {
+                        'LABEL': 'unchanged'
                     }
                 }, 
                 'entity_percentages': {
-                    'word_level': {
-                        'UNKNOWN': 0.1, 
-                        'TEST': 0.3, 
-                        'UNIQUE1': [0.1, None], 
-                        'UNIQUE2': [None, 0.4]
-                    }, 
-                    'true_char_level': {
-                        'UNKNOWN': -0.2,
-                        'TEST': 'unchanged',
-                        'UNIQUE1': [0.4, None],
-                        'UNIQUE2': [None, 0.2]
-                    }, 
-                    'postprocess_char_level': {
-                        'UNKNOWN': 'unchanged', 
-                        'TEST': 'unchanged', 
-                        'UNIQUE1': [0.25, None], 
-                        'UNIQUE2': [None, 0.25]
+                    'word_and_char_level_stats': {
+                        'LABEL': 'unchanged'
                     }
                 }
             }
@@ -1739,22 +1704,24 @@ class TestUnstructuredProfiler(unittest.TestCase):
                 'empty_line_count': -5, 
                 'file_type': 'unchanged', 
                 'encoding': 'unchanged', 
-                'memory_size': -9.5367431640625e-06}, 
+                'memory_size': -9.5367431640625e-06
+            }, 
             'data_stats': {
                 'statistics': {
-                    'vocab': [['A', 'B'], ['C'], ['D']], 
-                    'vocab_count': [{'A': 4, 'B': 2}, {'C': 'unchanged'}, {'D': 2}], 
-                    'words': [['Hello', 'test'], ['grant'], ['unknown', 'name', '9']], 
-                    'word_count': [{'Hello': 2, 'test': 1}, {'grant': 'unchanged'}, {'9': 2, 'unknown': 1, 'name': 1}]}, 
+                    'all_vocab_and_word_stats': [['A', 'B'], ['C'], ['D']]}, 
                 'data_label': {
                     'entity_counts': {
-                        'word_level': {'UNKNOWN': 3, 'TEST': 1, 'UNIQUE1': [5, None], 'UNIQUE2': [None, 4]}, 
-                        'true_char_level': {'UNKNOWN': -4, 'TEST': 'unchanged', 'UNIQUE1': [8, None], 'UNIQUE2': [None, 4]}, 
-                        'postprocess_char_level': {'UNKNOWN': 'unchanged', 'TEST': 'unchanged', 'UNIQUE1': [5, None], 'UNIQUE2': [None, 5]}}, 
+                        'word_and_char_level_stats': 
+                            {'LABEL': 'unchanged'}
+                    }, 
                     'entity_percentages': {
-                        'word_level': {'UNKNOWN': 0.1, 'TEST': 0.3, 'UNIQUE1': [0.1, None], 'UNIQUE2': [None, 0.4]}, 
-                        'true_char_level': {'UNKNOWN': -0.2, 'TEST': 'unchanged', 'UNIQUE1': [0.4, None], 'UNIQUE2': [None, 0.2]}, 
-                        'postprocess_char_level': {'UNKNOWN': 'unchanged', 'TEST': 'unchanged', 'UNIQUE1': [0.25, None], 'UNIQUE2': [None, 0.25]}}}}}
+                        'word_and_char_level_stats': {
+                            'LABEL': 'unchanged'
+                        }
+                    }
+                }
+            }
+        }
 
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
 

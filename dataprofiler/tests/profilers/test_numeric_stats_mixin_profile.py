@@ -584,8 +584,8 @@ class TestNumericStatsMixin(unittest.TestCase):
             'max': [4, None],
             'sum': 'unchanged',
             'mean': 0.3,
-            'variance': -8.3625731,
-            'stddev': -2.0238425028660023,
+            'variance': 10 / 9 - (9 * 20 / 19),
+            'stddev': np.sqrt(10 / 9) - np.sqrt(9 * 20 / 19),
             't-test': {
                 't-statistic': 0.3923009049186606,
                 'conservative': {
@@ -598,11 +598,8 @@ class TestNumericStatsMixin(unittest.TestCase):
                 }
             }
         }
-        expected_var = expected_diff.pop('variance')
         difference = other1.diff(other2)
-        var = difference.pop('variance')
         self.assertDictEqual(expected_diff, difference)
-        self.assertAlmostEqual(expected_var, var)
 
         # Invalid statistics
         other1, other2 = TestColumn(), TestColumn()
@@ -711,8 +708,8 @@ class TestNumericStatsMixin(unittest.TestCase):
             'max': [4, None],
             'sum': -54,
             'mean': -2.4,
-            'variance': -8.3625731,
-            'stddev': -2.0238425028660023,
+            'variance': 10 / 9 - (9 * 20 / 19),
+            'stddev': np.sqrt(10 / 9) - np.sqrt(9 * 20 / 19),
             't-test': {
                 't-statistic': -3.138407239349285,
                 'conservative': {
@@ -725,11 +722,8 @@ class TestNumericStatsMixin(unittest.TestCase):
                 }
             }
         }
-        expected_var = expected_diff.pop('variance')
         difference = other1.diff(other2)
-        var = difference.pop('variance')
         self.assertDictEqual(expected_diff, difference)
-        self.assertAlmostEqual(expected_var, var)
 
         # Assert type error is properly called
         with self.assertRaises(TypeError) as exc:

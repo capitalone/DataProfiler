@@ -1209,8 +1209,12 @@ class TestStructuredProfiler(unittest.TestCase):
         data2 = pd.DataFrame([[4, 3], [8, 7], [None, None], [9, 10]],
                                  columns=["a", "b"])
 
-        profile1 = dp.StructuredProfiler(data1)
-        profile2 = dp.StructuredProfiler(data2)
+        options = dp.ProfilerOptions()
+        options.structured_options.correlation.is_enabled = True
+        profile1 = dp.StructuredProfiler(data1, options=options)
+        options2 = dp.ProfilerOptions()
+        options2.structured_options.correlation.is_enabled = True
+        profile2 = dp.StructuredProfiler(data2, options=options2)
 
         expected_diff = {
             'global_stats': {
@@ -1223,6 +1227,9 @@ class TestStructuredProfiler(unittest.TestCase):
                 'duplicate_row_count': -0.25, 
                 'file_type': 'unchanged', 
                 'encoding': 'unchanged', 
+                'correlation_matrix': 
+                    np.array([[1.11022302e-16, 3.13803955e-02],
+                              [3.13803955e-02, 0.00000000e+00]], dtype=np.float),
                 'profile_schema': [{}, {'a': 'unchanged', 'b': 'unchanged'}, {}]}, 
             'data_stats': [
                 {
@@ -1269,7 +1276,13 @@ class TestStructuredProfiler(unittest.TestCase):
                  }
             ]
         }
-        self.assertDictEqual(expected_diff, profile1.diff(profile2))
+
+        diff = profile1.diff(profile2)
+        expected_mat = expected_diff["global_stats"].pop("correlation_matrix")
+        diff_mat = diff["global_stats"].pop("correlation_matrix")
+
+        self.assertEqual(str(expected_mat), str(diff_mat))
+        self.assertDictEqual(expected_diff, diff)
     
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     @mock.patch("dataprofiler.profilers.data_labeler_column_profile."

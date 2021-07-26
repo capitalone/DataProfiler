@@ -2531,14 +2531,6 @@ class TestProfilerFactoryClass(unittest.TestCase):
             save_profile.update_profile(pd.DataFrame(['test', 'test2']))
             load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
-    def test_random(self):
-        data1 = pd.Series(['this', 'is my', '\n\r', 'test'])
-        data2 = pd.Series(['here\n', '\t    ', ' ', ' is', '\n\r', 'more data'])
-
-        profiler1 = UnstructuredProfiler(data1)
-        profiler2 = UnstructuredProfiler(data2)
-
-        print(profiler1.diff(profiler2))
 
 if __name__ == '__main__':
     unittest.main()

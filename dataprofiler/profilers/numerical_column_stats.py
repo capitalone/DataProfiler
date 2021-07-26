@@ -294,6 +294,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                                                    other_profile.variance),
             "stddev": utils.find_diff_of_numbers(self.stddev,
                                                  other_profile.stddev),
+            "t-test": self._perform_t_test(self.mean, self.variance, self.match_count,
+                                           other_profile.mean, other_profile.variance,
+                                           other_profile.match_count)
         }
         return differences
 
@@ -329,6 +332,62 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             else self._correct_bias_kurtosis(
                     self.match_count,
                     self._biased_kurtosis)
+
+    @staticmethod
+    def _perform_t_test(mean1, var1, n1,
+                        mean2, var2, n2):
+        results = {
+            't-statistic': None,
+            'conservative': {
+                'df': None,
+                'p-value': None
+            },
+            'welch': {
+                'df': None,
+                'p-value': None
+            }
+        }
+
+        invalid_stats = False
+        if n1 <= 1 or n2 <= 1:
+            warnings.warn("Insufficient sample size. "
+                          "T-test cannot be performed.", RuntimeWarning)
+            invalid_stats = True
+        if np.isnan([mean1, mean2, var1, var2]).any() or \
+                None in [mean1, mean2, var1, var2]:
+            warnings.warn("Null value(s) found in mean and/or variance values. "
+                          "T-test cannot be performed.", RuntimeWarning)
+            invalid_stats = True
+        if invalid_stats:
+            return results
+
+        s_delta = var1/n1 + var2/n2
+        t = (mean1 - mean2) / np.sqrt(s_delta)
+        conservative_df = min(n1, n2) - 1
+        welch_df = s_delta ** 2 / ((var1 / n1) ** 2 /
+                                   (n1 - 1) + (var2 / n2) ** 2 / (n2 - 1))
+        results['t-statistic'] = t
+        results['conservative']['df'] = conservative_df
+        results['welch']['df'] = welch_df
+        
+        try:
+            import scipy.stats
+        except ImportError:
+            # Failed, so we return the stats but don't perform the test
+            warnings.warn("Could not import necessary statistical packages. "
+                          "To successfully perform the t-test, please run 'pip "
+                          "install scipy.' T-test results will be incomplete.",
+                          RuntimeWarning)
+            return results
+        # If scipy import was successful, now perform the *two-sided* t-test
+        conservative_t = scipy.stats.t(conservative_df)
+        conservative_p_val = (1 - conservative_t.cdf(abs(t))) * 2
+        welch_t = scipy.stats.t(welch_df)
+        welch_p_val = (1 - welch_t.cdf(abs(t))) * 2
+
+        results['conservative']['p-value'] = conservative_p_val
+        results['welch']['p-value'] = welch_p_val
+        return results
 
     def _update_variance(self, batch_mean, batch_var, batch_count):
         """

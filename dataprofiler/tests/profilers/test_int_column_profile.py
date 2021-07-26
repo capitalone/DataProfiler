@@ -851,7 +851,18 @@ class TestIntColumn(unittest.TestCase):
             'min': 1.0,
             'stddev': -7.899494936611665,
             'sum': -4.0,
-            'variance': -94.0
+            'variance': -94.0,
+            't-test': {
+                't-statistic': -0.5638091828819275,
+                'conservative': {
+                    'df': 1,
+                    'p-value': 0.6731699660830497
+                },
+                'welch': {
+                    'df': 1.0547717074524683,
+                    'p-value': 0.6691886269547123
+                }
+            }
         }
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
         

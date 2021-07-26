@@ -510,12 +510,11 @@ def find_diff_of_matrices(matrix1, matrix2):
     if matrix1 is not None and matrix2 is not None:
         mat1 = np.array(matrix1, dtype=np.float)
         mat2 = np.array(matrix2, dtype=np.float)
-        
+
         if mat1.shape == mat2.shape:
-            if ((mat1 == mat2) | (np.isnan(mat1) & np.isnan(mat2))).all():
+            diff = mat1 - mat2
+            if ((diff == 0) | np.isnan(diff)).all():
                 diff = "unchanged"
-            else:
-                diff = mat1 - mat2
 
     return diff
 

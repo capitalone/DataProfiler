@@ -1300,14 +1300,11 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
                 "DataLabelerColumn.update")
     def test_diff_with_different_schema(self, *mocks):
-        input_file_path = os.path.join(
-            test_root_path, 'data', 'csv/iris.csv'
-        )
-        input_file_path2 = os.path.join(
-            test_root_path, 'data', 'parquet/nation.plain.parquet'
-        )
-        data1 = pd.read_csv(input_file_path)
-        data2 = pd.read_parquet(input_file_path2)
+        
+        data1 = pd.DataFrame([[1, 2], [5, 6]],
+                             columns=["G", "b"])
+        data2 = pd.DataFrame([[4, 3, 1], [8, 7, 3], [None, None, 1], [9, 1, 10]],
+                             columns=["a", "b", "c"])
 
         # Test via add
         profile1 = dp.StructuredProfiler(data1)
@@ -1315,21 +1312,21 @@ class TestStructuredProfiler(unittest.TestCase):
         
         expected_diff = {
             'global_stats': {
-                'samples_used': 125, 
-                'column_count': 2, 
-                'row_count': 125, 
-                'row_has_null_ratio': 'unchanged', 
+                'file_type': 'unchanged', 
+                'encoding': 'unchanged', 
+                'samples_used': -2, 
+                'column_count': -1, 
+                'row_count': -2, 
+                'row_has_null_ratio': -0.25, 
                 'row_is_null_ratio': 'unchanged', 
                 'unique_row_ratio': 'unchanged', 
                 'duplicate_row_count': 'unchanged', 
-                'file_type': 'unchanged', 
-                'encoding': 'unchanged', 
-                'profile_schema': [{
-                    'Id': [0], 'SepalLengthCm': [1], 'SepalWidthCm': [2], 
-                    'PetalLengthCm': [3], 'PetalWidthCm': [4], 'Species': [5]}, 
-                    {}, 
-                    {'nation_key': [0], 'name': [1], 'region_key': [2], 
-                     'comment_col': [3]}]}, 'data_stats': []}
+                'correlation_matrix': None, 
+                'profile_schema': [{'G': [0]}, 
+                                   {'b': 'unchanged'}, 
+                                   {'a': [0], 'c': [2]}]}, 
+            'data_stats': []
+        }
 
         self.assertDictEqual(expected_diff, profile1.diff(profile2))
 

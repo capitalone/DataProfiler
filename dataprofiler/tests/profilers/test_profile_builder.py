@@ -7,7 +7,6 @@ import random
 import six
 import os
 import re
-import copy
 
 import numpy as np
 import pandas as pd
@@ -1164,14 +1163,47 @@ class TestStructuredProfiler(unittest.TestCase):
             _get_and_validate_schema_mapping(dupe_schema_1, dupe_schema_1)
         self.assertDictEqual(actual_schema, expected_schema)
 
-    @mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
     @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
                 "DataLabelerColumn.update")
-    @mock.patch("dataprofiler.profilers.categorical_column_profile."
-                "CategoricalColumn.diff")
-    @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
-                "DataLabelerColumn.diff")
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnPrimitiveTypeProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnStatsProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnDataLabelerCompiler.diff")
     def test_diff(self, *mocks):
+        # Data labeler compiler diff
+        mocks[0].return_value = {
+            'statistics': {
+                'avg_predictions': {
+                    'a': 'unchanged'
+                },
+                'label_representation': {
+                    'a': 'unchanged'
+                }
+            },
+            'data_label': [[], ['a'], []]
+        }
+        # stats compiler diff
+        mocks[1].return_value = {
+            'order': ['ascending', 'descending'], 
+            'categorical': 'unchanged', 
+            'statistics': {
+                'all_compiler_stats': 'unchanged'
+            }
+        }
+        # primitive stats compiler diff
+        mocks[2].return_value = {
+            'data_type_representation': {
+                'all_data_types': 'unchanged'
+            },
+             'data_type': 'unchanged',
+             'statistics': {
+                 'numerical_statistics_here': "unchanged"
+             }
+        }
+
         data1 = pd.DataFrame([[1, 2], [5, 6]],
                             columns=["a", "b"])
         data2 = pd.DataFrame([[4, 3], [8, 7], [None, None], [9, 10]],
@@ -1179,42 +1211,6 @@ class TestStructuredProfiler(unittest.TestCase):
 
         profile1 = dp.StructuredProfiler(data1)
         profile2 = dp.StructuredProfiler(data2)
-        
-        mock_data_label1 = {
-            'avg_predictions': {
-                'a': 'unchanged',
-                'b': -0.7,
-            },
-            'label_representation': {
-                'a': -0.84,
-                'b': 'unchanged',
-            },
-            'data_label': [['a'], [], ['b']]
-        }
-        mock_data_label2 = copy.deepcopy(mock_data_label1)
-        mock_data_label3 = copy.deepcopy(mock_data_label1)
-        mock_data_label4 = copy.deepcopy(mock_data_label1)
-
-        # Data label mock diff
-        mocks[0].side_effect = [mock_data_label1, mock_data_label2, 
-                                mock_data_label3, mock_data_label4]
-
-        # Categorical mock diff
-        mocks[1].return_value = {
-            'categorical': 'unchanged',
-            'statistics': {
-                'unique_count': -1,
-                'unique_ratio': -0.2,
-                'categories': [[], ['TEST', 'TEST2'], ['maybe']],
-                'gini_impurity': -0.1,
-                'unalikeability': -0.1,
-                'categorical_count': {
-                    'TEST': 1,
-                    'TEST2': 1,
-                    'maybe': [None, 1]
-                }
-            }
-        }
 
         expected_diff = {
             'global_stats': {
@@ -1228,87 +1224,54 @@ class TestStructuredProfiler(unittest.TestCase):
                 'file_type': 'unchanged', 
                 'encoding': 'unchanged', 
                 'profile_schema': [{}, {'a': 'unchanged', 'b': 'unchanged'}, {}]}, 
-            'data_stats': [{
-                'column_name': 'a', 
-                'data_type': 'unchanged', 
-                'data_label': [['a'], [], ['b']], 
-                'categorical': 'unchanged', 
-                'order': 'unchanged', 
-                'statistics': {
-                    'min': -3.0, 
-                    'max': -4.0, 
-                    'sum': -15.0, 
-                    'mean': -4.0, 
-                    'variance': 1.0, 
-                    'stddev': 0.18267581368159957, 
-                    'unique_count': -1, 
-                    'unique_ratio': -0.2, 
-                    'categories': [[], ['TEST', 'TEST2'], ['maybe']], 
-                    'gini_impurity': -0.1, 
-                    'unalikeability': -0.1, 
-                    'categorical_count': {
-                        'TEST': 1, 
-                        'TEST2': 1, 
-                        'maybe': [None, 1]
-                    }, 
-                    'avg_predictions': {
-                        'a': 'unchanged', 
-                        'b': -0.7
-                    }, 
-                    'label_representation': {
-                        'a': -0.84, 
-                        'b': 'unchanged'
-                    }, 
-                    'sample_size': -2, 
-                    'null_count': -1, 
-                    'null_types': [[], [], ['nan']], 
-                    'null_types_index': [{}, {}, {'nan': {2}}], 
-                    'data_type_representation': {
-                        'text': 'unchanged', 
-                        'float': 'unchanged', 
-                        'datetime': 'unchanged', 
-                        'int': 'unchanged'}
-                }}, {
-                'column_name': 'b', 
-                'data_type': 'unchanged', 
-                'data_label': [['a'], [], ['b']], 
-                'categorical': 'unchanged', 
-                'order': 'unchanged', 
-                'statistics': {
-                    'min': -1.0, 
-                    'max': -4.0, 
-                    'sum': -12.0, 
-                    'mean': -2.666666666666667, 
-                    'variance': -4.333333333333332, 
-                    'stddev': -0.6834574595380558, 
-                    'unique_count': -1, 
-                    'unique_ratio': -0.2, 
-                    'categories': [[], ['TEST', 'TEST2'], ['maybe']], 
-                    'gini_impurity': -0.1, 
-                    'unalikeability': -0.1, 
-                    'categorical_count': {
-                        'TEST': 1, 
-                        'TEST2': 1, 
-                        'maybe': [None, 1]}, 
-                    'avg_predictions': {
-                        'a': 'unchanged', 
-                        'b': -0.7}, 
-                    'label_representation': {
-                        'a': -0.84, 
-                        'b': 'unchanged'}, 
-                    'sample_size': -2, 
-                    'null_count': -1, 
-                    'null_types': [[], [], ['nan']], 
-                    'null_types_index': [{}, {}, {'nan': {2}}], 
-                    'data_type_representation': {
-                        'text': 'unchanged', 
-                        'float': 'unchanged', 
-                        'datetime': 'unchanged', 
-                        'int': 'unchanged'}}}]
+            'data_stats': [
+                {
+                    'column_name': 'a', 
+                     'data_type': 'unchanged', 
+                     'data_label': [[], ['a'], []], 
+                     'categorical': 'unchanged', 
+                     'order': ['ascending', 'descending'], 
+                     'statistics': {
+                         'numerical_statistics_here': 
+                             'unchanged', 
+                         'all_compiler_stats': 
+                             'unchanged', 
+                         'avg_predictions': {'a': 'unchanged'}, 
+                         'label_representation': {'a': 'unchanged'}, 
+                         'sample_size': -2, 
+                         'null_count': -1, 
+                         'null_types': [[], [], ['nan']], 
+                         'null_types_index': [{}, {}, {'nan': {2}}], 
+                         'data_type_representation': {
+                             'all_data_types': 'unchanged'
+                         }
+                     }
+                },
+                {
+                     'column_name': 'b', 
+                     'data_type': 'unchanged', 
+                     'data_label': [[], ['a'], []], 
+                     'categorical': 'unchanged', 
+                     'order': ['ascending', 'descending'], 
+                     'statistics': {
+                         'numerical_statistics_here': 'unchanged', 
+                         'all_compiler_stats': 'unchanged', 
+                         'avg_predictions': {'a': 'unchanged'}, 
+                         'label_representation': {'a': 'unchanged'}, 
+                         'sample_size': -2, 
+                         'null_count': -1, 
+                         'null_types': [[], [], ['nan']], 
+                         'null_types_index': [{}, {}, {'nan': {2}}], 
+                         'data_type_representation': {
+                             'all_data_types': 'unchanged'
+                         }
+                     }
+                 }
+            ]
         }
         self.assertDictEqual(expected_diff, profile1.diff(profile2))
 
-    @mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
                 "DataLabelerColumn.update")
     def test_diff_with_different_schema(self, *mocks):
@@ -1342,7 +1305,7 @@ class TestStructuredProfiler(unittest.TestCase):
                     {}, 
                     {'nation_key': [0], 'name': [1], 'region_key': [2], 
                      'comment_col': [3]}]}, 'data_stats': []}
-        
+
         self.assertDictEqual(expected_diff, profile1.diff(profile2))
 
 class TestStructuredColProfilerClass(unittest.TestCase):
@@ -1718,39 +1681,41 @@ class TestStructuredColProfilerClass(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
     @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
                 "DataLabelerColumn.update")
-    @mock.patch("dataprofiler.profilers.categorical_column_profile."
-                "CategoricalColumn.diff")
-    @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
-                "DataLabelerColumn.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnPrimitiveTypeProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnStatsProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnDataLabelerCompiler.diff")
     def test_diff(self, *mocks):
-        
-        # Data label mock diff
+        # Data labeler compiler diff
         mocks[0].return_value = {
-            'avg_predictions': {
-                'a': 'unchanged',
-                'b': -0.7,
+            'statistics': {
+                'avg_predictions': {
+                    'a': 'unchanged'
+                },
+                'label_representation': {
+                    'a': 'unchanged'
+                }
             },
-            'label_representation': {
-                'a': -0.84,
-                'b': 'unchanged',
-            },
-            'data_label': [['a'], [], ['b']]
+            'data_label': [[], ['a'], []]
         }
-        
-        # Categorical mock diff
+        # stats compiler diff
         mocks[1].return_value = {
+            'order': ['ascending', 'descending'],
             'categorical': 'unchanged',
             'statistics': {
-                'unique_count': -1,
-                'unique_ratio': -0.2,
-                'categories': [[], ['TEST', 'TEST2'], ['maybe']],
-                'gini_impurity': -0.1,
-                'unalikeability': -0.1,
-                'categorical_count': {
-                    'TEST': 1,
-                    'TEST2': 1,
-                    'maybe': [None, 1]
-                }
+                'all_compiler_stats': 'unchanged'
+            }
+        }
+        # primitive stats compiler diff
+        mocks[2].return_value = {
+            'data_type_representation': {
+                'all_data_types': 'unchanged'
+            },
+            'data_type': 'unchanged',
+            'statistics': {
+                'numerical_statistics_here': "unchanged"
             }
         }
         
@@ -1764,41 +1729,25 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         
         expected_diff = {
             'column_name': 'TEST', 
-            'data_type': ['int', 'text'],
-            'data_label': [['a'], [], ['b']], 
-            'categorical': 'unchanged',
-            'order': ['random', 'descending'],
+            'data_type': 'unchanged', 
+            'data_label': [[], ['a'], []], 
+            'categorical': 'unchanged', 
+            'order': ['ascending', 'descending'], 
             'statistics': {
-                'unique_count': -1, 
-                'unique_ratio': -0.2,
-                'categories': [[], ['TEST', 'TEST2'], ['maybe']],
-                'gini_impurity': -0.1, 
-                'unalikeability': -0.1,
-                'categorical_count': {
-                    'TEST': 1, 
-                    'TEST2': 1,
-                    'maybe': [None, 1]
-                },
-                'avg_predictions': {
-                    'a': 'unchanged',
-                    'b': -0.7
-                },
-                'label_representation': {
-                    'a': -0.84,
-                    'b': 'unchanged'
-                },
-                'sample_size': 3,
-                'null_count': 2,
-                'null_types': [['nan'], [], []],
-                'null_types_index': [{'nan': {1, 5}}, {}, {}],
+                'numerical_statistics_here': 'unchanged', 
+                'all_compiler_stats': 'unchanged', 
+                'avg_predictions': {'a': 'unchanged'}, 
+                'label_representation': {'a': 'unchanged'}, 
+                'sample_size': 3, 
+                'null_count': 2, 
+                'null_types': [['nan'], [], []], 
+                'null_types_index': [{'nan': {1, 5}}, {}, {}], 
                 'data_type_representation': {
-                    'int': 0.5,
-                    'datetime': 'unchanged',
-                    'float': 0.5,
-                    'text': 'unchanged'
+                    'all_data_types': 'unchanged'
                 }
             }
         }
+
         self.assertDictEqual(expected_diff, dict(profile1.diff(profile2)))
 
 @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredCompiler',

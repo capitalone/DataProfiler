@@ -186,13 +186,12 @@ class TestRegexModel(unittest.TestCase):
                              level='INFO') as cm:
             model_output = model.predict(['   ', 'hello'])
         self.assertIn('pred', model_output)
-        log_output = ''.join(cm.output)
         for expected, output in zip(expected_output['pred'],
                                     model_output['pred']):
             self.assertTrue(np.array_equal(expected, output))
 
         # check verbose printing
-        self.assertIn('Data Samples', log_output)
+        self.assertIn('Data Samples', ''.join(cm.output))
 
         # test pad with background
         expected_output = {

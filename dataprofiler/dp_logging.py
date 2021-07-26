@@ -26,6 +26,9 @@ def get_logger():
             logging.Formatter("%(levelname)s:%(name)s: %(message)s"))
         logger.addHandler(stream_handle)
 
+        # Initialize to INFO
+        logger.setLevel(logging.INFO)
+
         _logger = logger
         return _logger
     finally:

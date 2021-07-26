@@ -8,9 +8,7 @@ from dataprofiler.labelers.regex_model import RegexModel
 class TestDPLogging(unittest.TestCase):
 
     def test_set_verbosity(self):
-        # Ensure that logs are written when verbose
-        dp_logging.set_verbosity(logging.INFO)
-        # Level should be set to INFO
+        # Ensure that default effective level is INFO
         self.assertEqual(logging.INFO,
                          dp_logging.get_logger().getEffectiveLevel())
 

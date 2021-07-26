@@ -194,7 +194,8 @@ class TestEvaluateAccuracy(unittest.TestCase):
         self.assertDictEqual(expected_output, f1_report)
 
     def test_verbose(self):
-        with self.assertLogs(level='INFO') as cm:
+        with self.assertLogs('DataProfiler.labelers.labeler_utils',
+                             level='INFO') as cm:
             f1, f1_report = labeler_utils.evaluate_accuracy(
                 self.y_pred, self.y_true, self.num_labels,
                 self.reverse_label_mapping, omitted_labels=[], verbose=True)

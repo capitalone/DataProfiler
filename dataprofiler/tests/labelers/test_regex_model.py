@@ -182,7 +182,8 @@ class TestRegexModel(unittest.TestCase):
                                [0, 1, 0],
                                [0, 1, 0]])
          ]}
-        with self.assertLogs(level='INFO') as cm:
+        with self.assertLogs('DataProfiler.labelers.regex_model',
+                             level='INFO') as cm:
             model_output = model.predict(['   ', 'hello'])
         self.assertIn('pred', model_output)
         log_output = ''.join(cm.output)
@@ -233,9 +234,11 @@ class TestRegexModel(unittest.TestCase):
             self.assertTrue(np.array_equal(expected, output))
 
         # test verbose = False doesn't make any INFO logs
-        with self.assertRaisesRegex(AssertionError, 'no logs of level INFO or '
-                                                    'higher triggered on root'):
-            with self.assertLogs(level='INFO'):
+        with self.assertRaisesRegex(AssertionError,
+                                    'no logs of level INFO or higher triggered '
+                                    'on DataProfiler.labelers.regex_model'):
+            with self.assertLogs('DataProfiler.labelers.regex_model',
+                                 level='INFO'):
                 model.predict(['hello world.'], verbose=False)
 
     @mock.patch("tensorflow.keras.models.load_model", return_value=None)

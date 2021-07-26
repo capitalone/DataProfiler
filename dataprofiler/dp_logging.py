@@ -8,14 +8,18 @@ _logger_lock = threading.Lock()
 def get_logger():
     global _logger
 
+    # Return _logger if initialized
     if _logger:
         return _logger
 
+    # Lock to prevent streaming from multiple threads simultaneously
     _logger_lock.acquire()
 
     try:
+        # Initialize specifically to DP logging
         logger = logging.getLogger('DataProfiler')
 
+        # Set formatting of logs
         stream_handle = logging.StreamHandler()
         stream_handle.setFormatter(
             logging.Formatter("%(levelname)s:%(name)s: %(message)s"))
@@ -24,6 +28,7 @@ def get_logger():
         _logger = logger
         return _logger
     finally:
+        # Unlock before returning
         _logger_lock.release()
 
 

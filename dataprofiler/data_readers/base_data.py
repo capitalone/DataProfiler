@@ -172,3 +172,32 @@ class BaseData(object):
         :return: length of the dataset
         """
         return len(self)
+
+    def __getattribute__(self, name):
+        """
+        Overrides getattr for the class such that functions can be applied
+        directly to the data class if the function is not part of the data
+        class.
+        e.g. if data is BaseData where self.data = [1, 2, 3, 1]
+        ```
+        data.count(1)  # returns 2, bc data.data has the function 'count'
+        ```
+        """
+        try:
+            returned = object.__getattribute__(self, name)
+        except AttributeError as attr_error:
+            class_name = self.__class__.__name__
+            data_class_name = self.data.__class__.__name__
+            if (not f"'{class_name}' object has no attribute '{name}'"
+                    == str(attr_error)):
+                raise
+            try:
+                returned = object.__getattribute__(self.data, name)
+            except AttributeError as attr_error:
+                if (not f"'{data_class_name}' object has no attribute '{name}'"
+                        == str(attr_error)):
+                    raise
+                raise AttributeError(f"'{class_name}' nor '{data_class_name}'"
+                                     f"objects have no attribute '{name}'")
+        return returned
+

@@ -1670,6 +1670,94 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(3, merged_profile._profile)
         self.assertDictEqual({'clean_and_base_stats': 2}, merged_profile.times)
 
+    @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredCompiler.diff')
+    def test_diff(self, *mocks):
+
+        # Set up compiler diff
+        mocks[2].side_effect = [UnstructuredCompiler(), UnstructuredCompiler()]
+        mocks[0].return_value = {
+            'statistics': {
+                'vocab': [['A', 'B'], ['C'], ['D']], 
+                'vocab_count': [{'A': 4, 'B': 2}, {'C': "unchanged"}, {'D': 2}], 
+                'words': [['Hello', 'test'], ['grant'], ['unknown', 'name', '9']], 
+                'word_count': [{'Hello': 2, 'test': 1}, 
+                               {'grant': 'unchanged'}, 
+                               {'9': 2, 'unknown': 1, 'name': 1}]
+            }, 
+            'data_label': {
+                'entity_counts': {
+                    'word_level': {
+                        'UNKNOWN': 3, 
+                        'TEST': 1, 
+                        'UNIQUE1': [5, None], 
+                        'UNIQUE2': [None, 4]
+                    }, 
+                    'true_char_level': {
+                        'UNKNOWN': -4, 
+                        'TEST': 'unchanged', 
+                        'UNIQUE1': [8, None], 
+                        'UNIQUE2': [None, 4]
+                    }, 
+                    'postprocess_char_level': {
+                        'UNKNOWN': 'unchanged', 
+                        'TEST': 'unchanged', 
+                        'UNIQUE1': [5, None], 
+                        'UNIQUE2': [None, 5]
+                    }
+                }, 
+                'entity_percentages': {
+                    'word_level': {
+                        'UNKNOWN': 0.1, 
+                        'TEST': 0.3, 
+                        'UNIQUE1': [0.1, None], 
+                        'UNIQUE2': [None, 0.4]
+                    }, 
+                    'true_char_level': {
+                        'UNKNOWN': -0.2,
+                        'TEST': 'unchanged',
+                        'UNIQUE1': [0.4, None],
+                        'UNIQUE2': [None, 0.2]
+                    }, 
+                    'postprocess_char_level': {
+                        'UNKNOWN': 'unchanged', 
+                        'TEST': 'unchanged', 
+                        'UNIQUE1': [0.25, None], 
+                        'UNIQUE2': [None, 0.25]
+                    }
+                }
+            }
+        }
+
+        data1 = pd.Series(['this', 'is my', '\n\r', 'test'])
+        data2 = pd.Series(['here\n', '\t    ', ' ', ' is', '\n\r', 'more data'])
+        profiler1 = UnstructuredProfiler(data1)
+        profiler2 = UnstructuredProfiler(data2)
+
+        expected_diff = {
+            'global_stats': {
+                'samples_used': -2, 
+                'empty_line_count': -5, 
+                'file_type': 'unchanged', 
+                'encoding': 'unchanged', 
+                'memory_size': -9.5367431640625e-06}, 
+            'data_stats': {
+                'statistics': {
+                    'vocab': [['A', 'B'], ['C'], ['D']], 
+                    'vocab_count': [{'A': 4, 'B': 2}, {'C': 'unchanged'}, {'D': 2}], 
+                    'words': [['Hello', 'test'], ['grant'], ['unknown', 'name', '9']], 
+                    'word_count': [{'Hello': 2, 'test': 1}, {'grant': 'unchanged'}, {'9': 2, 'unknown': 1, 'name': 1}]}, 
+                'data_label': {
+                    'entity_counts': {
+                        'word_level': {'UNKNOWN': 3, 'TEST': 1, 'UNIQUE1': [5, None], 'UNIQUE2': [None, 4]}, 
+                        'true_char_level': {'UNKNOWN': -4, 'TEST': 'unchanged', 'UNIQUE1': [8, None], 'UNIQUE2': [None, 4]}, 
+                        'postprocess_char_level': {'UNKNOWN': 'unchanged', 'TEST': 'unchanged', 'UNIQUE1': [5, None], 'UNIQUE2': [None, 5]}}, 
+                    'entity_percentages': {
+                        'word_level': {'UNKNOWN': 0.1, 'TEST': 0.3, 'UNIQUE1': [0.1, None], 'UNIQUE2': [None, 0.4]}, 
+                        'true_char_level': {'UNKNOWN': -0.2, 'TEST': 'unchanged', 'UNIQUE1': [0.4, None], 'UNIQUE2': [None, 0.2]}, 
+                        'postprocess_char_level': {'UNKNOWN': 'unchanged', 'TEST': 'unchanged', 'UNIQUE1': [0.25, None], 'UNIQUE2': [None, 0.25]}}}}}
+
+        self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
+
     def test_get_sample_size(self, *mocks):
         data = pd.DataFrame([0] * int(50e3))
 
@@ -2476,6 +2564,14 @@ class TestProfilerFactoryClass(unittest.TestCase):
             save_profile.update_profile(pd.DataFrame(['test', 'test2']))
             load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
+    def test_random(self):
+        data1 = pd.Series(['this', 'is my', '\n\r', 'test'])
+        data2 = pd.Series(['here\n', '\t    ', ' ', ' is', '\n\r', 'more data'])
+
+        profiler1 = UnstructuredProfiler(data1)
+        profiler2 = UnstructuredProfiler(data2)
+
+        print(profiler1.diff(profiler2))
 
 if __name__ == '__main__':
     unittest.main()

@@ -927,6 +927,38 @@ class UnstructuredProfiler(BaseProfiler):
         merged_profile._profile = self._profile + other._profile
 
         return merged_profile
+    
+    def diff(self, other_profile, options=None):
+        """
+        Finds the difference between 2 unstuctured profiles and returns the 
+        report.
+
+        :param other: profile finding the difference with this one.
+        :type other: UnstructuredProfiler
+        :param options: options to impact the results of the diff
+        :type options: dict
+        :return: difference of the profiles
+        :rtype: dict
+        """
+        
+        report = OrderedDict([
+            ("global_stats", {
+                "samples_used": utils.find_diff_of_numbers(
+                    self.total_samples, other_profile.total_samples),
+                "empty_line_count": utils.find_diff_of_numbers(
+                    self._empty_line_count, other_profile.total_samples),
+                "file_type": utils.find_diff_of_strings_and_bools(
+                    self.file_type, other_profile.file_type),
+                "encoding": utils.find_diff_of_strings_and_bools(
+                    self.encoding, other_profile.encoding),
+                "memory_size": utils.find_diff_of_numbers(
+                    self.memory_size, other_profile.memory_size),
+            }),
+            ("data_stats", OrderedDict()),
+        ])
+        report["data_stats"] = self._profile.diff(other_profile._profile, 
+                                                  options=options)
+        return _prepare_report(report)
 
     def _update_base_stats(self, base_stats):
         """

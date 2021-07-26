@@ -28,8 +28,8 @@ class TestBaseDataClass(unittest.TestCase):
         self.assertFalse(hasattr(BaseData, 'func1'))
 
         with self.assertRaisesRegex(AttributeError,
-                                    "'BaseData' nor 'FakeDataClass'"
-                                    "objects have no attribute 'test'"):
+                                    "Neither 'BaseData' nor 'FakeDataClass' "
+                                    "objects have attribute 'test'"):
             data.test
 
         # validate it will take BaseData attribute over the data attribute

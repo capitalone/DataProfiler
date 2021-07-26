@@ -197,7 +197,8 @@ class BaseData(object):
                 if (not f"'{data_class_name}' object has no attribute '{name}'"
                         == str(attr_error)):
                     raise
-                raise AttributeError(f"'{class_name}' nor '{data_class_name}'"
-                                     f"objects have no attribute '{name}'")
+                raise AttributeError(f"Neither '{class_name}' nor "
+                                     f"'{data_class_name}' objects have "
+                                     f"attribute '{name}'")
         return returned
 

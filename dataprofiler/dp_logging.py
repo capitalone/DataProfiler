@@ -6,6 +6,7 @@ _logger_lock = threading.Lock()
 
 
 def get_logger():
+    """Access DataProfiler-specific logger"""
     global _logger
 
     # Return _logger if initialized
@@ -33,4 +34,5 @@ def get_logger():
 
 
 def set_verbosity(v):
+    """Set verbosity level for DataProfiler logger"""
     get_logger().setLevel(v)

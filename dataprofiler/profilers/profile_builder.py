@@ -1298,7 +1298,9 @@ class StructuredProfiler(BaseProfiler):
         merged_profile._col_name_to_idx = copy.deepcopy(self._col_name_to_idx)
 
         # merge correlation
-        merged_profile.correlation_matrix = self._merge_correlation(other)
+        if (self.options.correlation.is_enabled
+                and other.options.correlation.is_enabled):
+            merged_profile.correlation_matrix = self._merge_correlation(other)
 
         return merged_profile
 

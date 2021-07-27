@@ -57,3 +57,11 @@ index_file = open("../index.html", "w")
 redirect_link = "<meta http-equiv=\"refresh\" content=\"0; url=./docs/" + version + "/html/index.html\" />"
 index_file.write(redirect_link)
 index_file.close()
+
+# Adding and removing files so there are no security risks
+file_location = version+"/html/_static/underscore.js"
+file_location2 = version+"/html/_static/underscore-1.13.1.js"
+file_location3 = version+"/html/_static/underscore-1.12.0.js"
+subprocess.run(["cp", "source/_static/underscore.js", file_location])
+subprocess.run(["cp", "source/_static/underscore-1.13.1.js", file_location2])
+subprocess.run(["rm", file_location3])

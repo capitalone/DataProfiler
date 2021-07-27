@@ -31,24 +31,16 @@ reStructuredText Docstring Format is the standard. Here is an example:
                 Type example code here
         """
 
-### How to update the documentation:  
-To update the docs branch, checkout the gh-pages branch. Make sure it is up to
-date, then copy the dataprofiler folder from the feature branch you want to 
-update the documentation with (probably master).
+**To install the full package from pypi**: `pip install DataProfiler[ml]`
 
-In /docs run:
+If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package. The slimmer package disables the default sensitive data detection / entity recognition (labler)
 
-    python update_documentation.py
+Install from pypi: `pip install DataProfiler`
 
-If you make adjustments to the code comments, you may rerun the command again to
- overwrite the specified version. 
 
-Once the documentation is updated, commit and push the whole 
-/docs folder. API documentation will only update when pushed to the master 
-branch. 
+------------------
 
-If you make a mistake naming the version, you will have to delete it from
-the /docs/source/index.rst file.
+# What is a Data Profile?
 
 To update the documentation of a feature branch, go to the /docs folder
 and run:
@@ -57,12 +49,4 @@ python update_documentation.py
 ```
 
 Make sure you run sphinx version Sphinx==3.5.4 since the Furo theme library
-doesn't work with the latest version of Sphinx. This will mean you have to 
-overwrite the generated underscore.js with the latest version to prevent a
-security risk.
-
-
-
-
-
-
+doesn't work with the latest version of Sphinx.

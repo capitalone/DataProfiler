@@ -225,7 +225,13 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         ]
         val_gen[0][1][:, :11, self.label_mapping['ADDRESS']] = 1
 
-        f1, f1_report = cnn_model._validate_training(val_gen, 32, True, True)
+        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
+                             level='INFO') as logs:
+            f1, f1_report = cnn_model._validate_training(val_gen, 32,
+                                                         True, True)
+        # Ensure info was logged during validate
+        self.assertTrue(len(logs.output))
+
         self.assertIsNotNone(f1)
         self.assertIsNotNone(f1_report)
         self.assertEqual(11, f1_report['ADDRESS']['support'])
@@ -245,13 +251,8 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         cnn_model._construct_model()
         
         # fit with new labels
-        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
-                             level='INFO') as logs:
-            history, f1, f1_report = cnn_model.fit(
-                data_gen, cv_gen, label_mapping=self.label_mapping)
-
-        # Ensure info was logged during fit
-        self.assertTrue(len(logs.output))
+        history, f1, f1_report = cnn_model.fit(
+            data_gen, cv_gen, label_mapping=self.label_mapping)
 
         # predict after fitting on just the text
         cnn_model.predict(data_gen[0][0])
@@ -278,12 +279,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
 
         # set different labels
         cnn_model.set_label_mapping(self.label_mapping)
-        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
-                             level='INFO') as logs:
-            history, f1, f1_report = cnn_model.fit(data_gen, cv_gen)
-
-        # Ensure info was logged during fit
-        self.assertTrue(len(logs.output))
+        history, f1, f1_report = cnn_model.fit(data_gen, cv_gen)
 
         # test predict on just the text
         cnn_model.predict(data_gen[0][0])

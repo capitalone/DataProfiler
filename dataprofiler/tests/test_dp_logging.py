@@ -61,8 +61,8 @@ class TestDPLogging(unittest.TestCase):
         # Going back to INFO still works as expected
         dp_logging.set_verbosity(logging.INFO)
 
-        dummy_logger.info("this is info 1")
-        self.assertIn("this is info 1", mock_stdout.getvalue())
+        dummy_logger.info("this is info 3")
+        self.assertIn("this is info 3", mock_stdout.getvalue())
 
-        dummy_logger.warning("this is warning 1")
-        self.assertIn("this is warning 1", mock_stdout.getvalue())
+        dummy_logger.warning("this is warning 3")
+        self.assertIn("this is warning 3", mock_stdout.getvalue())

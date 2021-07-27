@@ -101,6 +101,11 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertIsNone(profiler.correlation_matrix)
         self.assertDictEqual({'row_stats': 1}, profiler.times)
 
+        # validates the sample out maintains the same visual data format as the
+        # input.
+        self.assertListEqual(['5', '1', '1', '3', '4'],
+                             profiler.profile[0].sample)
+
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
     @mock.patch('dataprofiler.profilers.profile_builder.'

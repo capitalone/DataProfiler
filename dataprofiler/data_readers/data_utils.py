@@ -400,7 +400,8 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
                                         cp_isolation=None, cp_exclusion=None,
                                         preemptive_behaviour=True, explain=False)
                 result = result.best().first()
-            if result: encoding = result.encoding
+            if result:
+                encoding = result.encoding
 
             # Try again with full sample
             if not _decode_is_valid(encoding): 

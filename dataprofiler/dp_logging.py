@@ -37,9 +37,11 @@ def get_logger():
 
 def set_verbosity(level):
     """
-    Set verbosity level for DataProfiler logger
+    Set verbosity level for DataProfiler logger. Must set it to one of
+    [logging.NOTSET, logging.DEBUG, logging.INFO,
+     logging.WARNING, logging.ERROR, logging.CRITICAL]
 
-    :param level: Verbosity level (from logging module)
+    :param level: Verbosity level from logging module
     :type level: int
     """
     get_logger().setLevel(level)

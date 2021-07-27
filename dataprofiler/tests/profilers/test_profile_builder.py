@@ -1701,7 +1701,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         expected_diff = {
             'global_stats': {
                 'samples_used': -2, 
-                'empty_line_count': -5, 
+                'empty_line_count': -2, 
                 'file_type': 'unchanged', 
                 'encoding': 'unchanged', 
                 'memory_size': -9.5367431640625e-06

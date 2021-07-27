@@ -969,7 +969,7 @@ class UnstructuredProfiler(BaseProfiler):
                 "samples_used": utils.find_diff_of_numbers(
                     self.total_samples, other_profile.total_samples),
                 "empty_line_count": utils.find_diff_of_numbers(
-                    self._empty_line_count, other_profile.total_samples),
+                    self._empty_line_count, other_profile._empty_line_count),
                 "memory_size": utils.find_diff_of_numbers(
                     self.memory_size, other_profile.memory_size),
             })

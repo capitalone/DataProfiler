@@ -622,7 +622,6 @@ class BaseProfiler(object):
     def diff(self, other_profile, options=None):
         """
         Finds the difference of two profiles
-
         :param other: profile being added to this one.
         :type other: BaseProfiler
         :return: diff of the two profiles
@@ -632,7 +631,7 @@ class BaseProfiler(object):
             raise TypeError('`{}` and `{}` are not of the same profiler type.'.
                             format(type(self).__name__, 
                                    type(other_profile).__name__))
-        
+
         diff_profile = OrderedDict([
             ("global_stats", {
                 "file_type": utils.find_diff_of_strings_and_bools(
@@ -640,7 +639,7 @@ class BaseProfiler(object):
                 "encoding": utils.find_diff_of_strings_and_bools(
                     self.encoding, other_profile.encoding),
             })])
-        
+
         return diff_profile
 
     def _get_sample_size(self, data):
@@ -1014,6 +1013,33 @@ class UnstructuredProfiler(BaseProfiler):
         merged_profile._profile = self._profile + other._profile
 
         return merged_profile
+    
+    def diff(self, other_profile, options=None):
+        """
+        Finds the difference between 2 unstuctured profiles and returns the 
+        report.
+
+        :param other: profile finding the difference with this one.
+        :type other: UnstructuredProfiler
+        :param options: options to impact the results of the diff
+        :type options: dict
+        :return: difference of the profiles
+        :rtype: dict
+        """
+        report = super().diff(other_profile, options)
+
+        report["global_stats"].update({
+                "samples_used": utils.find_diff_of_numbers(
+                    self.total_samples, other_profile.total_samples),
+                "empty_line_count": utils.find_diff_of_numbers(
+                    self._empty_line_count, other_profile._empty_line_count),
+                "memory_size": utils.find_diff_of_numbers(
+                    self.memory_size, other_profile.memory_size),
+            })
+
+        report["data_stats"] = self._profile.diff(other_profile._profile, 
+                                                  options=options)
+        return _prepare_report(report)
 
     def _update_base_stats(self, base_stats):
         """

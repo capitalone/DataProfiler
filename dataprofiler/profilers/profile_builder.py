@@ -1849,10 +1849,7 @@ class StructuredProfiler(BaseProfiler):
         if isinstance(data, pd.Series):
             data = data.to_frame()
         elif isinstance(data, list):
-            # pd.DataFrame will convert integers to float representation which
-            # is inaccurate. pd.DataFrame(data, dtypes='object') also makes the
-            # conversion, hence best option was to str map initially.
-            data = pd.DataFrame(np.vectorize(str)(data), dtype=object)
+            data = pd.DataFrame(data, dtype=object)
 
         # Calculate schema of incoming data
         mapping_given = defaultdict(list)

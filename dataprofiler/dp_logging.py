@@ -2,20 +2,20 @@ import logging
 import threading
 import sys
 
-_logger = None
-_logger_lock = threading.Lock()
+_dp_logger = None
+_dp_logger_lock = threading.Lock()
 
 
 def get_logger():
     """Access DataProfiler-specific logger"""
-    global _logger
+    global _dp_logger
 
     # Return _logger if initialized
-    if _logger:
-        return _logger
+    if _dp_logger:
+        return _dp_logger
 
     # Lock to prevent streaming from multiple threads simultaneously
-    _logger_lock.acquire()
+    _dp_logger_lock.acquire()
 
     try:
         # Initialize specifically to DP logging
@@ -28,11 +28,11 @@ def get_logger():
             logging.Formatter("%(levelname)s:%(name)s: %(message)s"))
         logger.addHandler(stream_handler)
 
-        _logger = logger
-        return _logger
+        _dp_logger = logger
+        return _dp_logger
     finally:
         # Unlock before returning
-        _logger_lock.release()
+        _dp_logger_lock.release()
 
 
 def set_verbosity(level):

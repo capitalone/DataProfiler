@@ -31,16 +31,24 @@ reStructuredText Docstring Format is the standard. Here is an example:
                 Type example code here
         """
 
-**To install the full package from pypi**: `pip install DataProfiler[ml]`
+### How to update the documentation:  
+To update the docs branch, checkout the gh-pages branch. Make sure it is up to
+date, then copy the dataprofiler folder from the feature branch you want to 
+update the documentation with (probably master).
 
-If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package. The slimmer package disables the default sensitive data detection / entity recognition (labler)
+In /docs run:
 
-Install from pypi: `pip install DataProfiler`
+    python update_documentation.py
 
+If you make adjustments to the code comments, you may rerun the command again to
+ overwrite the specified version. 
 
-------------------
+Once the documentation is updated, commit and push the whole 
+/docs folder. API documentation will only update when pushed to the master 
+branch. 
 
-# What is a Data Profile?
+If you make a mistake naming the version, you will have to delete it from
+the /docs/source/index.rst file.
 
 To update the documentation of a feature branch, go to the /docs folder
 and run:
@@ -49,5 +57,5 @@ python update_documentation.py
 ```
 
 Make sure you run sphinx version Sphinx==3.5.4 since the Furo theme library
-doesn't work with the latest version of Sphinx.
+doesn't work with the latest version of Sphinx. 
 

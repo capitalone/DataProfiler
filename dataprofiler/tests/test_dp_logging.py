@@ -27,52 +27,42 @@ class TestDPLogging(unittest.TestCase):
                          logging.getLogger('DataProfiler').getEffectiveLevel())
 
     def test_set_verbosity(self, mock_stdout):
-        from dataprofiler import dp_logging, DataLabeler
-        from dataprofiler.labelers.regex_model import RegexModel
-        # Set verbosity to WARNING (won't print/log update messages)
-        dp_logging.set_verbosity(logging.WARNING)
-        self.assertEqual(logging.WARNING,
-                         logging.getLogger('DataProfiler').getEffectiveLevel())
+        from dataprofiler import dp_logging
 
-        labeler = DataLabeler(labeler_type='structured', trainable=True)
-        labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
+        # Initialize DataProfiler logger
+        dp_logging.get_logger()
 
-        # Ensure it didn't get printed
-        self.assertFalse(len(mock_stdout.getvalue()))
+        # Make dummy logger that inherits from DataProfiler logger
+        dummy_logger = logging.getLogger('DataProfiler.dummy.logger')
 
-        # Reset StringIO stdout mock
-        mock_stdout.truncate(0)
-        mock_stdout.seek(0)
-
-        rm = RegexModel(label_mapping={'UNKNOWN': 0})
-        rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
-
-        # Ensure it didn't get printed
-        self.assertFalse(len(mock_stdout.getvalue()))
-
-        # Reset StringIO stdout mock
-        mock_stdout.truncate(0)
-        mock_stdout.seek(0)
-
-        # Set verbosity to INFO (will print/log update messages)
-        dp_logging.set_verbosity(logging.INFO)
+        # Set to INFO by default
         self.assertEqual(logging.INFO,
-                         logging.getLogger('DataProfiler').getEffectiveLevel())
+                         dummy_logger.getEffectiveLevel())
 
-        # Will write "EPOCH i" updates with statistics
-        labeler = DataLabeler(labeler_type='structured', trainable=True)
-        labeler.fit(['this', 'is', 'data'], ['UNKNOWN'] * 3, epochs=7)
+        # Info appears in stdout
+        dummy_logger.info("this is info 1")
+        self.assertIn("this is info 1", mock_stdout.getvalue())
 
-        # Ensure it got printed
-        self.assertTrue(len(mock_stdout.getvalue()))
+        # Warnings appear in stdout
+        dummy_logger.warning("this is warning 1")
+        self.assertIn("this is warning 1", mock_stdout.getvalue())
 
-        # Reset StringIO stdout mock
-        mock_stdout.truncate(0)
-        mock_stdout.seek(0)
+        # Turn verbosity to WARNING, so that info doesn't appear in stdout
+        dp_logging.set_verbosity(logging.WARNING)
 
-        # Will write "Data Samples Processed: i" updates
-        rm = RegexModel(label_mapping={'UNKNOWN': 0})
-        rm.predict(data=['oh', 'boy', 'i', 'sure', 'love', 'regex'])
+        # Info will no longer appear in stdout
+        dummy_logger.info("this is info 2")
+        self.assertNotIn("this is info 2", mock_stdout.getvalue())
 
-        # Ensure it got printed
-        self.assertTrue(len(mock_stdout.getvalue()))
+        # Warnings still appear in stdout
+        dummy_logger.warning("this is warning 2")
+        self.assertIn("this is warning 2", mock_stdout.getvalue())
+
+        # Going back to INFO still works as expected
+        dp_logging.set_verbosity(logging.INFO)
+
+        dummy_logger.info("this is info 1")
+        self.assertIn("this is info 1", mock_stdout.getvalue())
+
+        dummy_logger.warning("this is warning 1")
+        self.assertIn("this is warning 1", mock_stdout.getvalue())

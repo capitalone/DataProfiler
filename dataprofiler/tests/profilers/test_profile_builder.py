@@ -1941,7 +1941,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
                 'empty_line_count': -2, 
                 'file_type': 'unchanged', 
                 'encoding': 'unchanged', 
-                'memory_size': -9.5367431640625e-06
+                'memory_size': -10/1024**2
             }, 
             'data_stats': {
                 'statistics': {

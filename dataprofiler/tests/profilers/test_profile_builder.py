@@ -1722,7 +1722,6 @@ class TestUnstructuredProfiler(unittest.TestCase):
                 }
             }
         }
-
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
 
     def test_get_sample_size(self, *mocks):

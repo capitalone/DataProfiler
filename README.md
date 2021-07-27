@@ -57,7 +57,3 @@ and run:
 python update_documentation.py
 ```
 
-Make sure you run sphinx version Sphinx==3.5.4 since the Furo theme library
-doesn't work with the latest version of Sphinx. This will mean you have to 
-overwrite the generated underscore.js with the latest version to prevent a
-security risk.

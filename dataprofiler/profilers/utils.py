@@ -493,6 +493,31 @@ def find_diff_of_dicts(dict1, dict2):
     return diff
 
 
+def find_diff_of_matrices(matrix1, matrix2):
+    """
+    Finds the difference between two matrices.
+
+    :param matrix1: the first matrix
+    :type matrix1: list(list(float))
+    :param matrix2: the second matrix
+    :type matrix2: list(list(float))
+    :return: Difference in the matrix
+    :rtype: list(list(float))
+    """
+
+    diff = None
+
+    if matrix1 is not None and matrix2 is not None:
+        mat1 = np.array(matrix1, dtype=np.float)
+        mat2 = np.array(matrix2, dtype=np.float)
+
+        if mat1.shape == mat2.shape:
+            diff = mat1 - mat2
+            if ((diff == 0) | np.isnan(diff)).all():
+                diff = "unchanged"
+
+    return diff
+
 def find_diff_of_dicts_with_diff_keys(dict1, dict2):
     """
     Finds the difference between two dicts. For each key in each dict,

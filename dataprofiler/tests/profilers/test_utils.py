@@ -163,7 +163,35 @@ class TestShuffleInChunks(unittest.TestCase):
         self.assertListEqual(expected, 
                              utils.find_diff_of_dicts_with_diff_keys(dict1, 
                                                                      dict2))
+       
+    def test_find_diff_of_matrices(self):
+        import numpy as np
+        matrix1 = [[1, None, 3],
+                   [4, 5, 6],
+                   [7, 8, 9]]
+        matrix2 = [[11, np.nan, 0],
+                   [1, 5, 2],
+                   [np.nan, 20, 1]]
+        
+        # Check matrix subtraction of same size matrices
+        expected_matrix = [[-10., np.nan, 3.],
+                           [ 3., 0., 4.],
+                           [np.nan, -12., 8.]]
+        diff_matrix = utils.find_diff_of_matrices(matrix1, matrix2)
+        comparison = ((expected_matrix == diff_matrix) | 
+                      (np.isnan(expected_matrix) & np.isnan(diff_matrix))).all()
+        self.assertEqual(True, comparison)
 
+        # Check matrix subtraction of same exact matrices
+        self.assertEqual("unchanged", utils.find_diff_of_matrices(matrix1, 
+                                                                  matrix1))
+        # Check matrix subtraction with different sized matrices
+        matrix1 = [[1, 2], [1, 2]]
+        self.assertIsNone(utils.find_diff_of_matrices(matrix1, matrix2))
+        
+        # Check matrix with none
+        self.assertIsNone(utils.find_diff_of_matrices(matrix1, None))
+        
     def test_get_memory_size(self):
         """
         Checks to see if the get memory size function is operating appropriately.

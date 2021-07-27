@@ -20,12 +20,13 @@ def get_logger():
     try:
         # Initialize specifically to DP logging
         logger = logging.getLogger('DataProfiler')
+        logger.setLevel(logging.INFO)
 
         # Set formatting of logs
-        stream_handle = logging.StreamHandler(stream=sys.stdout)
-        stream_handle.setFormatter(
+        stream_handler = logging.StreamHandler(stream=sys.stdout)
+        stream_handler.setFormatter(
             logging.Formatter("%(levelname)s:%(name)s: %(message)s"))
-        logger.addHandler(stream_handle)
+        logger.addHandler(stream_handler)
 
         _logger = logger
         return _logger

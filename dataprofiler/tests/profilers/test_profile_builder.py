@@ -1907,6 +1907,60 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertEqual(3, merged_profile._profile)
         self.assertDictEqual({'clean_and_base_stats': 2}, merged_profile.times)
 
+    @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredCompiler.diff')
+    def test_diff(self, *mocks):
+
+        # Set up compiler diff
+        mocks[2].side_effect = [UnstructuredCompiler(), UnstructuredCompiler()]
+        mocks[0].return_value = {
+            'statistics': {
+                'all_vocab_and_word_stats': [['A', 'B'], ['C'], ['D']]
+            }, 
+            'data_label': {
+                'entity_counts': {
+                    'word_and_char_level_stats': {
+                        'LABEL': 'unchanged'
+                    }
+                }, 
+                'entity_percentages': {
+                    'word_and_char_level_stats': {
+                        'LABEL': 'unchanged'
+                    }
+                }
+            }
+        }
+
+        data1 = pd.Series(['this', 'is my', '\n\r', 'test'])
+        data2 = pd.Series(['here\n', '\t    ', ' ', ' is', '\n\r', 'more data'])
+        profiler1 = UnstructuredProfiler(data1)
+        profiler2 = UnstructuredProfiler(data2)
+
+        expected_diff = {
+            'global_stats': {
+                'samples_used': -2, 
+                'empty_line_count': -2, 
+                'file_type': 'unchanged', 
+                'encoding': 'unchanged', 
+                'memory_size': -10/1024**2
+            }, 
+            'data_stats': {
+                'statistics': {
+                    'all_vocab_and_word_stats': [['A', 'B'], ['C'], ['D']]}, 
+                'data_label': {
+                    'entity_counts': {
+                        'word_and_char_level_stats': 
+                            {'LABEL': 'unchanged'}
+                    }, 
+                    'entity_percentages': {
+                        'word_and_char_level_stats': {
+                            'LABEL': 'unchanged'
+                        }
+                    }
+                }
+            }
+        }
+        self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
+
     def test_get_sample_size(self, *mocks):
         data = pd.DataFrame([0] * int(50e3))
 

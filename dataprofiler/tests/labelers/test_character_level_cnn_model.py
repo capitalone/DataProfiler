@@ -199,8 +199,14 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         cv_gen = data_gen
 
         # Basic Fit with Validation Data
-        history, f1, f1_report = cnn_model.fit(data_gen, cv_gen,
-                                               reset_weights=True)
+        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
+                             level='INFO') as logs:
+            history, f1, f1_report = cnn_model.fit(data_gen, cv_gen,
+                                                   reset_weights=True)
+
+        # Ensure info was logged during fit
+        self.assertTrue(len(logs.output))
+
         data_gen = [
             np.array([['test']])
         ]
@@ -239,8 +245,13 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         cnn_model._construct_model()
         
         # fit with new labels
-        history, f1, f1_report = cnn_model.fit(
-            data_gen, cv_gen, label_mapping=self.label_mapping)
+        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
+                             level='INFO') as logs:
+            history, f1, f1_report = cnn_model.fit(
+                data_gen, cv_gen, label_mapping=self.label_mapping)
+
+        # Ensure info was logged during fit
+        self.assertTrue(len(logs.output))
 
         # predict after fitting on just the text
         cnn_model.predict(data_gen[0][0])
@@ -267,7 +278,12 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
 
         # set different labels
         cnn_model.set_label_mapping(self.label_mapping)
-        history, f1, f1_report = cnn_model.fit(data_gen, cv_gen)
+        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
+                             level='INFO') as logs:
+            history, f1, f1_report = cnn_model.fit(data_gen, cv_gen)
+
+        # Ensure info was logged during fit
+        self.assertTrue(len(logs.output))
 
         # test predict on just the text
         cnn_model.predict(data_gen[0][0])

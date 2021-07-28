@@ -27,11 +27,9 @@ from ..labelers.data_labelers import DataLabeler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions, \
     UnstructuredOptions
+from .. import dp_logging
 
-# Make these dp_logging and get_child_logger once other PR Merged
-import logging
-logger = logging.getLogger('DataProfiler').getChild(
-    __name__.replace('dataprofiler.', ''))
+logger = dp_logging.get_child_logger(__name__)
 
 
 class StructuredColProfiler(object):

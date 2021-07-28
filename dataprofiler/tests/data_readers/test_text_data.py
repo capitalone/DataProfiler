@@ -49,7 +49,7 @@ class TestTextDataClass(unittest.TestCase):
 
     def test_is_match(self):
         """
-        Determine if the json file can be automatically identified from
+        Determine if the text file can be automatically identified from
         byte stream or stringio stream or filepath
         """
         for input_file in self.file_or_buf_list:

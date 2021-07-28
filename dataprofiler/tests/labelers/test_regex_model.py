@@ -4,6 +4,7 @@ from unittest import mock
 import json
 from io import StringIO
 import pkg_resources
+import logging
 
 import numpy as np
 
@@ -235,11 +236,20 @@ class TestRegexModel(unittest.TestCase):
                                     model_output['conf']):
             self.assertTrue(np.array_equal(expected, output))
 
-        # test verbose = False
         # clear stdout
         mock_stdout.seek(0)
         mock_stdout.truncate(0)
-        model_output = model.predict(['hello world.'], verbose=False)
+
+        # test verbose = False
+        # Want to ensure no INFO logged
+        with self.assertRaisesRegex(AssertionError,
+                                    'no logs of level INFO or higher triggered '
+                                    'on DataProfiler.labelers.regex_model'):
+            with self.assertLogs('DataProfiler.labelers.regex_model',
+                                 level='INFO'):
+                model.predict(['hello world.'], verbose=False)
+
+        # Not in stdout
         self.assertNotIn('Data Samples', mock_stdout.getvalue())
 
     @mock.patch("tensorflow.keras.models.load_model", return_value=None)

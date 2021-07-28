@@ -13,8 +13,11 @@ from sklearn import decomposition
 from . import labeler_utils
 from .base_model import BaseModel, BaseTrainableModel
 from .base_model import AutoSubRegistrationMeta
+from .. import dp_logging
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
+
+logger = dp_logging.get_child_logger(__name__)
 
 
 class NoV1ResourceMessageFilter(logging.Filter):
@@ -815,7 +818,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                 sys.stdout.write(
                     "\rEPOCH %d, batch_id %d: loss: %f - acc: %f - "
                     "f1_score %f" %
-                (self._epoch_id, batch_id, *model_results[1:]))
+                    (self._epoch_id, batch_id, *model_results[1:]))
             batch_id += 1
 
         for i, metric_label in enumerate(self._model.metrics_names):
@@ -831,13 +834,11 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                 if f1_report else np.NAN
             val_recall = f1_report['weighted avg']['recall'] \
                 if f1_report else np.NAN
-            if verbose:
-                epoch_time = time.time() - start_time
-                print("\rEPOCH %d (%ds), loss: %f - acc: %f - "
-                      "f1_score %f -- val_f1: %f - val_precision: %f - "
-                      "val_recall %f" %
-                      (self._epoch_id, epoch_time, *model_results[1:], val_f1,
-                       val_precision, val_recall))
+            epoch_time = time.time() - start_time
+            logger.info("\rEPOCH %d (%ds), loss: %f - acc: %f - f1_score %f -- "
+                        "val_f1: %f - val_precision: %f - val_recall %f" %
+                        (self._epoch_id, epoch_time, *model_results[1:],
+                         val_f1, val_precision, val_recall))
 
         self._epoch_id += 1
 
@@ -877,9 +878,8 @@ class CharacterLevelCnnModel(BaseTrainableModel,
             batch_id += 1
             sys.stdout.flush()
             if verbose_log:
-                sys.stdout.write(
-                    "\rEPOCH %g, validation_batch_id %d" % (
-                        self._epoch_id, batch_id))
+                sys.stdout.write("\rEPOCH %g, validation_batch_id %d" %
+                                 (self._epoch_id, batch_id))
         
         tf.keras.backend.set_floatx('float32')
         # Clean the predicted entities and the actual entities

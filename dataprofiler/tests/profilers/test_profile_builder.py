@@ -86,7 +86,13 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._update_correlation')
     def test_list_data(self, *mocks):
-        data = [1, None, 3, 4, 5, None, 1]
+        data = [[1, 1],
+                [None, None],
+                [3, 3],
+                [4, 4],
+                [5, 5],
+                [None, None],
+                [1, 1]]
         with test_utils.mock_timeit():
             profiler = dp.StructuredProfiler(data)
 
@@ -97,9 +103,14 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(7, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertListEqual([0], list(profiler._col_name_to_idx.keys()))
+        self.assertListEqual([0, 1], list(profiler._col_name_to_idx.keys()))
         self.assertIsNone(profiler.correlation_matrix)
         self.assertDictEqual({'row_stats': 1}, profiler.times)
+
+        # validates the sample out maintains the same visual data format as the
+        # input.
+        self.assertListEqual(['5', '1', '1', '3', '4'],
+                             profiler.profile[0].sample)
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -1163,6 +1174,172 @@ class TestStructuredProfiler(unittest.TestCase):
             _get_and_validate_schema_mapping(dupe_schema_1, dupe_schema_1)
         self.assertDictEqual(actual_schema, expected_schema)
 
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                "DataLabelerColumn.update")
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnPrimitiveTypeProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnStatsProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnDataLabelerCompiler.diff")
+    def test_diff(self, *mocks):
+        # Data labeler compiler diff
+        mocks[0].return_value = {
+            'statistics': {
+                'avg_predictions': {
+                    'a': 'unchanged'
+                },
+                'label_representation': {
+                    'a': 'unchanged'
+                }
+            },
+            'data_label': [[], ['a'], []]
+        }
+        # stats compiler diff
+        mocks[1].return_value = {
+            'order': ['ascending', 'descending'], 
+            'categorical': 'unchanged', 
+            'statistics': {
+                'all_compiler_stats': 'unchanged'
+            }
+        }
+        # primitive stats compiler diff
+        mocks[2].return_value = {
+            'data_type_representation': {
+                'all_data_types': 'unchanged'
+            },
+             'data_type': 'unchanged',
+             'statistics': {
+                 'numerical_statistics_here': "unchanged"
+             }
+        }
+
+        data1 = pd.DataFrame([[1, 2], [5, 6]],
+                            columns=["a", "b"])
+        data2 = pd.DataFrame([[4, 3], [8, 7], [None, None], [9, 10]],
+                                 columns=["a", "b"])
+
+        options = dp.ProfilerOptions()
+        options.structured_options.correlation.is_enabled = True
+        profile1 = dp.StructuredProfiler(data1, options=options)
+        options2 = dp.ProfilerOptions()
+        options2.structured_options.correlation.is_enabled = True
+        profile2 = dp.StructuredProfiler(data2, options=options2)
+
+        expected_diff = {
+            'global_stats': {
+                'samples_used': -2, 
+                'column_count': 'unchanged', 
+                'row_count': -2, 
+                'row_has_null_ratio': -0.25, 
+                'row_is_null_ratio': -0.25, 
+                'unique_row_ratio': 'unchanged', 
+                'duplicate_row_count': -0.25, 
+                'file_type': 'unchanged', 
+                'encoding': 'unchanged', 
+                'correlation_matrix': 
+                    np.array([[1.11022302e-16, 3.13803955e-02],
+                              [3.13803955e-02, 0.00000000e+00]], dtype=np.float),
+                'profile_schema': [{}, {'a': 'unchanged', 'b': 'unchanged'}, {}]}, 
+            'data_stats': [
+                {
+                    'column_name': 'a', 
+                     'data_type': 'unchanged', 
+                     'data_label': [[], ['a'], []], 
+                     'categorical': 'unchanged', 
+                     'order': ['ascending', 'descending'], 
+                     'statistics': {
+                         'numerical_statistics_here': 
+                             'unchanged', 
+                         'all_compiler_stats': 
+                             'unchanged', 
+                         'avg_predictions': {'a': 'unchanged'}, 
+                         'label_representation': {'a': 'unchanged'}, 
+                         'sample_size': -2, 
+                         'null_count': -1, 
+                         'null_types': [[], [], ['nan']], 
+                         'null_types_index': [{}, {}, {'nan': {2}}], 
+                         'data_type_representation': {
+                             'all_data_types': 'unchanged'
+                         }
+                     }
+                },
+                {
+                     'column_name': 'b', 
+                     'data_type': 'unchanged', 
+                     'data_label': [[], ['a'], []], 
+                     'categorical': 'unchanged', 
+                     'order': ['ascending', 'descending'], 
+                     'statistics': {
+                         'numerical_statistics_here': 'unchanged', 
+                         'all_compiler_stats': 'unchanged', 
+                         'avg_predictions': {'a': 'unchanged'}, 
+                         'label_representation': {'a': 'unchanged'}, 
+                         'sample_size': -2, 
+                         'null_count': -1, 
+                         'null_types': [[], [], ['nan']], 
+                         'null_types_index': [{}, {}, {'nan': {2}}], 
+                         'data_type_representation': {
+                             'all_data_types': 'unchanged'
+                         }
+                     }
+                 }
+            ]
+        }
+
+        diff = profile1.diff(profile2)
+        expected_mat = expected_diff["global_stats"].pop("correlation_matrix")
+        diff_mat = diff["global_stats"].pop("correlation_matrix")
+
+        self.assertEqual(str(expected_mat), str(diff_mat))
+        self.assertDictEqual(expected_diff, diff)
+    
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                "DataLabelerColumn.update")
+    def test_diff_type_checking(self, *mocks):
+        data = pd.DataFrame([[1, 2], [5, 6]],
+                            columns=["a", "b"])
+        profile = dp.StructuredProfiler(data)
+        with self.assertRaisesRegex(TypeError, 
+                                    '`StructuredProfiler` and `str` are not of '
+                                    'the same profiler type.'):
+            profile.diff("ERROR")
+        
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                "DataLabelerColumn.update")
+    def test_diff_with_different_schema(self, *mocks):
+        
+        data1 = pd.DataFrame([[1, 2], [5, 6]],
+                             columns=["G", "b"])
+        data2 = pd.DataFrame([[4, 3, 1], [8, 7, 3], [None, None, 1], [9, 1, 10]],
+                             columns=["a", "b", "c"])
+
+        # Test via add
+        profile1 = dp.StructuredProfiler(data1)
+        profile2 = dp.StructuredProfiler(data2)
+        
+        expected_diff = {
+            'global_stats': {
+                'file_type': 'unchanged', 
+                'encoding': 'unchanged', 
+                'samples_used': -2, 
+                'column_count': -1, 
+                'row_count': -2, 
+                'row_has_null_ratio': -0.25, 
+                'row_is_null_ratio': 'unchanged', 
+                'unique_row_ratio': 'unchanged', 
+                'duplicate_row_count': 'unchanged', 
+                'correlation_matrix': None, 
+                'profile_schema': [{'G': [0]}, 
+                                   {'b': 'unchanged'}, 
+                                   {'a': [0], 'c': [2]}]}, 
+            'data_stats': []
+        }
+
+        self.assertDictEqual(expected_diff, profile1.diff(profile2))
 
 class TestStructuredColProfilerClass(unittest.TestCase):
 
@@ -1533,7 +1710,78 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         profile.update_profile(data[2:])
         self.assertEqual(0, profile._min_id)
         self.assertEqual(6, profile._max_id)
+        
+    @mock.patch('dataprofiler.profilers.data_labeler_column_profile.DataLabeler')
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                "DataLabelerColumn.update")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnPrimitiveTypeProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnStatsProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnDataLabelerCompiler.diff")
+    def test_diff(self, *mocks):
+        # Data labeler compiler diff
+        mocks[0].return_value = {
+            'statistics': {
+                'avg_predictions': {
+                    'a': 'unchanged'
+                },
+                'label_representation': {
+                    'a': 'unchanged'
+                }
+            },
+            'data_label': [[], ['a'], []]
+        }
+        # stats compiler diff
+        mocks[1].return_value = {
+            'order': ['ascending', 'descending'],
+            'categorical': 'unchanged',
+            'statistics': {
+                'all_compiler_stats': 'unchanged'
+            }
+        }
+        # primitive stats compiler diff
+        mocks[2].return_value = {
+            'data_type_representation': {
+                'all_data_types': 'unchanged'
+            },
+            'data_type': 'unchanged',
+            'statistics': {
+                'numerical_statistics_here': "unchanged"
+            }
+        }
+        
+        data = pd.Series([1, None, 3, 4, 5, None, 1])
+        data2 = pd.Series(["hello", "goodby", 125, 0])
+        data.name = "TEST"
+        data2.name = "TEST"
 
+        profile1 = StructuredColProfiler(data)
+        profile2 = StructuredColProfiler(data2)
+        
+        expected_diff = {
+            'column_name': 'TEST', 
+            'data_type': 'unchanged', 
+            'data_label': [[], ['a'], []], 
+            'categorical': 'unchanged', 
+            'order': ['ascending', 'descending'], 
+            'statistics': {
+                'numerical_statistics_here': 'unchanged', 
+                'all_compiler_stats': 'unchanged', 
+                'avg_predictions': {'a': 'unchanged'}, 
+                'label_representation': {'a': 'unchanged'}, 
+                'sample_size': 3, 
+                'null_count': 2, 
+                'null_types': [['nan'], [], []], 
+                'null_types_index': [{'nan': {1, 5}}, {}, {}], 
+                'data_type_representation': {
+                    'all_data_types': 'unchanged'
+                }
+            }
+        }
+
+        self.assertDictEqual(expected_diff, dict(profile1.diff(profile2)))
 
 @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredCompiler',
             spec=UnstructuredCompiler)
@@ -1669,6 +1917,60 @@ class TestUnstructuredProfiler(unittest.TestCase):
                               merged_profile.sample)
         self.assertEqual(3, merged_profile._profile)
         self.assertDictEqual({'clean_and_base_stats': 2}, merged_profile.times)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredCompiler.diff')
+    def test_diff(self, *mocks):
+
+        # Set up compiler diff
+        mocks[2].side_effect = [UnstructuredCompiler(), UnstructuredCompiler()]
+        mocks[0].return_value = {
+            'statistics': {
+                'all_vocab_and_word_stats': [['A', 'B'], ['C'], ['D']]
+            }, 
+            'data_label': {
+                'entity_counts': {
+                    'word_and_char_level_stats': {
+                        'LABEL': 'unchanged'
+                    }
+                }, 
+                'entity_percentages': {
+                    'word_and_char_level_stats': {
+                        'LABEL': 'unchanged'
+                    }
+                }
+            }
+        }
+
+        data1 = pd.Series(['this', 'is my', '\n\r', 'test'])
+        data2 = pd.Series(['here\n', '\t    ', ' ', ' is', '\n\r', 'more data'])
+        profiler1 = UnstructuredProfiler(data1)
+        profiler2 = UnstructuredProfiler(data2)
+
+        expected_diff = {
+            'global_stats': {
+                'samples_used': -2, 
+                'empty_line_count': -2, 
+                'file_type': 'unchanged', 
+                'encoding': 'unchanged', 
+                'memory_size': -10/1024**2
+            }, 
+            'data_stats': {
+                'statistics': {
+                    'all_vocab_and_word_stats': [['A', 'B'], ['C'], ['D']]}, 
+                'data_label': {
+                    'entity_counts': {
+                        'word_and_char_level_stats': 
+                            {'LABEL': 'unchanged'}
+                    }, 
+                    'entity_percentages': {
+                        'word_and_char_level_stats': {
+                            'LABEL': 'unchanged'
+                        }
+                    }
+                }
+            }
+        }
+        self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
 
     def test_get_sample_size(self, *mocks):
         data = pd.DataFrame([0] * int(50e3))

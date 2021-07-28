@@ -1,5 +1,6 @@
 import os
 import unittest
+from io import StringIO, BytesIO
 
 from dataprofiler.data_readers.data import Data, TextData
 
@@ -25,11 +26,40 @@ class TestTextDataClass(unittest.TestCase):
         ]
         cls.output_file_path = None
 
+        cls.buffer_list = []
+        for input_file in cls.input_file_names:
+            # add StringIO
+            buffer_info = input_file.copy()
+            with open(input_file['path'], 'r') as fp:
+                buffer_info['path'] = StringIO(fp.read())
+            cls.buffer_list.append(buffer_info)
+            
+            # add BytesIO
+            buffer_info = input_file.copy()
+            with open(input_file['path'], 'rb') as fp:
+                buffer_info['path'] = BytesIO(fp.read())
+            cls.buffer_list.append(buffer_info)
+
+        cls.file_or_buf_list = cls.input_file_names + cls.buffer_list
+
+    @classmethod
+    def setUp(cls):
+        for buffer in cls.buffer_list:
+            buffer['path'].seek(0)
+
+    def test_is_match(self):
+        """
+        Determine if the text file can be automatically identified from
+        byte stream or stringio stream or filepath
+        """
+        for input_file in self.file_or_buf_list:
+            self.assertTrue(TextData.is_match(input_file['path']))
+
     def test_auto_file_identification(self):
         """
         Determine if the text file can be automatically identified
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'text', input_file['path'])
 
@@ -37,7 +67,7 @@ class TestTextDataClass(unittest.TestCase):
         """
         Determine if the text file can be loaded with manual data_type setting
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"], data_type='text')
             self.assertEqual(input_data_obj.data_type, 'text')
 
@@ -45,7 +75,7 @@ class TestTextDataClass(unittest.TestCase):
         """
         Determine if the text file can be reloaded
         """
-        for input_file in self.input_file_names:
+        for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
             self.assertEqual(input_data_obj.data_type, 'text', input_file['path'])

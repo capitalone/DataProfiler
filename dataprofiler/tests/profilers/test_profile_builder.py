@@ -2813,8 +2813,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
             save_profile.update_profile(pd.DataFrame(['test', 'test2']))
             load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
-    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
-                spec=UnstructuredProfiler)
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_min_true_samples(self, *mocks):
         empty_df = pd.DataFrame([])
 

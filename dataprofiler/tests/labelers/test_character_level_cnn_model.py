@@ -199,8 +199,14 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         cv_gen = data_gen
 
         # Basic Fit with Validation Data
-        history, f1, f1_report = cnn_model.fit(data_gen, cv_gen,
-                                               reset_weights=True)
+        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
+                             level='INFO') as logs:
+            history, f1, f1_report = cnn_model.fit(data_gen, cv_gen,
+                                                   reset_weights=True)
+
+        # Ensure info was logged during fit
+        self.assertTrue(len(logs.output))
+
         data_gen = [
             np.array([['test']])
         ]

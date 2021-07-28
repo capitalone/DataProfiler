@@ -6,6 +6,7 @@ from .labelers.data_labelers import train_structured_labeler, DataLabeler, \
                                     StructuredDataLabeler, \
                                     UnstructuredDataLabeler
 from .validators.base_validators import Validator
+from .dp_logging import set_verbosity, get_logger
 from .version import __version__
 from . import settings
 
@@ -24,6 +25,7 @@ except ImportError:
         '\tsudo apt-get -y install libsnappy-dev`\n',
         ImportWarning
     )
+
 
 def set_seed(seed=None):
     # also check it's an integer

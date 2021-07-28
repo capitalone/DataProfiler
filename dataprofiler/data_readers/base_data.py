@@ -1,11 +1,11 @@
 import sys
-import logging
 from collections import OrderedDict
-
 import numpy as np
 import pandas as pd
 
-logger = logging.getLogger('DataProfiler.data')
+from .. import dp_logging
+
+logger = dp_logging.get_child_logger(__name__)
 
 
 class BaseData(object):

@@ -4,8 +4,6 @@ import os
 import unittest
 from unittest import mock
 
-import dataprofiler
-
 from . import test_utils
 
 from dataprofiler import Data, Profiler
@@ -38,10 +36,12 @@ class TestDataProfiler(unittest.TestCase):
         dp.set_seed(5)
         self.assertEqual(dp.settings._seed, 5)
 
-        with self.assertRaisesRegex(ValueError, "Seed should be a non-negative integer."):
+        with self.assertRaisesRegex(ValueError,
+                                    "Seed should be a non-negative integer."):
             dp.set_seed(-5)
 
-        with self.assertRaisesRegex(ValueError, "Seed should be a non-negative integer."):
+        with self.assertRaisesRegex(ValueError,
+                                    "Seed should be a non-negative integer."):
             dp.set_seed(5.2)
 
     def test_data_import(self):

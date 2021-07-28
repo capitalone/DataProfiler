@@ -317,7 +317,7 @@ class TestCategoricalColumn(unittest.TestCase):
         df_categorical = pd.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
         profile2 = CategoricalColumn(df_categorical.name)
         profile2.update(df_categorical)
-        
+
         expected_diff = {
             'categorical': 'unchanged',
             'statistics': {
@@ -331,6 +331,14 @@ class TestCategoricalColumn(unittest.TestCase):
                     'n': 1,
                     'maybe': [None, 2]
                 }
+            },
+            # chi2-statistic = sum((observed-expected)^2/expected for each category in each column)
+            # df = categories - 1
+            # p-value found through using chi2 CDF
+            'chi2-test': {
+                'chi2-statistic': 82/35,
+                'df': 2,
+                'p-value': 0.3099238764710244
             }
         }
 

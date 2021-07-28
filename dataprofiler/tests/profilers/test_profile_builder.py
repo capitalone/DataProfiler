@@ -86,7 +86,13 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._update_correlation')
     def test_list_data(self, *mocks):
-        data = [1, None, 3, 4, 5, None, 1]
+        data = [[1, 1],
+                [None, None],
+                [3, 3],
+                [4, 4],
+                [5, 5],
+                [None, None],
+                [1, 1]]
         with test_utils.mock_timeit():
             profiler = dp.StructuredProfiler(data)
 
@@ -97,9 +103,14 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(7, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertListEqual([0], list(profiler._col_name_to_idx.keys()))
+        self.assertListEqual([0, 1], list(profiler._col_name_to_idx.keys()))
         self.assertIsNone(profiler.correlation_matrix)
         self.assertDictEqual({'row_stats': 1}, profiler.times)
+
+        # validates the sample out maintains the same visual data format as the
+        # input.
+        self.assertListEqual(['5', '1', '1', '3', '4'],
+                             profiler.profile[0].sample)
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')
@@ -1906,6 +1917,60 @@ class TestUnstructuredProfiler(unittest.TestCase):
                               merged_profile.sample)
         self.assertEqual(3, merged_profile._profile)
         self.assertDictEqual({'clean_and_base_stats': 2}, merged_profile.times)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredCompiler.diff')
+    def test_diff(self, *mocks):
+
+        # Set up compiler diff
+        mocks[2].side_effect = [UnstructuredCompiler(), UnstructuredCompiler()]
+        mocks[0].return_value = {
+            'statistics': {
+                'all_vocab_and_word_stats': [['A', 'B'], ['C'], ['D']]
+            }, 
+            'data_label': {
+                'entity_counts': {
+                    'word_and_char_level_stats': {
+                        'LABEL': 'unchanged'
+                    }
+                }, 
+                'entity_percentages': {
+                    'word_and_char_level_stats': {
+                        'LABEL': 'unchanged'
+                    }
+                }
+            }
+        }
+
+        data1 = pd.Series(['this', 'is my', '\n\r', 'test'])
+        data2 = pd.Series(['here\n', '\t    ', ' ', ' is', '\n\r', 'more data'])
+        profiler1 = UnstructuredProfiler(data1)
+        profiler2 = UnstructuredProfiler(data2)
+
+        expected_diff = {
+            'global_stats': {
+                'samples_used': -2, 
+                'empty_line_count': -2, 
+                'file_type': 'unchanged', 
+                'encoding': 'unchanged', 
+                'memory_size': -10/1024**2
+            }, 
+            'data_stats': {
+                'statistics': {
+                    'all_vocab_and_word_stats': [['A', 'B'], ['C'], ['D']]}, 
+                'data_label': {
+                    'entity_counts': {
+                        'word_and_char_level_stats': 
+                            {'LABEL': 'unchanged'}
+                    }, 
+                    'entity_percentages': {
+                        'word_and_char_level_stats': {
+                            'LABEL': 'unchanged'
+                        }
+                    }
+                }
+            }
+        }
+        self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
 
     def test_get_sample_size(self, *mocks):
         data = pd.DataFrame([0] * int(50e3))

@@ -939,6 +939,17 @@ class TestStructuredProfiler(unittest.TestCase):
                                                samples_per_update=1)
         self.assertEqual(2, sparse_profile._min_col_samples_used)
 
+        # Test invalid input
+        msg = "`min_true_samples` must be an integer or `None`."
+        with self.assertRaisesRegex(ValueError, msg):
+            profile = dp.StructuredProfiler(sparse_df, 
+                                            min_true_samples="Bloop")
+
+        # Test None input (defaults to zero)
+        profile = dp.StructuredProfiler(sparse_df, min_true_samples=None)
+        self.assertEqual(None, profile._min_true_samples)
+
+
     def test_save_and_load(self):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]

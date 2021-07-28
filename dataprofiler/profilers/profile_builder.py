@@ -1849,7 +1849,7 @@ class StructuredProfiler(BaseProfiler):
         if isinstance(data, pd.Series):
             data = data.to_frame()
         elif isinstance(data, list):
-            data = pd.DataFrame(data)
+            data = pd.DataFrame(data, dtype=object)
 
         # Calculate schema of incoming data
         mapping_given = defaultdict(list)

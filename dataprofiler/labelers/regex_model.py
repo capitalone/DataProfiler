@@ -8,6 +8,9 @@ import numpy as np
 
 from .base_model import BaseModel
 from .base_model import AutoSubRegistrationMeta
+from .. import dp_logging
+
+logger = dp_logging.get_child_logger(__name__)
 
 
 class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
@@ -231,7 +234,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             predictions[i] = pred
 
         if verbose:
-            print()
+            logger.info("\rData Samples Processed: {:d}   ".format(i))
 
         # Trim array size to number of samples
         if len(predictions) > i+1:

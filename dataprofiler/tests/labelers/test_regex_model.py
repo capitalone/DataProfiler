@@ -183,7 +183,9 @@ class TestRegexModel(unittest.TestCase):
                                [0, 1, 0],
                                [0, 1, 0]])
          ]}
-        model_output = model.predict(['   ', 'hello'])
+        with self.assertLogs('DataProfiler.labelers.regex_model',
+                             level='INFO') as logs:
+            model_output = model.predict(['   ', 'hello'])
         self.assertIn('pred', model_output)
         for expected, output in zip(expected_output['pred'],
                                     model_output['pred']):
@@ -191,6 +193,8 @@ class TestRegexModel(unittest.TestCase):
 
         # check verbose printing
         self.assertIn('Data Samples', mock_stdout.getvalue())
+        # check verbose logging
+        self.assertTrue(len(logs.output))
 
         # test pad with background
         expected_output = {

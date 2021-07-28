@@ -15,6 +15,7 @@ from collections import OrderedDict, defaultdict
 import warnings
 import pickle
 from datetime import datetime
+import logging
 
 import pandas as pd
 import numpy as np
@@ -1868,10 +1869,16 @@ class StructuredProfiler(BaseProfiler):
                                                                     self._col_name_to_idx)
 
         try:
-            from tqdm import tqdm
+            # Only use imported tqdm if user specifies they want INFO logged
+            if logger.getEffectiveLevel() <= logging.INFO:
+                from tqdm import tqdm
+            else:
+                raise ImportError
         except ImportError:
             def tqdm(l):
                 for i, e in enumerate(l):
+                    # These will automatically be ignored if user sets logger
+                    # level as higher than INFO
                     logger.info("Processing Column {}/{}".format(i + 1, len(l)))
                     yield e
 

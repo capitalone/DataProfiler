@@ -86,7 +86,13 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._update_correlation')
     def test_list_data(self, *mocks):
-        data = [1, None, 3, 4, 5, None, 1]
+        data = [[1, 1],
+                [None, None],
+                [3, 3],
+                [4, 4],
+                [5, 5],
+                [None, None],
+                [1, 1]]
         with test_utils.mock_timeit():
             profiler = dp.StructuredProfiler(data)
 
@@ -97,9 +103,14 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, profiler.row_is_null_count)
         self.assertEqual(7, profiler.total_samples)
         self.assertEqual(5, len(profiler.hashed_row_dict))
-        self.assertListEqual([0], list(profiler._col_name_to_idx.keys()))
+        self.assertListEqual([0, 1], list(profiler._col_name_to_idx.keys()))
         self.assertIsNone(profiler.correlation_matrix)
         self.assertDictEqual({'row_stats': 1}, profiler.times)
+
+        # validates the sample out maintains the same visual data format as the
+        # input.
+        self.assertListEqual(['5', '1', '1', '3', '4'],
+                             profiler.profile[0].sample)
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'ColumnPrimitiveTypeProfileCompiler')

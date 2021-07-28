@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import re
 import copy
 
@@ -7,9 +8,6 @@ import numpy as np
 
 from .base_model import BaseModel
 from .base_model import AutoSubRegistrationMeta
-from .. import dp_logging
-
-logger = dp_logging.get_child_logger(__name__)
 
 
 class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
@@ -228,8 +226,12 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                         pred[indices[0]:indices[1], default_ind] = 0
                         pred[indices[0]:indices[1], entity_id] = 1
             if verbose:
-                logger.info("\rData Samples Processed: {:d}   ".format(i))
+                sys.stdout.flush()
+                sys.stdout.write("\rData Samples Processed: {:d}   ".format(i))
             predictions[i] = pred
+
+        if verbose:
+            print()
 
         # Trim array size to number of samples
         if len(predictions) > i+1:

@@ -159,7 +159,8 @@ class TestRegexModel(unittest.TestCase):
         self.assertIn("RegexModel", mock_stdout.getvalue())
         self.assertIn("Parameters", mock_stdout.getvalue())
 
-    def test_predict(self):
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_predict(self, mock_stdout):
         parameters = {
             'regex_patterns': {
                 'PAD': [r'\W'],
@@ -182,16 +183,14 @@ class TestRegexModel(unittest.TestCase):
                                [0, 1, 0],
                                [0, 1, 0]])
          ]}
-        with self.assertLogs('DataProfiler.labelers.regex_model',
-                             level='INFO') as cm:
-            model_output = model.predict(['   ', 'hello'])
+        model_output = model.predict(['   ', 'hello'])
         self.assertIn('pred', model_output)
         for expected, output in zip(expected_output['pred'],
                                     model_output['pred']):
             self.assertTrue(np.array_equal(expected, output))
 
         # check verbose printing
-        self.assertIn('Data Samples', ''.join(cm.output))
+        self.assertIn('Data Samples', mock_stdout.getvalue())
 
         # test pad with background
         expected_output = {
@@ -232,13 +231,12 @@ class TestRegexModel(unittest.TestCase):
                                     model_output['conf']):
             self.assertTrue(np.array_equal(expected, output))
 
-        # test verbose = False doesn't make any INFO logs
-        with self.assertRaisesRegex(AssertionError,
-                                    'no logs of level INFO or higher triggered '
-                                    'on DataProfiler.labelers.regex_model'):
-            with self.assertLogs('DataProfiler.labelers.regex_model',
-                                 level='INFO'):
-                model.predict(['hello world.'], verbose=False)
+        # test verbose = False
+        # clear stdout
+        mock_stdout.seek(0)
+        mock_stdout.truncate(0)
+        model_output = model.predict(['hello world.'], verbose=False)
+        self.assertNotIn('Data Samples', mock_stdout.getvalue())
 
     @mock.patch("tensorflow.keras.models.load_model", return_value=None)
     @mock.patch("builtins.open", side_effect=mock_open)

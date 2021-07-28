@@ -1,5 +1,8 @@
+import warnings
 from collections import defaultdict
 from operator import itemgetter
+
+import numpy as np
 
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
@@ -89,6 +92,9 @@ class CategoricalColumn(BaseColumnProfiler):
 
         # These stats are only diffed if both profiles are categorical
         if self.is_match and other_profile.is_match:
+            differences["chi2-test"] = self._perform_chi_squared_test(
+                self._categories, other_profile._categories
+            )
             differences["statistics"]['categories'] = \
                 utils.find_diff_of_lists_and_sets(self.categories,
                                                   other_profile.categories)
@@ -109,6 +115,85 @@ class CategoricalColumn(BaseColumnProfiler):
                 utils.find_diff_of_dicts(cat_count1, cat_count2)
 
         return differences
+
+    @staticmethod
+    def _perform_chi_squared_test(categories1, categories2):
+        """
+        Performs a Chi Squared test for homogeneity between two groups.
+
+        :param categories1: Categories and respective counts of the first group
+        :type categories1: dict
+        :param categories2: Categories and respective counts of the second group
+        :type categories2: dict
+        :return: Results of the chi squared test
+        :rtype: dict
+        """
+        results = {
+            "chi2-statistic": None,
+            "df": None,
+            "p-value": None
+        }
+
+
+        combined_cats = list(set(categories1.keys()).union(set(categories2.keys())))
+        num_cats = len(combined_cats)
+        if len(combined_cats) < 1:
+            warnings.warn("Insufficient number of categories. "
+                          "Chi-squared test cannot be performed.", RuntimeWarning)
+            return results
+
+        # Calculate degrees of freedom
+        # df = (rows - 1) * (cols - 1), in the case of two groups reduces to cols - 1
+        df = num_cats - 1
+        results["df"] = df
+
+        cat_counts1 = [categories1[cat] if cat in categories1 else 0
+                       for cat in combined_cats]
+        cat_counts2 = [categories2[cat] if cat in categories2 else 0
+                       for cat in combined_cats]
+        observed = [cat_counts1, cat_counts2]
+        row_sums = [sum(cat_counts1), sum(cat_counts2)]
+        col_sums = [cat_counts1[i] + cat_counts2[i] for i in range(0, len(combined_cats))]
+        total = sum(row_sums)
+
+        # If a zero is found in either row or col sums, then an expected count will be
+        # zero. This means the chi2-statistic and p-value are infinity and zero,
+        # so calculation can be skipped.
+        if 0 in row_sums or 0 in col_sums:
+            results["chi2-statistic"] = np.inf
+            results["p-value"] = 0
+            return results
+
+        # Calculate expected counts
+        expected = [[None] * num_cats, [None] * num_cats]
+        for i in range(0, len(row_sums)):
+            expected.append([])
+            for j in range(0, len(col_sums)):
+                expected[i][j] = row_sums[i] * col_sums[j] / total
+
+        # Calculate chi-sq statistic
+        chi2_statistic = 0
+        for i in range(0, len(observed)):
+            for j in range(0, len(observed[i])):
+                chi2_statistic += \
+                    (observed[i][j] - expected[i][j]) ** 2 / expected[i][j]
+        results["chi2-statistic"] = chi2_statistic
+
+        try:
+            import scipy.stats
+        except ImportError:
+            # Failed, so we return the stats but don't perform the test
+            warnings.warn("Could not import necessary statistical packages. "
+                          "To successfully perform the chi-squared test, please run 'pip "
+                          "install scipy.' Test results will be incomplete.",
+                          RuntimeWarning)
+            return results
+
+        # Calculate p-value, i.e. P(X > chi2_statistic)
+        p_value = 1 - scipy.stats.chi2(df).cdf(chi2_statistic)
+        results["p-value"] = p_value
+
+        return results
 
     @property
     def profile(self):

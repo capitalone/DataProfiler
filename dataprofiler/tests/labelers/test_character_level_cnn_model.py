@@ -225,13 +225,7 @@ class TestCharacterLevelCNNModel(unittest.TestCase):
         ]
         val_gen[0][1][:, :11, self.label_mapping['ADDRESS']] = 1
 
-        with self.assertLogs('DataProfiler.labelers.character_level_cnn_model',
-                             level='INFO') as logs:
-            f1, f1_report = cnn_model._validate_training(val_gen, 32,
-                                                         True, True)
-        # Ensure info was logged during validate
-        self.assertTrue(len(logs.output))
-
+        f1, f1_report = cnn_model._validate_training(val_gen, 32, True, True)
         self.assertIsNotNone(f1)
         self.assertIsNotNone(f1_report)
         self.assertEqual(11, f1_report['ADDRESS']['support'])

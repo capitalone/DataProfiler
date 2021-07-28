@@ -1,6 +1,7 @@
 import json
 import copy
 import os
+import sys
 import time
 import logging
 from collections import defaultdict
@@ -812,10 +813,12 @@ class CharacterLevelCnnModel(BaseTrainableModel,
         for x_train, y_train in train_data:
             model_results = self._model.train_on_batch(
                 x_train, {softmax_output_layer_name: y_train})
+            sys.stdout.flush()
             if verbose:
-                logger.info("\rEPOCH %d, batch_id %d: loss: %f - acc: %f - "
-                            "f1_score %f" %
-                            (self._epoch_id, batch_id, *model_results[1:]))
+                sys.stdout.write(
+                    "\rEPOCH %d, batch_id %d: loss: %f - acc: %f - "
+                    "f1_score %f" %
+                    (self._epoch_id, batch_id, *model_results[1:]))
             batch_id += 1
 
         for i, metric_label in enumerate(self._model.metrics_names):
@@ -831,13 +834,11 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                 if f1_report else np.NAN
             val_recall = f1_report['weighted avg']['recall'] \
                 if f1_report else np.NAN
-            if verbose:
-                epoch_time = time.time() - start_time
-                logger.info("\rEPOCH %d (%ds), loss: %f - acc: %f - "
-                            "f1_score %f -- val_f1: %f - val_precision: %f - "
-                            "val_recall %f" %
-                            (self._epoch_id, epoch_time, *model_results[1:],
-                             val_f1, val_precision, val_recall))
+            epoch_time = time.time() - start_time
+            logger.info("\rEPOCH %d (%ds), loss: %f - acc: %f - f1_score %f -- "
+                        "val_f1: %f - val_precision: %f - val_recall %f" %
+                        (self._epoch_id, epoch_time, *model_results[1:],
+                         val_f1, val_precision, val_recall))
 
         self._epoch_id += 1
 
@@ -875,9 +876,10 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                 x_val, batch_size=batch_size_test, verbose=verbose_keras)[1])
             y_val_test.append(np.argmax(y_val, axis=-1))
             batch_id += 1
+            sys.stdout.flush()
             if verbose_log:
-                logger.info("\rEPOCH %g, validation_batch_id %d"
-                            % (self._epoch_id, batch_id))
+                sys.stdout.write("\rEPOCH %g, validation_batch_id %d" %
+                                 (self._epoch_id, batch_id))
         
         tf.keras.backend.set_floatx('float32')
         # Clean the predicted entities and the actual entities

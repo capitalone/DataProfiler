@@ -199,7 +199,7 @@ Below is the structured difference report.
                                      'p-value': float},
                     'welch': {'df': float,
                               'p-value': float}},
-                "chi2-test" = {
+                "chi2-test": {
                     "chi2-statistic": float,
                     "df": int,
                     "p-value": float

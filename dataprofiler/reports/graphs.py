@@ -14,8 +14,8 @@ def plot_histograms(profiler, columns=None):
     columns.
 
     :param profiler: StructuredProfiler variable
-    :param columns: list of column names to be plotted
     :type profiler: StructuredProfiler
+    :param columns: list of column names to be plotted
     :type columns: list
     :return: returns fig
     :rtype: fig
@@ -36,13 +36,17 @@ def plot_histograms(profiler, columns=None):
             inds_to_graph.extend(profiler._col_name_to_idx[col])
         sorted(inds_to_graph)
     # get all columns which are either int or float (part2)
-    for col_ind in reversed(inds_to_graph):
-        # get data_type
-        data_compiler = profiler.profile[col_ind].profiles['data_type_profile']
-        data_type = data_compiler.selected_data_type
-        data_type_profiler = data_compiler._profiles[data_type]
-        if data_type not in ['int', 'float']:
-            inds_to_graph.pop()
+    def is_index_graphable_column(ind_to_graph):
+        """
+        This function filters ind_to_graph by returning false if there is a
+        data type that is not a int or float, otherwise true
+        """
+        col_profiler = profiler.profile[ind_to_graph]
+        data_compiler = col_profiler.profiles['data_type_profile']
+        if data_compiler.selected_data_type not in ['int', 'float']:
+            return False
+        return True
+    inds_to_graph = list(filter(is_index_graphable_column, inds_to_graph))
 
     if not inds_to_graph:
         warnings.warn("No plots were constructed"
@@ -75,10 +79,10 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
     Take a input of a Int or Float Column and plots the histogram
 
     :param data_type_profiler: the Int or Float column we pass in
-    :param ax: ax as in seaborn ax
-    :param title: name of a individual histogram
     :type data_type_profiler: Union[IntColumn, FloatColumn]
+    :param ax: ax as in seaborn ax
     :type ax: list
+    :param title: name of a individual histogram
     :type title: str
     :return: ax
     """

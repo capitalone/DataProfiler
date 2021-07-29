@@ -24,11 +24,11 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     required_packages = f.read().splitlines()
 
-# Get the install_requirements from requirements.txt
+# Get the install_requirements from requirements-ml.txt
 with open(path.join(here, 'requirements-ml.txt'), encoding='utf-8') as f:
     ml_packages = f.read().splitlines()
 
-# Get the install_requirements from requirements.txt
+# Get the install_requirements from requirements-reports.txt
 with open(path.join(here, 'requirements-reports.txt'), encoding='utf-8') as f:
     reports_packages = f.read().splitlines()
     

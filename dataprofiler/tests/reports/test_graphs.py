@@ -15,14 +15,14 @@ class TestPlotHistograms(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.data = [[1, 1.0, 'a', '1/2/2021'],
-                    [None, None, 'b', '1/2/2020'],
-                    [3, 3.5, 'c', '1/2/2022'],
-                    [4, 4.5, 'd', '1/2/2023'],
-                    [5, 6.0, 'e', '5/2/2020'],
-                    [None, None, 'f', '1/5/2020'],
-                    [1, 1.0, 'g', '2/5/2020'],
-                    [None, 10.0, 1, '3/5/2020']]
+        cls.data = [[1, 'a', 1.0, '1/2/2021'],
+                    [None, 'b', None, '1/2/2020'],
+                    [3, 'c', 3.5, '1/2/2022'],
+                    [4, 'd', 4.5, '1/2/2023'],
+                    [5, 'e', 6.0, '5/2/2020'],
+                    [None, 'f', None, '1/5/2020'],
+                    [1, 'g', 1.0, '2/5/2020'],
+                    [None, 1, 10.0, '3/5/2020']]
         cls.options = dp.ProfilerOptions()
         cls.options.set({"data_labeler.is_enabled": False})
         cls.profiler = dp.StructuredProfiler(cls.data, options=cls.options)
@@ -35,13 +35,13 @@ class TestPlotHistograms(unittest.TestCase):
         self.assertEqual(0, plot_col_mock.call_args_list[0][0][0].name)
         # grabs the second argument passed into the plot col call and validates
         # it is the column profiler and its name matches what we expect it to
-        self.assertEqual(1, plot_col_mock.call_args_list[1][0][0].name)
+        self.assertEqual(2, plot_col_mock.call_args_list[1][0][0].name)
         self.assertIsInstance(graphsplot, plt.Figure)
 
     def test_normal(self, plot_col_mock, plt_mock):
-        graphsplot = graphs.plot_histograms(self.profiler, [1])
+        graphsplot = graphs.plot_histograms(self.profiler, [2])
         self.assertEqual(1, plot_col_mock.call_count)
-        self.assertEqual(1, plot_col_mock.call_args_list[0][0][0].name)
+        self.assertEqual(2, plot_col_mock.call_args_list[0][0][0].name)
         self.assertIsInstance(graphsplot, plt.Figure)
 
     def test_bad_column_name(self, plot_col_mock, plt_mock):
@@ -52,7 +52,7 @@ class TestPlotHistograms(unittest.TestCase):
     def test_no_column_plottable(self, plot_col_mock, plt_mock):
         with self.assertWarnsRegex(Warning, "No plots were constructed"
                                             " because no int or float columns were found in columns"):
-            graphs.plot_histograms(self.profiler, [2, 3])
+            graphs.plot_histograms(self.profiler, [1, 3])
 
     def test_empty_profiler(self, plot_col_mock, plt_mock):
         with self.assertWarnsRegex(Warning, "No plots were constructed"

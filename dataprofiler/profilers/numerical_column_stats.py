@@ -7,6 +7,7 @@ respective parameters.
 from __future__ import print_function
 from __future__ import division
 
+import scipy.stats
 from future.utils import with_metaclass
 import copy
 import abc
@@ -370,16 +371,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         results['conservative']['df'] = conservative_df
         results['welch']['df'] = welch_df
         
-        try:
-            import scipy.stats
-        except ImportError:
-            # Failed, so we return the stats but don't perform the test
-            warnings.warn("Could not import necessary statistical packages. "
-                          "To successfully perform the t-test, please run 'pip "
-                          "install scipy.' T-test results will be incomplete.",
-                          RuntimeWarning)
-            return results
-        # If scipy import was successful, now perform the *two-sided* t-test
         conservative_t = scipy.stats.t(conservative_df)
         conservative_p_val = (1 - conservative_t.cdf(abs(t))) * 2
         welch_t = scipy.stats.t(welch_df)

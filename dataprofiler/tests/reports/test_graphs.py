@@ -3,6 +3,7 @@ from unittest import mock
 
 import pandas as pd
 from matplotlib import pyplot as plt
+
 import dataprofiler as dp
 from dataprofiler.profilers import IntColumn
 from dataprofiler.reports import graphs
@@ -43,17 +44,16 @@ class TestPlotHistograms(unittest.TestCase):
         self.assertEqual(1, plot_col_mock.call_args_list[0][0][0].name)
         self.assertIsInstance(graphsplot, plt.Figure)
 
-    def test_bad_column_name(self, plt_mock):
+    def test_bad_column_name(self, plot_col_mock, plt_mock):
         with self.assertRaisesRegex(ValueError,
                                     "Column \"a\" is not found as a profiler column"):
             graphs.plot_histograms(self.profiler, [0, "a"])
 
-    def test_no_column_plottable(self, plt_mock):
+    def test_no_column_plottable(self, plot_col_mock, plt_mock):
         with self.assertWarnsRegex(Warning, "No plots were constructed"
                                             " because no int or float columns were found in columns"):
             graphs.plot_histograms(self.profiler, [2, 3])
 
-    @mock.patch("dataprofiler.reports.graphs.plot_col_histogram")
     def test_empty_profiler(self, plot_col_mock, plt_mock):
         with self.assertWarnsRegex(Warning, "No plots were constructed"
                                             " because no int or float columns were found in columns"):

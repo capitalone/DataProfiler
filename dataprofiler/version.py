@@ -3,8 +3,8 @@ File containers the version number for the package
 """
 
 MAJOR               = 0
-MINOR               = 6
-MICRO               = 1
+MINOR               = 7
+MICRO               = 0
 
 VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
 

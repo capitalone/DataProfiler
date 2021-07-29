@@ -17,7 +17,8 @@ def plot_histograms(profiler, columns=None):
         :param columns: list of column names to be plotted
         :type profiler: StructuredProfiler
         :type columns: list
-        :return:
+        :return: returns fig
+        :rtype: fig
     """
 
     # get all inds to graph, raise error if user specified doesn't exist (part 1)
@@ -66,13 +67,24 @@ def plot_histograms(profiler, columns=None):
         plot_col_histogram(data_type_profiler, ax=ax,
                            title=str(data_type_profiler.name))
     plt.show()
-
     return fig
 
 
 def plot_col_histogram(data_type_profiler, ax=None, title=""):
+    """
+        Take a input of a Int or Float Column and plots the histogram
+
+        :param data_type_profiler: the Int or Float column we pass in
+        :param ax: ax as in seaborn ax
+        :param title: name of a individual histogram
+        :type data_type_profiler: Union[IntColumn, FloatColumn]
+        :type ax: list
+        :type title: str
+        :return:
+    """
+
     histogram = data_type_profiler._get_best_histogram_for_profile()
-    if not histogram['bin_counts'] or not histogram['bin_edges']:
+    if histogram['bin_counts'] is None or histogram['bin_edges'] is None:
         raise ValueError("The column profiler, " + str(
             data_type_profiler.name) + ", provided had no data and "
                                        "therefore could not be plotted.")

@@ -28,20 +28,23 @@ class TestPlotHistograms(unittest.TestCase):
 
     @mock.patch("dataprofiler.reports.graphs.plot_col_histogram")
     def test_no_columns_specified(self, plot_col_mock, seaborn_mock, plt_mock):
-        x = graphs.plot_histograms(self.profiler)
-        print(graphs)
+        graphsplot = graphs.plot_histograms(self.profiler)
         self.assertEqual(2, plot_col_mock.call_count)
-        self.assertEqual(0, plot_col_mock.call_args_list[0].args[0].name)
-        self.assertEqual(1, plot_col_mock.call_args_list[1].args[0].name)
-        self.assertIsNotNone(x)
+        # grabs the first argument passed into the plot col call and validates
+        # it is the column profiler and its name matches what we expect it to
+        self.assertEqual(0, plot_col_mock.call_args_list[0][0][0].name)
+        # grabs the second argument passed into the plot col call and validates
+        # it is the column profiler and its name matches what we expect it to
+        self.assertEqual(1, plot_col_mock.call_args_list[1][0][0].name)
+        self.assertIsNotNone(graphsplot)
 
     @mock.patch("dataprofiler.reports.graphs.plot_col_histogram")
     def test_normal(self, plot_col_mock, seaborn_mock, plt_mock):
-        x = graphs.plot_histograms(self.profiler, [1])
+        graphsplot = graphs.plot_histograms(self.profiler, [1])
         print(graphs)
         self.assertEqual(1, plot_col_mock.call_count)
-        self.assertEqual(1, plot_col_mock.call_args_list[0].args[0].name)
-        self.assertIsNotNone(x)
+        self.assertEqual(1, plot_col_mock.call_args_list[0][0][0].name)
+        self.assertIsNotNone(graphsplot)
 
     def test_bad_column_name(self, seaborn_mock, plt_mock):
         with self.assertRaisesRegex(ValueError,
@@ -76,8 +79,6 @@ class TestPlotColHistogram(unittest.TestCase):
     def test_empty_data(self, plt_mock):
         data = pd.Series([], dtype=str)
         profiler = IntColumn(data.name)
-        with self.assertRaisesRegex(ValueError, "The column profiler, None, "
-                                                "provided had no data and "
-                                                "therefore could not be "
-                                                "plotted."):
+        with self.assertRaisesRegex(ValueError, "The column profiler, None, provided had no data and "
+                                                "therefore could not be plotted."):
             graphs.plot_col_histogram(profiler)

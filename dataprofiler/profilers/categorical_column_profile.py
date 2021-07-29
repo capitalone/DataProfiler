@@ -3,6 +3,7 @@ from collections import defaultdict
 from operator import itemgetter
 
 import numpy as np
+import scipy.stats
 
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
@@ -174,16 +175,6 @@ class CategoricalColumn(BaseColumnProfiler):
             chi2_statistic += (categories2.get(cat, 0) - expected2) \
                               ** 2 / expected2
         results["chi2-statistic"] = chi2_statistic
-
-        try:
-            import scipy.stats
-        except ImportError:
-            # Failed, so we return the stats but don't perform the test
-            warnings.warn("Could not import necessary statistical packages. "
-                          "To successfully perform the chi-squared test, please run 'pip "
-                          "install scipy.' Test results will be incomplete.",
-                          RuntimeWarning)
-            return results
 
         # Calculate p-value, i.e. P(X > chi2_statistic)
         p_value = 1 - scipy.stats.chi2(df).cdf(chi2_statistic)

@@ -125,6 +125,139 @@ This also enables profiles to be determined in a distributed manner.
     print(json.dumps(report, indent=4))
 
 
+Profile Differences
+~~~~~~~~~~~~~~~~~~~
+
+Profile differences take two profiles and find the differences
+between them. If the profile statistic is unchanged, the difference will 
+report: "unchanged". Otherwise, if the statistic is a number, a simple subtraction is completed. 
+If the statistic is a string, a list of size 2 will be shown: 
+[profile1 stat, profile2 stat]. If there is a list statistic, a list of 3 will be 
+returned showing: [profile 1 unique values, shared values, profile 2 unique values].
+Some dictionaries with varied keys will also return a list of three in the format:
+[profile 1 unique key-values, shared key differences, profile 2 unique key-values].
+
+Create the difference report like this:
+
+.. code-block:: python
+
+    from dataprofiler import Data, Profiler
+    # Load a CSV file
+    data1 = Data("file_a.csv")
+    profile1 = Profiler(data)
+    # Load another CSV file
+    data2 = Data("file_b.csv")
+    profile2 = Profiler(data)
+    diff_report = profile1.diff(profile2)
+    print(diff_report)
+    
+The difference report contains a dictionary that mirrors the profile report.
+Below is the structured difference report.
+
+.. code-block:: python
+
+    {
+        'global_stats': {
+            'file_type': [str, str], 
+            'encoding': [str, str],
+            'samples_used': int, 
+            'column_count': int,
+            'row_count': int, 
+            'row_has_null_ratio': int,
+            'row_is_null_ratio': int,
+            'unique_row_ratio': int,
+            'duplicate_row_count': int,
+            'correlation_matrix': list(list(int)),
+            'profile_schema': list(dict)
+        },
+        'data_stats': [{
+            'column_name': str, 
+            'data_type': [str, str],
+            'data_label': [list(str), list(str), list(str)],
+            'categorical': [str, str],
+            'order': [str, str],
+            'statistics': {
+                'min': int,
+                'max': int,
+                'sum': int,
+                'mean': int, 
+                'variance': int,
+                'stddev': int,
+                't-test': {
+                    't-statistic': int,
+                    'conservative': {'df': int,
+                                     'p-value': int},
+                    'welch': {'df': int,
+                              'p-value': int}},
+                'unique_count': int,
+                'unique_ratio': int,
+                'categories': [list(str), list(str), list(str)],
+                'gini_impurity': int,
+                'unalikeability': int,
+                'categorical_count': [dict(), dict(), dict()],
+                'avg_predictions': {
+                    'DATA_LABEL': int
+                },
+                'label_representation': {
+                    'DATA_LABEL': int
+                },
+                'sample_size': int,
+                'null_count': int,
+                'null_types': [list(str), list(str), list(str)],
+                'null_types_index': [dict(), dict(), dict()],
+                'data_type_representation': {
+                    'data_type': int
+                }
+            }
+        }
+        
+Below is the unstructured difference report:
+
+.. code-block:: python
+    
+    {
+        'global_stats': {
+            'file_type': [str, str], 
+            'encoding': [str, str], 
+            'samples_used': int, 
+            'empty_line_count': int, 
+            'memory_size': int
+        }, 
+        'data_stats': {
+            'data_label': {
+                'entity_counts': {
+                    'word_level': {
+                        'DATA_LABEL': int
+                    }, 
+                    'true_char_level': {
+                        'DATA_LABEL': int
+                    }, 
+                    'postprocess_char_level': {
+                        'DATA_LABEL': int
+                    }
+                }, 
+                'entity_percentages': {
+                    'word_level': {
+                        'DATA_LABEL': int
+                    }, 
+                    'true_char_level': {
+                        'DATA_LABEL': int
+                    }, 
+                    'postprocess_char_level': {
+                        'DATA_LABEL': int
+                    }
+                }
+            }, 
+            'statistics': {
+                'vocab': [list(str), list(str), list(str)], 
+                'vocab_count': [dict(), dict(), dict()], 
+                'words': [list(str), list(str), list(str)], 
+                'word_count': [dict(), dict(), dict()]
+            }
+        }
+    }
+    
+
 Saving and Loading a Profile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

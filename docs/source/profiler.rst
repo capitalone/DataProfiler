@@ -136,17 +136,17 @@ report: "unchanged". Each data type has its own difference:
 
 * **String Differences** - The strings will be shown in a list: 
 
-    * [profile1 str, profile2 str]
+  * [profile1 str, profile2 str]
 
 * **List Differences** - A list of 3 will be returned showing the unique values 
   of each profile and the shared values, ex: 
 
-    * [profile 1 unique values, shared values, profile 2 unique values]
+  * [profile 1 unique values, shared values, profile 2 unique values]
 
 * **Dict Differences** - Some dictionaries with varied keys will also return a 
   list of three in the format: 
 
-    * [profile 1 unique key-values, shared key differences, profile 2 unique key-values]
+  * [profile 1 unique key-values, shared key differences, profile 2 unique key-values]
 
 Create the difference report like this:
 

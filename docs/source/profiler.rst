@@ -132,24 +132,29 @@ Profile differences take two profiles and find the differences
 between them. If the profile statistic is unchanged, the difference will 
 report: "unchanged". Each data type has its own difference:
 
-* **Int Differences** - One profile subtracts the value from the other.
+* **Int/Float Differences** - One profile subtracts the value from the other.
 
-* **String Differences** - The strings will be shown in a list: [profile1 str, profile2 str]
+* **String Differences** - The strings will be shown in a list: [profile1 str,\  
+profile2 str]
 
-* **List Differences** - A list of 3 will be returned showing the unique values 
-of each profile and the shared values, ex: [profile 1 unique values, shared values, profile 2 unique values]
+* **List Differences** - A list of 3 will be returned showing the unique values\  
+of each profile and the shared values, ex: [profile 1 unique values, shared\   
+values, profile 2 unique values]
 
-* **Dict Differences** - Some dictionaries with varied keys will also return a 
-list of three in the format: [profile 1 unique key-values, shared key differences, profile 2 unique key-values].
+* **Dict Differences** - Some dictionaries with varied keys will also return a\   
+list of three in the format: [profile 1 unique key-values, shared key\   
+differences, profile 2 unique key-values].
 
 Create the difference report like this:
 
 .. code-block:: python
 
     from dataprofiler import Data, Profiler
+    
     # Load a CSV file
     data1 = Data("file_a.csv")
     profile1 = Profiler(data)
+    
     # Load another CSV file
     data2 = Data("file_b.csv")
     profile2 = Profiler(data)
@@ -168,12 +173,12 @@ Below is the structured difference report.
             'samples_used': int, 
             'column_count': int,
             'row_count': int, 
-            'row_has_null_ratio': int,
-            'row_is_null_ratio': int,
-            'unique_row_ratio': int,
+            'row_has_null_ratio': float,
+            'row_is_null_ratio': float,
+            'unique_row_ratio': float,
             'duplicate_row_count': int,
-            'correlation_matrix': list[list[int]],
-            'profile_schema': list[dict]
+            'correlation_matrix': list[list[float]],
+            'profile_schema': list[dict[str, int]]
         },
         'data_stats': [{
             'column_name': str, 
@@ -182,37 +187,36 @@ Below is the structured difference report.
             'categorical': [str, str],
             'order': [str, str],
             'statistics': {
-                'min': int,
-                'max': int,
-                'sum': int,
-                'mean': int, 
-                'variance': int,
-                'stddev': int,
+                'min': float,
+                'max': float,
+                'sum': float,
+                'mean': float, 
+                'variance': float,
+                'stddev': float,
                 't-test': {
-                    't-statistic': int,
+                    't-statistic': float,
                     'conservative': {'df': int,
-                                     'p-value': int},
-                    'welch': {'df': int,
-                              'p-value': int}},
+                                     'p-value': float},
+                    'welch': {'df': float,
+                              'p-value': float}},
+                "chi2-test" = {
+                    "chi2-statistic": float,
+                    "df": int,
+                    "p-value": float
+                },
                 'unique_count': int,
-                'unique_ratio': int,
+                'unique_ratio': float,
                 'categories': [list[str], list[str], list[str]],
-                'gini_impurity': int,
-                'unalikeability': int,
+                'gini_impurity': float,
+                'unalikeability': float,
                 'categorical_count': [dict[str, int], dict[str, int], dict[str, int]],
-                'avg_predictions': {
-                    'DATA_LABEL': int
-                },
-                'label_representation': {
-                    'DATA_LABEL': int
-                },
+                'avg_predictions': [dict[str, float]],
+                'label_representation': [dict[str, float]],
                 'sample_size': int,
                 'null_count': int,
                 'null_types': [list[str], list[str], list[str]],
                 'null_types_index': [dict[str, int], dict[str, int], dict[str, int]],
-                'data_type_representation': {
-                    'data_type': int
-                }
+                'data_type_representation': [dict[str, float]]
             }
         }
         
@@ -226,7 +230,7 @@ Below is the unstructured difference report:
             'encoding': [str, str], 
             'samples_used': int, 
             'empty_line_count': int, 
-            'memory_size': int
+            'memory_size': float
         }, 
         'data_stats': {
             'data_label': {
@@ -236,9 +240,9 @@ Below is the unstructured difference report:
                     'postprocess_char_level': dict[str, int]
                 }, 
                 'entity_percentages': {
-                    'word_level': dict[str, int], 
-                    'true_char_level': dict[str, int], 
-                    'postprocess_char_level': dict[str, int]
+                    'word_level': dict[str, float], 
+                    'true_char_level': dict[str, float], 
+                    'postprocess_char_level': dict[str, float]
                 }
             }, 
             'statistics': {

@@ -93,7 +93,8 @@ class CategoricalColumn(BaseColumnProfiler):
         # These stats are only diffed if both profiles are categorical
         if self.is_match and other_profile.is_match:
             differences["chi2-test"] = self._perform_chi_squared_test(
-                self._categories, other_profile._categories
+                self._categories, self.sample_size,
+                other_profile._categories, other_profile.sample_size
             )
             differences["statistics"]['categories'] = \
                 utils.find_diff_of_lists_and_sets(self.categories,
@@ -117,7 +118,8 @@ class CategoricalColumn(BaseColumnProfiler):
         return differences
 
     @staticmethod
-    def _perform_chi_squared_test(categories1, categories2):
+    def _perform_chi_squared_test(categories1, n1,
+                                  categories2, n2):
         """
         Performs a Chi Squared test for homogeneity between two groups.
 
@@ -133,11 +135,12 @@ class CategoricalColumn(BaseColumnProfiler):
             "df": None,
             "p-value": None
         }
+        cat_counts = utils.add_nested_dictionaries(categories1, categories2)
 
-
-        combined_cats = list(set(categories1.keys()).union(set(categories2.keys())))
-        num_cats = len(combined_cats)
-        if len(combined_cats) < 1:
+        # If one or less categories, we have zero/negative degrees of freedom, which is not an
+        # appropriate value for this context
+        num_cats = len(cat_counts)
+        if len(cat_counts) <= 1:
             warnings.warn("Insufficient number of categories. "
                           "Chi-squared test cannot be performed.", RuntimeWarning)
             return results
@@ -147,36 +150,25 @@ class CategoricalColumn(BaseColumnProfiler):
         df = num_cats - 1
         results["df"] = df
 
-        cat_counts1 = [categories1[cat] if cat in categories1 else 0
-                       for cat in combined_cats]
-        cat_counts2 = [categories2[cat] if cat in categories2 else 0
-                       for cat in combined_cats]
-        observed = [cat_counts1, cat_counts2]
-        row_sums = [sum(cat_counts1), sum(cat_counts2)]
-        col_sums = [cat_counts1[i] + cat_counts2[i] for i in range(0, len(combined_cats))]
-        total = sum(row_sums)
+        total = n1 + n2
 
         # If a zero is found in either row or col sums, then an expected count will be
         # zero. This means the chi2-statistic and p-value are infinity and zero,
         # so calculation can be skipped.
-        if 0 in row_sums or 0 in col_sums:
+        if 0 in [n1, n2] or 0 in cat_counts.values():
             results["chi2-statistic"] = np.inf
             results["p-value"] = 0
             return results
 
-        # Calculate expected counts
-        expected = [[None] * num_cats, [None] * num_cats]
-        for i in range(0, len(row_sums)):
-            expected.append([])
-            for j in range(0, len(col_sums)):
-                expected[i][j] = row_sums[i] * col_sums[j] / total
-
         # Calculate chi-sq statistic
         chi2_statistic = 0
-        for i in range(0, len(observed)):
-            for j in range(0, len(observed[i])):
-                chi2_statistic += \
-                    (observed[i][j] - expected[i][j]) ** 2 / expected[i][j]
+        for cat, count in cat_counts.items():
+            expected1 = n1 * count / total
+            expected2 = n2 * count / total
+            chi2_statistic += (categories1.get(cat, 0) - expected1) \
+                              ** 2 / expected1
+            chi2_statistic += (categories2.get(cat, 0) - expected2) \
+                              ** 2 / expected2
         results["chi2-statistic"] = chi2_statistic
 
         try:

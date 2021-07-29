@@ -1925,7 +1925,7 @@ class StructuredProfiler(BaseProfiler):
                 cols=len(data.columns))
 
         # Format the data
-        notification_str = "Finding the Null values in the columns..."
+        notification_str = "Finding the Null values in the columns... "
         if pool:
             notification_str += " (with " + str(pool_size) + " processes)"
 

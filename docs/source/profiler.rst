@@ -167,7 +167,7 @@ Otherwise, when no differences occur:
 
 * **Any Type No Differences** - A string will report: "unchanged".
 
-Below is the structured difference report.
+Below is the structured difference report:
 
 .. code-block:: python
 

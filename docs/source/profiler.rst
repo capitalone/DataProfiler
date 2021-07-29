@@ -129,7 +129,25 @@ Profile Differences
 ~~~~~~~~~~~~~~~~~~~
 
 Profile differences take two profiles and find the differences
-between them. Each data type has its own difference:
+between them. Create the difference report like this:
+
+.. code-block:: python
+
+    from dataprofiler import Data, Profiler
+    
+    # Load a CSV file
+    data1 = Data("file_a.csv")
+    profile1 = Profiler(data)
+    
+    # Load another CSV file
+    data2 = Data("file_b.csv")
+    profile2 = Profiler(data)
+    
+    diff_report = profile1.diff(profile2)
+    print(diff_report)
+    
+The difference report contains a dictionary that mirrors the profile report. 
+Each data type has its own difference:
 
 * **Int/Float** - One profile subtracts the value from the other.
 
@@ -149,24 +167,6 @@ Otherwise, when no differences occur:
 
 * **Any Type No Differences** - A string will report: "unchanged".
 
-Create the difference report like this:
-
-.. code-block:: python
-
-    from dataprofiler import Data, Profiler
-    
-    # Load a CSV file
-    data1 = Data("file_a.csv")
-    profile1 = Profiler(data)
-    
-    # Load another CSV file
-    data2 = Data("file_b.csv")
-    profile2 = Profiler(data)
-    
-    diff_report = profile1.diff(profile2)
-    print(diff_report)
-    
-The difference report contains a dictionary that mirrors the profile report.
 Below is the structured difference report.
 
 .. code-block:: python

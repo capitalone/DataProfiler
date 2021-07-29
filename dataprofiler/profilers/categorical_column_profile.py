@@ -1,5 +1,8 @@
+import warnings
 from collections import defaultdict
 from operator import itemgetter
+
+import numpy as np
 
 from . import BaseColumnProfiler
 from .profiler_options import CategoricalOptions
@@ -89,6 +92,10 @@ class CategoricalColumn(BaseColumnProfiler):
 
         # These stats are only diffed if both profiles are categorical
         if self.is_match and other_profile.is_match:
+            differences["chi2-test"] = self._perform_chi_squared_test(
+                self._categories, self.sample_size,
+                other_profile._categories, other_profile.sample_size
+            )
             differences["statistics"]['categories'] = \
                 utils.find_diff_of_lists_and_sets(self.categories,
                                                   other_profile.categories)
@@ -109,6 +116,80 @@ class CategoricalColumn(BaseColumnProfiler):
                 utils.find_diff_of_dicts(cat_count1, cat_count2)
 
         return differences
+
+    @staticmethod
+    def _perform_chi_squared_test(categories1, sample_size1,
+                                  categories2, sample_size2):
+        """
+        Performs a Chi Squared test for homogeneity between two groups.
+
+        :param categories1: Categories and respective counts of the first group
+        :type categories1: dict
+        :param sample_size1: Number of samples in first group
+        :type sample_size1: int
+        :param categories2: Categories and respective counts of the second group
+        :type categories2: dict
+        :param sample_size2: Number of samples in second group
+        :type sample_size2: int
+        :return: Results of the chi squared test
+        :rtype: dict
+        """
+        results = {
+            "chi2-statistic": None,
+            "df": None,
+            "p-value": None
+        }
+        cat_counts = utils.add_nested_dictionaries(categories1, categories2)
+
+        # If one or less categories, we have zero/negative degrees of freedom, which is not an
+        # appropriate value for this context
+        num_cats = len(cat_counts)
+        if len(cat_counts) <= 1:
+            warnings.warn("Insufficient number of categories. "
+                          "Chi-squared test cannot be performed.", RuntimeWarning)
+            return results
+
+        # Calculate degrees of freedom
+        # df = (rows - 1) * (cols - 1), in the case of two groups reduces to cols - 1
+        df = num_cats - 1
+        results["df"] = df
+
+        total = sample_size1 + sample_size2
+
+        # If a zero is found in either row or col sums, then an expected count will be
+        # zero. This means the chi2-statistic and p-value are infinity and zero,
+        # so calculation can be skipped.
+        if 0 in [sample_size1, sample_size2] or 0 in cat_counts.values():
+            results["chi2-statistic"] = np.inf
+            results["p-value"] = 0
+            return results
+
+        # Calculate chi-sq statistic
+        chi2_statistic = 0
+        for cat, count in cat_counts.items():
+            expected1 = sample_size1 * count / total
+            expected2 = sample_size2 * count / total
+            chi2_statistic += (categories1.get(cat, 0) - expected1) \
+                              ** 2 / expected1
+            chi2_statistic += (categories2.get(cat, 0) - expected2) \
+                              ** 2 / expected2
+        results["chi2-statistic"] = chi2_statistic
+
+        try:
+            import scipy.stats
+        except ImportError:
+            # Failed, so we return the stats but don't perform the test
+            warnings.warn("Could not import necessary statistical packages. "
+                          "To successfully perform the chi-squared test, please run 'pip "
+                          "install scipy.' Test results will be incomplete.",
+                          RuntimeWarning)
+            return results
+
+        # Calculate p-value, i.e. P(X > chi2_statistic)
+        p_value = 1 - scipy.stats.chi2(df).cdf(chi2_statistic)
+        results["p-value"] = p_value
+
+        return results
 
     @property
     def profile(self):

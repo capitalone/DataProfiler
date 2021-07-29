@@ -130,12 +130,17 @@ Profile Differences
 
 Profile differences take two profiles and find the differences
 between them. If the profile statistic is unchanged, the difference will 
-report: "unchanged". Otherwise, if the statistic is a number, a simple subtraction is completed. 
-If the statistic is a string, a list of size 2 will be shown: 
-[profile1 stat, profile2 stat]. If there is a list statistic, a list of 3 will be 
-returned showing: [profile 1 unique values, shared values, profile 2 unique values].
-Some dictionaries with varied keys will also return a list of three in the format:
-[profile 1 unique key-values, shared key differences, profile 2 unique key-values].
+report: "unchanged". Each data type has its own difference:
+
+* **Int Differences** - One profile subtracts the value from the other.
+
+* **String Differences** - The strings will be shown in a list: [profile1 str, profile2 str]
+
+* **List Differences** - A list of 3 will be returned showing the unique values 
+of each profile and the shared values, ex: [profile 1 unique values, shared values, profile 2 unique values]
+
+* **Dict Differences** - Some dictionaries with varied keys will also return a 
+list of three in the format: [profile 1 unique key-values, shared key differences, profile 2 unique key-values].
 
 Create the difference report like this:
 
@@ -167,13 +172,13 @@ Below is the structured difference report.
             'row_is_null_ratio': int,
             'unique_row_ratio': int,
             'duplicate_row_count': int,
-            'correlation_matrix': list(list(int)),
-            'profile_schema': list(dict)
+            'correlation_matrix': list[list[int]],
+            'profile_schema': list[dict]
         },
         'data_stats': [{
             'column_name': str, 
             'data_type': [str, str],
-            'data_label': [list(str), list(str), list(str)],
+            'data_label': [list[str], list[str], list[str]],
             'categorical': [str, str],
             'order': [str, str],
             'statistics': {
@@ -191,10 +196,10 @@ Below is the structured difference report.
                               'p-value': int}},
                 'unique_count': int,
                 'unique_ratio': int,
-                'categories': [list(str), list(str), list(str)],
+                'categories': [list[str], list[str], list[str]],
                 'gini_impurity': int,
                 'unalikeability': int,
-                'categorical_count': [dict(), dict(), dict()],
+                'categorical_count': [dict[str, int], dict[str, int], dict[str, int]],
                 'avg_predictions': {
                     'DATA_LABEL': int
                 },
@@ -203,8 +208,8 @@ Below is the structured difference report.
                 },
                 'sample_size': int,
                 'null_count': int,
-                'null_types': [list(str), list(str), list(str)],
-                'null_types_index': [dict(), dict(), dict()],
+                'null_types': [list[str], list[str], list[str]],
+                'null_types_index': [dict[str, int], dict[str, int], dict[str, int]],
                 'data_type_representation': {
                     'data_type': int
                 }
@@ -226,33 +231,21 @@ Below is the unstructured difference report:
         'data_stats': {
             'data_label': {
                 'entity_counts': {
-                    'word_level': {
-                        'DATA_LABEL': int
-                    }, 
-                    'true_char_level': {
-                        'DATA_LABEL': int
-                    }, 
-                    'postprocess_char_level': {
-                        'DATA_LABEL': int
-                    }
+                    'word_level': dict[str, int], 
+                    'true_char_level': dict[str, int], 
+                    'postprocess_char_level': dict[str, int]
                 }, 
                 'entity_percentages': {
-                    'word_level': {
-                        'DATA_LABEL': int
-                    }, 
-                    'true_char_level': {
-                        'DATA_LABEL': int
-                    }, 
-                    'postprocess_char_level': {
-                        'DATA_LABEL': int
-                    }
+                    'word_level': dict[str, int], 
+                    'true_char_level': dict[str, int], 
+                    'postprocess_char_level': dict[str, int]
                 }
             }, 
             'statistics': {
-                'vocab': [list(str), list(str), list(str)], 
-                'vocab_count': [dict(), dict(), dict()], 
-                'words': [list(str), list(str), list(str)], 
-                'word_count': [dict(), dict(), dict()]
+                'vocab': [list[str], list[str], list[str]], 
+                'vocab_count': [dict[str, int], dict[str, int], dict[str, int]], 
+                'words': [list[str], list[str], list[str]], 
+                'word_count': [dict[str, int], dict[str, int], dict[str, int]]
             }
         }
     }

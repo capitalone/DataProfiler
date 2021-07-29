@@ -538,6 +538,9 @@ class BaseProfiler(object):
         :type options: ProfilerOptions Object
         :return: Profiler
         """
+        if min_true_samples is not None and not isinstance(min_true_samples, int):
+            raise ValueError('`min_true_samples` must be an integer or `None`.')
+        
         if self._default_labeler_type is None:
             raise ValueError('`_default_labeler_type` must be set when '
                              'overriding `BaseProfiler`.')

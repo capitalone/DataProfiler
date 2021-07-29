@@ -940,6 +940,25 @@ class TestStructuredProfiler(unittest.TestCase):
                                                samples_per_update=1)
         self.assertEqual(2, sparse_profile._min_col_samples_used)
 
+    @mock.patch('dataprofiler.profilers.profile_builder.StructuredProfiler.'
+                'update_profile')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_min_true_samples(self, *mocks):
+        empty_df = pd.DataFrame([])
+
+        # Test invalid input
+        msg = "`min_true_samples` must be an integer or `None`."
+        with self.assertRaisesRegex(ValueError, msg):
+            profile = dp.StructuredProfiler(empty_df, min_true_samples="Bloop")
+
+        # Test None input (equivalent to zero)
+        profile = dp.StructuredProfiler(empty_df, min_true_samples=None)
+        self.assertEqual(None, profile._min_true_samples)
+        
+        # Test valid input
+        profile = dp.StructuredProfiler(empty_df, min_true_samples=10)
+        self.assertEqual(10, profile._min_true_samples)
+        
     def test_save_and_load(self):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
@@ -2103,6 +2122,25 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertCountEqual(['here\n', ' is', 'more data'], profiler.sample)
         self.assertDictEqual({'clean_and_base_stats': 2}, profiler.times)
 
+    @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredProfiler.'
+                'update_profile')
+    def test_min_true_samples(self, *mocks):
+        empty_df = pd.DataFrame([])
+
+        # Test invalid input
+        msg = "`min_true_samples` must be an integer or `None`."
+        with self.assertRaisesRegex(ValueError, msg):
+            profile = dp.UnstructuredProfiler(empty_df, 
+                                              min_true_samples="Bloop")
+
+        # Test None input (equivalent to zero)
+        profile = dp.UnstructuredProfiler(empty_df, min_true_samples=None)
+        self.assertEqual(None, profile._min_true_samples)
+
+        # Test valid input
+        profile = dp.UnstructuredProfiler(empty_df, min_true_samples=10)
+        self.assertEqual(10, profile._min_true_samples)
+
 
 class TestUnstructuredProfilerWData(unittest.TestCase):
 
@@ -2821,6 +2859,24 @@ class TestProfilerFactoryClass(unittest.TestCase):
             save_profile.update_profile(pd.DataFrame(['test', 'test2']))
             load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
+    @mock.patch('dataprofiler.profilers.profile_builder.StructuredProfiler.'
+                'update_profile')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    def test_min_true_samples(self, *mocks):
+        empty_df = pd.DataFrame([])
+
+        # Test invalid input
+        msg = "`min_true_samples` must be an integer or `None`."
+        with self.assertRaisesRegex(ValueError, msg):
+            profile = dp.Profiler(empty_df, min_true_samples="Bloop")
+
+        # Test None input (equivalent to zero)
+        profile = dp.Profiler(empty_df, min_true_samples=None)
+        self.assertEqual(None, profile._min_true_samples)
+
+        # Test valid input
+        profile = dp.Profiler(empty_df, min_true_samples=10)
+        self.assertEqual(10, profile._min_true_samples)
 
 if __name__ == '__main__':
     unittest.main()

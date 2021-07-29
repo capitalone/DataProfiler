@@ -271,7 +271,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 }
             },
             'chi2-test': {
-                'chi2-statistic': 2.0999999999999996,
+                'chi2-statistic': 2.1,
                 'df': 2,
                 'p-value': 0.3499377491111554
             }

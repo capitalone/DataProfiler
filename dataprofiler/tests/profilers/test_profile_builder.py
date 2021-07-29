@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import unittest
 from unittest import mock
-from io import BytesIO
+from io import BytesIO, StringIO
 import random
 import six
 import os
@@ -1351,19 +1351,37 @@ class TestStructuredProfiler(unittest.TestCase):
                 "ColumnStatsProfileCompiler.diff")
     @mock.patch("dataprofiler.profilers.column_profile_compilers."
                 "ColumnDataLabelerCompiler.diff")
-    def test_logs(self, *mocks):
+    @mock.patch("sys.stderr", new_callable=StringIO)
+    def test_logs(self, mock_stderr, *mocks):
         options = StructuredOptions()
         options.multiprocess.is_enabled = False
 
+        # Capture logs of level INFO and above
         with self.assertLogs('DataProfiler.profilers.profile_builder',
                              level='INFO') as logs:
             StructuredProfiler(pd.DataFrame([[0, 1], [2, 3]]), options=options)
 
+        # Logs to update user on nulls and statistics
         self.assertEqual(['INFO:DataProfiler.profilers.profile_builder:'
                           'Finding the Null values in the columns... ',
                           'INFO:DataProfiler.profilers.profile_builder:'
                           'Calculating the statistics... '],
                          logs.output)
+
+        # Ensure tqdm printed progress bar
+        self.assertIn('#' * 10, mock_stderr.getvalue())
+
+        # Clear stderr
+        mock_stderr.seek(0)
+        mock_stderr.truncate(0)
+
+        # Now tqdm shouldn't be printed
+        dp.dp_logging.set_verbosity(logging.WARNING)
+
+        StructuredProfiler(pd.DataFrame([[0, 1], [2, 3]]))
+
+        # Ensure no progress bar printed
+        self.assertNotIn('#' * 10, mock_stderr.getvalue())
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):

@@ -9,16 +9,16 @@ import seaborn as sns
 
 def plot_histograms(profiler, columns=None):
     """
-        Take a input of StructuredProfiler class and a list of specified column
-        names and then plots the histograms of those that are int or float
-        columns.
+    Take a input of StructuredProfiler class and a list of specified column
+    names and then plots the histograms of those that are int or float
+    columns.
 
-        :param profiler: StructuredProfiler variable
-        :param columns: list of column names to be plotted
-        :type profiler: StructuredProfiler
-        :type columns: list
-        :return: returns fig
-        :rtype: fig
+    :param profiler: StructuredProfiler variable
+    :param columns: list of column names to be plotted
+    :type profiler: StructuredProfiler
+    :type columns: list
+    :return: returns fig
+    :rtype: fig
     """
 
     # get all inds to graph, raise error if user specified doesn't exist (part 1)
@@ -70,17 +70,17 @@ def plot_histograms(profiler, columns=None):
     return fig
 
 
-def plot_col_histogram(data_type_profiler, ax=None, title=""):
+def plot_col_histogram(data_type_profiler, ax=None, title=None):
     """
-        Take a input of a Int or Float Column and plots the histogram
+    Take a input of a Int or Float Column and plots the histogram
 
-        :param data_type_profiler: the Int or Float column we pass in
-        :param ax: ax as in seaborn ax
-        :param title: name of a individual histogram
-        :type data_type_profiler: Union[IntColumn, FloatColumn]
-        :type ax: list
-        :type title: str
-        :return:
+    :param data_type_profiler: the Int or Float column we pass in
+    :param ax: ax as in seaborn ax
+    :param title: name of a individual histogram
+    :type data_type_profiler: Union[IntColumn, FloatColumn]
+    :type ax: list
+    :type title: str
+    :return: ax
     """
 
     histogram = data_type_profiler._get_best_histogram_for_profile()
@@ -88,7 +88,10 @@ def plot_col_histogram(data_type_profiler, ax=None, title=""):
         raise ValueError("The column profiler, " + str(
             data_type_profiler.name) + ", provided had no data and "
                                        "therefore could not be plotted.")
-    plot = sns.histplot(x=histogram['bin_edges'][:-1], bins=histogram['bin_edges'],
+    ax = sns.histplot(x=histogram['bin_edges'][:-1], bins=histogram['bin_edges'],
                  weights=histogram['bin_counts'], ax=ax)
-    plot.set_title(title)
+    if title is None:
+        title = str(data_type_profiler.name)
+    ax.set_title(title)
+    return ax
 

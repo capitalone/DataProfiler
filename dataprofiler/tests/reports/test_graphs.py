@@ -46,17 +46,20 @@ class TestPlotHistograms(unittest.TestCase):
 
     def test_bad_column_name(self, plot_col_mock, plt_mock):
         with self.assertRaisesRegex(ValueError,
-                                    "Column \"a\" is not found as a profiler column"):
+                                    "Column \"a\" is not found as a profiler "
+                                    "column"):
             graphs.plot_histograms(self.profiler, [0, "a"])
 
     def test_no_column_plottable(self, plot_col_mock, plt_mock):
         with self.assertWarnsRegex(Warning, "No plots were constructed"
-                                            " because no int or float columns were found in columns"):
+                                            " because no int or float columns "
+                                            "were found in columns"):
             graphs.plot_histograms(self.profiler, [1, 3])
 
     def test_empty_profiler(self, plot_col_mock, plt_mock):
         with self.assertWarnsRegex(Warning, "No plots were constructed"
-                                            " because no int or float columns were found in columns"):
+                                            " because no int or float columns "
+                                            "were found in columns"):
             graphs.plot_histograms(
                 dp.StructuredProfiler(data=None, options=self.options))
 
@@ -77,6 +80,8 @@ class TestPlotColHistogram(unittest.TestCase):
     def test_empty_data(self, plt_mock):
         data = pd.Series([], dtype=str)
         profiler = IntColumn(data.name)
-        with self.assertRaisesRegex(ValueError, "The column profiler, None, provided had no data and "
-                                                "therefore could not be plotted."):
+        with self.assertRaisesRegex(ValueError, "The column profiler, None, "
+                                                "provided had no data and "
+                                                "therefore could not be "
+                                                "plotted."):
             graphs.plot_col_histogram(profiler)

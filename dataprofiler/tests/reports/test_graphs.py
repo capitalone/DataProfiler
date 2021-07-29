@@ -1,15 +1,15 @@
 import unittest
-import warnings
+from unittest import mock
 
+import pandas as pd
+from matplotlib import pyplot as plt
+import dataprofiler as dp
 from dataprofiler.profilers import IntColumn
 from dataprofiler.reports import graphs
-from unittest import mock
-import dataprofiler as dp
-import pandas as pd
 
 
 @mock.patch("dataprofiler.reports.graphs.plt.show")
-@mock.patch("dataprofiler.reports.graphs.sns")
+@mock.patch("dataprofiler.reports.graphs.plot_col_histogram")
 class TestPlotHistograms(unittest.TestCase):
 
     @classmethod
@@ -26,8 +26,7 @@ class TestPlotHistograms(unittest.TestCase):
         cls.options.set({"data_labeler.is_enabled": False})
         cls.profiler = dp.StructuredProfiler(cls.data, options=cls.options)
 
-    @mock.patch("dataprofiler.reports.graphs.plot_col_histogram")
-    def test_no_columns_specified(self, plot_col_mock, seaborn_mock, plt_mock):
+    def test_no_columns_specified(self, plot_col_mock, plt_mock):
         graphsplot = graphs.plot_histograms(self.profiler)
         self.assertEqual(2, plot_col_mock.call_count)
         # grabs the first argument passed into the plot col call and validates
@@ -36,28 +35,26 @@ class TestPlotHistograms(unittest.TestCase):
         # grabs the second argument passed into the plot col call and validates
         # it is the column profiler and its name matches what we expect it to
         self.assertEqual(1, plot_col_mock.call_args_list[1][0][0].name)
-        self.assertIsNotNone(graphsplot)
+        self.assertIsInstance(graphsplot, plt.Figure)
 
-    @mock.patch("dataprofiler.reports.graphs.plot_col_histogram")
-    def test_normal(self, plot_col_mock, seaborn_mock, plt_mock):
+    def test_normal(self, plot_col_mock, plt_mock):
         graphsplot = graphs.plot_histograms(self.profiler, [1])
-        print(graphs)
         self.assertEqual(1, plot_col_mock.call_count)
         self.assertEqual(1, plot_col_mock.call_args_list[0][0][0].name)
-        self.assertIsNotNone(graphsplot)
+        self.assertIsInstance(graphsplot, plt.Figure)
 
-    def test_bad_column_name(self, seaborn_mock, plt_mock):
+    def test_bad_column_name(self, plt_mock):
         with self.assertRaisesRegex(ValueError,
                                     "Column \"a\" is not found as a profiler column"):
             graphs.plot_histograms(self.profiler, [0, "a"])
 
-    def test_no_column_plottable(self, seaborn_mock, plt_mock):
+    def test_no_column_plottable(self, plt_mock):
         with self.assertWarnsRegex(Warning, "No plots were constructed"
                                             " because no int or float columns were found in columns"):
             graphs.plot_histograms(self.profiler, [2, 3])
 
     @mock.patch("dataprofiler.reports.graphs.plot_col_histogram")
-    def test_empty_profiler(self, plot_col_mock, seaborn_mock, plt_mock):
+    def test_empty_profiler(self, plot_col_mock, plt_mock):
         with self.assertWarnsRegex(Warning, "No plots were constructed"
                                             " because no int or float columns were found in columns"):
             graphs.plot_histograms(
@@ -70,11 +67,12 @@ class TestPlotColHistogram(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.data = pd.Series([1, 2, 4, 2, 5, 35, 32], dtype=str)
-        cls.profiler = IntColumn(cls.data.name)
+        cls.profiler = IntColumn('test')
         cls.profiler.update(cls.data)
 
     def test_normal(self, plt_mock):
-        graphs.plot_col_histogram(self.profiler)
+        self.assertIsInstance(graphs.plot_col_histogram(self.profiler),
+                              plt.Axes)
 
     def test_empty_data(self, plt_mock):
         data = pd.Series([], dtype=str)

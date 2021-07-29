@@ -129,24 +129,25 @@ Profile Differences
 ~~~~~~~~~~~~~~~~~~~
 
 Profile differences take two profiles and find the differences
-between them. If the profile statistic is unchanged, the difference will 
-report: "unchanged".
+between them. Each data type has its own difference:
 
-* **Int/Float Differences** - One profile subtracts the value from the other.
+* **Int/Float** - One profile subtracts the value from the other.
 
-* **String Differences** - The strings will be shown in a list: 
+* **String** - The strings will be shown in a list:
 
-  * [profile1 str, profile2 str]
+  - [profile1 str, profile2 str]
+* **List** - A list of 3 will be returned showing the unique values of
+  each profile and the shared values:
 
-* **List Differences** - A list of 3 will be returned showing the unique values 
-  of each profile and the shared values: 
+  - [profile 1 unique values, shared values, profile 2 unique values]
+* **Dict** - Some dictionaries with varied keys will also return a list
+  of three in the format:
 
-  * [profile 1 unique values, shared values, profile 2 unique values]
+  - [profile 1 unique key-values, shared key differences, profile 2 unique key-values]
 
-* **Dict Differences** - Some dictionaries with varied keys will also return a 
-  list of three in the format: 
+Otherwise, when no differences occur:
 
-  * [profile 1 unique key-values, shared key differences, profile 2 unique key-values]
+* **Any Type No Differences** - A string will report: "unchanged".
 
 Create the difference report like this:
 

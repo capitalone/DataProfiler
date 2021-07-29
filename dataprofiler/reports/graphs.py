@@ -72,6 +72,10 @@ def plot_histograms(profiler, columns=None):
 
 def plot_col_histogram(data_type_profiler, ax=None, title=""):
     histogram = data_type_profiler._get_best_histogram_for_profile()
+    if not histogram['bin_counts'] or not histogram['bin_edges']:
+        raise ValueError("The column profiler, " + str(
+            data_type_profiler.name) + ", provided had no data and "
+                                       "therefore could not be plotted.")
     plot = sns.histplot(x=histogram['bin_edges'][:-1], bins=histogram['bin_edges'],
                  weights=histogram['bin_counts'], ax=ax)
     plot.set_title(title)

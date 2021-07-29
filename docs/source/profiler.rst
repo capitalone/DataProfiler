@@ -130,7 +130,7 @@ Profile Differences
 
 Profile differences take two profiles and find the differences
 between them. If the profile statistic is unchanged, the difference will 
-report: "unchanged". Each data type has its own difference:
+report: "unchanged".
 
 * **Int/Float Differences** - One profile subtracts the value from the other.
 
@@ -139,7 +139,7 @@ report: "unchanged". Each data type has its own difference:
   * [profile1 str, profile2 str]
 
 * **List Differences** - A list of 3 will be returned showing the unique values 
-  of each profile and the shared values, ex: 
+  of each profile and the shared values: 
 
   * [profile 1 unique values, shared values, profile 2 unique values]
 

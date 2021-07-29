@@ -118,15 +118,19 @@ class CategoricalColumn(BaseColumnProfiler):
         return differences
 
     @staticmethod
-    def _perform_chi_squared_test(categories1, n1,
-                                  categories2, n2):
+    def _perform_chi_squared_test(categories1, sample_size1,
+                                  categories2, sample_size2):
         """
         Performs a Chi Squared test for homogeneity between two groups.
 
         :param categories1: Categories and respective counts of the first group
         :type categories1: dict
+        :param sample_size1: Number of samples in first group
+        :type sample_size1: int
         :param categories2: Categories and respective counts of the second group
         :type categories2: dict
+        :param sample_size2: Number of samples in second group
+        :type sample_size2: int
         :return: Results of the chi squared test
         :rtype: dict
         """
@@ -150,12 +154,12 @@ class CategoricalColumn(BaseColumnProfiler):
         df = num_cats - 1
         results["df"] = df
 
-        total = n1 + n2
+        total = sample_size1 + sample_size2
 
         # If a zero is found in either row or col sums, then an expected count will be
         # zero. This means the chi2-statistic and p-value are infinity and zero,
         # so calculation can be skipped.
-        if 0 in [n1, n2] or 0 in cat_counts.values():
+        if 0 in [sample_size1, sample_size2] or 0 in cat_counts.values():
             results["chi2-statistic"] = np.inf
             results["p-value"] = 0
             return results
@@ -163,8 +167,8 @@ class CategoricalColumn(BaseColumnProfiler):
         # Calculate chi-sq statistic
         chi2_statistic = 0
         for cat, count in cat_counts.items():
-            expected1 = n1 * count / total
-            expected2 = n2 * count / total
+            expected1 = sample_size1 * count / total
+            expected2 = sample_size2 * count / total
             chi2_statistic += (categories1.get(cat, 0) - expected1) \
                               ** 2 / expected1
             chi2_statistic += (categories2.get(cat, 0) - expected2) \

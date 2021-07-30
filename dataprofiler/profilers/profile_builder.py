@@ -1872,18 +1872,18 @@ class StructuredProfiler(BaseProfiler):
                                                                     self._col_name_to_idx)
 
         try:
-            # Only use imported tqdm if user specifies they want INFO logged
-            if logger.getEffectiveLevel() <= logging.INFO:
-                from tqdm import tqdm
-            else:
-                raise ImportError
+            from tqdm import tqdm
+            has_tqdm = True
         except ImportError:
-            def tqdm(l):
-                for i, e in enumerate(l):
-                    # These will automatically be ignored if user sets logger
-                    # level as higher than INFO
-                    logger.info("Processing Column {}/{}".format(i + 1, len(l)))
-                    yield e
+            has_tqdm = False
+        finally:
+            if not has_tqdm or logger.getEffectiveLevel() > logging.INFO:
+                def tqdm(l):
+                    for i, e in enumerate(l):
+                        # These will automatically be ignored if user sets
+                        # logger level as higher than INFO
+                        logger.info(f"Processing Column {i + 1}/{len(l)}")
+                        yield e
 
         # Shuffle indices once and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(data), len(data))]

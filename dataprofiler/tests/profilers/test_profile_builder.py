@@ -1395,7 +1395,7 @@ class TestStructuredProfiler(unittest.TestCase):
         mock_stderr.truncate(0)
 
         # Now tqdm shouldn't be printed
-        dp.dp_logging.set_verbosity(logging.WARNING)
+        dp.set_verbosity(logging.WARNING)
 
         StructuredProfiler(pd.DataFrame([[0, 1], [2, 3]]))
 

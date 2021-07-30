@@ -13,8 +13,8 @@
 import furo
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../../dataprofiler'))
-sys.path.insert(0, os.path.abspath('../../../examples'))
+sys.path.insert(0, os.path.abspath('../../DataProfiler'))
+sys.path.insert(0, os.path.abspath('../../DataProfiler/examples'))
 
 
 # -- Project information -----------------------------------------------------

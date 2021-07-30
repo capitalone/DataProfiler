@@ -6,6 +6,7 @@ from .json_data import JSONData
 from .text_data import TextData
 from .parquet_data import ParquetData
 from .avro_data import AVROData
+from .data_utils import is_valid_url, url_to_bytes
 from .. import dp_logging
 
 logger = dp_logging.get_child_logger(__name__)
@@ -52,6 +53,9 @@ class Data(object):
 
         if not options:
             options = dict()
+
+        if is_valid_url(input_file_path):
+            input_file_path = url_to_bytes(input_file_path, options)
 
         for data_class_info in cls.data_classes:
             data_class = data_class_info["data_class"]

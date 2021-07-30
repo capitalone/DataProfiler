@@ -16,6 +16,7 @@ Modules
 .. toctree::
    :maxdepth: 4
 
+   dataprofiler.dp_logging
    dataprofiler.settings
    dataprofiler.version
 

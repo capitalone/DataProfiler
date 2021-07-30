@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 
 import pandas as pd
 
@@ -42,7 +43,22 @@ class TestDataReadFromURL(unittest.TestCase):
             data_obj = Data(url['path'])
             self.assertEqual(data_obj.data_type, url['data_type'])
 
-    # def test_read_url_overflow(self):
+    @mock.patch('requests.get')
+    def test_read_url_overflow(self, mock_request_get):
+        # assumed chunk size
+        c_size = 8192
+        max_allows_file_size = 1024 ** 3 # 1GB
+        def infinite_loop(*args, **kwargs):
+            max_file_list = ([b'test']
+                             * (int(max_allows_file_size) // c_size + 1))
+            for value in max_file_list:
+                yield value
+        # mock the iter_content to return up to 1GB + so error raises
+        mock_request_get.return_value.__enter__.return_value\
+            .iter_content.side_effect = infinite_loop
+
+        with self.assertRaisesRegex(ValueError, 'The downloaded file from the url may not be larger than 1GB'):
+            data_obj = Data('https://test.com')
 
             
 

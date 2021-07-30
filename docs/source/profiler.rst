@@ -125,6 +125,141 @@ This also enables profiles to be determined in a distributed manner.
     print(json.dumps(report, indent=4))
 
 
+Profile Differences
+~~~~~~~~~~~~~~~~~~~
+
+Profile differences take two profiles and find the differences
+between them. Create the difference report like this:
+
+.. code-block:: python
+
+    from dataprofiler import Data, Profiler
+    
+    # Load a CSV file
+    data1 = Data("file_a.csv")
+    profile1 = Profiler(data)
+    
+    # Load another CSV file
+    data2 = Data("file_b.csv")
+    profile2 = Profiler(data)
+    
+    diff_report = profile1.diff(profile2)
+    print(diff_report)
+    
+The difference report contains a dictionary that mirrors the profile report. 
+Each data type has its own difference:
+
+* **Int/Float** - One profile subtracts the value from the other.
+
+* **String** - The strings will be shown in a list:
+
+  - [profile1 str, profile2 str]
+* **List** - A list of 3 will be returned showing the unique values of
+  each profile and the shared values:
+
+  - [profile 1 unique values, shared values, profile 2 unique values]
+* **Dict** - Some dictionaries with varied keys will also return a list
+  of three in the format:
+
+  - [profile 1 unique key-values, shared key differences, profile 2 unique key-values]
+
+Otherwise, when no differences occur:
+
+* **Any Type No Differences** - A string will report: "unchanged".
+
+Below is the structured difference report:
+
+.. code-block:: python
+
+    {
+        'global_stats': {
+            'file_type': [str, str], 
+            'encoding': [str, str],
+            'samples_used': int, 
+            'column_count': int,
+            'row_count': int, 
+            'row_has_null_ratio': float,
+            'row_is_null_ratio': float,
+            'unique_row_ratio': float,
+            'duplicate_row_count': int,
+            'correlation_matrix': list[list[float]],
+            'profile_schema': list[dict[str, int]]
+        },
+        'data_stats': [{
+            'column_name': str, 
+            'data_type': [str, str],
+            'data_label': [list[str], list[str], list[str]],
+            'categorical': [str, str],
+            'order': [str, str],
+            'statistics': {
+                'min': float,
+                'max': float,
+                'sum': float,
+                'mean': float, 
+                'variance': float,
+                'stddev': float,
+                't-test': {
+                    't-statistic': float,
+                    'conservative': {'df': int,
+                                     'p-value': float},
+                    'welch': {'df': float,
+                              'p-value': float}},
+                "chi2-test": {
+                    "chi2-statistic": float,
+                    "df": int,
+                    "p-value": float
+                },
+                'unique_count': int,
+                'unique_ratio': float,
+                'categories': [list[str], list[str], list[str]],
+                'gini_impurity': float,
+                'unalikeability': float,
+                'categorical_count': [dict[str, int], dict[str, int], dict[str, int]],
+                'avg_predictions': [dict[str, float]],
+                'label_representation': [dict[str, float]],
+                'sample_size': int,
+                'null_count': int,
+                'null_types': [list[str], list[str], list[str]],
+                'null_types_index': [dict[str, int], dict[str, int], dict[str, int]],
+                'data_type_representation': [dict[str, float]]
+            }
+        }
+        
+Below is the unstructured difference report:
+
+.. code-block:: python
+    
+    {
+        'global_stats': {
+            'file_type': [str, str], 
+            'encoding': [str, str], 
+            'samples_used': int, 
+            'empty_line_count': int, 
+            'memory_size': float
+        }, 
+        'data_stats': {
+            'data_label': {
+                'entity_counts': {
+                    'word_level': dict[str, int], 
+                    'true_char_level': dict[str, int], 
+                    'postprocess_char_level': dict[str, int]
+                }, 
+                'entity_percentages': {
+                    'word_level': dict[str, float], 
+                    'true_char_level': dict[str, float], 
+                    'postprocess_char_level': dict[str, float]
+                }
+            }, 
+            'statistics': {
+                'vocab': [list[str], list[str], list[str]], 
+                'vocab_count': [dict[str, int], dict[str, int], dict[str, int]], 
+                'words': [list[str], list[str], list[str]], 
+                'word_count': [dict[str, int], dict[str, int], dict[str, int]]
+            }
+        }
+    }
+    
+
 Saving and Loading a Profile
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

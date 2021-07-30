@@ -13,6 +13,8 @@ data-profiler-py2/
 
 data-profiler-py3/
 
+DataProfiler/
+
 build/
 
 dist/

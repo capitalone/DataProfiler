@@ -196,6 +196,69 @@ class StructuredColProfiler(object):
             )
         return merged_profile
 
+    def diff(self, other_profile, options=None):
+        """
+        Finds the difference between 2 StructuredCols and returns the report
+
+        :param other: Structured col finding the difference with this one.
+        :type other: StructuredColProfiler
+        :param options: options to change results of the difference
+        :type options: dict
+        :return: difference of the structured column
+        :rtype: dict
+        """
+        unordered_profile = dict()
+        for key, profile in self.profiles.items():
+            if key in other_profile.profiles:
+                comp_diff = self.profiles[key].diff(other_profile.profiles[key],
+                                                    options=options)
+                utils.dict_merge(unordered_profile, comp_diff)
+
+        name = self.name
+        if isinstance(self.name, np.integer):
+            name = int(name)
+
+        unordered_profile.update({
+            "column_name": name,
+        })
+
+        unordered_profile["statistics"].update({
+            "sample_size": utils.find_diff_of_numbers(
+                self.sample_size, other_profile.sample_size),
+            "null_count": utils.find_diff_of_numbers(
+                self.null_count, other_profile.null_count),
+            "null_types": utils.find_diff_of_lists_and_sets(
+                self.null_types, other_profile.null_types),
+            "null_types_index": utils.find_diff_of_dicts_with_diff_keys(
+                self.null_types_index, other_profile.null_types_index),
+        })
+
+        if unordered_profile.get("data_type", None) is not None:
+            unordered_profile["statistics"].update({
+                "data_type_representation":
+                    unordered_profile["data_type_representation"]
+            })
+
+        dict_order = [
+            "column_name",
+            "data_type",
+            "data_label",
+            "categorical",
+            "order",
+            "statistics",
+        ]
+        profile = OrderedDict()
+        if 'data_label_profile' not in self.profiles or\
+                'data_label_profile' not in other_profile.profiles:
+            dict_order.remove("data_label")
+        for key in dict_order:
+            try:
+                profile[key] = unordered_profile[key]
+            except KeyError as e:
+                profile[key] = None
+
+        return profile
+    
     @property
     def profile(self):
         unordered_profile = dict()
@@ -471,6 +534,9 @@ class BaseProfiler(object):
         :type options: ProfilerOptions Object
         :return: Profiler
         """
+        if min_true_samples is not None and not isinstance(min_true_samples, int):
+            raise ValueError('`min_true_samples` must be an integer or `None`.')
+        
         if self._default_labeler_type is None:
             raise ValueError('`_default_labeler_type` must be set when '
                              'overriding `BaseProfiler`.')
@@ -555,6 +621,29 @@ class BaseProfiler(object):
                                                              other.times)
 
         return merged_profile
+
+    def diff(self, other_profile, options=None):
+        """
+        Finds the difference of two profiles
+        :param other: profile being added to this one.
+        :type other: BaseProfiler
+        :return: diff of the two profiles
+        :rtype: dict
+        """
+        if type(other_profile) is not type(self):
+            raise TypeError('`{}` and `{}` are not of the same profiler type.'.
+                            format(type(self).__name__, 
+                                   type(other_profile).__name__))
+
+        diff_profile = OrderedDict([
+            ("global_stats", {
+                "file_type": utils.find_diff_of_strings_and_bools(
+                    self.file_type, other_profile.file_type),
+                "encoding": utils.find_diff_of_strings_and_bools(
+                    self.encoding, other_profile.encoding),
+            })])
+
+        return diff_profile
 
     def _get_sample_size(self, data):
         """
@@ -927,6 +1016,33 @@ class UnstructuredProfiler(BaseProfiler):
         merged_profile._profile = self._profile + other._profile
 
         return merged_profile
+    
+    def diff(self, other_profile, options=None):
+        """
+        Finds the difference between 2 unstuctured profiles and returns the 
+        report.
+
+        :param other: profile finding the difference with this one.
+        :type other: UnstructuredProfiler
+        :param options: options to impact the results of the diff
+        :type options: dict
+        :return: difference of the profiles
+        :rtype: dict
+        """
+        report = super().diff(other_profile, options)
+
+        report["global_stats"].update({
+                "samples_used": utils.find_diff_of_numbers(
+                    self.total_samples, other_profile.total_samples),
+                "empty_line_count": utils.find_diff_of_numbers(
+                    self._empty_line_count, other_profile._empty_line_count),
+                "memory_size": utils.find_diff_of_numbers(
+                    self.memory_size, other_profile.memory_size),
+            })
+
+        report["data_stats"] = self._profile.diff(other_profile._profile, 
+                                                  options=options)
+        return _prepare_report(report)
 
     def _update_base_stats(self, base_stats):
         """
@@ -1240,6 +1356,67 @@ class StructuredProfiler(BaseProfiler):
             merged_profile.correlation_matrix = self._merge_correlation(other)
 
         return merged_profile
+
+    def diff(self, other_profile, options=None):
+        """
+        Finds the difference between 2 Profiles and returns the report
+
+        :param other: profile finding the difference with this one
+        :type other: StructuredProfiler
+        :param options: options to change results of the difference
+        :type options: dict
+        :return: difference of the profiles
+        :rtype: dict
+        """
+        report = super().diff( other_profile, options)
+        report["global_stats"].update({
+                "samples_used": utils.find_diff_of_numbers(
+                    self._max_col_samples_used, 
+                    other_profile._max_col_samples_used),
+                "column_count": utils.find_diff_of_numbers(
+                    len(self._profile), len(other_profile._profile)),
+                "row_count": utils.find_diff_of_numbers(
+                    self.total_samples, other_profile.total_samples),
+                "row_has_null_ratio": utils.find_diff_of_numbers(
+                    self._get_row_has_null_ratio(), 
+                    other_profile._get_row_has_null_ratio()),
+                "row_is_null_ratio": utils.find_diff_of_numbers(
+                    self._get_row_is_null_ratio(),
+                    other_profile._get_row_is_null_ratio()),
+                "unique_row_ratio": utils.find_diff_of_numbers(
+                    self._get_unique_row_ratio(),
+                    other_profile._get_unique_row_ratio()),
+                "duplicate_row_count": utils.find_diff_of_numbers(
+                    self._get_duplicate_row_count(),
+                    other_profile._get_row_is_null_ratio()),
+                "correlation_matrix": utils.find_diff_of_matrices(
+                    self.correlation_matrix, 
+                    other_profile.correlation_matrix),
+                "profile_schema": defaultdict(list)})
+        report.update({"data_stats": []})
+
+        # Extract the schema of each profile
+        self_profile_schema = defaultdict(list)
+        other_profile_schema = defaultdict(list)
+        for i in range(len(self._profile)):
+            col_name = self._profile[i].name
+            self_profile_schema[col_name].append(i)
+        for i in range(len(other_profile._profile)):
+            col_name = other_profile._profile[i].name
+            other_profile_schema[col_name].append(i)
+
+        report["global_stats"]["profile_schema"] = \
+            utils.find_diff_of_dicts_with_diff_keys(self_profile_schema, 
+                                                    other_profile_schema)
+
+        # Only find the diff of columns if the schemas are exactly the same
+        if self_profile_schema == other_profile_schema:
+            for i in range(len(self._profile)):
+                report["data_stats"].append(
+                    self._profile[i].diff(other_profile._profile[i], 
+                                          options=options))
+
+        return _prepare_report(report)
 
     @property
     def _max_col_samples_used(self):
@@ -1675,7 +1852,7 @@ class StructuredProfiler(BaseProfiler):
         if isinstance(data, pd.Series):
             data = data.to_frame()
         elif isinstance(data, list):
-            data = pd.DataFrame(data)
+            data = pd.DataFrame(data, dtype=object)
 
         # Calculate schema of incoming data
         mapping_given = defaultdict(list)

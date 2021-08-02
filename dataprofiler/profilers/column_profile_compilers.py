@@ -271,6 +271,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
 
         return diff_profile
 
+
 class ColumnStatsProfileCompiler(BaseCompiler):
 
     # NOTE: these profilers are ordered. Test functionality if changed.
@@ -308,6 +309,7 @@ class ColumnStatsProfileCompiler(BaseCompiler):
                 diff_profile.update(diff)
 
         return diff_profile
+
 
 class ColumnDataLabelerCompiler(BaseCompiler):
 

@@ -444,9 +444,9 @@ class TestTextColumnProfiler(unittest.TestCase):
             'y', 'n', 'i', 's', 'G', 'r', 't', 'I', 'v', '6', '7', 'g'
         ]
 
-        profiler = TextColumn(df.name)
-        profiler.update(df)
-        profile1 = profiler.profile
+        profiler1 = TextColumn(df.name)
+        profiler1.update(df)
+        profile1 = profiler1.profile
 
         profiler2 = TextColumn(df2.name)
         profiler2.update(df2)
@@ -459,8 +459,18 @@ class TestTextColumnProfiler(unittest.TestCase):
                          'variance': profile1['variance'] - profile2['variance'],
                          'stddev': profile1['stddev'] - profiler2['stddev'],
                          'vocab': utils.find_diff_of_lists_and_sets(
-                             profile1['vocab'], profile2['vocab'])
+                             profile1['vocab'], profile2['vocab']),
+                         't-test': {
+                             't-statistic': -1.9339958714826413,
+                             'conservative': {
+                                 'df': 8,
+                                 'p-value': 0.08916903961929257
+                             },
+                             'welch': {
+                                 'df': 15.761400272034564,
+                                 'p-value': 0.07127621949432528
+                             }
                          }
-        diff = profiler.diff(profiler2)
+                         }
+        diff = profiler1.diff(profiler2)
         self.assertDictEqual(expected_diff, diff)
-        

@@ -115,6 +115,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
 
         compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1)
         compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2)
+
         expected_diff = {
             'data_type_representation': {
                 'datetime': 'unchanged',
@@ -129,10 +130,21 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                      'sum': 12.0,
                      'mean': 2.0,
                      'variance': 38.666666666666664,
-                     'stddev': 3.285085839971525
-                 }
+                     'stddev': 3.285085839971525,
+                     't-test': {
+                         't-statistic': 0.4155260166386663,
+                         'conservative': {
+                             'df': 1,
+                             'p-value': 0.749287157907667
+                         },
+                         'welch': {
+                             'df': 3.6288111187629117,
+                             'p-value': 0.7011367179395704
+                         }
+                     }
+             }
         }
-
+        self.maxDiff = None
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
         
         # Test different compilers
@@ -194,11 +206,23 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                     'var': -0.5, 
                     'std': -0.71, 
                     'sample_size': 2,
-                    'margin_of_error': -1.6}
+                    'margin_of_error': -1.6
+                },
+                't-test': {
+                    't-statistic': -1.9674775073518591,
+                    'conservative': {
+                        'df': 1,
+                        'p-value': 0.29936264581081673
+                    },
+                    'welch': {
+                        'df': 1.0673824509440946,
+                        'p-value': 0.28696889329266506
+                    }
+                }
             }
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
-        
+
         # Test disabling all columns in one compiler
         options.float.is_enabled = False
         options.text.is_enabled = False
@@ -245,6 +269,11 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                     '1': [1, None], 
                     '10': [None, 1]
                 }
+            },
+            'chi2-test': {
+                'chi2-statistic': 2.1,
+                'df': 2,
+                'p-value': 0.3499377491111554
             }
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))

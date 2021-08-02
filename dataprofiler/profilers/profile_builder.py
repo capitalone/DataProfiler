@@ -730,6 +730,10 @@ class BaseProfiler(object):
         encoding = None
         file_type = None
 
+        if min_true_samples is not None \
+                and not isinstance(min_true_samples, int):
+            raise ValueError('`min_true_samples` must be an integer or `None`.')
+
         if isinstance(data, data_readers.base_data.BaseData):
             encoding = data.file_encoding
             file_type = data.data_type

@@ -338,7 +338,7 @@ def read_parquet_df(file_path, selected_columns=None, read_in_string=False):
     return data, original_df_dtypes
 
 
-def read_text_as_list_of_strs(file_path):
+def read_text_as_list_of_strs(file_path, encoding=None):
     """
     Returns a list of strings relative to the chunk size. Each line is 1 chunk.
     
@@ -347,7 +347,9 @@ def read_text_as_list_of_strs(file_path):
     :return:
     :rtype: list(str)
     """
-    with open(file_path, encoding="utf-8") as input_file:
+    if encoding is None:
+        encoding = detect_file_encoding(file_path)
+    with FileOrBufferHandler(file_path, encoding=encoding) as input_file:
         data = list(input_file)
     return data
 

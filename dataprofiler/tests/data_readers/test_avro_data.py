@@ -149,6 +149,12 @@ class TestAVRODataClass(unittest.TestCase):
                              data.length,
                              msg=input_file['path'])
 
+    def test_file_encoding(self):
+        """Tests to ensure file_encoding set to None"""
+        for input_file in self.file_or_buf_list:
+            data = AVROData(input_file["path"])
+            self.assertIsNone(data.file_encoding)
+
     def test_is_structured(self):
         # Default construction
         data = AVROData()

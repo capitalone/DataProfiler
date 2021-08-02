@@ -15,14 +15,26 @@ class TestTextDataClass(unittest.TestCase):
 
         test_dir = os.path.join(test_root_path, 'data')
         cls.input_file_names = [
-            dict(path=os.path.join(test_dir, 'txt/discussion_hn.txt'), count=10000),
-            dict(path=os.path.join(test_dir, 'txt/discussion_reddit.txt'), count=10000),
-            dict(path=os.path.join(test_dir, 'txt/code.txt'), count=10000),
-            dict(path=os.path.join(test_dir, 'txt/empty.txt'), count=0),
-            dict(path=os.path.join(test_dir, 'txt/sentence.txt'), count=1),
-            dict(path=os.path.join(test_dir, 'txt/sentence-3x.txt'), count=3),
-            dict(path=os.path.join(test_dir, 'txt/sentence-10x.txt'), count=10),
-            dict(path=os.path.join(test_dir, 'txt/quote-test-incorrect-csv.txt'), count=8),
+            dict(path=os.path.join(test_dir, 'txt/discussion_hn.txt'),
+                 count=58028, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'txt/discussion_reddit.txt'),
+                 count=80913, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'txt/code.txt'),
+                 count=57489, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'txt/empty.txt'),
+                 count=0, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'txt/sentence.txt'),
+                 count=19, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'txt/sentence-3x.txt'),
+                 count=77, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'txt/sentence-10x.txt'),
+                 count=430, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'txt/quote-test-incorrect-csv.txt'),
+                 count=60, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'txt/utf8.txt'),
+                 count=109, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'txt/utf16.txt'),
+                 count=109, encoding='utf-16'),
         ]
         cls.output_file_path = None
 
@@ -30,7 +42,8 @@ class TestTextDataClass(unittest.TestCase):
         for input_file in cls.input_file_names:
             # add StringIO
             buffer_info = input_file.copy()
-            with open(input_file['path'], 'r') as fp:
+            with open(input_file['path'], 'r',
+                      encoding=input_file['encoding']) as fp:
                 buffer_info['path'] = StringIO(fp.read())
             cls.buffer_list.append(buffer_info)
             
@@ -55,13 +68,21 @@ class TestTextDataClass(unittest.TestCase):
         for input_file in self.file_or_buf_list:
             self.assertTrue(TextData.is_match(input_file['path']))
 
+    def test_samples_per_line(self):
+        for input_file in self.file_or_buf_list:
+            input_data_obj = TextData(input_file['path'],
+                                      options={'samples_per_line': 1})
+            self.assertEqual(input_file['count'], len(input_data_obj),
+                             input_file['path'])
+
     def test_auto_file_identification(self):
         """
         Determine if the text file can be automatically identified
         """
         for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
-            self.assertEqual(input_data_obj.data_type, 'text', input_file['path'])
+            self.assertEqual('text', input_data_obj.data_type,
+                             input_file['path'])
 
     def test_specifying_data_type(self):
         """
@@ -78,7 +99,8 @@ class TestTextDataClass(unittest.TestCase):
         for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file['path'])
             input_data_obj.reload(input_file['path'])
-            self.assertEqual(input_data_obj.data_type, 'text', input_file['path'])
+            self.assertEqual(input_data_obj.data_type, 'text',
+                             input_file['path'])
             self.assertEqual(input_file['path'], input_data_obj.input_file_path)
 
     def test_is_structured(self):

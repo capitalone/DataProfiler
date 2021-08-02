@@ -622,6 +622,9 @@ def is_valid_url(url_as_string):
     :return: true if string is a valid URL
     :rtype: boolean
     """
+    if not isinstance(url_as_string, str):
+        return False
+
     result = urllib.parse.urlparse(url_as_string)
     # this is the minimum characteristics needed for a valid URL
     return all([result.scheme, result.netloc])
@@ -633,8 +636,10 @@ def url_to_bytes(url_as_string, options):
 
     :param url_as_string: string to read as URL 
     :type url_as_string: str
-    :return: true if string is a valid URL
-    :rtype: boolean
+    :param options: options for the url 
+    :type options: dict
+    :return: BytesIO stream of data downloaded from URL
+    :rtype: BytesIO stream
     """
     stream = BytesIO()
 
@@ -644,22 +649,20 @@ def url_to_bytes(url_as_string, options):
 
     with requests.get(url_as_string, stream=True, verify=verify_url) as url:
         url.raise_for_status()
-        if 'Content-length' in url.headers and \
-            int(url.headers['Content-length']) >= 1024 ** 3:
+        if 'Content-length' in url.headers \
+                and int(url.headers['Content-length']) >= 1024 ** 3:
 
-            raise ValueError('The downloaded file from the url may not be \
-                larger than 1GB')
+            raise ValueError('The downloaded file from the url may not be larger than 1GB')
 
         total_bytes = 0
         c_size = 8192
 
-        for chunk in url.iter_content(chunk_size=8192):
+        for chunk in url.iter_content(chunk_size=c_size):
             stream.write(chunk)
             total_bytes += c_size
 
-            if total_bytes >= 1024 ** 3:
+            if total_bytes > 1024 ** 3:
                 raise ValueError('The downloaded file from the url may not be larger than 1GB')
-
 
     stream.seek(0)
     return stream

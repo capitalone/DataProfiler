@@ -644,8 +644,8 @@ def url_to_bytes(url_as_string, options):
     stream = BytesIO()
 
     verify_url = True
-    if 'verify' in options:
-        verify_url = options['verify']
+    if 'verify_ssl' in options:
+        verify_url = options['verify_ssl']
 
     with requests.get(url_as_string, stream=True, verify=verify_url) as url:
         url.raise_for_status()

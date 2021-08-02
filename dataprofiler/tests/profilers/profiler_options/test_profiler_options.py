@@ -177,6 +177,7 @@ class TestProfilerOptions(unittest.TestCase):
             "kurtosis.is_enabled": False,
             "num_zeros.is_enabled": False,
             "num_negatives.is_enabled": False,
+            "median_absolute_deviation.is_enabled": False
         }
         options.set(statistical_options)
 
@@ -186,6 +187,7 @@ class TestProfilerOptions(unittest.TestCase):
         int_options = options.structured_options.int.properties
         for option in ["histogram_and_quantiles", "min", "max", "sum",
                        "variance", "skewness", "kurtosis",
+                       "median_absolute_deviation",
                        "num_zeros", "num_negatives"]:
             self.assertFalse(text_options[option].is_enabled)
             self.assertFalse(float_options[option].is_enabled)
@@ -210,6 +212,8 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
                 self.assertTrue(profile_column["statistics"]["skewness"] is np.nan)
                 self.assertTrue(profile_column["statistics"]["kurtosis"] is np.nan)
+                self.assertTrue(
+                    profile_column["statistics"]["median_absolute_deviation"] is np.nan)
 
     def test_validate(self, *mocks):
         options = ProfilerOptions()
@@ -237,7 +241,8 @@ class TestProfilerOptions(unittest.TestCase):
             "sum.is_enabled": False,
             "variance.is_enabled": True,
             "skewness.is_enabled": False,
-            "kurtosis.is_enabled": False
+            "kurtosis.is_enabled": False,
+            "median_absolute_deviation.is_enabled": False
         }
         # Asserts error since sum must be toggled on if variance is
         expected_error = (

@@ -763,6 +763,75 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(est_Q3, 3.001)
         self.assertAlmostEqual(3.999988, est_quantiles[-1])
 
+    def test_get_median_absolute_deviation(self):
+        """
+        Checks the median absolute deviation of profiled numerical columns.
+        :return:
+        """
+        # with different values
+        data = ["1.0", "1.0", "1.0", "1.0", "2.0"]
+        df = pd.Series(data)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_absolute_deviation']
+        self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
+
+        # with unique values
+        data = ["1.0", "1.0", "1.0", "1.0", "1.0"]
+        df = pd.Series(data)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_absolute_deviation']
+        self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
+
+        # with negative values
+        data = ["-1.0", "1.0", "1.0", "1.0", "2.0"]
+        df = pd.Series(data)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_absolute_deviation']
+        self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
+
+    def test_merge_median_absolute_deviation(self):
+        """
+        Checks the median absolute deviation merged from profiles.
+        :return:
+        """
+        # with different values
+        data1 = ["1.0", "1.0", "1.0", "2.0"]
+        df1 = pd.Series(data1)
+        profiler = FloatColumn(df1.name)
+        profiler.update(df1)
+
+        data2 = ["0.0", "0.0", "2.0", "3.0", "3.0"]
+        df2 = pd.Series(data2)
+        profiler.update(df2)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_absolute_deviation']
+        self.assertAlmostEqual(1.0, est_median_abs_dev, places=2)
+
+        # with unique values
+        data1 = ["1.0", "1.0", "1.0", "1.0"]
+        df1 = pd.Series(data1)
+        profiler = FloatColumn(df1.name)
+        profiler.update(df1)
+
+        data2 = ["1.0", "1.0", "1.0", "1.0", "1.0"]
+        df2 = pd.Series(data2)
+        profiler.update(df2)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_absolute_deviation']
+        self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
+
+
     def test_data_type_ratio(self):
         data = np.linspace(-5, 5, 4)
         df = pd.Series(data).apply(str)
@@ -789,8 +858,9 @@ class TestFloatColumn(unittest.TestCase):
             variance=27 + 1/12.0,
             skewness=35/13*np.sqrt(3/13),
             kurtosis=np.nan,
-            num_negatives = 0,
-            num_zeros = 0,
+            median_absolute_deviation=2.5,
+            num_negatives=0,
+            num_zeros=0,
             stddev=np.sqrt(27+1/12.0),
             histogram={
                 'bin_counts': np.array([1, 1, 0, 1]),
@@ -804,6 +874,7 @@ class TestFloatColumn(unittest.TestCase):
             times=defaultdict(float, {'histogram_and_quantiles': 1.0,
                                       'precision': 1.0, 'max': 1.0, 'min': 1.0,
                                       'skewness': 1.0, 'kurtosis': 1.0,
+                                      'median_absolute_deviation': 2.0,
                                       'sum': 1.0, 'variance': 1.0,
                                       'num_zeros': 1.0, 'num_negatives': 1.0}),
             precision={
@@ -821,7 +892,9 @@ class TestFloatColumn(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.profile['times'])
+            self.assertEqual(
+                defaultdict(float, {'median_absolute_deviation': 1.0}),
+                profiler.profile['times'])
             profiler.update(df)
             profile = profiler.profile
             # pop out the histogram to test separately from the rest of the dict
@@ -834,6 +907,9 @@ class TestFloatColumn(unittest.TestCase):
             expected_skewness = expected_profile.pop('skewness')
             variance = profile.pop('variance')
             expected_variance = expected_profile.pop('variance')
+            median_abs_dev = profile.pop('median_absolute_deviation')
+            expected_median_abs_dev = \
+                expected_profile.pop('median_absolute_deviation')
 
             self.assertDictEqual(expected_profile, profile)
             self.assertDictEqual(expected_profile['precision'], profile['precision'])
@@ -847,6 +923,7 @@ class TestFloatColumn(unittest.TestCase):
             self.assertAlmostEqual(expected_quantiles[2], quantiles[749])
             self.assertAlmostEqual(expected_skewness, skewness)
             self.assertAlmostEqual(expected_variance, variance)
+            self.assertAlmostEqual(expected_median_abs_dev, median_abs_dev)
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
@@ -854,6 +931,7 @@ class TestFloatColumn(unittest.TestCase):
                                            'variance': 2.0, 'precision': 2.0,
                                            'histogram_and_quantiles': 2.0,
                                            'skewness': 2.0, 'kurtosis': 2.0,
+                                           'median_absolute_deviation': 3.0,
                                            'num_negatives': 2.0,
                                            'num_zeros': 2.0,})
             self.assertEqual(expected, profiler.profile['times'])
@@ -895,7 +973,9 @@ class TestFloatColumn(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.profile['times'])
+            self.assertEqual(
+                defaultdict(float, {'median_absolute_deviation': 1.0}),
+                profiler.profile['times'])
             profiler.update(df)
 
             # Validate the time in the datetime class has the expected time.
@@ -904,6 +984,7 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0,\
                                            'variance': 1.0, 'precision': 1.0,
                                            'skewness': 1.0, 'kurtosis': 1.0,
+                                           'median_absolute_deviation': 2.0,
                                            'num_negatives': 1.0,
                                            'num_zeros': 1.0,
                                            'histogram_and_quantiles': 15.0})
@@ -914,6 +995,7 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0,\
                                            'variance': 2.0, 'precision': 2.0,
                                            'skewness': 2.0, 'kurtosis': 2.0,
+                                           'median_absolute_deviation': 3.0,
                                            'num_negatives': 2.0,
                                            'num_zeros': 2.0,
                                            'histogram_and_quantiles': 30.0})

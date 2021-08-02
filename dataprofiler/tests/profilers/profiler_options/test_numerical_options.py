@@ -8,10 +8,12 @@ class TestNumericalOptions(TestBaseInspectorOptions):
     option_class = NumericalOptions
     keys = ["min", "max", "sum", "variance", "skewness",
             "kurtosis", "bias_correction",
+            "median_absolute_deviation",
             "num_zeros", "num_negatives",
             "histogram_and_quantiles"]
     numeric_keys = ["min", "max", "sum", "variance",
                     "skewness", "kurtosis",
+                    "median_absolute_deviation",
                     "histogram_and_quantiles",
                     "num_zeros", "num_negatives"]
 
@@ -86,7 +88,17 @@ class TestNumericalOptions(TestBaseInspectorOptions):
                          "toggled on.".format(optpth)
         self.assertEqual([kurt_error], options._validate_helper())
 
+        # Disable Histogram, Enable Median Absolute Deviation
+        options = self.get_options()
+        options.set({"histogram_and_quantiles.is_enabled": False,
+                     "median_absolute_deviation.is_enabled": True})
+        mad_error = "{}: The numeric stats must toggle on histogram " \
+                        "and quantiles if median absolute deviation is " \
+                        "toggled on.".format(optpth)
+        self.assertEqual([mad_error], options._validate_helper())
+
         # Test multiple errors
+        options = self.get_options()
         options.set({"sum.is_enabled": False,
                      "variance.is_enabled": True,
                      "skewness.is_enabled": True,
@@ -145,7 +157,19 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             options.validate(raise_error=True)
         self.assertEqual([kurt_error], options.validate(raise_error=False))
 
+        # Disable Histogram, Enable Median Absolute Deviation
+        options = self.get_options()
+        options.set({"histogram_and_quantiles.is_enabled": False,
+                     "median_absolute_deviation.is_enabled": True})
+        mad_error = "{}: The numeric stats must toggle on histogram " \
+                        "and quantiles if median absolute deviation is " \
+                        "toggled on.".format(optpth)
+        with self.assertRaisesRegex(ValueError, mad_error):
+            options.validate(raise_error=True)
+        self.assertEqual([mad_error], options.validate(raise_error=False))
+
         # Test multiple errors
+        options = self.get_options()
         options.set({"sum.is_enabled": False,
                      "variance.is_enabled": True,
                      "skewness.is_enabled": True,

@@ -293,6 +293,7 @@ class NumericalOptions(BaseInspectorOptions):
         self.variance = BooleanOption(is_enabled=True)
         self.skewness = BooleanOption(is_enabled=True)
         self.kurtosis = BooleanOption(is_enabled=True)
+        self.median_absolute_deviation = BooleanOption(is_enabled=True)
         self.num_zeros = BooleanOption(is_enabled=True)
         self.num_negatives = BooleanOption(is_enabled=True)
         self.histogram_and_quantiles = HistogramOption()
@@ -313,6 +314,7 @@ class NumericalOptions(BaseInspectorOptions):
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
                 or self.kurtosis.is_enabled \
+                or self.median_absolute_deviation.is_enabled \
                 or self.histogram_and_quantiles.is_enabled \
                 or self.num_zeros.is_enabled or self.num_negatives.is_enabled:
             return True
@@ -335,6 +337,7 @@ class NumericalOptions(BaseInspectorOptions):
         self.variance.is_enabled = value
         self.skewness.is_enabled = value
         self.kurtosis.is_enabled = value
+        self.median_absolute_deviation.is_enabled = value
         self.num_zeros.is_enabled = value
         self.num_negatives.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
@@ -363,7 +366,8 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum",
-                     "variance", "skewness", "kurtosis", "bias_correction",
+                     "variance", "skewness", "kurtosis",
+                     "median_absolute_deviation", "bias_correction",
                      "num_zeros", "num_negatives"]:
             if not isinstance(self.properties[item], BooleanOption):
                 errors.append("{}.{} must be a BooleanOption."
@@ -377,6 +381,9 @@ class NumericalOptions(BaseInspectorOptions):
         var_disabled = not self.properties["variance"].is_enabled
         skew_disabled = not self.properties["skewness"].is_enabled
         kurt_disabled = not self.properties["kurtosis"].is_enabled
+        mad_disabled = not self.properties["median_absolute_deviation"].is_enabled
+        histogram_disabled = \
+            not self.properties["histogram_and_quantiles"].is_enabled
         if sum_disabled and not var_disabled:
             errors.append(
                 "{}: The numeric stats must toggle on the sum "
@@ -390,6 +397,10 @@ class NumericalOptions(BaseInspectorOptions):
                 and not kurt_disabled:
             errors.append("{}: The numeric stats must toggle on sum,"
                           " variance, and skewness if kurtosis is "
+                          "toggled on.".format(variable_path))
+        if histogram_disabled and not mad_disabled:
+            errors.append("{}: The numeric stats must toggle on histogram "
+                          "and quantiles if median absolute deviation is "
                           "toggled on.".format(variable_path))
 
         # warn user if all stats are disabled
@@ -625,7 +636,8 @@ class TextOptions(NumericalOptions):
         """
         if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
-                or self.kurtosis.is_enabled \
+                or self.kurtosis.is_enabled  \
+                or self.median_absolute_deviation.is_enabled \
                 or self.histogram_and_quantiles.is_enabled:
             return True
         return False
@@ -646,6 +658,7 @@ class TextOptions(NumericalOptions):
         self.variance.is_enabled = value
         self.skewness.is_enabled = value
         self.kurtosis.is_enabled = value
+        self.median_absolute_deviation.is_enabled = value
         self.histogram_and_quantiles.is_enabled = value
 
 class DateTimeOptions(BaseInspectorOptions):

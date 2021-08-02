@@ -101,7 +101,8 @@ class BaseData(object):
         if not self._file_encoding:
             # set to default, detect if not StringIO
             self._file_encoding = sys.getdefaultencoding()
-            if not isinstance(self.input_file_path, StringIO):
+            if self.input_file_path \
+                    and not isinstance(self.input_file_path, StringIO):
                 self._file_encoding = data_utils.detect_file_encoding(
                     self.input_file_path)
         return self._file_encoding
@@ -182,6 +183,34 @@ class BaseData(object):
         :return: length of the dataset
         """
         return len(self)
+
+    def _gettatr__(self, name):
+        """
+        Overrides getattr for the class such that functions can be applied
+        directly to the data class if the function is not part of the data
+        class.
+        e.g. if data is BaseData where self.data = [1, 2, 3, 1]
+        ```
+        data.count(1)  # returns 2, bc data.data has the function 'count'
+        ```
+        """
+
+        if self._data is None:
+            self._load_data()
+        data_class_name = self._data.__class__.__name__
+        if (not f"'{class_name}' object has no attribute '{name}'"
+                == str(attr_error)):
+            raise
+        try:
+            returned = object.__getattribute__(self.data, name)
+        except AttributeError as attr_error:
+            if (not f"'{data_class_name}' object has no attribute '{name}'"
+                    == str(attr_error)):
+                raise
+            raise AttributeError(f"Neither '{class_name}' nor "
+                                 f"'{data_class_name}' objects have "
+                                 f"attribute '{name}'")
+        return returned
 
     def __getattribute__(self, name):
         """

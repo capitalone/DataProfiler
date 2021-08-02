@@ -196,11 +196,13 @@ class TestTextColumnProfiler(unittest.TestCase):
                 'bin_edges': np.array([1., 1.5, 2., 2.5, 3., 3.5, 4.])
             },
             quantiles={0: 1.25, 1: 1.5, 2: 3.0},
+            median_absolute_deviation=0.5,
             vocab=['a', 'b', 'c', 'd', '4', '3', '2', 'f'],
             times=defaultdict(float, {'vocab': 1.0,
                                       'max': 1.0,
                                       'min': 1.0,
                                       'histogram_and_quantiles': 1.0,
+                                      'median_absolute_deviation': 1.0,
                                       'sum': 1.0,
                                       'variance': 1.0,
                                       'skewness': 1.0,
@@ -214,9 +216,12 @@ class TestTextColumnProfiler(unittest.TestCase):
             profile = profiler.profile
             expected_histogram = expected_profile.pop('histogram')
             expected_quantiles = expected_profile.pop('quantiles')
+            expected_median_abs_dev = \
+                expected_profile.pop('median_absolute_deviation')
             expected_vocab = expected_profile.pop('vocab')
             quantiles = profile.pop('quantiles')
             histogram = profile.pop('histogram')
+            median_abs_dev = profile.pop('median_absolute_deviation')
             vocab = profile.pop('vocab')
 
             # key and value populated correctly
@@ -230,6 +235,8 @@ class TestTextColumnProfiler(unittest.TestCase):
             self.assertCountEqual(
                 expected_quantiles, {
                     0: quantiles[249], 1: quantiles[499], 2: quantiles[749]})
+            self.assertAlmostEqual(
+                expected_median_abs_dev, median_abs_dev, places=2)
             self.assertCountEqual(expected_vocab, vocab)
 
     def test_option_timing(self):
@@ -244,7 +251,9 @@ class TestTextColumnProfiler(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertCountEqual(defaultdict(float), profiler.profile['times'])
+            self.assertCountEqual(
+                defaultdict(float, {'median_absolute_deviation': 1.0}),
+                profiler.profile['times'])
             profiler.update(df)
 
             # Validate the time in the datetime class has the expected time.
@@ -256,6 +265,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     'variance': 1.0,
                                     'skewness': 1.0,
                                     'kurtosis': 1.0,
+                                    'median_absolute_deviation': 2.0,
                                     'histogram_and_quantiles': 15.0,
                                     'vocab': 1.0})
             self.assertCountEqual(expected, profile['times'])
@@ -269,6 +279,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     'variance': 2.0,
                                     'skewness': 2.0,
                                     'kurtosis': 2.0,
+                                    'median_absolute_deviation': 3.0,
                                     'histogram_and_quantiles': 30.0,
                                     'vocab': 2.0})
             self.assertCountEqual(expected, profiler.profile['times'])

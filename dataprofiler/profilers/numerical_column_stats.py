@@ -1026,7 +1026,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             edge_prev = edge_cur
             cumsum_count_prev = cumsum_count
 
-            if bin_edges_pos[id_pos] == bin_edges_neg[id_neg]:
+            if bin_edges_pos[id_pos] == bin_edges_neg[id_neg] or \
+                    abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) \
+                    <= 1e-10 * max(bin_width_neg, bin_width_neg):
                 lower_edge = min(bin_edges_neg[id_neg + 1],
                                  bin_edges_pos[id_pos + 1])
                 if bin_width_neg <= 1e-100 or bin_width_pos <= 1e-100:
@@ -1071,15 +1073,23 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if cumsum_count < 0.5:
             cumsum_count_prev = cumsum_count
             if bin_edges_pos[id_pos] > bin_edges_neg[id_neg]:
-                cumsum_count += \
-                    bin_counts_pos[id_pos - 1] * \
-                    abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) / \
-                    bin_width_pos
+                if abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) \
+                        <= 1e-10 * max(bin_width_neg, bin_width_neg):
+                    cumsum_count += bin_counts_pos[id_pos - 1]
+                else:
+                    cumsum_count += \
+                        bin_counts_pos[id_pos - 1] * \
+                        abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) / \
+                        bin_width_pos
             else:
-                cumsum_count += \
-                    bin_counts_neg[id_neg - 1] * \
-                    abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) / \
-                    bin_width_neg
+                if abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) \
+                        <= 1e-10 * max(bin_width_neg, bin_width_neg):
+                    cumsum_count += bin_counts_neg[id_neg - 1]
+                else:
+                    cumsum_count += \
+                        bin_counts_neg[id_neg - 1] * \
+                        abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) / \
+                        bin_width_neg
             edge_prev = min(bin_edges_pos[id_pos], bin_edges_neg[id_neg])
             edge_cur = max(bin_edges_pos[id_pos], bin_edges_neg[id_neg])
 

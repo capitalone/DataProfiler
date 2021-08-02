@@ -643,7 +643,7 @@ def url_to_bytes(url_as_string, options):
     """
     stream = BytesIO()
 
-    verify_url = False
+    verify_url = True
     if 'verify' in options:
         verify_url = options['verify']
 

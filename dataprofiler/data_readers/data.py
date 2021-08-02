@@ -54,7 +54,7 @@ class Data(object):
         if not options:
             options = dict()
 
-        if is_valid_url(input_file_path):
+        if isinstance(input_file_path, str) and is_valid_url(input_file_path):
             input_file_path = url_to_bytes(input_file_path, options)
 
         for data_class_info in cls.data_classes:

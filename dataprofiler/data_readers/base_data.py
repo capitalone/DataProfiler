@@ -184,34 +184,6 @@ class BaseData(object):
         """
         return len(self)
 
-    def _gettatr__(self, name):
-        """
-        Overrides getattr for the class such that functions can be applied
-        directly to the data class if the function is not part of the data
-        class.
-        e.g. if data is BaseData where self.data = [1, 2, 3, 1]
-        ```
-        data.count(1)  # returns 2, bc data.data has the function 'count'
-        ```
-        """
-
-        if self._data is None:
-            self._load_data()
-        data_class_name = self._data.__class__.__name__
-        if (not f"'{class_name}' object has no attribute '{name}'"
-                == str(attr_error)):
-            raise
-        try:
-            returned = object.__getattribute__(self.data, name)
-        except AttributeError as attr_error:
-            if (not f"'{data_class_name}' object has no attribute '{name}'"
-                    == str(attr_error)):
-                raise
-            raise AttributeError(f"Neither '{class_name}' nor "
-                                 f"'{data_class_name}' objects have "
-                                 f"attribute '{name}'")
-        return returned
-
     def __getattribute__(self, name):
         """
         Overrides getattr for the class such that functions can be applied

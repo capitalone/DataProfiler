@@ -263,6 +263,14 @@ class TestNumericStatsMixin(unittest.TestCase):
                 subset_properties)
             self.assertEqual(expected, num_profiler.times)
 
+            # Validate _get_mode is timed.
+            expected['mode'] = 1.0
+            num_profiler._get_mode(
+                df_series,
+                prev_dependent_properties,
+                subset_properties)
+            self.assertEqual(expected, num_profiler.times)
+
             # Validate _get_sum is timed.
             expected['sum'] = 1.0
             num_profiler._get_sum(
@@ -509,6 +517,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         mock_profile = dict(
             min=1.0,
             max=1.0,
+            mode=np.nan, # default
             sum=1.0,
             mean=0, # default
             variance=np.nan, # default
@@ -532,6 +541,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         num_profiler.match_count = 0
         num_profiler.min = mock_profile['min']
         num_profiler.max = mock_profile['max']
+        num_profiler.mode = mock_profile['mode']
         num_profiler.sum = mock_profile['sum']
         num_profiler.histogram_selection = 'auto'
         num_profiler.histogram_methods['auto']['histogram'] = \

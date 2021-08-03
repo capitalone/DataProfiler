@@ -171,6 +171,7 @@ class TestProfilerOptions(unittest.TestCase):
             "histogram_and_quantiles.is_enabled": False,
             "min.is_enabled": False,
             "max.is_enabled": False,
+            "mode.is_enabled": False,
             "sum.is_enabled": False,
             "variance.is_enabled": False,
             "skewness.is_enabled": False,
@@ -185,7 +186,7 @@ class TestProfilerOptions(unittest.TestCase):
         float_options = options.structured_options.float.properties
         int_options = options.structured_options.int.properties
         for option in ["histogram_and_quantiles", "min", "max", "sum",
-                       "variance", "skewness", "kurtosis",
+                       "mode", "variance", "skewness", "kurtosis",
                        "num_zeros", "num_negatives"]:
             self.assertFalse(text_options[option].is_enabled)
             self.assertFalse(float_options[option].is_enabled)
@@ -210,6 +211,7 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertIsNone(profile_column["statistics"]["quantiles"][0])
                 self.assertTrue(profile_column["statistics"]["skewness"] is np.nan)
                 self.assertTrue(profile_column["statistics"]["kurtosis"] is np.nan)
+                self.assertTrue(np.isnan(profile_column["statistics"]["mode"]))
 
     def test_validate(self, *mocks):
         options = ProfilerOptions()
@@ -234,6 +236,7 @@ class TestProfilerOptions(unittest.TestCase):
             "histogram_and_quantiles.is_enabled": False,
             "min.is_enabled": False,
             "max.is_enabled": False,
+            "mode.is_enabled": False,
             "sum.is_enabled": False,
             "variance.is_enabled": True,
             "skewness.is_enabled": False,

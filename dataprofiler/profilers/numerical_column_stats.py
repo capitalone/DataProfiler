@@ -52,6 +52,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                              "of type NumericalOptions.")
         self.min = None
         self.max = None
+        self.mode = np.nan
+        self.mode_count = None # By default, return all modes
         self.sum = 0
         self._biased_variance = np.nan
         self._biased_skewness = np.nan
@@ -68,6 +70,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.num_negatives = 0
         if options:
             self.bias_correction = options.bias_correction.is_enabled
+            if options.mode.count is not None:
+                self.mode_count = options.mode.count
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
             if isinstance(bin_count_or_method, str):
@@ -110,6 +114,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             "histogram_and_quantiles":
                 NumericStatsMixin._get_histogram_and_quantiles,
             "num_zeros": NumericStatsMixin._get_num_zeros,
+            "mode": NumericStatsMixin._get_mode,
             "num_negatives": NumericStatsMixin._get_num_negatives
         }
 
@@ -222,6 +227,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 self.max = other1.max
             else:
                 self.max = other2.max
+        if "mode" in self.__calculations.keys():
+            if other1.mode_count is None:
+                self.mode_count = other2.mode_count
+            elif other2.mode_count is None:
+                self.mode_count = other1.mode_count
+            else:
+                self.mode_count = max(other1.mode_count, other2.mode_count)
+            self.mode = self._estimate_mode_from_histogram()
         if "sum" in self.__calculations.keys():
             self.sum = other1.sum + other2.sum
         if "skewness" in self.__calculations.keys():
@@ -256,6 +269,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         profile = dict(
             min=self.np_type_to_type(self.min),
             max=self.np_type_to_type(self.max),
+            mode=self.np_type_to_type(self.mode),
             sum=self.np_type_to_type(self.sum),
             mean=self.np_type_to_type(self.mean),
             variance=self.np_type_to_type(self.variance),
@@ -573,6 +587,33 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                    (match_count - 3)) * ((match_count + 1) *
                    (biased_kurtosis + 3) - 3 * (match_count - 1))
         return kurtosis
+
+    def _estimate_mode_from_histogram(self):
+        """
+        Estimates the mode of the current data using the
+        histogram. If there are multiple modes, returns
+        K of them (where K is defined in options given, but
+        1 by default)
+
+        :return: The estimated mode of the histogram
+        :rtype: Union[float, list(float)]
+        """
+        if not self._has_histogram:
+            return np.nan
+
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
+
+        # Get the bin(s) with the highest frequency
+        highest_idxs = np.argwhere(bin_counts == bin_counts.max()).flatten()
+        if self.mode_count is not None and len(highest_idxs) > self.mode_count:
+            highest_idxs = highest_idxs[:self.mode_count]
+
+        mode = (bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]) / 2
+        # return single number instead of list if only one mode
+        if len(mode) == 1:
+            mode = mode[0]
+        return mode
 
     def _estimate_stats_from_histogram(self):
         # test estimated mean and var
@@ -1131,6 +1172,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             warnings.warn(
                 'Histogram error. Histogram and quantile results will not be '
                 'available')
+
+    @BaseColumnProfiler._timeit(name="mode")
+    def _get_mode(self, df_series, prev_dependent_properties,
+                  subset_properties):
+        self.mode = self._estimate_mode_from_histogram()
 
     @BaseColumnProfiler._timeit(name="num_zeros")
     def _get_num_zeros(self, df_series, prev_dependent_properties,

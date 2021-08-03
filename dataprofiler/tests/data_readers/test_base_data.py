@@ -1,6 +1,7 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
+import sys
 import os
 import unittest
 from unittest import mock
@@ -31,6 +32,8 @@ class TestBaseDataClass(unittest.TestCase):
             dict(path=os.path.join(test_dir, 'parquet/iris.parq'),
                  encoding=None, data_type='parquet'),
             dict(path=os.path.join(test_dir, 'txt/code.txt'),
+                 encoding='utf-8', data_type='text'),
+            dict(path=os.path.join(test_dir, 'txt/empty.txt'),
                  encoding='utf-8', data_type='text'),
         ]
 
@@ -89,3 +92,8 @@ class TestBaseDataClass(unittest.TestCase):
                             options={})
             self.assertEqual(input_file['encoding'], data.file_encoding,
                              input_file['path'])
+
+        # test when data is specified without input_file_object
+        data = BaseData(input_file_path=None, data=[],
+                        options={})
+        self.assertEqual(sys.getdefaultencoding(), data.file_encoding)

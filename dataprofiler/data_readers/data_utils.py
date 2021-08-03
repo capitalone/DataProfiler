@@ -405,7 +405,8 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
                                         preemptive_behaviour=True, explain=False)
                 result = result.best()
             if result:
-                encoding = result.first().encoding
+                if result.first():
+                    encoding = result.first().encoding
 
             # Try again with full sample
             if not _decode_is_valid(encoding): 
@@ -417,7 +418,8 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
                                             preemptive_behaviour=True, explain=False)
                     result = result.best()
                 if result:
-                    encoding = result.first().encoding
+                    if result.first():
+                        encoding = result.first().encoding
 
         except:
             logger.info("Install charset_normalizer for improved file "

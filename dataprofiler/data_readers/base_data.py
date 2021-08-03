@@ -109,7 +109,7 @@ class BaseData(object):
             finally:
                 if file_encoding.lower() in ['ANSI_X3.4-1968', 'ascii']:
                     file_encoding = 'utf-8'
-                self._file_encoding = file_encoding
+            self._file_encoding = file_encoding
 
             # set to default, detect if not StringIO
             if self.input_file_path \

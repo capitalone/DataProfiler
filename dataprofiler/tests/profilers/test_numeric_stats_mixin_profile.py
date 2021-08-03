@@ -514,6 +514,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             variance=np.nan, # default
             skewness=np.nan, # default
             kurtosis=np.nan, # default
+            median_absolute_deviation=np.nan, # default
             stddev=np.nan, # default
             histogram={
                 'bin_counts': np.array([1, 1, 1]),

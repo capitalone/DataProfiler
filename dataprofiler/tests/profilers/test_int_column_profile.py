@@ -402,6 +402,7 @@ class TestIntColumn(unittest.TestCase):
             num_negatives = 0,
             skewness=np.nan,
             kurtosis=np.nan,
+            median_absolute_deviation=2.0,
             stddev=np.sqrt(8.0),
             histogram={
                 'bin_counts': np.array([1, 0, 1]),
@@ -433,6 +434,9 @@ class TestIntColumn(unittest.TestCase):
             expected_histogram = expected_profile.pop('histogram')
             quartiles = profile.pop('quantiles')
             expected_quartiles = expected_profile.pop('quantiles')
+            median_abs_dev = profile.pop('median_absolute_deviation')
+            expected_median_abs_dev = \
+                expected_profile.pop('median_absolute_deviation')
 
             self.assertDictEqual(expected_profile, profile)
             self.assertEqual(expected_histogram['bin_counts'].tolist(),
@@ -443,6 +447,8 @@ class TestIntColumn(unittest.TestCase):
             self.assertAlmostEqual(expected_quartiles[0], quartiles[249])
             self.assertAlmostEqual(expected_quartiles[1], quartiles[499])
             self.assertAlmostEqual(expected_quartiles[2], quartiles[749])
+            self.assertAlmostEqual(
+                expected_median_abs_dev, median_abs_dev, places=2)
 
             expected = defaultdict(
                 float, {'min': 1.0, 'max': 1.0, 'sum': 1.0, 'variance': 1.0,

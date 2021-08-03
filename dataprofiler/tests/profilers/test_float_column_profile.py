@@ -874,7 +874,6 @@ class TestFloatColumn(unittest.TestCase):
             times=defaultdict(float, {'histogram_and_quantiles': 1.0,
                                       'precision': 1.0, 'max': 1.0, 'min': 1.0,
                                       'skewness': 1.0, 'kurtosis': 1.0,
-                                      'median_absolute_deviation': 2.0,
                                       'sum': 1.0, 'variance': 1.0,
                                       'num_zeros': 1.0, 'num_negatives': 1.0}),
             precision={
@@ -892,9 +891,7 @@ class TestFloatColumn(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(
-                defaultdict(float, {'median_absolute_deviation': 1.0}),
-                profiler.profile['times'])
+            self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
             profile = profiler.profile
             # pop out the histogram to test separately from the rest of the dict
@@ -931,7 +928,6 @@ class TestFloatColumn(unittest.TestCase):
                                            'variance': 2.0, 'precision': 2.0,
                                            'histogram_and_quantiles': 2.0,
                                            'skewness': 2.0, 'kurtosis': 2.0,
-                                           'median_absolute_deviation': 3.0,
                                            'num_negatives': 2.0,
                                            'num_zeros': 2.0,})
             self.assertEqual(expected, profiler.profile['times'])
@@ -973,9 +969,7 @@ class TestFloatColumn(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(
-                defaultdict(float, {'median_absolute_deviation': 1.0}),
-                profiler.profile['times'])
+            self.assertEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
 
             # Validate the time in the datetime class has the expected time.
@@ -984,7 +978,6 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0,\
                                            'variance': 1.0, 'precision': 1.0,
                                            'skewness': 1.0, 'kurtosis': 1.0,
-                                           'median_absolute_deviation': 2.0,
                                            'num_negatives': 1.0,
                                            'num_zeros': 1.0,
                                            'histogram_and_quantiles': 15.0})
@@ -995,7 +988,6 @@ class TestFloatColumn(unittest.TestCase):
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0,\
                                            'variance': 2.0, 'precision': 2.0,
                                            'skewness': 2.0, 'kurtosis': 2.0,
-                                           'median_absolute_deviation': 3.0,
                                            'num_negatives': 2.0,
                                            'num_zeros': 2.0,
                                            'histogram_and_quantiles': 30.0})

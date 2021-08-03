@@ -955,7 +955,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             quantiles[499] = median_value
         return quantiles
 
-    @BaseColumnProfiler._timeit(name="median_absolute_deviation")
     def _get_median_abs_dev(self):
         """
         Get median absolute deviation.
@@ -1105,7 +1104,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                     cumsum_count += bin_counts_neg[id_neg]
                     id_neg += 1
                     edge_cur = bin_edges_neg[id_neg]
-
+                
         # finally, interpolate to find the median
         median_abs_dev = np.interp(0.5, [cumsum_count_prev, cumsum_count],
                                    [edge_prev, edge_cur])

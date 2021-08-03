@@ -202,7 +202,6 @@ class TestTextColumnProfiler(unittest.TestCase):
                                       'max': 1.0,
                                       'min': 1.0,
                                       'histogram_and_quantiles': 1.0,
-                                      'median_absolute_deviation': 1.0,
                                       'sum': 1.0,
                                       'variance': 1.0,
                                       'skewness': 1.0,
@@ -251,9 +250,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertCountEqual(
-                defaultdict(float, {'median_absolute_deviation': 1.0}),
-                profiler.profile['times'])
+            self.assertCountEqual(defaultdict(float), profiler.profile['times'])
             profiler.update(df)
 
             # Validate the time in the datetime class has the expected time.
@@ -265,7 +262,6 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     'variance': 1.0,
                                     'skewness': 1.0,
                                     'kurtosis': 1.0,
-                                    'median_absolute_deviation': 2.0,
                                     'histogram_and_quantiles': 15.0,
                                     'vocab': 1.0})
             self.assertCountEqual(expected, profile['times'])
@@ -279,7 +275,6 @@ class TestTextColumnProfiler(unittest.TestCase):
                                     'variance': 2.0,
                                     'skewness': 2.0,
                                     'kurtosis': 2.0,
-                                    'median_absolute_deviation': 3.0,
                                     'histogram_and_quantiles': 30.0,
                                     'vocab': 2.0})
             self.assertCountEqual(expected, profiler.profile['times'])

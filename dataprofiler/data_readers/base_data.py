@@ -1,4 +1,5 @@
 import sys
+import locale
 from collections import OrderedDict
 import numpy as np
 import pandas as pd
@@ -99,8 +100,18 @@ class BaseData(object):
     @property
     def file_encoding(self):
         if not self._file_encoding:
+            # get system default, but if set to ascii, just update to utf-8
+            file_encoding = "utf-8"
+            try:
+                file_encoding = locale.getpreferredencoding(False)
+            except:
+                file_encoding = sys.getfilesystemencoding()
+            finally:
+                if file_encoding.lower() in ['ANSI_X3.4-1968', 'ascii']:
+                    file_encoding = 'utf-8'
+                self._file_encoding = file_encoding
+
             # set to default, detect if not StringIO
-            self._file_encoding = sys.getdefaultencoding()
             if self.input_file_path \
                     and not isinstance(self.input_file_path, StringIO):
                 self._file_encoding = data_utils.detect_file_encoding(

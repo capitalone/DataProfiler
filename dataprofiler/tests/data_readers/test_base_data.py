@@ -2,6 +2,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 
 import sys
+import locale
 import os
 import unittest
 from unittest import mock
@@ -90,10 +91,14 @@ class TestBaseDataClass(unittest.TestCase):
 
             data = BaseData(input_file_path=input_file['path'], data=None,
                             options={})
-            self.assertEqual(input_file['encoding'], data.file_encoding,
+            self.assertEqual(input_file['encoding'].lower(),
+                             data.file_encoding.lower(),
                              input_file['path'])
 
         # test when data is specified without input_file_object
+        file_encoding = locale.getpreferredencoding(False)
+        if file_encoding.lower() in ['ascii', 'ANSI_X3.4-1968']:
+            file_encoding = 'utf-8'
         data = BaseData(input_file_path=None, data=[],
                         options={})
-        self.assertEqual(sys.getdefaultencoding(), data.file_encoding)
+        self.assertEqual(file_encoding, data.file_encoding)

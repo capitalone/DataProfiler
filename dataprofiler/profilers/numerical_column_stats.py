@@ -979,13 +979,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 id_zero = i
                 break
 
-        # if all bin edges are positive (no break point),
+        # if all bin edges are positive or negative (no break point),
         # interpolate the histogram to find the median value
-        if id_zero is None:
-            bin_counts = bin_counts.astype(float)
-            normalized_bin_counts = bin_counts / np.sum(bin_counts)
+        if id_zero is None or id_zero == 1:
             cumsum_bin_counts = np.cumsum(normalized_bin_counts)
-
             median_bin_inds = cumsum_bin_counts == 0.5
             if np.sum(median_bin_inds) > 1:
                 median_value = np.mean(
@@ -1022,6 +1019,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             edge_prev = edge_cur
             cumsum_count_prev = cumsum_count
 
+            # if the two histograms have equal (or very close) bin edges
+            # update the cumsum count and advance both pointers
             if bin_edges_pos[id_pos] == bin_edges_neg[id_neg] or \
                     abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) \
                     <= 1e-10 * max(bin_width_neg, bin_width_neg):
@@ -1043,6 +1042,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 id_neg += 1
                 edge_cur = lower_edge
 
+            # if the positive histograms have edge before the negative histogram
+            # update the cumsum count and advance the positive pointer
             elif bin_edges_pos[id_pos] < bin_edges_neg[id_neg]:
                 cumsum_count += \
                     bin_counts_pos[id_pos] * \
@@ -1054,6 +1055,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 id_pos += 1
                 edge_cur = bin_edges_neg[id_neg]
 
+            # if the negative histograms have edge before the positive histogram
+            # update the cumsum count and advance the negative pointer
             else:
                 cumsum_count += \
                     bin_counts_pos[id_pos - 1] * \
@@ -1067,10 +1070,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         # continue through the remaining parts if there is any
         if cumsum_count < 0.5:
+            # first, update for the previous bin not counted yet
             cumsum_count_prev = cumsum_count
             if bin_edges_pos[id_pos] > bin_edges_neg[id_neg]:
                 if abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) \
                         <= 1e-10 * max(bin_width_neg, bin_width_neg):
+                    # when two bin edges are very close to each other,
+                    # update as if they are equal
                     cumsum_count += bin_counts_pos[id_pos - 1]
                 else:
                     cumsum_count += \
@@ -1080,6 +1086,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             else:
                 if abs(bin_edges_pos[id_pos] - bin_edges_neg[id_neg]) \
                         <= 1e-10 * max(bin_width_neg, bin_width_neg):
+                    # when two bin edges are very close to each other,
+                    # update as if they are equal
                     cumsum_count += bin_counts_neg[id_neg - 1]
                 else:
                     cumsum_count += \
@@ -1089,20 +1097,24 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             edge_prev = min(bin_edges_pos[id_pos], bin_edges_neg[id_neg])
             edge_cur = max(bin_edges_pos[id_pos], bin_edges_neg[id_neg])
 
+            # continue until the cumsum count passes 0.5
             while cumsum_count < 0.5:
                 edge_prev = edge_cur
                 cumsum_count_prev = cumsum_count
+                # continue with the positive histogram if not passed through yet
                 if id_pos <= len(bin_counts_pos) - 1:
                     cumsum_count += bin_counts_pos[id_pos]
                     id_pos += 1
                     edge_cur = bin_edges_pos[id_pos]
 
+                # continue with the negative histogram if not passed through yet
                 if id_neg <= len(bin_counts_neg) - 1:
                     cumsum_count += bin_counts_neg[id_neg]
                     id_neg += 1
                     edge_cur = bin_edges_neg[id_neg]
 
-        # finally, interpolate to find the median
+        # finally, interpolate to find the median from the most recent
+        # counts and edges
         median_abs_dev = np.interp(0.5, [cumsum_count_prev, cumsum_count],
                                    [edge_prev, edge_cur])
         return median_abs_dev

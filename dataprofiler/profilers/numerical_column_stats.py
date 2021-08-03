@@ -683,13 +683,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         return selected_method
 
-    def _histogram_to_array(self, histogram=None):
+    def _histogram_to_array(self):
         # Extend histogram to array format
-        if histogram is None:
-            bin_counts = self._stored_histogram['histogram']['bin_counts']
-            bin_edges = self._stored_histogram['histogram']['bin_edges']
-        else:
-            bin_counts, bin_edges = histogram
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
         is_bin_non_zero = bin_counts[:-1] > 0
         bin_left_edge = bin_edges[:-2][is_bin_non_zero]
         hist_to_array = [
@@ -1104,7 +1101,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                     cumsum_count += bin_counts_neg[id_neg]
                     id_neg += 1
                     edge_cur = bin_edges_neg[id_neg]
-                
+
         # finally, interpolate to find the median
         median_abs_dev = np.interp(0.5, [cumsum_count_prev, cumsum_count],
                                    [edge_prev, edge_cur])

@@ -15,6 +15,7 @@ from collections import OrderedDict, defaultdict
 import warnings
 import pickle
 from datetime import datetime
+import logging
 
 import pandas as pd
 import numpy as np
@@ -27,6 +28,9 @@ from ..labelers.data_labelers import DataLabeler
 from .helpers.report_helpers import calculate_quantiles, _prepare_report
 from .profiler_options import ProfilerOptions, StructuredOptions, \
     UnstructuredOptions
+from .. import dp_logging
+
+logger = dp_logging.get_child_logger(__name__)
 
 
 class StructuredColProfiler(object):
@@ -726,6 +730,10 @@ class BaseProfiler(object):
         encoding = None
         file_type = None
 
+        if min_true_samples is not None \
+                and not isinstance(min_true_samples, int):
+            raise ValueError('`min_true_samples` must be an integer or `None`.')
+
         if isinstance(data, data_readers.base_data.BaseData):
             encoding = data.file_encoding
             file_type = data.data_type
@@ -1210,7 +1218,7 @@ class UnstructuredProfiler(BaseProfiler):
 
         # Format the data
         notification_str = "Finding the empty lines in the data..."
-        print(notification_str)
+        logger.info(notification_str)
         data, base_stats = self._clean_data_and_get_base_stats(
             data, sample_size, min_true_samples)
         self._update_base_stats(base_stats)
@@ -1222,7 +1230,7 @@ class UnstructuredProfiler(BaseProfiler):
 
         # process the text data
         notification_str = "Calculating the statistics... "
-        print(notification_str)
+        logger.info(notification_str)
         pool = None
         if self._profile is None:
             self._profile = UnstructuredCompiler(data, options=self.options,
@@ -1869,11 +1877,17 @@ class StructuredProfiler(BaseProfiler):
 
         try:
             from tqdm import tqdm
+            has_tqdm = True
         except ImportError:
-            def tqdm(l):
-                for i, e in enumerate(l):
-                    print("Processing Column {}/{}".format(i + 1, len(l)))
-                    yield e
+            has_tqdm = False
+        finally:
+            if not has_tqdm or logger.getEffectiveLevel() > logging.INFO:
+                def tqdm(l):
+                    for i, e in enumerate(l):
+                        # These will automatically be ignored if user sets
+                        # logger level as higher than INFO
+                        logger.info(f"Processing Column {i + 1}/{len(l)}")
+                        yield e
 
         # Shuffle indices once and share with columns
         sample_ids = [*utils.shuffle_in_chunks(len(data), len(data))]
@@ -1918,7 +1932,7 @@ class StructuredProfiler(BaseProfiler):
                 cols=len(data.columns))
 
         # Format the data
-        notification_str = "Finding the Null values in the columns..."
+        notification_str = "Finding the Null values in the columns... "
         if pool:
             notification_str += " (with " + str(pool_size) + " processes)"
 
@@ -1946,11 +1960,11 @@ class StructuredProfiler(BaseProfiler):
                         (col_ser, sample_size, min_true_samples,
                          sample_ids))
                 except Exception as e:
-                    print(e)
+                    logger.info(e)
                     single_process_list.add(col_idx)
 
             # Iterate through multiprocessed columns collecting results
-            print(notification_str)
+            logger.info(notification_str)
             for col_idx in tqdm(multi_process_dict.keys()):
                 try:
                     prof_idx = col_idx_to_prof_idx[col_idx]
@@ -1958,12 +1972,12 @@ class StructuredProfiler(BaseProfiler):
                         multi_process_dict[col_idx].get()
                     self._profile[prof_idx]._update_base_stats(base_stats)
                 except Exception as e:
-                    print(e)
+                    logger.info(e)
                     single_process_list.add(col_idx)
 
             # Clean up any columns which errored
             if len(single_process_list) > 0:
-                print("Errors in multiprocessing occured:",
+                logger.info("Errors in multiprocessing occured:",
                       len(single_process_list), "errors, reprocessing...")
                 for col_idx in tqdm(single_process_list):
                     col_ser = data.iloc[:, col_idx]
@@ -1981,7 +1995,7 @@ class StructuredProfiler(BaseProfiler):
             pool.join()  # Wait for all workers to complete
 
         else:  # No pool
-            print(notification_str)
+            logger.info(notification_str)
             for col_idx in tqdm(range(data.shape[1])):
                 col_ser = data.iloc[:, col_idx]
                 prof_idx = col_idx_to_prof_idx[col_idx]
@@ -2003,7 +2017,7 @@ class StructuredProfiler(BaseProfiler):
             if pool:
                 notification_str += " (with " + str(pool_size) + " processes)"
 
-        print(notification_str)
+        logger.info(notification_str)
 
         for prof_idx in tqdm(clean_sampled_dict.keys()):
             self._profile[prof_idx].update_column_profilers(

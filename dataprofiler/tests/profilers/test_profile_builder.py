@@ -2,11 +2,12 @@ from __future__ import print_function
 
 import unittest
 from unittest import mock
-from io import BytesIO
+from io import BytesIO, StringIO
 import random
 import six
 import os
 import re
+import logging
 
 import numpy as np
 import pandas as pd
@@ -65,8 +66,8 @@ class TestStructuredProfiler(unittest.TestCase):
                 spec=StructuredDataLabeler)
     def test_bad_input_data(self, *mocks):
         allowed_data_types = (r"\(<class 'list'>, " 
-                             r"<class 'pandas.core.series.Series'>, " 
-                             r"<class 'pandas.core.frame.DataFrame'>\)")
+                              r"<class 'pandas.core.series.Series'>, " 
+                              r"<class 'pandas.core.frame.DataFrame'>\)")
         bad_data_types = [1, {}, np.inf, 'sdfs']
         for data in bad_data_types:
             with self.assertRaisesRegex(TypeError,
@@ -287,7 +288,7 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
     def test_correlation(self, *mock):
-        # Use the following formular to obtain the pairwise correlation
+        # Use the following formula to obtain the pairwise correlation
         # sum((x - np.mean(x))*(y-np.mean(y))) /
         # np.sqrt(sum((x - np.mean(x)**2)))/np.sqrt(sum((y - np.mean(y)**2)))
         profile_options = dp.ProfilerOptions()
@@ -940,7 +941,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2, sparse_profile._min_col_samples_used)
 
     @mock.patch('dataprofiler.profilers.profile_builder.StructuredProfiler.'
-                'update_profile')
+                '_update_profile_from_chunk')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_min_true_samples(self, *mocks):
         empty_df = pd.DataFrame([])
@@ -949,6 +950,11 @@ class TestStructuredProfiler(unittest.TestCase):
         msg = "`min_true_samples` must be an integer or `None`."
         with self.assertRaisesRegex(ValueError, msg):
             profile = dp.StructuredProfiler(empty_df, min_true_samples="Bloop")
+
+        # Test invalid input given to update_profile
+        profile = dp.StructuredProfiler(empty_df)
+        with self.assertRaisesRegex(ValueError, msg):
+            profile.update_profile(empty_df, min_true_samples="Bloop")
 
         # Test None input (equivalent to zero)
         profile = dp.StructuredProfiler(empty_df, min_true_samples=None)
@@ -1359,6 +1365,48 @@ class TestStructuredProfiler(unittest.TestCase):
         }
 
         self.assertDictEqual(expected_diff, profile1.diff(profile2))
+
+    @mock.patch("dataprofiler.profilers.data_labeler_column_profile."
+                "DataLabelerColumn.update")
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnPrimitiveTypeProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnStatsProfileCompiler.diff")
+    @mock.patch("dataprofiler.profilers.column_profile_compilers."
+                "ColumnDataLabelerCompiler.diff")
+    @mock.patch("sys.stderr", new_callable=StringIO)
+    def test_logs(self, mock_stderr, *mocks):
+        options = StructuredOptions()
+        options.multiprocess.is_enabled = False
+
+        # Capture logs of level INFO and above
+        with self.assertLogs('DataProfiler.profilers.profile_builder',
+                             level='INFO') as logs:
+            StructuredProfiler(pd.DataFrame([[0, 1], [2, 3]]), options=options)
+
+        # Logs to update user on nulls and statistics
+        self.assertEqual(['INFO:DataProfiler.profilers.profile_builder:'
+                          'Finding the Null values in the columns... ',
+                          'INFO:DataProfiler.profilers.profile_builder:'
+                          'Calculating the statistics... '],
+                         logs.output)
+
+        # Ensure tqdm printed progress bar
+        self.assertIn('#' * 10, mock_stderr.getvalue())
+
+        # Clear stderr
+        mock_stderr.seek(0)
+        mock_stderr.truncate(0)
+
+        # Now tqdm shouldn't be printed
+        dp.set_verbosity(logging.WARNING)
+
+        StructuredProfiler(pd.DataFrame([[0, 1], [2, 3]]))
+
+        # Ensure no progress bar printed
+        self.assertNotIn('#' * 10, mock_stderr.getvalue())
+
 
 class TestStructuredColProfilerClass(unittest.TestCase):
 
@@ -2080,7 +2128,7 @@ class TestUnstructuredProfiler(unittest.TestCase):
         self.assertDictEqual({'clean_and_base_stats': 2}, profiler.times)
 
     @mock.patch('dataprofiler.profilers.profile_builder.UnstructuredProfiler.'
-                'update_profile')
+                '_update_profile_from_chunk')
     def test_min_true_samples(self, *mocks):
         empty_df = pd.DataFrame([])
 
@@ -2089,6 +2137,11 @@ class TestUnstructuredProfiler(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, msg):
             profile = dp.UnstructuredProfiler(empty_df, 
                                               min_true_samples="Bloop")
+
+        # Test invalid input given to update_profile
+        profile = dp.UnstructuredProfiler(empty_df)
+        with self.assertRaisesRegex(ValueError, msg):
+            profile.update_profile(empty_df, min_true_samples="Bloop")
 
         # Test None input (equivalent to zero)
         profile = dp.UnstructuredProfiler(empty_df, min_true_samples=None)
@@ -2817,7 +2870,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
             load_profile.update_profile(pd.DataFrame(['test', 'test2']))
 
     @mock.patch('dataprofiler.profilers.profile_builder.StructuredProfiler.'
-                'update_profile')
+                '_update_profile_from_chunk')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     def test_min_true_samples(self, *mocks):
         empty_df = pd.DataFrame([])
@@ -2826,6 +2879,11 @@ class TestProfilerFactoryClass(unittest.TestCase):
         msg = "`min_true_samples` must be an integer or `None`."
         with self.assertRaisesRegex(ValueError, msg):
             profile = dp.Profiler(empty_df, min_true_samples="Bloop")
+
+        # Test invalid input given to update_profile
+        profile = dp.Profiler(empty_df)
+        with self.assertRaisesRegex(ValueError, msg):
+            profile.update_profile(empty_df, min_true_samples="Bloop")
 
         # Test None input (equivalent to zero)
         profile = dp.Profiler(empty_df, min_true_samples=None)

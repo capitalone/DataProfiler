@@ -15,7 +15,7 @@ class TestDPLogging(unittest.TestCase):
         dp_logging._dp_logger = None
 
     @classmethod
-    def tearDown(cls):
+    def tearDownClass(cls):
         from dataprofiler import dp_logging
         root_logger = logging.getLogger()
         root_logger.removeHandler(dp_logging.get_logger())

@@ -265,7 +265,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             kurtosis=self.np_type_to_type(self.kurtosis),
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
-            median_absolute_deviation=self._get_median_abs_dev(),
+            median_absolute_deviation=self.median_abs_deviation,
             num_zeros=self.np_type_to_type(self.num_zeros),
             num_negatives=self.np_type_to_type(self.num_negatives),
             times=self.times,
@@ -952,7 +952,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             quantiles[499] = median_value
         return quantiles
 
-    def _get_median_abs_dev(self):
+    @property
+    def median_abs_deviation(self):
         """
         Get median absolute deviation.
 
@@ -980,17 +981,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 break
 
         # if all bin edges are positive or negative (no break point),
-        # interpolate the histogram to find the median value
+        # the median value is actually 0
         if id_zero is None or id_zero == 1:
-            cumsum_bin_counts = np.cumsum(normalized_bin_counts)
-            median_bin_inds = cumsum_bin_counts == 0.5
-            if np.sum(median_bin_inds) > 1:
-                median_value = np.mean(
-                    bin_edges[np.append([False], median_bin_inds)])
-            else:
-                median_value = np.interp(0.5,
-                    np.append([0], cumsum_bin_counts), bin_edges)
-            return median_value
+            return 0
 
         # otherwise, generate two folds of deviation
         bin_counts_pos = np.append(

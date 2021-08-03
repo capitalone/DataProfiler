@@ -31,20 +31,36 @@ reStructuredText Docstring Format is the standard. Here is an example:
                 Type example code here
         """
 
-### How to update the documentation:  
+### How to update the documentation:
+
 To update the docs branch, checkout the gh-pages branch. Make sure it is up to
-date, then copy the data_profile folder from the feature branch you want to 
-update the documentation with (probably master).
+date, then clone the dataprofiler from the feature branch you want in order to
+update the documentation (probably main).
+
+    # clone the feature branch into the base of this repository
+    git clone https://github.com/capitalone/DataProfiler DataProfiler
+
+Install requirements:
+
+    # install sphinx requirements
+    brew install pandoc
+    pip install requirements.txt
+    
+    # install the requirements from the feature branch
+    pip install DataProfiler/requirements.txt
+    pip install DataProfiler/requirements-ml.txt
+    pip install DataProfiler/requirements-reports.txt
 
 In /docs run:
 
+    cd docs
     python update_documentation.py
 
 If you make adjustments to the code comments, you may rerun the command again to
  overwrite the specified version. 
 
 Once the documentation is updated, commit and push the whole 
-/docs folder. API documentation will only update when pushed to the master 
+/docs folder. API documentation will only update when pushed to the main 
 branch. 
 
 If you make a mistake naming the version, you will have to delete it from
@@ -53,8 +69,10 @@ the /docs/source/index.rst file.
 To update the documentation of a feature branch, go to the /docs folder
 and run:
 ```bash
+cd docs
 python update_documentation.py
 ```
+
 
 
 

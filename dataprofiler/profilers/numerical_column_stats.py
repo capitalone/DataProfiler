@@ -612,10 +612,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             highest_idxs = highest_idxs[:self.mode_count]
 
         mode = (bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]) / 2
-        # return single number instead of list if only one mode
-        if len(mode) == 1:
-            mode = mode[0]
-        return mode
+        return mode.tolist()
 
     def _estimate_stats_from_histogram(self):
         # test estimated mean and var

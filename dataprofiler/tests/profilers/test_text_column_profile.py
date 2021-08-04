@@ -201,7 +201,6 @@ class TestTextColumnProfiler(unittest.TestCase):
             times=defaultdict(float, {'vocab': 1.0,
                                       'max': 1.0,
                                       'min': 1.0,
-                                      'mode': 1.0,
                                       'histogram_and_quantiles': 1.0,
                                       'sum': 1.0,
                                       'variance': 1.0,

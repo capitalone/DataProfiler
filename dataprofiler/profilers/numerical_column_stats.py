@@ -321,6 +321,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @property
     def mode(self):
+        """
+        Finds an estimate for the mode(s) of the data.
+
+        :return: the mode(s) of the data
+        :rtype: list(float)
+        """
         return self._estimate_mode_from_histogram()
 
     @property

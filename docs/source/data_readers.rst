@@ -19,6 +19,7 @@ The supported file types are:
 * Parquet file
 * Text file
 * Pandas DataFrame
+* A URL that points to one of the supported file types above
 
 It's also possible to specifically call one of the data classes such as the following command:
 
@@ -27,6 +28,12 @@ It's also possible to specifically call one of the data classes such as the foll
     from dataprofiler.data_readers.csv_data import CSVData
     data = CSVData("your_file.csv", options={"delimiter": ","})
 
+Additionally any of the data classes can be loaded using a URL:
+
+.. code-block:: python
+
+    import dataprofiler as dp
+    data = dp.Data("https://you_website.com/your_file.file", options={"verify_ssl": "True"})
 
 Below are descriptions of the various `Data` classes and the available options.
 
@@ -117,3 +124,16 @@ Possible `options`:
 
 * data_format: user selected format in which to return data. Currently only supports "text".
 * samples_per_line - chunks by which to read in the specified dataset
+
+Data Using a URL
+================
+
+Data class for loading datasets of any type using a URL. Specified by passing in 
+any valid URL that points to one of the valid data types. Options pertaining the 
+URL may also be specified using the options dict parameter.
+
+`Data(input_file_path=None, data=None, options=None)`
+
+Possible `options`:
+
+* verify_ssl: must be a boolean string, choices: "True", "False". Set to "True" by default.

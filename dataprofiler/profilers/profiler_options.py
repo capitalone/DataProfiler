@@ -212,15 +212,15 @@ class HistogramOption(BooleanOption):
 
 class ModeOption(BooleanOption):
 
-    def __init__(self, is_enabled=True, count=None):
+    def __init__(self, is_enabled=True, max_k_modes=None):
         """Options for mode estimation
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
-        :ivar count: the max number of modes to return, if applicable
-        :vartype count: Union[None, int]
+        :ivar max_k_modes: the max number of modes to return, if applicable
+        :vartype max_k_modes: Union[None, int]
         """
-        self.count = count
+        self.max_k_modes = max_k_modes
         super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='ModeOption'):
@@ -234,9 +234,9 @@ class ModeOption(BooleanOption):
         """
         errors = super()._validate_helper(variable_path=variable_path)
 
-        if self.count is not None and (
-                not isinstance(self.count, int)
-                or self.count < 1):
+        if self.max_k_modes is not None and (
+                not isinstance(self.max_k_modes, int)
+                or self.max_k_modes < 1):
             errors.append("{}.count must be either None"
                           " or a positive integer".format(variable_path))
         return errors

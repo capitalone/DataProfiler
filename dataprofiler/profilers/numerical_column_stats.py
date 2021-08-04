@@ -69,8 +69,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.num_negatives = 0
         if options:
             self.bias_correction = options.bias_correction.is_enabled
-            if options.mode.count is not None:
-                self._max_k_modes = options.mode.count
+            if options.mode.max_k_modes is not None:
+                self._max_k_modes = options.mode.max_k_modes
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
             if isinstance(bin_count_or_method, str):

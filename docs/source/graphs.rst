@@ -8,6 +8,12 @@ Graph Your Data
 
 We can plot some of our data as seaborn histogram plots. Below will demonstrate how to do so and provide examples.
 
+The following plots are currently available to work directly with your profilers:
+
+ * histogram (numeric columns only)
+
+Below shows how to do so with examples.
+
 What we need to import
 ~~~~~~~~~~~
 .. code-block:: python
@@ -48,7 +54,7 @@ These are what the variables mean:
 Examples
 ~~~~~~~~~~~~~~~~~
 
-1. This example demonstrates how we can take a StructuredProfiler class and plot histograms.
+1. This example demonstrates how we can take a StructuredProfiler class and plot histograms of the specified columns.
 
 .. code-block:: python
 
@@ -63,13 +69,12 @@ Examples
     # This will plot all IntColumn and FloatColumn as histograms (The first and last column).
     graphs.plot_histograms(profiler)
 
-    # This will plot the specified, column 0, as a histogram.
-    column = [0]
+    # This will only plot the specified column, 0.
+    columns = [0]
     graphs.plot_histograms(profiler, columns)
 
-* If a name is specified for a column, and you want to put that column as to be plotted, you would put the name of the column in columns. In this case, 0 is the name of the first column.
 
-2. This example demonstrates how we can plot a specific histogram.
+2. This example demonstrates how we can plot a low level profiler..
 
 .. code-block:: python
 
@@ -78,6 +83,6 @@ Examples
     profiler = IntColumn('example')
     profiler.update(data)
 
-    # We will plot a IntColumn as a histogram
+    # We will plot profiler
     graphs.plot_col_histogram(self.profiler)
 

@@ -107,7 +107,7 @@ class BaseData(object):
             except:
                 file_encoding = sys.getfilesystemencoding()
             finally:
-                if file_encoding.lower() in ['ANSI_X3.4-1968', 'ascii']:
+                if file_encoding.lower() in ['ansi_x3.4-1968', 'ascii']:
                     file_encoding = 'utf-8'
             self._file_encoding = file_encoding
 

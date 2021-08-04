@@ -97,7 +97,7 @@ class TestBaseDataClass(unittest.TestCase):
 
         # test when data is specified without input_file_object
         file_encoding = locale.getpreferredencoding(False)
-        if file_encoding.lower() in ['ascii', 'ANSI_X3.4-1968']:
+        if file_encoding.lower() in ['ascii', 'ansi_x3.4-1968']:
             file_encoding = 'utf-8'
         data = BaseData(input_file_path=None, data=[],
                         options={})

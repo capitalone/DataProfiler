@@ -171,6 +171,7 @@ Supported Data Formats
 * Parquet file
 * Text file
 * Pandas DataFrame
+* A URL that points to one of the supported file types above
 
 
 Data Labels

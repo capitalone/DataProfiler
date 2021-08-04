@@ -132,8 +132,6 @@ def clean_report(report):
             if "bin_edges" in stats["histogram"]:
                 stats["histogram"]["bin_edges"] = \
                     stats["histogram"]["bin_edges"].tolist()
-        if "mode" in stats and not isinstance(stats["mode"], float):
-            stats["mode"] = stats["mode"].tolist()
 
     return report
 

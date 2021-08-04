@@ -52,7 +52,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                              "of type NumericalOptions.")
         self.min = None
         self.max = None
-        self.mode_count = None # By default, return all modes
+        self._max_k_modes = None # By default, return all modes
         self.sum = 0
         self._biased_variance = np.nan
         self._biased_skewness = np.nan
@@ -70,7 +70,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             if options.mode.count is not None:
-                self.mode_count = options.mode.count
+                self._max_k_modes = options.mode.count
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
             if isinstance(bin_count_or_method, str):
@@ -252,12 +252,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.num_negatives = other1.num_negatives + other2.num_negatives
 
         # Merge max k mode count
-        if other1.mode_count is None:
-            self.mode_count = other2.mode_count
-        elif other2.mode_count is None:
-            self.mode_count = other1.mode_count
+        if other1._max_k_modes is None:
+            self._max_k_modes = other2._max_k_modes
+        elif other2._max_k_modes is None:
+            self._max_k_modes = other1._max_k_modes
         else:
-            self.mode_count = max(other1.mode_count, other2.mode_count)
+            self._max_k_modes = max(other1._max_k_modes, other2._max_k_modes)
 
     def profile(self):
         """
@@ -608,8 +608,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         # Get the bin(s) with the highest frequency
         highest_idxs = np.argwhere(bin_counts == bin_counts.max()).flatten()
-        if self.mode_count is not None and len(highest_idxs) > self.mode_count:
-            highest_idxs = highest_idxs[:self.mode_count]
+        if self._max_k_modes is not None and len(highest_idxs) > self._max_k_modes:
+            highest_idxs = highest_idxs[:self._max_k_modes]
 
         mode = (bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]) / 2
         return mode.tolist()

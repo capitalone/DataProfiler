@@ -66,9 +66,11 @@ The format for a structured profile is below:
         "duplicate_row_count": int,
         "file_type": string,
         "encoding": string,
+        "correlation_matrix": list(list(int)), (*)
+        "profile_schema": dict[string, list(int)]
     },
-    "data_stats": {
-        <column name>: {
+    "data_stats": [
+        {
             "column_name": string,
             "data_type": string,
             "data_label": string,
@@ -79,30 +81,34 @@ The format for a structured profile is below:
                 "sample_size": int,
                 "null_count": int,
                 "null_types": list(string),
-                "null_types_index": {
-                    string: list(int)
-                },
-                "data_type_representation": string,
+                "null_types_index": dict[string, list(int)],
+                "data_type_representation": dict[string, list(string)],
                 "min": [null, float],
                 "max": [null, float],
+                "sum": float,
                 "mean": float,
                 "variance": float,
                 "stddev": float,
                 "skewness": float,
                 "kurtosis": float,
+                "num_zeros": int,
+                "num_negatives": int,
                 "histogram": { 
                     "bin_counts": list(int),
                     "bin_edges": list(float),
                 },
                 "quantiles": {
                     int: float
-                }
+                },
                 "vocab": list(char),
-                "avg_predictions": dict(float), 
-                "data_label_representation": dict(float),
+                "avg_predictions": dict[string, float], 
+                "data_label_representation": dict[string, float],
                 "categories": list(str),
                 "unique_count": int,
                 "unique_ratio": float,
+                "categorical_count": dict[string, int],
+                "gini_impurity": float,
+                "unalikeability": float,
                 "precision": {
                     'min': int,
                     'max': int,
@@ -113,12 +119,13 @@ The format for a structured profile is below:
                     'margin_of_error': float,
                     'confidence_level': float		
                 },
-                "times": dict(float),
+                "times": dict[string, float],
                 "format": string
             }
         }
-    }
+    ]
 
+(*) Currently the correlation matrix update is toggled off. It will be reset in a later update. Users can still use it as desired with the is_enable option set to True.
 
 The format for an unstructured profile is below:
 
@@ -128,22 +135,29 @@ The format for an unstructured profile is below:
         "samples_used": int,
         "empty_line_count": int,
         "file_type": string,
-        "encoding": string
+        "encoding": string,
+        "memory_size": float, # in MB
     },
     "data_stats": {
         "data_label": {
             "entity_counts": {
-                "word_level": dict(int),
-                "true_char_level": dict(int),
-                "postprocess_char_level": dict(int)
+                "word_level": dict[string, int],
+                "true_char_level": dict[string, int],
+                "postprocess_char_level": dict[string, int]
             },
-            "times": dict(float)
+            "entity_percentages": {
+                "word_level": dict[string, float],
+                "true_char_level": dict[string, float],
+                "postprocess_char_level": dict[string, float]
+            },
+            "times": dict[string, float]
         },
         "statistics": {
             "vocab": list(char),
+            "vocab_count": dict[string, int],
             "words": list(string),
-            "word_count": dict(int),
-            "times": dict(float)
+            "word_count": dict[string, int],
+            "times": dict[string, float]
         }
     }
 
@@ -398,12 +412,17 @@ In addition, it utilizes only the first 10,000 rows.
    Changelog<https://github.com/capitalone/DataProfiler/releases>
    Feedback<https://github.com/capitalone/DataProfiler/issues/new/choose>
    GitHub<https://github.com/capitalone/DataProfiler>
+   Contributing<https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md>
 
 .. _Example CSV: https://raw.githubusercontent.com/capitalone/DataProfiler/main/dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv
 .. _issue: https://github.com/capitalone/DataProfiler/issues/new/choose
 
 Versions
 ========
+* `0.7.0`_
+* `0.6.0`_
+* `0.5.3`_
+* `0.5.2`_
 * `0.5.1`_
 * `0.5.0`_
 * `0.4.7`_
@@ -427,4 +446,11 @@ Versions
 .. _0.5.0: ../../0.5.0/html/index.html
 
 .. _0.5.1: ../../0.5.1/html/index.html
+
+.. _0.5.2: ../../0.5.2/html/index.html
+
+.. _0.5.3: ../../0.5.3/html/index.html
+.. _0.6.0: ../../0.6.0/html/index.html
+
+.. _0.7.0: ../../0.7.0/html/index.html
 

@@ -217,10 +217,10 @@ class ModeOption(BooleanOption):
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
-        :ivar max_k_modes: the max number of modes to return, if applicable
-        :vartype max_k_modes: Union[None, int]
+        :ivar top_k_modes: the max number of modes to return, if applicable
+        :vartype top_k_modes: Union[None, int]
         """
-        self.max_k_modes = max_k_modes
+        self.top_k_modes = max_k_modes
         super().__init__(is_enabled=is_enabled)
 
     def _validate_helper(self, variable_path='ModeOption'):
@@ -234,9 +234,9 @@ class ModeOption(BooleanOption):
         """
         errors = super()._validate_helper(variable_path=variable_path)
 
-        if self.max_k_modes is not None and (
-                not isinstance(self.max_k_modes, int)
-                or self.max_k_modes < 1):
+        if self.top_k_modes is not None and (
+                not isinstance(self.top_k_modes, int)
+                or self.top_k_modes < 1):
             errors.append("{}.count must be either None"
                           " or a positive integer".format(variable_path))
         return errors

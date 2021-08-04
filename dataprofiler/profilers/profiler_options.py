@@ -212,13 +212,13 @@ class HistogramOption(BooleanOption):
 
 class ModeOption(BooleanOption):
 
-    def __init__(self, is_enabled=True, max_k_modes=None):
+    def __init__(self, is_enabled=True, max_k_modes=5):
         """Options for mode estimation
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
         :ivar top_k_modes: the max number of modes to return, if applicable
-        :vartype top_k_modes: Union[None, int]
+        :vartype top_k_modes: int
         """
         self.top_k_modes = max_k_modes
         super().__init__(is_enabled=is_enabled)

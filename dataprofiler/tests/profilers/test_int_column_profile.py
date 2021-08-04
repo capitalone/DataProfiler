@@ -145,7 +145,7 @@ class TestIntColumn(unittest.TestCase):
         df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
-        np.testing.assert_array_almost_equal([1], profiler.mode, decimal=2)
+        self.assertListEqual([1], profiler.mode)
 
         # multiple modes
         df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4]).apply(str)

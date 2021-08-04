@@ -264,7 +264,7 @@ class TestFloatColumn(unittest.TestCase):
         df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
-        np.testing.assert_array_almost_equal([1], profiler.mode, decimal=2)
+        self.assertListEqual([1], profiler.mode)
 
         # multiple modes
         df = pd.Series([1.5, 1.5, 2.5, 2.5, 3.5, 3.5, 4.1, 4.1]).apply(str)

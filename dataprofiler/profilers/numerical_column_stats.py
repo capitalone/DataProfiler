@@ -595,10 +595,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         Estimates the mode of the current data using the
         histogram. If there are multiple modes, returns
         K of them (where K is defined in options given, but
-        1 by default)
+        5 by default)
 
         :return: The estimated mode of the histogram
-        :rtype: Union[float, list(float)]
+        :rtype: list(float)
         """
         if not self._has_histogram:
             return np.nan
@@ -606,10 +606,21 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
 
-        # Get the bin(s) with the highest frequency
-        highest_idxs = np.argwhere(bin_counts == bin_counts.max()).flatten()
-        if len(highest_idxs) > self._top_k_modes:
-            highest_idxs = highest_idxs[:self._top_k_modes]
+        # Get the K bin(s) with the highest frequency (one-pass):
+        cur_max = -1
+        highest_idxs = []
+        count = 0
+        for i in range(0, len(bin_counts)):
+            if bin_counts[i] > cur_max:
+                highest_idxs = [i]
+                cur_max = bin_counts[i]
+                count = 1
+            elif bin_counts[i] == cur_max and count < self._top_k_modes:
+                highest_idxs.append(i)
+                count += 1
+            if count == self._top_k_modes:
+                    break
+        highest_idxs = np.array(highest_idxs)
 
         mode = (bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]) / 2
         return mode.tolist()

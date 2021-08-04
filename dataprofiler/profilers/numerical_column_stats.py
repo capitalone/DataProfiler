@@ -52,7 +52,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                              "of type NumericalOptions.")
         self.min = None
         self.max = None
-        self.mode = np.nan
         self.mode_count = None # By default, return all modes
         self.sum = 0
         self._biased_variance = np.nan
@@ -114,7 +113,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             "histogram_and_quantiles":
                 NumericStatsMixin._get_histogram_and_quantiles,
             "num_zeros": NumericStatsMixin._get_num_zeros,
-            "mode": NumericStatsMixin._get_mode,
             "num_negatives": NumericStatsMixin._get_num_negatives
         }
 
@@ -227,14 +225,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                 self.max = other1.max
             else:
                 self.max = other2.max
-        if "mode" in self.__calculations.keys():
-            if other1.mode_count is None:
-                self.mode_count = other2.mode_count
-            elif other2.mode_count is None:
-                self.mode_count = other1.mode_count
-            else:
-                self.mode_count = max(other1.mode_count, other2.mode_count)
-            self.mode = self._estimate_mode_from_histogram()
         if "sum" in self.__calculations.keys():
             self.sum = other1.sum + other2.sum
         if "skewness" in self.__calculations.keys():
@@ -260,6 +250,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         if "num_negatives" in self.__calculations.keys():
             self.num_negatives = other1.num_negatives + other2.num_negatives
+
+        # Merge max k mode count
+        if other1.mode_count is None:
+            self.mode_count = other2.mode_count
+        elif other2.mode_count is None:
+            self.mode_count = other1.mode_count
+        else:
+            self.mode_count = max(other1.mode_count, other2.mode_count)
 
     def profile(self):
         """
@@ -320,6 +318,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if self.match_count == 0:
             return 0
         return float(self.sum) / self.match_count
+
+    @property
+    def mode(self):
+        return self._estimate_mode_from_histogram()
 
     @property
     def variance(self):
@@ -1172,11 +1174,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             warnings.warn(
                 'Histogram error. Histogram and quantile results will not be '
                 'available')
-
-    @BaseColumnProfiler._timeit(name="mode")
-    def _get_mode(self, df_series, prev_dependent_properties,
-                  subset_properties):
-        self.mode = self._estimate_mode_from_histogram()
 
     @BaseColumnProfiler._timeit(name="num_zeros")
     def _get_num_zeros(self, df_series, prev_dependent_properties,

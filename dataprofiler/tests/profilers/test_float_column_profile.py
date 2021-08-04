@@ -277,7 +277,7 @@ class TestFloatColumn(unittest.TestCase):
         df = pd.Series([1.25, 1.25, 1.25, 1.25, 2.9]).apply(str)
         profiler = FloatColumn(df.name)
         profiler.update(df)
-        self.assertAlmostEqual(1.25, profiler.mode, places=2)
+        np.testing.assert_array_almost_equal([1.25], profiler.mode, decimal=2)
 
         # with negative values
         df = pd.Series([-1.1, 1.9, 1.9, 1.9, 2.1, 2.01, 2.01, 2.01]).apply(str)
@@ -832,7 +832,7 @@ class TestFloatColumn(unittest.TestCase):
             },
             times=defaultdict(float, {'histogram_and_quantiles': 1.0,
                                       'precision': 1.0, 'max': 1.0, 'min': 1.0,
-                                      'mode': 1.0, 'skewness': 1.0,
+                                      'skewness': 1.0,
                                       'kurtosis': 1.0, 'sum': 1.0, 'variance': 1.0,
                                       'num_zeros': 1.0, 'num_negatives': 1.0}),
             precision={
@@ -883,7 +883,7 @@ class TestFloatColumn(unittest.TestCase):
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
-            expected = defaultdict(float, {'min': 2.0, 'max': 2.0, 'mode': 2.0,
+            expected = defaultdict(float, {'min': 2.0, 'max': 2.0,
                                            'sum': 2.0, 'variance': 2.0,
                                            'precision': 2.0,
                                            'histogram_and_quantiles': 2.0,
@@ -936,7 +936,7 @@ class TestFloatColumn(unittest.TestCase):
             profile = profiler.profile
 
             expected = defaultdict(float, {'max': 1.0, 'sum': 1.0,
-                                           'mode': 1.0, 'variance': 1.0,
+                                           'variance': 1.0,
                                            'precision': 1.0, 'skewness': 1.0,
                                            'kurtosis': 1.0, 'num_negatives': 1.0,
                                            'num_zeros': 1.0,
@@ -946,7 +946,7 @@ class TestFloatColumn(unittest.TestCase):
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
             expected = defaultdict(float, {'max': 2.0, 'sum': 2.0,
-                                           'mode': 1.0, 'variance': 2.0,
+                                           'variance': 2.0,
                                            'precision': 2.0, 'skewness': 2.0,
                                            'kurtosis': 2.0, 'num_negatives': 2.0,
                                            'num_zeros': 2.0,

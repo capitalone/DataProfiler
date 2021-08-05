@@ -294,6 +294,17 @@ class TestFloatColumn(unittest.TestCase):
         np.testing.assert_array_almost_equal([1, 2, 3, 4, 5],
                                              profiler.mode, decimal=2)
 
+        # Edge case where mode appears later in the dataset
+        df = pd.Series([1, 2, 3, 4, 5, 6.2, 6.2]).apply(str)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        np.testing.assert_array_almost_equal([6.2], profiler.mode, decimal=2)
+
+        df = pd.Series([2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7.1, 7.1, 7.1]).apply(str)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        np.testing.assert_array_almost_equal([7.1], profiler.mode, decimal=2)
+
     def test_top_k_modes(self):
         # Default options
         options = FloatOptions()

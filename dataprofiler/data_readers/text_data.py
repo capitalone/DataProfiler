@@ -1,6 +1,7 @@
 from __future__ import unicode_literals    # at top of module
 from __future__ import print_function
 from past.builtins import basestring
+from io import StringIO
 
 from . import data_utils
 from .base_data import BaseData
@@ -74,21 +75,18 @@ class TextData(BaseData):
             self._data = data
         else:
             self._data = data_utils.read_text_as_list_of_strs(
-                self.input_file_path
+                self.input_file_path, self.file_encoding
             )
 
     def _get_data_as_text(self, data):
-        if not isinstance(data, str) and \
-                not (isinstance(data, list) and
-                     (isinstance(data[0], str) or
-                      isinstance(data[0], basestring))):
+        if (isinstance(data, list) and len(data)
+                and isinstance(data[0], (str, basestring))):
+            data = ''.join(data)
+        elif not isinstance(data, str) and data:
             raise ValueError(
                 "Data is not in a str or list of str format and cannot be "
                 "converted."
             )
-        elif isinstance(data, list) and \
-                (isinstance(data[0], str) or isinstance(data[0], basestring)):
-            data = ''.join(data)
 
         samples_per_line = min(max(len(data), 1), self.samples_per_line)
         data = [
@@ -114,6 +112,12 @@ class TextData(BaseData):
         :return: is file a text file or not
         :rtype: bool
         """
+        if options is None:
+            options = {}
+
+        # if user passes options, this will update them for encodings
+        if 'encoding' not in options and not isinstance(file_path, StringIO):
+            options = {'encoding': data_utils.detect_file_encoding(file_path)}
         return True
 
     def reload(self, input_file_path=None, data=None, options=None):

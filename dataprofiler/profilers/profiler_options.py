@@ -210,6 +210,36 @@ class HistogramOption(BooleanOption):
                                                       valid_methods))
         return errors
 
+class ModeOption(BooleanOption):
+
+    def __init__(self, is_enabled=True, max_k_modes=5):
+        """Options for mode estimation
+
+        :ivar is_enabled: boolean option to enable/disable the option.
+        :vartype is_enabled: bool
+        :ivar top_k_modes: the max number of modes to return, if applicable
+        :vartype top_k_modes: int
+        """
+        self.top_k_modes = max_k_modes
+        super().__init__(is_enabled=is_enabled)
+
+    def _validate_helper(self, variable_path='ModeOption'):
+        """
+        Validates the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if self.top_k_modes is not None and (
+                not isinstance(self.top_k_modes, int)
+                or self.top_k_modes < 1):
+            errors.append("{}.top_k_modes must be either None"
+                          " or a positive integer".format(variable_path))
+        return errors
 
 class BaseInspectorOptions(BooleanOption):
 
@@ -266,6 +296,8 @@ class NumericalOptions(BaseInspectorOptions):
         :vartype min: BooleanOption
         :ivar max: boolean option to enable/disable max
         :vartype max: BooleanOption
+        :ivar mode: option to enable/disable mode and set return count
+        :vartype mode: ModeOption
         :ivar sum: boolean option to enable/disable sum
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
@@ -289,6 +321,7 @@ class NumericalOptions(BaseInspectorOptions):
         """
         self.min = BooleanOption(is_enabled=True)
         self.max = BooleanOption(is_enabled=True)
+        self.mode = ModeOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
         self.skewness = BooleanOption(is_enabled=True)
@@ -310,7 +343,8 @@ class NumericalOptions(BaseInspectorOptions):
         :return: true if any numeric stats property is enabled, otherwise false
         :rtype bool:
         """
-        if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
+        if self.min.is_enabled or self.max.is_enabled \
+                or self.mode.is_enabled or self.sum.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
                 or self.kurtosis.is_enabled \
                 or self.histogram_and_quantiles.is_enabled \
@@ -331,6 +365,7 @@ class NumericalOptions(BaseInspectorOptions):
         """
         self.min.is_enabled = value
         self.max.is_enabled = value
+        self.mode.is_enabled = value
         self.sum.is_enabled = value
         self.variance.is_enabled = value
         self.skewness.is_enabled = value
@@ -362,7 +397,7 @@ class NumericalOptions(BaseInspectorOptions):
             variable_path = self.__class__.__name__
 
         errors = super()._validate_helper(variable_path=variable_path)
-        for item in ["histogram_and_quantiles", "min", "max", "sum",
+        for item in ["histogram_and_quantiles", "min", "max", "sum", "mode",
                      "variance", "skewness", "kurtosis", "bias_correction",
                      "num_zeros", "num_negatives"]:
             if not isinstance(self.properties[item], BooleanOption):
@@ -392,6 +427,14 @@ class NumericalOptions(BaseInspectorOptions):
                           " variance, and skewness if kurtosis is "
                           "toggled on.".format(variable_path))
 
+        mode_disabled = not self.properties["mode"].is_enabled
+        histogram_disabled = \
+            not self.properties["histogram_and_quantiles"].is_enabled
+        if histogram_disabled and not mode_disabled:
+            errors.append("{}: The numeric stats must toggle on histogram "
+                          "and quantiles if mode is "
+                          "toggled on.".format(variable_path))
+
         # warn user if all stats are disabled
         if not errors:
             if not self.is_numeric_stats_enabled:
@@ -415,6 +458,8 @@ class IntOptions(NumericalOptions):
         :vartype min: BooleanOption
         :ivar max: boolean option to enable/disable max
         :vartype max: BooleanOption
+        :ivar mode: option to enable/disable mode and set return count
+        :vartype mode: ModeOption
         :ivar sum: boolean option to enable/disable sum
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
@@ -502,6 +547,8 @@ class FloatOptions(NumericalOptions):
         :vartype min: BooleanOption
         :ivar max: boolean option to enable/disable max
         :vartype max: BooleanOption
+        :ivar mode: option to enable/disable mode and set return count
+        :vartype mode: ModeOption
         :ivar sum: boolean option to enable/disable sum
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
@@ -557,6 +604,8 @@ class TextOptions(NumericalOptions):
         :vartype min: BooleanOption
         :ivar max: boolean option to enable/disable max
         :vartype max: BooleanOption
+        :ivar mode: option to enable/disable mode and set return count
+        :vartype mode: ModeOption
         :ivar sum: boolean option to enable/disable sum
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
@@ -623,7 +672,8 @@ class TextOptions(NumericalOptions):
         :return: true if any numeric stats property is enabled, otherwise false
         :rtype bool:
         """
-        if self.min.is_enabled or self.max.is_enabled or self.sum.is_enabled \
+        if self.min.is_enabled or self.max.is_enabled \
+                or self.sum.is_enabled or self.mode.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
                 or self.kurtosis.is_enabled \
                 or self.histogram_and_quantiles.is_enabled:
@@ -642,6 +692,7 @@ class TextOptions(NumericalOptions):
         """
         self.min.is_enabled = value
         self.max.is_enabled = value
+        self.mode.is_enabled = value
         self.sum.is_enabled = value
         self.variance.is_enabled = value
         self.skewness.is_enabled = value

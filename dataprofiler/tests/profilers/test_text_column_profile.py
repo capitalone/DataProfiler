@@ -185,6 +185,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         expected_profile = dict(
             min=1.0,
             max=4.0,
+            mode=[1],
             sum=20.0,
             mean=20.0 / 10.0,
             variance=14.0 / 9.0,
@@ -218,6 +219,11 @@ class TestTextColumnProfiler(unittest.TestCase):
             quantiles = profile.pop('quantiles')
             histogram = profile.pop('histogram')
             vocab = profile.pop('vocab')
+
+            # validate mode
+            expected_mode = expected_profile.pop('mode')
+            mode = profile.pop('mode')
+            np.testing.assert_array_almost_equal(expected_mode, mode, decimal=2)
 
             # key and value populated correctly
             self.assertDictEqual(expected_profile, profile)

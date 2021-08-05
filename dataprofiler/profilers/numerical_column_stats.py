@@ -52,6 +52,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                              "of type NumericalOptions.")
         self.min = None
         self.max = None
+        self._top_k_modes = 5 # By default, return at max 5 modes
         self.sum = 0
         self._biased_variance = np.nan
         self._biased_skewness = np.nan
@@ -68,6 +69,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.num_negatives = 0
         if options:
             self.bias_correction = options.bias_correction.is_enabled
+            self._top_k_modes = options.mode.top_k_modes
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
             if isinstance(bin_count_or_method, str):
@@ -248,6 +250,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if "num_negatives" in self.__calculations.keys():
             self.num_negatives = other1.num_negatives + other2.num_negatives
 
+        # Merge max k mode count
+        self._top_k_modes = max(other1._top_k_modes, other2._top_k_modes)
+
     def profile(self):
         """
         Property for profile. Returns the profile of the column.
@@ -256,6 +261,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         profile = dict(
             min=self.np_type_to_type(self.min),
             max=self.np_type_to_type(self.max),
+            mode=self.np_type_to_type(self.mode),
             sum=self.np_type_to_type(self.sum),
             mean=self.np_type_to_type(self.mean),
             variance=self.np_type_to_type(self.variance),
@@ -306,6 +312,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if self.match_count == 0:
             return 0
         return float(self.sum) / self.match_count
+
+    @property
+    def mode(self):
+        """
+        Finds an estimate for the mode(s) of the data.
+
+        :return: the mode(s) of the data
+        :rtype: list(float)
+        """
+        return self._estimate_mode_from_histogram()
 
     @property
     def variance(self):
@@ -573,6 +589,40 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                    (match_count - 3)) * ((match_count + 1) *
                    (biased_kurtosis + 3) - 3 * (match_count - 1))
         return kurtosis
+
+    def _estimate_mode_from_histogram(self):
+        """
+        Estimates the mode of the current data using the
+        histogram. If there are multiple modes, returns
+        K of them (where K is defined in options given, but
+        5 by default)
+
+        :return: The estimated mode of the histogram
+        :rtype: list(float)
+        """
+        if not self._has_histogram:
+            return np.nan
+
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
+
+        # Get the K bin(s) with the highest frequency (one-pass):
+        cur_max = -1
+        highest_idxs = []
+        count = 0
+        for i in range(0, len(bin_counts)):
+            if bin_counts[i] > cur_max:
+                # If a new maximum frequency is found, reset the mode counts
+                highest_idxs = [i]
+                cur_max = bin_counts[i]
+                count = 1
+            elif bin_counts[i] == cur_max and count < self._top_k_modes:
+                highest_idxs.append(i)
+                count += 1
+        highest_idxs = np.array(highest_idxs)
+
+        mode = (bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]) / 2
+        return mode.tolist()
 
     def _estimate_stats_from_histogram(self):
         # test estimated mean and var

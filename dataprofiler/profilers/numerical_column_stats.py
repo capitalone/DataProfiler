@@ -924,6 +924,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: List of corresponding values for which the percentage of values
             in the distribution fall before each percentage
         """
+        percentiles = np.array(percentiles)
         bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
 
@@ -945,10 +946,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         cumsum_bin_counts = np.append([0], cumsum_bin_counts)
 
         quantiles = np.interp(percentiles / 100,
-                              cumsum_bin_counts, bin_edges).tolist()
+                              cumsum_bin_counts, bin_edges)
         if median_value:
-            quantiles[499] = median_value
-        return quantiles
+            quantiles[percentiles == 50] = median_value
+        return quantiles.tolist()
 
     def _get_quantiles(self):
         """

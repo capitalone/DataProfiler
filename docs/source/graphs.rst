@@ -78,7 +78,7 @@ Examples
     graphs.plot_histograms(profiler, columns)
 
 
-2. This example demonstrates how we can plot a low level profiler..
+2. This example demonstrates how we can plot a low level profiler.
 
 .. code-block:: python
 

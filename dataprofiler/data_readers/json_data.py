@@ -244,13 +244,8 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type input_file_path: str
         :return:
         """
-        self._file_encoding = None
-        if not isinstance(input_file_path, StringIO):
-            self._file_encoding = \
-                data_utils.detect_file_encoding(input_file_path)
-                
         with FileOrBufferHandler(input_file_path, 'r', 
-                                    encoding=self.file_encoding)  as input_file:
+                                 encoding=self.file_encoding) as input_file:
             try:
                 data = json.load(input_file)
             except (json.JSONDecodeError, UnicodeDecodeError):

@@ -57,6 +57,11 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
             self._load_data(data)
 
     @property
+    def file_encoding(self):
+        """Set file encoding to None since not detected for avro."""
+        return None
+
+    @property
     def selected_columns(self):
         return self._selected_columns
 

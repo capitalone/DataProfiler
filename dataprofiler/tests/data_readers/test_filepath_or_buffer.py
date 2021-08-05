@@ -49,10 +49,10 @@ class TestFilepathOrBuffer(unittest.TestCase):
         to open()
         """
         for input_file in self.input_file_names:
-            with FileOrBufferHandler(StringIO(
-                    open(input_file['path'], 'r').read())) as \
-                    filepath_or_buffer, open(input_file['path'], 'r') as \
-                    input_file_check:
+            with open(input_file['path'], 'r') as fp:
+                stream = StringIO(fp.read())
+            with FileOrBufferHandler(stream) as filepath_or_buffer, \
+                    open(input_file['path'], 'r') as input_file_check:
 
                 # check first 100 lines
                 for i in range(0, 100):
@@ -65,11 +65,11 @@ class TestFilepathOrBuffer(unittest.TestCase):
         similarly to open() with seek
         """
         for input_file in self.input_file_names:
-            print(input_file)
             seek_offset_test = 100
-            with FileOrBufferHandler(StringIO(
-                    open(input_file['path'], 'rb').read().decode()),
-                    seek_offset=seek_offset_test) as filepath_or_buffer, \
+            with open(input_file['path'], 'rb') as fp:
+                stream = StringIO(fp.read().decode())
+            with FileOrBufferHandler(stream, seek_offset=seek_offset_test) \
+                    as filepath_or_buffer, \
                     open(input_file['path'], 'rb') as input_file_check:
 
                 input_file_check.seek(seek_offset_test)
@@ -85,9 +85,9 @@ class TestFilepathOrBuffer(unittest.TestCase):
         to open()
         """
         for input_file in self.input_file_names:
-            with FileOrBufferHandler(BytesIO(
-                    open(input_file['path'], 'rb').read())) as \
-                    filepath_or_buffer, \
+            with open(input_file['path'], 'rb') as fp:
+                stream = BytesIO(fp.read())
+            with FileOrBufferHandler(stream) as filepath_or_buffer, \
                     TextIOWrapper(open(input_file['path'], 'rb')) as \
                     input_file_check:
 
@@ -103,9 +103,10 @@ class TestFilepathOrBuffer(unittest.TestCase):
         """
         for input_file in self.input_file_names:
             seek_offset_test = 500
-            with FileOrBufferHandler(BytesIO(
-                    open(input_file['path'], 'rb').read()),
-                    seek_offset=seek_offset_test) as filepath_or_buffer, \
+            with open(input_file['path'], 'rb') as fp:
+                stream = BytesIO(fp.read())
+            with FileOrBufferHandler(stream, seek_offset=seek_offset_test) \
+                    as filepath_or_buffer, \
                     TextIOWrapper(open(input_file['path'], 'rb')) as \
                     input_file_check:
 
@@ -123,7 +124,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
         """
         file_name = os.path.join(os.path.join(test_root_path, 'data'),
                                  'csv/iris-utf-16.csv')
-        file_encoding='utf-16'
+        file_encoding = 'utf-16'
         with FileOrBufferHandler(file_name, 'r', encoding=file_encoding) \
                 as filepath_or_buffer, \
                 open(file_name, 'r', encoding=file_encoding) \

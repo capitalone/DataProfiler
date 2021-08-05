@@ -618,8 +618,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             elif bin_counts[i] == cur_max and count < self._top_k_modes:
                 highest_idxs.append(i)
                 count += 1
-            if count == self._top_k_modes:
-                    break
         highest_idxs = np.array(highest_idxs)
 
         mode = (bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]) / 2

@@ -7,7 +7,7 @@ import numpy as np
 import seaborn as sns
 
 
-def plot_histograms(profiler, columns=None):
+def plot_histograms(profiler, columns=None, column_inds=None):
     """
     Take a input of StructuredProfiler class and a list of specified column
     names and then plots the histograms of those that are int or float
@@ -15,17 +15,34 @@ def plot_histograms(profiler, columns=None):
 
     :param profiler: StructuredProfiler variable
     :type profiler: StructuredProfiler
-    :param columns: list of column names to be plotted
-    :type columns: list
-    :return: returns fig
-    :rtype: fig
+    :param columns: List of column names to be plotted. Can only specify columns
+        or column_inds, but not both
+    :type columns: list[Union[int,str]]
+    :param column_inds: List of column indexes to be plotted
+    :type column_inds: list[int]
+    :return: returns the plot figure reference
+    :rtype: matplotlib.pyplot.Figure
     """
+    if columns and column_inds:
+        raise ValueError(
+            "Can only specify either `columns` or `column_inds` but not both "
+            "simultaneously")
+    elif (columns is not None
+            and not (isinstance(columns, list)
+                     and all(isinstance(x, (int, str)) for x in columns))):
+        raise ValueError("`columns` must be a list integers or strings matching"
+                         " the names of columns in the profiler.")
+    elif (column_inds is not None
+            and not (isinstance(column_inds, list)
+                     and all(isinstance(x, int) for x in column_inds))):
+        raise ValueError("`column_inds` must be a list of integers matching "
+                         "column indexes in the profiler")
 
-    # get all inds to graph, raise error if user specified doesn't exist (part 1)
-    inds_to_graph = []
-    if not columns:
+    # get all inds to graph, raise error if user specified doesn't exist
+    inds_to_graph = column_inds if column_inds else []
+    if not columns and not column_inds:
         inds_to_graph = list(range(len(profiler.profile)))
-    else:
+    elif not column_inds:
         for column in columns:
             col = column
             if isinstance(col, str):
@@ -34,8 +51,11 @@ def plot_histograms(profiler, columns=None):
                 raise ValueError("Column \"" + str(col) + "\" is not found as a "
                                                        "profiler column")
             inds_to_graph.extend(profiler._col_name_to_idx[col])
-        sorted(inds_to_graph)
-    # get all columns which are either int or float (part2)
+
+    # sort the column indexes to be in the same order as the original profiler.
+    sorted(inds_to_graph)
+
+    # get all columns which are of type [int, float]
     def is_index_graphable_column(ind_to_graph):
         """
         This function filters ind_to_graph by returning false if there is a
@@ -46,31 +66,33 @@ def plot_histograms(profiler, columns=None):
         if data_compiler.selected_data_type not in ['int', 'float']:
             return False
         return True
+
     inds_to_graph = list(filter(is_index_graphable_column, inds_to_graph))
 
     if not inds_to_graph:
         warnings.warn("No plots were constructed"
                       " because no int or float columns were found in columns")
         return
+
     # get proper tile format for graph
     n = len(inds_to_graph)
     cols = math.ceil(math.sqrt(n))
     rows = math.ceil(n / cols)
-    fig, axs = plt.subplots(rows, cols)  # this will need to be flattened into a list
-    # flatten axes for inputing graphs into the plot
-    if not isinstance(axs, (np.ndarray)):
+    fig, axs = plt.subplots(rows, cols)
+
+    # flatten axes for inputting graphs into the plot
+    if not isinstance(axs, np.ndarray):
         axs = np.array([axs])
     axs.flatten()
 
-    # graph the plots (part 3)
+    # graph the plots
     for col_ind, ax in zip(inds_to_graph, axs):
         col_profiler = profiler.profile[col_ind]
         data_compiler = col_profiler.profiles['data_type_profile']
         data_type = data_compiler.selected_data_type
         data_type_profiler = data_compiler._profiles[data_type]
-        plot_col_histogram(data_type_profiler, ax=ax,
-                           title=str(data_type_profiler.name))
-    plt.show()
+        plot_col_histogram(
+            data_type_profiler, ax=ax, title=str(data_type_profiler.name))
     return fig
 
 
@@ -89,13 +111,13 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
 
     histogram = data_type_profiler._get_best_histogram_for_profile()
     if histogram['bin_counts'] is None or histogram['bin_edges'] is None:
-        raise ValueError("The column profiler, " + str(
-            data_type_profiler.name) + ", provided had no data and "
-                                       "therefore could not be plotted.")
-    ax = sns.histplot(x=histogram['bin_edges'][:-1], bins=histogram['bin_edges'],
-                 weights=histogram['bin_counts'], ax=ax)
+        raise ValueError(
+            "The column profiler, " + str(data_type_profiler.name)
+            + ", had no data and therefore could not be plotted.")
+    ax = sns.histplot(
+        x=histogram['bin_edges'][:-1], bins=histogram['bin_edges'].tolist(),
+        weights=histogram['bin_counts'], ax=ax)
     if title is None:
         title = str(data_type_profiler.name)
     ax.set_title(title)
     return ax
-

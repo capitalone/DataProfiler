@@ -1555,16 +1555,19 @@ class StructuredProfiler(BaseProfiler):
         return _prepare_report(report, output_format, omit_keys)
 
     def _get_unique_row_ratio(self):
-        return 0 if self.total_samples in {0, None} \
-            else len(self.hashed_row_dict) / self.total_samples
+        if self.total_samples:
+            return len(self.hashed_row_dict) / self.total_samples
+        return 0
 
     def _get_row_is_null_ratio(self):
-        return 0 if self._min_col_samples_used in {0, None} \
-            else self.row_is_null_count / self._min_col_samples_used
+        if self._min_col_samples_used:
+            return self.row_is_null_count / self._min_col_samples_used
+        return 0
 
     def _get_row_has_null_ratio(self):
-        return 0 if self._min_col_samples_used in {0, None} \
-            else self.row_has_null_count / self._min_col_samples_used
+        if self._min_col_samples_used:
+            return self.row_has_null_count / self._min_col_samples_used
+        return 0
 
     def _get_duplicate_row_count(self):
         return self.total_samples - len(self.hashed_row_dict)

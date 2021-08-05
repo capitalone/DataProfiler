@@ -52,7 +52,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                              "of type NumericalOptions.")
         self.min = None
         self.max = None
-        self._top_k_modes = 5 # By default, return all modes
+        self._top_k_modes = 5 # By default, return at max 5 modes
         self.sum = 0
         self._biased_variance = np.nan
         self._biased_skewness = np.nan

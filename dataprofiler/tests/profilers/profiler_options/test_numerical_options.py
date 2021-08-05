@@ -66,6 +66,23 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         self.assertEqual([mode_error], options._validate_helper())
         options.set({"histogram_and_quantiles.is_enabled": True})
 
+        # Zero top_k_modes
+        options.set({
+            "mode.is_enabled": True,
+            "mode.top_k_modes": 0
+        })
+        mode_error = "{}.mode.top_k_modes must be either None" \
+                     " or a positive integer".format(optpth)
+        self.assertEqual([mode_error], options._validate_helper())
+        # Negative top_k_modes
+        options.set({
+            "mode.top_k_modes": -5
+        })
+        mode_error = "{}.mode.top_k_modes must be either None" \
+                     " or a positive integer".format(optpth)
+        self.assertEqual([mode_error], options._validate_helper())
+        options.set({"mode.top_k_modes": 5})
+
         # Disable Sum and Enable Variance
         options.set({"sum.is_enabled": False,
                      "variance.is_enabled": True,

@@ -148,10 +148,10 @@ class TestIntColumn(unittest.TestCase):
         self.assertListEqual([1], profiler.mode)
 
         # multiple modes
-        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4]).apply(str)
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]).apply(str)
         profiler = IntColumn(df.name)
         profiler.update(df)
-        np.testing.assert_array_almost_equal([1, 2, 3, 4], profiler.mode,
+        np.testing.assert_array_almost_equal([1, 2, 3, 4, 5], profiler.mode,
                                              decimal=2)
 
         # with different values
@@ -166,6 +166,39 @@ class TestIntColumn(unittest.TestCase):
         profiler.update(df)
         np.testing.assert_array_almost_equal([1, 2], profiler.mode,
                                              decimal=2)
+
+        # all unique values
+        df = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        # By default, returns 5 of the possible modes
+        np.testing.assert_array_almost_equal([1, 2, 3, 4, 5],
+                                             profiler.mode, decimal=2)
+
+    def test_top_k_modes(self):
+        # Default options
+        options = IntOptions()
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).apply(str)
+        profiler = IntColumn(df.name, options)
+        profiler.update(df)
+        self.assertEqual(5, len(profiler.mode))
+
+        # Test if top_k_modes is less than the number of modes
+        options = IntOptions()
+        options.mode.top_k_modes = 2
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).apply(str)
+        profiler = IntColumn(df.name, options)
+        profiler.update(df)
+        self.assertEqual(2, len(profiler.mode))
+
+        # Test if top_k_mode is greater than the number of modes
+        options = IntOptions()
+        options.mode.top_k_modes = 8
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).apply(str)
+        profiler = IntColumn(df.name, options)
+        profiler.update(df)
+        # Only 5 possible modes so return 5
+        self.assertEqual(5, len(profiler.mode))
 
     def test_profiled_mean_and_variance(self):
         """

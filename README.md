@@ -84,6 +84,7 @@ The format for a structured profile is below:
             "data_type_representation": [string, list(string)],
             "min": [null, float],
             "max": [null, float],
+            "mode": float,
             "sum": float,
             "mean": float,
             "variance": float,

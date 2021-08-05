@@ -6,11 +6,11 @@ from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options \
 class TestNumericalOptions(TestBaseInspectorOptions):
     
     option_class = NumericalOptions
-    keys = ["min", "max", "sum", "variance", "skewness",
+    keys = ["min", "max", "sum", "mode", "variance", "skewness",
             "kurtosis", "bias_correction",
             "num_zeros", "num_negatives",
             "histogram_and_quantiles"]
-    numeric_keys = ["min", "max", "sum", "variance",
+    numeric_keys = ["min", "max", "sum", "mode", "variance",
                     "skewness", "kurtosis",
                     "histogram_and_quantiles",
                     "num_zeros", "num_negatives"]
@@ -57,6 +57,32 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             self.assertIn(expected_error, options._validate_helper())
             options.set({skey: default_bool})
 
+        # Disable histogram, enable mode
+        options.set({"histogram_and_quantiles.is_enabled": False,
+                     "mode.is_enabled": True})
+        mode_error = "{}: The numeric stats must toggle on histogram " \
+                     "and quantiles if mode is " \
+                     "toggled on.".format(optpth)
+        self.assertEqual([mode_error], options._validate_helper())
+        options.set({"histogram_and_quantiles.is_enabled": True})
+
+        # Zero top_k_modes
+        options.set({
+            "mode.is_enabled": True,
+            "mode.top_k_modes": 0
+        })
+        mode_error = "{}.mode.top_k_modes must be either None" \
+                     " or a positive integer".format(optpth)
+        self.assertEqual([mode_error], options._validate_helper())
+        # Negative top_k_modes
+        options.set({
+            "mode.top_k_modes": -5
+        })
+        mode_error = "{}.mode.top_k_modes must be either None" \
+                     " or a positive integer".format(optpth)
+        self.assertEqual([mode_error], options._validate_helper())
+        options.set({"mode.top_k_modes": 5})
+
         # Disable Sum and Enable Variance
         options.set({"sum.is_enabled": False,
                      "variance.is_enabled": True,
@@ -97,7 +123,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         super().test_validate()
         options = self.get_options()
         optpth = self.get_options_path()
-        
+
         # Set BooleanOptions' is_enabled to a non-boolean value
         for key in self.keys:
             skey = '{}.is_enabled'.format(key)
@@ -109,6 +135,16 @@ class TestNumericalOptions(TestBaseInspectorOptions):
                 options.validate(raise_error=True)    
             self.assertIn(expected_error, options.validate(raise_error=False))
             options.set({skey: default_bool})
+        # Disable histogram, enable mode
+        options.set({"histogram_and_quantiles.is_enabled": False,
+                     "mode.is_enabled": True})
+        mode_error = "{}: The numeric stats must toggle on histogram " \
+                     "and quantiles if mode is " \
+                     "toggled on.".format(optpth)
+        with self.assertRaisesRegex(ValueError, mode_error):
+            options.validate(raise_error=True)
+        self.assertEqual([mode_error], options.validate(raise_error=False))
+        options.set({"histogram_and_quantiles.is_enabled": True})
 
         # Disable Sum and Enable Variance
         options.set({"sum.is_enabled": False,

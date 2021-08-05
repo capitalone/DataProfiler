@@ -1407,6 +1407,10 @@ class TestStructuredProfiler(unittest.TestCase):
         # Ensure no progress bar printed
         self.assertNotIn('#' * 10, mock_stderr.getvalue())
 
+    def test_unique_row_ratio_empty_profiler(self):
+        profiler = StructuredProfiler(pd.DataFrame([]))
+        self.assertEqual(0, profiler._get_unique_row_ratio())
+
 
 class TestStructuredColProfilerClass(unittest.TestCase):
 

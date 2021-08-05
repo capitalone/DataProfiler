@@ -612,6 +612,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         count = 0
         for i in range(0, len(bin_counts)):
             if bin_counts[i] > cur_max:
+                # If a new maximum frequency is found, reset the mode counts
                 highest_idxs = [i]
                 cur_max = bin_counts[i]
                 count = 1

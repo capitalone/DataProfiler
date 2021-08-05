@@ -20,7 +20,11 @@ What we need to import
 
     from dataprofiler.reports import graphs
 
-The main functions that is used to plot histograms are in graphs. **You will also need the** "`dataprofiler[reports]`" **requirements to be installed**
+The main functions that is used to plot histograms are in graphs. **You will also need the `dataprofiler[reports]` requirement to be installed**:
+
+.. code-block:: console
+
+    pip install 'dataprofiler[reports]'
 
 Plotting from a StructuredProfiler class
 ~~~~~~~~~~~
@@ -84,5 +88,5 @@ Examples
     profiler.update(data)
 
     # We will plot profiler
-    graphs.plot_col_histogram(self.profiler)
+    graphs.plot_col_histogram(profiler)
 

@@ -73,15 +73,21 @@ Examples
     # This will plot all IntColumn and FloatColumn as histograms (The first and last column).
     graphs.plot_histograms(profiler)
 
+.. image:: docs/source/graph_0.png
+    :alt: First Example Image
+
+.. code-block:: python
+
     # This will only plot the specified column, 0.
     columns = [0]
     graphs.plot_histograms(profiler, columns)
 
+.. image:: docs/source/graph_1.png
+    :alt: Second Example Image
 
 2. This example demonstrates how we can plot a low level profiler.
 
 .. code-block:: python
-
 
     data = pd.Series([1, 2, 3], dtype=str)
     profiler = IntColumn('example')
@@ -90,3 +96,5 @@ Examples
     # We will plot profiler
     graphs.plot_col_histogram(profiler)
 
+.. image:: docs/source/graph_2.png
+    :alt: Third Example Image

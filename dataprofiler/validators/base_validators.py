@@ -24,6 +24,7 @@ def is_in_range(x, config):
     except:
         raise TypeError("Value is not a float")
 
+
 def is_in_list(x, config):
     """
     Checks to see x is in the config list.
@@ -53,7 +54,8 @@ class Validator():
         you have the option to run multiple times with different configurations
         without having to also reinstantiate the class.
 
-        :param data: The data to be processed by the validator. Processing occurs in a column-wise fashion.
+        :param data: The data to be processed by the validator. Processing
+                occurs in a column-wise fashion.
         :type data: DataFrame Dask/Pandas
         :param config: configuration for how the validator should
                 run across the given data. Validator will only run over columns
@@ -81,7 +83,8 @@ class Validator():
         for iter_key, value in known_anomaly_validation.items():
             if len(value) < 1:
                 raise Warning(
-                    f"Pass at a minimum one value for a specified column (i.e. iter_key variable) -- not both for {iter_key}")
+                    f"Pass at a minimum one value for a specified column "
+                    f"(i.e. iter_key variable) -- not both for {iter_key}")
 
         self.config = config
 
@@ -104,9 +107,11 @@ class Validator():
                         meta=(iter_key, 'bool'),
                         args=(sub_value,))
                     temp_results = temp_results.compute()
-                    # Dask evaluates this to be an nd array so we have to convert it to a normal list
+                    # Dask evaluates this to be an nd array so we have to
+                    # convert it to a normal list
                     self.validation_report[iter_key][sub_key] = [
-                        idx for idx, val in enumerate(temp_results.values.tolist()) if val
+                        idx for idx, val
+                        in enumerate(temp_results.values.tolist()) if val
                     ]
                 elif df_type == 'pandas':
                     temp_results = df_series.apply(
@@ -118,7 +123,8 @@ class Validator():
                     ]
                 else:
                     raise ValueError(
-                        'Dask and Pandas are the only supported dataframe types.')
+                        'Dask and Pandas are the only supported dataframe '
+                        'types.')
                 del temp_results
         self.validation_run = True
 
@@ -131,4 +137,5 @@ class Validator():
 
         else:
             raise Warning(
-                "Precondition for get method not met. Must validate data prior to getting results.")
+                "Precondition for get method not met. Must validate data prior "
+                "to getting results.")

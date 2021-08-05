@@ -507,14 +507,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         """
         Loads the data into memory from the file.
         """
-        
-        self._file_encoding = None
-        if not isinstance(input_file_path, StringIO):
-            self._file_encoding = \
-                data_utils.detect_file_encoding(input_file_path)
 
-        data_as_str = data_utils.load_as_str_from_file(input_file_path,
-                                                       self._file_encoding)
+        data_as_str = data_utils.load_as_str_from_file(
+            input_file_path, self.file_encoding)
 
         if not self._delimiter or not self._checked_header:
             delimiter, quotechar = None, None
@@ -581,15 +576,16 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if options is None:
             options = dict()
 
-        file_encoding = None
-        if not isinstance(file_path, StringIO):
-            file_encoding = data_utils.detect_file_encoding(file_path=file_path)
+        if 'encoding' not in options and not isinstance(file_path, StringIO):
+            options['encoding'] = data_utils.detect_file_encoding(
+                file_path=file_path)
 
         delimiter = options.get("delimiter", None)
         quotechar = options.get("quotechar", None)
         header = options.get("header", 'auto')
 
-        data_as_str = data_utils.load_as_str_from_file(file_path, file_encoding)
+        data_as_str = data_utils.load_as_str_from_file(
+            file_path, options.get('encoding'))
         
         if not delimiter or header == 'auto':
             

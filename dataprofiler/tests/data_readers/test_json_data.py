@@ -210,7 +210,6 @@ class TestJSONDataClass(unittest.TestCase):
         self.assertEqual(3, len(complex.metadata.columns))
         self.assertEqual("Frodo", complex.data_and_metadata["meta.creator"][0])
 
-
     def test_list_of_dictionaries_in_flattened_dataframe_format(self):
         test_dir = os.path.join(test_root_path, 'data')
         input_file_name = os.path.join(test_dir, 'json/iris-utf-8.json')

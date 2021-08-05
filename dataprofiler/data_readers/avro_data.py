@@ -38,6 +38,11 @@ class AVROData(JSONData, BaseData):
         """
         JSONData.__init__(self, input_file_path, data, options)
 
+    @property
+    def file_encoding(self):
+        """Set file encoding to None since not detected for avro."""
+        return None
+
     def _load_data_from_file(self, input_file_path):
         with FileOrBufferHandler(input_file_path, "rb") as input_file:
             # Currently, string reading with 'r' option has the unicode issue,

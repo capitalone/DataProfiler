@@ -1,9 +1,12 @@
 import sys
+import locale
 from collections import OrderedDict
 import numpy as np
 import pandas as pd
+from io import StringIO
 
 from .. import dp_logging
+from . import data_utils
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -29,6 +32,9 @@ class BaseData(object):
         :type options: dict
         :return: None
         """
+        if options is None:
+            options = {}
+
         # Public properties
         self.input_file_path = input_file_path
         self.options = options
@@ -44,12 +50,13 @@ class BaseData(object):
         #               iteration/permutation are necessary to be held to keep
         #               constant across function calls.
         #  _tmp_file_name: randomly set variables for file name usable by system
+        #  _file_encoding: contains the suggested file encoding for reading data
         self._data_formats = OrderedDict()
         self._selected_data_format = None
         self._data = data
         self._batch_info = dict(perm=list(), iter=0)
         self._tmp_file_name = None
-        self._file_encoding = None
+        self._file_encoding = options.get('encoding', None)
 
     @property
     def data(self):
@@ -93,7 +100,22 @@ class BaseData(object):
     @property
     def file_encoding(self):
         if not self._file_encoding:
-            return sys.getdefaultencoding()
+            # get system default, but if set to ascii, just update to utf-8
+            file_encoding = "utf-8"
+            try:
+                file_encoding = locale.getpreferredencoding(False)
+            except:
+                file_encoding = sys.getfilesystemencoding()
+            finally:
+                if file_encoding.lower() in ['ansi_x3.4-1968', 'ascii']:
+                    file_encoding = 'utf-8'
+            self._file_encoding = file_encoding
+
+            # set to default, detect if not StringIO
+            if self.input_file_path \
+                    and not isinstance(self.input_file_path, StringIO):
+                self._file_encoding = data_utils.detect_file_encoding(
+                    self.input_file_path)
         return self._file_encoding
 
     @file_encoding.setter
@@ -103,8 +125,8 @@ class BaseData(object):
         ]
         if not value or value.lower() not in valid_user_set_encodings:
             raise ValueError(
-                "File Encoding must be one of the following: {}".
-                    format(valid_user_set_encodings)
+                "File Encoding must be one of the following: {}"
+                .format(valid_user_set_encodings)
              )
         self._file_encoding = value
 
@@ -201,4 +223,3 @@ class BaseData(object):
                                      f"'{data_class_name}' objects have "
                                      f"attribute '{name}'")
         return returned
-

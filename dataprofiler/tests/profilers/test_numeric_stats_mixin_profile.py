@@ -402,6 +402,19 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         assert best_histogram == "hist_1"
 
+    def test_get_percentile_median(self):
+        num_profiler = TestColumn()
+        # Dummy data for calculating bin error
+        num_profiler._stored_histogram = {
+            "histogram": {
+                "bin_counts": np.array([  1,   2,   0,    2,    1]),
+                "bin_edges": np.array([0.0, 4.0, 8.0, 12.0, 16.0, 20.0])
+            }
+        }
+        median = NumericStatsMixin._get_percentile(num_profiler,
+                                                   percentiles=[50, 50])
+        self.assertListEqual([10, 10], median)
+
     def test_num_zeros(self):
         num_profiler = TestColumn()
 

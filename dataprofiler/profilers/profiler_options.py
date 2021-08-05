@@ -237,7 +237,7 @@ class ModeOption(BooleanOption):
         if self.top_k_modes is not None and (
                 not isinstance(self.top_k_modes, int)
                 or self.top_k_modes < 1):
-            errors.append("{}.count must be either None"
+            errors.append("{}.top_k_modes must be either None"
                           " or a positive integer".format(variable_path))
         return errors
 

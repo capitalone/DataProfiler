@@ -1116,7 +1116,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         # continue through the remaining parts if there is any
         while id <= len(bin_counts_long) - 1 and cumsum_count < 0.5:
-            if bin_edges_long[id] < bin_edges_short[id]:
+            if id <= len(bin_counts_short) and \
+                    bin_edges_long[id] < bin_edges_short[id]:
                 # first sub-bin up to the ahead bin
                 edge_cur, edge_prev = bin_edges_short[id], bin_edges_long[id]
                 cumsum_count_prev = cumsum_count
@@ -1136,7 +1137,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             else:
                 cumsum_count_prev = cumsum_count
                 cumsum_count += bin_counts_pos[id]
-                id += 1
+            id += 1
 
         return np.interp(0.5, [cumsum_count_prev, cumsum_count],
                          [bin_counts_long[id - 1], bin_counts_long[id]])

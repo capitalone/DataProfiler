@@ -98,10 +98,9 @@ def plot_histograms(profiler, columns=None, column_inds=None):
         ax.set(xlabel=None)
         ax.set(ylabel=None)
 
-    fig.text(0.5, 0.01, "bins", ha="center",
-             va="center")
-    fig.text(0.01, 0.5, "Count", ha="center", va="center",
-             rotation=90)
+    # add figure x/ylabel and formatting
+    fig.text(0.5, 0.01, "bins", ha="center", va="center")
+    fig.text(0.01, 0.5, "Count", ha="center", va="center", rotation=90)
     fig.tight_layout()
     return fig
 

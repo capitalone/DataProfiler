@@ -99,7 +99,9 @@ class StructuredColProfiler(object):
             clean_sampled_df, base_stats = \
                 self.clean_data_and_get_base_stats(
                     df_series=df_series, sample_size=sample_size,
-                    min_true_samples=self._min_true_samples, sample_ids=sample_ids)
+                    null_values=self._null_values,
+                    min_true_samples=self._min_true_samples,
+                    sample_ids=sample_ids)
             self.update_column_profilers(clean_sampled_df, pool)
             self._update_base_stats(base_stats)
 
@@ -382,6 +384,7 @@ class StructuredColProfiler(object):
         clean_sampled_df, base_stats = \
             self.clean_data_and_get_base_stats(
                 df_series=df_series, sample_size=sample_size,
+                null_values=self._null_values,
                 min_true_samples=min_true_samples, sample_ids=sample_ids)
 
         self._update_base_stats(base_stats)
@@ -403,8 +406,8 @@ class StructuredColProfiler(object):
 
     # TODO: flag column name with null values and potentially return row
     #  index number in the error as well
-
-    def clean_data_and_get_base_stats(self, df_series, sample_size,
+    @staticmethod
+    def clean_data_and_get_base_stats(df_series, sample_size, null_values=None,
                                       min_true_samples=None,
                                       sample_ids=None):
         """
@@ -415,6 +418,10 @@ class StructuredColProfiler(object):
         :type df_series: pandas.core.series.Series
         :param sample_size: Number of samples to use in generating the profile
         :type sample_size: int
+        :param null_values: Dictionary mapping null values to regex flag where
+            the key represents the null value to remove from the data and the
+            flag represents the regex flag to apply
+        :type null_values: dict[str, re.FLAG]
         :param min_true_samples: Minimum number of samples required for the
             profiler
         :type min_true_samples: int
@@ -427,6 +434,9 @@ class StructuredColProfiler(object):
 
         if min_true_samples is None:
             min_true_samples = 0
+
+        if null_values is None:
+            null_values = dict()
 
         len_df = len(df_series)
         if not len_df:
@@ -467,7 +477,7 @@ class StructuredColProfiler(object):
         na_columns = dict()
         true_sample_list = set()
         total_sample_size = 0
-        query = '|'.join(self._null_values.keys())
+        query = '|'.join(null_values.keys())
         regex = f"^(?:{(query)})$"
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
@@ -1959,9 +1969,10 @@ class StructuredProfiler(BaseProfiler):
                 if min_true_samples is None:
                     min_true_samples = self._profile[prof_idx]._min_true_samples
                 try:
+                    null_values = self._profile[prof_idx]._null_values
                     multi_process_dict[col_idx] = pool.apply_async(
                         self._profile[prof_idx].clean_data_and_get_base_stats,
-                        (col_ser, sample_size, min_true_samples,
+                        (col_ser, sample_size, null_values, min_true_samples,
                          sample_ids))
                 except Exception as e:
                     logger.info(e)
@@ -1989,9 +2000,10 @@ class StructuredProfiler(BaseProfiler):
                     if min_true_samples is None:
                         min_true_samples = \
                             self._profile[prof_idx]._min_true_samples
+                    null_values = self._profile[prof_idx]._null_values
                     clean_sampled_dict[prof_idx], base_stats = \
                         self._profile[prof_idx].clean_data_and_get_base_stats(
-                            col_ser, sample_size,
+                            col_ser, sample_size, null_values,
                             min_true_samples, sample_ids)
                     self._profile[prof_idx]._update_base_stats(base_stats)
 
@@ -2005,9 +2017,11 @@ class StructuredProfiler(BaseProfiler):
                 prof_idx = col_idx_to_prof_idx[col_idx]
                 if min_true_samples is None:
                     min_true_samples = self._profile[prof_idx]._min_true_samples
+                null_values = self._profile[prof_idx]._null_values
                 clean_sampled_dict[prof_idx], base_stats = \
                     self._profile[prof_idx].clean_data_and_get_base_stats(
                         df_series=col_ser, sample_size=sample_size,
+                        null_values=null_values,
                         min_true_samples=min_true_samples,
                         sample_ids=sample_ids
                     )
@@ -2037,7 +2051,8 @@ class StructuredProfiler(BaseProfiler):
             samples_for_row_stats = np.concatenate(sample_ids)
 
         if self.options.correlation.is_enabled:
-            self._update_correlation(clean_sampled_dict, corr_prev_dependent_properties)
+            self._update_correlation(clean_sampled_dict,
+                                     corr_prev_dependent_properties)
         self._update_row_statistics(data, samples_for_row_stats)
 
     def save(self, filepath=None):

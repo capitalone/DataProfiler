@@ -63,6 +63,7 @@ Examples
 .. code-block:: python
 
     import dataprofiler as dp
+    from dataprofiler.reports import graphs
 
     data = [[1, 'a', 1.0],
             [2, 'b', 2.2],
@@ -73,21 +74,22 @@ Examples
     # This will plot all IntColumn and FloatColumn as histograms (The first and last column).
     graphs.plot_histograms(profiler)
 
-.. image:: docs/source/graph_0.png
-    :alt: First Example Image
-
-.. code-block:: python
-
     # This will only plot the specified column, 0.
     columns = [0]
     graphs.plot_histograms(profiler, columns)
 
-.. image:: docs/source/graph_1.png
+.. image:: docs/source/_static/images/graph_0.svg
+    :alt: First Example Image
+
+.. image:: docs/source/_static/images/graph_1.svg
     :alt: Second Example Image
 
 2. This example demonstrates how we can plot a low level profiler.
 
 .. code-block:: python
+
+    import dataprofiler as dp
+    from dataprofiler.reports import graphs
 
     data = pd.Series([1, 2, 3], dtype=str)
     profiler = IntColumn('example')
@@ -96,5 +98,5 @@ Examples
     # We will plot profiler
     graphs.plot_col_histogram(profiler)
 
-.. image:: docs/source/graph_2.png
+.. image:: docs/source/_static/images/graph_2.svg
     :alt: Third Example Image

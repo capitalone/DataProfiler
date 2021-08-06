@@ -24,6 +24,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.match_count, 0)
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
+        self.assertTrue(profiler.mode is np.nan)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
         self.assertTrue(profiler.variance is np.nan)
@@ -138,6 +139,77 @@ class TestIntColumn(unittest.TestCase):
         profiler = IntColumn(df.name)
         profiler.update(df)
         self.assertEqual(profiler.max, 0)
+
+    def test_profiled_mode(self):
+        # same values
+        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        self.assertListEqual([1], profiler.mode)
+
+        # multiple modes
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        np.testing.assert_array_almost_equal([1, 2, 3, 4, 5], profiler.mode,
+                                             decimal=2)
+
+        # with different values
+        df = pd.Series([1, 1, 1, 1, 2]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        np.testing.assert_array_almost_equal([1], profiler.mode, decimal=2)
+
+        # with negative values
+        df = pd.Series([-1, 1, 1, 1, 2, 2, 2])
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        np.testing.assert_array_almost_equal([1, 2], profiler.mode,
+                                             decimal=2)
+
+        # all unique values
+        df = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        # By default, returns 5 of the possible modes
+        np.testing.assert_array_almost_equal([1, 2, 3, 4, 5],
+                                             profiler.mode, decimal=2)
+
+        # Edge case where mode appears later in the dataset
+        df = pd.Series([1, 2, 3, 4, 5, 6, 6]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        np.testing.assert_array_almost_equal([6], profiler.mode, decimal=2)
+
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        np.testing.assert_array_almost_equal([7], profiler.mode, decimal=2)
+
+    def test_top_k_modes(self):
+        # Default options
+        options = IntOptions()
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).apply(str)
+        profiler = IntColumn(df.name, options)
+        profiler.update(df)
+        self.assertEqual(5, len(profiler.mode))
+
+        # Test if top_k_modes is less than the number of modes
+        options = IntOptions()
+        options.mode.top_k_modes = 2
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).apply(str)
+        profiler = IntColumn(df.name, options)
+        profiler.update(df)
+        self.assertEqual(2, len(profiler.mode))
+
+        # Test if top_k_mode is greater than the number of modes
+        options = IntOptions()
+        options.mode.top_k_modes = 8
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5]).apply(str)
+        profiler = IntColumn(df.name, options)
+        profiler.update(df)
+        # Only 5 possible modes so return 5
+        self.assertEqual(5, len(profiler.mode))
 
     def test_profiled_mean_and_variance(self):
         """
@@ -395,6 +467,7 @@ class TestIntColumn(unittest.TestCase):
         expected_profile = dict(
             min=2.0,
             max=6.0,
+            mode=[2, 6],
             sum=8.0,
             mean=4.0,
             variance=8.0,
@@ -428,6 +501,12 @@ class TestIntColumn(unittest.TestCase):
 
             # Validate the time in the datetime class has the expected time.
             profile = profiler.profile
+
+            # Validate mode
+            mode = profile.pop('mode')
+            expected_mode = expected_profile.pop('mode')
+            np.testing.assert_array_almost_equal(mode, expected_mode, decimal=2)
+
             # pop out the histogram and quartiles to test separately from the
             # rest of the dict as we need comparison with some precision
             histogram = profile.pop('histogram')
@@ -465,7 +544,7 @@ class TestIntColumn(unittest.TestCase):
                 float, {'min': 2.0, 'max': 2.0, 'sum': 2.0, 'variance': 2.0,
                         'skewness': 2.0, 'kurtosis': 2.0,
                         'histogram_and_quantiles': 2.0, 'num_negatives': 2.0,
-                        'num_zeros': 2.0,})
+                        'num_zeros': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
 
     def test_option_timing(self):
@@ -486,18 +565,18 @@ class TestIntColumn(unittest.TestCase):
             # Validate the time in the datetime class has the expected time.
             profile = profiler.profile
 
-            expected = defaultdict(float, {'max': 1.0, 'sum': 1.0, 'variance': 1.0,
-                                           'skewness': 1.0, 'kurtosis': 1.0,
-                                           'num_zeros': 1.0,
+            expected = defaultdict(float, {'max': 1.0, 'sum': 1.0,
+                                           'variance': 1.0, 'skewness': 1.0,
+                                           'kurtosis': 1.0, 'num_zeros': 1.0,
                                            'num_negatives': 1.0,
                                            'histogram_and_quantiles': 1.0})
             self.assertCountEqual(expected, profile['times'])
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)
-            expected = defaultdict(float, {'max': 2.0, 'sum': 2.0, 'variance': 2.0,
-                                           'skewness': 2.0, 'kurtosis': 2.0,
-                                           'num_zeros': 2.0,
+            expected = defaultdict(float, {'max': 2.0, 'sum': 2.0,
+                                           'variance': 2.0, 'skewness': 2.0,
+                                           'kurtosis': 2.0, 'num_zeros': 2.0,
                                            'num_negatives': 2.0,
                                            'histogram_and_quantiles': 2.0})
             self.assertCountEqual(expected, profiler.profile['times'])

@@ -132,6 +132,7 @@ def clean_report(report):
             if "bin_edges" in stats["histogram"]:
                 stats["histogram"]["bin_edges"] = \
                     stats["histogram"]["bin_edges"].tolist()
+
     return report
 
 

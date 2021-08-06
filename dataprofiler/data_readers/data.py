@@ -22,7 +22,8 @@ class Data(object):
         dict(data_class=TextData, kwargs=dict()),
     ]
 
-    def __new__(cls, input_file_path=None, data=None, data_type=None, options=None):
+    def __new__(cls, input_file_path=None, data=None, data_type=None,
+                options=None):
         """
         Factory Data class. Auto-detection of data type if not specified for
         input files. Returns the proper data class or specified data class for

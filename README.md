@@ -14,7 +14,7 @@ Getting started only takes a few lines of code ([example csv](https://raw.github
 import json
 from dataprofiler import Data, Profiler
 
-data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, Text
+data = Data("your_file.csv") # Auto-Detect & Load: CSV, AVRO, Parquet, JSON, Text, URL
 
 print(data.data.head(5)) # Access data directly via a compatible Pandas DataFrame
 
@@ -84,6 +84,7 @@ The format for a structured profile is below:
             "data_type_representation": [string, list(string)],
             "min": [null, float],
             "max": [null, float],
+            "mode": float,
             "sum": float,
             "mean": float,
             "variance": float,
@@ -169,6 +170,7 @@ The format for an unstructured profile is below:
 * Parquet file
 * Text file
 * Pandas DataFrame
+* A URL that points to one of the supported file types above
 
 ### Data Types
 
@@ -219,6 +221,7 @@ The Data Profiler can profile the following data/file types:
 * Parquet file
 * Text file
 * Pandas DataFrame
+* A URL that points to one of the supported file types above
 
 The profiler should automatically identify the file type and load the data into a `Data Class`.
 
@@ -239,6 +242,9 @@ parquet_data.data.sort_values(by='name', inplace=True)
 
 # Print the sorted first 10 rows of the parquet data
 print(parquet_data.data.head(10))
+
+# Load a json file from a URL, return a JSONData object
+json_data = Data('https://github.com/capitalone/DataProfiler/blob/main/dataprofiler/tests/data/json/iris-utf-8.json')
 ```
 
 If the file type is not automatically identified (rare), you can specify them 

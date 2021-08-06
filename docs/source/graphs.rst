@@ -89,6 +89,7 @@ Examples
 .. code-block:: python
 
     import dataprofiler as dp
+    from dataprofiler.profilers import IntColumn
     from dataprofiler.reports import graphs
 
     data = pd.Series([1, 2, 3], dtype=str)

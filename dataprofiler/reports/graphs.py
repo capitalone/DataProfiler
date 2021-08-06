@@ -91,8 +91,18 @@ def plot_histograms(profiler, columns=None, column_inds=None):
         data_compiler = col_profiler.profiles['data_type_profile']
         data_type = data_compiler.selected_data_type
         data_type_profiler = data_compiler._profiles[data_type]
-        plot_col_histogram(
+        ax = plot_col_histogram(
             data_type_profiler, ax=ax, title=str(data_type_profiler.name))
+
+        # remove x/ylabel on subplots
+        ax.set(xlabel=None)
+        ax.set(ylabel=None)
+
+    fig.text(0.5, 0.01, "bins", ha="center",
+             va="center")
+    fig.text(0.01, 0.5, "Count", ha="center", va="center",
+             rotation=90)
+    fig.tight_layout()
     return fig
 
 

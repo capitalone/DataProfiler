@@ -999,6 +999,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             normalized_bin_counts[:id_zero - 1][::-1])
         bin_edges_neg = np.append([0], -bin_edges[:id_zero][::-1])
 
+        for i in range(min(len(bin_counts_pos), 1000)):
+            print(i, (bin_edges_pos[i], bin_edges_pos[i+1]), bin_counts_pos[i])
+        for i in range(min(len(bin_counts_neg), 1000)):
+            print(i, (bin_edges_neg[i], bin_edges_neg[i + 1]), bin_counts_neg[i])
+
         # iterate through two histograms until getting the points
         # with cumsum counts as 0.5
         edge_prev, edge_cur = 0, 0
@@ -1162,12 +1167,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_counts_short, bin_edges_short = bin_counts_neg, bin_edges_neg
         if len(bin_counts_pos) < len(bin_counts_neg):
             bin_counts_long, bin_edges_long = bin_counts_neg, bin_edges_neg
-            bin_counts_short, bin_edges_short = bin_counts_neg, bin_edges_neg
+            bin_counts_short, bin_edges_short = bin_counts_pos, bin_edges_pos
 
-        for i in range(min(len(bin_counts_long), 1000)):
-            print(i, (bin_edges_long[i], bin_edges_long[i+1]), bin_counts_long[i])
-        for i in range(min(len(bin_counts_short), 1000)):
-            print(i, (bin_edges_short[i], bin_edges_short[i + 1]), bin_counts_short[i])
         # iterate through two histograms until getting the points
         # with cumsum counts as 0.5
         cumsum_count, cumsum_count_prev = 0, 0
@@ -1176,8 +1177,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         while id <= len(bin_counts_short) - 1 and cumsum_count < 0.5:
             cumsum_count_prev = cumsum_count
             cumsum_count += bin_counts_long[id] + bin_counts_short[id]
-            print(id, (bin_edges_long[i], bin_edges_long[i+1]), bin_counts_long[id],
-                  (bin_edges_short[i], bin_edges_short[i + 1]), bin_counts_short[id])
             id += 1
 
         # if cumsum count passes 0.5 in the middle, interpolate the median value

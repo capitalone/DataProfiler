@@ -61,7 +61,8 @@ class TestNumericalOptions(TestBaseInspectorOptions):
 
         # Disable histogram, enable mode
         options.set({"histogram_and_quantiles.is_enabled": False,
-                     "mode.is_enabled": True})
+                     "mode.is_enabled": True,
+                     "median_absolute_deviation.is_enabled": False})
         mode_error = "{}: The numeric stats must toggle on histogram " \
                      "and quantiles if mode is " \
                      "toggled on.".format(optpth)
@@ -117,7 +118,8 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         # Disable Histogram, Enable Median Absolute Deviation
         options = self.get_options()
         options.set({"histogram_and_quantiles.is_enabled": False,
-                     "median_absolute_deviation.is_enabled": True})
+                     "median_absolute_deviation.is_enabled": True,
+                     "mode.is_enabled": False})
         mad_error = "{}: The numeric stats must toggle on histogram " \
                         "and quantiles if median absolute deviation is " \
                         "toggled on.".format(optpth)
@@ -149,7 +151,8 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             options.set({skey: default_bool})
         # Disable histogram, enable mode
         options.set({"histogram_and_quantiles.is_enabled": False,
-                     "mode.is_enabled": True})
+                     "mode.is_enabled": True,
+                     "median_absolute_deviation.is_enabled": False})
         mode_error = "{}: The numeric stats must toggle on histogram " \
                      "and quantiles if mode is " \
                      "toggled on.".format(optpth)
@@ -196,7 +199,8 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         # Disable Histogram, Enable Median Absolute Deviation
         options = self.get_options()
         options.set({"histogram_and_quantiles.is_enabled": False,
-                     "median_absolute_deviation.is_enabled": True})
+                     "median_absolute_deviation.is_enabled": True,
+                     "mode.is_enabled": False})
         mad_error = "{}: The numeric stats must toggle on histogram " \
                         "and quantiles if median absolute deviation is " \
                         "toggled on.".format(optpth)

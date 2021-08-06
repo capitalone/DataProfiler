@@ -127,6 +127,7 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
     ax = sns.histplot(
         x=histogram['bin_edges'][:-1], bins=histogram['bin_edges'].tolist(),
         weights=histogram['bin_counts'], ax=ax)
+    ax.set(xlabel='bins')
     if title is None:
         title = str(data_type_profiler.name)
     ax.set_title(title)

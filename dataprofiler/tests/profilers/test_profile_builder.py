@@ -1550,7 +1550,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
 
         #Tests with default null values set
         profiler = mock.Mock(spec=StructuredColProfiler)
-        profiler._null_values = {
+        null_values = {
             "": 0,
             "nan": re.IGNORECASE,
             "none": re.IGNORECASE,
@@ -1563,7 +1563,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         test_utils.set_seed(seed=0)
         df_series, base_stats = \
             StructuredColProfiler.clean_data_and_get_base_stats(
-                profiler, df_series=data[1:], sample_size=6,
+                df_series=data[1:], sample_size=6, null_values=null_values,
                 min_true_samples=0)
         # note data above is a subset `df_series=data[1:]`, 1.0 will not exist
         self.assertTrue(np.issubdtype(np.object_, df_series.dtype))
@@ -1573,13 +1573,13 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                               'min_id': None, 'max_id': None}, base_stats)
 
         # Tests with some other null values set
-        profiler._null_values = {
+        null_values = {
             "1.0": 0,
             "3.0": 0
         }
         df_series, base_stats = \
             StructuredColProfiler.clean_data_and_get_base_stats(
-                profiler, df_series=data, sample_size=6,
+                df_series=data, sample_size=6, null_values=null_values,
                 min_true_samples=0)
         self.assertDictEqual({'sample': ["nan", '6.0', '4.0', "nan"],
                               'sample_size': 6, 'null_count': 2,
@@ -1587,10 +1587,10 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                               'min_id': None, 'max_id': None}, base_stats)
 
         # Tests with no null values set
-        profiler._null_values = {}
+        null_values = {}
         df_series, base_stats = \
             StructuredColProfiler.clean_data_and_get_base_stats(
-                profiler, df_series=data, sample_size=6,
+                df_series=data, sample_size=6, null_values=null_values,
                 min_true_samples=0)
         self.assertDictEqual({'sample': ["3.0", "4.0", '6.0', "nan", "1.0"],
                               'sample_size': 6, 'null_count': 0,

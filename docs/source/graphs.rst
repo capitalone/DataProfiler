@@ -81,10 +81,10 @@ Examples
     fig = graphs.plot_histograms(profiler, columns)
     fig.show()
 
-.. image:: _static/images/histogram_example_0.svg
+.. image:: _static/images/histogram_example_0.png
     :alt: First Histogram Example Image
 
-.. image:: _static/images/histogram_example_1.svg
+.. image:: _static/images/histogram_example_1.png
     :alt: Second Histogram Example Image
 
 2. This example demonstrates how we can plot a low level profiler.
@@ -108,5 +108,5 @@ Examples
     fig = ax.get_figure()
     fig.show()
 
-.. image:: _static/images/histogram_example_2.svg
+.. image:: _static/images/histogram_example_2.png
     :alt: Histogram Column Only Example Image

@@ -1,6 +1,6 @@
 {
-    "path": "../../DataProfiler/examples/labeler.ipynb",
+    "path": "../../feature_branch/examples/labeler.ipynb",
     "extra-media": [
-        "../../DataProfiler/examples/DL-Flowchart.png"
+        "../../feature_branch/examples/DL-Flowchart.png"
   ]
 }

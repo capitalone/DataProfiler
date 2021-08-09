@@ -395,6 +395,7 @@ In addition, it utilizes only the first 10,000 rows.
    data_readers.rst
    profiler.rst
    data_labeling.rst
+   graphs.rst
 
 .. toctree::
    :maxdepth: 2

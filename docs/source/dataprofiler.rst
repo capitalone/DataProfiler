@@ -11,6 +11,7 @@ Modules
    dataprofiler.data_readers
    dataprofiler.labelers
    dataprofiler.profilers
+   dataprofiler.reports
    dataprofiler.validators
 
 .. toctree::

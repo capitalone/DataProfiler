@@ -1,5 +1,5 @@
 Graphs
-========================================
+======
 
 .. automodule:: dataprofiler.reports.graphs
    :members:

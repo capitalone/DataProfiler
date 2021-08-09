@@ -13,8 +13,10 @@
 import furo
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../DataProfiler'))
-sys.path.insert(0, os.path.abspath('../../DataProfiler/examples'))
+
+branch_name = "feature_branch"
+sys.path.insert(0, os.path.abspath(f'../../{branch_name}'))
+sys.path.insert(0, os.path.abspath(f'../../{branch_name}/examples'))
 
 
 # -- Project information -----------------------------------------------------

@@ -3,7 +3,7 @@ import sys
 import subprocess
 import os
 
-branch_folder = "DataProfiler"
+branch_folder = "feature_branch"
 sys.path.insert(0, os.path.abspath(f'../{branch_folder}'))
 from dataprofiler import __version__ as version  # noqa F401
 

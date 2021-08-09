@@ -38,7 +38,7 @@ date, then clone the dataprofiler from the feature branch you want in order to
 update the documentation (probably main).
 
     # clone the feature branch into the base of this repository
-    git clone https://github.com/capitalone/DataProfiler DataProfiler
+    git clone https://github.com/capitalone/DataProfiler feature_branch
 
 Install requirements:
 
@@ -47,9 +47,9 @@ Install requirements:
     pip install requirements.txt
     
     # install the requirements from the feature branch
-    pip install DataProfiler/requirements.txt
-    pip install DataProfiler/requirements-ml.txt
-    pip install DataProfiler/requirements-reports.txt
+    pip install feature_branch/requirements.txt
+    pip install feature_branch/requirements-ml.txt
+    pip install feature_branch/requirements-reports.txt
 
 In /docs run:
 

@@ -24,7 +24,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.match_count, 0)
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
-        self.assertTrue(profiler.mode is np.nan)
+        self.assertEqual([np.nan], profiler.mode)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
         self.assertTrue(profiler.variance is np.nan)

@@ -26,7 +26,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, None)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
-        self.assertTrue(profiler.mode is np.nan)
+        self.assertEqual([np.nan], profiler.mode)
         self.assertTrue(profiler.variance is np.nan)
         self.assertTrue(profiler.skewness is np.nan)
         self.assertTrue(profiler.kurtosis is np.nan)

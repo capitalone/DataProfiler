@@ -262,6 +262,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             min=self.np_type_to_type(self.min),
             max=self.np_type_to_type(self.max),
             mode=self.np_type_to_type(self.mode),
+            median=self.np_type_to_type(self.median),
             sum=self.np_type_to_type(self.sum),
             mean=self.np_type_to_type(self.mean),
             variance=self.np_type_to_type(self.variance),
@@ -322,6 +323,15 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :rtype: list(float)
         """
         return self._estimate_mode_from_histogram()
+
+    def median(self):
+        """
+        Estimates the median of the data.
+
+        :return: the median
+        :rtype: float
+        """
+        return self._get_percentile([50])[0]
 
     @property
     def variance(self):

@@ -1,0 +1,3 @@
+{
+    "path": "../../DataProfiler/examples/unstructured_profilers.ipynb"
+}

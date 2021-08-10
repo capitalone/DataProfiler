@@ -3,13 +3,15 @@ import sys
 import subprocess
 import os
 
-sys.path.insert(0, os.path.abspath('../../dataprofiler'))
+branch_folder = "feature_branch"
+sys.path.insert(0, os.path.abspath(f'../{branch_folder}'))
 from dataprofiler import __version__ as version  # noqa F401
 
 # Make the rst files from the current repo
-subprocess.run(["sphinx-apidoc", "--templatedir=./source/_templates/", "-f",
-                "-e", "-o", "../docs/source", "../dataprofiler",
-                "../dataprofiler/tests/"])
+subprocess.run([
+    "sphinx-apidoc", "--templatedir=./source/_templates/", "-f",
+    "-e", "-o", "../docs/source", f"../{branch_folder}/dataprofiler",
+    f"../{branch_folder}/dataprofiler/tests/"])
 
 update_index_rst = True
 

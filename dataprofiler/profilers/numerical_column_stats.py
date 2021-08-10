@@ -71,6 +71,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
+
             self._mode_is_enabled = options.mode.is_enabled
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
@@ -254,6 +255,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         # Merge max k mode count
         self._top_k_modes = max(other1._top_k_modes, other2._top_k_modes)
+        # Merge mode enable/disable option
+        self._mode_is_enabled = other1._mode_is_enabled and other2._mode_is_enabled
 
     def profile(self):
         """

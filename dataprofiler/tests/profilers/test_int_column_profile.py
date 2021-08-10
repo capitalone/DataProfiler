@@ -25,6 +25,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.min, None)
         self.assertEqual(profiler.max, None)
         self.assertTrue(profiler.mode is np.nan)
+        self.assertTrue(profiler.median is np.nan)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
         self.assertTrue(profiler.variance is np.nan)
@@ -210,6 +211,45 @@ class TestIntColumn(unittest.TestCase):
         profiler.update(df)
         # Only 5 possible modes so return 5
         self.assertEqual(5, len(profiler.mode))
+
+    def test_profiled_median(self):
+        # disabled median
+        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        options = IntOptions()
+        options.median.is_enabled = False
+        profiler = IntColumn(df.name, options)
+        profiler.update(df)
+        self.assertTrue(profiler.median is np.nan)
+
+        # same values
+        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        self.assertEqual(1, profiler.median)
+
+        # median lies between two values s
+        df = pd.Series([1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        self.assertAlmostEqual(3.5, profiler.median, places=2)
+
+        # with different values
+        df = pd.Series([1, 1, 1, 1, 2]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        self.assertAlmostEqual(1, profiler.median, places=2)
+
+        # with negative values
+        df = pd.Series([-1, 1, 1, 1, 2, 2, 2])
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        self.assertAlmostEqual(1, profiler.median, places=2)
+
+        # all unique values
+        df = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).apply(str)
+        profiler = IntColumn(df.name)
+        profiler.update(df)
+        self.assertAlmostEqual(5.5, profiler.median, places=2)
 
     def test_profiled_mean_and_variance(self):
         """

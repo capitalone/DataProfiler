@@ -141,6 +141,14 @@ class TestIntColumn(unittest.TestCase):
         self.assertEqual(profiler.max, 0)
 
     def test_profiled_mode(self):
+        # disabled mode
+        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        options = IntOptions()
+        options.mode.is_enabled = False
+        profiler = IntColumn(df.name, options)
+        profiler.update(df)
+        self.assertListEqual([np.nan], profiler.mode)
+
         # same values
         df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
         profiler = IntColumn(df.name)

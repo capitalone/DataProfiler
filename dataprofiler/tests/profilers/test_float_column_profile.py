@@ -260,6 +260,14 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, 0.0)
 
     def test_profiled_mode(self):
+        # disabled mode
+        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        options = FloatOptions()
+        options.mode.is_enabled = False
+        profiler = FloatColumn(df.name, options)
+        profiler.update(df)
+        self.assertListEqual([np.nan], profiler.mode)
+
         # same values
         df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
         profiler = FloatColumn(df.name)

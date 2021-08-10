@@ -465,6 +465,13 @@ Below is an breakdown of all the options.
       * max - Finds maximum value in a column
 
         * is_enabled - (Boolean) Enables or disables max
+      * mode - Finds mode(s) in a column
+
+        * is_enabled - (Boolean) Enables or disables mode
+        * top_k_modes - (Int) Sets the number of modes to return if multiple exist. Default returns max 5 modes.
+      * median - Finds median value in a column
+
+        * is_enabled - (Boolean) Enables or disables median
       * sum - Finds sum of all values in a column
 
         * is_enabled - (Boolean) Enables or disables sum
@@ -510,6 +517,13 @@ Below is an breakdown of all the options.
       * max - Finds maximum value in a column
 
         * is_enabled - (Boolean) Enables or disables max
+      * mode - Finds mode(s) in a column
+
+        * is_enabled - (Boolean) Enables or disables mode
+        * top_k_modes - (Int) Sets the number of modes to return if multiple exist. Default returns max 5 modes.
+      * median - Finds median value in a column
+
+        * is_enabled - (Boolean) Enables or disables median
       * sum - Finds sum of all values in a column
 
         * is_enabled - (Boolean) Enables or disables sum
@@ -552,6 +566,13 @@ Below is an breakdown of all the options.
       * max - Finds maximum value in a column
 
         * is_enabled - (Boolean) Enables or disables max
+      * mode - Finds mode(s) in a column
+
+        * is_enabled - (Boolean) Enables or disables mode
+        * top_k_modes - (Int) Sets the number of modes to return if multiple exist. Default returns max 5 modes.
+      * median - Finds median value in a column
+
+        * is_enabled - (Boolean) Enables or disables median
       * sum - Finds sum of all values in a column
 
         * is_enabled - (Boolean) Enables or disables sum
@@ -675,4 +696,3 @@ For every profile, we can provide a report and customize it with a couple option
     report  = profile.report(report_options={"output_format": "compact"})
     report  = profile.report(report_options={"output_format": "serializable"})
     report  = profile.report(report_options={"output_format": "flat"})
-

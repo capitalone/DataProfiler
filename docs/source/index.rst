@@ -86,6 +86,8 @@ The format for a structured profile is below:
                 "min": [null, float],
                 "max": [null, float],
                 "sum": float,
+                "mode": list(float),
+                "median": float,
                 "mean": float,
                 "variance": float,
                 "stddev": float,
@@ -457,4 +459,3 @@ Versions
 .. _0.7.0: ../../0.7.0/html/index.html
 
 .. _0.7.1: ../../0.7.1/html/index.html
-

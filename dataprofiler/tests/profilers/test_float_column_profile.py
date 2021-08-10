@@ -897,6 +897,7 @@ class TestFloatColumn(unittest.TestCase):
             min=2.5,
             max=12.5,
             mode=[2.5, 5, 12.5],
+            median=5,
             sum=20.0,
             mean=20/3.0,
             variance=27 + 1/12.0,
@@ -947,6 +948,8 @@ class TestFloatColumn(unittest.TestCase):
             expected_histogram = expected_profile.pop('histogram')
             quantiles = profile.pop('quantiles')
             expected_quantiles = expected_profile.pop('quantiles')
+            median = profile.pop('median')
+            expected_median = expected_profile.pop('median')
             skewness = profile.pop('skewness')
             expected_skewness = expected_profile.pop('skewness')
             variance = profile.pop('variance')
@@ -964,6 +967,7 @@ class TestFloatColumn(unittest.TestCase):
             self.assertAlmostEqual(expected_quantiles[2], quantiles[749])
             self.assertAlmostEqual(expected_skewness, skewness)
             self.assertAlmostEqual(expected_variance, variance)
+            self.assertAlmostEqual(expected_median, median, places=2)
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)

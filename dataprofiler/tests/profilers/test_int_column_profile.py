@@ -508,6 +508,7 @@ class TestIntColumn(unittest.TestCase):
             min=2.0,
             max=6.0,
             mode=[2, 6],
+            median=4,
             sum=8.0,
             mean=4.0,
             variance=8.0,
@@ -541,10 +542,14 @@ class TestIntColumn(unittest.TestCase):
             # Validate the time in the datetime class has the expected time.
             profile = profiler.profile
 
-            # Validate mode
+            # Validate mode and median
             mode = profile.pop('mode')
             expected_mode = expected_profile.pop('mode')
             np.testing.assert_array_almost_equal(mode, expected_mode, decimal=2)
+
+            median = profile.pop('median')
+            expected_median = expected_profile.pop('median')
+            self.assertAlmostEqual(expected_median, median, places=2)
 
             # pop out the histogram and quartiles to test separately from the
             # rest of the dict as we need comparison with some precision

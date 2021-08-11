@@ -522,8 +522,8 @@ class TestNumericStatsMixin(unittest.TestCase):
         mock_profile = dict(
             min=1.0,
             max=1.0,
-            mode=np.nan, # default
             median=np.nan, # default
+            mode=[np.nan], # default
             sum=1.0,
             mean=0, # default
             variance=np.nan, # default

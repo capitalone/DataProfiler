@@ -65,11 +65,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.histogram_selection = None
         self.user_set_histogram_bin = None
         self.bias_correction = True  # By default, we correct for bias
+        self._mode_is_enabled = True
         self.num_zeros = 0
         self.num_negatives = 0
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
+
+            self._mode_is_enabled = options.mode.is_enabled
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
             if isinstance(bin_count_or_method, str):
@@ -252,6 +255,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         # Merge max k mode count
         self._top_k_modes = max(other1._top_k_modes, other2._top_k_modes)
+        # Merge mode enable/disable option
+        self._mode_is_enabled = other1._mode_is_enabled and other2._mode_is_enabled
 
     def profile(self):
         """
@@ -321,6 +326,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: the mode(s) of the data
         :rtype: list(float)
         """
+        if not self._has_histogram or not self._mode_is_enabled:
+            return [np.nan]
         return self._estimate_mode_from_histogram()
 
     @property
@@ -600,9 +607,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: The estimated mode of the histogram
         :rtype: list(float)
         """
-        if not self._has_histogram:
-            return np.nan
-
         bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
 

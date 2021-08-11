@@ -26,7 +26,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, None)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
-        self.assertTrue(profiler.mode is np.nan)
+        self.assertEqual([np.nan], profiler.mode)
         self.assertTrue(profiler.variance is np.nan)
         self.assertTrue(profiler.skewness is np.nan)
         self.assertTrue(profiler.kurtosis is np.nan)
@@ -260,6 +260,14 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, 0.0)
 
     def test_profiled_mode(self):
+        # disabled mode
+        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        options = FloatOptions()
+        options.mode.is_enabled = False
+        profiler = FloatColumn(df.name, options)
+        profiler.update(df)
+        self.assertListEqual([np.nan], profiler.mode)
+
         # same values
         df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
         profiler = FloatColumn(df.name)

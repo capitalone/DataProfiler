@@ -85,6 +85,7 @@ The format for a structured profile is below:
             "min": [null, float],
             "max": [null, float],
             "mode": float,
+            "median", float, 
             "sum": float,
             "mean": float,
             "variance": float,

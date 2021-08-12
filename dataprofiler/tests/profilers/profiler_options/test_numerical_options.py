@@ -7,11 +7,11 @@ class TestNumericalOptions(TestBaseInspectorOptions):
     
     option_class = NumericalOptions
     keys = ["min", "max", "sum", "mode", "variance", "skewness",
-            "kurtosis", "bias_correction",
+            "median", "kurtosis", "bias_correction",
             "num_zeros", "num_negatives",
             "histogram_and_quantiles"]
-    numeric_keys = ["min", "max", "sum", "mode", "variance",
-                    "skewness", "kurtosis",
+    numeric_keys = ["min", "max", "sum", "mode", "median",
+                    "variance", "skewness", "kurtosis",
                     "histogram_and_quantiles",
                     "num_zeros", "num_negatives"]
 
@@ -59,11 +59,21 @@ class TestNumericalOptions(TestBaseInspectorOptions):
 
         # Disable histogram, enable mode
         options.set({"histogram_and_quantiles.is_enabled": False,
+                     "median.is_enabled": False,
                      "mode.is_enabled": True})
         mode_error = "{}: The numeric stats must toggle on histogram " \
                      "and quantiles if mode is " \
                      "toggled on.".format(optpth)
         self.assertEqual([mode_error], options._validate_helper())
+        options.set({"mode.is_enabled": False})
+
+        # Disable histogram, enable median
+        options.set({"histogram_and_quantiles.is_enabled": False,
+                     "median.is_enabled": True})
+        median_error = "{}: The numeric stats must toggle on histogram " \
+                     "and quantiles if median is " \
+                     "toggled on.".format(optpth)
+        self.assertEqual([median_error], options._validate_helper())
         options.set({"histogram_and_quantiles.is_enabled": True})
 
         # Zero top_k_modes
@@ -137,13 +147,21 @@ class TestNumericalOptions(TestBaseInspectorOptions):
             options.set({skey: default_bool})
         # Disable histogram, enable mode
         options.set({"histogram_and_quantiles.is_enabled": False,
+                     "median.is_enabled": False,
                      "mode.is_enabled": True})
         mode_error = "{}: The numeric stats must toggle on histogram " \
                      "and quantiles if mode is " \
                      "toggled on.".format(optpth)
-        with self.assertRaisesRegex(ValueError, mode_error):
-            options.validate(raise_error=True)
-        self.assertEqual([mode_error], options.validate(raise_error=False))
+        self.assertEqual([mode_error], options._validate_helper())
+        options.set({"mode.is_enabled": False})
+
+        # Disable histogram, enable median
+        options.set({"histogram_and_quantiles.is_enabled": False,
+                     "median.is_enabled": True})
+        median_error = "{}: The numeric stats must toggle on histogram " \
+                       "and quantiles if median is " \
+                       "toggled on.".format(optpth)
+        self.assertEqual([median_error], options._validate_helper())
         options.set({"histogram_and_quantiles.is_enabled": True})
 
         # Disable Sum and Enable Variance

@@ -26,6 +26,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(profiler.max, None)
         self.assertEqual(profiler.sum, 0)
         self.assertEqual(profiler.mean, 0)
+        self.assertTrue(profiler.median is np.nan)
         self.assertEqual([np.nan], profiler.mode)
         self.assertTrue(profiler.variance is np.nan)
         self.assertTrue(profiler.skewness is np.nan)
@@ -337,6 +338,45 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df)
         # Only 5 possible modes so return 5
         self.assertEqual(5, len(profiler.mode))
+
+    def test_profiled_median(self):
+        # disabled median
+        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        options = FloatOptions()
+        options.median.is_enabled = False
+        profiler = FloatColumn(df.name, options)
+        profiler.update(df)
+        self.assertTrue(profiler.median is np.nan)
+
+        # same values
+        df = pd.Series([1, 1, 1, 1, 1, 1, 1]).apply(str)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        self.assertEqual(1, profiler.median)
+
+        # median lies between two values (2.5 and 3.5)
+        df = pd.Series([1.5, 1.5, 2.5, 2.5, 3.5, 3.5, 4.1, 4.1]).apply(str)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        self.assertAlmostEqual(3, profiler.median, places=2)
+
+        # with different values
+        df = pd.Series([1.25, 1.25, 1.25, 1.25, 2.9]).apply(str)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        self.assertAlmostEqual(1.25, profiler.median, places=2)
+
+        # with negative values, median lies in between values
+        df = pd.Series([-1.1, 1.9, 1.9, 1.9, 2.1, 2.1, 2.1, 2.1]).apply(str)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        self.assertAlmostEqual(2, profiler.median, places=2)
+
+        # all unique values
+        df = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9]).apply(str)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        self.assertAlmostEqual(5, profiler.median, places=2)
 
     def test_profiled_mean_and_variance(self):
         """
@@ -865,6 +905,7 @@ class TestFloatColumn(unittest.TestCase):
             min=2.5,
             max=12.5,
             mode=[2.5, 5, 12.5],
+            median=5,
             sum=20.0,
             mean=20/3.0,
             variance=27 + 1/12.0,
@@ -915,6 +956,8 @@ class TestFloatColumn(unittest.TestCase):
             expected_histogram = expected_profile.pop('histogram')
             quantiles = profile.pop('quantiles')
             expected_quantiles = expected_profile.pop('quantiles')
+            median = profile.pop('median')
+            expected_median = expected_profile.pop('median')
             skewness = profile.pop('skewness')
             expected_skewness = expected_profile.pop('skewness')
             variance = profile.pop('variance')
@@ -932,6 +975,7 @@ class TestFloatColumn(unittest.TestCase):
             self.assertAlmostEqual(expected_quantiles[2], quantiles[749])
             self.assertAlmostEqual(expected_skewness, skewness)
             self.assertAlmostEqual(expected_variance, variance)
+            self.assertAlmostEqual(expected_median, median, places=2)
 
             # Validate time in datetime class has expected time after second update
             profiler.update(df)

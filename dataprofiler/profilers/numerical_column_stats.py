@@ -57,6 +57,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self._biased_variance = np.nan
         self._biased_skewness = np.nan
         self._biased_kurtosis = np.nan
+        self._median_is_enabled = True
         self.max_histogram_bin = 100000
         self.min_histogram_bin = 1000
         self.histogram_bin_method_names = [
@@ -71,7 +72,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
-
+            self._median_is_enabled = options.median.is_enabled
             self._mode_is_enabled = options.mode.is_enabled
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
@@ -255,6 +256,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         # Merge max k mode count
         self._top_k_modes = max(other1._top_k_modes, other2._top_k_modes)
+        # Merge median enable/disable option
+        self._median_is_enabled = other1._median_is_enabled and other2._median_is_enabled
         # Merge mode enable/disable option
         self._mode_is_enabled = other1._mode_is_enabled and other2._mode_is_enabled
 
@@ -267,6 +270,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             min=self.np_type_to_type(self.min),
             max=self.np_type_to_type(self.max),
             mode=self.np_type_to_type(self.mode),
+            median=self.np_type_to_type(self.median),
             sum=self.np_type_to_type(self.sum),
             mean=self.np_type_to_type(self.mean),
             variance=self.np_type_to_type(self.variance),
@@ -329,6 +333,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if not self._has_histogram or not self._mode_is_enabled:
             return [np.nan]
         return self._estimate_mode_from_histogram()
+
+    @property
+    def median(self):
+        """
+        Estimates the median of the data.
+
+        :return: the median
+        :rtype: float
+        """
+        if not self._has_histogram or not self._median_is_enabled:
+            return np.nan
+        return self._get_percentile([50])[0]
 
     @property
     def variance(self):

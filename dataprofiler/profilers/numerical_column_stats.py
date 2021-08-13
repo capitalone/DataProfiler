@@ -54,11 +54,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.max = None
         self._top_k_modes = 5 # By default, return at max 5 modes
         self.sum = 0
-        self.median_abs_dev = np.nan
         self._biased_variance = np.nan
         self._biased_skewness = np.nan
         self._biased_kurtosis = np.nan
         self._median_is_enabled = True
+        self._median_abs_dev_is_enabled = True
         self.max_histogram_bin = 100000
         self.min_histogram_bin = 1000
         self.histogram_bin_method_names = [
@@ -74,6 +74,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
             self._median_is_enabled = options.median.is_enabled
+            self._median_abs_dev_is_enabled = \
+                options.median_absolute_deviation.is_enabled
             self._mode_is_enabled = options.mode.is_enabled
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
@@ -261,6 +263,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self._median_is_enabled = other1._median_is_enabled and other2._median_is_enabled
         # Merge mode enable/disable option
         self._mode_is_enabled = other1._mode_is_enabled and other2._mode_is_enabled
+        # Merge median absolute deviation enable/disable option
+        self._median_abs_dev_is_enabled = \
+            other1._median_abs_dev_is_enabled and other2._median_abs_dev_is_enabled
 
     def profile(self):
         """
@@ -280,7 +285,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             kurtosis=self.np_type_to_type(self.kurtosis),
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
-            median_absolute_deviation=self.median_absolute_deviation,
+            median_absolute_deviation=self.np_type_to_type(
+                self.median_absolute_deviation),
             num_zeros=self.np_type_to_type(self.num_zeros),
             num_negatives=self.np_type_to_type(self.num_negatives),
             times=self.times,
@@ -1030,7 +1036,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         :return: median absolute deviation
         """
-        if not self._has_histogram:
+        if not self._has_histogram or not self._median_abs_dev_is_enabled:
             return np.nan
 
         bin_counts = self._stored_histogram['histogram']['bin_counts']
@@ -1041,7 +1047,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         normalized_bin_counts = bin_counts / np.sum(bin_counts)
 
         # calculate deviations from median
-        median = self._get_percentile([50])[0]
+        if self._median_is_enabled:
+            median = self.median
+        else:
+            median = self._get_percentile([50])[0]
         bin_edges = bin_edges - median
 
         # find the break point to fold the deviation list

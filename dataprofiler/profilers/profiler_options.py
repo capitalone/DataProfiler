@@ -298,6 +298,8 @@ class NumericalOptions(BaseInspectorOptions):
         :vartype max: BooleanOption
         :ivar mode: option to enable/disable mode and set return count
         :vartype mode: ModeOption
+        :ivar median: option to enable/disable median
+        :vartype median: BooleanOption
         :ivar sum: boolean option to enable/disable sum
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
@@ -322,6 +324,7 @@ class NumericalOptions(BaseInspectorOptions):
         self.min = BooleanOption(is_enabled=True)
         self.max = BooleanOption(is_enabled=True)
         self.mode = ModeOption(is_enabled=True)
+        self.median = BooleanOption(is_enabled=True)
         self.sum = BooleanOption(is_enabled=True)
         self.variance = BooleanOption(is_enabled=True)
         self.skewness = BooleanOption(is_enabled=True)
@@ -347,7 +350,7 @@ class NumericalOptions(BaseInspectorOptions):
         if self.min.is_enabled or self.max.is_enabled \
                 or self.mode.is_enabled or self.sum.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
-                or self.kurtosis.is_enabled \
+                or self.kurtosis.is_enabled or self.median.is_enabled \
                 or self.median_absolute_deviation.is_enabled \
                 or self.histogram_and_quantiles.is_enabled \
                 or self.num_zeros.is_enabled or self.num_negatives.is_enabled:
@@ -368,6 +371,7 @@ class NumericalOptions(BaseInspectorOptions):
         self.min.is_enabled = value
         self.max.is_enabled = value
         self.mode.is_enabled = value
+        self.median.is_enabled = value
         self.sum.is_enabled = value
         self.variance.is_enabled = value
         self.skewness.is_enabled = value
@@ -401,7 +405,7 @@ class NumericalOptions(BaseInspectorOptions):
 
         errors = super()._validate_helper(variable_path=variable_path)
         for item in ["histogram_and_quantiles", "min", "max", "sum", "mode",
-                     "variance", "skewness", "kurtosis",
+                     "median", "variance", "skewness", "kurtosis",
                      "median_absolute_deviation", "bias_correction",
                      "num_zeros", "num_negatives"]:
             if not isinstance(self.properties[item], BooleanOption):
@@ -439,12 +443,18 @@ class NumericalOptions(BaseInspectorOptions):
                           "toggled on.".format(variable_path))
 
         mode_disabled = not self.properties["mode"].is_enabled
+        median_disabled = not self.properties["median"].is_enabled
         histogram_disabled = \
             not self.properties["histogram_and_quantiles"].is_enabled
-        if histogram_disabled and not mode_disabled:
-            errors.append("{}: The numeric stats must toggle on histogram "
-                          "and quantiles if mode is "
-                          "toggled on.".format(variable_path))
+        if histogram_disabled:
+            if not mode_disabled:
+                errors.append("{}: The numeric stats must toggle on histogram "
+                              "and quantiles if mode is "
+                              "toggled on.".format(variable_path))
+            if not median_disabled:
+                errors.append("{}: The numeric stats must toggle on histogram "
+                              "and quantiles if median is "
+                              "toggled on.".format(variable_path))
 
         # warn user if all stats are disabled
         if not errors:
@@ -471,6 +481,8 @@ class IntOptions(NumericalOptions):
         :vartype max: BooleanOption
         :ivar mode: option to enable/disable mode and set return count
         :vartype mode: ModeOption
+        :ivar median: option to enable/disable median
+        :vartype median: BooleanOption
         :ivar sum: boolean option to enable/disable sum
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
@@ -560,6 +572,8 @@ class FloatOptions(NumericalOptions):
         :vartype max: BooleanOption
         :ivar mode: option to enable/disable mode and set return count
         :vartype mode: ModeOption
+        :ivar median: option to enable/disable median
+        :vartype median: BooleanOption
         :ivar sum: boolean option to enable/disable sum
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
@@ -617,6 +631,8 @@ class TextOptions(NumericalOptions):
         :vartype max: BooleanOption
         :ivar mode: option to enable/disable mode and set return count
         :vartype mode: ModeOption
+        :ivar median: option to enable/disable median
+        :vartype median: BooleanOption
         :ivar sum: boolean option to enable/disable sum
         :vartype sum: BooleanOption
         :ivar variance: boolean option to enable/disable variance
@@ -686,7 +702,7 @@ class TextOptions(NumericalOptions):
         if self.min.is_enabled or self.max.is_enabled \
                 or self.sum.is_enabled or self.mode.is_enabled \
                 or self.variance.is_enabled or self.skewness.is_enabled \
-                or self.kurtosis.is_enabled  \
+                or self.kurtosis.is_enabled or self.median.is_enabled \
                 or self.median_absolute_deviation.is_enabled \
                 or self.histogram_and_quantiles.is_enabled:
             return True
@@ -705,6 +721,7 @@ class TextOptions(NumericalOptions):
         self.min.is_enabled = value
         self.max.is_enabled = value
         self.mode.is_enabled = value
+        self.median.is_enabled = value
         self.sum.is_enabled = value
         self.variance.is_enabled = value
         self.skewness.is_enabled = value

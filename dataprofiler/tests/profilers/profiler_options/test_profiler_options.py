@@ -172,6 +172,7 @@ class TestProfilerOptions(unittest.TestCase):
             "min.is_enabled": False,
             "max.is_enabled": False,
             "mode.is_enabled": False,
+            "median.is_enabled": False,
             "sum.is_enabled": False,
             "variance.is_enabled": False,
             "skewness.is_enabled": False,
@@ -216,6 +217,7 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertTrue(
                     profile_column["statistics"]["median_absolute_deviation"] is np.nan)
                 self.assertTrue(np.isnan(profile_column["statistics"]["mode"]))
+                self.assertTrue(np.isnan(profile_column["statistics"]["median"]))
 
     def test_validate(self, *mocks):
         options = ProfilerOptions()
@@ -241,6 +243,7 @@ class TestProfilerOptions(unittest.TestCase):
             "min.is_enabled": False,
             "max.is_enabled": False,
             "mode.is_enabled": False,
+            "median.is_enabled": False,
             "sum.is_enabled": False,
             "variance.is_enabled": True,
             "skewness.is_enabled": False,

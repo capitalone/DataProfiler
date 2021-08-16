@@ -663,7 +663,7 @@ class TestStructuredProfiler(unittest.TestCase):
                 "samples_used", "column_count", "row_count",
                 "row_has_null_ratio", 'row_is_null_ratio',
                 "unique_row_ratio", "duplicate_row_count", "file_type",
-                "encoding", "correlation_matrix", "profile_schema", "times"
+                "encoding", "correlation_matrix", "chi2_matrix", "profile_schema", "times"
             ]
         )
         flat_report = self.trained_schema.report(
@@ -895,6 +895,8 @@ class TestStructuredProfiler(unittest.TestCase):
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._update_correlation')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'StructuredProfiler._update_chi2')
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
     @mock.patch('dataprofiler.profilers.profile_builder.StructuredProfiler.'
                 '_update_row_statistics')
@@ -1025,6 +1027,7 @@ class TestStructuredProfiler(unittest.TestCase):
         # Check that reports are equivalent
         save_report = test_utils.clean_report(save_profile.report())
         load_report = test_utils.clean_report(load_profile.report())
+        self.maxDiff = None
         self.assertDictEqual(save_report, load_report)
 
         # validate both are still usable after

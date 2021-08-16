@@ -289,6 +289,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "float.is_enabled": False,
              "order.is_enabled": False,
              "category.is_enabled": False,
+             "chi2.is_enabled": False,
              "datetime.is_enabled": False}
         )
 
@@ -316,6 +317,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
                  "float.is_enabled": False,
                  "order.is_enabled": False,
                  "category.is_enabled": False,
+                 "chi2.is_enabled": False,
                  "datetime.is_enabled": False}
             )
 
@@ -343,6 +345,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "order.is_enabled": False,
              "category.is_enabled": False,
              "datetime.is_enabled": False,
+             "chi2.is_enabled": False,
              "correlation.is_enabled": False}
         )
         print('running dp1')
@@ -357,6 +360,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "order.is_enabled": False,
              "category.is_enabled": False,
              "datetime.is_enabled": False,
+             "chi2.is_enabled": False,
              "correlation.is_enabled": False}
         )
         print('running dp2')
@@ -378,6 +382,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "order.is_enabled": False,
              "category.is_enabled": False,
              "datetime.is_enabled": False,
+             "chi2.is_enabled": False,
              "correlation.is_enabled": False}
         )
         print('running dp1')
@@ -392,6 +397,7 @@ class TestStructuredDataLabeler(unittest.TestCase):
              "order.is_enabled": False,
              "category.is_enabled": False,
              "datetime.is_enabled": False,
+             "chi2.is_enabled": False,
              "correlation.is_enabled": False}
         )
         print('running dp2')

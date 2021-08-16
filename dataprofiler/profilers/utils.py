@@ -10,6 +10,7 @@ import multiprocessing as mp
 import functools
 
 import numpy as np
+import scipy
 
 from dataprofiler import settings
 
@@ -614,3 +615,67 @@ def method_timeit(method=None, name=None):
     if callable(method):
         return decorator(method, name_dec=name)
     return decorator
+
+def perform_chi_squared_test(categories1, sample_size1,
+                             categories2, sample_size2):
+    """
+    Performs a Chi Squared test for homogeneity between two groups.
+
+    :param categories1: Categories and respective counts of the first group
+    :type categories1: dict
+    :param sample_size1: Number of samples in first group
+    :type sample_size1: int
+    :param categories2: Categories and respective counts of the second group
+    :type categories2: dict
+    :param sample_size2: Number of samples in second group
+    :type sample_size2: int
+    :return: Results of the chi squared test
+    :rtype: dict
+    """
+    results = {
+        "chi2-statistic": None,
+        "df": None,
+        "p-value": None
+    }
+
+    cat_counts = add_nested_dictionaries(categories1, categories2)
+
+    # If one or less categories, we have zero/negative degrees of freedom, which is not an
+    # appropriate value for this context
+    num_cats = len(cat_counts)
+    if len(cat_counts) <= 1:
+        warnings.warn("Insufficient number of categories. "
+                      "Chi-squared test cannot be performed.", RuntimeWarning)
+        return results
+
+    # Calculate degrees of freedom
+    # df = (rows - 1) * (cols - 1), in the case of two groups reduces to cols - 1
+    df = num_cats - 1
+    results["df"] = df
+
+    total = sample_size1 + sample_size2
+
+    # If a zero is found in either row or col sums, then an expected count will be
+    # zero. This means the chi2-statistic and p-value are infinity and zero,
+    # so calculation can be skipped.
+    if 0 in [sample_size1, sample_size2] or 0 in cat_counts.values():
+        results["chi2-statistic"] = np.inf
+        results["p-value"] = 0
+        return results
+
+    # Calculate chi-sq statistic
+    chi2_statistic = 0
+    for cat, count in cat_counts.items():
+        expected1 = sample_size1 * count / total
+        expected2 = sample_size2 * count / total
+        chi2_statistic += (categories1.get(cat, 0) - expected1) \
+                          ** 2 / expected1
+        chi2_statistic += (categories2.get(cat, 0) - expected2) \
+                          ** 2 / expected2
+    results["chi2-statistic"] = chi2_statistic
+
+    # Calculate p-value, i.e. P(X > chi2_statistic)
+    p_value = 1 - scipy.stats.chi2(df).cdf(chi2_statistic)
+    results["p-value"] = p_value
+
+    return results

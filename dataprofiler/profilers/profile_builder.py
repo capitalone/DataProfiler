@@ -1316,6 +1316,7 @@ class StructuredProfiler(BaseProfiler):
         self._profile = []
         self._col_name_to_idx = defaultdict(list)
         self.correlation_matrix = None
+        self.chi2_matrix = None
 
         if data is not None:
             self.update_profile(data)
@@ -1372,6 +1373,9 @@ class StructuredProfiler(BaseProfiler):
         if (self.options.correlation.is_enabled
                 and other.options.correlation.is_enabled):
             merged_profile.correlation_matrix = self._merge_correlation(other)
+
+        # recompute chi2 if needed
+        # TODO: Add shit here
 
         return merged_profile
 
@@ -1547,6 +1551,7 @@ class StructuredProfiler(BaseProfiler):
                 "file_type": self.file_type,
                 "encoding": self.encoding,
                 "correlation_matrix": self.correlation_matrix,
+                "chi2_matrix": self.chi2_matrix,
                 "profile_schema": defaultdict(list),
                 "times": self.times,
             }),
@@ -1857,6 +1862,47 @@ class StructuredProfiler(BaseProfiler):
 
         return corr_mat
 
+    def _update_chi2(self):
+        n_cols = len(self._profile)
+        cat_cols = {}
+        cat_col_idxs = []
+
+        # Get categorical columns
+        for i in range(n_cols):
+            compiler = self._profile[i]
+            data_stats_compiler = compiler.profiles["data_stats_profile"]
+            profiler = data_stats_compiler._profiles["category"]
+            if profiler.is_match:
+                categories = profiler._categories
+                sample_size = profiler.sample_size
+                cat_cols[i] = (categories, sample_size)
+                cat_col_idxs.append(i)
+
+        # Fill matrix with nan initially
+        chi2_mat = np.full((n_cols, n_cols), np.nan)
+        # Compute chi_sq for each
+        for i in range(len(cat_col_idxs)):
+            for j in range(i, len(cat_col_idxs)):
+                if i == j:
+                    chi2_mat[i][j] = 1
+                    continue
+                idx1 = cat_col_idxs[i]
+                idx2 = cat_col_idxs[j]
+
+                categories1 = cat_cols[idx1][0]
+                categories2 = cat_cols[idx2][0]
+                sample_size1 = cat_cols[idx1][1]
+                sample_size2 = cat_cols[idx2][1]
+
+                results = utils.perform_chi_squared_test(
+                    categories1, sample_size1,
+                    categories2, sample_size2
+                )
+                chi2_mat[i][j] = results["p-value"]
+                chi2_mat[j][i] = results["p-value"]
+
+        self.chi2_matrix = chi2_mat
+
     def _update_profile_from_chunk(self, data, sample_size,
                                    min_true_samples=None):
         """
@@ -2053,6 +2099,9 @@ class StructuredProfiler(BaseProfiler):
         if self.options.correlation.is_enabled:
             self._update_correlation(clean_sampled_dict,
                                      corr_prev_dependent_properties)
+
+        if self.options.chi2.is_enabled:
+            self._update_chi2()
         self._update_row_statistics(data, samples_for_row_stats)
 
     def save(self, filepath=None):
@@ -2074,6 +2123,7 @@ class StructuredProfiler(BaseProfiler):
             "_samples_per_update": self._samples_per_update,
             "_min_true_samples": self._min_true_samples,
             "options": self.options,
+            "chi2_matrix": self.chi2_matrix,
             "_profile": self.profile,
             "_col_name_to_idx": self._col_name_to_idx,
             "times": self.times,

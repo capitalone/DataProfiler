@@ -165,6 +165,8 @@ class TestStructuredProfiler(unittest.TestCase):
                 'StructuredProfiler._update_correlation')
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._merge_correlation')
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'StructuredProfiler._update_chi2')
     def test_add_profilers(self, *mocks):
         data = pd.DataFrame([1, None, 3, 4, 5, None, 1])
         with test_utils.mock_timeit():
@@ -602,6 +604,161 @@ class TestStructuredProfiler(unittest.TestCase):
         ])
         np.testing.assert_array_almost_equal(expected_corr_mat,
                                              profiler.correlation_matrix)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
+    def test_chi2(self, *mocks):
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["y", "maybe", "y", "y", "n", "n", "maybe"],
+                             'c': ["n", "maybe", "n", "n", "n", "y", "y"]})
+
+        profiler = dp.StructuredProfiler(data)
+        expected_mat = np.array([
+            [1, 0.309924, 0.404638],
+            [0.309924, 1, 0.548812],
+            [0.404638, 0.548812, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler.chi2_matrix)
+
+        # All different categories
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["a", "maybe", "a", "a", "b", "b", "maybe"],
+                             'c': ["d", "d", "g", "g", "g", "t", "t"]})
+
+        profiler = dp.StructuredProfiler(data)
+        expected_mat = np.array([
+            [1, 0.007295, 0.007295],
+            [0.007295, 1, 0.015609],
+            [0.007295, 0.015609, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler.chi2_matrix)
+
+        # Identical columns
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["y", "y", "y", "y", "n", "n", "n"],
+                             'c': ["y", "y", "y", "y", "n", "n", "n"]})
+
+        profiler = dp.StructuredProfiler(data)
+        expected_mat = np.array([
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler.chi2_matrix)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
+    def test_merge_chi2(self, *mocks):
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["y", "maybe", "y", "y", "n", "n", "maybe"],
+                             'c': ["n", "maybe", "n", "n", "n", "y", "y"]})
+
+        data1 = data[:4]
+        data2 = data[4:]
+        profiler1 = dp.StructuredProfiler(data1)
+        profiler2 = dp.StructuredProfiler(data2)
+        profiler3 = profiler1 + profiler2
+        expected_mat = np.array([
+            [1, 0.309924, 0.404638],
+            [0.309924, 1, 0.548812],
+            [0.404638, 0.548812, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler3.chi2_matrix)
+
+        # All different categories
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["a", "maybe", "a", "a", "b", "b", "maybe"],
+                             'c': ["d", "d", "g", "g", "g", "t", "t"]})
+        data1 = data[:4]
+        data2 = data[4:]
+        profiler1 = dp.StructuredProfiler(data1)
+        profiler2 = dp.StructuredProfiler(data2)
+        profiler3 = profiler1 + profiler2
+        expected_mat = np.array([
+            [1, 0.007295, 0.007295],
+            [0.007295, 1, 0.015609],
+            [0.007295, 0.015609, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler3.chi2_matrix)
+
+        # Identical columns
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["y", "y", "y", "y", "n", "n", "n"],
+                             'c': ["y", "y", "y", "y", "n", "n", "n"]})
+        data1 = data[:4]
+        data2 = data[4:]
+        profiler1 = dp.StructuredProfiler(data1)
+        profiler2 = dp.StructuredProfiler(data2)
+        profiler3 = profiler1 + profiler2
+        expected_mat = np.array([
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler3.chi2_matrix)
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'ColumnDataLabelerCompiler')
+    @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
+                spec=StructuredDataLabeler)
+    def test_update_chi2(self, *mocks):
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["y", "maybe", "y", "y", "n", "n", "maybe"],
+                             'c': ["n", "maybe", "n", "n", "n", "y", "y"]})
+        data1 = data[:4]
+        data2 = data[4:]
+        profiler = dp.StructuredProfiler(data1)
+        profiler.update_profile(data2)
+        expected_mat = np.array([
+            [1, 0.309924, 0.404638],
+            [0.309924, 1, 0.548812],
+            [0.404638, 0.548812, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler.chi2_matrix)
+
+        # All different categories
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["a", "maybe", "a", "a", "b", "b", "maybe"],
+                             'c': ["d", "d", "g", "g", "g", "t", "t"]})
+
+        data1 = data[:4]
+        data2 = data[4:]
+        profiler = dp.StructuredProfiler(data1)
+        profiler.update_profile(data2)
+        expected_mat = np.array([
+            [1, 0.007295, 0.007295],
+            [0.007295, 1, 0.015609],
+            [0.007295, 0.015609, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler.chi2_matrix)
+
+        # Identical columns
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["y", "y", "y", "y", "n", "n", "n"],
+                             'c': ["y", "y", "y", "y", "n", "n", "n"]})
+        data1 = data[:4]
+        data2 = data[4:]
+        profiler = dp.StructuredProfiler(data1)
+        profiler.update_profile(data2)
+        expected_mat = np.array([
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler.chi2_matrix)
 
     def test_correct_datatime_schema_test(self):
         profile_idx = self.trained_schema._col_name_to_idx["datetime"][0]

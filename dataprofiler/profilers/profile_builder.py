@@ -1375,7 +1375,9 @@ class StructuredProfiler(BaseProfiler):
             merged_profile.correlation_matrix = self._merge_correlation(other)
 
         # recompute chi2 if needed
-        # TODO: Add shit here
+        if self.options.chi2.is_enabled and \
+            other.options.chi2.is_enabled:
+            merged_profile._update_chi2()
 
         return merged_profile
 

@@ -1878,8 +1878,7 @@ class StructuredProfiler(BaseProfiler):
             :param col_idx: Column index
             :type col_idx: int
             """
-            compiler = self._profile[col_idx]
-            data_stats_compiler = compiler.profiles["data_stats_profile"]
+            data_stats_compiler = self._profile[col_idx].profiles["data_stats_profile"]
             profiler = data_stats_compiler._profiles["category"]
             return profiler if profiler.is_match else None
 
@@ -1888,22 +1887,24 @@ class StructuredProfiler(BaseProfiler):
         chi2_mat = np.full((n_cols, n_cols), np.nan)
         # Compute chi_sq for each
         for i in range(n_cols):
-            profile1 = _get_categorical_profile(i)
-            if profile1 is None:
+            data_stats_compiler1 = self._profile[i].profiles["data_stats_profile"]
+            profiler1 = data_stats_compiler1._profiles["category"]
+            if not profiler1.is_match:
                 continue
             for j in range(i, n_cols):
                 if i == j:
                     chi2_mat[i][j] = 1
                     continue
-                profile2 = _get_categorical_profile(j)
-                if profile2 is None:
+                data_stats_compiler2 = self._profile[j].profiles["data_stats_profile"]
+                profiler2 = data_stats_compiler2._profiles["category"]
+                if profiler2 is None:
                     continue
 
                 results = utils.perform_chi_squared_test(
-                    profile1.categorical_counts,
-                    profile1.sample_size,
-                    profile2.categorical_counts,
-                    profile2.sample_size
+                    profiler1.categorical_counts,
+                    profiler1.sample_size,
+                    profiler2.categorical_counts,
+                    profiler2.sample_size
                 )
                 chi2_mat[i][j] = results["p-value"]
                 chi2_mat[j][i] = results["p-value"]

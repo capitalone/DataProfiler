@@ -1029,6 +1029,57 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             quantiles[percentiles == 50] = median_value
         return quantiles.tolist()
 
+    @staticmethod
+    def fold_histogram(bin_counts, bin_edges, value):
+        """
+        Offset the histogram by the given value,
+        then fold the histogram at the break point.
+
+        :param bin_counts: bin counts of the histogram
+        :type bin_counts: np.array
+        :param bin_edges: bin edges of the histogram
+        :type bin_edges: np.array
+        :param value: offset value
+        :type value: float
+        :return: two histograms represented by bin counts and bin edges
+        """
+        # normalize bin counts
+        bin_counts = bin_counts.astype(float)
+        normalized_bin_counts = bin_counts / np.sum(bin_counts)
+        bin_edges = bin_edges - value
+
+        # find the break point to fold the deviation list
+        id_zero = None
+        for i in range(len(bin_edges)):
+            if bin_edges[i] > 0:
+                id_zero = i
+                break
+
+        # if all bin edges are positive or negative (no break point)
+        if id_zero is None:
+            return [[], []], [normalized_bin_counts, bin_edges]
+        if id_zero == 1:
+            return [normalized_bin_counts, bin_edges], [[], []]
+
+        # otherwise, generate two folds of deviation
+        bin_counts_pos = np.append(
+            [normalized_bin_counts[id_zero - 1] * (bin_edges[id_zero] /
+            (bin_edges[id_zero] - bin_edges[id_zero - 1]))],
+            normalized_bin_counts[id_zero:])
+        bin_edges_pos = np.append([0], bin_edges[id_zero:])
+
+        bin_counts_neg = np.append(
+            [normalized_bin_counts[id_zero - 1] -
+            normalized_bin_counts[id_zero - 1] * (bin_edges[id_zero] /
+            (bin_edges[id_zero] - bin_edges[id_zero - 1]))],
+            normalized_bin_counts[:id_zero - 1][::-1])
+        bin_edges_neg = np.append([0], -bin_edges[:id_zero][::-1])
+
+        if len(bin_edges_neg) > 1 and bin_edges_neg[1] == 0:
+            bin_edges_neg = bin_edges_neg[1:]
+            bin_counts_neg = bin_counts_neg[1:]
+        return [bin_counts_pos, bin_edges_pos], [bin_counts_neg, bin_edges_neg]
+
     @property
     def median_absolute_deviation(self):
         """
@@ -1042,41 +1093,21 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_counts = self._stored_histogram['histogram']['bin_counts']
         bin_edges = self._stored_histogram['histogram']['bin_edges']
 
-        # normalize bin counts
-        bin_counts = bin_counts.astype(float)
-        normalized_bin_counts = bin_counts / np.sum(bin_counts)
-
-        # calculate deviations from median
         if self._median_is_enabled:
             median = self.median
         else:
             median = self._get_percentile([50])[0]
-        bin_edges = bin_edges - median
 
-        # find the break point to fold the deviation list
-        id_zero = None
-        for i in range(len(bin_edges)):
-            if bin_edges[i] > 0:
-                id_zero = i
-                break
+        # generate two folds of deviation
+        histogram_pos, histogram_neg = self.fold_histogram(
+            bin_counts, bin_edges, median)
+        bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
+        bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]
 
         # if all bin edges are positive or negative (no break point),
         # the median value is actually 0
-        if id_zero is None or id_zero == 1:
+        if len(bin_counts_pos) == 0 or len(bin_counts_neg) == 0:
             return 0
-
-        # otherwise, generate two folds of deviation
-        bin_counts_pos = np.append(
-            [normalized_bin_counts[id_zero - 1] * (bin_edges[id_zero] /
-                (bin_edges[id_zero] - bin_edges[id_zero - 1]))],
-            normalized_bin_counts[id_zero:])
-        bin_edges_pos = np.append([0], bin_edges[id_zero:])
-
-        bin_counts_neg = np.append([normalized_bin_counts[id_zero - 1] -
-             normalized_bin_counts[id_zero - 1] * (bin_edges[id_zero] /
-                (bin_edges[id_zero] - bin_edges[id_zero - 1]))],
-            normalized_bin_counts[:id_zero - 1][::-1])
-        bin_edges_neg = np.append([0], -bin_edges[:id_zero][::-1])
 
         bin_counts_long, bin_edges_long = bin_counts_pos, bin_edges_pos
         bin_counts_short, bin_edges_short = bin_counts_neg, bin_edges_neg

@@ -883,7 +883,7 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(est_Q3, 3.001)
         self.assertAlmostEqual(3.999988, est_quantiles[-1])
 
-    def test_get_median_absolute_deviation(self):
+    def test_get_median_abs_deviation(self):
         """
         Checks the median absolute deviation of profiled numerical columns.
         :return:
@@ -895,7 +895,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df)
         profile = profiler.profile
 
-        est_median_abs_dev = profile['median_absolute_deviation']
+        est_median_abs_dev = profile['median_abs_deviation']
         self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
 
         # with unique values
@@ -905,7 +905,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df)
         profile = profiler.profile
 
-        est_median_abs_dev = profile['median_absolute_deviation']
+        est_median_abs_dev = profile['median_abs_deviation']
         self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
 
         # with negative values
@@ -915,10 +915,10 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df)
         profile = profiler.profile
 
-        est_median_abs_dev = profile['median_absolute_deviation']
+        est_median_abs_dev = profile['median_abs_deviation']
         self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
 
-    def test_merge_median_absolute_deviation(self):
+    def test_merge_median_abs_deviation(self):
         """
         Checks the median absolute deviation merged from profiles.
         :return:
@@ -934,7 +934,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df2)
         profile = profiler.profile
 
-        est_median_abs_dev = profile['median_absolute_deviation']
+        est_median_abs_dev = profile['median_abs_deviation']
         self.assertAlmostEqual(1.0, est_median_abs_dev, places=2)
 
         # with unique values
@@ -948,7 +948,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df2)
         profile = profiler.profile
 
-        est_median_abs_dev = profile['median_absolute_deviation']
+        est_median_abs_dev = profile['median_abs_deviation']
         self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
 
 
@@ -980,7 +980,7 @@ class TestFloatColumn(unittest.TestCase):
             variance=27 + 1/12.0,
             skewness=35/13*np.sqrt(3/13),
             kurtosis=np.nan,
-            median_absolute_deviation=2.5,
+            median_abs_deviation=2.5,
             num_negatives=0,
             num_zeros=0,
             stddev=np.sqrt(27+1/12.0),
@@ -1032,9 +1032,9 @@ class TestFloatColumn(unittest.TestCase):
             expected_skewness = expected_profile.pop('skewness')
             variance = profile.pop('variance')
             expected_variance = expected_profile.pop('variance')
-            median_abs_dev = profile.pop('median_absolute_deviation')
+            median_abs_dev = profile.pop('median_abs_deviation')
             expected_median_abs_dev = \
-                expected_profile.pop('median_absolute_deviation')
+                expected_profile.pop('median_abs_deviation')
 
             self.assertDictEqual(expected_profile, profile)
             self.assertDictEqual(expected_profile['precision'], profile['precision'])

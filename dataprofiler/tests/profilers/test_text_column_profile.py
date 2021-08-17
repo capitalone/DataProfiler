@@ -198,7 +198,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                 'bin_edges': np.array([1., 1.5, 2., 2.5, 3., 3.5, 4.])
             },
             quantiles={0: 1.25, 1: 1.5, 2: 3.0},
-            median_absolute_deviation=0.5,
+            median_abs_deviation=0.5,
             vocab=['a', 'b', 'c', 'd', '4', '3', '2', 'f'],
             times=defaultdict(float, {'vocab': 1.0,
                                       'max': 1.0,
@@ -218,11 +218,11 @@ class TestTextColumnProfiler(unittest.TestCase):
             expected_histogram = expected_profile.pop('histogram')
             expected_quantiles = expected_profile.pop('quantiles')
             expected_median_abs_dev = \
-                expected_profile.pop('median_absolute_deviation')
+                expected_profile.pop('median_abs_deviation')
             expected_vocab = expected_profile.pop('vocab')
             quantiles = profile.pop('quantiles')
             histogram = profile.pop('histogram')
-            median_abs_dev = profile.pop('median_absolute_deviation')
+            median_abs_dev = profile.pop('median_abs_deviation')
             vocab = profile.pop('vocab')
 
             # validate mode and median

@@ -8,12 +8,12 @@ class TestNumericalOptions(TestBaseInspectorOptions):
     option_class = NumericalOptions
     keys = ["min", "max", "sum", "mode", "variance", "skewness",
             "kurtosis", "bias_correction",
-            "median", "median_absolute_deviation",
+            "median", "median_abs_deviation",
             "num_zeros", "num_negatives",
             "histogram_and_quantiles"]
     numeric_keys = ["min", "max", "sum", "mode", "median",
                     "variance", "skewness", "kurtosis",
-                    "median_absolute_deviation",
+                    "median_abs_deviation",
                     "histogram_and_quantiles",
                     "num_zeros", "num_negatives"]
 
@@ -63,7 +63,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         options.set({"histogram_and_quantiles.is_enabled": False,
                      "mode.is_enabled": True,
                      "median.is_enabled": False,
-                     "median_absolute_deviation.is_enabled": False})
+                     "median_abs_deviation.is_enabled": False})
         mode_error = "{}: The numeric stats must toggle on histogram " \
                      "and quantiles if mode is " \
                      "toggled on.".format(optpth)
@@ -128,7 +128,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         # Disable Histogram, Enable Median Absolute Deviation
         options = self.get_options()
         options.set({"histogram_and_quantiles.is_enabled": False,
-                     "median_absolute_deviation.is_enabled": True,
+                     "median_abs_deviation.is_enabled": True,
                      "median.is_enabled": False,
                      "mode.is_enabled": False})
         mad_error = "{}: The numeric stats must toggle on histogram " \

@@ -524,7 +524,7 @@ class TestIntColumn(unittest.TestCase):
             num_negatives = 0,
             skewness=np.nan,
             kurtosis=np.nan,
-            median_absolute_deviation=2.0,
+            median_abs_deviation=2.0,
             stddev=np.sqrt(8.0),
             histogram={
                 'bin_counts': np.array([1, 0, 1]),
@@ -566,9 +566,9 @@ class TestIntColumn(unittest.TestCase):
             expected_histogram = expected_profile.pop('histogram')
             quartiles = profile.pop('quantiles')
             expected_quartiles = expected_profile.pop('quantiles')
-            median_abs_dev = profile.pop('median_absolute_deviation')
+            median_abs_dev = profile.pop('median_abs_deviation')
             expected_median_abs_dev = \
-                expected_profile.pop('median_absolute_deviation')
+                expected_profile.pop('median_abs_deviation')
 
             self.assertDictEqual(expected_profile, profile)
             self.assertEqual(expected_histogram['bin_counts'].tolist(),

@@ -1869,8 +1869,21 @@ class StructuredProfiler(BaseProfiler):
         Calculates the p-value from a chi-squared test
         for homogeneity between all categorical columns.
         """
-        n_cols = len(self._profile)
+        def _get_categorical_profile(self, col_idx):
+            """
+            Returns the CategoricalColumn associated with the given
+            column index. If the column is not determined to be categorical,
+            returns None.
 
+            :param col_idx: Column index
+            :type col_idx: int
+            """
+            compiler = self._profile[col_idx]
+            data_stats_compiler = compiler.profiles["data_stats_profile"]
+            profiler = data_stats_compiler._profiles["category"]
+            return profiler if profiler.is_match else None
+
+        n_cols = len(self._profile)
         # Fill matrix with nan initially
         chi2_mat = np.full((n_cols, n_cols), np.nan)
         # Compute chi_sq for each
@@ -1896,20 +1909,6 @@ class StructuredProfiler(BaseProfiler):
                 chi2_mat[j][i] = results["p-value"]
 
         self.chi2_matrix = chi2_mat
-
-    def _get_categorical_profile(self, col_idx):
-        """
-        Returns the CategoricalColumn associated with the given
-        column index. If the column is not determined to be categorical,
-        returns None.
-
-        :param col_idx: Column index
-        :type col_idx: int
-        """
-        compiler = self._profile[col_idx]
-        data_stats_compiler = compiler.profiles["data_stats_profile"]
-        profiler = data_stats_compiler._profiles["category"]
-        return profiler if profiler.is_match else None
 
     def _update_profile_from_chunk(self, data, sample_size,
                                    min_true_samples=None):

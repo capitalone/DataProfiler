@@ -75,7 +75,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self._top_k_modes = options.mode.top_k_modes
             self._median_is_enabled = options.median.is_enabled
             self._median_abs_dev_is_enabled = \
-                options.median_absolute_deviation.is_enabled
+                options.median_abs_deviation.is_enabled
             self._mode_is_enabled = options.mode.is_enabled
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
@@ -285,8 +285,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             kurtosis=self.np_type_to_type(self.kurtosis),
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
-            median_absolute_deviation=self.np_type_to_type(
-                self.median_absolute_deviation),
+            median_abs_deviation=self.np_type_to_type(
+                self.median_abs_deviation),
             num_zeros=self.np_type_to_type(self.num_zeros),
             num_negatives=self.np_type_to_type(self.num_negatives),
             times=self.times,
@@ -1081,7 +1081,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         return [bin_counts_pos, bin_edges_pos], [bin_counts_neg, bin_edges_neg]
 
     @property
-    def median_absolute_deviation(self):
+    def median_abs_deviation(self):
         """
         Get median absolute deviation.
 

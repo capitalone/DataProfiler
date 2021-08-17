@@ -1869,19 +1869,7 @@ class StructuredProfiler(BaseProfiler):
         Calculates the p-value from a chi-squared test
         for homogeneity between all categorical columns.
         """
-        def _get_categorical_profile(col_idx):
-            """
-            Returns the CategoricalColumn associated with the given
-            column index. If the column is not determined to be categorical,
-            returns None.
-
-            :param col_idx: Column index
-            :type col_idx: int
-            """
-            data_stats_compiler = self._profile[col_idx].profiles["data_stats_profile"]
-            profiler = data_stats_compiler._profiles["category"]
-            return profiler if profiler.is_match else None
-
+        
         n_cols = len(self._profile)
         # Fill matrix with nan initially
         chi2_mat = np.full((n_cols, n_cols), np.nan)

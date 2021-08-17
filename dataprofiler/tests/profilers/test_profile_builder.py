@@ -1125,7 +1125,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._update_chi2')
-    def test_save_and_load(self):
+    def test_save_and_load(self, *mocks):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
@@ -2941,7 +2941,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
     @mock.patch('dataprofiler.profilers.profile_builder.'
                 'StructuredProfiler._update_chi2')
-    def test_save_and_load_structured(self):
+    def test_save_and_load_structured(self, *mocks):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 

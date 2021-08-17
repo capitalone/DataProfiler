@@ -1122,7 +1122,9 @@ class TestStructuredProfiler(unittest.TestCase):
         # Test valid input
         profile = dp.StructuredProfiler(empty_df, min_true_samples=10)
         self.assertEqual(10, profile._min_true_samples)
-        
+
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'StructuredProfiler._update_chi2')
     def test_save_and_load(self):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
@@ -2937,6 +2939,8 @@ class TestProfilerFactoryClass(unittest.TestCase):
         data_str = 'test'
         self.assertIsInstance(Profiler(data_str), UnstructuredProfiler)
 
+    @mock.patch('dataprofiler.profilers.profile_builder.'
+                'StructuredProfiler._update_chi2')
     def test_save_and_load_structured(self):
         datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]

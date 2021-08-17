@@ -151,6 +151,13 @@ class CategoricalColumn(BaseColumnProfiler):
         return list(self._categories.keys())
 
     @property
+    def categorical_counts(self):
+        """
+        Property for the counts of each category.
+        """
+        return self._categories.copy()
+
+    @property
     def unique_ratio(self):
         """
         Property for unique_ratio. Returns ratio of unique 

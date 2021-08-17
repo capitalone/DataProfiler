@@ -1865,45 +1865,51 @@ class StructuredProfiler(BaseProfiler):
         return corr_mat
 
     def _update_chi2(self):
+        """
+        Calculates the p-value from a chi-squared test
+        for homogeneity between all categorical columns.
+        """
         n_cols = len(self._profile)
-        cat_cols = {}
-        cat_col_idxs = []
-
-        # Get categorical columns
-        for i in range(n_cols):
-            compiler = self._profile[i]
-            data_stats_compiler = compiler.profiles["data_stats_profile"]
-            profiler = data_stats_compiler._profiles["category"]
-            if profiler.is_match:
-                categories = profiler._categories
-                sample_size = profiler.sample_size
-                cat_cols[i] = (categories, sample_size)
-                cat_col_idxs.append(i)
 
         # Fill matrix with nan initially
         chi2_mat = np.full((n_cols, n_cols), np.nan)
         # Compute chi_sq for each
-        for i in range(len(cat_col_idxs)):
-            for j in range(i, len(cat_col_idxs)):
+        for i in range(n_cols):
+            profile1 = self._get_categorical_profile(i)
+            if profile1 is None:
+                continue
+            for j in range(i, n_cols):
                 if i == j:
                     chi2_mat[i][j] = 1
                     continue
-                idx1 = cat_col_idxs[i]
-                idx2 = cat_col_idxs[j]
-
-                categories1 = cat_cols[idx1][0]
-                categories2 = cat_cols[idx2][0]
-                sample_size1 = cat_cols[idx1][1]
-                sample_size2 = cat_cols[idx2][1]
+                profile2 = self._get_categorical_profile(j)
+                if profile2 is None:
+                    continue
 
                 results = utils.perform_chi_squared_test(
-                    categories1, sample_size1,
-                    categories2, sample_size2
+                    profile1.categorical_counts,
+                    profile1.sample_size,
+                    profile2.categorical_counts,
+                    profile2.sample_size
                 )
                 chi2_mat[i][j] = results["p-value"]
                 chi2_mat[j][i] = results["p-value"]
 
         self.chi2_matrix = chi2_mat
+
+    def _get_categorical_profile(self, col_idx):
+        """
+        Returns the CategoricalColumn associated with the given
+        column index. If the column is not determined to be categorical,
+        returns None.
+
+        :param col_idx: Column index
+        :type col_idx: int
+        """
+        compiler = self._profile[col_idx]
+        data_stats_compiler = compiler.profiles["data_stats_profile"]
+        profiler = data_stats_compiler._profiles["category"]
+        return profiler if profiler.is_match else None
 
     def _update_profile_from_chunk(self, data, sample_size,
                                    min_true_samples=None):

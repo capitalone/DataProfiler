@@ -1869,7 +1869,7 @@ class StructuredProfiler(BaseProfiler):
         Calculates the p-value from a chi-squared test
         for homogeneity between all categorical columns.
         """
-        
+
         n_cols = len(self._profile)
         # Fill matrix with nan initially
         chi2_mat = np.full((n_cols, n_cols), np.nan)
@@ -1885,7 +1885,7 @@ class StructuredProfiler(BaseProfiler):
                     continue
                 data_stats_compiler2 = self._profile[j].profiles["data_stats_profile"]
                 profiler2 = data_stats_compiler2._profiles["category"]
-                if profiler2 is None:
+                if not profiler2.is_match:
                     continue
 
                 results = utils.perform_chi_squared_test(

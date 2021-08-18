@@ -1152,7 +1152,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(10, profile._min_true_samples)
 
     def test_save_and_load(self):
-        datapth = "data/"
+        datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
         for test_file in test_files:
@@ -2965,7 +2965,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
         self.assertIsInstance(Profiler(data_str), UnstructuredProfiler)
 
     def test_save_and_load_structured(self):
-        datapth = "data/"
+        datapth = "dataprofiler/tests/data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
         for test_file in test_files:

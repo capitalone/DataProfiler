@@ -61,7 +61,7 @@ The format for a structured profile is below:
     "file_type": string,
     "encoding": string,
     "correlation_matrix": list(list(int)), (*)
-    "chi2_matrix": list(list(float)),
+    "chi2_matrix": list[list[float]],
     "profile_schema": {
         string: list(int)
     },

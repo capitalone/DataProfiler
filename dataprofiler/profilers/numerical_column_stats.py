@@ -1120,8 +1120,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_edges_impose = (bin_edges_pos, bin_edges_neg)
         if bin_edges_pos[1] > bin_edges_neg[1]:
             bin_edges_impose = (bin_edges_neg, bin_edges_pos)
-        bin_edges_impose = [x for x in
-            chain(*zip_longest(*bin_edges_impose)) if x is not None][1:]
+        bin_edges_impose = np.array([x for x in
+            chain(*zip_longest(*bin_edges_impose)) if x is not None][1:])
 
         bin_counts_impose_pos = np.interp(bin_edges_impose,
             bin_edges_pos, np.cumsum(np.append([0], bin_counts_pos)))
@@ -1131,8 +1131,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         median_inds = bin_counts_impose == 0.5
         if np.sum(median_inds) > 1:
-            return np.mean([bin_edges_impose[i] for i in
-                            range(len(bin_edges_impose)) if median_inds[i]])
+            return np.mean(bin_edges_impose[median_inds])
 
         return np.interp(0.5, bin_counts_impose, bin_edges_impose)
 

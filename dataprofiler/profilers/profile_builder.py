@@ -1375,9 +1375,21 @@ class StructuredProfiler(BaseProfiler):
             merged_profile.correlation_matrix = self._merge_correlation(other)
 
         # recompute chi2 if needed
-        if self.options.chi2.is_enabled and \
-            other.options.chi2.is_enabled:
-            merged_profile._update_chi2()
+        if self.options.chi2_homogeneity.is_enabled and \
+            other.options.chi2_homogeneity.is_enabled:
+
+            chi2_mat1 = self.chi2_matrix
+            chi2_mat2 = other.chi2_matrix
+            n1 = self.total_samples - self.row_is_null_count
+            n2 = other.total_samples - other.row_is_null_count
+            if n1 == 0:
+                merged_profile.chi2_mat = chi2_mat2
+            elif n2 == 0:
+                merged_profile.chi2_mat = chi2_mat1
+            elif chi2_mat1 is None or chi2_mat2 is None:
+                merged_profile.chi2_mat = None
+            else:
+                merged_profile.chi2_mat = merged_profile._update_chi2()
 
         return merged_profile
 
@@ -1871,7 +1883,7 @@ class StructuredProfiler(BaseProfiler):
 
         :return: A matrix of p-values corresponding to the results
         of the chi2 test between the columns
-        :rtype: list(list(float))
+        :rtype: np.array(np.array(float))
         """
         n_cols = len(self._profile)
         # Fill matrix with nan initially
@@ -1900,7 +1912,7 @@ class StructuredProfiler(BaseProfiler):
                 chi2_mat[i][j] = results["p-value"]
                 chi2_mat[j][i] = results["p-value"]
 
-        self.chi2_matrix = chi2_mat
+        return chi2_mat
 
     def _update_profile_from_chunk(self, data, sample_size,
                                    min_true_samples=None):
@@ -2099,8 +2111,8 @@ class StructuredProfiler(BaseProfiler):
             self._update_correlation(clean_sampled_dict,
                                      corr_prev_dependent_properties)
 
-        if self.options.chi2.is_enabled:
-            self._update_chi2()
+        if self.options.chi2_homogeneity.is_enabled:
+            self.chi2_matrix = self._update_chi2()
         self._update_row_statistics(data, samples_for_row_stats)
 
     def save(self, filepath=None):

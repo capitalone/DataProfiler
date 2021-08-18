@@ -1019,8 +1019,8 @@ class StructuredOptions(BaseOption):
         :vartype data_labeler: DataLabelerOptions
         :ivar correlation: option set for correlation profiling.
         :vartype correlation: CorrelationOptions
-        :ivar chi2: option set for chi2 matrix
-        :vartype chi2: BooleanOption()
+        :ivar chi2_homogeneity: option set for chi2_homogeneity matrix
+        :vartype chi2_homogeneity: BooleanOption()
         :ivar null_values: option set for defined null values
         :vartype null_values: Union[None, dict]
         """
@@ -1034,7 +1034,7 @@ class StructuredOptions(BaseOption):
         self.category = CategoricalOptions()
         self.data_labeler = DataLabelerOptions()
         self.correlation = CorrelationOptions()
-        self.chi2 = BooleanOption(is_enabled=True)
+        self.chi2_homogeneity = BooleanOption(is_enabled=True)
         # Non-Option variables
         self.null_values = null_values
 
@@ -1074,7 +1074,7 @@ class StructuredOptions(BaseOption):
             ('category', CategoricalOptions),
             ('data_labeler', DataLabelerOptions),
             ('correlation', CorrelationOptions),
-            ('chi2', BooleanOption)
+            ('chi2_homogeneity', BooleanOption)
         ])
         properties = self.properties
         properties.pop('null_values')
@@ -1098,8 +1098,8 @@ class StructuredOptions(BaseOption):
                           "a re.RegexFlag".format(variable_path))
 
         if isinstance(self.category, CategoricalOptions) and \
-                isinstance(self.chi2, BooleanOption) and not \
-                self.category.is_enabled and self.chi2.is_enabled:
+                isinstance(self.chi2_homogeneity, BooleanOption) and not \
+                self.category.is_enabled and self.chi2_homogeneity.is_enabled:
             errors.append("Categorical statistics must be enabled if "
                           "Chi-squared test in enabled.".format(variable_path))
 

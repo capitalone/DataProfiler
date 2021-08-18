@@ -10,7 +10,7 @@ class TestStructuredOptions(TestBaseOption):
     option_class = StructuredOptions
     other_keys = ["null_values"]
     boolean_keys = ["int", "float", "datetime", "text", "order", "category",
-                    "data_labeler", "multiprocess", "correlation", "chi2"]
+                    "data_labeler", "multiprocess", "correlation", "chi2_homogeneity"]
     keys = boolean_keys + other_keys
 
 
@@ -95,12 +95,12 @@ class TestStructuredOptions(TestBaseOption):
 
         # Disable categories and enable chi2
         option.set({'category.is_enabled': False,
-                    'chi2.is_enabled': True})
+                    'chi2_homogeneity.is_enabled': True})
         expected_error = ["Categorical statistics must be enabled if " \
                           "Chi-squared test in enabled."]
         self.assertEqual(expected_error, option._validate_helper())
         option.set({'category.is_enabled': True,
-                    'chi2.is_enabled': True})
+                    'chi2_homogeneity.is_enabled': True})
 
         # Variable Path Is Not A String
         expected_error = "The variable path must be a string."
@@ -129,7 +129,7 @@ class TestStructuredOptions(TestBaseOption):
         option.data_labeler = StructuredOptions()
         option.multiprocess = StructuredOptions()
         option.correlation = StructuredOptions()
-        option.chi2 = StructuredOptions()
+        option.chi2_homogeneity = StructuredOptions()
 
         expected_error = set()
         for key in self.boolean_keys:
@@ -137,7 +137,7 @@ class TestStructuredOptions(TestBaseOption):
             if key == "data_labeler": ckey = "DataLabeler"
             elif key == "category": ckey = "Categorical"
             elif key == "datetime": ckey = "DateTime"
-            if key == "multiprocess" or key == "chi2":
+            if key == "multiprocess" or key == "chi2_homogeneity":
                 expected_error.add('{}.{} must be a(n) BooleanOption.' \
                                    .format(optpth, key, ckey))
             else:
@@ -156,13 +156,13 @@ class TestStructuredOptions(TestBaseOption):
 
         # Disable categories and enable chi2
         option.set({'category.is_enabled': False,
-                    'chi2.is_enabled': True})
+                    'chi2_homogeneity.is_enabled': True})
         expected_error = "Categorical statistics must be enabled if " \
                          "Chi-squared test in enabled."
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate(raise_error=True)
         option.set({'category.is_enabled': True,
-                    'chi2.is_enabled': True})
+                    'chi2_homogeneity.is_enabled': True})
 
         # Option is_enabled is not a boolean
         for key in self.boolean_keys:
@@ -194,7 +194,7 @@ class TestStructuredOptions(TestBaseOption):
         option.data_labeler = StructuredOptions()
         option.multiprocess = StructuredOptions()
         option.correlation = StructuredOptions()
-        option.chi2 = StructuredOptions()
+        option.chi2_homogeneity = StructuredOptions()
 
         expected_error = set()
         for key in self.boolean_keys:
@@ -202,7 +202,7 @@ class TestStructuredOptions(TestBaseOption):
             if key == "data_labeler": ckey = "DataLabeler"
             elif key == "category": ckey = "Categorical"
             elif key == "datetime": ckey = "DateTime"
-            if key == "multiprocess" or key == "chi2":
+            if key == "multiprocess" or key == "chi2_homogeneity":
                 expected_error.add('{}.{} must be a(n) BooleanOption.' \
                                    .format(optpth, key, ckey))
             else:

@@ -614,6 +614,9 @@ Below is an breakdown of all the options.
         the default labeler 
       * max_sample_size - (Int) The max number of samples for the data 
         labeler
+    * **chi2_homogeneity** - Options for the chi-squared test matrix
+
+      * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.
   * **unstructured_options** - Options responsible for all unstructured data
 
     * **text** - Options for the text profile

@@ -12,7 +12,7 @@ from future.utils import with_metaclass
 import copy
 import abc
 import warnings
-import sys
+from itertools import chain, zip_longest
 
 import numpy as np
 
@@ -1109,98 +1109,98 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if len(bin_counts_pos) == 0 or len(bin_counts_neg) == 0:
             return 0
 
-        bin_counts_long, bin_edges_long = bin_counts_pos, bin_edges_pos
-        bin_counts_short, bin_edges_short = bin_counts_neg, bin_edges_neg
-        if len(bin_counts_pos) < len(bin_counts_neg):
-            bin_counts_long, bin_edges_long = bin_counts_neg, bin_edges_neg
-            bin_counts_short, bin_edges_short = bin_counts_pos, bin_edges_pos
+        # otherwise, superimpose the two histogram and interpolate
+        # the median at cumsum count 0.5
+        bin_edges_impose = (bin_edges_pos, bin_edges_neg)
+        if bin_edges_pos[1] > bin_edges_neg[1]:
+            bin_edges_impose = (bin_edges_neg, bin_edges_pos)
+        bin_edges_impose = [x for x in
+            chain(*zip_longest(*bin_edges_impose)) if x is not None][1:]
 
-        # iterate through two histograms until getting the points
-        # with cumsum counts as 0.5
-        cumsum_count, cumsum_count_prev = 0, 0
-        id = 0
-        bin_width = bin_edges_long[-1] - bin_edges_long[-2]
-        while id <= len(bin_counts_short) - 1 and cumsum_count < 0.5:
-            cumsum_count_prev = cumsum_count
-            cumsum_count += bin_counts_long[id] + bin_counts_short[id]
-            id += 1
+        bin_counts_impose_pos = np.interp(bin_edges_impose,
+            bin_edges_pos, np.cumsum(np.append([0], bin_counts_pos)))
+        bin_counts_impose_neg = np.interp(bin_edges_impose,
+            bin_edges_neg, np.cumsum(np.append([0], bin_counts_neg)))
+        bin_counts_impose = bin_counts_impose_pos + bin_counts_impose_neg
 
-        # if cumsum count passes 0.5 in the middle, interpolate the median value
-        id -= 1
-        if cumsum_count >= 0.5:
-            if bin_edges_long[id] == bin_edges_short[id]:
-                return np.interp(0.5, [cumsum_count_prev, cumsum_count],
-                                 [bin_edges_long[id], bin_edges_long[id + 1]])
-            else:
-                edges_ahead = [bin_edges_long[id], bin_edges_long[id + 1]]
-                counts_ahead = bin_counts_long[id]
-                edges_behind = [bin_edges_short[id], bin_edges_short[id + 1]]
-                counts_behind = bin_counts_short[id]
-                if bin_edges_long[id] < bin_edges_short[id]:
-                    edges_ahead = [bin_edges_short[id], bin_edges_short[id + 1]]
-                    counts_ahead = bin_counts_short[id]
-                    edges_behind = [bin_edges_long[id], bin_edges_long[id + 1]]
-                    counts_behind = bin_counts_long[id]
+        return np.interp(0.5, bin_counts_impose, bin_edges_impose)
 
-                # check if the left part includes the median
-                cumsum_count_left = cumsum_count_prev
-                if id > 1:
-                    cumsum_count_left = cumsum_count_prev + \
-                        (edges_ahead[0] - edges_behind[0]) / bin_width * \
-                        counts_behind
-                    if cumsum_count_left >= 0.5:
-                        return np.interp(0.5, [cumsum_count_prev, cumsum_count_left],
-                                         [edges_behind[0], edges_ahead[0]])
+    @property
+    def median_abs_deviation_new(self):
 
-                # check if the middle part includes the median
-                cumsum_count_mid = cumsum_count_left + \
-                    counts_behind * (edges_behind[1] - edges_ahead[0]) / \
-                    (edges_behind[1] - edges_behind[0]) + \
-                    counts_ahead * (edges_behind[1] - edges_ahead[0]) / \
-                    (edges_ahead[1] - edges_ahead[0])
-                if cumsum_count_left >= 0.5:
-                    return np.interp(0.5, [cumsum_count_left, cumsum_count_mid],
-                                     [edges_ahead[0], edges_behind[1]])
+        if not self._has_histogram or not self._median_abs_dev_is_enabled:
+            return np.nan
 
-                # otherwise, the median is included in the right part
-                cumsum_count_right = cumsum_count
-                if id < len(bin_counts_short) - 1:
-                    counts_behind = bin_counts_short[id + 1]
-                    if bin_edges_long[id] < bin_edges_short[id]:
-                        counts_behind = bin_counts_long[id + 1]
-                    cumsum_count_right += counts_behind * \
-                        (edges_ahead[1] - edges_behind[1]) / bin_width
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
+        hist = {'bin_counts': bin_counts, 'bin_edges': bin_edges}
 
-                return np.interp(0.5, [cumsum_count_mid, cumsum_count_right],
-                                     [edges_behind[1], edges_ahead[1]])
+        if self._median_is_enabled:
+            median = self.median
+        else:
+            median = self._get_percentile([50])[0]
 
-        # continue through the remaining parts if there is any
-        while id <= len(bin_counts_long) - 1 and cumsum_count < 0.5:
-            if id <= len(bin_counts_short) and \
-                    bin_edges_long[id] < bin_edges_short[id]:
-                # first sub-bin up to the ahead bin
-                edge_cur, edge_prev = bin_edges_short[id], bin_edges_long[id]
-                cumsum_count_prev = cumsum_count
-                right_count = (edge_cur - edge_prev) / \
-                                bin_width * bin_counts_long[id + 1]
-                cumsum_count += right_count
+        sum_count = sum(hist['bin_counts'])
+        num_edges = len(hist['bin_edges'])
+        #median = get_median(hist)[0]
 
-                # second sub-bin
-                if cumsum_count < 0.5:
-                    edge_cur, edge_prev = bin_edges_long[id + 1], bin_edges_short[id]
-                    cumsum_count_prev = cumsum_count
-                    cumsum_count += bin_counts_long[id + 1] - right_count
+        # create a copy for manipulation, subtract median
+        bin_edges = hist['bin_edges'] - median
+        bin_counts = hist['bin_counts'].copy().astype(float)
 
-                if cumsum_count >= 0.5:
-                    return np.interp(0.5, [cumsum_count_prev, cumsum_count],
-                                     [edge_prev, edge_cur])
-            else:
-                cumsum_count_prev = cumsum_count
-                cumsum_count += bin_counts_pos[id]
-            id += 1
+        median_ind = 0
+        while (bin_edges[median_ind] < 0 and median_ind < num_edges):
+            median_ind += 1
 
-        return np.interp(0.5, [cumsum_count_prev, cumsum_count],
-                         [bin_counts_long[id - 1], bin_counts_long[id]])
+        is_neg_first_bin = False  # pre-set here bc may change inside elif
+        if median_ind in [0, num_edges]:
+            # return 0
+            pass
+        elif bin_edges[median_ind] != 0:  # split bin w/ median inside
+            bin_width = (bin_edges[median_ind]
+                         - bin_edges[median_ind - 1])
+            neg_bin_count = -bin_edges[median_ind - 1] / bin_width * \
+                            bin_counts[median_ind - 1]
+            pos_bin_count = bin_edges[median_ind] / bin_width * \
+                            bin_counts[median_ind - 1]
+
+            bin_edges = np.insert(bin_edges, median_ind, 0)
+            bin_counts[median_ind - 1] = neg_bin_count
+            bin_counts = np.insert(bin_counts, median_ind - 1, pos_bin_count)
+
+            if neg_bin_count < pos_bin_count:
+                is_neg_first_bin = True
+
+        edge_list = (bin_edges[median_ind:], np.abs(bin_edges[median_ind::-1]))
+        if is_neg_first_bin:
+            # swap edge list positions
+            edge_list = (edge_list[1], edge_list[0])
+
+        from itertools import chain, zip_longest
+
+        edge_list = [x for x in
+                     chain(*zip_longest(*edge_list)) if x is not None][1:]
+
+        neg_interp = np.diff(
+            np.interp(
+                edge_list, np.abs(bin_edges[median_ind::-1]),
+                np.cumsum(np.concatenate(([0], bin_counts[median_ind - 1::-1]))),
+                right=0))
+        pos_interp = np.diff(
+            np.interp(
+                edge_list, bin_edges[median_ind:],
+                np.cumsum(np.concatenate(([0], bin_counts[median_ind:]))),
+                right=0))
+
+        pos_interp[pos_interp < 0] = 0
+        neg_interp[neg_interp < 0] = 0
+
+        zero_inds = pos_interp + neg_interp == 0
+        count = np.concatenate(([0], np.cumsum(pos_interp + neg_interp)))
+        count[[False] + zero_inds.tolist()] += 1e-15
+
+        abs_median_ind = (sum_count + 1) / 2
+        return np.interp(abs_median_ind, count, edge_list)
 
     def _get_quantiles(self):
         """

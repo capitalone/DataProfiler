@@ -122,6 +122,11 @@ def clean_report(report):
         report["global_stats"]["correlation_matrix"] = \
             report["global_stats"]["correlation_matrix"].tolist()
 
+    if "chi2_matrix" in global_stats and \
+            report["global_stats"]["chi2_matrix"] is not None:
+        report["global_stats"]["chi2_matrix"] = \
+            report["global_stats"]["chi2_matrix"].tolist()
+
     data_stats = report["data_stats"]
     for i in range(len(data_stats)):
         stats = data_stats[i]["statistics"]

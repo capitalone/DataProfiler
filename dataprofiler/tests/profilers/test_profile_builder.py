@@ -1158,6 +1158,8 @@ class TestStructuredProfiler(unittest.TestCase):
         for test_file in test_files:
             # Create Data and StructuredProfiler objects
             data = dp.Data(os.path.join(datapth, test_file))
+            options = ProfilerOptions()
+            options.set({"correlation.is_enabled": True})
             save_profile = dp.StructuredProfiler(data)
 
             # store the expected data_labeler
@@ -2971,6 +2973,8 @@ class TestProfilerFactoryClass(unittest.TestCase):
         for test_file in test_files:
             # Create Data and StructuredProfiler objects
             data = dp.Data(os.path.join(datapth, test_file))
+            options = ProfilerOptions()
+            options.set({"correlation.is_enabled": True})
             save_profile = dp.StructuredProfiler(data)
 
             # store the expected data_labeler

@@ -1868,8 +1868,11 @@ class StructuredProfiler(BaseProfiler):
         """
         Calculates the p-value from a chi-squared test
         for homogeneity between all categorical columns.
-        """
 
+        :return: A matrix of p-values corresponding to the results
+        of the chi2 test between the columns
+        :rtype: list(list(float))
+        """
         n_cols = len(self._profile)
         # Fill matrix with nan initially
         chi2_mat = np.full((n_cols, n_cols), np.nan)

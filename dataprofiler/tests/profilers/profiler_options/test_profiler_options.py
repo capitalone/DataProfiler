@@ -135,6 +135,7 @@ class TestProfilerOptions(unittest.TestCase):
         options.structured_options.datetime.is_enabled = False
         options.structured_options.order.is_enabled = False
         options.structured_options.category.is_enabled = False
+        options.structured_options.chi2_homogeneity.is_enabled = False
         options.structured_options.data_labeler.is_enabled = False
         profile = Profiler(self.data, options=options)
         for col_profiler in profile.profile:

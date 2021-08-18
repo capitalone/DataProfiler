@@ -1316,6 +1316,7 @@ class StructuredProfiler(BaseProfiler):
         self._profile = []
         self._col_name_to_idx = defaultdict(list)
         self.correlation_matrix = None
+        self.chi2_matrix = None
 
         if data is not None:
             self.update_profile(data)
@@ -1372,6 +1373,23 @@ class StructuredProfiler(BaseProfiler):
         if (self.options.correlation.is_enabled
                 and other.options.correlation.is_enabled):
             merged_profile.correlation_matrix = self._merge_correlation(other)
+
+        # recompute chi2 if needed
+        if self.options.chi2_homogeneity.is_enabled and \
+            other.options.chi2_homogeneity.is_enabled:
+
+            chi2_mat1 = self.chi2_matrix
+            chi2_mat2 = other.chi2_matrix
+            n1 = self.total_samples - self.row_is_null_count
+            n2 = other.total_samples - other.row_is_null_count
+            if n1 == 0:
+                merged_profile.chi2_matrix = chi2_mat2
+            elif n2 == 0:
+                merged_profile.chi2_matrix = chi2_mat1
+            elif chi2_mat1 is None or chi2_mat2 is None:
+                merged_profile.chi2_matrix = None
+            else:
+                merged_profile.chi2_matrix = merged_profile._update_chi2()
 
         return merged_profile
 
@@ -1547,6 +1565,7 @@ class StructuredProfiler(BaseProfiler):
                 "file_type": self.file_type,
                 "encoding": self.encoding,
                 "correlation_matrix": self.correlation_matrix,
+                "chi2_matrix": self.chi2_matrix,
                 "profile_schema": defaultdict(list),
                 "times": self.times,
             }),
@@ -1857,6 +1876,44 @@ class StructuredProfiler(BaseProfiler):
 
         return corr_mat
 
+    def _update_chi2(self):
+        """
+        Calculates the p-value from a chi-squared test
+        for homogeneity between all categorical columns.
+
+        :return: A matrix of p-values corresponding to the results
+        of the chi2 test between the columns
+        :rtype: np.array(np.array(float))
+        """
+        n_cols = len(self._profile)
+        # Fill matrix with nan initially
+        chi2_mat = np.full((n_cols, n_cols), np.nan)
+        # Compute chi_sq for each
+        for i in range(n_cols):
+            data_stats_compiler1 = self._profile[i].profiles["data_stats_profile"]
+            profiler1 = data_stats_compiler1._profiles["category"]
+            if not profiler1.is_match:
+                continue
+            for j in range(i, n_cols):
+                if i == j:
+                    chi2_mat[i][j] = 1
+                    continue
+                data_stats_compiler2 = self._profile[j].profiles["data_stats_profile"]
+                profiler2 = data_stats_compiler2._profiles["category"]
+                if not profiler2.is_match:
+                    continue
+
+                results = utils.perform_chi_squared_test_for_homogeneity(
+                    profiler1.categorical_counts,
+                    profiler1.sample_size,
+                    profiler2.categorical_counts,
+                    profiler2.sample_size
+                )
+                chi2_mat[i][j] = results["p-value"]
+                chi2_mat[j][i] = results["p-value"]
+
+        return chi2_mat
+
     def _update_profile_from_chunk(self, data, sample_size,
                                    min_true_samples=None):
         """
@@ -2053,6 +2110,9 @@ class StructuredProfiler(BaseProfiler):
         if self.options.correlation.is_enabled:
             self._update_correlation(clean_sampled_dict,
                                      corr_prev_dependent_properties)
+
+        if self.options.chi2_homogeneity.is_enabled:
+            self.chi2_matrix = self._update_chi2()
         self._update_row_statistics(data, samples_for_row_stats)
 
     def save(self, filepath=None):
@@ -2074,6 +2134,7 @@ class StructuredProfiler(BaseProfiler):
             "_samples_per_update": self._samples_per_update,
             "_min_true_samples": self._min_true_samples,
             "options": self.options,
+            "chi2_matrix": self.chi2_matrix,
             "_profile": self.profile,
             "_col_name_to_idx": self._col_name_to_idx,
             "times": self.times,

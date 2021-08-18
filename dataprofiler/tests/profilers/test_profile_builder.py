@@ -610,6 +610,17 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
     def test_chi2(self, *mocks):
+        # Empty
+        data = pd.DataFrame([])
+        profiler = dp.StructuredProfiler(data)
+        self.assertIsNone(profiler.chi2_matrix)
+
+        # Single column
+        data = pd.DataFrame({'a': ["y", "y", "n", "n", "y"]})
+        profiler = dp.StructuredProfiler(data)
+        expected_mat = np.array([1])
+        self.assertEqual(expected_mat, profiler.chi2_matrix)
+
         data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
                              'b': ["y", "maybe", "y", "y", "n", "n", "maybe"],
                              'c': ["n", "maybe", "n", "n", "n", "y", "y"]})
@@ -712,6 +723,23 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
     def test_update_chi2(self, *mocks):
+        # Update with empty data
+        data1 = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                              'b': ["y", "maybe", "y", "y", "n", "n", "maybe"],
+                              'c': ["n", "maybe", "n", "n", "n", "y", "y"]})
+        data2 = pd.DataFrame({'a': [],
+                              'b': [],
+                              'c': []})
+        profiler = dp.StructuredProfiler(data1)
+        profiler.update_profile(data2)
+        expected_mat = np.array([
+            [1, 0.309924, 0.404638],
+            [0.309924, 1, 0.548812],
+            [0.404638, 0.548812, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler.chi2_matrix)
+
         data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
                              'b': ["y", "maybe", "y", "y", "n", "n", "maybe"],
                              'c': ["n", "maybe", "n", "n", "n", "y", "y"]})
@@ -1124,7 +1152,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(10, profile._min_true_samples)
 
     def test_save_and_load(self):
-        datapth = "dataprofiler/tests/data/"
+        datapth = "data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
         for test_file in test_files:
@@ -1160,7 +1188,7 @@ class TestStructuredProfiler(unittest.TestCase):
             # Check that reports are equivalent
             save_report = test_utils.clean_report(save_profile.report())
             load_report = test_utils.clean_report(load_profile.report())
-            self.assertDictEqual(save_report, load_report)
+            np.testing.assert_equal(save_report, load_report)
 
     def test_save_and_load_no_labeler(self):
         # Create Data and UnstructuredProfiler objects
@@ -1184,7 +1212,6 @@ class TestStructuredProfiler(unittest.TestCase):
         # Check that reports are equivalent
         save_report = test_utils.clean_report(save_profile.report())
         load_report = test_utils.clean_report(load_profile.report())
-        self.maxDiff = None
         self.assertDictEqual(save_report, load_report)
 
         # validate both are still usable after
@@ -2938,7 +2965,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
         self.assertIsInstance(Profiler(data_str), UnstructuredProfiler)
 
     def test_save_and_load_structured(self):
-        datapth = "dataprofiler/tests/data/"
+        datapth = "data/"
         test_files = ["csv/guns.csv", "csv/iris.csv"]
 
         for test_file in test_files:
@@ -2974,7 +3001,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
             # Check that reports are equivalent
             save_report = test_utils.clean_report(save_profile.report())
             load_report = test_utils.clean_report(load_profile.report())
-            self.assertDictEqual(save_report, load_report)
+            np.testing.assert_equal(save_report, load_report)
 
             # validate both are still usable after
             save_profile.update_profile(data.data.iloc[:2])

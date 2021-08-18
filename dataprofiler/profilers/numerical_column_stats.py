@@ -1030,7 +1030,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         return quantiles.tolist()
 
     @staticmethod
-    def fold_histogram(bin_counts, bin_edges, value):
+    def _fold_histogram(bin_counts, bin_edges, value):
         """
         Offset the histogram by the given value,
         then fold the histogram at the break point.
@@ -1099,7 +1099,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             median = self._get_percentile([50])[0]
 
         # generate two folds of deviation
-        histogram_pos, histogram_neg = self.fold_histogram(
+        histogram_pos, histogram_neg = self._fold_histogram(
             bin_counts, bin_edges, median)
         bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
         bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]
@@ -1124,83 +1124,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_counts_impose = bin_counts_impose_pos + bin_counts_impose_neg
 
         return np.interp(0.5, bin_counts_impose, bin_edges_impose)
-
-    @property
-    def median_abs_deviation_new(self):
-
-        if not self._has_histogram or not self._median_abs_dev_is_enabled:
-            return np.nan
-
-        bin_counts = self._stored_histogram['histogram']['bin_counts']
-        bin_edges = self._stored_histogram['histogram']['bin_edges']
-        hist = {'bin_counts': bin_counts, 'bin_edges': bin_edges}
-
-        if self._median_is_enabled:
-            median = self.median
-        else:
-            median = self._get_percentile([50])[0]
-
-        sum_count = sum(hist['bin_counts'])
-        num_edges = len(hist['bin_edges'])
-        #median = get_median(hist)[0]
-
-        # create a copy for manipulation, subtract median
-        bin_edges = hist['bin_edges'] - median
-        bin_counts = hist['bin_counts'].copy().astype(float)
-
-        median_ind = 0
-        while (bin_edges[median_ind] < 0 and median_ind < num_edges):
-            median_ind += 1
-
-        is_neg_first_bin = False  # pre-set here bc may change inside elif
-        if median_ind in [0, num_edges]:
-            # return 0
-            pass
-        elif bin_edges[median_ind] != 0:  # split bin w/ median inside
-            bin_width = (bin_edges[median_ind]
-                         - bin_edges[median_ind - 1])
-            neg_bin_count = -bin_edges[median_ind - 1] / bin_width * \
-                            bin_counts[median_ind - 1]
-            pos_bin_count = bin_edges[median_ind] / bin_width * \
-                            bin_counts[median_ind - 1]
-
-            bin_edges = np.insert(bin_edges, median_ind, 0)
-            bin_counts[median_ind - 1] = neg_bin_count
-            bin_counts = np.insert(bin_counts, median_ind - 1, pos_bin_count)
-
-            if neg_bin_count < pos_bin_count:
-                is_neg_first_bin = True
-
-        edge_list = (bin_edges[median_ind:], np.abs(bin_edges[median_ind::-1]))
-        if is_neg_first_bin:
-            # swap edge list positions
-            edge_list = (edge_list[1], edge_list[0])
-
-        from itertools import chain, zip_longest
-
-        edge_list = [x for x in
-                     chain(*zip_longest(*edge_list)) if x is not None][1:]
-
-        neg_interp = np.diff(
-            np.interp(
-                edge_list, np.abs(bin_edges[median_ind::-1]),
-                np.cumsum(np.concatenate(([0], bin_counts[median_ind - 1::-1]))),
-                right=0))
-        pos_interp = np.diff(
-            np.interp(
-                edge_list, bin_edges[median_ind:],
-                np.cumsum(np.concatenate(([0], bin_counts[median_ind:]))),
-                right=0))
-
-        pos_interp[pos_interp < 0] = 0
-        neg_interp[neg_interp < 0] = 0
-
-        zero_inds = pos_interp + neg_interp == 0
-        count = np.concatenate(([0], np.cumsum(pos_interp + neg_interp)))
-        count[[False] + zero_inds.tolist()] += 1e-15
-
-        abs_median_ind = (sum_count + 1) / 2
-        return np.interp(abs_median_ind, count, edge_list)
 
     def _get_quantiles(self):
         """

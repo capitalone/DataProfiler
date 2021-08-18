@@ -93,7 +93,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
         # These stats are only diffed if both profiles are categorical
         if self.is_match and other_profile.is_match:
-            differences["chi2-test"] = utils.perform_chi_squared_test(
+            differences["chi2-test"] = utils.perform_chi_squared_test_for_homogeneity(
                 self._categories, self.sample_size,
                 other_profile._categories, other_profile.sample_size
             )

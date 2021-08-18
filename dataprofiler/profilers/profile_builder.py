@@ -1888,7 +1888,7 @@ class StructuredProfiler(BaseProfiler):
                 if not profiler2.is_match:
                     continue
 
-                results = utils.perform_chi_squared_test(
+                results = utils.perform_chi_squared_test_for_homogeneity(
                     profiler1.categorical_counts,
                     profiler1.sample_size,
                     profiler2.categorical_counts,

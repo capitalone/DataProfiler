@@ -1553,7 +1553,7 @@ class StructuredProfiler(BaseProfiler):
                 "file_type": self.file_type,
                 "encoding": self.encoding,
                 "correlation_matrix": self.correlation_matrix,
-                "chi2_matrix": self.chi2_matrix,
+                "chi2_homogeneity_matrix": self.chi2_matrix,
                 "profile_schema": defaultdict(list),
                 "times": self.times,
             }),

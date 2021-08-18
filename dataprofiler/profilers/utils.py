@@ -616,8 +616,8 @@ def method_timeit(method=None, name=None):
         return decorator(method, name_dec=name)
     return decorator
 
-def perform_chi_squared_test(categories1, sample_size1,
-                             categories2, sample_size2):
+def perform_chi_squared_test_for_homogeneity(categories1, sample_size1,
+                                             categories2, sample_size2):
     """
     Performs a Chi Squared test for homogeneity between two groups.
 

@@ -512,8 +512,6 @@ class TestNumericStatsMixin(unittest.TestCase):
             bin_counts, bin_edges, value)
         bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
         bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]
-        print(bin_counts_pos, bin_edges_pos)
-        print(bin_counts_neg, bin_edges_neg)
         self.assertCountEqual(np.round([1 / 6, 1 / 6, 1 / 6, 1 / 6], 10),
                               np.round(bin_counts_pos, 10))
         self.assertCountEqual(np.round([0, 0.1, 0.2, 0.3, 0.4], 10),

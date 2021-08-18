@@ -918,6 +918,18 @@ class TestFloatColumn(unittest.TestCase):
         est_median_abs_dev = profile['median_abs_deviation']
         self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
 
+        # multiple edge indices with the counts 0.5
+        # in this example, 1.5 and 13.5 both have the counts 0.5
+        # then the median absolute deviation should be the average, 7.5
+        data = ["-9.0", "-8.0", "4.0", "5.0", "6.0", "7.0", "19.0", "20.0"]
+        df = pd.Series(data)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_abs_deviation']
+        self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
+
     def test_merge_median_abs_deviation(self):
         """
         Checks the median absolute deviation merged from profiles.

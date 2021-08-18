@@ -667,6 +667,23 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler',
                 spec=StructuredDataLabeler)
     def test_merge_chi2(self, *mocks):
+        # Merge empty data
+        data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
+                             'b': ["y", "maybe", "y", "y", "n", "n", "maybe"],
+                             'c': ["n", "maybe", "n", "n", "n", "y", "y"]})
+        profiler1 = dp.StructuredProfiler(None)
+        profiler2 = dp.StructuredProfiler(data)
+        with mock.patch('dataprofiler.profilers.profile_builder.'
+                        'StructuredProfiler._add_error_checks'):
+            profiler3 = profiler1 + profiler2
+        expected_mat = np.array([
+            [1, 0.309924, 0.404638],
+            [0.309924, 1, 0.548812],
+            [0.404638, 0.548812, 1]
+        ])
+        np.testing.assert_array_almost_equal(expected_mat,
+                                             profiler3.chi2_matrix)
+
         data = pd.DataFrame({'a': ["y", "y", "y", "y", "n", "n", "n"],
                              'b': ["y", "maybe", "y", "y", "n", "n", "maybe"],
                              'c': ["n", "maybe", "n", "n", "n", "y", "y"]})

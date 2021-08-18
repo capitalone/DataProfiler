@@ -1383,13 +1383,13 @@ class StructuredProfiler(BaseProfiler):
             n1 = self.total_samples - self.row_is_null_count
             n2 = other.total_samples - other.row_is_null_count
             if n1 == 0:
-                merged_profile.chi2_mat = chi2_mat2
+                merged_profile.chi2_matrix = chi2_mat2
             elif n2 == 0:
-                merged_profile.chi2_mat = chi2_mat1
+                merged_profile.chi2_matrix = chi2_mat1
             elif chi2_mat1 is None or chi2_mat2 is None:
-                merged_profile.chi2_mat = None
+                merged_profile.chi2_matrix = None
             else:
-                merged_profile.chi2_mat = merged_profile._update_chi2()
+                merged_profile.chi2_matrix = merged_profile._update_chi2()
 
         return merged_profile
 

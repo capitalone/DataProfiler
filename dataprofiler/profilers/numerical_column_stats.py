@@ -1083,7 +1083,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @property
     def median_abs_deviation(self):
         """
-        Get median absolute deviation from the histogram
+        Get median absolute deviation estimated from the histogram of the data
             Subtract bin edges from the median value
             Fold the histogram to positive and negative parts around zero
             Impose the two bin edges from the two histogram

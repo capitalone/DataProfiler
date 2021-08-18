@@ -471,7 +471,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         bin_edges = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
         value = 0.35
 
-        histogram_pos, histogram_neg = num_profiler.fold_histogram(
+        histogram_pos, histogram_neg = num_profiler._fold_histogram(
             bin_counts, bin_edges, value)
         bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
         bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]
@@ -490,7 +490,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         bin_edges = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
         value = 0.325
 
-        histogram_pos, histogram_neg = num_profiler.fold_histogram(
+        histogram_pos, histogram_neg = num_profiler._fold_histogram(
             bin_counts, bin_edges, value)
         bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
         bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]
@@ -508,7 +508,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         bin_edges = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
         value = 0.3
 
-        histogram_pos, histogram_neg = num_profiler.fold_histogram(
+        histogram_pos, histogram_neg = num_profiler._fold_histogram(
             bin_counts, bin_edges, value)
         bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
         bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]

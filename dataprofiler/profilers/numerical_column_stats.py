@@ -1083,7 +1083,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @property
     def median_abs_deviation(self):
         """
-        Get median absolute deviation.
+        Get median absolute deviation from the histogram
+            Subtract bin edges from the median value
+            Fold the histogram to positive and negative parts around zero
+            Impose the two bin edges from the two histogram
+            Calculate the counts for the two histograms with the imposed bin edges
+            Superimpose the counts from the two histograms
+            Interpolate the median absolute deviation from the superimposed counts
 
         :return: median absolute deviation
         """
@@ -1122,6 +1128,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_counts_impose_neg = np.interp(bin_edges_impose,
             bin_edges_neg, np.cumsum(np.append([0], bin_counts_neg)))
         bin_counts_impose = bin_counts_impose_pos + bin_counts_impose_neg
+
+        median_inds = bin_counts_impose == 0.5
+        if np.sum(median_inds) > 1:
+            return np.mean([bin_edges_impose[i] for i in
+                            range(len(bin_edges_impose)) if median_inds[i]])
 
         return np.interp(0.5, bin_counts_impose, bin_edges_impose)
 

@@ -12,7 +12,7 @@ from future.utils import with_metaclass
 import copy
 import abc
 import warnings
-from itertools import chain, zip_longest
+import itertools
 
 import numpy as np
 
@@ -1120,8 +1120,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         bin_edges_impose = (bin_edges_pos, bin_edges_neg)
         if bin_edges_pos[1] > bin_edges_neg[1]:
             bin_edges_impose = (bin_edges_neg, bin_edges_pos)
-        bin_edges_impose = np.array([x for x in
-            chain(*zip_longest(*bin_edges_impose)) if x is not None][1:])
+        bin_edges_impose = np.array([x for x in itertools.chain(
+            *itertools.zip_longest(*bin_edges_impose)) if x is not None][1:])
 
         bin_counts_impose_pos = np.interp(bin_edges_impose,
             bin_edges_pos, np.cumsum(np.append([0], bin_counts_pos)))

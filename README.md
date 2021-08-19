@@ -60,9 +60,10 @@ The format for a structured profile is below:
     "duplicate_row_count": int,
     "file_type": string,
     "encoding": string,
-    "correlation_matrix": list(list(int)), (*)
+    "correlation_matrix": list[list[int]], (*)
+    "chi2_matrix": list[list[float]],
     "profile_schema": {
-        string: list(int)
+        string: list[int]
     },
     "times": dict[string, float],
 },
@@ -73,15 +74,15 @@ The format for a structured profile is below:
         "data_label": string,
         "categorical": bool,
         "order": string,
-        "samples": list(str),
+        "samples": list[str],
         "statistics": {
             "sample_size": int,
             "null_count": int,
-            "null_types": list(string),
+            "null_types": list[string],
             "null_types_index": {
-                string: list(int)
+                string: list[int]
             },
-            "data_type_representation": [string, list(string)],
+            "data_type_representation": [string, list[string]],
             "min": [null, float],
             "max": [null, float],
             "mode": float,
@@ -95,16 +96,16 @@ The format for a structured profile is below:
             "num_zeros": int,
             "num_negatives": int,
             "histogram": { 
-                "bin_counts": list(int),
-                "bin_edges": list(float),
+                "bin_counts": list[int],
+                "bin_edges": list[float],
             },
             "quantiles": {
                 int: float
             },
-            "vocab": list(char),
+            "vocab": list[char],
             "avg_predictions": dict[string, float], 
             "data_label_representation": dict[string, float],
-            "categories": list(str),
+            "categories": list[str],
             "unique_count": int,
             "unique_ratio": float,
             "categorical_count": dict[string, int],
@@ -153,9 +154,9 @@ The format for an unstructured profile is below:
         "times": dict[string, float]
     },
     "statistics": {
-        "vocab": list(char),
+        "vocab": list[char],
         "vocab_count": dict[string, int],
-        "words": list(string),
+        "words": list[string],
         "word_count": dict[string, int],
         "times": dict[string, float]
     }
@@ -340,7 +341,7 @@ print(json.dumps(report["data_stats"][0], indent=4))
 ```
 
 ### Unstructured profiler
-In addition to the structured profiler, DataProfiler provides unstructured profiling for the TextData object or string. The unstructured profiler also works with list(string), pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of the unstructured profiler with a text file. 
+In addition to the structured profiler, DataProfiler provides unstructured profiling for the TextData object or string. The unstructured profiler also works with list[string], pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of the unstructured profiler with a text file. 
 ```python
 import dataprofiler as dp
 import json

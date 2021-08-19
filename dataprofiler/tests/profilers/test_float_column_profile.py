@@ -928,7 +928,7 @@ class TestFloatColumn(unittest.TestCase):
         profile = profiler.profile
 
         est_median_abs_dev = profile['median_abs_deviation']
-        self.assertAlmostEqual(7.5, est_median_abs_dev, places=1)
+        self.assertAlmostEqual(7.5, est_median_abs_dev, places=2)
 
     def test_merge_median_abs_deviation(self):
         """

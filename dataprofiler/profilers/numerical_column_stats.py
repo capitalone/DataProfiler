@@ -1013,7 +1013,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         cumsum_bin_counts = np.cumsum(normalized_bin_counts)
 
         median_value = None
-        median_bin_inds = cumsum_bin_counts == 0.5
+        median_bin_inds = np.abs(cumsum_bin_counts - 0.5) < 1e-10
         if np.sum(median_bin_inds) > 1:
             median_value = np.mean(bin_edges[np.append([False], median_bin_inds)])
 
@@ -1129,8 +1129,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             bin_edges_neg, np.cumsum(np.append([0], bin_counts_neg)))
         bin_counts_impose = bin_counts_impose_pos + bin_counts_impose_neg
 
-        median_inds = bin_counts_impose == 0.5
+        median_inds = np.abs(bin_counts_impose - 0.5) < 1e-10
         if np.sum(median_inds) > 1:
+            print(bin_edges_impose[median_inds])
+            print(bin_counts_impose[median_inds])
             return np.mean(bin_edges_impose[median_inds])
 
         return np.interp(0.5, bin_counts_impose, bin_edges_impose)

@@ -1131,8 +1131,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         median_inds = np.abs(bin_counts_impose - 0.5) < 1e-10
         if np.sum(median_inds) > 1:
-            print(bin_edges_impose[median_inds])
-            print(bin_counts_impose[median_inds])
             return np.mean(bin_edges_impose[median_inds])
 
         return np.interp(0.5, bin_counts_impose, bin_edges_impose)

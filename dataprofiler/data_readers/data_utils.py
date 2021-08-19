@@ -652,12 +652,7 @@ def url_to_bytes(url_as_string, options):
         verify_url = options['verify_ssl']
 
     try:
-        url = requests.get(url_as_string, stream=True, verify=verify_url)
-    except requests.exceptions.SSLError:
-        raise ValueError("The URL given has an untrusted SSL certificate. Although highly discouraged, "
-                         "you can proceed with profiling by setting 'verify_url' to False in options.")
-    else:
-        with url:
+        with requests.get(url_as_string, stream=True, verify=verify_url) as url:
             url.raise_for_status()
             if 'Content-length' in url.headers \
                     and int(url.headers['Content-length']) >= 1024 ** 3:
@@ -673,6 +668,9 @@ def url_to_bytes(url_as_string, options):
 
                 if total_bytes > 1024 ** 3:
                     raise ValueError('The downloaded file from the url may not be larger than 1GB')
+    except requests.exceptions.SSLError:
+        raise ValueError("The URL given has an untrusted SSL certificate. Although highly discouraged, "
+                         "you can proceed with profiling by setting 'verify_url' to False in options.")
 
     stream.seek(0)
     return stream

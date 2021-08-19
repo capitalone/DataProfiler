@@ -3,6 +3,7 @@ from unittest import mock
 import os
 
 import pandas as pd
+import requests
 
 from dataprofiler.data_readers.data import Data
 
@@ -112,6 +113,15 @@ class TestDataReadFromURL(unittest.TestCase):
             'The downloaded file from the url may not be larger than 1GB'):
             # stub URL, mock_request_get replaces the content requests.get will see
             data_obj = Data('https://test.com')
+
+    @mock.patch('requests.get')
+    def test_read_url_verify_ssl(self, mock_request_get):
+        mock_request_get.side_effect = requests.exceptions.SSLError()
+
+        with self.assertRaisesRegex(ValueError, \
+            "The URL given has an untrusted SSL certificate."):
+            data_obj = Data('https://test.com')
+
 
 if __name__ == '__main__':
     unittest.main()

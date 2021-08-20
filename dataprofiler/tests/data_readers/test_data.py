@@ -118,8 +118,11 @@ class TestDataReadFromURL(unittest.TestCase):
     def test_read_url_verify_ssl(self, mock_request_get):
         mock_request_get.side_effect = requests.exceptions.SSLError()
 
-        with self.assertRaisesRegex(ValueError, \
-            "The URL given has an untrusted SSL certificate."):
+        with self.assertRaises(RuntimeError, msg="The URL given has an untrusted "
+                               "SSL certificate. Although highly discouraged, "
+                               "you can proceed with reading the data by setting"
+                               " 'verify_url' to False in options (i.e. options"
+                               "=dict(verify_url=False))."):
             data_obj = Data('https://test.com')
 
 

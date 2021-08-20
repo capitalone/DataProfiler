@@ -883,6 +883,87 @@ class TestFloatColumn(unittest.TestCase):
         self.assertEqual(est_Q3, 3.001)
         self.assertAlmostEqual(3.999988, est_quantiles[-1])
 
+    def test_get_median_abs_deviation(self):
+        """
+        Checks the median absolute deviation of profiled numerical columns.
+        :return:
+        """
+        # with different values
+        data = ["1.0", "1.0", "1.0", "1.0", "2.0"]
+        df = pd.Series(data)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_abs_deviation']
+        self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
+
+        # with unique values
+        data = ["1.0", "1.0", "1.0", "1.0", "1.0"]
+        df = pd.Series(data)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_abs_deviation']
+        self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
+
+        # with negative values
+        data = ["-1.0", "1.0", "1.0", "1.0", "2.0"]
+        df = pd.Series(data)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_abs_deviation']
+        self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
+
+        # multiple edge indices with the counts 0.5
+        # in this example, 1.5 and 13.5 both have the counts 0.5
+        # then the median absolute deviation should be the average, 7.5
+        data = ["-9.0", "-8.0", "4.0", "5.0", "6.0", "7.0", "19.0", "20.0"]
+        df = pd.Series(data)
+        profiler = FloatColumn(df.name)
+        profiler.update(df)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_abs_deviation']
+        self.assertAlmostEqual(7.5, est_median_abs_dev, places=2)
+
+    def test_merge_median_abs_deviation(self):
+        """
+        Checks the median absolute deviation merged from profiles.
+        :return:
+        """
+        # with different values
+        data1 = ["1.0", "1.0", "1.0", "2.0"]
+        df1 = pd.Series(data1)
+        profiler = FloatColumn(df1.name)
+        profiler.update(df1)
+
+        data2 = ["0.0", "0.0", "2.0", "3.0", "3.0"]
+        df2 = pd.Series(data2)
+        profiler.update(df2)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_abs_deviation']
+        self.assertAlmostEqual(1.0, est_median_abs_dev, places=2)
+
+        # with unique values
+        data1 = ["1.0", "1.0", "1.0", "1.0"]
+        df1 = pd.Series(data1)
+        profiler = FloatColumn(df1.name)
+        profiler.update(df1)
+
+        data2 = ["1.0", "1.0", "1.0", "1.0", "1.0"]
+        df2 = pd.Series(data2)
+        profiler.update(df2)
+        profile = profiler.profile
+
+        est_median_abs_dev = profile['median_abs_deviation']
+        self.assertAlmostEqual(0.0, est_median_abs_dev, places=2)
+
+
     def test_data_type_ratio(self):
         data = np.linspace(-5, 5, 4)
         df = pd.Series(data).apply(str)
@@ -911,8 +992,9 @@ class TestFloatColumn(unittest.TestCase):
             variance=27 + 1/12.0,
             skewness=35/13*np.sqrt(3/13),
             kurtosis=np.nan,
-            num_negatives = 0,
-            num_zeros = 0,
+            median_abs_deviation=2.5,
+            num_negatives=0,
+            num_zeros=0,
             stddev=np.sqrt(27+1/12.0),
             histogram={
                 'bin_counts': np.array([1, 1, 0, 1]),
@@ -962,6 +1044,9 @@ class TestFloatColumn(unittest.TestCase):
             expected_skewness = expected_profile.pop('skewness')
             variance = profile.pop('variance')
             expected_variance = expected_profile.pop('variance')
+            median_abs_dev = profile.pop('median_abs_deviation')
+            expected_median_abs_dev = \
+                expected_profile.pop('median_abs_deviation')
 
             self.assertDictEqual(expected_profile, profile)
             self.assertDictEqual(expected_profile['precision'], profile['precision'])
@@ -975,6 +1060,7 @@ class TestFloatColumn(unittest.TestCase):
             self.assertAlmostEqual(expected_quantiles[2], quantiles[749])
             self.assertAlmostEqual(expected_skewness, skewness)
             self.assertAlmostEqual(expected_variance, variance)
+            self.assertAlmostEqual(expected_median_abs_dev, median_abs_dev)
             self.assertAlmostEqual(expected_median, median, places=2)
 
             # Validate time in datetime class has expected time after second update

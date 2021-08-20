@@ -463,6 +463,64 @@ class TestNumericStatsMixin(unittest.TestCase):
                                         subset_properties)
         self.assertEqual(subset_properties["num_negatives"], 4)
 
+    def test_fold_histogram(self):
+        num_profiler = TestColumn()
+
+        # the break point is at the mid point of a bin
+        bin_counts = np.array([1/6, 1/6, 1/6, 1/6, 1/6, 1/6])
+        bin_edges = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
+        value = 0.35
+
+        histogram_pos, histogram_neg = num_profiler._fold_histogram(
+            bin_counts, bin_edges, value)
+        bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
+        bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]
+        self.assertCountEqual(np.round([1/12, 1/6, 1/6, 1/6], 10),
+                              np.round(bin_counts_pos, 10))
+        self.assertCountEqual(np.round([0, 0.05, 0.15, 0.25, 0.35], 10),
+                              np.round(bin_edges_pos, 10))
+        self.assertCountEqual(np.round([1/12, 1/6, 1/6], 10),
+                              np.round(bin_counts_neg, 10))
+        self.assertCountEqual(np.round([0, 0.05, 0.15, 0.25], 10),
+                              np.round(bin_edges_neg, 10))
+
+        # the break point is at the middle of a bin, and divides the bin
+        # into two parts with the ratio 1/4, 3/4
+        bin_counts = np.array([1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6])
+        bin_edges = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
+        value = 0.325
+
+        histogram_pos, histogram_neg = num_profiler._fold_histogram(
+            bin_counts, bin_edges, value)
+        bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
+        bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]
+        self.assertCountEqual(np.round([3 / 24, 1 / 6, 1 / 6, 1 / 6], 10),
+                              np.round(bin_counts_pos, 10))
+        self.assertCountEqual(np.round([0, 0.075, 0.175, 0.275, 0.375], 10),
+                              np.round(bin_edges_pos, 10))
+        self.assertCountEqual(np.round([1 / 24, 1 / 6, 1 / 6], 10),
+                              np.round(bin_counts_neg, 10))
+        self.assertCountEqual(np.round([0, 0.025, 0.125, 0.225], 10),
+                              np.round(bin_edges_neg, 10))
+
+        # the break point is at the edge of a bin
+        bin_counts = np.array([1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6, 1 / 6])
+        bin_edges = np.array([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
+        value = 0.3
+
+        histogram_pos, histogram_neg = num_profiler._fold_histogram(
+            bin_counts, bin_edges, value)
+        bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
+        bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]
+        self.assertCountEqual(np.round([1 / 6, 1 / 6, 1 / 6, 1 / 6], 10),
+                              np.round(bin_counts_pos, 10))
+        self.assertCountEqual(np.round([0, 0.1, 0.2, 0.3, 0.4], 10),
+                              np.round(bin_edges_pos, 10))
+        self.assertCountEqual(np.round([1 / 6, 1 / 6], 10),
+                              np.round(bin_counts_neg, 10))
+        self.assertCountEqual(np.round([0, 0.1, 0.2], 10),
+                              np.round(bin_edges_neg, 10))
+
     def test_timeit_num_zeros_and_negatives(self):
         """
         Checks num_zeros and num_negatives have been timed
@@ -529,6 +587,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             variance=np.nan, # default
             skewness=np.nan, # default
             kurtosis=np.nan, # default
+            median_abs_deviation=np.nan, # default
             stddev=np.nan, # default
             histogram={
                 'bin_counts': np.array([1, 1, 1]),

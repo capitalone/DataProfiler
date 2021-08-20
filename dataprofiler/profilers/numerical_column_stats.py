@@ -12,7 +12,7 @@ from future.utils import with_metaclass
 import copy
 import abc
 import warnings
-import sys
+import itertools
 
 import numpy as np
 
@@ -58,6 +58,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self._biased_skewness = np.nan
         self._biased_kurtosis = np.nan
         self._median_is_enabled = True
+        self._median_abs_dev_is_enabled = True
         self.max_histogram_bin = 100000
         self.min_histogram_bin = 1000
         self.histogram_bin_method_names = [
@@ -73,6 +74,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
             self._median_is_enabled = options.median.is_enabled
+            self._median_abs_dev_is_enabled = \
+                options.median_abs_deviation.is_enabled
             self._mode_is_enabled = options.mode.is_enabled
             bin_count_or_method = \
                 options.histogram_and_quantiles.bin_count_or_method
@@ -260,6 +263,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self._median_is_enabled = other1._median_is_enabled and other2._median_is_enabled
         # Merge mode enable/disable option
         self._mode_is_enabled = other1._mode_is_enabled and other2._mode_is_enabled
+        # Merge median absolute deviation enable/disable option
+        self._median_abs_dev_is_enabled = \
+            other1._median_abs_dev_is_enabled and other2._median_abs_dev_is_enabled
 
     def profile(self):
         """
@@ -279,6 +285,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             kurtosis=self.np_type_to_type(self.kurtosis),
             histogram=self._get_best_histogram_for_profile(),
             quantiles=self.quantiles,
+            median_abs_deviation=self.np_type_to_type(
+                self.median_abs_deviation),
             num_zeros=self.np_type_to_type(self.num_zeros),
             num_negatives=self.np_type_to_type(self.num_negatives),
             times=self.times,
@@ -1005,7 +1013,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         cumsum_bin_counts = np.cumsum(normalized_bin_counts)
 
         median_value = None
-        median_bin_inds = cumsum_bin_counts == 0.5
+        median_bin_inds = np.abs(cumsum_bin_counts - 0.5) < 1e-10
         if np.sum(median_bin_inds) > 1:
             median_value = np.mean(bin_edges[np.append([False], median_bin_inds)])
 
@@ -1020,6 +1028,115 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         if median_value:
             quantiles[percentiles == 50] = median_value
         return quantiles.tolist()
+
+    @staticmethod
+    def _fold_histogram(bin_counts, bin_edges, value):
+        """
+        Offset the histogram by the given value,
+        then fold the histogram at the break point.
+
+        :param bin_counts: bin counts of the histogram
+        :type bin_counts: np.array
+        :param bin_edges: bin edges of the histogram
+        :type bin_edges: np.array
+        :param value: offset value
+        :type value: float
+        :return: two histograms represented by bin counts and bin edges
+        """
+        # normalize bin counts
+        bin_counts = bin_counts.astype(float)
+        normalized_bin_counts = bin_counts / np.sum(bin_counts)
+        bin_edges = bin_edges - value
+
+        # find the break point to fold the deviation list
+        id_zero = None
+        for i in range(len(bin_edges)):
+            if bin_edges[i] > 0:
+                id_zero = i
+                break
+
+        # if all bin edges are positive or negative (no break point)
+        if id_zero is None:
+            return [[], []], [normalized_bin_counts, bin_edges]
+        if id_zero == 1:
+            return [normalized_bin_counts, bin_edges], [[], []]
+
+        # otherwise, generate two folds of deviation
+        bin_counts_pos = np.append(
+            [normalized_bin_counts[id_zero - 1] * (bin_edges[id_zero] /
+            (bin_edges[id_zero] - bin_edges[id_zero - 1]))],
+            normalized_bin_counts[id_zero:])
+        bin_edges_pos = np.append([0], bin_edges[id_zero:])
+
+        bin_counts_neg = np.append(
+            [normalized_bin_counts[id_zero - 1] -
+            normalized_bin_counts[id_zero - 1] * (bin_edges[id_zero] /
+            (bin_edges[id_zero] - bin_edges[id_zero - 1]))],
+            normalized_bin_counts[:id_zero - 1][::-1])
+        bin_edges_neg = np.append([0], -bin_edges[:id_zero][::-1])
+
+        if len(bin_edges_neg) > 1 and bin_edges_neg[1] == 0:
+            bin_edges_neg = bin_edges_neg[1:]
+            bin_counts_neg = bin_counts_neg[1:]
+        return [bin_counts_pos, bin_edges_pos], [bin_counts_neg, bin_edges_neg]
+
+    @property
+    def median_abs_deviation(self):
+        """
+        Get median absolute deviation estimated from the histogram of the data
+            Subtract bin edges from the median value
+            Fold the histogram to positive and negative parts around zero
+            Impose the two bin edges from the two histogram
+            Calculate the counts for the two histograms with the imposed bin edges
+            Superimpose the counts from the two histograms
+            Interpolate the median absolute deviation from the superimposed counts
+
+        :return: median absolute deviation
+        """
+        if not self._has_histogram or not self._median_abs_dev_is_enabled:
+            return np.nan
+
+        bin_counts = self._stored_histogram['histogram']['bin_counts']
+        bin_edges = self._stored_histogram['histogram']['bin_edges']
+
+        if self._median_is_enabled:
+            median = self.median
+        else:
+            median = self._get_percentile([50])[0]
+
+        # generate two folds of deviation
+        histogram_pos, histogram_neg = self._fold_histogram(
+            bin_counts, bin_edges, median)
+        bin_counts_pos, bin_edges_pos = histogram_pos[0], histogram_pos[1]
+        bin_counts_neg, bin_edges_neg = histogram_neg[0], histogram_neg[1]
+
+        # if all bin edges are positive or negative (no break point),
+        # the median value is actually 0
+        if len(bin_counts_pos) == 0 or len(bin_counts_neg) == 0:
+            return 0
+
+        # otherwise, superimpose the two histogram and interpolate
+        # the median at cumsum count 0.5
+        bin_edges_impose = (bin_edges_pos, bin_edges_neg)
+        if bin_edges_pos[1] > bin_edges_neg[1]:
+            bin_edges_impose = (bin_edges_neg, bin_edges_pos)
+        bin_edges_impose = np.array([x for x in itertools.chain(
+            *itertools.zip_longest(*bin_edges_impose)) if x is not None][1:])
+
+        bin_edges_impose = bin_edges_impose[
+            np.append([True], np.diff(bin_edges_impose) > 1e-14)]
+
+        bin_counts_impose_pos = np.interp(bin_edges_impose,
+            bin_edges_pos, np.cumsum(np.append([0], bin_counts_pos)))
+        bin_counts_impose_neg = np.interp(bin_edges_impose,
+            bin_edges_neg, np.cumsum(np.append([0], bin_counts_neg)))
+        bin_counts_impose = bin_counts_impose_pos + bin_counts_impose_neg
+
+        median_inds = np.abs(bin_counts_impose - 0.5) < 1e-10
+        if np.sum(median_inds) > 1:
+            return np.mean(bin_edges_impose[median_inds])
+
+        return np.interp(0.5, bin_counts_impose, bin_edges_impose)
 
     def _get_quantiles(self):
         """

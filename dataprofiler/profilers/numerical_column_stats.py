@@ -308,13 +308,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             raise TypeError("Unsupported operand type(s) for diff: '{}' "
                             "and '{}'".format(cls.__name__,
                                               other_profile.__class__.__name__))
-        print('==========================')
-        print('==========================')
-        print('==========================')
-        print(self.median_abs_deviation, other_profile.median_abs_deviation)
-        print('==========================')
-        print('==========================')
-        print('==========================')
+
         differences = {
             "min": utils.find_diff_of_numbers(self.min, other_profile.min),
             "max": utils.find_diff_of_numbers(self.max, other_profile.max),

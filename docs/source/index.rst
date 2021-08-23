@@ -89,6 +89,7 @@ The format for a structured profile is below:
                 "sum": float,
                 "mode": list[float],
                 "median": float,
+                "median_absolute_deviation": float,
                 "mean": float,
                 "variance": float,
                 "stddev": float,

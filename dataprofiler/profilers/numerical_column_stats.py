@@ -308,19 +308,32 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             raise TypeError("Unsupported operand type(s) for diff: '{}' "
                             "and '{}'".format(cls.__name__,
                                               other_profile.__class__.__name__))
-        
+        print('==========================')
+        print('==========================')
+        print('==========================')
+        print(self.median_abs_deviation, other_profile.median_abs_deviation)
+        print('==========================')
+        print('==========================')
+        print('==========================')
         differences = {
             "min": utils.find_diff_of_numbers(self.min, other_profile.min),
             "max": utils.find_diff_of_numbers(self.max, other_profile.max),
             "sum": utils.find_diff_of_numbers(self.sum, other_profile.sum),
             "mean": utils.find_diff_of_numbers(self.mean, other_profile.mean),
+            "median": utils.find_diff_of_numbers(
+                self.median, other_profile.median),
+            "mode": utils.find_diff_of_lists_and_sets(
+                self.mode, other_profile.mode),
+            "median_absolute_deviation": utils.find_diff_of_numbers(
+                self.median_abs_deviation, other_profile.median_abs_deviation),
             "variance": utils.find_diff_of_numbers(self.variance,
                                                    other_profile.variance),
             "stddev": utils.find_diff_of_numbers(self.stddev,
                                                  other_profile.stddev),
-            "t-test": self._perform_t_test(self.mean, self.variance, self.match_count,
-                                           other_profile.mean, other_profile.variance,
-                                           other_profile.match_count)
+            "t-test": self._perform_t_test(
+                self.mean, self.variance, self.match_count,
+                other_profile.mean, other_profile.variance,
+                other_profile.match_count)
         }
         return differences
 

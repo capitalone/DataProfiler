@@ -1397,14 +1397,14 @@ class StructuredProfiler(BaseProfiler):
         """
         Finds the difference between 2 Profiles and returns the report
 
-        :param other: profile finding the difference with this one
-        :type other: StructuredProfiler
+        :param other_profile: profile finding the difference with this one
+        :type other_profile: StructuredProfiler
         :param options: options to change results of the difference
         :type options: dict
         :return: difference of the profiles
         :rtype: dict
         """
-        report = super().diff( other_profile, options)
+        report = super().diff(other_profile, options)
         report["global_stats"].update({
                 "samples_used": utils.find_diff_of_numbers(
                     self._max_col_samples_used, 
@@ -1428,6 +1428,9 @@ class StructuredProfiler(BaseProfiler):
                 "correlation_matrix": utils.find_diff_of_matrices(
                     self.correlation_matrix, 
                     other_profile.correlation_matrix),
+                "chi2_matrix": utils.find_diff_of_matrices(
+                    self.chi2_matrix,
+                    other_profile.chi2_matrix),
                 "profile_schema": defaultdict(list)})
         report.update({"data_stats": []})
 

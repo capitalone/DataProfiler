@@ -324,6 +324,31 @@ print(json.dumps(report, indent=4))
 
 Note that if merged profiles had overlapping integer indices, when null rows are calculated the indices will be "shifted" to uninhabited values so that null counts and ratios are still accurate.
 
+### Profiler Differences
+For finding the change between profiles with the same schema we can utilize the
+profile's `diff` function. The diff will provide overall file and sampling 
+differences as well as detailed differences of the data's statistics. For 
+example, numerical columns have a t-test applied to evaluate similarity.
+More information is described in the Profiler section of the [Github Pages](
+https://capitalone.github.io/DataProfiler/).
+
+Create the difference report like this:
+```python
+import json
+import dataprofiler as dp
+
+# Load a CSV file
+data1 = dp.Data("file_a.csv")
+profile1 = dp.Profiler(data1)
+
+# Load another CSV file
+data2 = dp.Data("file_b.csv")
+profile2 = dp.Profiler(data2)
+
+diff_report = profile1.diff(profile2)
+print(json.dumps(diff_report, indent=4))
+```
+
 ### Profile a Pandas DataFrame
 ```python
 import pandas as pd

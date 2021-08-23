@@ -1446,10 +1446,9 @@ class TestStructuredProfiler(unittest.TestCase):
              }
         }
 
-        data1 = pd.DataFrame([[1, 2], [5, 6]],
-                            columns=["a", "b"])
+        data1 = pd.DataFrame([[1, 2], [5, 6]], columns=["a", "b"])
         data2 = pd.DataFrame([[4, 3], [8, 7], [None, None], [9, 10]],
-                                 columns=["a", "b"])
+                             columns=["a", "b"])
 
         options = dp.ProfilerOptions()
         options.structured_options.correlation.is_enabled = True
@@ -1471,8 +1470,14 @@ class TestStructuredProfiler(unittest.TestCase):
                 'encoding': 'unchanged', 
                 'correlation_matrix': 
                     np.array([[1.11022302e-16, 3.13803955e-02],
-                              [3.13803955e-02, 0.00000000e+00]], dtype=np.float),
-                'profile_schema': [{}, {'a': 'unchanged', 'b': 'unchanged'}, {}]}, 
+                              [3.13803955e-02, 0.00000000e+00]],
+                             dtype=np.float),
+                'chi2_matrix':
+                    np.array([[ 0.        , -0.04475479],
+                              [-0.04475479,  0.        ]],
+                             dtype=np.float),
+                'profile_schema':
+                    [{}, {'a': 'unchanged', 'b': 'unchanged'}, {}]},
             'data_stats': [
                 {
                     'column_name': 'a', 
@@ -1520,10 +1525,13 @@ class TestStructuredProfiler(unittest.TestCase):
         }
 
         diff = profile1.diff(profile2)
-        expected_mat = expected_diff["global_stats"].pop("correlation_matrix")
-        diff_mat = diff["global_stats"].pop("correlation_matrix")
+        expected_corr_mat = expected_diff["global_stats"].pop("correlation_matrix")
+        diff_corr_mat = diff["global_stats"].pop("correlation_matrix")
+        expected_chi2_mat = expected_diff["global_stats"].pop("chi2_matrix")
+        diff_chi2_mat = diff["global_stats"].pop("chi2_matrix")
 
-        self.assertEqual(str(expected_mat), str(diff_mat))
+        np.testing.assert_array_almost_equal(expected_corr_mat, diff_corr_mat)
+        np.testing.assert_array_almost_equal(expected_chi2_mat, diff_chi2_mat)
         self.assertDictEqual(expected_diff, diff)
     
     @mock.patch('dataprofiler.profilers.profile_builder.DataLabeler')
@@ -1563,7 +1571,8 @@ class TestStructuredProfiler(unittest.TestCase):
                 'row_is_null_ratio': 'unchanged', 
                 'unique_row_ratio': 'unchanged', 
                 'duplicate_row_count': 'unchanged', 
-                'correlation_matrix': None, 
+                'correlation_matrix': None,
+                'chi2_matrix': None,
                 'profile_schema': [{'G': [0]}, 
                                    {'b': 'unchanged'}, 
                                    {'a': [0], 'c': [2]}]}, 

@@ -206,8 +206,9 @@ class StructuredColProfiler(object):
         """
         Finds the difference between 2 StructuredCols and returns the report
 
-        :param other: Structured col finding the difference with this one.
-        :type other: StructuredColProfiler
+        :param other_profile: Structured col finding the difference with this
+            one.
+        :type other_profile: StructuredColProfiler
         :param options: options to change results of the difference
         :type options: dict
         :return: difference of the structured column
@@ -639,8 +640,8 @@ class BaseProfiler(object):
     def diff(self, other_profile, options=None):
         """
         Finds the difference of two profiles
-        :param other: profile being added to this one.
-        :type other: BaseProfiler
+        :param other_profile: profile being added to this one.
+        :type other_profile: BaseProfiler
         :return: diff of the two profiles
         :rtype: dict
         """
@@ -1040,8 +1041,8 @@ class UnstructuredProfiler(BaseProfiler):
         Finds the difference between 2 unstuctured profiles and returns the 
         report.
 
-        :param other: profile finding the difference with this one.
-        :type other: UnstructuredProfiler
+        :param other_profile: profile finding the difference with this one.
+        :type other_profile: UnstructuredProfiler
         :param options: options to impact the results of the diff
         :type options: dict
         :return: difference of the profiles
@@ -1397,14 +1398,14 @@ class StructuredProfiler(BaseProfiler):
         """
         Finds the difference between 2 Profiles and returns the report
 
-        :param other: profile finding the difference with this one
-        :type other: StructuredProfiler
+        :param other_profile: profile finding the difference with this one
+        :type other_profile: StructuredProfiler
         :param options: options to change results of the difference
         :type options: dict
         :return: difference of the profiles
         :rtype: dict
         """
-        report = super().diff( other_profile, options)
+        report = super().diff(other_profile, options)
         report["global_stats"].update({
                 "samples_used": utils.find_diff_of_numbers(
                     self._max_col_samples_used, 
@@ -1428,6 +1429,9 @@ class StructuredProfiler(BaseProfiler):
                 "correlation_matrix": utils.find_diff_of_matrices(
                     self.correlation_matrix, 
                     other_profile.correlation_matrix),
+                "chi2_matrix": utils.find_diff_of_matrices(
+                    self.chi2_matrix,
+                    other_profile.chi2_matrix),
                 "profile_schema": defaultdict(list)})
         report.update({"data_stats": []})
 

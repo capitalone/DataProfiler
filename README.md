@@ -329,8 +329,8 @@ For finding the change between profiles with the same schema we can utilize the
 profile's `diff` function. The diff will provide overall file and sampling 
 differences as well as detailed differences of the data's statistics. For 
 example, numerical columns have a t-test applied to evaluate similarity.
-More information is described in the [Profiler Github Pages](
-https://capitalone.github.io/DataProfiler/docs/0.7.1/html/profiler.html#profile-differences).
+More information is described in the Profiler section of the [Github Pages](
+https://capitalone.github.io/DataProfiler/).
 
 Create the difference report like this:
 ```python

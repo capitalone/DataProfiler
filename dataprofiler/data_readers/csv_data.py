@@ -662,7 +662,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         max_count_value = list(delimiter_count.keys())[max_count_index]
         max_count_percent = count_percent[max_count_index]
 
-        # Infered the file was a CSV
+        # Inferred the file was a CSV
         if ((max_count_value > 0 or delimiter is None)
                 and (max_count_percent >= min_consistency_percent)):
             options.update(delimiter=delimiter, quotechar=quotechar)

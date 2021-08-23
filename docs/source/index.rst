@@ -66,8 +66,9 @@ The format for a structured profile is below:
         "duplicate_row_count": int,
         "file_type": string,
         "encoding": string,
-        "correlation_matrix": list(list(int)), (*)
-        "profile_schema": dict[string, list(int)]
+        "correlation_matrix": list[list[int]], (*)
+        "chi2_matrix": list[list[float]],
+        "profile_schema": dict[string, list[int]]
     },
     "data_stats": [
         {
@@ -76,16 +77,18 @@ The format for a structured profile is below:
             "data_label": string,
             "categorical": bool,
             "order": string,
-            "samples": list(str),
+            "samples": list[str],
             "statistics": {
                 "sample_size": int,
                 "null_count": int,
-                "null_types": list(string),
-                "null_types_index": dict[string, list(int)],
-                "data_type_representation": dict[string, list(string)],
+                "null_types": list[string],
+                "null_types_index": dict[string, list[int]],
+                "data_type_representation": dict[string, list[string]],
                 "min": [null, float],
                 "max": [null, float],
                 "sum": float,
+                "mode": list[float],
+                "median": float,
                 "mean": float,
                 "variance": float,
                 "stddev": float,
@@ -94,16 +97,16 @@ The format for a structured profile is below:
                 "num_zeros": int,
                 "num_negatives": int,
                 "histogram": { 
-                    "bin_counts": list(int),
-                    "bin_edges": list(float),
+                    "bin_counts": list[int],
+                    "bin_edges": list[float],
                 },
                 "quantiles": {
                     int: float
                 },
-                "vocab": list(char),
+                "vocab": list[char],
                 "avg_predictions": dict[string, float], 
                 "data_label_representation": dict[string, float],
-                "categories": list(str),
+                "categories": list[str],
                 "unique_count": int,
                 "unique_ratio": float,
                 "categorical_count": dict[string, int],
@@ -153,9 +156,9 @@ The format for an unstructured profile is below:
             "times": dict[string, float]
         },
         "statistics": {
-            "vocab": list(char),
+            "vocab": list[char],
             "vocab_count": dict[string, int],
-            "words": list(string),
+            "words": list[string],
             "word_count": dict[string, int],
             "times": dict[string, float]
         }
@@ -171,6 +174,7 @@ Supported Data Formats
 * Parquet file
 * Text file
 * Pandas DataFrame
+* A URL that points to one of the supported file types above
 
 
 Data Labels
@@ -394,6 +398,7 @@ In addition, it utilizes only the first 10,000 rows.
    data_readers.rst
    profiler.rst
    data_labeling.rst
+   graphs.rst
 
 .. toctree::
    :maxdepth: 2
@@ -418,6 +423,8 @@ In addition, it utilizes only the first 10,000 rows.
 
 Versions
 ========
+* `0.7.1`_
+* `0.7.0`_
 * `0.6.0`_
 * `0.5.3`_
 * `0.5.2`_
@@ -450,3 +457,6 @@ Versions
 .. _0.5.3: ../../0.5.3/html/index.html
 .. _0.6.0: ../../0.6.0/html/index.html
 
+.. _0.7.0: ../../0.7.0/html/index.html
+
+.. _0.7.1: ../../0.7.1/html/index.html

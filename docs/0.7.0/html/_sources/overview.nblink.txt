@@ -1,0 +1,3 @@
+{
+    "path": "../../DataProfiler/examples/intro_data_profiler.ipynb"
+}

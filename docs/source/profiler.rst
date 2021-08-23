@@ -183,6 +183,7 @@ Below is the structured difference report:
             'unique_row_ratio': float,
             'duplicate_row_count': int,
             'correlation_matrix': list[list[float]],
+            'chi2_matrix': list[list[float]],
             'profile_schema': list[dict[str, int]]
         },
         'data_stats': [{

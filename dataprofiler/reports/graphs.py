@@ -83,7 +83,7 @@ def plot_histograms(profiler, columns=None, column_inds=None):
     # flatten axes for inputting graphs into the plot
     if not isinstance(axs, np.ndarray):
         axs = np.array([axs])
-    axs.flatten()
+    axs = axs.flatten()
 
     # graph the plots
     for col_ind, ax in zip(inds_to_graph, axs):
@@ -97,6 +97,10 @@ def plot_histograms(profiler, columns=None, column_inds=None):
         # remove x/ylabel on subplots
         ax.set(xlabel=None)
         ax.set(ylabel=None)
+
+    # turn off all unused axes
+    for ax in axs[n:]:
+        ax.axis('off')
 
     # add figure x/ylabel and formatting
     fig.text(0.5, 0.01, "bins", ha="center", va="center")

@@ -33,21 +33,21 @@ class TestPlotHistograms(unittest.TestCase):
     def test_bad_inputs(self, *mocks):
         # columns and column_inds cannot be specified simultaneously
         with self.assertRaisesRegex(ValueError,
-                                    "Can only specify either `columns` or "
+                                    "Can only specify either `column_names` or "
                                     "`column_inds` but not both "
                                     "simultaneously"):
             graphs.plot_histograms(self.profiler,
-                                   columns=['test'],
+                                   column_names=['test'],
                                    column_inds=[1])
 
-        # when columns is bad
+        # when column_names is bad
         bad_columns_input = [-1, [{}, 1], {}, 3.2, [3.2]]
         for bad_input in bad_columns_input:
             with self.assertRaisesRegex(ValueError,
-                                        "`columns` must be a list integers or "
-                                        "strings matching the names of columns "
-                                        "in the profiler."):
-                graphs.plot_histograms(self.profiler, columns=bad_input)
+                                        "`column_names` must be a list integers"
+                                        " or strings matching the names of "
+                                        "columns in the profiler."):
+                graphs.plot_histograms(self.profiler, column_names=bad_input)
 
         # when column_inds is bad
         bad_columns_inds_input = [-1, [{}, 1], {}, 3.2, [3.2], ['test']]
@@ -78,7 +78,8 @@ class TestPlotHistograms(unittest.TestCase):
         self.assertIsInstance(graphsplot, plt.Figure)
 
     def test_specify_column(self, plot_col_mock, plt_mock):
-        graphsplot = graphs.plot_histograms(self.profiler, columns=["float"])
+        graphsplot = graphs.plot_histograms(self.profiler,
+                                            column_names=["float"])
         self.assertEqual(1, plot_col_mock.call_count)
         self.assertEqual("float", plot_col_mock.call_args_list[0][0][0].name)
         self.assertIsInstance(graphsplot, plt.Figure)

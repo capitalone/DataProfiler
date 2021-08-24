@@ -7,7 +7,7 @@ import numpy as np
 import seaborn as sns
 
 
-def plot_histograms(profiler, columns=None, column_inds=None):
+def plot_histograms(profiler, column_names=None, column_inds=None):
     """
     Take a input of StructuredProfiler class and a list of specified column
     names and then plots the histograms of those that are int or float
@@ -15,23 +15,23 @@ def plot_histograms(profiler, columns=None, column_inds=None):
 
     :param profiler: StructuredProfiler variable
     :type profiler: StructuredProfiler
-    :param columns: List of column names to be plotted. Can only specify columns
-        or column_inds, but not both
-    :type columns: list[Union[int,str]]
+    :param column_names: List of column names to be plotted. Can only specify
+        columns or column_inds, but not both
+    :type column_names: list[Union[int,str]]
     :param column_inds: List of column indexes to be plotted
     :type column_inds: list[int]
     :return: matplotlib figure of where the graph was plotted
     :rtype: matplotlib.pyplot.Figure
     """
-    if columns and column_inds:
+    if column_names and column_inds:
         raise ValueError(
-            "Can only specify either `columns` or `column_inds` but not both "
-            "simultaneously")
-    elif (columns is not None
-            and not (isinstance(columns, list)
-                     and all(isinstance(x, (int, str)) for x in columns))):
-        raise ValueError("`columns` must be a list integers or strings matching"
-                         " the names of columns in the profiler.")
+            "Can only specify either `column_names` or `column_inds` but not "
+            "both simultaneously")
+    elif (column_names is not None
+            and not (isinstance(column_names, list)
+                     and all(isinstance(x, (int, str)) for x in column_names))):
+        raise ValueError("`column_names` must be a list integers or strings "
+                         "matching the names of columns in the profiler.")
     elif (column_inds is not None
             and not (isinstance(column_inds, list)
                      and all(isinstance(x, int) for x in column_inds))):
@@ -40,10 +40,10 @@ def plot_histograms(profiler, columns=None, column_inds=None):
 
     # get all inds to graph, raise error if user specified doesn't exist
     inds_to_graph = column_inds if column_inds else []
-    if not columns and not column_inds:
+    if not column_names and not column_inds:
         inds_to_graph = list(range(len(profiler.profile)))
     elif not column_inds:
-        for column in columns:
+        for column in column_names:
             col = column
             if isinstance(col, str):
                 col = col.lower()

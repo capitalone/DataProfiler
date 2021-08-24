@@ -115,11 +115,11 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
 
     :param data_type_profiler: the Int or Float column we pass in
     :type data_type_profiler: Union[IntColumn, FloatColumn]
-    :param ax: ax as in seaborn ax
-    :type ax: list
-    :param title: name of a individual histogram
+    :param ax: matplotlib axes of where to plot the graph
+    :type ax: matplotlib.axes.Axes
+    :param title: title ot set for the graph
     :type title: str
-    :return: ax
+    :return: matplotlib axes of where the graph was plotted
     """
 
     histogram = data_type_profiler._get_best_histogram_for_profile()

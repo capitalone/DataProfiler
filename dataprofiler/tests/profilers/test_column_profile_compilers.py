@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import six
 import unittest
+import numpy as np
 from unittest import mock
 import pandas as pd
 
@@ -129,6 +130,9 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                      'max': 10.0,
                      'sum': 12.0,
                      'mean': 2.0,
+                     'median': -0.5,
+                     'mode': [[-2, 15, 1, 2], [], [5, -1]],
+                     'median_absolute_deviation': -1,
                      'variance': 38.666666666666664,
                      'stddev': 3.285085839971525,
                      't-test': {
@@ -144,8 +148,20 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                      }
              }
         }
-        self.maxDiff = None
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        profile_diff = compiler1.diff(compiler2)
+        self.assertAlmostEqual(expected_diff['statistics'].pop('median'),
+                               profile_diff['statistics'].pop('median'),
+                               places=2)
+        expected_diff_mode = expected_diff['statistics'].pop('mode')
+        diff_mode = profile_diff['statistics'].pop('mode')
+        for i in range(len(expected_diff_mode)):
+            np.testing.assert_almost_equal(sorted(expected_diff_mode[i]),
+                                           sorted(diff_mode[i]), 2)
+        self.assertAlmostEqual(
+            expected_diff['statistics'].pop('median_absolute_deviation'),
+            profile_diff['statistics'].pop('median_absolute_deviation'),
+            places=2)
+        self.assertDictEqual(expected_diff, profile_diff)
         
         # Test different compilers
         data1 = pd.Series(['-2', '-1', '1', '2'])
@@ -196,7 +212,10 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 'min': -7.0, 
                 'max': -13.0, 
                 'sum': -20.0,
-                'mean': -10.0, 
+                'mean': -10.0,
+                'median': -10,
+                'mode': [[-2, -1, 1, 2], [], [5, 15]],
+                'median_absolute_deviation': -3.5,
                 'variance': -46.666666666666664,
                 'stddev': data1.astype(int).std() - data2.astype(int).std(),
                 'precision': {
@@ -221,7 +240,20 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 }
             }
         }
-        self.assertDictEqual(expected_diff, compiler1.diff(compiler2))
+        profile_diff = compiler1.diff(compiler2)
+        self.assertAlmostEqual(expected_diff['statistics'].pop('median'),
+                               profile_diff['statistics'].pop('median'),
+                               places=2)
+        expected_diff_mode = expected_diff['statistics'].pop('mode')
+        diff_mode = profile_diff['statistics'].pop('mode')
+        for i in range(len(expected_diff_mode)):
+            np.testing.assert_almost_equal(sorted(expected_diff_mode[i]),
+                                           sorted(diff_mode[i]), 2)
+        self.assertAlmostEqual(
+            expected_diff['statistics'].pop('median_absolute_deviation'),
+            profile_diff['statistics'].pop('median_absolute_deviation'),
+            places=2)
+        self.assertDictEqual(expected_diff, profile_diff)
 
         # Test disabling all columns in one compiler
         options.float.is_enabled = False

@@ -1,12 +1,19 @@
 import unittest
 from unittest import mock
 
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
 import dataprofiler as dp
 from dataprofiler.profilers import IntColumn
 from dataprofiler.reports import graphs
+
+
+class TestGraphImport(unittest.TestCase):
+
+    def test_import_from_base_repo(self):
+        self.assertTrue(hasattr(dp, 'graphs'))
 
 
 @mock.patch("dataprofiler.reports.graphs.plt.show")
@@ -85,3 +92,53 @@ class TestPlotColHistogram(unittest.TestCase):
                                                 "therefore could not be "
                                                 "plotted."):
             graphs.plot_col_histogram(profiler)
+
+
+@mock.patch("dataprofiler.reports.graphs.plt.show")
+class TestPlotMissingValuesMatrix(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.data = [[None, ''  , 1.0 , '1/2/2021'],
+                    [3   , None, 3.5 , ''        ],
+                    [1   , None, 1.0 , '2/5/2020'],
+                    [None, 1   , 10.0, '3/5/2020']]
+        cls.options = dp.ProfilerOptions()
+        cls.options.set({"data_labeler.is_enabled": False})
+        cls.options.set({"multiprocess.is_enabled": False})
+        cls.profiler = dp.StructuredProfiler(cls.data, options=cls.options)
+
+    def test_base(self, *mocks):
+
+        fig = graphs.plot_missing_values_matrix(self.profiler)
+        self.assertIsInstance(fig, plt.Figure)
+        self.assertEqual(1, len(fig.axes))
+
+        ax = fig.axes[0]
+        patches, labels = ax.get_legend_handles_labels()
+        self.assertEqual(['"None"', '"None"', '""', '"None"', '""'], labels)
+
+        expected_patch_values = [
+            {'xy': (0.1, -0.5), 'width': 0.8, 'height': 1},
+            {'xy': (0.1, 2.5), 'width': 0.8, 'height': 1},
+            {'xy': (1.1, -0.5), 'width': 0.8, 'height': 1},
+            {'xy': (1.1, 0.5), 'width': 0.8, 'height': 2},
+            {'xy': (3.1, 0.5), 'width': 0.8, 'height': 1},
+        ]
+
+        for patch, expected in zip(patches, expected_patch_values):
+            np.testing.assert_almost_equal(expected['xy'], patch.xy)
+            self.assertEqual(expected['width'], patch.get_width())
+            self.assertEqual(expected['height'], patch.get_height())
+
+    def test_bad_input(self, *mocks):
+
+        with self.assertRaisesRegex(ValueError,
+                                    '`col_profiler_list` must be a list of '
+                                    'StructuredColProfilers'):
+            graphs.plot_col_missing_values(None)
+
+        with self.assertRaisesRegex(ValueError,
+                                    '`profiler` must of type '
+                                    'StructuredProfiler.'):
+            graphs.plot_missing_values_matrix(None)

@@ -196,7 +196,10 @@ Below is the structured difference report:
                 'min': float,
                 'max': float,
                 'sum': float,
-                'mean': float, 
+                'mean': float,
+                'median': float,
+                'mode': [list[float], list[float], list[float]],
+                'median_absolute_deviation': float,
                 'variance': float,
                 'stddev': float,
                 't-test': {

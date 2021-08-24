@@ -20,7 +20,7 @@ def plot_histograms(profiler, columns=None, column_inds=None):
     :type columns: list[Union[int,str]]
     :param column_inds: List of column indexes to be plotted
     :type column_inds: list[int]
-    :return: returns the plot figure reference
+    :return: matplotlib figure of where the graph was plotted
     :rtype: matplotlib.pyplot.Figure
     """
     if columns and column_inds:

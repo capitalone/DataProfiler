@@ -1543,6 +1543,9 @@ class TestFloatColumn(unittest.TestCase):
             'stddev': profile1['stddev'] - profile2['stddev'],
             'sum': 3.5,
             'variance': profile1['variance'] - profile2['variance'],
+            'median': 4.25,
+            'mode': [[2.5, 12.5, 5], [], [1, 15, 0.5, 0]],
+            'median_absolute_deviation': 2,
             'precision': {
                 'min': 1,
                 'max': 1,
@@ -1565,7 +1568,18 @@ class TestFloatColumn(unittest.TestCase):
                 }
             }
         }
-        self.assertDictEqual(expected_diff, diff)
+        profile_diff = profiler1.diff(profiler2)
+        self.assertAlmostEqual(
+            expected_diff.pop('median'), profile_diff.pop('median'), places=2)
+        expected_diff_mode = expected_diff.pop('mode')
+        diff_mode = profile_diff.pop('mode')
+        for i in range(len(expected_diff_mode)):
+            np.testing.assert_almost_equal(sorted(expected_diff_mode[i]),
+                                           sorted(diff_mode[i]), 2)
+        self.assertAlmostEqual(expected_diff.pop('median_absolute_deviation'),
+                               profile_diff.pop('median_absolute_deviation'),
+                               places=2)
+        self.assertDictEqual(expected_diff, profile_diff)
 
         # Assert type error is properly called
         with self.assertRaises(TypeError) as exc:

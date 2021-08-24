@@ -26,6 +26,19 @@ class TestColumn(NumericStatsMixin):
         pass
 
 
+class TestColumnWProps(TestColumn):
+    # overrides the property func
+    median = None
+    mode = None
+    median_abs_deviation = None
+
+    def __init__(self):
+        super().__init__()
+        self.median = None
+        self.mode = None
+        self.median_abs_deviation = None
+
+
 class TestNumericStatsMixin(unittest.TestCase):
 
     @mock.patch.multiple(NumericStatsMixin, __abstractmethods__=set(),
@@ -640,18 +653,24 @@ class TestNumericStatsMixin(unittest.TestCase):
         Checks _diff_helper() works appropriately.
         """
 
-        other1, other2 = TestColumn(), TestColumn()
+        other1, other2 = TestColumnWProps(), TestColumnWProps()
         other1.min = 3
         other1.max = 4
         other1._biased_variance = 1
         other1.sum = 6
         other1.match_count = 10
+        other1.median = 5
+        other1.mode = [3]
+        other1.median_abs_deviation = 4
         
         other2.min = 3
         other2.max = None
         other2._biased_variance = 9
         other2.sum = 6
         other2.match_count = 20
+        other2.median = 6
+        other2.mode = [2]
+        other2.median_abs_deviation = 3
 
         # T-stat and Welch's df calculation can be found here:
         #    https://en.wikipedia.org/wiki/Welch%27s_t-test#Calculations
@@ -662,6 +681,9 @@ class TestNumericStatsMixin(unittest.TestCase):
             'max': [4, None],
             'sum': 'unchanged',
             'mean': 0.3,
+            'median': -1,
+            'mode': [[3], [], [2]],
+            'median_absolute_deviation': 1,
             'variance': 10 / 9 - (9 * 20 / 19),
             'stddev': np.sqrt(10 / 9) - np.sqrt(9 * 20 / 19),
             't-test': {
@@ -676,28 +698,39 @@ class TestNumericStatsMixin(unittest.TestCase):
                 }
             }
         }
+
         difference = other1.diff(other2)
+        self.maxDiff = None
         self.assertDictEqual(expected_diff, difference)
 
         # Invalid statistics
-        other1, other2 = TestColumn(), TestColumn()
+        other1, other2 = TestColumnWProps(), TestColumnWProps()
         other1.min = 3
         other1.max = 4
         other1._biased_variance = np.nan # NaN variance
         other1.sum = 6
         other1.match_count = 10
+        other1.median = 5
+        other1.mode = [3]
+        other1.median_abs_deviation = 4
 
         other2.min = 3
         other2.max = None
         other2._biased_variance = 9
         other2.sum = 6
         other2.match_count = 20
+        other2.median = 6
+        other2.mode = [2]
+        other2.median_abs_deviation = 3
 
         expected_diff = {
             'min': 'unchanged',
             'max': [4, None],
             'sum': 'unchanged',
             'mean': 0.3,
+            'median': -1,
+            'mode': [[3], [], [2]],
+            'median_absolute_deviation': 1,
             'variance': np.nan,
             'stddev': np.nan,
             't-test': {
@@ -724,24 +757,33 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertTrue(np.isnan([expected_var, var, expected_stddev, stddev]).all())
 
         # Insufficient match count
-        other1, other2 = TestColumn(), TestColumn()
+        other1, other2 = TestColumnWProps(), TestColumnWProps()
         other1.min = 3
         other1.max = 4
         other1._biased_variance = 1
         other1.sum = 6
         other1.match_count = 10
+        other1.median = 5
+        other1.mode = [3]
+        other1.median_abs_deviation = 4
 
         other2.min = 3
         other2.max = None
         other2._biased_variance = 9
         other2.sum = 6
         other2.match_count = 1 # Insufficient count
+        other2.median = 6
+        other2.mode = [2]
+        other2.median_abs_deviation = 3
 
         expected_diff = {
             'min': 'unchanged',
             'max': [4, None],
             'sum': 'unchanged',
             'mean': -5.4,
+            'median': -1,
+            'mode': [[3], [], [2]],
+            'median_absolute_deviation': 1,
             'variance': np.nan,
             'stddev': np.nan,
             't-test': {
@@ -768,24 +810,33 @@ class TestNumericStatsMixin(unittest.TestCase):
         self.assertTrue(np.isnan([expected_var, var, expected_stddev, stddev]).all())
 
         # Small p-value
-        other1, other2 = TestColumn(), TestColumn()
+        other1, other2 = TestColumnWProps(), TestColumnWProps()
         other1.min = 3
         other1.max = 4
         other1._biased_variance = 1
         other1.sum = 6
         other1.match_count = 10
+        other1.median = 5
+        other1.mode = [3]
+        other1.median_abs_deviation = 4
 
         other2.min = 3
         other2.max = None
         other2._biased_variance = 9
         other2.sum = 60
         other2.match_count = 20
+        other2.median = 6
+        other2.mode = [2]
+        other2.median_abs_deviation = 3
 
         expected_diff = {
             'min': 'unchanged',
             'max': [4, None],
             'sum': -54,
             'mean': -2.4,
+            'median': -1,
+            'mode': [[3], [], [2]],
+            'median_absolute_deviation': 1,
             'variance': 10 / 9 - (9 * 20 / 19),
             'stddev': np.sqrt(10 / 9) - np.sqrt(9 * 20 / 19),
             't-test': {
@@ -807,5 +858,5 @@ class TestNumericStatsMixin(unittest.TestCase):
         with self.assertRaises(TypeError) as exc:
             other1.diff("Inproper input")
         self.assertEqual(str(exc.exception),
-                         "Unsupported operand type(s) for diff: 'TestColumn' and"
+                         "Unsupported operand type(s) for diff: 'TestColumnWProps' and"
                          " 'str'")

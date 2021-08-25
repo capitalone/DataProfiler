@@ -456,11 +456,6 @@ class TestTextColumnProfiler(unittest.TestCase):
             ["hello", "my", "name", "is", "Grant", "I", "have", "67", "dogs"]
         ).apply(str)
 
-        expected_vocab = [
-            'a', 'b', 'c', 'd', '4', '3', '2', 'f', 'h', 'e', 'l', 'o', 'm',
-            'y', 'n', 'i', 's', 'G', 'r', 't', 'I', 'v', '6', '7', 'g'
-        ]
-
         profiler1 = TextColumn(df.name)
         profiler1.update(df)
         profile1 = profiler1.profile
@@ -473,6 +468,9 @@ class TestTextColumnProfiler(unittest.TestCase):
                          'max': -1.0,
                          'sum': -9.0,
                          'mean': profile1['mean'] - profile2['mean'],
+                         'median': -2.5,
+                         'mode': [[1], [], [2, 4]],
+                         'median_absolute_deviation': -0.5,
                          'variance': profile1['variance'] - profile2['variance'],
                          'stddev': profile1['stddev'] - profiler2['stddev'],
                          'vocab': utils.find_diff_of_lists_and_sets(
@@ -489,5 +487,16 @@ class TestTextColumnProfiler(unittest.TestCase):
                              }
                          }
                          }
-        diff = profiler1.diff(profiler2)
-        self.assertDictEqual(expected_diff, diff)
+
+        profile_diff = profiler1.diff(profiler2)
+        self.assertAlmostEqual(
+            expected_diff.pop('median'), profile_diff.pop('median'), places=2)
+        expected_diff_mode = expected_diff.pop('mode')
+        diff_mode = profile_diff.pop('mode')
+        for i in range(len(expected_diff_mode)):
+            np.testing.assert_almost_equal(sorted(expected_diff_mode[i]),
+                                           sorted(diff_mode[i]), 2)
+        self.assertAlmostEqual(expected_diff.pop('median_absolute_deviation'),
+                               profile_diff.pop('median_absolute_deviation'),
+                               places=2)
+        self.assertDictEqual(expected_diff, profile_diff)

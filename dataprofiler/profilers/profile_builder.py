@@ -117,7 +117,7 @@ class StructuredColProfiler(object):
 
         if self.name is None:
             self.name = clean_sampled_df.name
-        if self.name != clean_sampled_df.name:
+        elif self.name != clean_sampled_df.name:
             raise ValueError(
                 'Column names have changed, col {} does not match prior name {}',
                 clean_sampled_df.name, self.name

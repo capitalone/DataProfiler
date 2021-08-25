@@ -2,9 +2,13 @@
 import math
 import warnings
 
+import matplotlib.patches
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+
+from ..profilers.profile_builder import StructuredProfiler, \
+    StructuredColProfiler
 
 
 def plot_histograms(profiler, column_names=None, column_inds=None):
@@ -135,3 +139,139 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
         title = str(data_type_profiler.name)
     ax.set_title(title)
     return ax
+
+
+def plot_missing_values_matrix(profiler, ax=None, title=None):
+    """
+    Generates a matrix of bar graphs for the missing value locations within
+    each column in a structured dataset. A color line indicates the value does
+    not exist.
+
+    :param profiler: structured profiler to be plotted
+    :type profiler: StructuredProfiler
+    :param ax: matplotlib axes where to plot the graph
+    :type ax: matplotlib.axes.Axes
+    :param title: title ot set for the graph
+    :type title: str
+    :return: matplotlib figure of where the graph was plotted
+    """
+    if not isinstance(profiler, StructuredProfiler):
+        raise ValueError('`profiler` must of type StructuredProfiler.')
+    return plot_col_missing_values(profiler.profile, ax=ax, title=title)
+
+
+def plot_col_missing_values(col_profiler_list, ax=None, title=None):
+    """
+    Generates a bar graph of the missing value locations within a column where
+    a color line indicates the value does not exist.
+
+    :param col_profiler_list:
+    :type col_profiler_list: list[StructuredColProfiler]
+    :param ax: matplotlib axes where to plot the graph
+    :type ax: matplotlib.axes.Axes
+    :param title: title ot set for the graph
+    :type title: str
+    :return: matplotlib figure of where the graph was plotted
+    """
+    if not (isinstance(col_profiler_list, list)
+            and all(isinstance(col_profile, StructuredColProfiler)
+                    for col_profile in col_profiler_list)):
+        raise ValueError('`col_profiler_list` must be a list of '
+                         'StructuredColProfilers')
+    elif not col_profiler_list:
+        warnings.warn('There was no data in the profiles to plot missing '
+                      'column values.')
+        return
+
+    # bar width settings and height settings for each null value
+    # width = 1, height = 1 would be no gaps
+    width = 0.8
+    height = 1
+
+    # determine the colors for the plot, first color reserved for background of
+    # each column, subsequent colors are for null values.
+    nan_to_color = dict()
+    color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color'][1:]
+
+    # setup plot
+    is_own_fig = False
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        is_own_fig = True
+    # in case user passed their own axes
+    fig = ax.figure
+
+    # loop through eac column plotting their null values
+    for col_id, col_profiler in enumerate(col_profiler_list):
+
+        # plot the values background bar
+        sample_size = col_profiler.sample_size
+        ax.add_patch(matplotlib.patches.Rectangle(
+            xy=(col_id - width / 2 + 0.5, - height / 2),
+            width=width, height=sample_size,
+            linewidth=1, color='blue', fill=True))
+
+        # get the list of null values in the column and plot contiguous nulls
+        # as a single value
+        null_data = col_profiler.null_types_index
+        for i, null_type in enumerate(null_data):
+
+            # sorted null indexes for plotting contiguous
+            null_indexes = sorted(null_data[null_type])
+
+            # get the color for this nan value, if it hasn't been determined,
+            # determine it now
+            if null_type not in nan_to_color:
+                nan_to_color[null_type] = color_cycle.pop(0)
+                # restart cycle if empty
+                if not len(color_cycle):
+                    color_cycle = (
+                        plt.rcParams['axes.prop_cycle'].by_key()['color'][1:])
+            nan_color = nan_to_color[null_type]
+
+            # loop through contiguous patches to plot a single bar
+            null_ind = 0
+            num_nulls = len(null_indexes)
+            y_start = null_indexes[null_ind]
+            y_end = y_start
+            while null_ind < num_nulls - 1:
+                value = null_indexes[null_ind]
+                next_value = null_indexes[null_ind + 1]
+                if next_value - value == 1:
+                    y_end = next_value
+                else:
+                    ax.add_patch(matplotlib.patches.Rectangle(
+                        xy=(col_id - width / 2 + 0.5, y_start - height / 2),
+                        width=width, height=y_end - y_start + 1,
+                        linewidth=1, color=nan_color, fill=True,
+                        label='"' + null_type + '"'))
+                    y_start = next_value
+                null_ind += 1
+            y_end = null_indexes[-1]
+            # plot the patch of the last null value
+            ax.add_patch(matplotlib.patches.Rectangle(
+                xy=(col_id - width / 2 + 0.5, y_start - height / 2),
+                width=width, height=y_end - y_start + 1,
+                linewidth=1, color=nan_color, fill=True,
+                label='"' + null_type + '"'))
+
+    # setup the graph axes and labels
+    column_names = ['"' + str(col.name) + '"' for col in col_profiler_list]
+    xticks = [0.5 + i for i in range(col_id + 1)]
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(column_names, rotation=90, ha='right')
+    ax.set_xbound(0, col_id + 1)
+    ax.autoscale(enable=True)
+
+    # limit legend to singles and not duplicates
+    handles, labels = ax.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    ax.legend(by_label.values(), by_label.keys())
+    ax.set_xlabel('column name')
+    ax.set_ylabel('row index')
+
+    if is_own_fig:
+        fig.set_tight_layout(True)
+
+    return fig

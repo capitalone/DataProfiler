@@ -142,6 +142,10 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
                     for col_profile in col_profiler_list)):
         raise ValueError('`col_profiler_list` must be a list of '
                          'StructuredColProfilers')
+    elif not col_profiler_list:
+        warnings.warn('There was no data in the profiles to plot missing '
+                      'column values.')
+        return
 
     # bar width settings and height settings for each null value
     # width = 1, height = 1 would be no gaps
@@ -154,9 +158,11 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
     color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color'][1:]
 
     # setup plot
+    is_own_fig = False
     if ax is None:
         fig = plt.figure()
         ax = fig.add_subplot(111)
+        is_own_fig = True
     # in case user passed their own axes
     fig = ax.figure
 
@@ -167,7 +173,7 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
         sample_size = col_profiler.sample_size
         ax.add_patch(matplotlib.patches.Rectangle(
             xy=(col_id - width / 2 + 0.5, - height / 2),
-            width=width, height=sample_size + height,
+            width=width, height=sample_size,
             linewidth=1, color='blue', fill=True))
 
         # get the list of null values in the column and plot contiguous nulls
@@ -226,5 +232,10 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
     handles, labels = ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     ax.legend(by_label.values(), by_label.keys())
+    ax.set_xlabel('column name')
+    ax.set_ylabel('row index')
+
+    if is_own_fig:
+        fig.set_tight_layout(True)
 
     return fig

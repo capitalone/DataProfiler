@@ -94,23 +94,99 @@ class TestPlotColHistogram(unittest.TestCase):
             graphs.plot_col_histogram(profiler)
 
 
-@mock.patch("dataprofiler.reports.graphs.plt.show")
+@mock.patch("dataprofiler.profilers.profile_builder.ColumnStatsProfileCompiler")
+@mock.patch("dataprofiler.profilers.profile_builder.ColumnDataLabelerCompiler")
+@mock.patch("dataprofiler.profilers.profile_builder."
+            "ColumnPrimitiveTypeProfileCompiler")
 class TestPlotMissingValuesMatrix(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.data = [[None, ''  , 1.0 , '1/2/2021'],
-                    [3   , None, 3.5 , ''        ],
-                    [1   , None, 1.0 , '2/5/2020'],
-                    [None, 1   , 10.0, '3/5/2020']]
         cls.options = dp.ProfilerOptions()
         cls.options.set({"data_labeler.is_enabled": False})
         cls.options.set({"multiprocess.is_enabled": False})
-        cls.profiler = dp.StructuredProfiler(cls.data, options=cls.options)
+        cls.options.set({"correlation.is_enabled": False})
+        cls.options.set({"chi2_homogeneity.is_enabled": False})
 
-    def test_base(self, *mocks):
+    def test_no_data(self, *mocks):
+        profiler = dp.StructuredProfiler([], options=self.options)
+        with self.assertWarnsRegex(UserWarning,
+                                   'There was no data in the profiles to plot '
+                                   'missing column values.'):
+            graphs.plot_missing_values_matrix(profiler)
 
-        fig = graphs.plot_missing_values_matrix(self.profiler)
+    def test_null_list(self, *mocks):
+        data = [None, None, None]
+
+        profiler = dp.StructuredProfiler(data, options=self.options)
+
+        fig = graphs.plot_missing_values_matrix(profiler)
+        self.assertIsInstance(fig, plt.Figure)
+        self.assertEqual(1, len(fig.axes))
+
+        ax = fig.axes[0]
+        patches, labels = ax.get_legend_handles_labels()
+        self.assertEqual(['"None"'], labels)
+
+        expected_patch_values = [
+            {'xy': (0.1, -0.5), 'width': 0.8, 'height': 3},
+        ]
+
+        for patch, expected in zip(patches, expected_patch_values):
+            np.testing.assert_almost_equal(expected['xy'], patch.xy)
+            self.assertEqual(expected['width'], patch.get_width())
+            self.assertEqual(expected['height'], patch.get_height())
+        xtick_labels = [xtick.get_text() for xtick in ax.get_xticklabels()]
+        self.assertListEqual(['"0"'], xtick_labels)
+        self.assertEqual('column name', ax.get_xlabel())
+        self.assertEqual('row index', ax.get_ylabel())
+
+    def test_1_null_type_multicol(self, *mocks):
+        data = [[None, None, 1.0 , '1/2/2021'],
+                [3   , None, 3.5 , None      ],
+                [1   , None, 1.0 , '2/5/2020'],
+                [None,    1, 10.0, '3/5/2020']]
+
+        profiler = dp.StructuredProfiler(data, options=self.options)
+
+        fig = graphs.plot_missing_values_matrix(profiler)
+        self.assertIsInstance(fig, plt.Figure)
+        self.assertEqual(1, len(fig.axes))
+
+        ax = fig.axes[0]
+        patches, labels = ax.get_legend_handles_labels()
+        self.assertEqual(['"None"', '"None"', '"None"', '"None"'], labels)
+
+        expected_patch_values = [
+            {'xy': (0.1, -0.5), 'width': 0.8, 'height': 1},
+            {'xy': (0.1, 2.5), 'width': 0.8, 'height': 1},
+            {'xy': (1.1, -0.5), 'width': 0.8, 'height': 3},
+            {'xy': (3.1, 0.5), 'width': 0.8, 'height': 1},
+        ]
+
+        for patch, expected in zip(patches, expected_patch_values):
+            np.testing.assert_almost_equal(expected['xy'], patch.xy)
+            self.assertEqual(expected['width'], patch.get_width())
+            self.assertEqual(expected['height'], patch.get_height())
+
+        xtick_labels = [xtick.get_text() for xtick in ax.get_xticklabels()]
+        self.assertListEqual(['"0"', '"1"', '"2"', '"3"'], xtick_labels)
+        self.assertEqual('column name', ax.get_xlabel())
+        self.assertEqual('row index', ax.get_ylabel())
+
+    def test_2_null_types_multicol(self, *mocks):
+        data = pd.DataFrame(
+            [[None, '', 1.0, '1/2/2021'],
+             [3, None, 3.5, ''],
+             [1, None, 1.0, '2/5/2020'],
+             [None, 1, 10.0, '3/5/2020']],
+            columns=['integer', 'str', 'float', 'datetime'],
+            dtype=object
+        )
+
+        profiler = dp.StructuredProfiler(data, options=self.options)
+
+        fig = graphs.plot_missing_values_matrix(profiler)
         self.assertIsInstance(fig, plt.Figure)
         self.assertEqual(1, len(fig.axes))
 
@@ -130,6 +206,11 @@ class TestPlotMissingValuesMatrix(unittest.TestCase):
             np.testing.assert_almost_equal(expected['xy'], patch.xy)
             self.assertEqual(expected['width'], patch.get_width())
             self.assertEqual(expected['height'], patch.get_height())
+        xtick_labels = [xtick.get_text() for xtick in ax.get_xticklabels()]
+        self.assertListEqual(
+            ['"integer"', '"str"', '"float"', '"datetime"'], xtick_labels)
+        self.assertEqual('column name', ax.get_xlabel())
+        self.assertEqual('row index', ax.get_ylabel())
 
     def test_bad_input(self, *mocks):
 

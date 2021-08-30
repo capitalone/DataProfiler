@@ -59,27 +59,39 @@ class TestDataReadingWriting(unittest.TestCase):
         nth index of a search_query in a string. 
         """
         # Input args: string, query, n
-        # Expected results: index, occurances
+        # Expected results: index, occurrences
         test_queries = [
-            dict(string="This is a test.", query=".", n=1, index=14, occurances=1),
-            dict(string="This is a test\n", query="\n", n=1, index=14, occurances=1),
+            dict(string="This is a test.", query=".", n=1, index=14,
+                 occurrences=1),
+            dict(string="This is a test\n", query="\n", n=1, index=14,
+                 occurrences=1),
             dict(string="This is a test\nThis is a second test\n",
-                 query="\n", n=0, index=-1, occurances=0),
+                 query="\n", n=0, index=-1, occurrences=0),
             dict(string="This is a test\nThis is a second test\n",
-                 query="\n", n=2, index=36, occurances=2),
-            dict(string='t', query="t", n=1, index=0, occurances=1),
-            dict(string='s', query="t", n=1, index=1, occurances=0),
+                 query="\n", n=2, index=36, occurrences=2),
+            dict(string='t', query="t", n=1, index=0, occurrences=1),
+            dict(string='s', query="t", n=1, index=1, occurrences=0),
             dict(string="This is a test\nThis is a second test\n\n",
-                 query="\n", n=3, index=37, occurances=3),
+                 query="\n", n=3, index=37, occurrences=3,
+                 ignore_consecutive=False),
             dict(string="This is a test\nThis is a second test\n\nTest\n",
-                 query="\n", n=5, index=43, occurances=4),
-            dict(string="", query="\n", n=3, index=-1, occurances=0),
+                 query="\n", n=5, index=43, occurrences=4,
+                 ignore_consecutive=False),
+            dict(string="This is a test\n\nThis is a second test\n\nTest\n",
+                 query="\n", n=2, index=37, occurrences=2,
+                 ignore_consecutive=True),
+            dict(string="This is a test\n\nThis is a second test\n\nTest\n",
+                 query="\n", n=4, index=38, occurrences=4,
+                 ignore_consecutive=False),
+            dict(string="", query="\n", n=3, index=-1, occurrences=0),
         ]
 
         for q in test_queries:
+            ignore_consecutive = q.get('ignore_consecutive', True)
             self.assertEqual(
-                data_utils.find_nth_loc(q['string'], q['query'], q['n']),
-                (q['index'], q['occurances'])
+                (q['index'], q['occurrences']),
+                data_utils.find_nth_loc(q['string'], q['query'], q['n'],
+                                        ignore_consecutive)
             )
 
     def test_load_as_str_from_file(self):

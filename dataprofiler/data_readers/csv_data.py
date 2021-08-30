@@ -625,7 +625,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 count = len([i.start() for i in re.finditer(delimiter_regex, line)])
             else:
                 # If no delimiter, see if spaces are regular intervals
-                count = len([i.start() for i in re.finditer(space_regex, line)])
+                count = len([i.start() for i in re.finditer(space_regex, line.rstrip())])
 
             # Track the delimiter count per file
             if count not in delimiter_count:

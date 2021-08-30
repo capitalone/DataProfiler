@@ -560,8 +560,8 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
     :param chunk_size_bytes: Chunk size to load every data load
     :type chunk_size_bytes: int
     
-    :return data_as_str: Data as string
-    :type data_as_str: str
+    :return: Data as string
+    :rtype: str
     """
 
     data_as_str = ""
@@ -570,12 +570,12 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
 
         sample_size_bytes = min(max_bytes, chunk_size_bytes)
         
-        # Read the file until the appropriate number of occurances                    
+        # Read the file until the appropriate number of occurrences
         for byte_count in range(0, max_bytes, sample_size_bytes):
             
             sample_lines = csvfile.read(sample_size_bytes)
-            if len(sample_lines) == 0:                
-                break # No more bytes in file
+            if len(sample_lines) == 0:
+                break  # No more bytes in file
 
             # Number of lines remaining to be added to data_as_str
             remaining_lines = max_lines - total_occurances
@@ -586,9 +586,9 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
             if (isinstance(sample_lines, bytes)):
                 search_query_value = b'\n'
             
-            loc, occurance = find_nth_loc(sample_lines,
-                                          search_query=search_query_value,
-                                          n=remaining_lines)
+            loc, occurrence = find_nth_loc(sample_lines,
+                                           search_query=search_query_value,
+                                           n=remaining_lines)
 
             # Add sample_lines to data_as_str no more than max_lines
             if isinstance(sample_lines[:loc], bytes):
@@ -596,7 +596,7 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
             else:
                 data_as_str += sample_lines[:loc]
 
-            total_occurances += occurance
+            total_occurances += occurrence - sample_lines[:loc].count(search_query_value * 2)
             if total_occurances >= max_lines:
                 break
             

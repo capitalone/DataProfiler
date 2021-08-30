@@ -647,12 +647,12 @@ def url_to_bytes(url_as_string, options):
     """
     stream = BytesIO()
 
-    verify_url = True
+    verify_ssl = True
     if 'verify_ssl' in options:
-        verify_url = options['verify_ssl']
+        verify_ssl = options['verify_ssl']
 
     try:
-        with requests.get(url_as_string, stream=True, verify=verify_url) as url:
+        with requests.get(url_as_string, stream=True, verify=verify_ssl) as url:
             url.raise_for_status()
             if 'Content-length' in url.headers \
                     and int(url.headers['Content-length']) >= 1024 ** 3:
@@ -670,8 +670,8 @@ def url_to_bytes(url_as_string, options):
                     raise ValueError('The downloaded file from the url may not be larger than 1GB')
     except requests.exceptions.SSLError as e:
         raise RuntimeError("The URL given has an untrusted SSL certificate. Although highly discouraged, "
-                           "you can proceed with reading the data by setting 'verify_url' to False in "
-                           "options (i.e. options=dict(verify_url=False)).") from e
+                           "you can proceed with reading the data by setting 'verify_ssl' to False in "
+                           "options (i.e. options=dict(verify_ssl=False)).") from e
 
     stream.seek(0)
     return stream

@@ -505,7 +505,7 @@ def find_nth_loc(string=None, search_query=None, n=0):
     :type string: str
     :param search_query: char(s) to find nth occurance of
     :type search_query: str
-    :param n: The number of occurances to iterate through
+    :param n: The number of occurrences to iterate through
     :type n: int
     
     :return idx: Index of the nth or last occurance of the search_query
@@ -565,7 +565,7 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
     """
 
     data_as_str = ""
-    total_occurances = 0
+    total_occurrences = 0
     with FileOrBufferHandler(file_path, encoding=file_encoding) as csvfile:
 
         sample_size_bytes = min(max_bytes, chunk_size_bytes)
@@ -578,7 +578,7 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
                 break  # No more bytes in file
 
             # Number of lines remaining to be added to data_as_str
-            remaining_lines = max_lines - total_occurances
+            remaining_lines = max_lines - total_occurrences
             
             # Return either the last index of sample_lines OR
             # the index of the newline char that matches remaining_lines
@@ -597,10 +597,10 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
                 data_as_str += sample_lines[:loc]
 
             # count minus blank lines
-            total_occurances += (
+            total_occurrences += (
                     occurrence -
                     sample_lines[:loc].count(search_query_value * 2))
-            if total_occurances >= max_lines:
+            if total_occurrences >= max_lines:
                 break
             
     return data_as_str
@@ -619,6 +619,7 @@ def is_stream_buffer(filepath_or_buffer):
     if isinstance(filepath_or_buffer, (StringIO, BytesIO)):
         return True
     return False
+
 
 def is_valid_url(url_as_string):
     """

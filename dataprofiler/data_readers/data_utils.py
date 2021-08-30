@@ -596,7 +596,10 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
             else:
                 data_as_str += sample_lines[:loc]
 
-            total_occurances += occurrence - sample_lines[:loc].count(search_query_value * 2)
+            # count minus blank lines
+            total_occurances += (
+                    occurrence -
+                    sample_lines[:loc].count(search_query_value * 2))
             if total_occurances >= max_lines:
                 break
             

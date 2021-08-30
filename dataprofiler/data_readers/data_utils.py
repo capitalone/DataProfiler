@@ -503,12 +503,12 @@ def find_nth_loc(string=None, search_query=None, n=0):
     
     :param string: Input string, to be searched
     :type string: str
-    :param search_query: char(s) to find nth occurance of
+    :param search_query: char(s) to find nth occurrence of
     :type search_query: str
     :param n: The number of occurrences to iterate through
     :type n: int
     
-    :return idx: Index of the nth or last occurance of the search_query
+    :return idx: Index of the nth or last occurrence of the search_query
     :rtype idx: int
     :return id_count: Number of identifications prior to idx
     :rtype id_count: int

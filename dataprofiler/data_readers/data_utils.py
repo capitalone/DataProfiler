@@ -661,7 +661,8 @@ def url_to_bytes(url_as_string, options):
             if 'Content-length' in url.headers \
                     and int(url.headers['Content-length']) >= 1024 ** 3:
 
-                raise ValueError('The downloaded file from the url may not be larger than 1GB')
+                raise ValueError('The downloaded file from the url may not be '
+                                 'larger than 1GB')
 
             total_bytes = 0
             c_size = 8192
@@ -671,11 +672,14 @@ def url_to_bytes(url_as_string, options):
                 total_bytes += c_size
 
                 if total_bytes > 1024 ** 3:
-                    raise ValueError('The downloaded file from the url may not be larger than 1GB')
+                    raise ValueError('The downloaded file from the url may not '
+                                     'be larger than 1GB')
     except requests.exceptions.SSLError as e:
-        raise RuntimeError("The URL given has an untrusted SSL certificate. Although highly discouraged, "
-                           "you can proceed with reading the data by setting 'verify_ssl' to False in "
-                           "options (i.e. options=dict(verify_ssl=False)).") from e
+        raise RuntimeError(
+            "The URL given has an untrusted SSL certificate. Although highly "
+            "discouraged, you can proceed with reading the data by setting "
+            "'verify_ssl' to False in options "
+            "(i.e. options=dict(verify_ssl=False)).") from e
 
     stream.seek(0)
     return stream

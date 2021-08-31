@@ -598,21 +598,19 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
                     data_as_str += sample_lines[start_loc:loc]
 
                 # count minus blank lines
-                total_occurrences += (
-                        occurrence
-                        - sample_lines[start_loc:loc].count(search_query_value * 2))
+                total_occurrences += occurrence
                 start_loc = loc
             if total_occurrences >= max_lines:
                 break
-            
+
     return data_as_str
 
 
 def is_stream_buffer(filepath_or_buffer):
     """
     Determines whether a given argument is a filepath or buffer.
-    
-    :param filepath_or_buffer: path to the file or buffer 
+
+    :param filepath_or_buffer: path to the file or buffer
     :type filepath_or_buffer: str
     :return: true if string is a buffer or false if string is a filepath
     :rtype: boolean

@@ -597,7 +597,6 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
                 else:
                     data_as_str += sample_lines[start_loc:loc]
 
-                # count minus blank lines
                 total_occurrences += occurrence
                 start_loc = loc
             if total_occurrences >= max_lines:

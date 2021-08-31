@@ -495,7 +495,7 @@ def get_delimiter_regex(delimiter=",", quotechar=","):
     return re.compile(delimiter_regex + quotechar_regex)
 
 
-def find_nth_loc(string=None, search_query=None, n=0):
+def find_nth_loc(string=None, search_query=None, n=0, ignore_consecutive=True):
     """
     Searches the string via the search_query and
     returns the nth index in which the query occurs.
@@ -503,12 +503,14 @@ def find_nth_loc(string=None, search_query=None, n=0):
     
     :param string: Input string, to be searched
     :type string: str
-    :param search_query: char(s) to find nth occurance of
+    :param search_query: char(s) to find nth occurrence of
     :type search_query: str
-    :param n: The number of occurances to iterate through
+    :param n: The number of occurrences to iterate through
     :type n: int
+    :param ignore_consecutive: Ignore consecutive matches in the search query.
+    :type ignore_consecutive: bool
     
-    :return idx: Index of the nth or last occurance of the search_query
+    :return idx: Index of the nth or last occurrence of the search_query
     :rtype idx: int
     :return id_count: Number of identifications prior to idx
     :rtype id_count: int
@@ -518,29 +520,25 @@ def find_nth_loc(string=None, search_query=None, n=0):
     if not string or not search_query or 0 >= n:
         return -1, 0
 
-    # Find index of nth occurrence of search_query 
-    idx, pre_idx = -1, -1
-    id_count = 0
-    for i in range(0, n):
+    # create the search pattern
+    pattern = re.escape(search_query)
+    if ignore_consecutive:
+        pattern += '+'
+    r_iter = re.finditer(pattern, string)
 
-        idx = string.find(search_query, idx+1)
-        
-        # Exit for loop once string ends
-        if idx == -1:
-
-            if pre_idx > 0:
-                idx = pre_idx+1 # rest to last location
-
-            # If final discovery is not the search query
-            if string[-len(search_query):] != search_query:
-                idx = len(string)                
+    # Find index of nth occurrence of search_query
+    idx = id_count = -1
+    for id_count, match in enumerate(r_iter):
+        idx = match.start()
+        if id_count + 1 == n:
             break
-        
-        # Keep track of identifications
-        if idx != pre_idx:
-            id_count += 1
-            pre_idx = idx
-        
+
+    # enumerate starts at 0 and so does the init
+    id_count += 1
+
+    if id_count != n:
+        idx = len(string)
+
     return idx, id_count
 
 
@@ -560,54 +558,58 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
     :param chunk_size_bytes: Chunk size to load every data load
     :type chunk_size_bytes: int
     
-    :return data_as_str: Data as string
-    :type data_as_str: str
+    :return: Data as string
+    :rtype: str
     """
 
     data_as_str = ""
-    total_occurances = 0
+    total_occurrences = 0
     with FileOrBufferHandler(file_path, encoding=file_encoding) as csvfile:
 
         sample_size_bytes = min(max_bytes, chunk_size_bytes)
         
-        # Read the file until the appropriate number of occurances                    
+        # Read the file until the appropriate number of occurrences
         for byte_count in range(0, max_bytes, sample_size_bytes):
             
             sample_lines = csvfile.read(sample_size_bytes)
-            if len(sample_lines) == 0:                
-                break # No more bytes in file
+            if len(sample_lines) == 0:
+                break  # No more bytes in file
 
             # Number of lines remaining to be added to data_as_str
-            remaining_lines = max_lines - total_occurances
+            remaining_lines = max_lines - total_occurrences
             
             # Return either the last index of sample_lines OR
             # the index of the newline char that matches remaining_lines
             search_query_value = '\n'
             if (isinstance(sample_lines, bytes)):
                 search_query_value = b'\n'
-            
-            loc, occurance = find_nth_loc(sample_lines,
-                                          search_query=search_query_value,
-                                          n=remaining_lines)
 
-            # Add sample_lines to data_as_str no more than max_lines
-            if isinstance(sample_lines[:loc], bytes):
-                data_as_str += sample_lines[:loc].decode(file_encoding)
-            else:
-                data_as_str += sample_lines[:loc]
+            start_loc = 0
+            len_sample_lines = len(sample_lines)
+            while start_loc < len_sample_lines - 1 and total_occurrences < max_lines:
+                loc, occurrence = find_nth_loc(sample_lines[start_loc:],
+                                               search_query=search_query_value,
+                                               n=remaining_lines)
 
-            total_occurances += occurance
-            if total_occurances >= max_lines:
+                # Add sample_lines to data_as_str no more than max_lines
+                if isinstance(sample_lines[start_loc:loc], bytes):
+                    data_as_str += sample_lines[:loc].decode(file_encoding)
+                else:
+                    data_as_str += sample_lines[start_loc:loc]
+
+                total_occurrences += occurrence
+                start_loc = loc
+            if total_occurrences >= max_lines:
                 break
-            
+
     return data_as_str
 
 
 def is_stream_buffer(filepath_or_buffer):
     """
     Determines whether a given argument is a filepath or buffer.
-    
-    :param filepath_or_buffer: path to the file or buffer 
+
+    :param filepath_or_buffer: path to the file or buffer
     :type filepath_or_buffer: str
     :return: true if string is a buffer or false if string is a filepath
     :rtype: boolean
@@ -616,6 +618,7 @@ def is_stream_buffer(filepath_or_buffer):
     if isinstance(filepath_or_buffer, (StringIO, BytesIO)):
         return True
     return False
+
 
 def is_valid_url(url_as_string):
     """
@@ -647,17 +650,18 @@ def url_to_bytes(url_as_string, options):
     """
     stream = BytesIO()
 
-    verify_url = True
+    verify_ssl = True
     if 'verify_ssl' in options:
-        verify_url = options['verify_ssl']
+        verify_ssl = options['verify_ssl']
 
     try:
-        with requests.get(url_as_string, stream=True, verify=verify_url) as url:
+        with requests.get(url_as_string, stream=True, verify=verify_ssl) as url:
             url.raise_for_status()
             if 'Content-length' in url.headers \
                     and int(url.headers['Content-length']) >= 1024 ** 3:
 
-                raise ValueError('The downloaded file from the url may not be larger than 1GB')
+                raise ValueError('The downloaded file from the url may not be '
+                                 'larger than 1GB')
 
             total_bytes = 0
             c_size = 8192
@@ -667,11 +671,14 @@ def url_to_bytes(url_as_string, options):
                 total_bytes += c_size
 
                 if total_bytes > 1024 ** 3:
-                    raise ValueError('The downloaded file from the url may not be larger than 1GB')
+                    raise ValueError('The downloaded file from the url may not '
+                                     'be larger than 1GB')
     except requests.exceptions.SSLError as e:
-        raise RuntimeError("The URL given has an untrusted SSL certificate. Although highly discouraged, "
-                           "you can proceed with reading the data by setting 'verify_url' to False in "
-                           "options (i.e. options=dict(verify_url=False)).") from e
+        raise RuntimeError(
+            "The URL given has an untrusted SSL certificate. Although highly "
+            "discouraged, you can proceed with reading the data by setting "
+            "'verify_ssl' to False in options "
+            "(i.e. options=dict(verify_ssl=False)).") from e
 
     stream.seek(0)
     return stream

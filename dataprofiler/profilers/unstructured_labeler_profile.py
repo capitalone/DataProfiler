@@ -124,7 +124,6 @@ class UnstructuredLabelerProfile(object):
     @property
     def label_encoding(self):
         return self.data_labeler.labels
-    
 
     @BaseColumnProfiler._timeit(name='data_labeler_predict')
     def _update_helper(self, df_series_clean, profile):

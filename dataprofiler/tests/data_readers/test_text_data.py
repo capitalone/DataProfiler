@@ -35,6 +35,8 @@ class TestTextDataClass(unittest.TestCase):
                  count=109, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'txt/utf16.txt'),
                  count=109, encoding='utf-16'),
+            dict(path=os.path.join(test_dir, 'txt/html-csv-confusion.html'),
+                 count=696, encoding='utf-8'),
         ]
         cls.output_file_path = None
 

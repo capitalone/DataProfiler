@@ -135,7 +135,7 @@ def shuffle_in_chunks(data_length, chunk_size):
 
 def warn_on_profile(col_profile, e):
     """
-    Returns a warning if a given profile errors (tensorflow typcially)
+    Returns a warning if a given profile errors (tensorflow typically)
 
     :param col_profile: Name of the column profile
     :type col_profile: str

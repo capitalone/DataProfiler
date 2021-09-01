@@ -74,10 +74,10 @@ class TestDataProfiler(unittest.TestCase):
                     if isinstance(module, types.ModuleType):
                         importlib.reload(module)
 
-        def import_mock(name, *args):
+        def import_mock(name, *args, **kwargs):
             if name == 'snappy':
                 raise ImportError('test')
-            return orig_import(name, *args)
+            return orig_import(name, *args, **kwargs)
 
         with mock.patch('builtins.__import__', side_effect=import_mock):
             with self.assertWarns(ImportWarning) as w:

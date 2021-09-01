@@ -1,5 +1,6 @@
 import unittest
 from unittest import mock
+import sys
 
 import numpy as np
 import pandas as pd
@@ -12,8 +13,48 @@ from dataprofiler.reports import graphs
 
 class TestGraphImport(unittest.TestCase):
 
+    def missing_module_test(self, graph_func, module_name):
+        orig_import = __import__
+
+        # necessary for any wrapper around the library to test if snappy caught
+        # as an issue
+
+        def import_mock(name, *args, **kwargs):
+            if name.startswith(module_name):
+                raise ImportError('test')
+            return orig_import(name, *args, **kwargs)
+
+        import re
+        warning_regex = re.compile(
+            ".*WARNING Graphing Failure.*" + module_name + '.*', re.DOTALL)
+        with mock.patch('builtins.__import__', side_effect=import_mock):
+            with self.assertWarnsRegex(RuntimeWarning, warning_regex):
+                modules_to_remove = [
+                    'dataprofiler.reports.graphs',
+                    module_name,
+                ]
+                for module in modules_to_remove:
+                    if module in sys.modules:
+                        del sys.modules[module]
+                # re-add module for testing
+                for module in modules_to_remove[:-1]:
+                    import importlib
+                    importlib.import_module(module)
+                graph_func(None)
+
     def test_import_from_base_repo(self):
         self.assertTrue(hasattr(dp, 'graphs'))
+
+    def test_no_seaborn(self):
+        self.missing_module_test(dp.graphs.plot_histograms, 'seaborn')
+        self.missing_module_test(dp.graphs.plot_missing_values_matrix, 'seaborn')
+        self.missing_module_test(dp.graphs.plot_col_missing_values, 'seaborn')
+
+    def test_no_matplotlib(self):
+        self.missing_module_test(dp.graphs.plot_histograms, 'matplotlib')
+        self.missing_module_test(dp.graphs.plot_missing_values_matrix, 'matplotlib')
+        self.missing_module_test(dp.graphs.plot_col_missing_values, 'matplotlib')
+
 
 
 @mock.patch("dataprofiler.reports.graphs.plt.show")

@@ -2,15 +2,22 @@
 import math
 import warnings
 
-import matplotlib.patches
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
+try:
+    import matplotlib.patches
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+except ImportError:
+    # don't require if using graphs will below recommend to install if not
+    # installed
+    pass
 
 from ..profilers.profile_builder import StructuredProfiler, \
     StructuredColProfiler
+from . import utils
 
 
+@utils.require_module(['matplotlib', 'seaborn'])
 def plot_histograms(profiler, column_names=None, column_inds=None):
     """
     Take a input of StructuredProfiler class and a list of specified column
@@ -113,6 +120,7 @@ def plot_histograms(profiler, column_names=None, column_inds=None):
     return fig
 
 
+@utils.require_module(['matplotlib', 'seaborn'])
 def plot_col_histogram(data_type_profiler, ax=None, title=None):
     """
     Take a input of a Int or Float Column and plots the histogram
@@ -134,6 +142,7 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
     ax = sns.histplot(
         x=histogram['bin_edges'][:-1], bins=histogram['bin_edges'].tolist(),
         weights=histogram['bin_counts'], ax=ax)
+
     ax.set(xlabel='bins')
     if title is None:
         title = str(data_type_profiler.name)
@@ -141,6 +150,7 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
     return ax
 
 
+@utils.require_module(['matplotlib', 'seaborn'])
 def plot_missing_values_matrix(profiler, ax=None, title=None):
     """
     Generates a matrix of bar graphs for the missing value locations within
@@ -160,6 +170,7 @@ def plot_missing_values_matrix(profiler, ax=None, title=None):
     return plot_col_missing_values(profiler.profile, ax=ax, title=title)
 
 
+@utils.require_module(['matplotlib', 'seaborn'])
 def plot_col_missing_values(col_profiler_list, ax=None, title=None):
     """
     Generates a bar graph of the missing value locations within a column where
@@ -270,6 +281,8 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
     ax.legend(by_label.values(), by_label.keys())
     ax.set_xlabel('column name')
     ax.set_ylabel('row index')
+    if title:
+        ax.set_title(title)
 
     if is_own_fig:
         fig.set_tight_layout(True)

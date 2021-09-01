@@ -57,8 +57,8 @@ class TestGraphImport(unittest.TestCase):
 
 
 
-@mock.patch("dataprofiler.reports.graphs.plt.show")
-@mock.patch("dataprofiler.reports.graphs.plot_col_histogram")
+@mock.patch("dataprofiler.graphs.plt.show")
+@mock.patch("dataprofiler.graphs.plot_col_histogram")
 class TestPlotHistograms(unittest.TestCase):
 
     @classmethod

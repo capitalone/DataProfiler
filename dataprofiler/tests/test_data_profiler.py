@@ -102,10 +102,10 @@ class TestDataProfiler(unittest.TestCase):
         # necessary for any wrapper around the library to test if snappy caught
         # as an issue
 
-        def import_mock(name, *args):
+        def import_mock(name, *args, **kwargs):
             if name == 'tensorflow':
                 raise ImportError('test')
-            return orig_import(name, *args)
+            return orig_import(name, *args, **kwargs)
 
         with mock.patch('builtins.__import__', side_effect=import_mock):
 

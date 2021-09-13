@@ -2260,8 +2260,10 @@ class TestStructRegexPostProcessor(unittest.TestCase):
         regex_processor_mock = mock.Mock(spec=RegexPostProcessor)()
         random_mock = mock.Mock()
         random_mock.getstate.return_value = ['test']
-        regex_processor_mock.get_parameters.return_value = random_mock
-        mocked_processor._parameters = dict(regex_processor=regex_processor_mock)
+        regex_processor_mock.get_parameters.return_value = \
+            dict(random_state=random_mock)
+        mocked_processor._parameters = \
+            dict(regex_processor=regex_processor_mock)
 
         # call save processor func
         StructRegexPostProcessor._save_processor(mocked_processor, 'test')

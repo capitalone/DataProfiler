@@ -1782,7 +1782,8 @@ class StructRegexPostProcessor(BaseDataPostprocessor,
         :return:
         """
         regex_processor = self._parameters['regex_processor']
-        random_state = regex_processor.get_parameters(['random_state'])
+        regex_params = regex_processor.get_parameters(['random_state'])
+        random_state = regex_params['random_state']
         params = dict(random_state=random_state.getstate())
         with open(os.path.join(dirpath,
                                self.processor_type + '_parameters.json'),

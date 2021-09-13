@@ -230,11 +230,12 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                         pred[indices[0]:indices[1], entity_id] = 1
             if verbose:
                 sys.stdout.flush()
-                sys.stdout.write("\rData Samples Processed: {:d}   ".format(i))
+                sys.stdout.write("\rData Samples Processed: {:d}   ".format(
+                    i + 1))
             predictions[i] = pred
 
         if verbose:
-            logger.info("\rData Samples Processed: {:d}   ".format(i))
+            logger.info("\rData Samples Processed: {:d}   ".format(i + 1))
 
         # Trim array size to number of samples
         if len(predictions) > i+1:

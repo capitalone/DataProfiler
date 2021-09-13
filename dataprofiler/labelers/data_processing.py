@@ -950,7 +950,7 @@ class CharPostprocessor(BaseDataPostprocessor,
         separator_len = len(flatten_separator)
 
         if not inplace:
-            results = copy.deepcopy(results) 
+            results = copy.deepcopy(results)
 
         if results['pred']:
             pred_buffer = np.concatenate(results['pred'])
@@ -1356,7 +1356,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         separator_len = len(flatten_separator)
 
         if not inplace:
-            results = copy.deepcopy(results) 
+            results = copy.deepcopy(results)
 
         if results['pred']:
             pred_buffer = np.concatenate(results['pred'])
@@ -1705,3 +1705,57 @@ class RegexPostProcessor(BaseDataPostprocessor,
                                self.processor_type + '_parameters.json'),
                   'w') as fp:
             json.dump(params, fp)
+
+
+class StructRegexPostProcessor(RegexPostProcessor,
+                               metaclass=AutoSubRegistrationMeta):
+                               
+    def __init__(self, random_state=None):
+        """
+        Initialize the RegexPostProcessor class
+
+        :param random_state: random state setting to be used for randomly
+            selecting a prediction when two labels have equal opportunity for
+            a given sample.
+        :type random_state: random.Random
+        """
+        super().__init__(aggregation_func='split', random_state=random_state)
+
+    @classmethod
+    def help(cls):
+        """
+        Help function describing alterable parameters, input data formats
+        for preprocessors, and output data formats for postprocessors.
+
+        :return: None
+        """
+        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_start_ind = param_docs.find('parameters:\n') + 12
+        param_end_ind = param_docs.find(':type parameters:')
+
+        help_str = (
+                cls.__name__ + "\n\n"
+                + "Parameters:\n"
+                + param_docs[param_start_ind:param_end_ind]
+                + "\nProcess Output Format:\n"
+                  "    Each sample receives a label.\n"
+                  "    Original data - ['My', 'String', ...]\n"
+                  "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
+                  "..(num samples)]")
+        print(help_str)
+        
+    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+        """Data preprocessing function."""
+        results = super().process(data, labels, label_mapping)
+        
+        # prediction is the same as the pred for structured
+        for i in range(len(results['pred'])):
+            results['pred'][i] = np.mean(results['pred'][i], axis=0)
+
+        # set the confidences to be the aggregate of the predictions
+        if 'conf' in results:
+            results['conf'] = np.vstack(results['pred'])
+
+        # get argmax from predictions
+        results['pred'] = np.argmax(results['pred'], axis=1)
+        return results

@@ -1792,17 +1792,25 @@ class StructRegexPostProcessor(BaseDataPostprocessor,
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
         """Data preprocessing function."""
+        
+        # predictions come from regex_processor in the split format which
+        # still is in a 3d format [samples x characters x labels]
+        # split meaning it can have a partial prediction between labels, hence
+        # it is still like a confidence
         results = self._parameters['regex_processor'].process(
             data, labels, label_mapping)
         
-        # prediction is the same as the pred for structured
+        # get the average of the label confidences over a cell for each label
         for i in range(len(results['pred'])):
             results['pred'][i] = np.mean(results['pred'][i], axis=0)
-
-        # set the confidences to be the aggregate of the predictions
+            
+        # since the output is uniform after averaging the characters, stack
+        # into a single array, this is now essentially confidences, but we are
+        # doing in place as 'conf' may not exist
+        results['pred'] = np.vstack(results['pred'])
         if 'conf' in results:
             results['conf'] = np.vstack(results['pred'])
 
-        # get argmax from predictions
+        # predictions is the argmax of the average of the cell's label votes
         results['pred'] = np.argmax(results['pred'], axis=1)
         return results

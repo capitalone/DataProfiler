@@ -950,7 +950,7 @@ class CharPostprocessor(BaseDataPostprocessor,
         separator_len = len(flatten_separator)
 
         if not inplace:
-            results = copy.deepcopy(results) 
+            results = copy.deepcopy(results)
 
         if results['pred']:
             pred_buffer = np.concatenate(results['pred'])
@@ -1356,7 +1356,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         separator_len = len(flatten_separator)
 
         if not inplace:
-            results = copy.deepcopy(results) 
+            results = copy.deepcopy(results)
 
         if results['pred']:
             pred_buffer = np.concatenate(results['pred'])
@@ -1705,3 +1705,112 @@ class RegexPostProcessor(BaseDataPostprocessor,
                                self.processor_type + '_parameters.json'),
                   'w') as fp:
             json.dump(params, fp)
+
+
+class StructRegexPostProcessor(BaseDataPostprocessor,
+                               metaclass=AutoSubRegistrationMeta):
+                               
+    def __init__(self, random_state=None):
+        """
+        Initialize the RegexPostProcessor class
+
+        :param random_state: random state setting to be used for randomly
+            selecting a prediction when two labels have equal opportunity for
+            a given sample.
+        :type random_state: random.Random
+        """
+        super().__init__()
+        self._parameters['regex_processor'] = RegexPostProcessor(
+            random_state=random_state)
+
+    def _validate_parameters(self, parameters):
+        """
+        Validates the parameters set in the processor, raises an error if any
+        issues exist.
+
+        :param parameters: parameter dict containing the following parameters:
+            random_state: Random state setting to be used for randomly
+                selecting a prediction when two labels have equal opportunity
+                for a given sample.
+        :type parameters: dict
+        :return: None
+        """
+        pass  # is validated by the regex processor
+
+    def set_params(self, **kwargs):
+        """Given kwargs, set the parameters if they exist."""
+        allowed_parameters = self.__class__.__init__.__code__.co_varnames[
+                             1:self.__class__.__init__.__code__.co_argcount]
+        errors = []
+        for param in kwargs:
+            if param not in allowed_parameters:
+                    errors.append("{} is not an accepted parameter.".format(
+                        param))
+        if errors:
+            raise ValueError('\n'.join(errors))
+        self._parameters['regex_processor'].set_params(**kwargs)
+
+    @classmethod
+    def help(cls):
+        """
+        Help function describing alterable parameters, input data formats
+        for preprocessors, and output data formats for postprocessors.
+
+        :return: None
+        """
+        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_start_ind = param_docs.find('parameters:\n') + 12
+        param_end_ind = param_docs.find(':type parameters:')
+
+        help_str = (
+                cls.__name__ + "\n\n"
+                + "Parameters:\n"
+                + param_docs[param_start_ind:param_end_ind]
+                + "\nProcess Output Format:\n"
+                  "    Each sample receives a label.\n"
+                  "    Original data - ['My', 'String', ...]\n"
+                  "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
+                  "..(num samples)]")
+        print(help_str)
+
+    def _save_processor(self, dirpath):
+        """
+        Saves the data processor
+
+        :param dirpath: directory to save the processor
+        :type dirpath: str
+        :return:
+        """
+        regex_processor = self._parameters['regex_processor']
+        regex_params = regex_processor.get_parameters(['random_state'])
+        random_state = regex_params['random_state']
+        params = dict(random_state=random_state.getstate())
+        with open(os.path.join(dirpath,
+                               self.processor_type + '_parameters.json'),
+                  'w') as fp:
+            json.dump(params, fp)
+
+    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+        """Data preprocessing function."""
+        
+        # predictions come from regex_processor in the split format which
+        # still is in a 3d format [samples x characters x labels]
+        # split meaning it can have a partial prediction between labels, hence
+        # it is still like a confidence
+        results = self._parameters['regex_processor'].process(
+            data, labels, label_mapping)
+        
+        # get the average of the label confidences over a cell for each label
+        for i in range(len(results['pred'])):
+            results['pred'][i] = np.mean(results['pred'][i], axis=0)
+            
+        # since the output is uniform after averaging the characters, stack
+        # into a single array, this is now essentially confidences, but we are
+        # doing in place as 'conf' may not exist
+        results['pred'] = np.vstack(results['pred'])
+        if 'conf' in results:
+            results['conf'] = np.vstack(results['pred'])
+
+        # predictions is the argmax of the average of the cell's label votes
+        results['pred'] = np.argmax(results['pred'], axis=1)
+        return results

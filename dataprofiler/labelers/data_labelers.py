@@ -92,3 +92,61 @@ class DataLabeler(object):
                                        data_labeler._default_model_loc)
             return TrainableDataLabeler(dirpath, load_options)
         return data_labeler(dirpath, load_options)
+
+    @classmethod
+    def load_from_library(cls, name, trainable=False):
+        """
+        Loads the data labeler from the data labeler zoo in the library.
+
+        :param name: name of the data labeler.
+        :type name: str
+        :param trainable: variable to dictate whether you want a trainable data
+            labeler
+        :type trainable: bool
+        :return: DataLabeler class
+        """
+        if trainable:
+            return TrainableDataLabeler.load_from_library(name)
+        return BaseDataLabeler.load_from_library(name)
+
+    @classmethod
+    def load_from_disk(cls, dirpath, load_options=None, trainable=False):
+        """
+        Loads the data labeler from a saved location on disk.
+
+        :param dirpath: path to data labeler files.
+        :type dirpath: str
+        :param load_options: optional arguments to include for load i.e. class
+                             for model or processors
+        :param trainable: variable to dictate whether you want a trainable data
+            labeler
+        :type trainable: bool
+        :type load_options: dict
+        :return: DataLabeler class
+        """
+        if trainable:
+            return TrainableDataLabeler.load_from_disk(dirpath, load_options)
+        return BaseDataLabeler.load_from_disk(dirpath, load_options)
+
+    @classmethod
+    def load_with_components(cls, preprocessor, model, postprocessor,
+                             trainable=False):
+        """
+        Loads the data labeler from a its set  of components.
+
+        :param preprocessor: processor to set as the preprocessor
+        :type preprocessor: data_processing.BaseDataPreprocessor
+        :param model: model to use within the data labeler
+        :type model: base_model.BaseModel
+        :param postprocessor: processor to set as the postprocessor
+        :type postprocessor: data_processing.BaseDataPostprocessor
+        :param trainable: variable to dictate whether you want a trainable data
+            labeler
+        :type trainable: bool
+        :return:
+        """
+        if trainable:
+            return TrainableDataLabeler.load_with_components(
+                preprocessor, model, postprocessor)
+        return BaseDataLabeler.load_with_components(
+            preprocessor, model, postprocessor)

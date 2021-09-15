@@ -138,6 +138,42 @@ class TestDataLabeler(unittest.TestCase):
         data_labeler = dp.DataLabeler(labeler_type='unstructured')
         self.assertIsInstance(data_labeler, BaseDataLabeler)
 
+    @mock.patch("tensorflow.keras.models.load_model")
+    def test_load_from_library(self, *mocks):
+        data_labeler = dp.DataLabeler.load_from_library('structured_model')
+        self.assertIsInstance(data_labeler, BaseDataLabeler)
+
+        data_labeler = dp.DataLabeler.load_from_library('structured_model',
+                                                        trainable=True)
+        self.assertIsInstance(data_labeler, TrainableDataLabeler)
+
+    @mock.patch("tensorflow.keras.models.load_model")
+    def test_load_from_disk(self, *mocks):
+        import pkg_resources
+        default_labeler_dir = pkg_resources.resource_filename(
+            'resources', 'labelers/structured_model'
+        )
+        data_labeler = dp.DataLabeler.load_from_disk(default_labeler_dir)
+        self.assertIsInstance(data_labeler, BaseDataLabeler)
+
+        data_labeler = dp.DataLabeler.load_from_disk(default_labeler_dir,
+                                                     trainable=True)
+        self.assertIsInstance(data_labeler, TrainableDataLabeler)
+
+    def test_load_with_components(self):
+        preprocessor = mock.Mock(spec=data_processing.BaseDataPreprocessor)
+        model = mock.Mock(spec=BaseModel)
+        postprocessor = mock.Mock(spec=data_processing.BaseDataPostprocessor)
+
+        data_labeler = dp.DataLabeler.load_with_components(
+            preprocessor, model, postprocessor)
+        self.assertIsInstance(data_labeler, BaseDataLabeler)
+
+        model = mock.Mock(spec=BaseTrainableModel)
+        data_labeler = dp.DataLabeler.load_with_components(
+            preprocessor, model, postprocessor, trainable=True)
+        self.assertIsInstance(data_labeler, TrainableDataLabeler)
+
     def test_check_and_return_valid_data_format(self):
         # test incorrect fit_or_predict value
         with self.assertRaisesRegex(ValueError, '`fit_or_predict` must equal '

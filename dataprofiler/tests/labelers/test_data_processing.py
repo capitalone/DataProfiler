@@ -12,7 +12,7 @@ import numpy as np
 from dataprofiler.labelers.data_processing import \
     BaseDataProcessor, CharPreprocessor, CharPostprocessor, \
     StructCharPreprocessor, StructCharPostprocessor, \
-    DirectPassPreprocessor, RegexPostProcessor
+    DirectPassPreprocessor, RegexPostProcessor, StructRegexPostProcessor
 
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -1954,6 +1954,7 @@ class TestStructCharPostprocessor(unittest.TestCase):
                                              inplace=True)
         self.assertEqual(results, post_process_results)
 
+
 class TestRegexPostProcessor(unittest.TestCase):
 
     def test_registered_subclass(self):
@@ -2180,4 +2181,109 @@ class TestRegexPostProcessor(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,
                                     '`random_state` must be a random.Random.'):
             processor = RegexPostProcessor(
+                random_state=[None, None, None])
+
+
+class TestStructRegexPostProcessor(unittest.TestCase):
+
+    def test_registered_subclass(self):
+        self.assertEqual(
+            StructRegexPostProcessor,
+            BaseDataProcessor.get_class(StructRegexPostProcessor.__name__))
+
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_help(self, mock_stdout):
+        RegexPostProcessor.help()
+        self.assertIn("Parameters", mock_stdout.getvalue())
+        self.assertIn("Output Format", mock_stdout.getvalue())
+
+    def test_set_parameters(self, *mocks):
+
+        # validate params set successfully
+        params = {'random_state': random.Random()}
+        processor = StructRegexPostProcessor()
+        processor.set_params(**params)
+
+        # test invalid params
+        with self.assertRaisesRegex(ValueError,
+                                    "`random_state` must be a random.Random."):
+            processor.set_params(random_state='bad')
+
+        with self.assertRaisesRegex(ValueError,
+                                    "aggregation_func is not an accepted "
+                                    "parameter.\npriority_order is not an "
+                                    "accepted parameter."):
+            processor.set_params(aggregation_func='bad', priority_order='bad')
+
+    def test_process(self):
+
+        label_mapping = label_mapping = {
+            'PAD': 0,
+            'UNKNOWN': 1,
+            "TEST1": 2
+        }
+        data = None
+        results = dict(pred=[
+            np.array([[1, 1, 0],
+                      [0, 0, 1],
+                      [0, 0, 1],
+                      [1, 1, 1]]),
+            np.array([[0, 1, 0],
+                      [1, 1, 1],
+                      [1, 0, 1]])],
+            conf=None,  # this isn't used internally so can set to none
+        )
+
+        expected_output = dict(
+            pred=np.array([2, 1]),
+            conf=np.array([[5 / 24, 5 / 24, 14 / 24],
+                           [5 / 18, 8 / 18, 5 / 18]])
+        )
+        processor = StructRegexPostProcessor()
+        process_output = processor.process(data, results, label_mapping)
+
+        self.assertIn('pred', process_output)
+        np.testing.assert_almost_equal(expected_output['pred'],
+                                       process_output['pred'])
+        self.assertIn('conf', process_output)
+        np.testing.assert_almost_equal(expected_output['conf'],
+                                       process_output['conf'])
+
+    @mock.patch("builtins.open")
+    def test_save_processor(self, mock_open, *mocks):
+        # setup mocks
+        mock_file = setup_save_mock_open(mock_open)
+
+        # setup mocked class
+        mocked_processor = mock.create_autospec(BaseDataProcessor)
+        mocked_processor.processor_type = 'test'
+        regex_processor_mock = mock.Mock(spec=RegexPostProcessor)()
+        random_mock = mock.Mock()
+        random_mock.getstate.return_value = ['test']
+        regex_processor_mock.get_parameters.return_value = \
+            dict(random_state=random_mock)
+        mocked_processor._parameters = \
+            dict(regex_processor=regex_processor_mock)
+
+        # call save processor func
+        StructRegexPostProcessor._save_processor(mocked_processor, 'test')
+
+        # assert parameters saved
+        mock_open.assert_called_with('test/test_parameters.json', 'w')
+        self.assertEqual('{"random_state": ["test"]}', mock_file.getvalue())
+
+        # close mocks
+        StringIO.close(mock_file)
+
+    def test_random_state_constructor(self):
+
+        try:
+            processor = StructRegexPostProcessor(random_state=0)
+            processor = StructRegexPostProcessor(random_state=random.getstate())
+        except Exception as e:
+            self.fail(str(e))
+
+        with self.assertRaisesRegex(ValueError,
+                                    '`random_state` must be a random.Random.'):
+            processor = StructRegexPostProcessor(
                 random_state=[None, None, None])

@@ -17,3 +17,4 @@ Basics
    Unstructured Profiler<unstructured_profiler_example>
    Labeler<labeler>
    Adding Models to a Labeler Pipeline<add_new_model_to_data_labeler>
+   Creating a Regex Labeler <regex_labeler_from_scratch>

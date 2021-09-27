@@ -13,6 +13,7 @@ Modules
    :maxdepth: 4
 
    dataprofiler.reports.graphs
+   dataprofiler.reports.utils
 
 .. automodule:: dataprofiler.reports
    :members:

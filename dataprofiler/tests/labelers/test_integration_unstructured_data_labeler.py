@@ -115,8 +115,16 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
         model_predictions_char_level, model_confidences_char_level = \
             results["pred"], results["conf"]
 
-        # for now just checking that it's not empty
+        # for now just checking that it's not empty and appropriate size
+        num_labels = max(default.label_mapping.values()) + 1
+        len_text = len(sample[0])
         self.assertIsNotNone(model_confidences_char_level)
+        self.assertEqual((len_text, num_labels),
+                         model_confidences_char_level[0].shape)
+
+        len_text = len(sample[1])
+        self.assertEqual((len_text, num_labels),
+                         model_confidences_char_level[1].shape)
 
     def test_default_edge_cases(self):
         """more complicated test for edge cases for the default model"""

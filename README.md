@@ -34,9 +34,11 @@ If you have suggestions or find a bug, [please open an issue](https://github.com
 
 # Install
 
-**To install the full package from pypi**: `pip install DataProfiler[ml]`
+**To install the full package from pypi**: `pip install DataProfiler[ml]` and `pip install DataProfiler[reports]`
 
 If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package. The slimmer package disables the default sensitive data detection / entity recognition (labler)
+
+Similarly, if the graphing requirements are too strict, you can still without the extra graphing libraries.
 
 Install from pypi: `pip install DataProfiler`
 

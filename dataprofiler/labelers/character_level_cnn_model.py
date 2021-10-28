@@ -966,7 +966,7 @@ class CharacterLevelCnnModel(BaseTrainableModel,
                 in enumerate(sentence_lengths[:allocation_index]):
             predictions_list[index] = list(predictions[index][:sentence_length])
             if show_confidences:
-                confidences_list = list(confidences[index][:sentence_length])
+                confidences_list[index] = list(confidences[index][:sentence_length])
                 
         if show_confidences:
             return {'pred': predictions_list, 'conf': confidences_list} 

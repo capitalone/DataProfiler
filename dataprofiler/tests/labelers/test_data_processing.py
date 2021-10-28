@@ -1209,6 +1209,7 @@ class TestCharPostprocessor(unittest.TestCase):
                                              inplace=True)
         self.assertEqual(results, post_process_results)
 
+
 class TestPreandPostCharacterProcessorConnection(unittest.TestCase):
 
     def test_flatten_convert(self):

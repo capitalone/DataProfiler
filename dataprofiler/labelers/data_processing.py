@@ -663,7 +663,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                  use_word_level_argmax=False,
                  output_format='character_argmax',
                  separators=(' ', ',', ';', "'", '"', ':', '\n', '\t', "."),
-                 word_level_min_percent=0.75):
+                 word_level_min_percent=0.65):
         """
         Initialize the CharPostprocessor class
 

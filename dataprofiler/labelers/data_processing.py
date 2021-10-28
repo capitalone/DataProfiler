@@ -825,8 +825,8 @@ class CharPostprocessor(BaseDataPostprocessor,
             label_count = {label_mapping[default_label]: 0}
             for idx in range(len(sample)):
 
-                # Split on separator
-                if sample[idx] in separator_dict:
+                # Split on separator or last sample
+                if sample[idx] in separator_dict or idx == len(sample)-1:
 
                     # Find sum of labels over entity
                     total_label_count = sum(label_count.values())

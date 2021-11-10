@@ -836,15 +836,14 @@ class CharPostprocessor(BaseDataPostprocessor,
                 if is_separator or is_end:
 
                     # Find sum of labels over entity
-                    total_label_count = sum(label_count.values())                        
+                    total_label_count = sum(label_count.values())
 
                     # If no max is found, set to background
                     dominate_label = label_mapping[default_label]
                     dominate_label_count = 1
                     for label in label_count:
                         label_ratio = float(label_count[label]) / max(
-                            float(total_label_count), 1)
-                        
+                            float(total_label_count), 1)                        
                         if label_ratio >= word_level_min_percent and \
                                 label_count[label] > dominate_label_count:
                             dominate_label_count = label_count[label]
@@ -857,8 +856,8 @@ class CharPostprocessor(BaseDataPostprocessor,
                     # Set to background if not relabeled
                     if dominate_label == background_label:
                         if start_idx > 0 and entities_in_sample[idx] != \
-                           entities_in_sample[start_idx-1]:
-                            entities_in_sample[start_idx-1] = background_label
+                           entities_in_sample[start_idx - 1]:
+                            entities_in_sample[start_idx - 1] = background_label
                             entities_in_sample[idx] = background_label
 
                     # Reset for next value
@@ -866,8 +865,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                     label_count = {background_label: 0}
                     if char_pred[idx] == background_label and \
                             sample[idx] in separator_dict:
-                        continue
-                
+                        continue                
             word_level_predictions.append(entities_in_sample)
             
         return word_level_predictions

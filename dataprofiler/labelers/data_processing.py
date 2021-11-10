@@ -843,7 +843,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                     dominate_label_count = 1
                     for label in label_count:
                         label_ratio = float(label_count[label]) / max(
-                            float(total_label_count), 1)                        
+                            float(total_label_count), 1)
                         if label_ratio >= word_level_min_percent and \
                                 label_count[label] > dominate_label_count:
                             dominate_label_count = label_count[label]
@@ -856,7 +856,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                     # Set to background if not relabeled
                     if dominate_label == background_label:
                         if start_idx > 0 and entities_in_sample[idx] != \
-                           entities_in_sample[start_idx - 1]:
+                                entities_in_sample[start_idx - 1]:
                             entities_in_sample[start_idx - 1] = background_label
                             entities_in_sample[idx] = background_label
 
@@ -867,7 +867,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                             sample[idx] in separator_dict:
                         continue                
             word_level_predictions.append(entities_in_sample)
-            
+
         return word_level_predictions
 
     @staticmethod

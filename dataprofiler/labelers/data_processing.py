@@ -663,7 +663,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                  use_word_level_argmax=False,
                  output_format='character_argmax',
                  separators=(' ', ',', ';', "'", '"', ':', '\n', '\t', "."),
-                 word_level_min_percent=0.65):
+                 word_level_min_percent=0.75):
         """
         Initialize the CharPostprocessor class
 
@@ -815,10 +815,8 @@ class CharPostprocessor(BaseDataPostprocessor,
             # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
             entities_in_sample = list(char_pred)
 
-            # Convert to dict for quick look-up
-            separator_dict = {}
-            for separator in separators:
-                separator_dict[separator] = True
+            # Convert to set for quick look-up
+            separator_dict = set(separators)
 
             # Iterate over sample
             start_idx = 0
@@ -826,10 +824,19 @@ class CharPostprocessor(BaseDataPostprocessor,
             for idx in range(len(sample)):
 
                 # Split on separator or last sample
-                if sample[idx] in separator_dict or idx == len(sample)-1:
+                is_separator = sample[idx] in separator_dict
+                is_end = (idx == len(sample)-1 and start_idx > 0)
+
+                if not is_separator:
+                    label = entities_in_sample[idx]                    
+                    if label not in label_count:
+                        label_count[label] = 0
+                    label_count[label] += 1                
+                
+                if is_separator or is_end:
 
                     # Find sum of labels over entity
-                    total_label_count = sum(label_count.values())
+                    total_label_count = sum(label_count.values())                        
 
                     # If no max is found, set to background
                     dominate_label = label_mapping[default_label]
@@ -837,6 +844,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                     for label in label_count:
                         label_ratio = float(label_count[label]) / max(
                             float(total_label_count), 1)
+                        
                         if label_ratio >= word_level_min_percent and \
                                 label_count[label] > dominate_label_count:
                             dominate_label_count = label_count[label]
@@ -849,8 +857,8 @@ class CharPostprocessor(BaseDataPostprocessor,
                     # Set to background if not relabeled
                     if dominate_label == background_label:
                         if start_idx > 0 and entities_in_sample[idx] != \
-                                entities_in_sample[start_idx - 1]:
-                            entities_in_sample[start_idx - 1] = background_label
+                           entities_in_sample[start_idx-1]:
+                            entities_in_sample[start_idx-1] = background_label
                             entities_in_sample[idx] = background_label
 
                     # Reset for next value
@@ -859,15 +867,9 @@ class CharPostprocessor(BaseDataPostprocessor,
                     if char_pred[idx] == background_label and \
                             sample[idx] in separator_dict:
                         continue
-
-                # Keep count of labels since start
-                label = entities_in_sample[idx]
-                if label not in label_count:
-                    label_count[label] = 0
-                label_count[label] += 1
-
+                
             word_level_predictions.append(entities_in_sample)
-
+            
         return word_level_predictions
 
     @staticmethod

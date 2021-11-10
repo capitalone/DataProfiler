@@ -901,13 +901,15 @@ class TestCharPostprocessor(unittest.TestCase):
     def test_word_level_argmax(self):
 
         # input data initialization
-        data = np.array(['this is my test sentence.', 'How nice.'])
+        data = np.array(['this is my test sentence.', 'How nice.', 'How nice'])
         predictions = [
             # this is my test sentence.
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2,
              3, 3, 1],
             # How nice.
-            [2, 2, 1, 1, 3, 1, 3, 3, 1]
+            [2, 2, 1, 1, 3, 1, 3, 3, 1],
+            # How nice
+            [2, 2, 1, 1, 3, 1, 3, 3]
         ]
         label_mapping = {
             'PAD': 0,
@@ -925,7 +927,9 @@ class TestCharPostprocessor(unittest.TestCase):
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2,
              3, 3, 1],
             # How nice.
-            [2, 2, 1, 1, 3, 1, 3, 3, 1]
+            [2, 2, 1, 1, 3, 1, 3, 3, 1],
+            # How nice
+            [2, 2, 1, 1, 3, 1, 3, 3]
         ]
         output = processor._word_level_argmax(
             data, predictions, label_mapping, default_label)
@@ -938,7 +942,9 @@ class TestCharPostprocessor(unittest.TestCase):
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
              3, 3, 1],
             # How nice.
-            [1, 1, 1, 1, 3, 3, 3, 3, 1]
+            [1, 1, 1, 1, 3, 3, 3, 3, 1],
+            # How nice
+            [1, 1, 1, 1, 3, 3, 3, 3]            
         ]
         output = processor._word_level_argmax(
             data, predictions, label_mapping, default_label)
@@ -951,7 +957,9 @@ class TestCharPostprocessor(unittest.TestCase):
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1,
              1, 1, 1],
             # How nice.
-            [1, 1, 1, 1, 1, 1, 1, 1, 1]
+            [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            # How nice
+            [1, 1, 1, 1, 1, 1, 1, 1]
         ]
         output = processor._word_level_argmax(
             data, predictions, label_mapping, default_label)
@@ -964,7 +972,9 @@ class TestCharPostprocessor(unittest.TestCase):
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
              3, 3, 1],
             # How nice.
-            [2, 2, 2, 1, 3, 3, 3, 3, 1]
+            [2, 2, 2, 1, 3, 3, 3, 3, 1],
+            # How nice
+            [2, 2, 2, 1, 3, 3, 3, 3]
         ]
         output = processor._word_level_argmax(
             data, predictions, label_mapping, default_label)
@@ -972,13 +982,15 @@ class TestCharPostprocessor(unittest.TestCase):
 
     def test_convert_to_NER_format(self):
         # input data initialization
-        data = np.array(['this is my test sentence.', 'How nice.'])
+        data = np.array(['this is my test sentence.', 'How nice.', 'How nice'])
         predictions = [
             # this is my test sentence.
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2,
              3, 3, 1],
             # How nice.
-            [2, 2, 1, 1, 3, 1, 3, 3, 1]
+            [2, 2, 1, 1, 3, 1, 3, 3, 1],
+            # How nice
+            [2, 2, 2, 1, 3, 1, 3, 3]
         ]
         label_mapping = {
             'PAD': 0,
@@ -999,7 +1011,12 @@ class TestCharPostprocessor(unittest.TestCase):
             [
                 (0, 2, 'TEST1'),
                 (4, 5, 'TEST2'),
+                (6, 8, 'TEST2')],
+            [
+                (0, 3, 'TEST1'),
+                (4, 5, 'TEST2'),
                 (6, 8, 'TEST2')]
+
         ]
 
         output = processor.convert_to_NER_format(
@@ -1017,7 +1034,10 @@ class TestCharPostprocessor(unittest.TestCase):
             [
                  ( 2,  4, 'UNKNOWN'),
                  ( 5,  6, 'UNKNOWN'),
-                 ( 8,  9, 'UNKNOWN')]
+                 ( 8,  9, 'UNKNOWN')],
+            [
+                ( 3,  4, 'UNKNOWN'),
+                ( 5,  6, 'UNKNOWN')]
         ]
 
         output = processor.convert_to_NER_format(

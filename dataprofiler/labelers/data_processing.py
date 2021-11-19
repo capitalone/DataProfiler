@@ -643,7 +643,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         for batch_data in batch_process_generator:
             # Convert to necessary training data format.
             X_train = np.array(
-                [[sentence] for sentence in batch_data['samples']])
+                [[sentence] for sentence in batch_data['samples']],
+                dtype=object
+            )
             if labels is not None:
                 num_classes = max(label_mapping.values()) + 1
                 

@@ -163,7 +163,7 @@ class TestCSVDataClass(unittest.TestCase):
                  count=9, delimiter=',', has_header=[3],
                  num_columns=3, encoding='utf-8'),
            dict(path=os.path.join(test_dir, 'csv/flight_delays.csv'),
-                 count=999, delimiter=',', has_header=[0],
+                 count=20, delimiter=',', has_header=[0],
                  num_columns=8, encoding='utf-8'),
         ]
 

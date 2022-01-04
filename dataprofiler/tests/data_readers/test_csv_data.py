@@ -161,7 +161,10 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=3, encoding='utf-8'),            
             dict(path=os.path.join(test_dir, 'csv/sparse-first-and-last-column-header-and-author-description.txt'),
                  count=9, delimiter=',', has_header=[3],
-                 num_columns=3, encoding='utf-8'),            
+                 num_columns=3, encoding='utf-8'),
+           dict(path=os.path.join(test_dir, 'csv/flight_delays.csv'),
+                 count=20, delimiter=',', has_header=[0],
+                 num_columns=8, encoding='utf-8'),
         ]
 
         cls.buffer_list = []

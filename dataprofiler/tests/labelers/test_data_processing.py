@@ -673,6 +673,44 @@ class TestCharPreprocessor(unittest.TestCase):
             self.assertTrue((expected[0] == output[0]).all())
             self.assertTrue((expected[1] == output[1]).all())
 
+    def test_process_ending_null_string(self):
+
+        preprocessor = CharPreprocessor(
+            max_length=5, default_label='UNKNOWN', pad_label='PAD',
+            flatten_split=1.0, is_separate_at_max_len=True,
+        )
+
+        label_mapping = {
+            'PAD': 0,
+            'UNKNOWN': 1,
+            "TEST1": 2,
+            "TEST2": 3,
+            "TEST3": 4,
+        }
+
+        # test a single sentence
+        test_sentences = np.array(['this\x00is\x00\x00\x00my test sentence. '
+                                   'How nice.\x00\x00\x00'], dtype=object)
+        expected_output = [
+            np.array([['this\x00'], ['is\x00\x00\x00']], dtype=object),
+            np.array([['my te'], ['st se']], dtype=object),
+            np.array([['ntenc'], ['e. Ho']], dtype=object),
+            np.array([['w nic'], ['e.\x00\x00\x00']], dtype=object),
+        ]
+
+        # without labels process
+        process_generator = preprocessor.process(
+            test_sentences, label_mapping=label_mapping, batch_size=2)
+
+        # check to make sure string length is not stripped because ending in
+        # \x00
+        process_output = [data for data in process_generator]
+        for expected, output_batch in zip(expected_output, process_output):
+            for output in output_batch:
+                print(output)
+                self.assertEqual(5, len(output[0]))  # validates not trimmed
+            np.testing.assert_equal(expected, output_batch)
+
     def test_process_input_checks(self):
         prep = CharPreprocessor()
         multi_dim_msg = re.escape("Multidimensional data given to "
@@ -901,13 +939,15 @@ class TestCharPostprocessor(unittest.TestCase):
     def test_word_level_argmax(self):
 
         # input data initialization
-        data = np.array(['this is my test sentence.', 'How nice.'])
+        data = np.array(['this is my test sentence.', 'How nice.', 'How nice'])
         predictions = [
             # this is my test sentence.
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2,
              3, 3, 1],
             # How nice.
-            [2, 2, 1, 1, 3, 1, 3, 3, 1]
+            [2, 2, 1, 1, 3, 1, 3, 3, 1],
+            # How nice
+            [2, 2, 1, 1, 3, 1, 3, 3]
         ]
         label_mapping = {
             'PAD': 0,
@@ -925,7 +965,9 @@ class TestCharPostprocessor(unittest.TestCase):
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2,
              3, 3, 1],
             # How nice.
-            [2, 2, 1, 1, 3, 1, 3, 3, 1]
+            [2, 2, 1, 1, 3, 1, 3, 3, 1],
+            # How nice
+            [2, 2, 1, 1, 3, 1, 3, 3]
         ]
         output = processor._word_level_argmax(
             data, predictions, label_mapping, default_label)
@@ -938,7 +980,9 @@ class TestCharPostprocessor(unittest.TestCase):
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
              3, 3, 1],
             # How nice.
-            [1, 1, 1, 1, 3, 3, 3, 3, 1]
+            [1, 1, 1, 1, 3, 3, 3, 3, 1],
+            # How nice
+            [1, 1, 1, 1, 3, 3, 3, 3]            
         ]
         output = processor._word_level_argmax(
             data, predictions, label_mapping, default_label)
@@ -951,7 +995,9 @@ class TestCharPostprocessor(unittest.TestCase):
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1,
              1, 1, 1],
             # How nice.
-            [1, 1, 1, 1, 1, 1, 1, 1, 1]
+            [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            # How nice
+            [1, 1, 1, 1, 1, 1, 1, 1]
         ]
         output = processor._word_level_argmax(
             data, predictions, label_mapping, default_label)
@@ -964,7 +1010,9 @@ class TestCharPostprocessor(unittest.TestCase):
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
              3, 3, 1],
             # How nice.
-            [2, 2, 2, 1, 3, 3, 3, 3, 1]
+            [2, 2, 2, 1, 3, 3, 3, 3, 1],
+            # How nice
+            [2, 2, 2, 1, 3, 3, 3, 3]
         ]
         output = processor._word_level_argmax(
             data, predictions, label_mapping, default_label)
@@ -972,13 +1020,15 @@ class TestCharPostprocessor(unittest.TestCase):
 
     def test_convert_to_NER_format(self):
         # input data initialization
-        data = np.array(['this is my test sentence.', 'How nice.'])
+        data = np.array(['this is my test sentence.', 'How nice.', 'How nice'])
         predictions = [
             # this is my test sentence.
             [1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2,
              3, 3, 1],
             # How nice.
-            [2, 2, 1, 1, 3, 1, 3, 3, 1]
+            [2, 2, 1, 1, 3, 1, 3, 3, 1],
+            # How nice
+            [2, 2, 2, 1, 3, 1, 3, 3]
         ]
         label_mapping = {
             'PAD': 0,
@@ -999,7 +1049,12 @@ class TestCharPostprocessor(unittest.TestCase):
             [
                 (0, 2, 'TEST1'),
                 (4, 5, 'TEST2'),
+                (6, 8, 'TEST2')],
+            [
+                (0, 3, 'TEST1'),
+                (4, 5, 'TEST2'),
                 (6, 8, 'TEST2')]
+
         ]
 
         output = processor.convert_to_NER_format(
@@ -1017,7 +1072,10 @@ class TestCharPostprocessor(unittest.TestCase):
             [
                  ( 2,  4, 'UNKNOWN'),
                  ( 5,  6, 'UNKNOWN'),
-                 ( 8,  9, 'UNKNOWN')]
+                 ( 8,  9, 'UNKNOWN')],
+            [
+                ( 3,  4, 'UNKNOWN'),
+                ( 5,  6, 'UNKNOWN')]
         ]
 
         output = processor.convert_to_NER_format(

@@ -643,7 +643,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         for batch_data in batch_process_generator:
             # Convert to necessary training data format.
             X_train = np.array(
-                [[sentence] for sentence in batch_data['samples']])
+                [[sentence] for sentence in batch_data['samples']],
+                dtype=object
+            )
             if labels is not None:
                 num_classes = max(label_mapping.values()) + 1
                 
@@ -815,18 +817,25 @@ class CharPostprocessor(BaseDataPostprocessor,
             # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
             entities_in_sample = list(char_pred)
 
-            # Convert to dict for quick look-up
-            separator_dict = {}
-            for separator in separators:
-                separator_dict[separator] = True
+            # Convert to set for quick look-up
+            separator_dict = set(separators)
 
             # Iterate over sample
             start_idx = 0
             label_count = {label_mapping[default_label]: 0}
             for idx in range(len(sample)):
 
-                # Split on separator
-                if sample[idx] in separator_dict:
+                # Split on separator or last sample
+                is_separator = sample[idx] in separator_dict
+                is_end = (idx == len(sample)-1 and start_idx > 0)
+
+                if not is_separator:
+                    label = entities_in_sample[idx]                    
+                    if label not in label_count:
+                        label_count[label] = 0
+                    label_count[label] += 1                
+                
+                if is_separator or is_end:
 
                     # Find sum of labels over entity
                     total_label_count = sum(label_count.values())
@@ -858,14 +867,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                     label_count = {background_label: 0}
                     if char_pred[idx] == background_label and \
                             sample[idx] in separator_dict:
-                        continue
-
-                # Keep count of labels since start
-                label = entities_in_sample[idx]
-                if label not in label_count:
-                    label_count[label] = 0
-                label_count[label] += 1
-
+                        continue                
             word_level_predictions.append(entities_in_sample)
 
         return word_level_predictions

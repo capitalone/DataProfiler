@@ -6,7 +6,6 @@ A setuptools for the Data Profiler Application and Python Libraries
 from codecs import open
 import os
 from os import path
-from datetime import datetime
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
@@ -34,7 +33,7 @@ with open(path.join(here, 'requirements-reports.txt'), encoding='utf-8') as f:
     
 resource_dir = 'resources/'
 default_labeler_files = [(d, [os.path.join(d, f) for f in files])
-                         for d, folders, files in os.walk(resource_dir)]
+                         for d, _, files in os.walk(resource_dir)]
 
 
 DESCRIPTION = "What is in your data? Detect schema, statistics and entities in almost any file."
@@ -103,7 +102,9 @@ setup(
     # List of run-time dependencies for the labeler. These will be installed
     # by pip when someone installs the project[<label>].
     extras_require={ 'ml': ml_packages,
-                     'reports': reports_packages},
+                     'reports': reports_packages,
+                     'full': ml_packages + reports_packages,
+                   },
 
     # # If there are data files included in your packages that need to be
     # # installed, specify them here.  If using Python 2.6 or less, then these

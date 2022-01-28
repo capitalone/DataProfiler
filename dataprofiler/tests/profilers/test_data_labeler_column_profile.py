@@ -31,6 +31,8 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             if len_data % 2:
                 output += [[1, 0]]
             conf = np.array(output)
+            if mock_DataLabeler.model.requires_zero_mapping:
+                conf = np.concatenate([[[0]] * len_data, conf], axis=1)
             pred = np.argmax(conf, axis=1)
             return {'pred': pred, 'conf': conf}
         mock_DataLabeler.predict.side_effect = mock_predict

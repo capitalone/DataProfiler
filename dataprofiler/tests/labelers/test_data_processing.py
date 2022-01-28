@@ -1852,6 +1852,7 @@ class TestStructCharPostprocessor(unittest.TestCase):
         self.assertDictEqual(dict(default_label='UNKNOWN',
                                   pad_label='PAD',
                                   flatten_separator='\x01'*5,
+                                  is_pred_labels=True,
                                   random_state=random_state),
                              processor.get_parameters())
 
@@ -1859,6 +1860,7 @@ class TestStructCharPostprocessor(unittest.TestCase):
         params = dict(default_label='test default',
                       pad_label='test pad',
                       flatten_separator='test',
+                      is_pred_labels=False,
                       random_state=random_state)
         processor = StructCharPostprocessor(**params)
         self.assertDictEqual(params, processor.get_parameters())
@@ -1867,6 +1869,7 @@ class TestStructCharPostprocessor(unittest.TestCase):
         params = dict(default_label='test default',
                       pad_label='test pad',
                       flatten_separator='test',
+                      is_pred_labels=False,
                       random_state=random_state)
         processor = StructCharPostprocessor(**params)
         self.assertDictEqual(
@@ -1911,7 +1914,24 @@ class TestStructCharPostprocessor(unittest.TestCase):
         self.assertIn('pred', output)
         self.assertTrue((expected_output['pred'] == output['pred']).all())
 
+        # test with is_pred_labels = False
+        processor = StructCharPostprocessor(
+            default_label='UNKNOWN',
+            pad_label='PAD',
+            is_pred_labels=False,
+            flatten_separator='\x01' * 5)
+        expected_output_ints = dict(pred=np.array([2, 3, 1, 3, 2]))
+        output = processor.process(data, results, label_mapping)
+
+        self.assertIn('pred', output)
+        self.assertTrue((expected_output_ints['pred'] == output['pred']).all())
+
         # with confidences
+        processor = StructCharPostprocessor(
+            default_label='UNKNOWN',
+            pad_label='PAD',
+            is_pred_labels=True,
+            flatten_separator='\x01' * 5)
         confidences = []
         for sample in results['pred']:
             confidences.append([])

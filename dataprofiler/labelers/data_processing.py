@@ -830,10 +830,10 @@ class CharPostprocessor(BaseDataPostprocessor,
                 is_end = (idx == len(sample)-1 and start_idx > 0)
 
                 if not is_separator:
-                    label = entities_in_sample[idx]                    
+                    label = entities_in_sample[idx]
                     if label not in label_count:
                         label_count[label] = 0
-                    label_count[label] += 1                
+                    label_count[label] += 1
                 
                 if is_separator or is_end:
 
@@ -867,7 +867,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                     label_count = {background_label: 0}
                     if char_pred[idx] == background_label and \
                             sample[idx] in separator_dict:
-                        continue                
+                        continue
             word_level_predictions.append(entities_in_sample)
 
         return word_level_predictions
@@ -1220,7 +1220,8 @@ class StructCharPostprocessor(BaseDataPostprocessor,
                               metaclass=AutoSubRegistrationMeta):
 
     def __init__(self, default_label='UNKNOWN', pad_label='PAD',
-                 flatten_separator="\x01"*5, random_state=None):
+                 flatten_separator="\x01"*5, is_pred_labels=True,
+                 random_state=None):
         """
         Initialize the StructCharPostprocessor class
 
@@ -1231,6 +1232,9 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :param flatten_separator: separator used to put between flattened
             samples.
         :type flatten_separator: str
+        :param is_pred_labels: (default: true) if true, will convert the model
+            indexes to the label strings given the label_mapping
+        :type is_pred_labels: bool
         :param random_state: random state setting to be used for randomly
             selecting a prediction when two labels have equal opportunity for
             a given sample.
@@ -1256,6 +1260,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         super().__init__(default_label=default_label,
                          pad_label=pad_label,
                          flatten_separator=flatten_separator,
+                         is_pred_labels=is_pred_labels,
                          random_state=random_state)
 
     def __eq__(self, other):
@@ -1276,7 +1281,9 @@ class StructCharPostprocessor(BaseDataPostprocessor,
                 or self._parameters["pad_label"] != \
                     other._parameters["pad_label"]\
                 or self._parameters["flatten_separator"] != \
-                    other._parameters["flatten_separator"]:
+                    other._parameters["flatten_separator"] \
+                or self._parameters["is_pred_labels"] != \
+                    other._parameters["is_pred_labels"]:
             return False
         return True
 
@@ -1303,6 +1310,8 @@ class StructCharPostprocessor(BaseDataPostprocessor,
             if param in ['default_label', 'pad_label', 'flatten_separator'] \
                     and not isinstance(value, str):
                 errors.append("`{}` must be a string.".format(param))
+            if param in ['is_pred_labels'] and not isinstance(value, bool):
+                errors.append("`{}` must be a boolean.".format(param))
             if param == 'random_state' and not isinstance(value, random.Random):
                 errors.append('`{}` must be a random.Random.'.format(param))
             elif param not in allowed_parameters:
@@ -1483,6 +1492,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         flatten_separator = self._parameters['flatten_separator']
         default_label = self._parameters['default_label']
         pad_label = self._parameters['pad_label']
+        is_pred_labels = self._parameters['is_pred_labels']
 
         # Format predictions
         # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
@@ -1494,11 +1504,11 @@ class StructCharPostprocessor(BaseDataPostprocessor,
             default_label=default_label,
             pad_label=pad_label)
 
-        reverse_label_mapping = {v: k for k, v in label_mapping.items()}
-        rev_label_map_vec_func = np.vectorize(
-            lambda x: reverse_label_mapping.get(x, None))
-
-        results['pred'] = rev_label_map_vec_func(results['pred'])
+        if is_pred_labels:
+            reverse_label_mapping = {v: k for k, v in label_mapping.items()}
+            rev_label_map_vec_func = np.vectorize(
+                lambda x: reverse_label_mapping.get(x, None))
+            results['pred'] = rev_label_map_vec_func(results['pred'])
         return results
 
     def _save_processor(self, dirpath):

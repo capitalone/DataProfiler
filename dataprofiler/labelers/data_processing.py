@@ -1429,7 +1429,6 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :return: prediction value for a single column
         """
         default_ind = label_mapping[default_label]
-        ignore_value = label_mapping[pad_label]
         num_labels = max(label_mapping.values()) + 1
 
         labels_out = np.ones((len(results['pred']),))
@@ -1460,9 +1459,6 @@ class StructCharPostprocessor(BaseDataPostprocessor,
                     confs_out[i, int(label_id)] = count / sample_count
 
         results['pred'] = labels_out
-        if 'conf' in results:
-            results['conf'] = confs_out
-            results['conf'] = np.delete(results['conf'], ignore_value, axis=1)
         return results
 
     def process(self, data, results, label_mapping):

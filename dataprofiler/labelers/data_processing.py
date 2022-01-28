@@ -1429,6 +1429,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :return: prediction value for a single column
         """
         default_ind = label_mapping[default_label]
+        ignore_value = label_mapping[pad_label]
         num_labels = max(label_mapping.values()) + 1
 
         labels_out = np.ones((len(results['pred']),))
@@ -1440,6 +1441,7 @@ class StructCharPostprocessor(BaseDataPostprocessor,
 
             # get count of all labels in prediction
             column_label_counter = Counter(column_labels[:len(str(sample))])
+            column_label_counter.pop(ignore_value, None)
             modes = [entity_id for entity_id, count in
                      column_label_counter.most_common() if
                      column_label_counter.most_common(1)[0][1] == count]
@@ -1458,6 +1460,9 @@ class StructCharPostprocessor(BaseDataPostprocessor,
                     confs_out[i, int(label_id)] = count / sample_count
 
         results['pred'] = labels_out
+        if 'conf' in results:
+            results['conf'] = confs_out
+
         return results
 
     def process(self, data, results, label_mapping):

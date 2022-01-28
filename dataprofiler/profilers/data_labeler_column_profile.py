@@ -283,6 +283,11 @@ class DataLabelerColumn(BaseColumnProfiler):
         """
         predictions = self.data_labeler.predict(
             df_series, predict_options=dict(show_confidences=True))
+        # remove PAD from output (reserved zero index)
+        if self.data_labeler.model.requires_zero_mapping:
+            ignore_value = 0  # PAD index
+            predictions['conf'] = np.delete(
+                predictions['conf'], ignore_value, axis=1)
         sum_predictions = np.sum(predictions['conf'], axis=0)
         self._sum_predictions += sum_predictions
 

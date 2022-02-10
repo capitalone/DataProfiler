@@ -340,13 +340,13 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
         options.structured_options.data_labeler = IntOptions()
         with self.assertRaisesRegex(
-                ValueError, "data_labeler must be a\(n\) DataLabelerOptions."):
+                ValueError, r"data_labeler must be a\(n\) DataLabelerOptions."):
             profile = Profiler(self.data, options=options)
         # Test incorrect float options
         options = ProfilerOptions()
         options.structured_options.float = IntOptions()
         with self.assertRaisesRegex(
-                ValueError, "float must be a\(n\) FloatOptions."):
+                ValueError, r"float must be a\(n\) FloatOptions."):
             profile = Profiler(self.data, options=options)
 
     @mock.patch('dataprofiler.profilers.float_column_profile.FloatColumn.'

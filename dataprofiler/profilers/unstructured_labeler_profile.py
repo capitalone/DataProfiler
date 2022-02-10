@@ -59,7 +59,7 @@ class UnstructuredLabelerProfile(object):
         :type other: UnstructuredLabelerProfile
         :return: New UnstructuredLabelerProfile merged profile
         """
-        
+
         if not isinstance(other, UnstructuredLabelerProfile):
             raise TypeError("Unsupported operand type(s) for +: "
                             "'UnstructuredLabelerProfile' and '{}'".format(
@@ -81,10 +81,10 @@ class UnstructuredLabelerProfile(object):
                                           other.char_sample_size
         merged_profile.word_sample_size = self.word_sample_size + \
                                           other.word_sample_size
-        
+
         merged_profile.times = utils.add_nested_dictionaries(self.times,
                                                              other.times)
-        
+
         merged_profile._update_percentages()
 
         return merged_profile

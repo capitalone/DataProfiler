@@ -18,10 +18,10 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         """showing we normally can't instantiate an abstract class"""
         with self.assertRaises(TypeError) as e:
             col_pro_compilers.BaseCompiler()
-        self.assertEqual(
+        self.assertRegex(
+            str(e.exception),
             "Can't instantiate abstract class BaseCompiler with "
-            "abstract methods profile",
-            str(e.exception)
+            "abstract methods? profile"
         )
 
     @mock.patch.multiple(

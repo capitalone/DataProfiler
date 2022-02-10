@@ -101,7 +101,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
                 self._profiles[profile_name] + other._profiles[profile_name]
             )
         return merged_profile_compiler
-    
+
     def diff(self, other, options=None):
         """
         Finds the difference between 2 compilers and returns the report

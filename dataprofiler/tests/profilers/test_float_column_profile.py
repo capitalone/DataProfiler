@@ -6,7 +6,7 @@ import warnings
 
 import pandas as pd
 import numpy as np
-
+import json
 from dataprofiler.profilers import FloatColumn
 from dataprofiler.profilers.profiler_options import FloatOptions
 
@@ -1569,6 +1569,10 @@ class TestFloatColumn(unittest.TestCase):
             }
         }
         profile_diff = profiler1.diff(profiler2)
+        try:
+            json.dumps(profile_diff)
+        except TypeError:
+            self.fail('Object of type int64 is not JSON serializable in the diff')
         self.assertAlmostEqual(
             expected_diff.pop('median'), profile_diff.pop('median'), places=2)
         expected_diff_mode = expected_diff.pop('mode')

@@ -2,11 +2,11 @@ import os
 import unittest
 from unittest import mock
 from collections import defaultdict
+import json
 
 import pandas as pd
 import numpy as np
 import warnings
-import json
 from dataprofiler.profilers import IntColumn
 from dataprofiler.profilers.profiler_options import IntOptions
 
@@ -540,7 +540,7 @@ class TestIntColumn(unittest.TestCase):
                         'sum': 1.0, 'variance': 1.0, 'skewness': 1.0,
                         'kurtosis': 1.0, 'num_negatives': 1.0,
                         'num_zeros': 1.0})
-            
+
         )
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
@@ -824,7 +824,7 @@ class TestIntColumn(unittest.TestCase):
                                     'Profiles have no overlapping bin methods '
                                     'and therefore cannot be added together.'):
             profiler1 + profiler2
-            
+
     def test_profile_merge_with_different_options(self):
         # Creating first profiler with default options
         options = IntOptions()
@@ -850,13 +850,13 @@ class TestIntColumn(unittest.TestCase):
                                    "max is disabled because it is not enabled in"
                                    " both profiles."):
             profiler3 = profiler1 + profiler2
-        
+
         # Assert that these features are still merged
         profile = profiler3.profile
         self.assertIsNotNone(profiler3.histogram_selection)
         self.assertIsNotNone(profile['variance'])
         self.assertIsNotNone(profiler3.sum)
-        
+
         # Assert that these features are not calculated
         self.assertIsNone(profiler3.max)
         self.assertIsNone(profiler3.min)
@@ -1008,8 +1008,8 @@ class TestIntColumn(unittest.TestCase):
         profile_diff = profiler1.diff(profiler2)
         try:
             json.dumps(profile_diff)
-        except TypeError:
-            self.fail('Object of type int64 is not JSON serializable in the diff')
+        except TypeError as e:
+            self.fail('There was an issue serializing the profile diff to JSON. Exception raised: {}'.format(str(e)))
         self.assertAlmostEqual(
             expected_diff.pop('median'), profile_diff.pop('median'), places=2)
         expected_diff_mode = expected_diff.pop('mode')

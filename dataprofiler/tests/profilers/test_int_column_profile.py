@@ -7,6 +7,7 @@ import json
 import pandas as pd
 import numpy as np
 import warnings
+
 from dataprofiler.profilers import IntColumn
 from dataprofiler.profilers.profiler_options import IntOptions
 
@@ -1009,7 +1010,9 @@ class TestIntColumn(unittest.TestCase):
         try:
             json.dumps(profile_diff)
         except TypeError as e:
-            self.fail('There was an issue serializing the profile diff to JSON. Exception raised: {}'.format(str(e)))
+            self.fail(
+                'JSON Serializing issue with the profile diff. '
+                'Exception raised: {}'.format(str(e)))
         self.assertAlmostEqual(
             expected_diff.pop('median'), profile_diff.pop('median'), places=2)
         expected_diff_mode = expected_diff.pop('mode')

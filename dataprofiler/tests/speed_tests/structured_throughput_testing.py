@@ -1,10 +1,10 @@
-import time
 import json
 import random
+import time
 from collections import defaultdict
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 
 try:

@@ -1,18 +1,18 @@
-from builtins import next
-import re
 import json
-from io import open, StringIO, BytesIO, TextIOWrapper
-from collections import OrderedDict
-import dateutil
-import requests
+import re
 import urllib
+from builtins import next
+from collections import OrderedDict
+from io import BytesIO, StringIO, TextIOWrapper, open
 
+import dateutil
 import pandas as pd
 import pyarrow.parquet as pq
+import requests
 from chardet.universaldetector import UniversalDetector
 
-from .filepath_or_buffer import FileOrBufferHandler
 from .. import dp_logging
+from .filepath_or_buffer import FileOrBufferHandler
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -395,7 +395,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     if not _decode_is_valid(encoding):
         try:
             from charset_normalizer import CharsetNormalizerMatches as CnM
-            
+
             # Try with small sample 
             with FileOrBufferHandler(file_path, 'rb') as input_file:
                 raw_data = input_file.read(10000)

@@ -1,9 +1,10 @@
-from .numerical_column_stats import NumericStatsMixin
-from .base_column_profilers import BaseColumnProfiler, \
-    BaseColumnPrimitiveTypeProfiler
-from .profiler_options import TextOptions
-from . import utils
 import itertools
+
+from . import utils
+from .base_column_profilers import (BaseColumnPrimitiveTypeProfiler,
+                                    BaseColumnProfiler)
+from .numerical_column_stats import NumericStatsMixin
+from .profiler_options import TextOptions
 
 
 class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):

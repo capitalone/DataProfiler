@@ -1,17 +1,17 @@
 import os
-import six
-from collections import defaultdict
 import unittest
+from collections import defaultdict
 from unittest.mock import patch
 
-import pandas as pd
 import numpy as np
-
-from . import utils as test_utils
+import pandas as pd
+import six
 
 from dataprofiler.profilers import CategoricalColumn
 from dataprofiler.profilers.profile_builder import StructuredColProfiler
 from dataprofiler.profilers.profiler_options import CategoricalOptions
+
+from . import utils as test_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

@@ -1,15 +1,15 @@
-import os
-import time
-import datetime
 import collections
 import copy
-import math
-import warnings
-import psutil
-import multiprocessing as mp
+import datetime
 import functools
+import math
+import multiprocessing as mp
+import os
+import time
+import warnings
 
 import numpy as np
+import psutil
 import scipy
 
 from dataprofiler import settings

@@ -1,12 +1,12 @@
 from __future__ import print_function
 
 import unittest
-from unittest import mock
 from collections import defaultdict
-import six
+from unittest import mock
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+import six
 
 from dataprofiler.profilers import utils
 from dataprofiler.profilers.data_labeler_column_profile import \

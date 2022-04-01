@@ -1,6 +1,6 @@
 import unittest
-
 from datetime import datetime
+
 from dataprofiler.profilers import utils
 
 

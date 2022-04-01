@@ -1,30 +1,33 @@
 from __future__ import print_function
 
-import unittest
-from unittest import mock
-from io import BytesIO, StringIO
-import random
-import six
-import os
-import re
 import logging
+import os
+import random
+import re
+import unittest
+from io import BytesIO, StringIO
+from unittest import mock
 
 import numpy as np
 import pandas as pd
-
-from . import utils as test_utils
+import six
 
 import dataprofiler as dp
-from dataprofiler.profilers.profile_builder import StructuredColProfiler, \
-    UnstructuredProfiler, UnstructuredCompiler, StructuredProfiler, Profiler
-from dataprofiler.profilers.profiler_options import ProfilerOptions, \
-    StructuredOptions, UnstructuredOptions
-from dataprofiler.profilers.column_profile_compilers import \
-    ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler, \
-    ColumnDataLabelerCompiler
 from dataprofiler import StructuredDataLabeler, UnstructuredDataLabeler
-
+from dataprofiler.profilers.column_profile_compilers import (
+    ColumnDataLabelerCompiler, ColumnPrimitiveTypeProfileCompiler,
+    ColumnStatsProfileCompiler)
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
+from dataprofiler.profilers.profile_builder import (Profiler,
+                                                    StructuredColProfiler,
+                                                    StructuredProfiler,
+                                                    UnstructuredCompiler,
+                                                    UnstructuredProfiler)
+from dataprofiler.profilers.profiler_options import (ProfilerOptions,
+                                                     StructuredOptions,
+                                                     UnstructuredOptions)
+
+from . import utils as test_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

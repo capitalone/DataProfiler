@@ -1,13 +1,13 @@
-from future.utils import with_metaclass
 import abc
 from collections import OrderedDict
 
-from . import utils
-from . import DateTimeColumn, IntColumn, FloatColumn, TextColumn
-from . import OrderColumn, CategoricalColumn
-from . import DataLabelerColumn, UnstructuredLabelerProfile
+from future.utils import with_metaclass
+
+from . import (CategoricalColumn, DataLabelerColumn, DateTimeColumn,
+               FloatColumn, IntColumn, OrderColumn, TextColumn,
+               UnstructuredLabelerProfile, utils)
+from .profiler_options import StructuredOptions, UnstructuredOptions
 from .unstructured_text_profile import TextProfiler
-from .profiler_options import UnstructuredOptions, StructuredOptions
 
 
 class BaseCompiler(with_metaclass(abc.ABCMeta, object)):

@@ -1,7 +1,9 @@
-from __future__ import unicode_literals    # at top of module
+from __future__ import unicode_literals  # at top of module
 from __future__ import print_function
-from past.builtins import basestring
+
 from io import StringIO
+
+from past.builtins import basestring
 
 from . import data_utils
 from .base_data import BaseData

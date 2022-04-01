@@ -1,4 +1,4 @@
-from io import open, StringIO, BytesIO, TextIOWrapper
+from io import BytesIO, StringIO, TextIOWrapper, open
 
 from . import data_utils
 

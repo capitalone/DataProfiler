@@ -4,20 +4,18 @@ coding=utf-8
 Build model for a dataset by identifying type of column along with its
 respective parameters.
 """
-from __future__ import print_function
-from __future__ import division
+from __future__ import division, print_function
 
-import scipy.stats
-from future.utils import with_metaclass
-import copy
 import abc
-import warnings
+import copy
 import itertools
+import warnings
 
 import numpy as np
+import scipy.stats
+from future.utils import with_metaclass
 
-from . import utils
-from . import histogram_utils
+from . import histogram_utils, utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import NumericalOptions
 

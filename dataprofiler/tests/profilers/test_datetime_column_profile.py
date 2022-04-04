@@ -236,13 +236,13 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
     def test_profile(self):
         data = [
             2.5, 12.5, '2013-03-10 15:43:30', 5, '03/10/13 15:43',
-            'Mar 11, 2013'
+            'Mar 11th, 2013'
         ]
         df = pd.Series(data).apply(str)
         profiler = DateTimeColumn(df.name)
         expected_profile = dict(
             min='03/10/13 15:43',
-            max='Mar 11, 2013',
+            max='Mar 11th, 2013',
             histogram=None,
             format=[
                 '%Y-%m-%d %H:%M:%S',
@@ -268,6 +268,8 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             profiler.update(df)
             expected = defaultdict(float, {'datetime': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
+
+            self.assertEqual(expected_profile.pop('max'), profiler.profile['max'])
 
     def test_warning_for_bad_dates(self):
 

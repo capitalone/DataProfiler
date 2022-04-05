@@ -424,6 +424,7 @@ In addition, it utilizes only the first 10,000 rows.
 
 Versions
 ========
+* `0.7.6`_
 * `0.7.2`_
 * `0.7.1`_
 * `0.7.0`_
@@ -463,4 +464,6 @@ Versions
 
 .. _0.7.1: ../../0.7.1/html/index.html
 .. _0.7.2: ../../0.7.2/html/index.html
+
+.. _0.7.6: ../../0.7.6/html/index.html
 

@@ -1,0 +1,887 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Building a Regex Data Labeler w/ your own Regex" href="regex_labeler_from_scratch.html" /><link rel="prev" title="Sensitive Data Detection with the Labeler" href="labeler.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Adding new model to the existing DataLabeler pipeline - Data Profiler v0.7.6</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.7.6</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.7.6</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profilers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html#Profiler-Type">Profiler Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html#Differences-in-Data">Differences in Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<p><a class="reference external" href="https://github.com/capitalone/rubicon/tree/main/notebooks/add_new_model_to_data_labeler.nblink">View this notebook on GitHub</a></p>
+<section id="Adding-new-model-to-the-existing-DataLabeler-pipeline">
+<h1>Adding new model to the existing DataLabeler pipeline<a class="headerlink" href="#Adding-new-model-to-the-existing-DataLabeler-pipeline" title="Permalink to this headline">¶</a></h1>
+<p>Consider the case when we would like to explore different character-level neural network models and evaluate their performance on different datasets. The existing DataLabeler in the DataProfiler library already contains a preprocessor, a postprocessor, and a character-level CNN (Convolutional Neural Network) model that are combined to work on such data. All we need is to build additional model classes that inherit the main functionalities from the CNN model and also adapt the model construction
+to the desired architectures. In this example, we define such a new model to be used with the Data Labeler component of the Data Profiler. In particular, a character-level LSTM (Long Short-Term Memory) model is implemented, then integrated into the DataLabeler pipeline to be trained with a tabular dataset. The process includes the following steps:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>- Build a new character-level LSTM model that inherits the CNN model
+- Load the DataLabeler from the DataProfiler
+- Swap the existing CNN model with the new LSTM model
+- Train the data labeler pipeline on a given dataset
+</pre></div>
+</div>
+<p>First, let’s import the libraries needed for this example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>import os
+import sys
+import json
+import pandas as pd
+sys.path.insert(0, '..')
+import dataprofiler as dp
+</pre></div>
+</div>
+</div>
+<section id="Dataset">
+<h2>Dataset<a class="headerlink" href="#Dataset" title="Permalink to this headline">¶</a></h2>
+<p>In this example, we use a structured dataset, the aws honeypot dataset, given in the test folder of the library. This dataset is first read by the Data Reader class of the Data Profiler, then split into training and test data to be used in the next sections.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span># use data reader to read input data
+data = dp.Data("../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv")
+df_data = data.data
+
+# split data to training and test set
+split_ratio = 0.2
+df_data = df_data.sample(frac=1).reset_index(drop=True)
+data_train = df_data[:int((1 - split_ratio) * len(df_data))]
+data_test = df_data[int((1 - split_ratio) * len(df_data)):]
+
+df_data.head()
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Implement-a-new-character-level-LSTM-model">
+<h2>Implement a new character-level LSTM model<a class="headerlink" href="#Implement-a-new-character-level-LSTM-model" title="Permalink to this headline">¶</a></h2>
+<p>This new model is inherited from <code class="docutils literal notranslate"><span class="pre">CharacterLevelCnnModel</span></code> class, with some modifications on the following functions</p>
+<p><code class="docutils literal notranslate"><span class="pre">__init__</span></code>: to add new parameters for the LSTM model. The new parameters, <code class="docutils literal notranslate"><span class="pre">size_lstm</span></code>, <code class="docutils literal notranslate"><span class="pre">rec_dropout</span></code>, <code class="docutils literal notranslate"><span class="pre">activation</span></code>, <code class="docutils literal notranslate"><span class="pre">recurrent_activation</span></code>, specify number of LSTM layers, activation function, and recurrent dropout ratio.</p>
+<p><code class="docutils literal notranslate"><span class="pre">_validate_parameters</span></code>: to add additional checks on the new parameters for the LSTM model</p>
+<p><code class="docutils literal notranslate"><span class="pre">_construct_model</span></code>: to construct the new LSTM model with the desired architecture</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>import tensorflow as tf
+import numpy as np
+from dataprofiler.labelers.character_level_cnn_model import CharacterLevelCnnModel, F1Score, \
+                                                            create_glove_char, build_embd_dictionary
+from dataprofiler.labelers.base_model import BaseModel
+
+# CharacterLevelLstmModel derives from CharacterLevelCnnModel
+#########################################################
+#########################################################
+class CharacterLevelLstmModel(CharacterLevelCnnModel):
+
+    # boolean if the label mapping requires the mapping for index 0 reserved
+    requires_zero_mapping = True
+
+    def __init__(self, label_mapping=None, parameters=None):
+        """
+        LSTM Model Initializer
+        """
+
+        # parameter initialization
+        if not parameters:
+            parameters = {}
+        parameters.setdefault('max_length', 3400)
+        parameters.setdefault('max_char_encoding_id', 127)
+        parameters.setdefault('dim_embed', 64)
+        parameters.setdefault('size_fc', [32, 32])
+        parameters.setdefault('dropout', 0.1)
+        # new parameters for LSTM model
+        #########################################################
+        #########################################################
+        parameters.setdefault('size_lstm', [64])
+        parameters.setdefault('rec_dropout', 0.1)
+        parameters.setdefault('activation', "tanh")
+        parameters.setdefault('recurrent_activation', "sigmoid")
+        #########################################################
+        #########################################################
+        parameters.setdefault('default_label', "UNKNOWN")
+        parameters['pad_label'] = 'PAD'
+        self._epoch_id = 0
+
+        # reconstruct flags for model
+        self._model_num_labels = 0
+        self._model_default_ind = -1
+
+        BaseModel.__init__(self, label_mapping, parameters)
+
+    def _validate_parameters(self, parameters):
+        """
+        Validate the parameters sent in. Raise error if invalid parameters are
+        present.
+        """
+        errors = []
+        list_of_necessary_params = ['max_length', 'max_char_encoding_id',
+                                    'dim_embed', 'size_fc', 'dropout',
+                                    'size_lstm', 'rec_dropout', 'activation',
+                                    'recurrent_activation', 'default_label',
+                                    'pad_label']
+        # Make sure the necessary parameters are present and valid.
+        for param in parameters:
+            if param in ['max_length', 'max_char_encoding_id', 'dim_embed',
+                         'size_conv']:
+                if not isinstance(parameters[param], (int, float)) \
+                        or parameters[param] &lt; 0:
+                    errors.append(param + " must be a valid integer or float "
+                                          "greater than 0.")
+            elif param in ['dropout', 'rec_dropout']: # additional check for rec_dropout
+                if not isinstance(parameters[param], (int, float)) \
+                        or parameters[param] &lt; 0 or parameters[param] &gt; 1:
+                    errors.append(param + " must be a valid integer or float "
+                                          "from 0 to 1.")
+            elif param == 'size_fc' or param == 'size_lstm': # additional check for size_lstm
+                if not isinstance(parameters[param], list) \
+                        or len(parameters[param]) == 0:
+                    errors.append(param + " must be a non-empty list of "
+                                          "integers.")
+                else:
+                    for item in parameters[param]:
+                        if not isinstance(item, int):
+                            errors.append(param + " must be a non-empty "
+                                                  "list of integers.")
+                            break
+            elif param in ['default_label', 'activation', 'recurrent_activation']: # additional check for activation and recurrent_activation
+                if not isinstance(parameters[param], str):
+                    error = str(param) + " must be a string."
+                    errors.append(error)
+
+        # Error if there are extra parameters thrown in
+        for param in parameters:
+            if param not in list_of_necessary_params:
+                errors.append(param + " is not an accepted parameter.")
+        if errors:
+            raise ValueError('\n'.join(errors))
+
+    def _construct_model(self):
+        """
+        Model constructor for the data labeler. This also serves as a weight
+        reset.
+
+        :return: None
+        """
+        num_labels = self.num_labels
+        default_ind = self.label_mapping[self._parameters['default_label']]
+
+        # Reset model
+        tf.keras.backend.clear_session()
+
+        # generate glove embedding
+        create_glove_char(self._parameters['dim_embed'])
+
+        # generate model
+        self._model = tf.keras.models.Sequential()
+
+        # default parameters
+        max_length = self._parameters['max_length']
+        max_char_encoding_id = self._parameters['max_char_encoding_id']
+
+        # Encoding layer
+        def encoding_function(input_str):
+            char_in_vector = CharacterLevelLstmModel._char_encoding_layer(
+                input_str, max_char_encoding_id, max_length)
+            return char_in_vector
+
+        self._model.add(tf.keras.layers.Input(shape=(None,), dtype=tf.string))
+
+        self._model.add(
+            tf.keras.layers.Lambda(encoding_function,
+                                   output_shape=tuple([max_length])))
+
+        # Create a pre-trained weight matrix
+        # character encoding indices range from 0 to max_char_encoding_id,
+        # we add one extra index for out-of-vocabulary character
+        embed_file = os.path.join(
+            "../dataprofiler/labelers", "embeddings/glove-reduced-{}D.txt".format(
+                self._parameters['dim_embed']))
+        embedding_matrix = np.zeros((max_char_encoding_id + 2,
+                                     self._parameters['dim_embed']))
+        embedding_dict = build_embd_dictionary(embed_file)
+
+        input_shape = tuple([max_length])
+        # Fill in the weight matrix: let pad and space be 0s
+        for ascii_num in range(max_char_encoding_id):
+            if chr(ascii_num) in embedding_dict:
+                embedding_matrix[ascii_num + 1] = embedding_dict[chr(ascii_num)]
+
+        self._model.add(tf.keras.layers.Embedding(
+            max_char_encoding_id + 2,
+            self._parameters['dim_embed'],
+            weights=[embedding_matrix],
+            input_length=input_shape[0],
+            trainable=True))
+
+        # Add the lstm layers
+        #########################################################
+        #########################################################
+        for size in self._parameters['size_lstm']:
+            self._model.add(
+                tf.keras.layers.LSTM(units=size,
+                                     recurrent_dropout=self._parameters['rec_dropout'],
+                                     activation=self._parameters['activation'],
+                                     recurrent_activation=self._parameters['recurrent_activation'],
+                                     return_sequences=True))
+            if self._parameters['dropout']:
+                self._model.add(tf.keras.layers.Dropout(self._parameters['dropout']))
+        #########################################################
+        #########################################################
+
+        # Add the fully connected layers
+        for size in self._parameters['size_fc']:
+            self._model.add(
+                tf.keras.layers.Dense(units=size, activation='relu'))
+            if self._parameters['dropout']:
+                self._model.add(
+                    tf.keras.layers.Dropout(self._parameters['dropout']))
+
+        # Add the final Softmax layer
+        self._model.add(
+            tf.keras.layers.Dense(num_labels, activation='softmax'))
+
+        # Output the model into a .pb file for TensorFlow
+        argmax_layer = tf.keras.backend.argmax(self._model.output)
+
+        # Create confidence layers
+        final_predicted_layer = CharacterLevelLstmModel._argmax_threshold_layer(
+            num_labels, threshold=0.0, default_ind=default_ind)
+
+        argmax_outputs = self._model.outputs + \
+                         [argmax_layer,
+                          final_predicted_layer(argmax_layer, self._model.output)]
+        self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
+
+        # Compile the model
+        softmax_output_layer_name = self._model.outputs[0].name.split('/')[0]
+        losses = {softmax_output_layer_name: "categorical_crossentropy"}
+
+        # use f1 score metric
+        f1_score_training = F1Score(num_classes=num_labels, average='micro')
+        metrics = {softmax_output_layer_name: ['acc', f1_score_training]}
+
+        self._model.compile(loss=losses,
+                            optimizer="adam",
+                            metrics=metrics)
+
+        self._epoch_id = 0
+        self._model_num_labels = num_labels
+        self._model_default_ind = default_ind
+
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Integrate-the-new-LSTM-model-to-the-DataLabeler">
+<h2>Integrate the new LSTM model to the DataLabeler<a class="headerlink" href="#Integrate-the-new-LSTM-model-to-the-DataLabeler" title="Permalink to this headline">¶</a></h2>
+<p>Once the LSTM model is built, it replaces the existing model in the DataLabeler pipeline, which is then trained on the given dataset. Note that, as the DataLabeler is trained on the above tabular dataset, its label mapping is updated by the list of column names in that dataset while training.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span># get labels from the given dataset
+value_label_df = data_train.reset_index(drop=True).melt()
+value_label_df.columns = [1, 0]  # labels=1, values=0 in that order
+value_label_df = value_label_df.astype(str)
+labels = value_label_df[1].unique().tolist()
+
+# create a new LSTM model
+# set default label (one of the column names) to the model
+model = CharacterLevelLstmModel(label_mapping=labels, parameters={'default_label': 'comment'})
+
+# add the new LSTM model to the data labeler
+data_labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
+data_labeler.set_model(model)
+
+# set default label (one of the column names) to the preprocessor and postprocessor
+processor_params = {'default_label': 'comment'}
+data_labeler._preprocessor.set_params(**processor_params)
+data_labeler._postprocessor.set_params(**processor_params)
+
+# train the data labeler
+save_dirpath="data_labeler_saved"
+if not os.path.exists(save_dirpath):
+    os.makedirs(save_dirpath)
+
+epochs=2
+data_labeler.fit(
+    x=value_label_df[0], y=value_label_df[1], labels=labels, epochs=epochs)
+if save_dirpath:
+    data_labeler.save_to_disk(save_dirpath)
+</pre></div>
+</div>
+</div>
+<p>The trained Data Labeler is then used by the Data Profiler to provide the prediction on the new dataset. In this example, all options except data labeler are disabled for the sake of presenting data labeler functionality. The results are given in the columnar format where true column types are given in the first column, and the predicted column labels are given in the second column.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span># predict with the data labeler object
+profile_options = dp.ProfilerOptions()
+profile_options.set({"structured_options.text.is_enabled": False,
+                     "int.is_enabled": False,
+                     "float.is_enabled": False,
+                     "order.is_enabled": False,
+                     "category.is_enabled": False,
+                     "datetime.is_enabled": False,})
+profile_options.set({'structured_options.data_labeler.data_labeler_object': data_labeler})
+profile = dp.Profiler(data_test, options=profile_options)
+
+# get the prediction from the data profiler
+def get_structured_results(results):
+    columns = []
+    predictions = []
+    for col_report in results['data_stats']:
+        columns.append(col_report['column_name'])
+        predictions.append(col_report['data_label'])
+
+    df_results = pd.DataFrame({'Column': columns, 'Prediction': predictions})
+    return df_results
+
+results = profile.report()
+print(get_structured_results(results))
+</pre></div>
+</div>
+</div>
+<p>In summary, users can define their own model, plug it in the DataLabeler pipeline, and train the labeler with the new dataset. Above, we show one example of adding the LSTM model to the pipeline. Interested users can implement other neural network models as desired with the same process.</p>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="regex_labeler_from_scratch.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Building a Regex Data Labeler w/ your own Regex</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="labeler.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Sensitive Data Detection with the Labeler</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/add_new_model_to_data_labeler.nblink.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Adding new model to the existing DataLabeler pipeline</a><ul>
+<li><a class="reference internal" href="#Dataset">Dataset</a></li>
+<li><a class="reference internal" href="#Implement-a-new-character-level-LSTM-model">Implement a new character-level LSTM model</a></li>
+<li><a class="reference internal" href="#Integrate-the-new-LSTM-model-to-the-DataLabeler">Integrate the new LSTM model to the DataLabeler</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    </body>
+</html>

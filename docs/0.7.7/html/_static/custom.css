@@ -1,0 +1,50 @@
+/*
+    the ipython3 code blocks coming from the notebooks
+    were not getting the dark theme styles applied, so
+    manually overriding them
+*/
+@media (prefers-color-scheme: dark) {
+    .highlight-ipython3 {
+        border: none !important;
+        border-radius: 2px !important;
+        background: #202020 !important;
+        color: #d0d0d0 !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    tr:nth-child(odd) {
+	background-color: #202020 !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .dataframe {
+	color: white !important;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+.version {
+    text-align: right;
+    font-size: 24px;
+    margin-top: -47px;
+    margin-right: 3px;
+}
+
+.sidebar-brand {
+    margin-bottom: -10px;
+    margin-top: 10px;
+}
+
+/* unknown warning was showing, manually hiding */
+#Visualizing-Logged-Dataframes .admonition.warning {
+    display: none;
+}
+
+div.output_area.stderr {
+    display: none;
+}

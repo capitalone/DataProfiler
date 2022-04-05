@@ -44,7 +44,7 @@ Install requirements:
 
     # install sphinx requirements
     brew install pandoc
-    pip install requirements.txt
+    pip install -r requirements.txt
     
     # install the requirements from the feature branch
     pip install -r feature_branch/requirements.txt

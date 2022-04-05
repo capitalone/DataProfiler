@@ -44,7 +44,7 @@ Install requirements:
 
     # install sphinx requirements
     brew install pandoc
-    pip install requirements.txt
+    pip install -r requirements.txt
     
     # install the requirements from the feature branch
     pip install -r feature_branch/requirements.txt
@@ -61,8 +61,8 @@ adjustments to the code comments, you may rerun the command again to overwrite
 the specified version.
 
 Once the documentation is updated, commit and push the whole 
-/docs folder. API documentation will only update when pushed to the main 
-branch. 
+/docs folder as well as the index.html file. API documentation 
+will only update when pushed to the main branch.
 
 If you make a mistake naming the version, you will have to delete it from
 the /docs/source/index.rst file.

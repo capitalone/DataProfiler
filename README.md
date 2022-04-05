@@ -59,9 +59,10 @@ In /docs run:
 If you make adjustments to the code comments, you may rerun the command again to
  overwrite the specified version. 
 
-Once the documentation is updated, commit and push the whole 
-/docs folder. API documentation will only update when pushed to the main 
-branch. 
+Once the documentation is updated make sure to also update the `index.html` 
+file with the most recent version of docs that have been created. Once this is done, 
+commit and push the whole /docs folder. API documentation will only update when 
+pushed to the main branch. 
 
 If you make a mistake naming the version, you will have to delete it from
 the /docs/source/index.rst file.

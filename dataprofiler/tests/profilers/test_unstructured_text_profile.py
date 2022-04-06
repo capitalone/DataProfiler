@@ -2,8 +2,8 @@ import unittest
 
 import pandas as pd
 
-from dataprofiler.profilers.unstructured_text_profile import TextProfiler
 from dataprofiler.profilers.profiler_options import TextProfilerOptions
+from dataprofiler.profilers.unstructured_text_profile import TextProfiler
 
 
 class TestUnstructuredTextProfile(unittest.TestCase):

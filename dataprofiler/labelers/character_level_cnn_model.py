@@ -1,19 +1,18 @@
-import json
 import copy
+import json
+import logging
 import os
 import sys
 import time
-import logging
 from collections import defaultdict
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 from sklearn import decomposition
 
-from . import labeler_utils
-from .base_model import BaseModel, BaseTrainableModel
-from .base_model import AutoSubRegistrationMeta
 from .. import dp_logging
+from . import labeler_utils
+from .base_model import AutoSubRegistrationMeta, BaseModel, BaseTrainableModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 

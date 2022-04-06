@@ -1,6 +1,6 @@
+import os
 import unittest
 from unittest import mock
-import os
 
 import pandas as pd
 import requests

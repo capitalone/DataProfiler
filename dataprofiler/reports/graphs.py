@@ -3,6 +3,7 @@ import math
 import warnings
 
 import numpy as np
+
 try:
     import matplotlib.patches
     import matplotlib.pyplot as plt
@@ -12,8 +13,8 @@ except ImportError:
     # installed
     pass
 
-from ..profilers.profile_builder import StructuredProfiler, \
-    StructuredColProfiler
+from ..profilers.profile_builder import (StructuredColProfiler,
+                                         StructuredProfiler)
 from . import utils
 
 

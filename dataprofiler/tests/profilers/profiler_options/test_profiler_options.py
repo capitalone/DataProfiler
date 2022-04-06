@@ -5,10 +5,9 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
-from dataprofiler import Data, ProfilerOptions, Profiler
-from dataprofiler.profilers.profiler_options import IntOptions, \
-    FloatOptions
+from dataprofiler import Data, Profiler, ProfilerOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
+from dataprofiler.profilers.profiler_options import FloatOptions, IntOptions
 
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'

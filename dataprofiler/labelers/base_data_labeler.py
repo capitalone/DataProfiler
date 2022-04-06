@@ -1,11 +1,11 @@
-import sys
-import os
-import warnings
 import json
-import pkg_resources
+import os
+import sys
+import warnings
 
 import numpy as np
 import pandas as pd
+import pkg_resources
 
 from .. import data_readers
 from . import data_processing

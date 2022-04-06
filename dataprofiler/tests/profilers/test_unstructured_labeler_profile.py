@@ -1,10 +1,10 @@
 import unittest
-from dataprofiler.profilers import utils
-from unittest import mock
 from collections import defaultdict
+from unittest import mock
 
 import pandas as pd
 
+from dataprofiler.profilers import utils
 from dataprofiler.profilers.unstructured_labeler_profile import \
     UnstructuredLabelerProfile
 

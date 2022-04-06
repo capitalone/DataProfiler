@@ -1,6 +1,5 @@
 from io import BytesIO, StringIO, TextIOWrapper, open
 
-from . import data_utils
 
 def is_stream_buffer(filepath_or_buffer):
     """

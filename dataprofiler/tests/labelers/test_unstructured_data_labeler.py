@@ -9,10 +9,10 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
-from dataprofiler.data_readers.csv_data import (AVROData, CSVData, JSONData,
-                                                ParquetData)
-from dataprofiler.labelers import (DataLabeler, UnstructuredDataLabeler,
-                                   data_processing)
+from dataprofiler.data_readers.csv_data import AVROData, CSVData, JSONData, \
+    ParquetData
+from dataprofiler.labelers import DataLabeler, UnstructuredDataLabeler, \
+    data_processing
 from dataprofiler.labelers.character_level_cnn_model import \
     CharacterLevelCnnModel
 

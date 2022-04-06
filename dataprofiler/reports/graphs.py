@@ -13,8 +13,8 @@ except ImportError:
     # installed
     pass
 
-from ..profilers.profile_builder import (StructuredColProfiler,
-                                         StructuredProfiler)
+from ..profilers.profile_builder import StructuredColProfiler, \
+    StructuredProfiler
 from . import utils
 
 

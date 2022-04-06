@@ -9,9 +9,8 @@ import six
 
 from dataprofiler.profilers import \
     column_profile_compilers as col_pro_compilers
-from dataprofiler.profilers.profiler_options import (BaseOption,
-                                                     StructuredOptions,
-                                                     UnstructuredOptions)
+from dataprofiler.profilers.profiler_options import BaseOption, \
+    StructuredOptions, UnstructuredOptions
 
 
 class TestBaseProfileCompilerClass(unittest.TestCase):

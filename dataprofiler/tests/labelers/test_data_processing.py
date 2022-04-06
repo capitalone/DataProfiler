@@ -9,14 +9,10 @@ from unittest import mock
 import numpy as np
 import pkg_resources
 
-from dataprofiler.labelers.data_processing import (BaseDataProcessor,
-                                                   CharPostprocessor,
-                                                   CharPreprocessor,
-                                                   DirectPassPreprocessor,
-                                                   RegexPostProcessor,
-                                                   StructCharPostprocessor,
-                                                   StructCharPreprocessor,
-                                                   StructRegexPostProcessor)
+from dataprofiler.labelers.data_processing import BaseDataProcessor, \
+    CharPostprocessor, CharPreprocessor, DirectPassPreprocessor, \
+    RegexPostProcessor, StructCharPostprocessor, StructCharPreprocessor, \
+    StructRegexPostProcessor
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

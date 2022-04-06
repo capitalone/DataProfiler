@@ -1,5 +1,5 @@
-from dataprofiler.profilers.profiler_options import (BooleanOption,
-                                                     TextProfilerOptions)
+from dataprofiler.profilers.profiler_options import BooleanOption, \
+    TextProfilerOptions
 from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options import \
     TestBaseInspectorOptions
 

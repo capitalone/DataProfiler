@@ -9,8 +9,8 @@ import pandas as pd
 import six
 
 from dataprofiler.profilers import utils
-from dataprofiler.profilers.base_column_profilers import (
-    BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler)
+from dataprofiler.profilers.base_column_profilers import \
+    BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from dataprofiler.tests.profilers import utils as test_utils
 
 

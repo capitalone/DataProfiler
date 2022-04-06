@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 
 from . import utils
-from .base_column_profilers import (BaseColumnPrimitiveTypeProfiler,
-                                    BaseColumnProfiler)
+from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, \
+    BaseColumnProfiler
 from .profiler_options import DateTimeOptions
 
 

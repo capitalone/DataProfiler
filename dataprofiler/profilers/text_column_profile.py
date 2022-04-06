@@ -1,8 +1,8 @@
 import itertools
 
 from . import utils
-from .base_column_profilers import (BaseColumnPrimitiveTypeProfiler,
-                                    BaseColumnProfiler)
+from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, \
+    BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import TextOptions
 

@@ -22,13 +22,12 @@ import pandas as pd
 from .. import data_readers, dp_logging
 from ..labelers.data_labelers import DataLabeler
 from . import utils
-from .column_profile_compilers import (ColumnDataLabelerCompiler,
-                                       ColumnPrimitiveTypeProfileCompiler,
-                                       ColumnStatsProfileCompiler,
-                                       UnstructuredCompiler)
+from .column_profile_compilers import ColumnDataLabelerCompiler, \
+    ColumnPrimitiveTypeProfileCompiler, ColumnStatsProfileCompiler, \
+    UnstructuredCompiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
-from .profiler_options import (ProfilerOptions, StructuredOptions,
-                               UnstructuredOptions)
+from .profiler_options import ProfilerOptions, StructuredOptions, \
+    UnstructuredOptions
 
 logger = dp_logging.get_child_logger(__name__)
 

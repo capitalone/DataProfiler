@@ -14,18 +14,15 @@ import six
 
 import dataprofiler as dp
 from dataprofiler import StructuredDataLabeler, UnstructuredDataLabeler
-from dataprofiler.profilers.column_profile_compilers import (
-    ColumnDataLabelerCompiler, ColumnPrimitiveTypeProfileCompiler,
-    ColumnStatsProfileCompiler)
+from dataprofiler.profilers.column_profile_compilers import \
+    ColumnDataLabelerCompiler, ColumnPrimitiveTypeProfileCompiler, \
+    ColumnStatsProfileCompiler
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
-from dataprofiler.profilers.profile_builder import (Profiler,
-                                                    StructuredColProfiler,
-                                                    StructuredProfiler,
-                                                    UnstructuredCompiler,
-                                                    UnstructuredProfiler)
-from dataprofiler.profilers.profiler_options import (ProfilerOptions,
-                                                     StructuredOptions,
-                                                     UnstructuredOptions)
+from dataprofiler.profilers.profile_builder import Profiler, \
+    StructuredColProfiler, StructuredProfiler, UnstructuredCompiler, \
+    UnstructuredProfiler
+from dataprofiler.profilers.profiler_options import ProfilerOptions, \
+    StructuredOptions, UnstructuredOptions
 
 from . import utils as test_utils
 

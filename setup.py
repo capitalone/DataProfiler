@@ -41,7 +41,7 @@ DESCRIPTION = "What is in your data? Detect schema, statistics and entities in a
 setup(
     name='DataProfiler',
     version=__version__,
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',

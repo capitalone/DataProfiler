@@ -5,10 +5,9 @@ from unittest import mock
 import numpy as np
 import pandas as pd
 
-from dataprofiler import Data, ProfilerOptions, Profiler
-from dataprofiler.profilers.profiler_options import IntOptions, \
-    FloatOptions
+from dataprofiler import Data, Profiler, ProfilerOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
+from dataprofiler.profilers.profiler_options import FloatOptions, IntOptions
 
 
 @mock.patch('dataprofiler.profilers.data_labeler_column_profile.'
@@ -340,13 +339,13 @@ class TestProfilerOptions(unittest.TestCase):
         options = ProfilerOptions()
         options.structured_options.data_labeler = IntOptions()
         with self.assertRaisesRegex(
-                ValueError, "data_labeler must be a\(n\) DataLabelerOptions."):
+                ValueError, r"data_labeler must be a\(n\) DataLabelerOptions."):
             profile = Profiler(self.data, options=options)
         # Test incorrect float options
         options = ProfilerOptions()
         options.structured_options.float = IntOptions()
         with self.assertRaisesRegex(
-                ValueError, "float must be a\(n\) FloatOptions."):
+                ValueError, r"float must be a\(n\) FloatOptions."):
             profile = Profiler(self.data, options=options)
 
     @mock.patch('dataprofiler.profilers.float_column_profile.FloatColumn.'

@@ -1,12 +1,13 @@
-import re
 import copy
 import math
+import re
+
 import numpy as np
 
 from . import utils
+from .base_column_profilers import (BaseColumnPrimitiveTypeProfiler,
+                                    BaseColumnProfiler)
 from .numerical_column_stats import NumericStatsMixin
-from .base_column_profilers import BaseColumnProfiler, \
-    BaseColumnPrimitiveTypeProfiler
 from .profiler_options import FloatOptions
 
 

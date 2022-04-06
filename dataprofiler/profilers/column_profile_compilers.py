@@ -1,13 +1,19 @@
-from future.utils import with_metaclass
 import abc
 from collections import OrderedDict
 
+from future.utils import with_metaclass
+
 from . import utils
-from . import DateTimeColumn, IntColumn, FloatColumn, TextColumn
-from . import OrderColumn, CategoricalColumn
-from . import DataLabelerColumn, UnstructuredLabelerProfile
+from .categorical_column_profile import CategoricalColumn
+from .data_labeler_column_profile import DataLabelerColumn
+from .datetime_column_profile import DateTimeColumn
+from .float_column_profile import FloatColumn
+from .int_column_profile import IntColumn
+from .order_column_profile import OrderColumn
+from .profiler_options import StructuredOptions, UnstructuredOptions
+from .text_column_profile import TextColumn
+from .unstructured_labeler_profile import UnstructuredLabelerProfile
 from .unstructured_text_profile import TextProfiler
-from .profiler_options import UnstructuredOptions, StructuredOptions
 
 
 class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
@@ -101,7 +107,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
                 self._profiles[profile_name] + other._profiles[profile_name]
             )
         return merged_profile_compiler
-    
+
     def diff(self, other, options=None):
         """
         Finds the difference between 2 compilers and returns the report

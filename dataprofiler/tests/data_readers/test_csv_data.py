@@ -1,12 +1,11 @@
-from dataprofiler.data_readers.data_utils import is_stream_buffer
 import os
 import unittest
-from io import StringIO, BytesIO, TextIOWrapper
+from io import BytesIO, StringIO, TextIOWrapper
 
 import pandas as pd
 
-from dataprofiler.data_readers.data import Data, CSVData
-
+from dataprofiler.data_readers.data import CSVData, Data
+from dataprofiler.data_readers.data_utils import is_stream_buffer
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

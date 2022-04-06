@@ -1,9 +1,8 @@
 import os
 import unittest
-from io import StringIO, BytesIO
+from io import BytesIO, StringIO
 
 from dataprofiler.data_readers.data import Data, TextData
-
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

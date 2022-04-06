@@ -1,7 +1,7 @@
-from dataprofiler.profilers.profiler_options \
-    import UnstructuredOptions, BooleanOption
-from dataprofiler.tests.profilers.profiler_options.test_base_option \
-     import TestBaseOption
+from dataprofiler.profilers.profiler_options import (BooleanOption,
+                                                     UnstructuredOptions)
+from dataprofiler.tests.profilers.profiler_options.test_base_option import \
+    TestBaseOption
 
 
 class TestUnstructuredOptions(TestBaseOption):

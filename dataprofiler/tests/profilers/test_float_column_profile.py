@@ -1,15 +1,15 @@
-import unittest
+import json
 import os
+import unittest
+import warnings
 from collections import defaultdict
 from unittest import mock
-import warnings
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from dataprofiler.profilers import FloatColumn
 from dataprofiler.profilers.profiler_options import FloatOptions
-
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -294,7 +294,7 @@ class TestFloatColumn(unittest.TestCase):
         profiler.update(df)
         np.testing.assert_array_almost_equal([1.9, 2.01], profiler.mode,
                                              decimal=2)
-        
+
         # all unique values
         df = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).apply(str)
         profiler = FloatColumn(df.name)
@@ -1569,6 +1569,12 @@ class TestFloatColumn(unittest.TestCase):
             }
         }
         profile_diff = profiler1.diff(profiler2)
+        try:
+            json.dumps(profile_diff)
+        except TypeError as e:
+            self.fail(
+                'JSON Serializing issue with the profile diff. '
+                'Exception raised: {}'.format(str(e)))
         self.assertAlmostEqual(
             expected_diff.pop('median'), profile_diff.pop('median'), places=2)
         expected_diff_mode = expected_diff.pop('mode')

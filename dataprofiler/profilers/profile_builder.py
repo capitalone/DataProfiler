@@ -5,30 +5,30 @@ coding=utf-8
 Build model for a dataset by identifying type of column along with its
 respective parameters.
 """
-from __future__ import print_function
-from __future__ import division
+from __future__ import division, print_function
 
 import copy
+import logging
+import pickle
 import random
 import re
-from collections import OrderedDict, defaultdict
 import warnings
-import pickle
+from collections import OrderedDict, defaultdict
 from datetime import datetime
-import logging
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from . import utils
-from .. import data_readers
-from .column_profile_compilers import ColumnPrimitiveTypeProfileCompiler, \
-    ColumnStatsProfileCompiler, ColumnDataLabelerCompiler, UnstructuredCompiler
+from .. import data_readers, dp_logging
 from ..labelers.data_labelers import DataLabeler
-from .helpers.report_helpers import calculate_quantiles, _prepare_report
-from .profiler_options import ProfilerOptions, StructuredOptions, \
-    UnstructuredOptions
-from .. import dp_logging
+from . import utils
+from .column_profile_compilers import (ColumnDataLabelerCompiler,
+                                       ColumnPrimitiveTypeProfileCompiler,
+                                       ColumnStatsProfileCompiler,
+                                       UnstructuredCompiler)
+from .helpers.report_helpers import _prepare_report, calculate_quantiles
+from .profiler_options import (ProfilerOptions, StructuredOptions,
+                               UnstructuredOptions)
 
 logger = dp_logging.get_child_logger(__name__)
 

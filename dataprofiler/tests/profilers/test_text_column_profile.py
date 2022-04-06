@@ -1,18 +1,16 @@
 import os
 import unittest
-from unittest import mock
-import six
-from collections import defaultdict
 import warnings
+from collections import defaultdict
+from unittest import mock
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+import six
 
-from dataprofiler.profilers import utils
-from dataprofiler.tests.profilers import utils as test_utils
-from dataprofiler.profilers import TextColumn
+from dataprofiler.profilers import TextColumn, utils
 from dataprofiler.profilers.profiler_options import TextOptions
-
+from dataprofiler.tests.profilers import utils as test_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

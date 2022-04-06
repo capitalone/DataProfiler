@@ -1,13 +1,12 @@
 from __future__ import print_function
 
-import unittest
 import os
+import unittest
 
 from dask import dataframe as dd
 
 from dataprofiler.data_readers.data import Data
 from dataprofiler.validators.base_validators import Validator
-
 
 # go up one folder
 MODULE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

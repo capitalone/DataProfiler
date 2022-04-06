@@ -1,5 +1,4 @@
-from . import BaseColumnProfiler
-from . import utils
+from . import BaseColumnProfiler, utils
 from .profiler_options import OrderOptions
 
 
@@ -145,7 +144,7 @@ class OrderColumn(BaseColumnProfiler):
                 order = order1
             elif order1 == "constant value":  # Constants that intersect
                 order = order1
-            else:  # Ascending/Descending that intersect but not both piecewise 
+            else:  # Ascending/Descending that intersect but not both piecewise
                    # and dont envelope one or the other
                 order = "random"
 

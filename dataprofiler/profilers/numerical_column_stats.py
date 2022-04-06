@@ -4,20 +4,18 @@ coding=utf-8
 Build model for a dataset by identifying type of column along with its
 respective parameters.
 """
-from __future__ import print_function
-from __future__ import division
+from __future__ import division, print_function
 
-import scipy.stats
-from future.utils import with_metaclass
-import copy
 import abc
-import warnings
+import copy
 import itertools
+import warnings
 
 import numpy as np
+import scipy.stats
+from future.utils import with_metaclass
 
-from . import utils
-from . import histogram_utils
+from . import histogram_utils, utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import NumericalOptions
 
@@ -422,16 +420,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         welch_df = s_delta ** 2 / ((var1 / n1) ** 2 /
                                    (n1 - 1) + (var2 / n2) ** 2 / (n2 - 1))
         results['t-statistic'] = t
-        results['conservative']['df'] = conservative_df
-        results['welch']['df'] = welch_df
+        results['conservative']['df'] = float(conservative_df)
+        results['welch']['df'] = float(welch_df)
         
         conservative_t = scipy.stats.t(conservative_df)
         conservative_p_val = (1 - conservative_t.cdf(abs(t))) * 2
         welch_t = scipy.stats.t(welch_df)
         welch_p_val = (1 - welch_t.cdf(abs(t))) * 2
 
-        results['conservative']['p-value'] = conservative_p_val
-        results['welch']['p-value'] = welch_p_val
+        results['conservative']['p-value'] = float(conservative_p_val)
+        results['welch']['p-value'] = float(welch_p_val)
         return results
 
     def _update_variance(self, batch_mean, batch_var, batch_count):

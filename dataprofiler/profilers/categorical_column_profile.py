@@ -5,9 +5,8 @@ from operator import itemgetter
 import numpy as np
 import scipy.stats
 
-from . import BaseColumnProfiler
+from . import BaseColumnProfiler, utils
 from .profiler_options import CategoricalOptions
-from . import utils
 
 
 class CategoricalColumn(BaseColumnProfiler):

@@ -5,8 +5,7 @@ coding=utf-8
 Build model for a dataset by identifying type of column along with its
 respective parameters.
 """
-from __future__ import print_function
-from __future__ import division
+from __future__ import division, print_function
 
 
 def is_in_range(x, config):

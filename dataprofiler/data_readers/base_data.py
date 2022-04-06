@@ -1,9 +1,10 @@
-import sys
 import locale
+import sys
 from collections import OrderedDict
+from io import StringIO
+
 import numpy as np
 import pandas as pd
-from io import StringIO
 
 from .. import dp_logging
 from . import data_utils

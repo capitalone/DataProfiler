@@ -1,15 +1,13 @@
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
-import sys
 import locale
 import os
+import sys
 import unittest
+from io import BytesIO, StringIO
 from unittest import mock
-from io import StringIO, BytesIO
 
 from dataprofiler.data_readers.base_data import BaseData
-
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

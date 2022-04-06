@@ -5,7 +5,7 @@ Histogram-related functions
 import operator
 
 import numpy as np
-from numpy.lib.histograms import _hist_bin_selectors, _get_outer_edges, \
+from numpy.lib.histograms import _get_outer_edges, _hist_bin_selectors, \
     _unsigned_subtract
 
 

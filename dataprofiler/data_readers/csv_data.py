@@ -1,18 +1,17 @@
 import csv
-from io import BytesIO
-import re
-from six import StringIO
-
 import random
+import re
 from collections import Counter
+from io import BytesIO
 
 import numpy as np
+from six import StringIO
 
 from . import data_utils
+from .avro_data import AVROData
 from .base_data import BaseData
 from .json_data import JSONData
 from .parquet_data import ParquetData
-from .avro_data import AVROData
 from .structured_mixins import SpreadSheetDataMixin
 
 

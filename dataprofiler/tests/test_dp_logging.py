@@ -1,7 +1,7 @@
-import unittest
-from unittest import mock
 import logging
+import unittest
 from io import StringIO
+from unittest import mock
 
 
 @mock.patch('sys.stdout', new_callable=StringIO)

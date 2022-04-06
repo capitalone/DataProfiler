@@ -1,17 +1,16 @@
-import os
-import pkg_resources
 import abc
-import types
 import copy
-import json
 import inspect
-from collections import Counter
-import random
+import json
 import math
+import os
+import random
+import types
 import warnings
-import copy
+from collections import Counter
 
 import numpy as np
+import pkg_resources
 
 default_labeler_dir = pkg_resources.resource_filename(
     'resources', 'labelers'

@@ -1,13 +1,12 @@
-from __future__ import absolute_import
-from __future__ import division
+from __future__ import absolute_import, division
 
-from .csv_data import CSVData
-from .json_data import JSONData
-from .text_data import TextData
-from .parquet_data import ParquetData
-from .avro_data import AVROData
-from .data_utils import is_valid_url, url_to_bytes
 from .. import dp_logging
+from .avro_data import AVROData
+from .csv_data import CSVData
+from .data_utils import is_valid_url, url_to_bytes
+from .json_data import JSONData
+from .parquet_data import ParquetData
+from .text_data import TextData
 
 logger = dp_logging.get_child_logger(__name__)
 

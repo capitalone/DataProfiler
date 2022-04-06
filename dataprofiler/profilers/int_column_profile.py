@@ -1,8 +1,8 @@
 import numpy as np
 
+from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, \
+    BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
-from .base_column_profilers import BaseColumnProfiler, \
-    BaseColumnPrimitiveTypeProfiler
 from .profiler_options import IntOptions
 
 

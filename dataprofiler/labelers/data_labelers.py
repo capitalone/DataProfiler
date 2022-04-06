@@ -1,7 +1,7 @@
 import os
-import pkg_resources
 
 import pandas as pd
+import pkg_resources
 
 from .. import data_readers
 from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler

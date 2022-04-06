@@ -1,5 +1,4 @@
-from . import BaseColumnProfiler
-from . import utils
+from . import BaseColumnProfiler, utils
 from .profiler_options import OrderOptions
 
 

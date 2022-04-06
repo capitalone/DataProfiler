@@ -1,6 +1,6 @@
 import logging
-import threading
 import sys
+import threading
 
 _dp_logger = None
 _dp_logger_lock = threading.Lock()

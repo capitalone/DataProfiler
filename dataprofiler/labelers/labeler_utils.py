@@ -1,12 +1,12 @@
 import os
 import warnings
 
-import scipy
 import numpy as np
+import scipy
 from sklearn.exceptions import UndefinedMetricWarning
 
-from .classification_report_utils import classification_report
 from .. import dp_logging
+from .classification_report_utils import classification_report
 
 warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
 

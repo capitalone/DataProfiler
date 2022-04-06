@@ -12,7 +12,7 @@ import requests
 from chardet.universaldetector import UniversalDetector
 
 from .. import dp_logging
-from .filepath_or_buffer import FileOrBufferHandler
+from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -603,21 +603,6 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
                 break
 
     return data_as_str
-
-
-def is_stream_buffer(filepath_or_buffer):
-    """
-    Determines whether a given argument is a filepath or buffer.
-
-    :param filepath_or_buffer: path to the file or buffer
-    :type filepath_or_buffer: str
-    :return: true if string is a buffer or false if string is a filepath
-    :rtype: boolean
-    """
-
-    if isinstance(filepath_or_buffer, (StringIO, BytesIO)):
-        return True
-    return False
 
 
 def is_valid_url(url_as_string):

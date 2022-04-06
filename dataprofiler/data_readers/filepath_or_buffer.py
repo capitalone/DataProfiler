@@ -2,6 +2,20 @@ from io import BytesIO, StringIO, TextIOWrapper, open
 
 from . import data_utils
 
+def is_stream_buffer(filepath_or_buffer):
+    """
+    Determines whether a given argument is a filepath or buffer.
+
+    :param filepath_or_buffer: path to the file or buffer
+    :type filepath_or_buffer: str
+    :return: true if string is a buffer or false if string is a filepath
+    :rtype: boolean
+    """
+
+    if isinstance(filepath_or_buffer, (StringIO, BytesIO)):
+        return True
+    return False
+
 
 class FileOrBufferHandler:
     """
@@ -43,7 +57,7 @@ class FileOrBufferHandler:
                 TextIOWrapper(self._filepath_or_buffer, encoding=self._encoding)
             self._is_wrapped = True
 
-        elif not data_utils.is_stream_buffer(self._filepath_or_buffer):
+        elif not is_stream_buffer(self._filepath_or_buffer):
             # Raise AttributeError if attribute value not found.
             raise AttributeError(f'Type {type(self._filepath_or_buffer)} is '
                                  f'invalid. filepath_or_buffer must be a '

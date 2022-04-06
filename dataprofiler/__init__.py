@@ -1,16 +1,14 @@
+from . import settings
 from .data_readers.data import Data
-from .profilers.profile_builder import StructuredProfiler, \
-                                       UnstructuredProfiler, Profiler
+from .dp_logging import get_logger, set_verbosity
+from .labelers.data_labelers import DataLabeler, StructuredDataLabeler, \
+    UnstructuredDataLabeler, train_structured_labeler
+from .profilers.profile_builder import Profiler, StructuredProfiler, \
+    UnstructuredProfiler
 from .profilers.profiler_options import ProfilerOptions
-from .labelers.data_labelers import train_structured_labeler, DataLabeler, \
-                                    StructuredDataLabeler, \
-                                    UnstructuredDataLabeler
 from .reports import graphs
 from .validators.base_validators import Validator
-from .dp_logging import set_verbosity, get_logger
 from .version import __version__
-from . import settings
-
 
 try:
     import snappy

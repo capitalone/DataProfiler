@@ -1,14 +1,13 @@
+import copy
 import json
 import os
-import sys
 import re
-import copy
+import sys
 
 import numpy as np
 
-from .base_model import BaseModel
-from .base_model import AutoSubRegistrationMeta
 from .. import dp_logging
+from .base_model import AutoSubRegistrationMeta, BaseModel
 
 logger = dp_logging.get_child_logger(__name__)
 

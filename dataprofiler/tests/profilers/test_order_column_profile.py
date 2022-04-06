@@ -1,12 +1,12 @@
 import unittest
-from unittest import mock
 from collections import defaultdict
+from unittest import mock
 
 import pandas as pd
 
-from .. import test_utils
-
 from dataprofiler.profilers import OrderColumn
+
+from .. import test_utils
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
 # undo when cpython#4800 is merged.

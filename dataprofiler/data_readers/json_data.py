@@ -1,14 +1,15 @@
-from collections import OrderedDict
 import json
 import warnings
-from six import StringIO
+from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
+from six import StringIO
+
 from . import data_utils
 from .base_data import BaseData
-from .structured_mixins import SpreadSheetDataMixin
 from .filepath_or_buffer import FileOrBufferHandler
+from .structured_mixins import SpreadSheetDataMixin
 
 
 class JSONData(SpreadSheetDataMixin, BaseData):

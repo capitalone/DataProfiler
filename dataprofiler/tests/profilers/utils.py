@@ -1,7 +1,7 @@
-import os
-import shutil
-import random
 import json
+import os
+import random
+import shutil
 from unittest import mock
 
 import numpy as np

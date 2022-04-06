@@ -1,5 +1,6 @@
-from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
 import fastavro
+
+from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
 
 from . import data_utils
 from .base_data import BaseData

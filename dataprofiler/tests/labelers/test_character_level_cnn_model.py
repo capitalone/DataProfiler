@@ -1,17 +1,16 @@
+import json
 import os
 import unittest
-from unittest import mock
-import json
 from io import StringIO
-import pkg_resources
+from unittest import mock
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pkg_resources
 import tensorflow as tf
 
-from dataprofiler.labelers.character_level_cnn_model \
-    import CharacterLevelCnnModel
-
+from dataprofiler.labelers.character_level_cnn_model import \
+    CharacterLevelCnnModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 _resource_labeler_dir = pkg_resources.resource_filename('resources', 'labelers')

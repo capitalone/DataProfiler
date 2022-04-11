@@ -3,10 +3,11 @@
 coding=utf-8
 Specify the options when running the data profiler.
 """
-import re
-import warnings
 import abc
 import copy
+import re
+import warnings
+
 from ..labelers.base_data_labeler import BaseDataLabeler
 
 

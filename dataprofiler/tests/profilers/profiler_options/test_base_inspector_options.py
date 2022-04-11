@@ -1,6 +1,6 @@
 from dataprofiler.profilers.profiler_options import BaseInspectorOptions
-from dataprofiler.tests.profilers.profiler_options.test_boolean_option \
-     import TestBooleanOption
+from dataprofiler.tests.profilers.profiler_options.test_boolean_option import \
+    TestBooleanOption
 
 
 class TestBaseInspectorOptions(TestBooleanOption):

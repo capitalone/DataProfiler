@@ -1,16 +1,15 @@
-import unittest
+import json
 import os
+import unittest
+import warnings
 from collections import defaultdict
 from unittest import mock
-import warnings
-import json
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from dataprofiler.profilers import FloatColumn
 from dataprofiler.profilers.profiler_options import FloatOptions
-
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

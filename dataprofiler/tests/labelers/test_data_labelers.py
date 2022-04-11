@@ -1,23 +1,19 @@
+import json
 import os
 import unittest
-from unittest import mock
-import json
 from io import StringIO
+from unittest import mock
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 import dataprofiler as dp
-from dataprofiler.data_readers.csv_data import CSVData
-from dataprofiler.data_readers.csv_data import JSONData
-from dataprofiler.data_readers.csv_data import ParquetData
-from dataprofiler.data_readers.csv_data import AVROData
-
-from dataprofiler.labelers.data_labelers import BaseDataLabeler, \
-    TrainableDataLabeler
+from dataprofiler.data_readers.csv_data import AVROData, CSVData, JSONData, \
+    ParquetData
 from dataprofiler.labelers import data_processing
 from dataprofiler.labelers.base_model import BaseModel, BaseTrainableModel
-
+from dataprofiler.labelers.data_labelers import BaseDataLabeler, \
+    TrainableDataLabeler
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

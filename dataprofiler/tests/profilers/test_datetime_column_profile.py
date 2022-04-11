@@ -310,7 +310,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         # unique format for second profile
         data2 = [
             2.5, 12.5, '2013-03-10 15:23:20', 5, '03/10/2013 15:23',
-            'Mar 12, 2013'
+            'Mar 12th, 2013'
         ]
         df = pd.Series(data2).apply(str)
         profile2 = DateTimeColumn(df.name)
@@ -327,7 +327,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         # checks for the proper max and min to be merged
         self.assertEqual('05:46:30.258509', merged_profile.min)
-        self.assertEqual('Mar 12, 2013', merged_profile.max)
+        self.assertEqual('Mar 12th, 2013', merged_profile.max)
 
         # checks for date format merge
         self.assertCountEqual(
@@ -383,7 +383,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         data2 = [
             2.5, 12.5, '2013-03-10 15:43:30', 5, '03/10/14 15:43',
-            'Mar 11, 2013'
+            'Mar 11th, 2013'
         ]
         df2 = pd.Series(data2).apply(str)
         profiler2 = DateTimeColumn(df2.name)

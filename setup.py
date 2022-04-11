@@ -2,13 +2,13 @@
 A setuptools for the Data Profiler Application and Python Libraries
 """
 
+import os
 # To use a consistent encoding
 from codecs import open
-import os
 from os import path
 
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 # Load package version
 from dataprofiler.version import __version__

@@ -1,10 +1,10 @@
 from collections import defaultdict
 
-from .base_column_profilers import BaseColumnProfiler
 from ..labelers.data_labelers import DataLabeler
 from ..labelers.data_processing import CharPostprocessor
-from .profiler_options import DataLabelerOptions
 from . import utils
+from .base_column_profilers import BaseColumnProfiler
+from .profiler_options import DataLabelerOptions
 
 
 class UnstructuredLabelerProfile(object):

@@ -1,7 +1,7 @@
+import json
 import unittest
 
 import numpy as np
-import json
 
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 

@@ -2,9 +2,8 @@ import operator
 
 import numpy as np
 
-from . import BaseColumnProfiler
-from . import utils
 from ..labelers.data_labelers import DataLabeler
+from . import BaseColumnProfiler, utils
 from .profiler_options import DataLabelerOptions
 
 

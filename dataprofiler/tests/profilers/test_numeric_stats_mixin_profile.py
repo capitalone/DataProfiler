@@ -1,11 +1,11 @@
 import os
-import unittest
-from unittest import mock
-from collections import defaultdict
 import sys
+import unittest
+from collections import defaultdict
+from unittest import mock
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from dataprofiler.profilers import NumericStatsMixin
 from dataprofiler.profilers.profiler_options import NumericalOptions

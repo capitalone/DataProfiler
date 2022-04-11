@@ -1,21 +1,20 @@
 from __future__ import print_function
 
-import unittest
-from unittest import mock
 import datetime
-import six
+import unittest
 import warnings
 from collections import defaultdict
+from unittest import mock
 
-import pandas as pd
 import numpy as np
-
-from . import utils
-from .. import test_utils
+import pandas as pd
+import six
 
 from dataprofiler.profilers import DateTimeColumn
 from dataprofiler.profilers.profiler_options import DateTimeOptions
 
+from .. import test_utils
+from . import utils
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
 # undo when cpython#4800 is merged.

@@ -1,19 +1,18 @@
-import os
-import unittest
-from unittest import mock
-import random
-import pkg_resources
 import json
-from io import StringIO
+import os
+import random
 import re
+import unittest
+from io import StringIO
+from unittest import mock
 
 import numpy as np
+import pkg_resources
 
-from dataprofiler.labelers.data_processing import \
-    BaseDataProcessor, CharPreprocessor, CharPostprocessor, \
-    StructCharPreprocessor, StructCharPostprocessor, \
-    DirectPassPreprocessor, RegexPostProcessor, StructRegexPostProcessor
-
+from dataprofiler.labelers.data_processing import BaseDataProcessor, \
+    CharPostprocessor, CharPreprocessor, DirectPassPreprocessor, \
+    RegexPostProcessor, StructCharPostprocessor, StructCharPreprocessor, \
+    StructRegexPostProcessor
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

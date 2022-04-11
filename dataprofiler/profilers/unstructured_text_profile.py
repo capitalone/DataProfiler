@@ -1,10 +1,10 @@
-from collections import defaultdict, Counter
 import itertools
-import string
 import re
+import string
 import warnings
+from collections import Counter, defaultdict
 
-from . import utils, BaseColumnProfiler
+from . import BaseColumnProfiler, utils
 from .profiler_options import TextProfilerOptions
 
 

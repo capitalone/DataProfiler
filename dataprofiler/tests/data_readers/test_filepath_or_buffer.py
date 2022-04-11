@@ -1,9 +1,8 @@
-import unittest
 import os
-from io import open, StringIO, BytesIO, TextIOWrapper
+import unittest
+from io import BytesIO, StringIO, TextIOWrapper, open
 
 from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
-
 
 MODULE_PATH = os.path.dirname(os.path.abspath(__file__))
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

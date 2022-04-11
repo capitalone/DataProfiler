@@ -1,14 +1,15 @@
 from __future__ import print_function
 
-import six
 import unittest
-import numpy as np
 from unittest import mock
-import pandas as pd
 
-from dataprofiler.profilers import column_profile_compilers as \
-    col_pro_compilers
-from dataprofiler.profilers.profiler_options import BaseOption,\
+import numpy as np
+import pandas as pd
+import six
+
+from dataprofiler.profilers import \
+    column_profile_compilers as col_pro_compilers
+from dataprofiler.profilers.profiler_options import BaseOption, \
     StructuredOptions, UnstructuredOptions
 
 
@@ -433,8 +434,9 @@ class TestUnstructuredCompiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
                 'CharPostprocessor')
     def test_base(self, *mocks):
-        import pandas as pd
         from collections import defaultdict
+
+        import pandas as pd
         df_series = pd.Series(['test', 'hi my name is John Doe. 123-432-1234'])
 
         time_array = [float(i) for i in range(100, 0, -1)]

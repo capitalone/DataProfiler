@@ -38,6 +38,15 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         "%H:%M:%S.%f"  # 05:46:30.258509
     ]
 
+    _day_suffixes = [
+        "st",
+        "nd",
+        "rd",
+        "th",
+    ]
+
+    _compiled_day_suffix_regex = re.compile("(\d{1,2})(" + '|'.join(_day_suffixes) + ")")
+
     def __init__(self, name, options=None):
         """
         Initialization of column base properties and itself.
@@ -165,10 +174,8 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         return converted_date
 
     @staticmethod
-    def _replace_day_suffix(date):
+    def _replace_day_suffix(date, pattern):
         try:
-            suffix = '|'.join(["st", "nd", "rd", "th"])
-            pattern = re.compile("(\d{1,2})(" + suffix + ")")
             date = pattern.sub(r'\1', date)
         except (TypeError):
             date = np.nan
@@ -201,7 +208,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
                 break
             valid_dates = df_series.apply(
                 lambda x: cls._validate_datetime(
-                    cls._replace_day_suffix(x), date_format
+                    cls._replace_day_suffix(x, cls._compiled_day_suffix_regex), date_format
                 )
             )
 

@@ -380,6 +380,8 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         """
         data = [
             'Mar 1st, 2020',
+            'Feb 22nd, 2019',
+            'October 23rd, 2018',
             '12thMar13'
         ]
         df = pd.Series(data).apply(str)
@@ -387,7 +389,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         profiler.update(df)
         self.assertEqual('Mar 1st, 2020', profiler.max)
         self.assertEqual('12thMar13', profiler.min)
-        self.assertEqual(2, profiler.match_count)
+        self.assertEqual(4, profiler.match_count)
 
         
     def test_diff(self):

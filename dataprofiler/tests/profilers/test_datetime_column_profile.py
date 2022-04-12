@@ -235,13 +235,13 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
     def test_profile(self):
         data = [
             2.5, 12.5, '2013-03-10 15:43:30', 5, '03/10/13 15:43',
-            'Mar 11th, 2013'
+            'Mar 11, 2013'
         ]
         df = pd.Series(data).apply(str)
         profiler = DateTimeColumn(df.name)
         expected_profile = dict(
             min='03/10/13 15:43',
-            max='Mar 11th, 2013',
+            max='Mar 11, 2013',
             histogram=None,
             format=[
                 '%Y-%m-%d %H:%M:%S',
@@ -309,7 +309,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         # unique format for second profile
         data2 = [
             2.5, 12.5, '2013-03-10 15:23:20', 5, '03/10/2013 15:23',
-            'Mar 12th, 2013'
+            'Mar 12, 2013'
         ]
         df = pd.Series(data2).apply(str)
         profile2 = DateTimeColumn(df.name)
@@ -326,7 +326,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         # checks for the proper max and min to be merged
         self.assertEqual('05:46:30.258509', merged_profile.min)
-        self.assertEqual('Mar 12th, 2013', merged_profile.max)
+        self.assertEqual('Mar 12, 2013', merged_profile.max)
 
         # checks for date format merge
         self.assertCountEqual(
@@ -373,6 +373,23 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
                                    " of type DateTimeOptions."):
             profiler = DateTimeColumn("Datetime", options="wrong_data_type")
 
+    def test_day_suffixes(self):
+        """
+        Tests datetime examples with daytime suffixes.
+        :return:
+        """
+        data = [
+            'Mar 1st, 2020',
+            '12thMar13'
+        ]
+        df = pd.Series(data).apply(str)
+        profiler = DateTimeColumn(df.name)
+        profiler.update(df)
+        self.assertEqual('Mar 1st, 2020', profiler.max)
+        self.assertEqual('12thMar13', profiler.min)
+        self.assertEqual(2, profiler.match_count)
+
+        
     def test_diff(self):
         data1 = [None, 'Mar 12, 2013', "2013-05-18", "2014-03-01"]
         df1 = pd.Series(data1).apply(str)
@@ -382,7 +399,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
 
         data2 = [
             2.5, 12.5, '2013-03-10 15:43:30', 5, '03/10/14 15:43',
-            'Mar 11th, 2013'
+            'Mar 11, 2013'
         ]
         df2 = pd.Series(data2).apply(str)
         profiler2 = DateTimeColumn(df2.name)

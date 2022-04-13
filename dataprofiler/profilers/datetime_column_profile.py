@@ -175,6 +175,15 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
 
     @staticmethod
     def _replace_day_suffix(date, pattern):
+        """
+        Checks the date for a suffix after the day. Removed suffix if present
+
+        :param date: a string that is possibly a date
+        :type date: str
+        :param pattern: a precompiled regex pattern that is used to check for day suffixes
+        :type pattern: Pattern
+        :return: either the date string passed in, or Nan
+        """
         try:
             date = pattern.sub(r'\1', date)
         except (TypeError):

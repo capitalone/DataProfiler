@@ -267,7 +267,6 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             profiler.update(df)
             expected = defaultdict(float, {'datetime': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
-
             self.assertEqual(expected_profile.pop('max'), profiler.profile['max'])
 
     def test_warning_for_bad_dates(self):

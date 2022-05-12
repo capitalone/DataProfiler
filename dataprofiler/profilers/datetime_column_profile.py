@@ -1,4 +1,5 @@
 import datetime
+import re
 import warnings
 
 import numpy as np
@@ -36,6 +37,15 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         "%m%d%Y",  # 03142013
         "%H:%M:%S.%f"  # 05:46:30.258509
     ]
+
+    _day_suffixes = [
+        "st",
+        "nd",
+        "rd",
+        "th",
+    ]
+
+    _compiled_day_suffix_regex = re.compile("(\d{1,2})(" + '|'.join(_day_suffixes) + ")")
 
     def __init__(self, name, options=None):
         """
@@ -163,6 +173,23 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
 
         return converted_date
 
+    @staticmethod
+    def _replace_day_suffix(date, pattern):
+        """
+        Checks the date for a suffix after the day. Removed suffix if present
+
+        :param date: a string that is possibly a date
+        :type date: str
+        :param pattern: a precompiled regex pattern that is used to check for day suffixes
+        :type pattern: Pattern
+        :return: either the date string passed in, or Nan
+        """
+        try:
+            date = pattern.sub(r'\1', date)
+        except (TypeError):
+            date = np.nan
+        return date
+
     @classmethod
     def _get_datetime_profile(cls, df_series):
         """
@@ -189,7 +216,9 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             if is_row_datetime.all():
                 break
             valid_dates = df_series.apply(
-                lambda x: cls._validate_datetime(x, date_format)
+                lambda x: cls._validate_datetime(
+                    cls._replace_day_suffix(x, cls._compiled_day_suffix_regex), date_format
+                )
             )
 
             df_dates = valid_dates[~valid_dates.isnull()]

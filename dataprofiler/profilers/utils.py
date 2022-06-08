@@ -18,24 +18,24 @@ from dataprofiler import settings
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
     # Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
-    # 
+    #
     # This program is free software: you can redistribute it and/or modify
     # it under the terms of the GNU General Public License as published by
     # the Free Software Foundation, either version 3 of the License, or
     # (at your option) any later version.
-    # 
+    #
     # This program is distributed in the hope that it will be useful,
     # but WITHOUT ANY WARRANTY; without even the implied warranty of
     # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     # GNU General Public License for more details.
-    # 
+    #
     # You should have received a copy of the GNU General Public License
     # along with this program.  If not, see <https://www.gnu.org/licenses/>.
     """ Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
     updating only top-level keys, dict_merge recurses down into dicts nested
     to an arbitrary depth, updating keys. The ``merge_dct`` is merged into
     ``dct``.
-    
+
     :param dct: dict onto which the merge is executed
     :param merge_dct: dct merged into dct
     :return: None
@@ -77,14 +77,14 @@ def _combine_unique_sets(a, b):
         combined_list = set().union(a, b)
     return list(combined_list)
 
-    
+
 def shuffle_in_chunks(data_length, chunk_size):
     """
     A generator for creating shuffled indexes in chunks. This reduces the cost
     of having to create all indexes, but only of that what is needed.
     Initial Code idea from:
     https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/
-    
+
     :param data_length: length of data to be shuffled
     :param chunk_size: size of shuffled chunks
     :return: list of shuffled indices of chunk size
@@ -105,14 +105,14 @@ def shuffle_in_chunks(data_length, chunk_size):
 
     indices = KeyDict()
     j = 0
-    
+
     # loop through all chunks
     for chunk_ind in range(max(math.ceil(data_length / chunk_size), 1)):
 
         # determine the chunk size and preallocate an array
         true_chunk_size = min(chunk_size, data_length - chunk_size * chunk_ind)
         values = [-1] * true_chunk_size
-        
+
         # Generate random list of indexes
         lower_bound_list = np.array(range(j, j + true_chunk_size))
         random_list = rng.integers(lower_bound_list, data_length)
@@ -129,7 +129,7 @@ def shuffle_in_chunks(data_length, chunk_size):
 
             # increment so as not to include values already swapped
             j += 1
-            
+
         yield values
 
 
@@ -147,7 +147,7 @@ def warn_on_profile(col_profile, e):
     warning_msg += "Profiling Type: {}".format(col_profile)
     warning_msg += "\nException: {}".format(type(e).__name__)
     warning_msg += "\nMessage: {}".format(e)
-    # This is considered a major error 
+    # This is considered a major error
     if type(e).__name__ == "ValueError": raise ValueError(e)
     warning_msg += "\n\nFor labeler errors, try installing "
     warning_msg += "the extra ml requirements via:\n\n"
@@ -159,7 +159,7 @@ def partition(data, chunk_size):
     """
     Creates a generator which returns the data
     in the specified chunk size.
-    
+
     :param data: list, dataframe, etc
     :type data: list, dataframe, etc
     :param chunk_size: size of partition to return
@@ -177,10 +177,10 @@ def suggest_pool_size(data_size=None, cols=None):
     :type data_size: int
     :param cols: columns of the dataset
     :type cols: int
-    :return suggested_pool_size: suggeseted pool size 
+    :return suggested_pool_size: suggeseted pool size
     :rtype suggested_pool_size: int
     """
-    
+
     # Return if there's no data_size
     if data_size is None:
         return None
@@ -203,10 +203,10 @@ def suggest_pool_size(data_size=None, cols=None):
     suggested_pool_size = min(max_pool_mem, max_pool_cpu)
     if cols is not None:
         suggested_pool_size = min(suggested_pool_size, cols)
-    
+
     return suggested_pool_size
 
-        
+
 def generate_pool(max_pool_size=None, data_size=None, cols=None):
     """
     Generate a multiprocessing pool to allocate functions too
@@ -224,12 +224,12 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
     """
 
     suggested_pool_size = suggest_pool_size(data_size, cols)
-    if max_pool_size is None or suggested_pool_size is None: 
+    if max_pool_size is None or suggested_pool_size is None:
         max_pool_size = suggested_pool_size
-        
+
     # Always leave 1 cores free
     pool = None
-    if max_pool_size is not None and max_pool_size > 2:        
+    if max_pool_size is not None and max_pool_size > 2:
         try:
             pool = mp.Pool(max_pool_size)
         except Exception as e:
@@ -238,7 +238,7 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
                 'Multiprocessing disabled, please change the multiprocessing'+
                 ' start method, via: multiprocessing.set_start_method(<method>)'+
                 ' Possible methods include: fork, spawn, forkserver, None'
-            )            
+            )
 
     return pool, max_pool_size
 
@@ -318,7 +318,8 @@ def biased_skew(df_series):
     if (M2 == 0):
         return 0.0
 
-    skew = np.sqrt(n) * M3 / M2 ** 1.5
+    with np.errstate(all='ignore'):
+        skew = np.sqrt(n) * M3 / np.power(M2,  1.5)
     return skew
 
 
@@ -354,7 +355,8 @@ def biased_kurt(df_series):
     if (M2 == 0):
         return -3.0
 
-    kurt = n * M4 / M2 ** 2 - 3
+    with np.errstate(all='ignore'):
+        kurt = n * M4 / np.power(M2, 2) - 3
     return kurt
 
 
@@ -399,7 +401,7 @@ def find_diff_of_strings_and_bools(stat1, stat2):
 def find_diff_of_lists_and_sets(stat1, stat2):
     """
     Finds the difference between two stats. If there is no difference, returns
-    "unchanged". Removes duplicates and returns [unique values of stat1, 
+    "unchanged". Removes duplicates and returns [unique values of stat1,
     shared values, unique values of stat2].
 
     :param stat1: the first statistical input

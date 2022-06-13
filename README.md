@@ -165,6 +165,38 @@ The format for an unstructured profile is below:
     }
 }
 ```
+# Profile Statistic Descriptions
+
+### Unstructured Profile
+
+#### global_stats:
+
+* `samples_used` - number of input data samples used to generate this profile
+* `empty_line_count` - the number of empty lines in the input data
+* `file_type` - the file type of the input data (ex: .txt)
+* `encoding` - file encoding of the input data file (ex: UTF-8)
+* `memory_size` - size of the input data in MB
+* `times` - duration of time it took to generate this profile
+
+#### data_stats:
+
+* `data_label` - labels and statistics on the labels of the input data
+    * `entity_counts` - the number of times a specific label or entity appears inside the input data
+        * `word_level` - the number of words counted within each label or entity
+        * `true_char_level` - the number of characters counted within each label or entity as determined by the model
+        * `postprocess_char_level` - the number of characters counted within each label or entity as determined by the postprocessor
+    * `entity_percentages` - the percentages of each label or entity within the input data
+        * `word_level` - the percentage of words in the input data that are contained within each label or entity
+        * `true_char_level` - the percentage of characters in the input data that are contained wthin each label or entity as determined by the model
+        * `postprocess_char_level` - the percentage of characters in the input data that are contained wthin each label or entity as determined by the postprocessor
+    * `times` - the duration of time it took for the data labeler to predict on the data
+* `statistics` - statistics of the input data
+    * `vocab` - a list of each character in the input data
+    * `vocab_count` - the number of occurrences of each distinct character in the input data
+    * `words` - a list of each word in the input data
+    * `word_count` - the number of occurrences of each distinct word in the input data
+    * `times` - the duration of time it took to generate the vocab and words statistics
+
 # Support
 
 ### Supported Data Formats

@@ -165,6 +165,100 @@ The format for an unstructured profile is below:
     }
 }
 ```
+# Profile Statistic Descriptions
+
+### Structured Profile
+
+#### global_stats:
+
+* `samples_used` - number of input data samples used to generate this profile
+* `column_count` - the number of columns contained in the input dataset
+* `row_count` - the number of rows contained in the input dataset
+* `row_has_null_ratio` - the proportion of rows that contain at least one null value to the total number of rows
+* `row_is_null_ratio` - the proportion of rows that are fully comprised of null values (null rows) to the total number of rows
+* `unique_row_ratio` - the proportion of distinct rows in the input dataset to the total number of rows
+* `duplicate_row_count` - the number of rows that occur more than once in the input dataset
+* `file_type` - the format of the file containing the input dataset (ex: .csv)
+* `encoding` - the encoding of the file containing the input dataset (ex: UTF-8)
+* `correlation_matrix` - matrix of shape `column_count` x `column_count` containing the correlation coefficients between each column in the dataset 
+* `chi2_matrix` - matrix of shape `column_count` x `column_count` containing the chi-square statistics between each column in the dataset
+* `profile_schema` - a description of the format of the input dataset labeling each column and its index in the dataset
+    * `string` - the label of the column in question and its index in the profile schema
+* `times` - the duration of time it took to generate the global statistics for this dataset in milliseconds
+
+#### data_stats:
+
+* `column_name` - the label/title of this column in the input dataset
+* `data_type` - the kind of data that is contained within this column
+* `data_label` - the label/entity of the data in this column
+* `categorical` - ‘true’ if this column contains categorical data
+* `order` - the way in which the data in this column is ordered, if any, otherwise “random”
+* `samples` - a small subset of data entries from this column
+* `statistics` - statistical information on the column
+    * `sample_size` - the number of values in the column
+    * `null_count` - the number of null entries in the column
+    * `null_types` - a list of the different null types present within this column
+    * `null_types_index` - a list of the indices in which the null types in this column are present
+    * `data_type_representation` - the type of data that is being represented by this column
+    * `min` - minimum value in the column
+    * `max` - maximum value in the column
+    * `mode` - mode of the entries in the column
+    * `median` - median of the entries in the column
+    * `median_absolute_deviation` - the median absolute deviation of the entries in the column
+    * `sum` - the sum of the entries in this column
+    * `mean` - the average of all entries in the column
+    * `variance` - the variance of all entries in the column
+    * `stddev` - the standard deviation of all entries in the column
+    * `skewness` - the statistical skewness of all entries in the column
+    * `kurtosis` - the statistical kurtosis of all entries in the column
+    * `num_zeros` - the number of entries in this column that have the value 0
+    * `num_negatives` - the number of entries in this column that have a value less than 0
+    * `histogram` - contains histogram relevant information
+        * `bin_counts` - the number of entries within each bin
+        * `bin_edges` - the thresholds of each bin
+    * `quantiles` - the value at each percentile in the order they are listed based on the entries in the column
+    * `vocab` - a list of the characters used within the entries in this column
+    * `avg_predictions` - a list of each data label and the prediction of that label by the DataLabeler
+    * `categories` - a list of each distinct category within the column if categorial = 'true'
+    * `unique_count` - the number of distinct entries in the column
+    * `unique_ratio` - the proportion of the number of distinct entries in the column to the total number of entries in the column
+    * `categorical_count` - each category and the number of entries in it
+    * `gini_impurity` - gini impurity value
+    * `unalikeability` - a value denoting how frequently entries differ from one another within the column
+    * `precision` - Description coming soon!
+    * `times` - the duration of time it took to generate this column's statistics in milliseconds
+    * `format` - Description coming soon!
+
+### Unstructured Profile
+
+#### global_stats:
+
+* `samples_used` - number of input data samples used to generate this profile
+* `empty_line_count` - the number of empty lines in the input data
+* `file_type` - the file type of the input data (ex: .txt)
+* `encoding` - file encoding of the input data file (ex: UTF-8)
+* `memory_size` - size of the input data in MB
+* `times` - duration of time it took to generate this profile in milliseconds
+
+#### data_stats:
+
+* `data_label` - labels and statistics on the labels of the input data
+    * `entity_counts` - the number of times a specific label or entity appears inside the input data
+        * `word_level` - the number of words counted within each label or entity
+        * `true_char_level` - the number of characters counted within each label or entity as determined by the model
+        * `postprocess_char_level` - the number of characters counted within each label or entity as determined by the postprocessor
+    * `entity_percentages` - the percentages of each label or entity within the input data
+        * `word_level` - the percentage of words in the input data that are contained within each label or entity
+        * `true_char_level` - the percentage of characters in the input data that are contained within each label or entity as determined by the model
+        * `postprocess_char_level` - the percentage of characters in the input data that are contained within each label or entity as determined by the postprocessor
+    * `times` - the duration of time it took for the data labeler to predict on the data
+* `statistics` - statistics of the input data
+    * `vocab` - a list of each character in the input data
+    * `vocab_count` - the number of occurrences of each distinct character in the input data
+    * `words` - a list of each word in the input data
+    * `word_count` - the number of occurrences of each distinct word in the input data
+    * `times` - the duration of time it took to generate the vocab and words statistics in milliseconds
+
 # Support
 
 ### Supported Data Formats

@@ -189,45 +189,45 @@ The format for an unstructured profile is below:
 #### data_stats:
 
 * `column_name` - the label/title of this column in the input dataset
-* `data_type` - the kind of data that is contained within this column
-* `data_label` - the label/entity of the data in this column
+* `data_type` - the primitive python data type that is contained within this column
+* `data_label` - the label/entity of the data in this column as determined by the Labeler component
 * `categorical` - ‘true’ if this column contains categorical data
 * `order` - the way in which the data in this column is ordered, if any, otherwise “random”
 * `samples` - a small subset of data entries from this column
 * `statistics` - statistical information on the column
-    * `sample_size` - the number of values in the column
-    * `null_count` - the number of null entries in the column
-    * `null_types` - a list of the different null types present within this column
-    * `null_types_index` - a list of the indices in which the null types in this column are present
-    * `data_type_representation` - the type of data that is being represented by this column
-    * `min` - minimum value in the column
-    * `max` - maximum value in the column
-    * `mode` - mode of the entries in the column
-    * `median` - median of the entries in the column
-    * `median_absolute_deviation` - the median absolute deviation of the entries in the column
-    * `sum` - the sum of the entries in this column
-    * `mean` - the average of all entries in the column
-    * `variance` - the variance of all entries in the column
-    * `stddev` - the standard deviation of all entries in the column
-    * `skewness` - the statistical skewness of all entries in the column
-    * `kurtosis` - the statistical kurtosis of all entries in the column
-    * `num_zeros` - the number of entries in this column that have the value 0
-    * `num_negatives` - the number of entries in this column that have a value less than 0
+    * `sample_size` - number of input data samples used to generate this profile
+    * `null_count` - the number of null entries in the sample
+    * `null_types` - a list of the different null types present within this sample
+    * `null_types_index` - a dict containing each null type and a respective list of the indicies that it is present within this sample
+    * `data_type_representation` - the percentage of samples used identifying as each data_type
+    * `min` - minimum value in the sample
+    * `max` - maximum value in the sample
+    * `mode` - mode of the entries in the sample
+    * `median` - median of the entries in the sample
+    * `median_absolute_deviation` - the median absolute deviation of the entries in the sample
+    * `sum` - the total of all sampled values from the column
+    * `mean` - the average of all entries in the sample
+    * `variance` - the variance of all entries in the sample
+    * `stddev` - the standard deviation of all entries in the sample
+    * `skewness` - the statistical skewness of all entries in the sample
+    * `kurtosis` - the statistical kurtosis of all entries in the sample
+    * `num_zeros` - the number of entries in this sample that have the value 0
+    * `num_negatives` - the number of entries in this sample that have a value less than 0
     * `histogram` - contains histogram relevant information
         * `bin_counts` - the number of entries within each bin
         * `bin_edges` - the thresholds of each bin
-    * `quantiles` - the value at each percentile in the order they are listed based on the entries in the column
-    * `vocab` - a list of the characters used within the entries in this column
-    * `avg_predictions` - a list of each data label and the prediction of that label by the DataLabeler
-    * `categories` - a list of each distinct category within the column if categorial = 'true'
-    * `unique_count` - the number of distinct entries in the column
-    * `unique_ratio` - the proportion of the number of distinct entries in the column to the total number of entries in the column
-    * `categorical_count` - each category and the number of entries in it
-    * `gini_impurity` - gini impurity value
-    * `unalikeability` - a value denoting how frequently entries differ from one another within the column
-    * `precision` - Description coming soon!
-    * `times` - the duration of time it took to generate this column's statistics in milliseconds
-    * `format` - Description coming soon!
+    * `quantiles` - the value at each percentile in the order they are listed based on the entries in the sample
+    * `vocab` - a list of the characters used within the entries in this sample
+    * `avg_predictions` - average of the data label prediction confidences across all data points sampled
+    * `categories` - a list of each distinct category within the sample if `categorial` = 'true'
+    * `unique_count` - the number of distinct entries in the sample
+    * `unique_ratio` - the proportion of the number of distinct entries in the sample to the total number of entries in the sample
+    * `categorical_count` - number of entries sampled for each category if `categorical` = 'true'
+    * `gini_impurity` - measure of how often a randomly chosen element from the set would be incorrectly labeled if it was randomly labeled according to the distribution of labels in the subset
+    * `unalikeability` - a value denoting how frequently entries differ from one another within the sample
+    * `precision` - a dict of statistics with respect to the number of digits in a number for each sample
+    * `times` - the duration of time it took to generate this sample's statistics in milliseconds
+    * `format` - list of possible datetime formats
 
 ### Unstructured Profile
 

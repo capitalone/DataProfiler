@@ -655,13 +655,16 @@ class TestNumericStatsMixin(unittest.TestCase):
         # test `report()` method. This is to mimic a user 
         # setting `min.is_enabled` and `max.is_enabled` to
         # False in the `ProfileOptions`
-        calculations = num_profiler.__calculations
-        for calc_key_value in ["min", "max"]:
-            num_profiler.__calculations.pop(calc_key_value)
+        disabled_keys = ["min", "max"]
+        pre_pop_calc_keys = list(num_profiler._NumericStatsMixin__calculations.keys())
+        post_pop_calc_keys = [key for key in pre_pop_calc_keys if key not in disabled_keys]
+
+        for calc_key_value in disabled_keys:
+            num_profiler._NumericStatsMixin__calculations.pop(calc_key_value)
 
         mock_report = dict(
-            # min=np.nan, # removed to test that the `.report()` pops correctly
-            # max=np.nan, # removed to test that the `.report()` pops correctly
+            min=1.0,
+            max=1.0,
             median=np.nan, # default
             mode=[np.nan], # default
             sum=1.0,
@@ -700,33 +703,21 @@ class TestNumericStatsMixin(unittest.TestCase):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), num_profiler.times)
 
-            profile = num_profiler.profile()
-            report = profile.report(remove_disabled_flag=True)
+            profile_dict = num_profiler.profile()
+            report = num_profiler.report(
+                                        profile=profile_dict,
+                                        remove_disabled_flag=True
+                                        )
+            report_keys = list(report.keys())
 
-            # pop out the histogram and quartiles to test separately from the
-            # rest of the dict as we need comparison with some precision
-            histogram = report.pop('histogram')
-            expected_histogram = mock_report.pop('histogram')
-            quartiles = report.pop('quantiles')
-            expected_quartiles = mock_report.pop('quantiles')
+            # testing that the keys specified as "disabled" are no
+            # longer in the dictionary post-`.report()` operation
+            for disabled_key in disabled_keys:
+                self.assertNotIn(disabled_key, report_keys)
 
-            # pop out the two keys that were removed from the profile 
-            min = report.pop('min')
-            expected_min = mock_report.pop('min')
-            max = report.pop('max')
-            expected_max = mock_report.pop('max')
-
-            self.assertDictEqual(mock_report, report)
-            self.assertEqual(expected_histogram['bin_counts'].tolist(),
-                             histogram['bin_counts'].tolist())
-            self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
-                                  np.round(histogram['bin_edges'], 12))
-            self.assertAlmostEqual(expected_quartiles[0], quartiles[0])
-            self.assertAlmostEqual(expected_quartiles[1], quartiles[1])
-            self.assertAlmostEqual(expected_quartiles[2], quartiles[2])
-
-            self.assertEquals(min, expected_min)
-            self.assertEquals(max, expected_max)
+            # test that the only keys removed are the `disabled_keys`
+            for post_pop_key in post_pop_calc_keys:
+                self.assertIn(post_pop_key, pre_pop_calc_keys)
 
     def test_diff(self):
         """

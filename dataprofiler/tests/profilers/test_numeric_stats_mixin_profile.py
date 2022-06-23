@@ -662,18 +662,8 @@ class TestNumericStatsMixin(unittest.TestCase):
 
         num_profiler = NumericStatsMixin(options=options)
         
-        mock_profile = dict(
-            sum=1.0,
-            variance=np.nan, # default
-            histogram={
-                'bin_counts': np.array([1, 1, 1]),
-                'bin_edges': np.array([1.0, 2.0, 3.0, 4.0])
-            },
-            times=defaultdict(float), # default
-        )
-
         num_profiler.match_count = 0
-        num_profiler.times = mock_profile['times']
+        num_profiler.times = defaultdict(float)
 
         report = num_profiler.report(remove_disabled_flag=True)
         report_keys = list(report.keys())
@@ -685,18 +675,8 @@ class TestNumericStatsMixin(unittest.TestCase):
         # now test with now options specified
         num_profiler = TestColumn()
 
-        mock_profile = dict(
-            sum=1.0,
-            variance=np.nan, # default
-            histogram={
-                'bin_counts': np.array([1, 1, 1]),
-                'bin_edges': np.array([1.0, 2.0, 3.0, 4.0])
-            },
-            times=defaultdict(float), # default
-        )
-
         num_profiler.match_count = 0
-        num_profiler.times = mock_profile['times']
+        num_profiler.times = defaultdict(float)
 
         report = num_profiler.report(remove_disabled_flag=True)
         report_keys = list(report.keys())

@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import NumericStatsMixin
+from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
 from dataprofiler.profilers.profiler_options import NumericalOptions
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -648,19 +649,18 @@ class TestNumericStatsMixin(unittest.TestCase):
             self.assertAlmostEqual(expected_quartiles[1], quartiles[1])
             self.assertAlmostEqual(expected_quartiles[2], quartiles[2])
 
+    @mock.patch.multiple(NumericStatsMixin, __abstractmethods__=set(),
+                         _filter_properties_w_options=mock.MagicMock(
+                             side_effect=BaseColumnProfiler._filter_properties_w_options),
+                         create=True)
     def test_report(self):
-        num_profiler = TestColumn()
+        options = NumericalOptions()
+        options.max.is_enabled = False
+        options.min.is_enabled = False
+        options.histogram_and_quantiles.is_enabled = False
+        options.variance.is_enabled = False
 
-        # pop min and max from __calculations to 
-        # test `report()` method. This is to mimic a user 
-        # setting `min.is_enabled` and `max.is_enabled` to
-        # False in the `ProfileOptions`
-        disabled_keys = ["min", "max"]
-        pre_pop_calc_keys = list(num_profiler._NumericStatsMixin__calculations.keys())
-        post_pop_calc_keys = [key for key in pre_pop_calc_keys if key not in disabled_keys]
-
-        for calc_key_value in disabled_keys:
-            num_profiler._NumericStatsMixin__calculations.pop(calc_key_value)
+        num_profiler = NumericStatsMixin(options=options)
 
         mock_report = dict(
             min=1.0,
@@ -703,18 +703,11 @@ class TestNumericStatsMixin(unittest.TestCase):
             # Validate that the times dictionary is empty
             self.assertEqual(defaultdict(float), num_profiler.times)
 
-            profile_dict = num_profiler.profile()
             report = num_profiler.report(remove_disabled_flag=True)
             report_keys = list(report.keys())
 
-            # testing that the keys specified as "disabled" are no
-            # longer in the dictionary post-`.report()` operation
-            for disabled_key in disabled_keys:
+            for disabled_key in ["max", "min", "histogram_and_quantiles", "variance"]:
                 self.assertNotIn(disabled_key, report_keys)
-
-            # test that the only keys removed are the `disabled_keys`
-            for post_pop_key in post_pop_calc_keys:
-                self.assertIn(post_pop_key, pre_pop_calc_keys)
 
     def test_diff(self):
         """

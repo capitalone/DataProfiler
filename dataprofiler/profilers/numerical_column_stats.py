@@ -295,7 +295,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     def report(self, remove_disabled_flag):
         """
         Method to call the profile and remove the disabled columns from
-            the profile's report.
+            the profile's report. "Disabled column" is defined as a column
+            that is not prsenet in `self.__calculations` but is present
+            in the `self.profile`.
         :var remove_disabled_flag: true/false value to tell the code to remove
             values missing in __calculations
         :type remove_disabled_flag: boolean

@@ -648,6 +648,86 @@ class TestNumericStatsMixin(unittest.TestCase):
             self.assertAlmostEqual(expected_quartiles[1], quartiles[1])
             self.assertAlmostEqual(expected_quartiles[2], quartiles[2])
 
+    def test_report(self):
+        num_profiler = TestColumn()
+
+        # pop min and max from __calculations to 
+        # test `report()` method. This is to mimic a user 
+        # setting `min.is_enabled` and `max.is_enabled` to
+        # False in the `ProfileOptions`
+        calculations = num_profiler.__calculations
+        for calc_key_value in ["min", "max"]:
+            num_profiler.__calculations.pop(calc_key_value)
+
+        mock_report = dict(
+            # min=np.nan, # removed to test that the `.report()` pops correctly
+            # max=np.nan, # removed to test that the `.report()` pops correctly
+            median=np.nan, # default
+            mode=[np.nan], # default
+            sum=1.0,
+            mean=0, # default
+            variance=np.nan, # default
+            skewness=np.nan, # default
+            kurtosis=np.nan, # default
+            median_abs_deviation=np.nan, # default
+            stddev=np.nan, # default
+            histogram={
+                'bin_counts': np.array([1, 1, 1]),
+                'bin_edges': np.array([1.0, 2.0, 3.0, 4.0])
+            },
+            quantiles={
+                0: 2.0,
+                1: 3.0,
+                2: 4.0,
+            },
+            num_zeros=0, # default
+            num_negatives=0, # default
+            times=defaultdict(float), # default
+        )
+
+        num_profiler.match_count = 0
+        num_profiler.min = mock_report['min']
+        num_profiler.max = mock_report['max']
+        num_profiler.sum = mock_report['sum']
+        num_profiler.histogram_selection = 'auto'
+        num_profiler.histogram_methods['auto']['histogram'] = \
+            mock_report['histogram']
+        num_profiler.quantiles = mock_report['quantiles']
+        num_profiler.times = mock_report['times']
+
+        time_array = [float(i) for i in range(100, 0, -1)]
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+            # Validate that the times dictionary is empty
+            self.assertEqual(defaultdict(float), num_profiler.times)
+
+            profile = num_profiler.profile()
+            report = profile.report(remove_disabled_flag=True)
+
+            # pop out the histogram and quartiles to test separately from the
+            # rest of the dict as we need comparison with some precision
+            histogram = report.pop('histogram')
+            expected_histogram = mock_report.pop('histogram')
+            quartiles = report.pop('quantiles')
+            expected_quartiles = mock_report.pop('quantiles')
+
+            # pop out the two keys that were removed from the profile 
+            min = report.pop('min')
+            expected_min = mock_report.pop('min')
+            max = report.pop('max')
+            expected_max = mock_report.pop('max')
+
+            self.assertDictEqual(mock_report, report)
+            self.assertEqual(expected_histogram['bin_counts'].tolist(),
+                             histogram['bin_counts'].tolist())
+            self.assertCountEqual(np.round(expected_histogram['bin_edges'], 12),
+                                  np.round(histogram['bin_edges'], 12))
+            self.assertAlmostEqual(expected_quartiles[0], quartiles[0])
+            self.assertAlmostEqual(expected_quartiles[1], quartiles[1])
+            self.assertAlmostEqual(expected_quartiles[2], quartiles[2])
+
+            self.assertEquals(min, expected_min)
+            self.assertEquals(max, expected_max)
+
     def test_diff(self):
         """
         Checks _diff_helper() works appropriately.

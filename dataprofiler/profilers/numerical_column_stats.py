@@ -304,12 +304,23 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: Profile object that is pop'd based on values missing from __calculations
         :rtype: Profile
         """
-        calcs_dict_keys = list(self.__calculations.keys())
+        calcs_dict_keys = list(self._NumericStatsMixin__calculations.keys())
         profile = self.profile()
+
         if remove_disabled_flag:
-            for calc_key in calcs_dict_keys:
-                if calc_key not in profile.keys():
-                    profile.pop(calc_key)
+            profile_keys = list(profile.keys())
+            for profile_key in profile_keys:
+                if profile_key in ['mode', 'quantiles', 'histogram']:
+                    if 'histogram_and_quantiles' in calcs_dict_keys:
+                        continue
+                elif profile_key == 'stddev' and 'variance' in calcs_dict_keys:
+                        continue
+                elif profile_key in calcs_dict_keys:
+                    continue
+                elif profile_key == 'times':
+                    continue
+                profile.pop(profile_key)
+
         return profile
 
     def diff(self, other_profile, options=None):

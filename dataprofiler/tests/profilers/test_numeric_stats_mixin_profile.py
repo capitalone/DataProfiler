@@ -704,10 +704,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             self.assertEqual(defaultdict(float), num_profiler.times)
 
             profile_dict = num_profiler.profile()
-            report = num_profiler.report(
-                                        profile=profile_dict,
-                                        remove_disabled_flag=True
-                                        )
+            report = num_profiler.report(remove_disabled_flag=True)
             report_keys = list(report.keys())
 
             # testing that the keys specified as "disabled" are no

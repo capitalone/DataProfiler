@@ -314,7 +314,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
                     if 'histogram_and_quantiles' in calcs_dict_keys:
                         continue
                 elif profile_key == 'stddev' and 'variance' in calcs_dict_keys:
-                        continue
+                    continue
                 elif profile_key in calcs_dict_keys:
                     continue
                 elif profile_key == 'times':

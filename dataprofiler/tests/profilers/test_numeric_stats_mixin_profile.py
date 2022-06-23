@@ -661,53 +661,50 @@ class TestNumericStatsMixin(unittest.TestCase):
         options.variance.is_enabled = False
 
         num_profiler = NumericStatsMixin(options=options)
-
-        mock_report = dict(
-            min=1.0,
-            max=1.0,
-            median=np.nan, # default
-            mode=[np.nan], # default
+        
+        mock_profile = dict(
             sum=1.0,
-            mean=0, # default
             variance=np.nan, # default
-            skewness=np.nan, # default
-            kurtosis=np.nan, # default
-            median_abs_deviation=np.nan, # default
-            stddev=np.nan, # default
             histogram={
                 'bin_counts': np.array([1, 1, 1]),
                 'bin_edges': np.array([1.0, 2.0, 3.0, 4.0])
             },
-            quantiles={
-                0: 2.0,
-                1: 3.0,
-                2: 4.0,
-            },
-            num_zeros=0, # default
-            num_negatives=0, # default
             times=defaultdict(float), # default
         )
 
         num_profiler.match_count = 0
-        num_profiler.min = mock_report['min']
-        num_profiler.max = mock_report['max']
-        num_profiler.sum = mock_report['sum']
-        num_profiler.histogram_selection = 'auto'
-        num_profiler.histogram_methods['auto']['histogram'] = \
-            mock_report['histogram']
-        num_profiler.quantiles = mock_report['quantiles']
-        num_profiler.times = mock_report['times']
+        num_profiler.times = mock_profile['times']
 
-        time_array = [float(i) for i in range(100, 0, -1)]
-        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
-            # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), num_profiler.times)
+        report = num_profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
 
-            report = num_profiler.report(remove_disabled_flag=True)
-            report_keys = list(report.keys())
+        for disabled_key in ["max", "min", "variance", "histogram", "quantiles"]:
+            self.assertNotIn(disabled_key, report_keys)
 
-            for disabled_key in ["max", "min", "histogram_and_quantiles", "variance"]:
-                self.assertNotIn(disabled_key, report_keys)
+    def test_report_no_pop(self):
+        # now test with now options specified
+        num_profiler = TestColumn()
+
+        mock_profile = dict(
+            sum=1.0,
+            variance=np.nan, # default
+            histogram={
+                'bin_counts': np.array([1, 1, 1]),
+                'bin_edges': np.array([1.0, 2.0, 3.0, 4.0])
+            },
+            times=defaultdict(float), # default
+        )
+
+        num_profiler.match_count = 0
+        num_profiler.times = mock_profile['times']
+
+        report = num_profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+
+        # now test to see if the keys that were disabled and ensure
+        # they keys are not poped without specifying `NumericalOptions`
+        for disabled_key in ["max", "min", "variance", "histogram", "quantiles"]:
+            self.assertIn(disabled_key, report_keys)
 
     def test_diff(self):
         """

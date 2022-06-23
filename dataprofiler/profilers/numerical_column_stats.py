@@ -292,6 +292,23 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         return profile
 
+    def report(self, remove_disabled_flag):
+        """
+        Method to call the profile and remove the disabled columns from
+            the profile's report.
+        :var remove_disabled_flag: true/false value to tell the code to remove
+            values missing in __calculations
+        :type remove_disabled_flag: boolean
+        :return: Profile object that is pop'd based on values missing from __calculations
+        :rtype: Profile
+        """
+        profile = self.profile
+        if remove_disabled_flag:
+            for profile_key in profile.keys():
+                if profile_key not in self.__calculations.keys():
+                    profile.pop(profile_key)
+        return profile
+
     def diff(self, other_profile, options=None):
         """
         Finds the differences for several numerical stats.

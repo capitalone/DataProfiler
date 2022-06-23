@@ -304,7 +304,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: Profile object that is pop'd based on values missing from __calculations
         :rtype: Profile
         """
-        calcs_dict_keys = list(self._NumericStatsMixin__calculations.keys())
+        calcs_dict_keys = self._NumericStatsMixin__calculations.keys()
         profile = self.profile()
 
         if remove_disabled_flag:

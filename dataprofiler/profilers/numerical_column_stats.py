@@ -292,7 +292,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         return profile
 
-    def report(self, remove_disabled_flag):
+    def report(self, remove_disabled_flag=False):
         """
         Method to call the profile and remove the disabled columns from
             the profile's report. "Disabled column" is defined as a column

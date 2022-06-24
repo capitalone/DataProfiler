@@ -973,9 +973,10 @@ class TestStructuredProfiler(unittest.TestCase):
             self.assertIsNone(col_report)
 
     def test_remove_disabled_flag(self):
-        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
-                        [10, 20, 30, 40, 50, 60]],
-                    columns=["a", "b", "a", "b", "c", "d"])
+        data = pd.DataFrame([[1, 2, 'if you'],
+                            [10, 20,'read this you'],
+                            [100,200, 'are cool']],
+                    columns=["a", "b", "wordy_text_words"])
 
         # with options to disable FloatColumn `precision`
         # and with remove_disabled_flag == True
@@ -984,12 +985,18 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report(report_options={"remove_disabled_flag": True})
 
+        for iter_value in range(0, len(data.columns)-1):
+            self.assertNotIn('precision', report['data_stats'][iter_value])
+
         # with options to disable NumericalMixIn cal `min`
         # and with remove_disabled_flag == True
         profiler_options = ProfilerOptions()
         profiler_options.min.is_enabled = False
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report(report_options={"remove_disabled_flag": True})
+
+        for iter_value in range(0,len(data.columns)-1):
+            self.assertNotIn('min', report['data_stats'][iter_value])
 
         # with options to disable TextColumn cal `vocab`
         # and with remove_disabled_flag == True
@@ -998,11 +1005,17 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report(report_options={"remove_disabled_flag": True})
 
+        for iter_value in range(0,len(data.columns)-1):
+            self.assertNotIn('vocab', report['data_stats'][iter_value])
+
         # with profiler options and default remove_disabled_flag
         profiler_options = ProfilerOptions()
         profiler_options.min = False
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report()
+
+        for iter_value in range(0,len(data.columns)-1):
+            self.assertIn('min', report['data_stats'][iter_value])
 
         # w/o profiler options and default remove_disabled_flag
         profiler = dp.StructuredProfiler(data=data)

@@ -983,7 +983,6 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler_options.precision.is_enabled = False
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report(report_options={"remove_disabled_flag": True})
-        import pdb;pdb.set_trace();
 
         # with options to disable NumericalMixIn cal `min`
         # and with remove_disabled_flag == True
@@ -2295,30 +2294,30 @@ class TestUnstructuredProfiler(unittest.TestCase):
         }
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
 
-    # def test_remove_disabled_flag(self):
-    #     data = 'my test disabled flag test 123'
+    def test_remove_disabled_flag(self):
+        data = 'my test disabled flag test 123'
 
-    #     # with options and remove_disabled_flag == True
-    #     profiler_options = ProfilerOptions()
-    #     profiler_options.min = False
-    #     profiler = dp.UnstructuredProfiler(data=data, options=profiler_options)
-    #     report = profiler.report(report_options={"remove_disabled_flag": True})
+        # with options and remove_disabled_flag == True
+        profiler_options = ProfilerOptions()
+        profiler_options.min = False
+        profiler = dp.UnstructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
 
-    #     # with options and remove_disabled_flag == True
-    #     profiler_options = ProfilerOptions()
-    #     profiler_options.min = False
-    #     profiler = dp.UnstructuredProfiler(data=data, options=profiler_options)
-    #     report = profiler.report(report_options={"remove_disabled_flag": True})
+        # with options and remove_disabled_flag == True
+        profiler_options = ProfilerOptions()
+        profiler_options.min = False
+        profiler = dp.UnstructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
 
-    #     # with profiler options and default remove_disabled_flag
-    #     profiler_options = ProfilerOptions()
-    #     profiler_options.min = False
-    #     profiler = dp.UnstructuredProfiler(data=data, options=profiler_options)
-    #     report = profiler.report()
+        # with profiler options and default remove_disabled_flag
+        profiler_options = ProfilerOptions()
+        profiler_options.min = False
+        profiler = dp.UnstructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report()
 
-    #     # w/o profiler options and default remove_disabled_flag
-    #     profiler = dp.UnstructuredProfiler(data=data)
-    #     report = profiler.report()
+        # w/o profiler options and default remove_disabled_flag
+        profiler = dp.UnstructuredProfiler(data=data)
+        report = profiler.report()
 
     def test_get_sample_size(self, *mocks):
         data = pd.DataFrame([0] * int(50e3))

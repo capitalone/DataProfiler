@@ -266,8 +266,17 @@ class StructuredColProfiler(object):
         return profile
 
     def report(self, report_options=None):
-        raise NotImplementedError()
-    
+        if not report_options:
+            report_options = {
+                "output_format": None,
+                "omit_keys": None,
+                "remove_disabled_flag": False,
+            }
+
+        profile = self.profile
+        report = profile.report()
+        return report
+
     @property
     def profile(self):
         unordered_profile = dict()

@@ -174,7 +174,7 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         time_array = [float(i) for i in range(4, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             default.update(sample)
-        profile = default.report(False)
+        profile = default.report(remove_disabled_flag=False)
 
         # key and value populated correctly
         self.assertDictEqual(expected_profile, profile)

@@ -287,7 +287,7 @@ class AbstractTestColumnProfiler(object):
     def test_report(self):
         self._create_profiler_mocks()
         profile = self.column_profiler(self.aws_dataset["datetime"])
-        report = profile.report(False)
+        report = profile.report(remove_disabled_flag=False)
 
         six.assertCountEqual(
             self,

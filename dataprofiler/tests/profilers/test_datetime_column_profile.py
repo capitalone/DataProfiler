@@ -290,13 +290,13 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         time_array = [float(i) for i in range(4, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.report(False)['times'])
+            self.assertEqual(defaultdict(float), profiler.report(remove_disabled_flag=False)['times'])
 
             # Validate the time in the datetime class has the expected time.
             profiler.update(df)
             expected = defaultdict(float, {'datetime': 1.0})
-            self.assertEqual(expected, profiler.report(False)['times'])
-            profile = profiler.report(False)
+            self.assertEqual(expected, profiler.report(remove_disabled_flag=False)['times'])
+            profile = profiler.report(remove_disabled_flag=False)
             self.assertCountEqual(expected_profile, profile)
 
             # Validate time in datetime class has expected time after second

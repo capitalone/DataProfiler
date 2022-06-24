@@ -180,17 +180,17 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         time_array = [float(i) for i in range(4, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.report(False)['times'])
+            self.assertEqual(defaultdict(float), profiler.report(remove_disabled_flag=False)['times'])
             profiler.update(data)
 
             # Validate the time in the DataLabeler class has the expected time.
-            profile = profiler.report(False)
+            profile = profiler.report(remove_disabled_flag=False)
             self.assertDictEqual(expected_profile, profile)
 
             # Validate time in datetime class has expected time after second update
             profiler.update(data)
             expected = defaultdict(float, {'data_labeler_predict': 2.0})
-            self.assertEqual(expected, profiler.report(False)['times'])
+            self.assertEqual(expected, profiler.report(remove_disabled_flag=False)['times'])
 
     def test_label_match(self, mock_instance):
         """

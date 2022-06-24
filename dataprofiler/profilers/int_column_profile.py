@@ -53,7 +53,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                                  other.__calculations)
         return merged_profile
 
-    def report(self, remove_disabled_key=False):
+    def report(self, remove_disabled_flag=False):
         """
         Private abstract method for returning report.
 

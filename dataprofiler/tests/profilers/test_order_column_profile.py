@@ -123,7 +123,7 @@ class TestOrderColumn(unittest.TestCase):
         time_array = [float(x) for x in range(4, 0, -1)]
         with mock.patch('time.time', side_effect = lambda: time_array.pop()):
             profiler.update(df)
-            profile = profiler.report(False)
+            profile = profiler.report(remove_disabled_flag=False)
 
             # key and value populated correctly
             self.assertDictEqual(expected_profile, profile)

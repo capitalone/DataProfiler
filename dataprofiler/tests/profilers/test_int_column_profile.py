@@ -600,7 +600,7 @@ class TestIntColumn(unittest.TestCase):
                         'num_zeros': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
 
-    def test_profile(self):
+    def test_report(self):
         data = [2.0, 12.5, 'not a float', 6.0, 'not a float']
         df = pd.Series(data).apply(str)
 
@@ -639,11 +639,11 @@ class TestIntColumn(unittest.TestCase):
         time_array = [float(i) for i in range(100, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.report(False)['times'])
+            self.assertEqual(defaultdict(float), profiler.report(remove_disabled_flag=False)['times'])
             profiler.update(df)
 
             # Validate the time in the datetime class has the expected time.
-            profile = profiler.report(False)
+            profile = profiler.report(remove_disabled_flag=False)
 
             # Validate mode and median
             mode = profile.pop('mode')
@@ -692,7 +692,7 @@ class TestIntColumn(unittest.TestCase):
                         'skewness': 2.0, 'kurtosis': 2.0,
                         'histogram_and_quantiles': 2.0, 'num_negatives': 2.0,
                         'num_zeros': 2.0})
-            self.assertEqual(expected, profiler.report(False)['times'])
+            self.assertEqual(expected, profiler.report(remove_disabled_flag=False)['times'])
 
     def test_option_timing(self):
         data = [2.0, 12.5, 'not a float', 6.0, 'not a float']

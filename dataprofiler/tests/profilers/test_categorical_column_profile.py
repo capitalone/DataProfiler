@@ -154,7 +154,7 @@ class TestCategoricalColumn(unittest.TestCase):
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
         report1 = profile.profile
-        report2 = profile.report(False)
+        report2 = profile.report(remove_disabled_flag=False)
 
 
 
@@ -192,7 +192,7 @@ class TestCategoricalColumn(unittest.TestCase):
         profile.update(df_non_categorical)
 
         report1 = profile.profile
-        report2 = profile.report(False)
+        report2 = profile.report(remove_disabled_flag=False)
         self.assertIsNotNone(report1.pop("times", None))
         expected_profile = dict(
             categorical=False,

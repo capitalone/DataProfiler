@@ -249,8 +249,7 @@ class TestTextColumnProfiler(unittest.TestCase):
 
     def test_report(self):
         """Test report method in TextColumn class under three (3) scenarios.
-        First, test under scenario of disabling the entire
-        precision dictionary. Second, test with no options and
+        First, test under scenario of disabling vocab. Second, test with no options and
         `remove_disabled_flag`=True. Finally, test no options and default
         `remove_disabled_flag`.
         """

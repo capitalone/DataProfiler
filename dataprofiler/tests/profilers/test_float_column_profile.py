@@ -1074,6 +1074,37 @@ class TestFloatColumn(unittest.TestCase):
                                            'num_zeros': 2.0,})
             self.assertEqual(expected, profiler.profile['times'])
 
+    def test_report(self):
+        """Test report method in FloatColumn class under three (3) scenarios.
+        First, test under scenario of disabling the entire
+        precision dictionary. Second, test with no options and
+        `remove_disabled_flag`=True. Finally, test no options and default
+        `remove_disabled_flag`.
+        """
+        data = [1.1, 2.2, 3.3, 4.4]
+        df = pd.Series(data).apply(str)
+
+        # With FloatOptions and remove_disabled_flag == True
+        options = FloatOptions()
+        options.precision.is_enabled = False
+
+        profiler = FloatColumn(df.name, options)
+        report = profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+        self.assertNotIn('precision', report_keys)
+
+        # w/o FloatOptions and remove_disabled_flag == True
+        profiler = FloatColumn(df.name)
+        report = profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+        self.assertIn('precision', report_keys)
+
+        # w/o FloatOptions and remove_disabled_flag default
+        profiler = FloatColumn(df.name)
+        report = profiler.report()
+        report_keys = list(report.keys())
+        self.assertIn('precision', report_keys)
+
     def test_option_precision(self):
         data = [1.1, 2.2, 3.3, 4.4]
         df = pd.Series(data).apply(str)

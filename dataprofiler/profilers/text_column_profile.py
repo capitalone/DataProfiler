@@ -58,6 +58,23 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             merged_profile._update_vocab(other.vocab)
         return merged_profile
 
+    def report(self, remove_disabled_flag=False):
+        """Report on profile attribute of the class and pop value
+            from self.profile if key not in self.__calculations
+        """
+        calcs_dict_keys = self._TextColumn__calculations.keys()
+        profile = self.profile
+
+        if remove_disabled_flag:
+            profile_keys = list(profile.keys())
+            for profile_key in profile_keys:
+                if profile_key == 'vocab':
+                    if 'vocab' in calcs_dict_keys:
+                        continue
+                profile.pop(profile_key)
+
+        return profile
+
     @property
     def profile(self):
         """

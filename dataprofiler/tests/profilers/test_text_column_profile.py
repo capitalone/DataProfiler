@@ -256,8 +256,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         data = [2.0, 12.5, 'not a float', 6.0, 'not a float']
         df = pd.Series(data).apply(str)
 
-        # With FloatOptions and remove_disabled_flag == True
-        options = TextOptions()
+        options = TextOptions() # With TextOptions and remove_disabled_flag == True
         options.vocab.is_enabled = False
 
         profiler = TextColumn(df.name, options)
@@ -265,14 +264,12 @@ class TestTextColumnProfiler(unittest.TestCase):
         report_keys = list(report.keys())
         self.assertNotIn('vocab', report_keys)
 
-        # w/o FloatOptions and remove_disabled_flag == True
-        profiler = TextColumn(df.name)
+        profiler = TextColumn(df.name) # w/o TextOptions and remove_disabled_flag == True
         report = profiler.report(remove_disabled_flag=True)
         report_keys = list(report.keys())
         self.assertIn('vocab', report_keys)
 
-        # w/o FloatOptions and remove_disabled_flag default
-        profiler = TextColumn(df.name)
+        profiler = TextColumn(df.name) # w/o TextOptions and remove_disabled_flag default
         report = profiler.report()
         report_keys = list(report.keys())
         self.assertIn('vocab', report_keys)

@@ -1075,8 +1075,8 @@ class TestFloatColumn(unittest.TestCase):
             self.assertEqual(expected, profiler.profile['times'])
 
     def test_report(self):
-        """Test report method in FloatColumn class under four (4)
-        scenarios. First, test under scenario of disabling the entire
+        """Test report method in FloatColumn class under four (4) scenarios.
+        First, test under scenario of disabling the entire
         precision dictionary. Second, test under scenario removing 
         `min` from NumericMixIn__calculations (an inherited class)
         by FloatColumn. Third, test with no options and
@@ -1094,16 +1094,16 @@ class TestFloatColumn(unittest.TestCase):
         report = profiler.report(remove_disabled_flag=True)
         report_keys = list(report.keys())
         self.assertNotIn('precision', report_keys)
+        
+        # # With FloatOptions and remove_disabled_flag == True
+        # # testing key removal in NumericMixin from FloatColumnProfile
+        # options = FloatOptions()
+        # options.min.is_enabled = False
 
-        # With FloatOptions and remove_disabled_flag == True
-        # testing key removal in NumericMixin from FloatColumnProfile
-        options = FloatOptions()
-        options.min.is_enabled = False
-
-        profiler = FloatColumn(df.name, options)
-        report = profiler.report(remove_disabled_flag=True)
-        sub_report_keys = list(report['precision'].keys())
-        self.assertNotIn('min', sub_report_keys)
+        # profiler = FloatColumn(df.name, options)
+        # report = profiler.report(remove_disabled_flag=True)
+        # sub_report_keys = list(report['precision'].keys())
+        # self.assertNotIn('min', sub_report_keys)
 
         # w/o FloatOptions and remove_disabled_flag == True
         profiler = FloatColumn(df.name)

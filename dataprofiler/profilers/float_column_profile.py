@@ -130,8 +130,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """Report on profile attribute of the class and pop value
             from self.profile if key not in self.__calculations
         """
-        calcs_dict_keys = self.__calculations.keys()
-        profile = self.profile()
+        calcs_dict_keys = self._FloatColumn__calculations.keys()
+        profile = self.profile
 
         if remove_disabled_flag:
             profile_keys = list(profile.keys())

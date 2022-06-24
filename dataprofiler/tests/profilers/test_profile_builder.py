@@ -980,10 +980,17 @@ class TestStructuredProfiler(unittest.TestCase):
                     columns=["a", "b", "wordy_text_words"])
 =======
     def test_remove_disabled_flag(self):
+<<<<<<< HEAD
         data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
                         [10, 20, 30, 40, 50, 60]],
                     columns=["a", "b", "a", "b", "c", "d"])
 >>>>>>> f718c92 (first commit)
+=======
+        data = pd.DataFrame([[1, 2, 'if you'],
+                            [10, 20,'read this you'],
+                            [100,200, 'are cool']],
+                    columns=["a", "b", "wordy_text_words"])
+>>>>>>> e862a0c (test update)
 
         # with options to disable FloatColumn `precision`
         # and with remove_disabled_flag == True
@@ -1004,6 +1011,9 @@ class TestStructuredProfiler(unittest.TestCase):
 >>>>>>> f718c92 (first commit)
 =======
 >>>>>>> 0599aba (take out set_trace())
+
+        for iter_value in range(0, len(data.columns)-1):
+            self.assertNotIn('precision', report['data_stats'][iter_value])
 
         # with options to disable NumericalMixIn cal `min`
         # and with remove_disabled_flag == True
@@ -1040,6 +1050,9 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report(report_options={"remove_disabled_flag": True})
 
+        for iter_value in range(0,len(data.columns)-1):
+            self.assertNotIn('min', report['data_stats'][iter_value])
+
         # with options to disable TextColumn cal `vocab`
         # and with remove_disabled_flag == True
         profiler_options = ProfilerOptions()
@@ -1047,13 +1060,22 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report(report_options={"remove_disabled_flag": True})
 
+        for iter_value in range(0,len(data.columns)-1):
+            self.assertNotIn('vocab', report['data_stats'][iter_value])
+
         # with profiler options and default remove_disabled_flag
         profiler_options = ProfilerOptions()
         profiler_options.min = False
         profiler = dp.StructuredProfiler(data=data, options=profiler_options)
         report = profiler.report()
 
+<<<<<<< HEAD
 >>>>>>> f718c92 (first commit)
+=======
+        for iter_value in range(0,len(data.columns)-1):
+            self.assertIn('min', report['data_stats'][iter_value])
+
+>>>>>>> e862a0c (test update)
         # w/o profiler options and default remove_disabled_flag
         profiler = dp.StructuredProfiler(data=data)
         report = profiler.report()

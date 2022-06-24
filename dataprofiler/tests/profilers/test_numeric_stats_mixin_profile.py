@@ -671,8 +671,8 @@ class TestNumericStatsMixin(unittest.TestCase):
         for disabled_key in ["max", "min", "variance", "histogram", "quantiles"]:
             self.assertNotIn(disabled_key, report_keys)
 
-        # test report default `remove_disabled_flag` value and no
-        # NumericalOptions
+        # test report default `remove_disabled_flag`
+        # value and no NumericalOptions
         report = num_profiler.report()
         report_keys = list(report.keys())
 
@@ -680,7 +680,6 @@ class TestNumericStatsMixin(unittest.TestCase):
             self.assertIn(disabled_key, report_keys)
 
     def test_report_no_numerical_options(self):
-        # now test with now options specified
         num_profiler = TestColumn()
 
         num_profiler.match_count = 0

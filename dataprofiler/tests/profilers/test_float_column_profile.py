@@ -1074,6 +1074,36 @@ class TestFloatColumn(unittest.TestCase):
                                            'num_zeros': 2.0,})
             self.assertEqual(expected, profiler.profile['times'])
 
+    def test_report(self):
+        data = [1.1, 2.2, 3.3, 4.4]
+        df = pd.Series(data).apply(str)
+
+        # With FloatOptions and remove_disabled_flag == True
+        options = FloatOptions()
+        options.precision.is_enabled = False
+
+        profiler = FloatColumn(df.name, options)
+        report = profiler.report(remove_disabled_flag=True)
+
+        # With FloatOptions and remove_disabled_flag == True
+        # testing key removal in NumericMixin from FloatColumnProfile
+        options = FloatOptions()
+        options.min.is_enabled = False
+
+        profiler = FloatColumn(df.name, options)
+        report = profiler.report(remove_disabled_flag=True)
+
+        # w/o FloatOptions and remove_disabled_flag == True
+        profiler = FloatColumn(df.name)
+        report = profiler.report(remove_disabled_flag=True)
+
+
+        # w/o FloatOptions and remove_disabled_flag default
+        profiler = FloatColumn(df.name)
+        report = profiler.report()
+
+
+
     def test_option_precision(self):
         data = [1.1, 2.2, 3.3, 4.4]
         df = pd.Series(data).apply(str)

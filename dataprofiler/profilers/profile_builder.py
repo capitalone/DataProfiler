@@ -265,23 +265,10 @@ class StructuredColProfiler(object):
 
         return profile
 
-    def report(self, report_options=None):
-        if not report_options:
-            report_options = {
-                "output_format": None,
-                "omit_keys": None,
-                "remove_disabled_flag": False,
-            }
-
-        profile = self.profile
-        report = profile.report()
-        return report
-
-    @property
-    def profile(self):
+    def report(self, remove_disabled_flag=False):
         unordered_profile = dict()
         for profile in self.profiles.values():
-            utils.dict_merge(unordered_profile, profile.profile)
+            utils.dict_merge(unordered_profile, profile.report(remove_disabled_flag))
 
         name = self.name
         if isinstance(self.name, np.integer):
@@ -324,6 +311,10 @@ class StructuredColProfiler(object):
                 profile[key] = None
 
         return profile
+
+    @property
+    def profile(self):
+        return self.report(remove_disabled_flag=False)
 
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
@@ -1129,7 +1120,7 @@ class UnstructuredProfiler(BaseProfiler):
             }),
             ("data_stats", OrderedDict()),
         ])
-        report["data_stats"] = self._profile.report(remove_disabled_flag=remove_disabled_flag)
+        report["data_stats"] = self._profile.report(remove_disabled_flag)
         return _prepare_report(report, output_format, omit_keys)
 
     @utils.method_timeit(name="clean_and_base_stats")
@@ -1594,7 +1585,7 @@ class StructuredProfiler(BaseProfiler):
         for i in range(len(self._profile)):
             col_name = self._profile[i].name
             report["global_stats"]["profile_schema"][col_name].append(i)
-            report["data_stats"].append(self._profile[i].report(remove_disabled_flag=remove_disabled_flag))
+            report["data_stats"].append(self._profile[i].report(remove_disabled_flag))
             quantiles = report["data_stats"][i]["statistics"].get('quantiles')
             if quantiles:
                 quantiles = calculate_quantiles(num_quantile_groups, quantiles)

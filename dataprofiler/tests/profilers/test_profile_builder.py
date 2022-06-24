@@ -1836,7 +1836,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
             self,
-            {'profile', '_update_helper', 'update'},
+            {'profile', '_update_helper', 'report', 'update'},
             dp.profilers.BaseColumnProfiler.__abstractmethods__
         )
 

@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import NumericStatsMixin
+from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
 from dataprofiler.profilers.profiler_options import NumericalOptions
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -647,6 +648,50 @@ class TestNumericStatsMixin(unittest.TestCase):
             self.assertAlmostEqual(expected_quartiles[0], quartiles[0])
             self.assertAlmostEqual(expected_quartiles[1], quartiles[1])
             self.assertAlmostEqual(expected_quartiles[2], quartiles[2])
+
+    @mock.patch.multiple(NumericStatsMixin, __abstractmethods__=set(),
+                         _filter_properties_w_options=mock.MagicMock(
+                             side_effect=BaseColumnProfiler._filter_properties_w_options),
+                         create=True)
+    def test_report(self):
+        options = NumericalOptions()
+        options.max.is_enabled = False
+        options.min.is_enabled = False
+        options.histogram_and_quantiles.is_enabled = False
+        options.variance.is_enabled = False
+
+        num_profiler = NumericStatsMixin(options=options)
+        
+        num_profiler.match_count = 0
+        num_profiler.times = defaultdict(float)
+
+        report = num_profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+
+        for disabled_key in ["max", "min", "variance", "histogram", "quantiles"]:
+            self.assertNotIn(disabled_key, report_keys)
+
+        # test report default `remove_disabled_flag`
+        # value and no NumericalOptions
+        report = num_profiler.report()
+        report_keys = list(report.keys())
+
+        for disabled_key in ["max", "min", "variance", "histogram", "quantiles"]:
+            self.assertIn(disabled_key, report_keys)
+
+    def test_report_no_numerical_options(self):
+        num_profiler = TestColumn()
+
+        num_profiler.match_count = 0
+        num_profiler.times = defaultdict(float)
+
+        report = num_profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+
+        # now test to see if the keys that were disabled and ensure
+        # they keys are not poped without specifying `NumericalOptions`
+        for disabled_key in ["max", "min", "variance", "histogram", "quantiles"]:
+            self.assertIn(disabled_key, report_keys)
 
     def test_diff(self):
         """

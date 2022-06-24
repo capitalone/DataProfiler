@@ -114,19 +114,13 @@ class TestOrderColumn(unittest.TestCase):
         data = [1]
         df = pd.Series(data).apply(str)
 
-        profiler = OrderColumn(df.name)
+        profile  = OrderColumn(df.name)
 
-        expected_profile = dict(
-            order='constant value',
-            times={'order' : 2.0}
-        )
-        time_array = [float(x) for x in range(4, 0, -1)]
-        with mock.patch('time.time', side_effect = lambda: time_array.pop()):
-            profiler.update(df)
-            profile = profiler.report(remove_disabled_flag=False)
-
-            # key and value populated correctly
-            self.assertDictEqual(expected_profile, profile)
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
 
     def test_profile_merge(self):
         data = [1, 2, 3, 4, 5, 6]

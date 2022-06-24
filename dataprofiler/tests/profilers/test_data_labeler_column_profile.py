@@ -168,29 +168,13 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         self._setup_data_labeler_mock(mock_instance)
 
         data = pd.Series(['1', '2', '3'])
-        profiler = DataLabelerColumn(data.name)
+        profile = DataLabelerColumn(data.name)
 
-        expected_profile = {
-            "data_label": 'a',
-            "avg_predictions": dict(a=2/3, b=1/3),
-            "data_label_representation": dict(a=2/3, b=1/3),
-            "times": defaultdict(float, {'data_labeler_predict': 1.0})
-        }
-
-        time_array = [float(i) for i in range(4, 0, -1)]
-        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
-            # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.report(remove_disabled_flag=False)['times'])
-            profiler.update(data)
-
-            # Validate the time in the DataLabeler class has the expected time.
-            profile = profiler.report(remove_disabled_flag=False)
-            self.assertDictEqual(expected_profile, profile)
-
-            # Validate time in datetime class has expected time after second update
-            profiler.update(data)
-            expected = defaultdict(float, {'data_labeler_predict': 2.0})
-            self.assertEqual(expected, profiler.report(remove_disabled_flag=False)['times'])
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
 
     def test_label_match(self, mock_instance):
         """

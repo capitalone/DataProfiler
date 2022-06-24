@@ -275,36 +275,13 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             'Mar 11, 2013'
         ]
         df = pd.Series(data).apply(str)
-        profiler = DateTimeColumn(df.name)
-        expected_profile = dict(
-            min='03/10/13 15:43',
-            max='Mar 11, 2013',
-            histogram=None,
-            format=[
-                '%Y-%m-%d %H:%M:%S',
-                "%m/%d/%y %H:%M",
-                "%b %d, %Y",
-            ],
-            times=defaultdict(float, {'datetime': 1.0})
-        )
-        time_array = [float(i) for i in range(4, 0, -1)]
-        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
-            # Validate that the times dictionary is empty
-            self.assertEqual(defaultdict(float), profiler.report(remove_disabled_flag=False)['times'])
+        profile = DateTimeColumn(df.name)
 
-            # Validate the time in the datetime class has the expected time.
-            profiler.update(df)
-            expected = defaultdict(float, {'datetime': 1.0})
-            self.assertEqual(expected, profiler.report(remove_disabled_flag=False)['times'])
-            profile = profiler.report(remove_disabled_flag=False)
-            self.assertCountEqual(expected_profile, profile)
-
-            # Validate time in datetime class has expected time after second
-            # update
-            profiler.update(df)
-            expected = defaultdict(float, {'datetime': 2.0})
-            self.assertEqual(expected, profiler.profile['times'])
-            self.assertEqual(expected_profile.pop('max'), profiler.profile['max'])
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
 
     def test_warning_for_bad_dates(self):
 

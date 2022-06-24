@@ -154,30 +154,19 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         processor_class_mock.return_value = processor_mock
 
         # initialize labeler profile
-        default = UnstructuredLabelerProfile()
+        profile = UnstructuredLabelerProfile()
 
         sample = pd.Series(["a"])
-        expected_profile = dict(
-            entity_counts={
-                'postprocess_char_level': defaultdict(int, {'UNKNOWN': 1}),
-                'true_char_level': defaultdict(int, {'UNKNOWN': 1}),
-                'word_level': defaultdict(int)
-            },
-            entity_percentages={
-                'postprocess_char_level': defaultdict(int, {'UNKNOWN': 1.0}),
-                'true_char_level': defaultdict(int, {'UNKNOWN': 1.0}),
-                'word_level': defaultdict(int)
-            },
-            times=defaultdict(float, {'data_labeler_predict': 1.0})
-        )
 
         time_array = [float(i) for i in range(4, 0, -1)]
         with mock.patch('time.time', side_effect=lambda: time_array.pop()):
-            default.update(sample)
-        profile = default.report(remove_disabled_flag=False)
+            profile.update(sample)
 
-        # key and value populated correctly
-        self.assertDictEqual(expected_profile, profile)
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
 
     @mock.patch('dataprofiler.profilers.'
                 'unstructured_labeler_profile.DataLabeler')

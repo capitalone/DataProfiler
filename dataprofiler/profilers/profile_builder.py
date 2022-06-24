@@ -264,6 +264,9 @@ class StructuredColProfiler(object):
                 profile[key] = None
 
         return profile
+
+    def report(self, report_options=None):
+        raise NotImplementedError()
     
     @property
     def profile(self):
@@ -1099,10 +1102,12 @@ class UnstructuredProfiler(BaseProfiler):
             report_options = {
                 "output_format": None,
                 "omit_keys": None,
+                "remove_disabled_flag": False,
             }
 
         output_format = report_options.get("output_format", None)
         omit_keys = report_options.get("omit_keys", None)
+        remove_disabled_flag = report_options.get("remove_disabled_flag", False)
 
         report = OrderedDict([
             ("global_stats", {
@@ -1115,7 +1120,7 @@ class UnstructuredProfiler(BaseProfiler):
             }),
             ("data_stats", OrderedDict()),
         ])
-        report["data_stats"] = self._profile.profile
+        report["data_stats"] = self._profile.report(remove_disabled_flag=remove_disabled_flag)
         return _prepare_report(report, output_format, omit_keys)
 
     @utils.method_timeit(name="clean_and_base_stats")
@@ -1550,11 +1555,13 @@ class StructuredProfiler(BaseProfiler):
             report_options = {
                 "output_format": None,
                 "num_quantile_groups": 4,
+                "remove_disabled_flag": False,
             }
 
         output_format = report_options.get("output_format", None)
         omit_keys = report_options.get("omit_keys", [])
         num_quantile_groups = report_options.get("num_quantile_groups", 4)
+        remove_disabled_flag = report_options.get("remove_disabled_flag", False)
 
         report = OrderedDict([
             ("global_stats", {
@@ -1578,7 +1585,7 @@ class StructuredProfiler(BaseProfiler):
         for i in range(len(self._profile)):
             col_name = self._profile[i].name
             report["global_stats"]["profile_schema"][col_name].append(i)
-            report["data_stats"].append(self._profile[i].profile)
+            report["data_stats"].append(self._profile[i].report(remove_disabled_flag=remove_disabled_flag))
             quantiles = report["data_stats"][i]["statistics"].get('quantiles')
             if quantiles:
                 quantiles = calculate_quantiles(num_quantile_groups, quantiles)

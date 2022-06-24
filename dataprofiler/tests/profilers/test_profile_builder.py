@@ -972,6 +972,43 @@ class TestStructuredProfiler(unittest.TestCase):
         for col_report in report["data_stats"]:
             self.assertIsNone(col_report)
 
+    def test_remove_disabled_flag(self):
+        data = pd.DataFrame([[1, 2, 3, 4, 5, 6],
+                        [10, 20, 30, 40, 50, 60]],
+                    columns=["a", "b", "a", "b", "c", "d"])
+
+        # with options to disable FloatColumn `precision`
+        # and with remove_disabled_flag == True
+        profiler_options = ProfilerOptions()
+        profiler_options.precision.is_enabled = False
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
+        import pdb;pdb.set_trace();
+
+        # with options to disable NumericalMixIn cal `min`
+        # and with remove_disabled_flag == True
+        profiler_options = ProfilerOptions()
+        profiler_options.min.is_enabled = False
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
+
+        # with options to disable TextColumn cal `vocab`
+        # and with remove_disabled_flag == True
+        profiler_options = ProfilerOptions()
+        profiler_options.vocab.is_enabled = False
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
+
+        # with profiler options and default remove_disabled_flag
+        profiler_options = ProfilerOptions()
+        profiler_options.min = False
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report()
+
+        # w/o profiler options and default remove_disabled_flag
+        profiler = dp.StructuredProfiler(data=data)
+        report = profiler.report()
+
     def test_report_quantiles(self):
         report_none = self.trained_schema.report(
             report_options={"num_quantile_groups": None})
@@ -2257,6 +2294,31 @@ class TestUnstructuredProfiler(unittest.TestCase):
             }
         }
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
+
+    # def test_remove_disabled_flag(self):
+    #     data = 'my test disabled flag test 123'
+
+    #     # with options and remove_disabled_flag == True
+    #     profiler_options = ProfilerOptions()
+    #     profiler_options.min = False
+    #     profiler = dp.UnstructuredProfiler(data=data, options=profiler_options)
+    #     report = profiler.report(report_options={"remove_disabled_flag": True})
+
+    #     # with options and remove_disabled_flag == True
+    #     profiler_options = ProfilerOptions()
+    #     profiler_options.min = False
+    #     profiler = dp.UnstructuredProfiler(data=data, options=profiler_options)
+    #     report = profiler.report(report_options={"remove_disabled_flag": True})
+
+    #     # with profiler options and default remove_disabled_flag
+    #     profiler_options = ProfilerOptions()
+    #     profiler_options.min = False
+    #     profiler = dp.UnstructuredProfiler(data=data, options=profiler_options)
+    #     report = profiler.report()
+
+    #     # w/o profiler options and default remove_disabled_flag
+    #     profiler = dp.UnstructuredProfiler(data=data)
+    #     report = profiler.report()
 
     def test_get_sample_size(self, *mocks):
         data = pd.DataFrame([0] * int(50e3))

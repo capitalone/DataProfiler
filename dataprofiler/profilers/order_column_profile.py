@@ -232,7 +232,8 @@ class OrderColumn(BaseColumnProfiler):
         """
         Private abstract method for returning report.
 
-        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :param remove_disabled_flag: flag to determine if disabled
+            options should be excluded in the report.
         :type remove_disabled_flag: boolean
         """
         return self.profile

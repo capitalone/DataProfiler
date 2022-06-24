@@ -143,6 +143,47 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.'
                 'unstructured_labeler_profile.'
                 'CharPostprocessor')
+    def test_report(self, processor_class_mock, model_class_mock):
+        # setup mocks
+        model_mock = mock.Mock()
+        model_mock.reverse_label_mapping = {1: 'UNKNOWN'}
+        model_mock.predict.return_value = dict(pred=[[1]])
+        model_class_mock.return_value = model_mock
+        processor_mock = mock.Mock()
+        processor_mock.process.return_value = dict(pred=[[]])
+        processor_class_mock.return_value = processor_mock
+
+        # initialize labeler profile
+        default = UnstructuredLabelerProfile()
+
+        sample = pd.Series(["a"])
+        expected_profile = dict(
+            entity_counts={
+                'postprocess_char_level': defaultdict(int, {'UNKNOWN': 1}),
+                'true_char_level': defaultdict(int, {'UNKNOWN': 1}),
+                'word_level': defaultdict(int)
+            },
+            entity_percentages={
+                'postprocess_char_level': defaultdict(int, {'UNKNOWN': 1.0}),
+                'true_char_level': defaultdict(int, {'UNKNOWN': 1.0}),
+                'word_level': defaultdict(int)
+            },
+            times=defaultdict(float, {'data_labeler_predict': 1.0})
+        )
+
+        time_array = [float(i) for i in range(4, 0, -1)]
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+            default.update(sample)
+        profile = default.report(False)
+
+        # key and value populated correctly
+        self.assertDictEqual(expected_profile, profile)
+
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.DataLabeler')
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.'
+                'CharPostprocessor')
     def test_entity_percentages(self, mock1, mock2):
         """
         Tests to see that entity percentages match the counts given

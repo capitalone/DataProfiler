@@ -152,7 +152,7 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
             BaseColumnPrimitiveTypeProfiler()
         self.assertEqual(
             "Can't instantiate abstract class BaseColumnPrimitiveTypeProfiler "
-            "with abstract methods _update_helper, profile, update",
+            "with abstract methods _update_helper, profile, report, update",
             str(e.exception)
         )
 
@@ -181,7 +181,7 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
             self,
-            {'_update_helper', 'update', 'profile'},
+            {'_update_helper', 'update', 'report', 'profile'},
             BaseColumnPrimitiveTypeProfiler.__abstractmethods__
         )
 
@@ -283,6 +283,19 @@ class AbstractTestColumnProfiler(object):
         for profiler_mock in profiler_mocks:
             self.assertEqual(1, profiler_mock.call_count)
         self._delete_profiler_mocks()
+
+    def test_report(self):
+        self._create_profiler_mocks()
+        profile = self.column_profiler(self.aws_dataset["datetime"])
+        report = profile.report(False)
+
+        six.assertCountEqual(
+            self,
+            self.profile_types,
+            report.keys()
+        )
+        self._delete_profiler_mocks()
+
 
     def test_profile(self):
         self._create_profiler_mocks()

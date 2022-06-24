@@ -153,9 +153,13 @@ class TestCategoricalColumn(unittest.TestCase):
         ])
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
-        report = profile.profile
+        report1 = profile.profile
+        report2 = profile.report(False)
 
-        self.assertIsNotNone(report.pop("times", None))
+
+
+        self.assertIsNotNone(report1.pop("times", None))
+        self.assertIsNotNone(report2.pop("times", None))
         expected_profile = dict(
             categorical=True,
             statistics=dict([
@@ -167,20 +171,29 @@ class TestCategoricalColumn(unittest.TestCase):
                 ('unalikeability', 2*(12 + 15 + 20)/132)
             ]),
         )
+
         # We have to pop these values because sometimes the order changes
-        self.assertCountEqual(expected_profile['statistics'].pop('categories'),
-                              report["statistics"].pop('categories'))
-        self.assertCountEqual(expected_profile['statistics'].pop(
-            'categorical_count'), report["statistics"].pop('categorical_count'))
-        self.assertEqual(report, expected_profile)
+        expected_categories = expected_profile['statistics'].pop('categories')
+        self.assertCountEqual(expected_categories,
+                              report1["statistics"].pop('categories'))
+        self.assertCountEqual(expected_categories,
+                              report2["statistics"].pop('categories'))
+        expected_categorical_count = expected_profile['statistics'].pop(
+            'categorical_count')
+        self.assertCountEqual(expected_categorical_count, report1["statistics"].pop('categorical_count'))
+        self.assertCountEqual(expected_categorical_count, report2["statistics"].pop('categorical_count'))
+        self.assertEqual(report1, expected_profile)
+        self.assertEqual(report2, expected_profile)
+        self.assertEqual(report1, report2)
 
     def test_false_categorical_report(self):
         df_non_categorical = pd.Series(list(map(str, range(0, 20))))
         profile = CategoricalColumn(df_non_categorical.name)
         profile.update(df_non_categorical)
 
-        report = profile.profile
-        self.assertIsNotNone(report.pop("times", None))
+        report1 = profile.profile
+        report2 = profile.report(False)
+        self.assertIsNotNone(report1.pop("times", None))
         expected_profile = dict(
             categorical=False,
             statistics=dict([
@@ -188,7 +201,16 @@ class TestCategoricalColumn(unittest.TestCase):
                 ('unique_ratio', 1),
             ]),
         )
-        self.assertEqual(report, expected_profile)
+        self.assertIsNotNone(report2.pop("times", None))
+        expected_profile = dict(
+            categorical=False,
+            statistics=dict([
+                ('unique_count', 20),
+                ('unique_ratio', 1),
+            ]),
+        )
+        self.assertEqual(report1, expected_profile)
+        self.assertEqual(report2, expected_profile)
 
     def test_categorical_merge(self):
         df1 = pd.Series(["abcd", "aa", "abcd", "aa", "b", "4", "3", "2",

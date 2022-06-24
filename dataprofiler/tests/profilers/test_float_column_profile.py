@@ -1094,16 +1094,6 @@ class TestFloatColumn(unittest.TestCase):
         report = profiler.report(remove_disabled_flag=True)
         report_keys = list(report.keys())
         self.assertNotIn('precision', report_keys)
-        
-        # # With FloatOptions and remove_disabled_flag == True
-        # # testing key removal in NumericMixin from FloatColumnProfile
-        # options = FloatOptions()
-        # options.min.is_enabled = False
-
-        # profiler = FloatColumn(df.name, options)
-        # report = profiler.report(remove_disabled_flag=True)
-        # sub_report_keys = list(report['precision'].keys())
-        # self.assertNotIn('min', sub_report_keys)
 
         # w/o FloatOptions and remove_disabled_flag == True
         profiler = FloatColumn(df.name)
@@ -1116,7 +1106,6 @@ class TestFloatColumn(unittest.TestCase):
         report = profiler.report()
         report_keys = list(report.keys())
         self.assertIn('precision', report_keys)
-
 
     def test_option_precision(self):
         data = [1.1, 2.2, 3.3, 4.4]

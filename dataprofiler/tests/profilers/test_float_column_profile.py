@@ -1075,11 +1075,9 @@ class TestFloatColumn(unittest.TestCase):
             self.assertEqual(expected, profiler.profile['times'])
 
     def test_report(self):
-        """Test report method in FloatColumn class under four (4) scenarios.
+        """Test report method in FloatColumn class under three (3) scenarios.
         First, test under scenario of disabling the entire
-        precision dictionary. Second, test under scenario removing 
-        `min` from NumericMixIn__calculations (an inherited class)
-        by FloatColumn. Third, test with no options and
+        precision dictionary. Second, test with no options and
         `remove_disabled_flag`=True. Finally, test no options and default
         `remove_disabled_flag`.
         """

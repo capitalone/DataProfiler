@@ -265,28 +265,7 @@ class StructuredColProfiler(object):
 
         return profile
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     def report(self, remove_disabled_flag=False):
-=======
-    def report(self, report_options=None):
-        if not report_options:
-            report_options = {
-                "output_format": None,
-                "omit_keys": None,
-                "remove_disabled_flag": False,
-            }
-
-        profile = self.profile
-        report = profile.report()
-        return report
-
-    @property
-    def profile(self):
->>>>>>> f718c92 (first commit)
-=======
-    def report(self, remove_disabled_flag=False):
->>>>>>> 70dbd31 (report and profile)
         unordered_profile = dict()
         for profile in self.profiles.values():
             utils.dict_merge(unordered_profile, profile.report(remove_disabled_flag))

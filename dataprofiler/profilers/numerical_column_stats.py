@@ -4,20 +4,18 @@ coding=utf-8
 Build model for a dataset by identifying type of column along with its
 respective parameters.
 """
-from __future__ import print_function
-from __future__ import division
+from __future__ import division, print_function
 
-import scipy.stats
-from future.utils import with_metaclass
-import copy
 import abc
-import warnings
+import copy
 import itertools
+import warnings
 
 import numpy as np
+import scipy.stats
+from future.utils import with_metaclass
 
-from . import utils
-from . import histogram_utils
+from . import histogram_utils, utils
 from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import NumericalOptions
 
@@ -291,6 +289,37 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             num_negatives=self.np_type_to_type(self.num_negatives),
             times=self.times,
         )
+
+        return profile
+
+    def report(self, remove_disabled_flag=False):
+        """
+        Method to call the profile and remove the disabled columns from
+            the profile's report. "Disabled column" is defined as a column
+            that is not present in `self.__calculations` but is present
+            in the `self.profile`.
+        :var remove_disabled_flag: true/false value to tell the code to remove
+            values missing in __calculations
+        :type remove_disabled_flag: boolean
+        :return: Profile object that is pop'd based on values missing from __calculations
+        :rtype: Profile
+        """
+        calcs_dict_keys = self._NumericStatsMixin__calculations.keys()
+        profile = self.profile()
+
+        if remove_disabled_flag:
+            profile_keys = list(profile.keys())
+            for profile_key in profile_keys:
+                if profile_key in ['mode', 'quantiles', 'histogram']:
+                    if 'histogram_and_quantiles' in calcs_dict_keys:
+                        continue
+                elif profile_key == 'stddev' and 'variance' in calcs_dict_keys:
+                    continue
+                elif profile_key in calcs_dict_keys:
+                    continue
+                elif profile_key == 'times':
+                    continue
+                profile.pop(profile_key)
 
         return profile
 

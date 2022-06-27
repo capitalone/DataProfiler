@@ -1,6 +1,6 @@
 from dataprofiler.profilers.profiler_options import CategoricalOptions
-from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options \
-     import TestBaseInspectorOptions
+from dataprofiler.tests.profilers.profiler_options.test_base_inspector_options import \
+    TestBaseInspectorOptions
 
 
 class TestCategoricalOptions(TestBaseInspectorOptions):

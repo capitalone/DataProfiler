@@ -1,14 +1,15 @@
 from __future__ import print_function
 
-import six
 import unittest
-import numpy as np
 from unittest import mock
-import pandas as pd
 
-from dataprofiler.profilers import column_profile_compilers as \
-    col_pro_compilers
-from dataprofiler.profilers.profiler_options import BaseOption,\
+import numpy as np
+import pandas as pd
+import six
+
+from dataprofiler.profilers import \
+    column_profile_compilers as col_pro_compilers
+from dataprofiler.profilers.profiler_options import BaseOption, \
     StructuredOptions, UnstructuredOptions
 
 
@@ -433,8 +434,9 @@ class TestUnstructuredCompiler(unittest.TestCase):
     @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
                 'CharPostprocessor')
     def test_base(self, *mocks):
-        import pandas as pd
         from collections import defaultdict
+
+        import pandas as pd
         df_series = pd.Series(['test', 'hi my name is John Doe. 123-432-1234'])
 
         time_array = [float(i) for i in range(100, 0, -1)]
@@ -479,6 +481,18 @@ class TestUnstructuredCompiler(unittest.TestCase):
                 'DataLabeler')
     @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
                 'CharPostprocessor')
+
+    def test_compiler_reports(self, *mocks):
+        data = pd.Series(['Hello Hello', 'This is a test grant'])
+        compiler = col_pro_compilers.UnstructuredCompiler(data)
+        text_options = UnstructuredOptions()
+        text_options._set_helper({"vocab.is_enabled": True}, "text")
+        compiler._create_profile(data, text_options)
+        report = compiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+        self.assertNotIn('text.vocab', report_keys)
+
+
     def test_compiler_stats_diff(self, *mocks):
         data1 = pd.Series(['Hello Hello', 'This is a test grant'])
         data2 = pd.Series(['This is unknown', 'my name grant', '9', '9'])

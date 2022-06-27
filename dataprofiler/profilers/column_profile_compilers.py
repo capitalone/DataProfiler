@@ -1,13 +1,19 @@
-from future.utils import with_metaclass
 import abc
 from collections import OrderedDict
 
+from future.utils import with_metaclass
+
 from . import utils
-from . import DateTimeColumn, IntColumn, FloatColumn, TextColumn
-from . import OrderColumn, CategoricalColumn
-from . import DataLabelerColumn, UnstructuredLabelerProfile
+from .categorical_column_profile import CategoricalColumn
+from .data_labeler_column_profile import DataLabelerColumn
+from .datetime_column_profile import DateTimeColumn
+from .float_column_profile import FloatColumn
+from .int_column_profile import IntColumn
+from .order_column_profile import OrderColumn
+from .profiler_options import StructuredOptions, UnstructuredOptions
+from .text_column_profile import TextColumn
+from .unstructured_labeler_profile import UnstructuredLabelerProfile
 from .unstructured_text_profile import TextProfiler
-from .profiler_options import UnstructuredOptions, StructuredOptions
 
 
 class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
@@ -187,6 +193,23 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
         TextColumn,
     ]
     _option_class = StructuredOptions
+
+    def report(self, remove_disabled_flag=False):
+        """Report on profile attribute of the class and pop value
+            from self.profile if key not in self.__calculations
+        """
+        profile = [{
+            "data_type": None,
+            "report": dict()
+        }]
+
+        for _, profiler in self._profiles.items():
+            if not profiler.__calculations:
+                profile.append({
+                    "data_type": profiler.type,
+                    "report": profiler.report(remove_disabled_flag),
+                })
+        return profile
 
     @property
     def profile(self):
@@ -369,6 +392,15 @@ class UnstructuredCompiler(BaseCompiler):
     ]
 
     _option_class = UnstructuredOptions
+
+    def report(self, remove_disabled_flag=False):
+        """Report on profile attribute of the class and pop value
+            from self.profile if key not in self.__calculations
+        """
+        profile = {}
+        if TextProfiler.type in self._profiles:
+            profile = self._profiles[TextProfiler.type].report(remove_disabled_flag)
+        return profile
 
     @property
     def profile(self):

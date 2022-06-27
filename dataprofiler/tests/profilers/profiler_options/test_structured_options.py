@@ -1,8 +1,8 @@
 import re
 
 from dataprofiler.profilers.profiler_options import StructuredOptions
-from dataprofiler.tests.profilers.profiler_options.test_base_option \
-     import TestBaseOption
+from dataprofiler.tests.profilers.profiler_options.test_base_option import \
+    TestBaseOption
 
 
 class TestStructuredOptions(TestBaseOption):

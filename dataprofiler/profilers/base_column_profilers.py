@@ -5,17 +5,16 @@ coding=utf-8
 Profiles the data.
 """
 
-from __future__ import print_function
-from __future__ import division
+from __future__ import division, print_function
 
 import abc
-import time
-from collections import defaultdict
-from future.utils import with_metaclass
 import functools
+import time
 import warnings
+from collections import defaultdict
 
 import numpy as np
+from future.utils import with_metaclass
 
 from . import utils
 

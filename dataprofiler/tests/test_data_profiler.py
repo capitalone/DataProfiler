@@ -4,10 +4,9 @@ import os
 import unittest
 from unittest import mock
 
-from . import test_utils
-
 from dataprofiler import Data, Profiler
 
+from . import test_utils
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
 # undo when cpython#4800 is merged.
@@ -57,8 +56,8 @@ class TestDataProfiler(unittest.TestCase):
             self.assertIsNotNone(profile.report())
 
     def test_no_snappy(self):
-        import sys
         import importlib
+        import sys
         import types
         orig_import = __import__
         # necessary for any wrapper around the library to test if snappy caught
@@ -97,6 +96,7 @@ class TestDataProfiler(unittest.TestCase):
 
     def test_no_tensorflow(self):
         import sys
+
         import pandas
         orig_import = __import__
         # necessary for any wrapper around the library to test if snappy caught

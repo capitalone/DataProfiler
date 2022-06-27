@@ -1,21 +1,20 @@
 from __future__ import print_function
 
-import unittest
-from unittest import mock
 import datetime
-import six
+import unittest
 import warnings
 from collections import defaultdict
+from unittest import mock
 
-import pandas as pd
 import numpy as np
-
-from . import utils
-from .. import test_utils
+import pandas as pd
+import six
 
 from dataprofiler.profilers import DateTimeColumn
 from dataprofiler.profilers.profiler_options import DateTimeOptions
 
+from .. import test_utils
+from . import utils
 
 # This is taken from: https://github.com/rlworkgroup/dowel/pull/36/files
 # undo when cpython#4800 is merged.
@@ -268,6 +267,7 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             profiler.update(df)
             expected = defaultdict(float, {'datetime': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
+            self.assertEqual(expected_profile.pop('max'), profiler.profile['max'])
 
     def test_warning_for_bad_dates(self):
 
@@ -371,6 +371,24 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
                                    "DateTimeColumn parameter 'options' must be"
                                    " of type DateTimeOptions."):
             profiler = DateTimeColumn("Datetime", options="wrong_data_type")
+
+    def test_day_suffixes(self):
+        """
+        Tests datetime examples with daytime suffixes.
+        :return:
+        """
+        data = [
+            'Mar 1st, 2020',
+            'Feb 22nd, 2019',
+            'October 23rd, 2018',
+            '12thMar13'
+        ]
+        df = pd.Series(data).apply(str)
+        profiler = DateTimeColumn(df.name)
+        profiler.update(df)
+        self.assertEqual('Mar 1st, 2020', profiler.max)
+        self.assertEqual('12thMar13', profiler.min)
+        self.assertEqual(4, profiler.match_count)
 
     def test_diff(self):
         data1 = [None, 'Mar 12, 2013', "2013-05-18", "2014-03-01"]

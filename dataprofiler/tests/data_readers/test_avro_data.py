@@ -1,13 +1,11 @@
-from __future__ import print_function
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os
 import unittest
 from io import BytesIO
 
-from dataprofiler.data_readers.data import Data
 from dataprofiler.data_readers.avro_data import AVROData
-
+from dataprofiler.data_readers.data import Data
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

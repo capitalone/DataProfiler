@@ -5,7 +5,6 @@ from io import BytesIO
 from dataprofiler.data_readers.data import Data
 from dataprofiler.data_readers.parquet_data import ParquetData
 
-
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 

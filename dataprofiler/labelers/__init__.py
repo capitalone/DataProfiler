@@ -26,15 +26,12 @@ Data Labelers:
         2. structured_model
         3. regex_model
 """
-# import models
-from .base_data_labeler import BaseDataLabeler
-
-# import data processors
-from .data_processing import CharPreprocessor, CharPostprocessor, \
-                             StructCharPreprocessor, StructCharPostprocessor, \
-                             DirectPassPreprocessor, RegexPostProcessor
-
 # import data labelers
+# import models
 from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler
 from .data_labelers import DataLabeler, StructuredDataLabeler, \
     UnstructuredDataLabeler
+# import data processors
+from .data_processing import CharPostprocessor, CharPreprocessor, \
+    DirectPassPreprocessor, RegexPostProcessor, StructCharPostprocessor, \
+    StructCharPreprocessor

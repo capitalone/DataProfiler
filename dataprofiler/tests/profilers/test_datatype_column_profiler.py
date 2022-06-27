@@ -3,11 +3,10 @@ from __future__ import print_function
 import os
 import unittest
 
-from .test_base_column_profilers import AbstractTestColumnProfiler
-
 from dataprofiler.profilers.column_profile_compilers import \
     ColumnPrimitiveTypeProfileCompiler
 
+from .test_base_column_profilers import AbstractTestColumnProfiler
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

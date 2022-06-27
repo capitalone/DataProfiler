@@ -1,12 +1,13 @@
-import re
 import copy
 import math
+import re
+
 import numpy as np
 
 from . import utils
+from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, \
+    BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
-from .base_column_profilers import BaseColumnProfiler, \
-    BaseColumnPrimitiveTypeProfiler
 from .profiler_options import FloatOptions
 
 
@@ -124,6 +125,23 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         precision_diff.pop("confidence_level")
         differences["precision"] = precision_diff
         return differences
+
+    def report(self, remove_disabled_flag=False):
+        """Report on profile attribute of the class and pop value
+            from self.profile if key not in self.__calculations
+        """
+        calcs_dict_keys = self._FloatColumn__calculations.keys()
+        profile = self.profile
+
+        if remove_disabled_flag:
+            profile_keys = list(profile.keys())
+            for profile_key in profile_keys:
+                if profile_key == 'precision':
+                    if 'precision' in calcs_dict_keys:
+                        continue
+                profile.pop(profile_key)
+
+        return profile
 
     @property
     def profile(self):

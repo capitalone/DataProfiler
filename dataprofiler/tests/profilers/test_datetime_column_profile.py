@@ -261,13 +261,27 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             self.assertEqual(expected, profiler.profile['times'])
             profile = profiler.profile
             self.assertCountEqual(expected_profile, profile)
-            
+
             # Validate time in datetime class has expected time after second
             # update
             profiler.update(df)
             expected = defaultdict(float, {'datetime': 2.0})
             self.assertEqual(expected, profiler.profile['times'])
             self.assertEqual(expected_profile.pop('max'), profiler.profile['max'])
+
+    def test_report(self):
+        data = [
+            2.5, 12.5, '2013-03-10 15:43:30', 5, '03/10/13 15:43',
+            'Mar 11, 2013'
+        ]
+        df = pd.Series(data).apply(str)
+        profile = DateTimeColumn(df.name)
+
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
 
     def test_warning_for_bad_dates(self):
 

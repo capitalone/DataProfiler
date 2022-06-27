@@ -22,7 +22,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         self.assertRegex(
             str(e.exception),
             "Can't instantiate abstract class BaseCompiler with "
-            "abstract methods? profile"
+            "abstract methods? report"
         )
 
     @mock.patch.multiple(
@@ -73,7 +73,32 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
         merged_compiler = compiler1 + compiler2
         self.assertEqual(3, merged_compiler._profiles['test'])
         self.assertEqual('compiler1', merged_compiler.name)
-    
+
+    def test_primitive_compiler_report(self):
+        structured_options = StructuredOptions()
+        data1 = pd.Series(['2.6', '-1.8'])
+        compiler1 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data1)
+        structured_options.float.precision.is_enabled = False
+        compiler1._create_profile(data1, structured_options)
+
+        report = compiler1.report(remove_disabled_flag=True)
+        self.assertNotIn('precision', report['statistics'])
+
+        report = compiler1.report(remove_disabled_flag=False)
+        self.assertIn('precision', report['statistics'])
+
+        structured_options2 = StructuredOptions()
+        data2 = pd.Series(["abcd", "aa", "abcd", "aa", "b", "dfd"])
+        compiler2 = col_pro_compilers.ColumnPrimitiveTypeProfileCompiler(data2)
+        structured_options2.text.vocab.is_enabled = False
+        compiler2._create_profile(data2, structured_options2)
+
+        report = compiler2.report(remove_disabled_flag=True)
+        self.assertNotIn('vocab', report['statistics'])
+
+        report = compiler2.report(remove_disabled_flag=False)
+        self.assertIn('vocab', report['statistics'])
+
     def test_diff_primitive_compilers(self):
         # Test different data types
         data1 = pd.Series(['-2', '-1', '1', '2'])
@@ -422,7 +447,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
             self,
-            {'profile'},
+            {'report'},
             col_pro_compilers.BaseCompiler.__abstractmethods__
         )
 
@@ -476,6 +501,37 @@ class TestUnstructuredCompiler(unittest.TestCase):
                 sorted(output_profile['statistics']['vocab'])
 
         self.assertDictEqual(expected_dict, output_profile)
+
+    @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
+                'DataLabeler')
+    @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
+                'CharPostprocessor')
+    def test_compiler_unstructured_reports(self, *mocks):
+        data = pd.Series(['Hello Hello', 'This is a test grant'])
+        compiler = col_pro_compilers.UnstructuredCompiler(data)
+        unstructured_options = UnstructuredOptions()
+        unstructured_options.text.vocab.is_enabled = False
+        compiler._create_profile(data, unstructured_options)
+
+        report = compiler.report(remove_disabled_flag=True)
+        self.assertNotIn('vocab', report['statistics'])
+        self.assertIn('words', report['statistics'])
+
+        report = compiler.report(remove_disabled_flag=False)
+        self.assertIn('vocab', report['statistics'])
+        self.assertIn('words', report['statistics'])
+
+        unstructured_options.text.vocab.is_enabled = True
+        compiler._create_profile(data, unstructured_options)
+        report = compiler.report(remove_disabled_flag=True)
+        self.assertIn('vocab', report['statistics'])
+        self.assertIn('words', report['statistics'])
+
+        unstructured_options.text.words.is_enabled = False
+        compiler._create_profile(data, unstructured_options)
+        report = compiler.report(remove_disabled_flag=True)
+        self.assertIn('vocab', report['statistics'])
+        self.assertNotIn('words', report['statistics'])
 
     @mock.patch('dataprofiler.profilers.unstructured_labeler_profile.'
                 'DataLabeler')

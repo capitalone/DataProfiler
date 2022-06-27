@@ -38,10 +38,22 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
             self.name = df_series.name
             self._create_profile(df_series, options, pool)
 
-    @property
     @abc.abstractmethod
-    def profile(self):
+    def report(self, remove_disabled_flag=False):
+        """
+        Abstract method for returning report.
+
+        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :type remove_disabled_flag: boolean
+        """
         raise NotImplementedError()
+
+    @property
+    def profile(self):
+        """
+        Property for profile. Returns the profile of the column.
+        """
+        return self.report(remove_disabled_flag=False)
 
     def _create_profile(self, df_series, options=None, pool=None):
         """
@@ -196,15 +208,11 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
 
     def report(self, remove_disabled_flag=False):
         """
-        Private abstract method for returning report.
+        Method for returning report.
 
         :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
         :type remove_disabled_flag: boolean
         """
-        return self.profile
-
-    @property
-    def profile(self):
         profile = {
             "data_type_representation": dict(),
             "data_type": None,
@@ -216,13 +224,20 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
             if not has_found_match and profiler.data_type_ratio == 1.0:
                 profile.update({
                     "data_type": profiler.type,
-                    "statistics": profiler.profile,
+                    "statistics": profiler.report(remove_disabled_flag),
                 })
                 has_found_match = True
             profile["data_type_representation"].update(
                 dict([(profiler.type, profiler.data_type_ratio)])
             )
         return profile
+
+    @property
+    def profile(self):
+        """
+        Property for profile. Returns the profile of the column.
+        """
+        return self.report(remove_disabled_flag=False)
 
     @property
     def selected_data_type(self):
@@ -298,19 +313,15 @@ class ColumnStatsProfileCompiler(BaseCompiler):
 
     def report(self, remove_disabled_flag=False):
         """
-        Private abstract method for returning report.
+        Method for returning report.
 
         :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
         :type remove_disabled_flag: boolean
         """
-        return self.profile
-
-    @property
-    def profile(self):
-        profile = dict()
+        report = dict()
         for _, profiler in self._profiles.items():
-            profile.update(profiler.profile)
-        return profile
+            report.update(profiler.report(remove_disabled_flag))
+        return report
 
     def diff(self, other, options=None):
         """
@@ -345,25 +356,21 @@ class ColumnDataLabelerCompiler(BaseCompiler):
 
     def report(self, remove_disabled_flag=False):
         """
-        Private abstract method for returning report.
+        Method for returning report.
 
         :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
         :type remove_disabled_flag: boolean
         """
-        return self.profile
-
-    @property
-    def profile(self):
-        profile = {
+        report = {
             "data_label": None,
             "statistics": dict()
         }
         # TODO: Only works for last profiler. Abstracted for now.
         for _, profiler in self._profiles.items():
-            col_profile = profiler.profile
-            profile["data_label"] = col_profile.pop("data_label")
-            profile["statistics"].update(col_profile)
-        return profile
+            col_profile = profiler.report(remove_disabled_flag)
+            report["data_label"] = col_profile.pop("data_label")
+            report["statistics"].update(col_profile)
+        return report
     
     def diff(self, other, options=None):
         """
@@ -404,26 +411,19 @@ class UnstructuredCompiler(BaseCompiler):
     _option_class = UnstructuredOptions
 
     def report(self, remove_disabled_flag=False):
+        """Report on profile attribute of the class and pop value
+            from self.profile if key not in self.__calculations
         """
-        Private abstract method for returning report.
-
-        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
-        :type remove_disabled_flag: boolean
-        """
-        return self.profile
-
-    @property
-    def profile(self):
         profile = {
             "data_label": dict(),
             "statistics": dict()
         }
         if UnstructuredLabelerProfile.type in self._profiles:
             profile["data_label"] = \
-                self._profiles[UnstructuredLabelerProfile.type].profile
+                self._profiles[UnstructuredLabelerProfile.type].report(remove_disabled_flag)
         if TextProfiler.type in self._profiles:
             profile["statistics"] = \
-                self._profiles[TextProfiler.type].profile
+                self._profiles[TextProfiler.type].report(remove_disabled_flag)
         return profile
 
     def diff(self, other, options=None):

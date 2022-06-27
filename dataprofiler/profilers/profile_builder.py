@@ -265,7 +265,15 @@ class StructuredColProfiler(object):
 
         return profile
 
+<<<<<<< HEAD
     def report(self, remove_disabled_flag=False):
+=======
+    def report(self, report_options=None):
+        raise NotImplementedError()
+    
+    @property
+    def profile(self):
+>>>>>>> f718c92 (first commit)
         unordered_profile = dict()
         for profile in self.profiles.values():
             utils.dict_merge(unordered_profile, profile.report(remove_disabled_flag))
@@ -1120,7 +1128,7 @@ class UnstructuredProfiler(BaseProfiler):
             }),
             ("data_stats", OrderedDict()),
         ])
-        report["data_stats"] = self._profile.report(remove_disabled_flag)
+        report["data_stats"] = self._profile.report(remove_disabled_flag=remove_disabled_flag)
         return _prepare_report(report, output_format, omit_keys)
 
     @utils.method_timeit(name="clean_and_base_stats")
@@ -1585,7 +1593,7 @@ class StructuredProfiler(BaseProfiler):
         for i in range(len(self._profile)):
             col_name = self._profile[i].name
             report["global_stats"]["profile_schema"][col_name].append(i)
-            report["data_stats"].append(self._profile[i].report(remove_disabled_flag))
+            report["data_stats"].append(self._profile[i].report(remove_disabled_flag=remove_disabled_flag))
             quantiles = report["data_stats"][i]["statistics"].get('quantiles')
             if quantiles:
                 quantiles = calculate_quantiles(num_quantile_groups, quantiles)

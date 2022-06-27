@@ -257,6 +257,10 @@ class AbstractTestColumnProfiler(object):
                 "data type": profiler.type,
                 "statistics": dict()
             }
+            mock_object.return_value.report.return_value = {
+                "data type": profiler.type,
+                "statistics": dict()
+            }
             mock_object.return_value.data_type_ratio = 1.0
             profiler_mocks.append(mock_object)
         self.column_profiler._profilers = profiler_mocks

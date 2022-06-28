@@ -17,7 +17,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
     SpreadsheetData class to save and load spreadsheet data
     """
 
-    data_type = 'json'
+    data_type = "json"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
@@ -62,7 +62,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
-        self._data_formats["flattened_dataframe"] = self._get_data_as_flattened_dataframe
+        self._data_formats[
+            "flattened_dataframe"
+        ] = self._get_data_as_flattened_dataframe
         self._selected_data_format = options.get("data_format", "flattened_dataframe")
         self._payload_keys = options.get("payload_keys", ["data", "payload"])
         if not isinstance(self._payload_keys, list):
@@ -115,14 +117,16 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type path: str
         :return: list of dicts of {column headers: values}
         """
-        if path != "" and path[-len(self._key_separator):] != self._key_separator:
+        if path != "" and path[-len(self._key_separator) :] != self._key_separator:
             path = path + self._key_separator
 
         list_of_dict = []
         if isinstance(json_data, dict):
             for key in json_data:
                 if isinstance(json_data[key], dict) or isinstance(json_data[key], list):
-                    list_of_dict = list_of_dict + self._find_data(json_data[key], path + key)
+                    list_of_dict = list_of_dict + self._find_data(
+                        json_data[key], path + key
+                    )
                 else:
                     list_of_dict = list_of_dict + [{path + key: json_data[key]}]
         elif isinstance(json_data, list):
@@ -130,11 +134,15 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 for key in json_data:
                     list_of_dict = list_of_dict + self._find_data(key, path)
             else:
-                list_of_dict = list_of_dict + [{path[:-len(self._key_separator)]: json_data}]
+                list_of_dict = list_of_dict + [
+                    {path[: -len(self._key_separator)]: json_data}
+                ]
         else:
-            list_of_dict = list_of_dict + [{path[:-len(self._key_separator)]: json_data}]
+            list_of_dict = list_of_dict + [
+                {path[: -len(self._key_separator)]: json_data}
+            ]
         return list_of_dict
-    
+
     def _coalesce_dicts(self, list_of_dicts):
         """
         Merges all the dictionaries into as few dictionaries as possible.
@@ -181,26 +189,31 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                     payload_data, original_df_dtypes = data_utils.json_to_dataframe(
                         json_lines=payload_data,
                         selected_columns=self.selected_keys,
-                        read_in_string=False
+                        read_in_string=False,
                     )
                     for column in payload_data.columns:
                         payload_data.rename(
-                            columns={column: payload_key + self._key_separator + str(column)},
-                            inplace=True)
+                            columns={
+                                column: payload_key + self._key_separator + str(column)
+                            },
+                            inplace=True,
+                        )
                     payloads[payload_key] = payload_data
-                    
+
             max_payload_length = 0
             for payload in payloads:
                 if len(payloads[payload]) > max_payload_length:
                     payload_data = payloads[payload]
                     max_payload_length = len(payloads[payload])
                     found_payload_key = payload
-                    
+
             # Get the non-payload data
             flattened_json = []
             for key in json_lines:
                 if key != found_payload_key:
-                    flattened_json = flattened_json + self._find_data(json_lines[key], path=key)
+                    flattened_json = flattened_json + self._find_data(
+                        json_lines[key], path=key
+                    )
 
             # Coalesce the data together
             json_lines = self._coalesce_dicts(flattened_json)
@@ -208,7 +221,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         data, original_df_dtypes = data_utils.json_to_dataframe(
             json_lines=json_lines,
             selected_columns=self.selected_keys,
-            read_in_string=False
+            read_in_string=False,
         )
         self._original_df_dtypes = original_df_dtypes
 
@@ -233,7 +246,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             data = data_utils.read_json(
                 data_generator=data,
                 selected_columns=self.selected_keys,
-                read_in_string=False
+                read_in_string=False,
             )
         return data
 
@@ -245,8 +258,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type input_file_path: str
         :return:
         """
-        with FileOrBufferHandler(input_file_path, 'r', 
-                                 encoding=self.file_encoding) as input_file:
+        with FileOrBufferHandler(
+            input_file_path, "r", encoding=self.file_encoding
+        ) as input_file:
             try:
                 data = json.load(input_file)
             except (json.JSONDecodeError, UnicodeDecodeError):
@@ -254,7 +268,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 data = data_utils.read_json(
                     data_generator=input_file,
                     selected_columns=self.selected_keys,
-                    read_in_string=False
+                    read_in_string=False,
                 )
             return data
 
@@ -285,8 +299,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         data = self._get_data_as_df(data)
         data = data.to_json(orient="records")
         char_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
-        return list(map(''.join, zip(*[iter(data)] * char_per_line)))
-
+        return list(map("".join, zip(*[iter(data)] * char_per_line)))
 
     def _get_data_as_df(self, data):
         """
@@ -301,15 +314,13 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         if isinstance(data, dict):
             data = [data]
         data, original_df_dtypes = data_utils.json_to_dataframe(
-            json_lines=data,
-            selected_columns=self.selected_keys,
-            read_in_string=False
+            json_lines=data, selected_columns=self.selected_keys, read_in_string=False
         )
         self._original_df_dtypes = original_df_dtypes
         return data
 
     @classmethod
-    def _convert_flat_to_nested_cols(cls, dic, separator='.'):
+    def _convert_flat_to_nested_cols(cls, dic, separator="."):
         """
         Converts a flat dict to nested dic. Example
 
@@ -333,12 +344,10 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             if separator in key:
                 new_key, nested_key = key.split(separator, 1)
                 new_value = dic.get(new_key, {})
-                new_value = {} if new_value in [None, np.nan, 'nan'] else new_value
+                new_value = {} if new_value in [None, np.nan, "nan"] else new_value
                 new_value[nested_key] = dic[key]
                 dic.pop(key, None)
-                new_value = cls._convert_flat_to_nested_cols(
-                    new_value, separator
-                )
+                new_value = cls._convert_flat_to_nested_cols(new_value, separator)
                 dic[new_key] = new_value
         return dic
 
@@ -366,8 +375,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         if not isinstance(file_path, StringIO):
             file_encoding = data_utils.detect_file_encoding(file_path=file_path)
 
-        with FileOrBufferHandler(file_path, 'r', encoding=file_encoding) \
-                as data_file:
+        with FileOrBufferHandler(file_path, "r", encoding=file_encoding) as data_file:
             try:
                 json.load(data_file)
                 return True
@@ -379,18 +387,17 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 try:
                     raw_line = data_file.readline()
                     if not raw_line:
-                        break                        
-                    if raw_line.find(":") >= 0: # Ensure can be JSON
-                        json.loads(raw_line) # Check load
+                        break
+                    if raw_line.find(":") >= 0:  # Ensure can be JSON
+                        json.loads(raw_line)  # Check load
                         valid_json_line_count += 1
                 except UnicodeDecodeError:
                     return False
                 except ValueError:
                     continue
-            
-        ratio_of_valid_json_line = float(
-            valid_json_line_count) / total_line_count
-        
+
+        ratio_of_valid_json_line = float(valid_json_line_count) / total_line_count
+
         if ratio_of_valid_json_line >= 0.5:
             return True
         else:

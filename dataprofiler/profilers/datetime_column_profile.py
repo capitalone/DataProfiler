@@ -6,8 +6,7 @@ import numpy as np
 import pandas as pd
 
 from . import utils
-from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, \
-    BaseColumnProfiler
+from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from .profiler_options import DateTimeOptions
 
 
@@ -35,7 +34,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         "%d%b%y",  # 12Mar13
         "%b-%d-%y",  # Mar-13-13
         "%m%d%Y",  # 03142013
-        "%H:%M:%S.%f"  # 05:46:30.258509
+        "%H:%M:%S.%f",  # 05:46:30.258509
     ]
 
     _day_suffixes = [
@@ -45,7 +44,9 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         "th",
     ]
 
-    _compiled_day_suffix_regex = re.compile("(\d{1,2})(" + '|'.join(_day_suffixes) + ")")
+    _compiled_day_suffix_regex = re.compile(
+        "(\d{1,2})(" + "|".join(_day_suffixes) + ")"
+    )
 
     def __init__(self, name, options=None):
         """
@@ -57,8 +58,9 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :type options: DateTimeOptions
         """
         if options and not isinstance(options, DateTimeOptions):
-            raise ValueError("DateTimeColumn parameter 'options' must be of "
-                             "type DateTimeOptions.")
+            raise ValueError(
+                "DateTimeColumn parameter 'options' must be of " "type DateTimeOptions."
+            )
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.date_formats = []
         self.min = None
@@ -77,15 +79,16 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :type other: DateTimeColumn
         """
         if not isinstance(other, DateTimeColumn):
-            raise TypeError("Unsupported operand type(s) for +: "
-                            "'DateTimeColumn' and '{}'".format(
-                                other.__class__.__name__))
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                "'DateTimeColumn' and '{}'".format(other.__class__.__name__)
+            )
 
         merged_profile = DateTimeColumn(name=None)
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
-        self._merge_calculations(merged_profile.__calculations,
-                                 self.__calculations,
-                                 other.__calculations)
+        self._merge_calculations(
+            merged_profile.__calculations, self.__calculations, other.__calculations
+        )
 
         if self._dt_obj_min is None:
             merged_profile.min = other.min
@@ -108,7 +111,8 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             merged_profile._dt_obj_max = other._dt_obj_max
 
         merged_profile.date_formats = utils._combine_unique_sets(
-            self.date_formats, other.date_formats)
+            self.date_formats, other.date_formats
+        )
         return merged_profile
 
     @property
@@ -121,7 +125,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             max=self.max,
             histogram=None,
             format=self.date_formats,
-            times=self.times
+            times=self.times,
         )
         return profile
 
@@ -148,10 +152,15 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         super().diff(other_profile, options)
 
         differences = {
-            "min": utils.find_diff_of_dates(self._dt_obj_min, other_profile._dt_obj_min),
-            "max": utils.find_diff_of_dates(self._dt_obj_max, other_profile._dt_obj_max),
+            "min": utils.find_diff_of_dates(
+                self._dt_obj_min, other_profile._dt_obj_min
+            ),
+            "max": utils.find_diff_of_dates(
+                self._dt_obj_max, other_profile._dt_obj_max
+            ),
             "format": utils.find_diff_of_lists_and_sets(
-                self.date_formats, other_profile.date_formats)
+                self.date_formats, other_profile.date_formats
+            ),
         }
         return differences
 
@@ -185,7 +194,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :return: either the date string passed in, or Nan
         """
         try:
-            date = pattern.sub(r'\1', date)
+            date = pattern.sub(r"\1", date)
         except (TypeError):
             date = np.nan
         return date
@@ -217,14 +226,15 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
                 break
             valid_dates = df_series.apply(
                 lambda x: cls._validate_datetime(
-                    cls._replace_day_suffix(x, cls._compiled_day_suffix_regex), date_format
+                    cls._replace_day_suffix(x, cls._compiled_day_suffix_regex),
+                    date_format,
                 )
             )
 
             df_dates = valid_dates[~valid_dates.isnull()]
 
             if "%b" in date_format and not df_dates.empty:
-                may_month = 5 # May can be %b or %B we want to force, so check
+                may_month = 5  # May can be %b or %B we want to force, so check
                 all_may = df_dates.apply(lambda x: x.month == may_month).all()
                 if all_may:
                     valid_dates[:] = np.nan
@@ -233,30 +243,30 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             # Create mask to avoid null dates
             null_date_mask = valid_dates.isnull()
             np_date_array = df_dates.values
-                    
+
             # check off any values which were found to be datetime
             is_row_datetime[~is_row_datetime] = (~null_date_mask).values
 
             if len(df_dates) > 0:
-                
+
                 # Converts to numpy prior to finding max index
                 min_idx = np.argmin(np_date_array)
                 max_idx = np.argmax(np_date_array)
-                
+
                 # Selects the min, ma value objects for comparison
                 tmp_min_value_obj = df_dates.iloc[min_idx]
                 tmp_max_value_obj = df_dates.iloc[max_idx]
-                
+
                 # If minimum value, keep reference
                 if tmp_min_value_obj < min_value_obj:
                     min_value = df_series[~null_date_mask].iloc[min_idx]
                     min_value_obj = tmp_min_value_obj
-                
+
                 # If maximum value, keep reference
                 if tmp_max_value_obj > max_value_obj:
                     max_value = df_series[~null_date_mask].iloc[max_idx]
                     max_value_obj = tmp_max_value_obj
-                    
+
             df_series = df_series[null_date_mask]
 
             # Get a list of all datetime format identified in column
@@ -271,16 +281,22 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
                         "are for the 1990s. "
                         "https://stackoverflow.com/questions/37766353/"
                         "pandas-to-datetime-parsing-wrong-year",
-                        RuntimeWarning
+                        RuntimeWarning,
                     )
 
         profile["date_formats"] = activated_date_formats
         profile["min"] = min_value
         profile["max"] = max_value
-        profile["min_obj"] = min_value_obj.to_datetime() \
-            if hasattr(min_value_obj, 'to_datetime') else min_value_obj
-        profile["max_obj"] = max_value_obj.to_datetime() \
-            if hasattr(max_value_obj, 'to_datetime') else max_value_obj
+        profile["min_obj"] = (
+            min_value_obj.to_datetime()
+            if hasattr(min_value_obj, "to_datetime")
+            else min_value_obj
+        )
+        profile["max_obj"] = (
+            max_value_obj.to_datetime()
+            if hasattr(max_value_obj, "to_datetime")
+            else max_value_obj
+        )
         profile["match_count"] = is_row_datetime.sum()
         return profile
 
@@ -305,8 +321,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         return True
 
     @BaseColumnProfiler._timeit(name="datetime")
-    def _update_datetime(self, df_series, prev_dependent_properties,
-                         subset_properties):
+    def _update_datetime(self, df_series, prev_dependent_properties, subset_properties):
         """
         Calculates the datetime properties for the profile.
 
@@ -371,7 +386,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         """
         if len(df_series) == 0:
             return self
-        
+
         df_series = df_series.reset_index(drop=True)
         profile = {"sample_size": len(df_series), "match_count": 0}
         if self._is_subset_datetime_column(df_series):
@@ -380,7 +395,8 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
                 self.__calculations,
                 df_series=df_series,
                 prev_dependent_properties={},
-                subset_properties=profile)
+                subset_properties=profile,
+            )
         self._update_helper(df_series=df_series, profile=profile)
 
         return self

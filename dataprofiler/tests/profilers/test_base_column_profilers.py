@@ -9,8 +9,10 @@ import pandas as pd
 import six
 
 from dataprofiler.profilers import utils
-from dataprofiler.profilers.base_column_profilers import \
-    BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
+from dataprofiler.profilers.base_column_profilers import (
+    BaseColumnPrimitiveTypeProfiler,
+    BaseColumnProfiler,
+)
 from dataprofiler.tests.profilers import utils as test_utils
 
 
@@ -44,7 +46,7 @@ class TestBaseColumnProfileClass(unittest.TestCase):
 
         # Array is popped twice per _timeit call start_time and end_time respectively
         time_array = [float(i) for i in range(10, -1, -1)]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with patch("time.time", side_effect=lambda: time_array.pop()):
             # add one entry to profile1.times
             test_time(profile1)
 
@@ -81,9 +83,12 @@ class TestBaseColumnProfileClass(unittest.TestCase):
             profile2.name = "test"
             merged_profile._add_helper(profile1, profile2)
 
-        self.assertEqual(str(exc.exception),
-                         "Column indexes unmatched: {} != {}"
-                         .format(profile1.col_index, profile2.col_index))
+        self.assertEqual(
+            str(exc.exception),
+            "Column indexes unmatched: {} != {}".format(
+                profile1.col_index, profile2.col_index
+            ),
+        )
 
         # Check for different column name but same column index
         with self.assertRaises(ValueError) as exc:
@@ -93,9 +98,10 @@ class TestBaseColumnProfileClass(unittest.TestCase):
             profile2.name = "test2"
             merged_profile._add_helper(profile1, profile2)
 
-        self.assertEqual(str(exc.exception),
-                         "Column names unmatched: {} != {}"
-                         .format(profile1.name, profile2.name))
+        self.assertEqual(
+            str(exc.exception),
+            "Column names unmatched: {} != {}".format(profile1.name, profile2.name),
+        )
 
     def test_time_it(self):
         with patch.multiple(BaseColumnProfiler, __abstractmethods__=set()):
@@ -118,7 +124,7 @@ class TestBaseColumnProfileClass(unittest.TestCase):
 
         # Array is popped twice per _timeit call start_time and end_time respectively
         time_array = [12.0, 10.0, 9.0, 6.0, 5.0, 3.0, 2.0, 1.0]
-        with patch('time.time', side_effect=lambda: time_array.pop()):
+        with patch("time.time", side_effect=lambda: time_array.pop()):
             # key and value populated correctly
             test_time(profile1)
             expected = {"test_time": 1.0}
@@ -140,7 +146,6 @@ class TestBaseColumnProfileClass(unittest.TestCase):
 
 
 class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         with patch.multiple(BaseColumnPrimitiveTypeProfiler, __abstractmethods__=set()):
@@ -153,7 +158,7 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
         self.assertEqual(
             "Can't instantiate abstract class BaseColumnPrimitiveTypeProfiler "
             "with abstract methods _update_helper, profile, update",
-            str(e.exception)
+            str(e.exception),
         )
 
     def test_combine_unqiue_sets(self):
@@ -181,8 +186,8 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
             self,
-            {'_update_helper', 'update', 'profile'},
-            BaseColumnPrimitiveTypeProfiler.__abstractmethods__
+            {"_update_helper", "update", "profile"},
+            BaseColumnPrimitiveTypeProfiler.__abstractmethods__,
         )
 
     def test_add_helper(self):
@@ -215,13 +220,13 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
         self.assertEqual(merged_profile.name, profile2.name)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 def get_object_path(obj):
-    return '.'.join(['data_profiler.profilers.profile_builder', obj.__name__])
+    return ".".join(["data_profiler.profilers.profile_builder", obj.__name__])
 
 
 class AbstractTestColumnProfiler(object):
@@ -234,7 +239,7 @@ class AbstractTestColumnProfiler(object):
     @classmethod
     def setUpClass(cls):
         cls.input_file_path = os.path.join(
-            test_root_path, 'data', 'csv/aws_honeypot_marx_geo.csv'
+            test_root_path, "data", "csv/aws_honeypot_marx_geo.csv"
         )
         cls.aws_dataset = next(pd.read_csv(cls.input_file_path, chunksize=100))
         dataset = cls.aws_dataset["datetime"].dropna()
@@ -255,7 +260,7 @@ class AbstractTestColumnProfiler(object):
             mock_object.type = profiler.type
             mock_object.return_value.profile = {
                 "data type": profiler.type,
-                "statistics": dict()
+                "statistics": dict(),
             }
             mock_object.return_value.data_type_ratio = 1.0
             profiler_mocks.append(mock_object)
@@ -269,8 +274,9 @@ class AbstractTestColumnProfiler(object):
     def test_created_profile(self):
         profiler_mocks = self._create_profiler_mocks()
         self.column_profiler(self.aws_dataset["datetime"])
-        for profile, profiler_mock in \
-                zip(self.column_profile._profiles.values(), profiler_mocks):
+        for profile, profiler_mock in zip(
+            self.column_profile._profiles.values(), profiler_mocks
+        ):
             self.assertIn(profile.__class__, self.profilers)
             self.assertEqual(1, profiler_mock.call_count)
         self._delete_profiler_mocks()
@@ -289,9 +295,5 @@ class AbstractTestColumnProfiler(object):
         profile = self.column_profiler(self.aws_dataset["datetime"])
         report = profile.profile
 
-        six.assertCountEqual(
-            self,
-            self.profile_types,
-            report.keys()
-        )
+        six.assertCountEqual(self, self.profile_types, report.keys())
         self._delete_profiler_mocks()

@@ -8,9 +8,9 @@ from .profiler_options import DataLabelerOptions
 
 
 class DataLabelerColumn(BaseColumnProfiler):
-    
+
     type = "data_labeler"
-    
+
     def __init__(self, name, options=None):
         """
         Initialization of Data Label profiling for structured datasets.
@@ -25,8 +25,10 @@ class DataLabelerColumn(BaseColumnProfiler):
         self._max_sample_size = 1000
         if options:
             if not isinstance(options, DataLabelerOptions):
-                raise ValueError("DataLabelerColumn parameter 'options' must be"
-                                 " of type DataLabelerOptions.")
+                raise ValueError(
+                    "DataLabelerColumn parameter 'options' must be"
+                    " of type DataLabelerOptions."
+                )
             if options.max_sample_size:
                 self._max_sample_size = options.max_sample_size
 
@@ -39,9 +41,10 @@ class DataLabelerColumn(BaseColumnProfiler):
                 data_labeler_dirpath = options.data_labeler_dirpath
 
             self.data_labeler = DataLabeler(
-                labeler_type='structured',
+                labeler_type="structured",
                 dirpath=data_labeler_dirpath,
-                load_options=None)
+                load_options=None,
+            )
 
         self.reverse_label_mapping = self.data_labeler.reverse_label_mapping
         num_labels = self.data_labeler.model.num_labels
@@ -53,12 +56,12 @@ class DataLabelerColumn(BaseColumnProfiler):
 
         self._possible_data_labels = list(self.reverse_label_mapping.values())
         self._possible_data_labels = [  # sort the data_labels based on index
-            x for _, x in sorted(zip(
-                self.reverse_label_mapping.keys(), self._possible_data_labels)
+            x
+            for _, x in sorted(
+                zip(self.reverse_label_mapping.keys(), self._possible_data_labels)
             )
         ]
-        self.rank_distribution = dict(
-            [(key, 0) for key in self._possible_data_labels])
+        self.rank_distribution = dict([(key, 0) for key in self._possible_data_labels])
         self._sum_predictions = np.zeros(num_labels)
 
         # rank distribution variables
@@ -87,32 +90,46 @@ class DataLabelerColumn(BaseColumnProfiler):
         :return: None
         """
         if data_labeler._top_k_voting != data_labeler2._top_k_voting:
-            raise ValueError("Sorry, can't merge profiles: {} are not the same "
-                             "in both DataLabeler Profilers being merged, "
-                             "as required".format('_top_k_voting'))
+            raise ValueError(
+                "Sorry, can't merge profiles: {} are not the same "
+                "in both DataLabeler Profilers being merged, "
+                "as required".format("_top_k_voting")
+            )
         if data_labeler._min_voting_prob != data_labeler2._min_voting_prob:
-            raise ValueError("Sorry, can't merge profiles: {} are not the same "
-                             "in both DataLabeler Profilers being merged, "
-                             "as required".format('_min_voting_prob'))
+            raise ValueError(
+                "Sorry, can't merge profiles: {} are not the same "
+                "in both DataLabeler Profilers being merged, "
+                "as required".format("_min_voting_prob")
+            )
         if data_labeler._min_prob_differential != data_labeler2._min_prob_differential:
-            raise ValueError("Sorry, can't merge profiles: {} are not the same "
-                             "in both DataLabeler Profilers being merged, "
-                             "as required".format('_min_voting_prob'))
+            raise ValueError(
+                "Sorry, can't merge profiles: {} are not the same "
+                "in both DataLabeler Profilers being merged, "
+                "as required".format("_min_voting_prob")
+            )
         if data_labeler._top_k_labels != data_labeler2._top_k_labels:
-            raise ValueError("Sorry, can't merge profiles: {} are not the same "
-                             "in both DataLabeler Profilers being merged, "
-                             "as required".format('_top_k_labels'))
+            raise ValueError(
+                "Sorry, can't merge profiles: {} are not the same "
+                "in both DataLabeler Profilers being merged, "
+                "as required".format("_top_k_labels")
+            )
         if data_labeler._min_top_label_prob != data_labeler2._min_top_label_prob:
-            raise ValueError("Sorry, can't merge profiles: {} are not the same "
-                             "in both DataLabeler Profilers being merged, "
-                             "as required".format('_min_top_label_prob'))
+            raise ValueError(
+                "Sorry, can't merge profiles: {} are not the same "
+                "in both DataLabeler Profilers being merged, "
+                "as required".format("_min_top_label_prob")
+            )
         if data_labeler._possible_data_labels != data_labeler2._possible_data_labels:
-            raise ValueError("Sorry, can't merge profiles: {} are not the same "
-                             "in both DataLabeler Profilers being merged, "
-                             "as required".format('_possible_data_labels'))
+            raise ValueError(
+                "Sorry, can't merge profiles: {} are not the same "
+                "in both DataLabeler Profilers being merged, "
+                "as required".format("_possible_data_labels")
+            )
         if data_labeler.data_labeler != data_labeler2.data_labeler:
-            raise ValueError("Sorry, can't merge profiles: DataLabeler1 and "
-                             "DataLabeler2 have different Models for labeling.")
+            raise ValueError(
+                "Sorry, can't merge profiles: DataLabeler1 and "
+                "DataLabeler2 have different Models for labeling."
+            )
 
     def __add__(self, other):
         """
@@ -125,16 +142,21 @@ class DataLabelerColumn(BaseColumnProfiler):
         :return: New DataLabelerColumn merged profile
         """
         if not isinstance(other, DataLabelerColumn):
-            raise TypeError("Unsupported operand type(s) for +: "
-                            "'DataLabelerColumn' and '{}'".format(
-                                other.__class__.__name__))
-        
-        if self.data_labeler != other.data_labeler \
-                or self._max_sample_size != other._max_sample_size:
-            raise AttributeError("Cannot merge. The data labeler and/or the max "
-                                 "sample size are not the same for both column "
-                                 "profiles.")
-        
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                "'DataLabelerColumn' and '{}'".format(other.__class__.__name__)
+            )
+
+        if (
+            self.data_labeler != other.data_labeler
+            or self._max_sample_size != other._max_sample_size
+        ):
+            raise AttributeError(
+                "Cannot merge. The data labeler and/or the max "
+                "sample size are not the same for both column "
+                "profiles."
+            )
+
         self.assert_equal_conditions(self, other)
 
         # recreate options so the DataLabeler is transferred and not duplicated
@@ -145,7 +167,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         merged_profile = DataLabelerColumn(self.name, options)
         BaseColumnProfiler._add_helper(merged_profile, self, other)
 
-        #Set all common variables
+        # Set all common variables
         merged_profile.data_labeler = self.data_labeler
         merged_profile._possible_data_labels = self._possible_data_labels
         merged_profile._top_k_voting = self._top_k_voting
@@ -156,17 +178,19 @@ class DataLabelerColumn(BaseColumnProfiler):
         merged_profile._max_sample_size = self._max_sample_size
         merged_profile._top_k_voting = self._top_k_voting
 
-        #Combine rank distribution
-        merged_profile.rank_distribution = {key: self.rank_distribution.get(key, 0) +
-                                                 other.rank_distribution.get(key, 0) for key in
-                                            set(self.rank_distribution) | set(other.rank_distribution)}
+        # Combine rank distribution
+        merged_profile.rank_distribution = {
+            key: self.rank_distribution.get(key, 0)
+            + other.rank_distribution.get(key, 0)
+            for key in set(self.rank_distribution) | set(other.rank_distribution)
+        }
 
-        #Combine Sum Predictions
+        # Combine Sum Predictions
         merged_profile._sum_predictions = self._sum_predictions + other._sum_predictions
-        
-        self._merge_calculations(merged_profile.__calculations,
-                                 self.__calculations,
-                                 other.__calculations)
+
+        self._merge_calculations(
+            merged_profile.__calculations, self.__calculations, other.__calculations
+        )
         return merged_profile
 
     @property
@@ -181,18 +205,19 @@ class DataLabelerColumn(BaseColumnProfiler):
             return None
 
         ranks_items = self.rank_distribution.items()
-        ordered_top_k_rank = np.array(sorted(
-            ranks_items, key=operator.itemgetter(1), reverse=True
-        ))[:self._top_k_labels]
+        ordered_top_k_rank = np.array(
+            sorted(ranks_items, key=operator.itemgetter(1), reverse=True)
+        )[: self._top_k_labels]
         top_k_probabilities = np.fromiter(
             map(operator.itemgetter(1), ordered_top_k_rank), dtype=float
         ) / sum(self.rank_distribution.values())
-        is_value_close = top_k_probabilities - top_k_probabilities[0] >= \
-                                                    -self._min_prob_differential
+        is_value_close = (
+            top_k_probabilities - top_k_probabilities[0] >= -self._min_prob_differential
+        )
 
-        data_label = '|'.join(map(
-            operator.itemgetter(0), ordered_top_k_rank[is_value_close]
-        ))
+        data_label = "|".join(
+            map(operator.itemgetter(0), ordered_top_k_rank[is_value_close])
+        )
         top_label = ordered_top_k_rank[0][0]
         if self.label_representation[top_label] < self._min_top_label_prob:
             return "could not determine"
@@ -222,8 +247,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         label_representation = dict([(key, 0) for key in self._possible_data_labels])
         total_votes = max(1, sum(list(self.rank_distribution.values())))
         for key in label_representation:
-            label_representation[key] = \
-                self.rank_distribution[key] / total_votes
+            label_representation[key] = self.rank_distribution[key] / total_votes
         return label_representation
 
     @property
@@ -235,7 +259,7 @@ class DataLabelerColumn(BaseColumnProfiler):
             "data_label": self.data_label,
             "avg_predictions": self.avg_predictions,
             "data_label_representation": self.label_representation,
-            "times": self.times
+            "times": self.times,
         }
         return profile
 
@@ -249,23 +273,26 @@ class DataLabelerColumn(BaseColumnProfiler):
         """
         differences = super().diff(other_profile, options)
 
-        labels = self.data_label.split('|')
+        labels = self.data_label.split("|")
         avg_preds = self.avg_predictions
         label_rep = self.label_representation
-        other_labels = other_profile.data_label.split('|')
+        other_labels = other_profile.data_label.split("|")
         other_avg_preds = other_profile.avg_predictions
         other_label_rep = other_profile.label_representation
 
         differences = {
             "data_label": utils.find_diff_of_lists_and_sets(labels, other_labels),
             "avg_predictions": utils.find_diff_of_dicts(avg_preds, other_avg_preds),
-            "label_representation": utils.find_diff_of_dicts(label_rep, other_label_rep)
+            "label_representation": utils.find_diff_of_dicts(
+                label_rep, other_label_rep
+            ),
         }
         return differences
 
-    @BaseColumnProfiler._timeit(name='data_labeler_predict')
-    def _update_predictions(self, df_series, prev_dependent_properties=None,
-                            subset_properties=None):
+    @BaseColumnProfiler._timeit(name="data_labeler_predict")
+    def _update_predictions(
+        self, df_series, prev_dependent_properties=None, subset_properties=None
+    ):
         """
         Method for updating the column profile properties with a cleaned
         dataset and the known profile of the dataset.
@@ -281,29 +308,29 @@ class DataLabelerColumn(BaseColumnProfiler):
         :return: None
         """
         predictions = self.data_labeler.predict(
-            df_series, predict_options=dict(show_confidences=True))
+            df_series, predict_options=dict(show_confidences=True)
+        )
         # remove PAD from output (reserved zero index)
         if self.data_labeler.model.requires_zero_mapping:
             ignore_value = 0  # PAD index
-            predictions['conf'] = np.delete(
-                predictions['conf'], ignore_value, axis=1)
-        sum_predictions = np.sum(predictions['conf'], axis=0)
+            predictions["conf"] = np.delete(predictions["conf"], ignore_value, axis=1)
+        sum_predictions = np.sum(predictions["conf"], axis=0)
         self._sum_predictions += sum_predictions
 
         rank_predictions = np.argpartition(
-            predictions['conf'], axis=1, kth=-self._top_k_voting
+            predictions["conf"], axis=1, kth=-self._top_k_voting
         )
         start_index = 0
         if self.data_labeler.model.requires_zero_mapping:
             start_index = 1
         for i in range(rank_predictions.shape[0]):
-            sorted_rank = rank_predictions[i][-self._top_k_voting:]
-            sorted_rank = sorted_rank[np.argsort(predictions['conf'][i][sorted_rank])]
+            sorted_rank = rank_predictions[i][-self._top_k_voting :]
+            sorted_rank = sorted_rank[np.argsort(predictions["conf"][i][sorted_rank])]
             for rank_position, value in enumerate(sorted_rank):
-                if predictions['conf'][i][value] > self._min_voting_prob:
+                if predictions["conf"][i][value] > self._min_voting_prob:
                     self.rank_distribution[
                         self.reverse_label_mapping[value + start_index]
-                    ] += rank_position + 1
+                    ] += (rank_position + 1)
 
     def _update_helper(self, df_series_clean, profile):
         """
@@ -327,17 +354,21 @@ class DataLabelerColumn(BaseColumnProfiler):
         """
         if len(df_series) == 0:
             return self
-        
+
         sample_size = min(len(df_series), self._max_sample_size)
         df_series = df_series.sample(sample_size)
 
         profile = dict(sample_size=sample_size)
-        self._update_predictions(df_series=df_series,
-                                 prev_dependent_properties={},
-                                 subset_properties=profile)
+        self._update_predictions(
+            df_series=df_series, prev_dependent_properties={}, subset_properties=profile
+        )
         BaseColumnProfiler._perform_property_calcs(
-            self, self.__calculations, df_series=df_series,
-            prev_dependent_properties={}, subset_properties=profile)
+            self,
+            self.__calculations,
+            df_series=df_series,
+            prev_dependent_properties={},
+            subset_properties=profile,
+        )
         self._update_helper(df_series, profile)
 
         return self

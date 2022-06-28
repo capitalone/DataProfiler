@@ -14,7 +14,7 @@ class TextData(BaseData):
     TextData class to save and load text files
     """
 
-    data_type = 'text'
+    data_type = "text"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
@@ -81,26 +81,26 @@ class TextData(BaseData):
             )
 
     def _get_data_as_text(self, data):
-        if (isinstance(data, list) and len(data)
-                and isinstance(data[0], (str, basestring))):
-            data = ''.join(data)
+        if (
+            isinstance(data, list)
+            and len(data)
+            and isinstance(data[0], (str, basestring))
+        ):
+            data = "".join(data)
         elif not isinstance(data, str) and data:
             raise ValueError(
-                "Data is not in a str or list of str format and cannot be "
-                "converted."
+                "Data is not in a str or list of str format and cannot be " "converted."
             )
 
         samples_per_line = min(max(len(data), 1), self.samples_per_line)
         data = [
-            data[i * samples_per_line:(i + 1) * samples_per_line]
+            data[i * samples_per_line : (i + 1) * samples_per_line]
             for i in range((len(data) + samples_per_line - 1) // samples_per_line)
         ]
         return data
 
     def tokenize(self):
-        raise NotImplementedError(
-            "Tokenizing does not currently exist for text data."
-        )
+        raise NotImplementedError("Tokenizing does not currently exist for text data.")
 
     @classmethod
     def is_match(cls, file_path, options=None):
@@ -118,8 +118,8 @@ class TextData(BaseData):
             options = {}
 
         # if user passes options, this will update them for encodings
-        if 'encoding' not in options and not isinstance(file_path, StringIO):
-            options = {'encoding': data_utils.detect_file_encoding(file_path)}
+        if "encoding" not in options and not isinstance(file_path, StringIO):
+            options = {"encoding": data_utils.detect_file_encoding(file_path)}
         return True
 
     def reload(self, input_file_path=None, data=None, options=None):

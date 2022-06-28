@@ -57,7 +57,7 @@ class BaseData(object):
         self._data = data
         self._batch_info = dict(perm=list(), iter=0)
         self._tmp_file_name = None
-        self._file_encoding = options.get('encoding', None)
+        self._file_encoding = options.get("encoding", None)
 
     @property
     def data(self):
@@ -108,27 +108,26 @@ class BaseData(object):
             except:
                 file_encoding = sys.getfilesystemencoding()
             finally:
-                if file_encoding.lower() in ['ansi_x3.4-1968', 'ascii']:
-                    file_encoding = 'utf-8'
+                if file_encoding.lower() in ["ansi_x3.4-1968", "ascii"]:
+                    file_encoding = "utf-8"
             self._file_encoding = file_encoding
 
             # set to default, detect if not StringIO
-            if self.input_file_path \
-                    and not isinstance(self.input_file_path, StringIO):
+            if self.input_file_path and not isinstance(self.input_file_path, StringIO):
                 self._file_encoding = data_utils.detect_file_encoding(
-                    self.input_file_path)
+                    self.input_file_path
+                )
         return self._file_encoding
 
     @file_encoding.setter
     def file_encoding(self, value):
-        valid_user_set_encodings = [
-            "ascii", "utf-8", "utf-16", "utf-32"
-        ]
+        valid_user_set_encodings = ["ascii", "utf-8", "utf-16", "utf-32"]
         if not value or value.lower() not in valid_user_set_encodings:
             raise ValueError(
-                "File Encoding must be one of the following: {}"
-                .format(valid_user_set_encodings)
-             )
+                "File Encoding must be one of the following: {}".format(
+                    valid_user_set_encodings
+                )
+            )
         self._file_encoding = value
 
     @staticmethod
@@ -147,9 +146,9 @@ class BaseData(object):
         indices = np.random.permutation(data_length)
         for i in range(0, data_length, batch_size):
             if isinstance(self.data, pd.DataFrame):
-                yield self.data.iloc[indices[i:i + batch_size], :]
+                yield self.data.iloc[indices[i : i + batch_size], :]
             else:
-                yield list(self.data[k] for k in indices[i:i + batch_size])
+                yield list(self.data[k] for k in indices[i : i + batch_size])
 
     @classmethod
     def is_match(cls, input_file_path, options):
@@ -169,9 +168,7 @@ class BaseData(object):
         :return: None
         """
         if input_file_path and not self.is_match(input_file_path, options):
-            raise ValueError(
-                "Reloaded dataset does not match the specified data_type"
-            )
+            raise ValueError("Reloaded dataset does not match the specified data_type")
         elif input_file_path:
             self.input_file_path = input_file_path
         self._data = None
@@ -211,16 +208,20 @@ class BaseData(object):
         except AttributeError as attr_error:
             class_name = self.__class__.__name__
             data_class_name = self.data.__class__.__name__
-            if (not f"'{class_name}' object has no attribute '{name}'"
-                    == str(attr_error)):
+            if not f"'{class_name}' object has no attribute '{name}'" == str(
+                attr_error
+            ):
                 raise
             try:
                 returned = object.__getattribute__(self.data, name)
             except AttributeError as attr_error:
-                if (not f"'{data_class_name}' object has no attribute '{name}'"
-                        == str(attr_error)):
+                if not f"'{data_class_name}' object has no attribute '{name}'" == str(
+                    attr_error
+                ):
                     raise
-                raise AttributeError(f"Neither '{class_name}' nor "
-                                     f"'{data_class_name}' objects have "
-                                     f"attribute '{name}'")
+                raise AttributeError(
+                    f"Neither '{class_name}' nor "
+                    f"'{data_class_name}' objects have "
+                    f"attribute '{name}'"
+                )
         return returned

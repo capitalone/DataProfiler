@@ -12,7 +12,7 @@ class AVROData(JSONData, BaseData):
     AVROData class to save and load spreadsheet data
     """
 
-    data_type = 'avro'
+    data_type = "avro"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
@@ -101,13 +101,11 @@ class AVROData(JSONData, BaseData):
         for key, value in dict_line.items():
             if key in nested_key:
                 if type(value) is dict:
-                    nested_key[key] = cls._get_nested_key(
-                                                value, nested_key[key])
+                    nested_key[key] = cls._get_nested_key(value, nested_key[key])
             else:
                 if type(value) is dict:
                     nested_key[key] = {}
-                    nested_key[key] = cls._get_nested_key(
-                                                value, nested_key[key])
+                    nested_key[key] = cls._get_nested_key(value, nested_key[key])
                 else:
                     nested_key[key] = 1
 
@@ -173,18 +171,13 @@ class AVROData(JSONData, BaseData):
                 # for every lines
                 schema_avro_temp = {
                     "name": key,
-                    "type": [{
-                        "name": key,
-                        "type": "record",
-                        "fields": []
-                    }, "null"]
+                    "type": [{"name": key, "type": "record", "fields": []}, "null"],
                 }
                 schema_avro_temp["type"][0] = cls._get_schema_avro(
-                                    value, schema_avro_temp["type"][0])
+                    value, schema_avro_temp["type"][0]
+                )
                 schema_avro["fields"].append(schema_avro_temp)
             else:
-                schema_avro["fields"].append(
-                                {"name": key, "type": ["string", "null"]})
+                schema_avro["fields"].append({"name": key, "type": ["string", "null"]})
 
         return schema_avro
-

@@ -1,3 +1,2 @@
 Sphinx==4.1.2
 sphinx-rtd-theme==0.5.1
-furo==2021.7.5b38

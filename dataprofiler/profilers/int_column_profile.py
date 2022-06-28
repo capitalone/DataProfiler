@@ -1,7 +1,6 @@
 import numpy as np
 
-from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, \
-    BaseColumnProfiler
+from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import IntOptions
 
@@ -24,8 +23,9 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type options: IntOptions
         """
         if options and not isinstance(options, IntOptions):
-            raise ValueError("IntColumn parameter 'options' must be of type"
-                             " IntOptions.")
+            raise ValueError(
+                "IntColumn parameter 'options' must be of type" " IntOptions."
+            )
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.__calculations = {}
@@ -42,15 +42,17 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: New IntColumn merged profile
         """
         if not isinstance(other, IntColumn):
-            raise TypeError("Unsupported operand type(s) for +: "
-                            "'IntColumn' and '{}'".format(other.__class__.__name__))
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                "'IntColumn' and '{}'".format(other.__class__.__name__)
+            )
 
         merged_profile = IntColumn(None)
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
         NumericStatsMixin._add_helper(merged_profile, self, other)
-        self._merge_calculations(merged_profile.__calculations,
-                                 self.__calculations,
-                                 other.__calculations)
+        self._merge_calculations(
+            merged_profile.__calculations, self.__calculations, other.__calculations
+        )
         return merged_profile
 
     def report(self, remove_disabled_flag=False):
@@ -130,7 +132,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         if len(df_series) == 0:
             return self
-        
+
         df_series = df_series.reset_index(drop=True)
         is_each_row_int = self._is_each_row_int(df_series)
         sample_size = len(is_each_row_int)
@@ -138,12 +140,13 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile = dict(match_count=match_int_count, sample_size=sample_size)
 
         BaseColumnProfiler._perform_property_calcs(
-            self, self.__calculations, df_series=df_series[is_each_row_int],
-            prev_dependent_properties={}, subset_properties=profile)
-
-        self._update_helper(
-            df_series_clean=df_series[is_each_row_int],
-            profile=profile
+            self,
+            self.__calculations,
+            df_series=df_series[is_each_row_int],
+            prev_dependent_properties={},
+            subset_properties=profile,
         )
+
+        self._update_helper(df_series_clean=df_series[is_each_row_int], profile=profile)
 
         return self

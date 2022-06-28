@@ -79,7 +79,7 @@ def unicode_to_str(data, ignore_dicts=False):
     :rtype: str
     """
     if isinstance(data, str):
-        return data.encode('utf-8').decode()
+        return data.encode("utf-8").decode()
 
     # if data is a list of values
     if isinstance(data, list):
@@ -87,10 +87,12 @@ def unicode_to_str(data, ignore_dicts=False):
 
     # if data is a dictionary
     if isinstance(data, dict) and not ignore_dicts:
-        return {unicode_to_str(key, ignore_dicts=True):
-                    unicode_to_str(value, ignore_dicts=True)
-                for key, value in data.items()
-                }
+        return {
+            unicode_to_str(key, ignore_dicts=True): unicode_to_str(
+                value, ignore_dicts=True
+            )
+            for key, value in data.items()
+        }
 
     return data
 
@@ -117,8 +119,8 @@ def json_to_dataframe(json_lines, selected_columns=None, read_in_string=False):
     first_item_type = type(json_lines[0])
     if not all(map(lambda x: isinstance(x, first_item_type), json_lines)):
         raise ValueError(
-            'Only JSON which represents structured data is supported for this '
-            'data type (i.e. list-dicts).'
+            "Only JSON which represents structured data is supported for this "
+            "data type (i.e. list-dicts)."
         )
     elif first_item_type == dict:
         df = pd.json_normalize(json_lines)
@@ -172,10 +174,10 @@ def read_json_df(data_generator, selected_columns=None, read_in_string=False):
             break
         try:
             obj = unicode_to_str(
-                json.loads(raw_line,
-                           object_hook=unicode_to_str,
-                           object_pairs_hook=OrderedDict),
-                ignore_dicts=True
+                json.loads(
+                    raw_line, object_hook=unicode_to_str, object_pairs_hook=OrderedDict
+                ),
+                ignore_dicts=True,
             )
             lines.append(obj)
         except ValueError:
@@ -183,7 +185,7 @@ def read_json_df(data_generator, selected_columns=None, read_in_string=False):
             # To ignore malformatted lines.
         k += 1
     if not lines and k:
-        raise ValueError('No JSON data could be read from these data.')
+        raise ValueError("No JSON data could be read from these data.")
     return json_to_dataframe(lines, selected_columns, read_in_string)
 
 
@@ -223,10 +225,10 @@ def read_json(data_generator, selected_columns=None, read_in_string=False):
             break
         try:
             obj = unicode_to_str(
-                json.loads(raw_line,
-                           object_hook=unicode_to_str,
-                           object_pairs_hook=OrderedDict),
-                ignore_dicts=True
+                json.loads(
+                    raw_line, object_hook=unicode_to_str, object_pairs_hook=OrderedDict
+                ),
+                ignore_dicts=True,
             )
             lines.append(obj)
         except ValueError:
@@ -234,12 +236,18 @@ def read_json(data_generator, selected_columns=None, read_in_string=False):
             # To ignore malformatted lines.
         k += 1
     if not lines and k:
-        raise ValueError('No JSON data could be read from these data.')
+        raise ValueError("No JSON data could be read from these data.")
     return lines
 
 
-def read_csv_df(file_path, delimiter, header, selected_columns=[],
-                read_in_string=False, encoding='utf-8'):
+def read_csv_df(
+    file_path,
+    delimiter,
+    header,
+    selected_columns=[],
+    read_in_string=False,
+    encoding="utf-8",
+):
     """
     Reads a CSV file in chunks and returns a dataframe in the form of iterator.
     
@@ -258,25 +266,23 @@ def read_csv_df(file_path, delimiter, header, selected_columns=[],
     :rtype: pd.DataFrame
     """
     args = {
-        'delimiter': delimiter,
-        'header': header,
-        'iterator': True,
-        'dtype': 'object',
-        'keep_default_na': False,
-        'encoding': encoding
+        "delimiter": delimiter,
+        "header": header,
+        "iterator": True,
+        "dtype": "object",
+        "keep_default_na": False,
+        "encoding": encoding,
     }
 
     # If a header can be identified, don't skip blanks
     if header is not None:
-        args.update({
-            'skip_blank_lines': False
-        })
+        args.update({"skip_blank_lines": False})
 
     if read_in_string:
-        args['dtype'] = str
+        args["dtype"] = str
 
     if len(selected_columns) > 0:
-        args['usecols'] = selected_columns
+        args["usecols"] = selected_columns
 
     # account for py3.6 requirement for pandas, can remove if >= py3.7
     is_buf_wrapped = False
@@ -285,10 +291,10 @@ def read_csv_df(file_path, delimiter, header, selected_columns=[],
         # in 3.6 this avoids read_csv wrapping the stream and closing too early
         file_path = TextIOWrapper(file_path, encoding=encoding)
         is_buf_wrapped = True
-        
+
     fo = pd.read_csv(file_path, **args)
     data = fo.read()
-    
+
     # if the buffer was wrapped, detach it before returning
     if is_buf_wrapped:
         file_path.detach()
@@ -314,17 +320,21 @@ def read_parquet_df(file_path, selected_columns=None, read_in_string=False):
         data_row_df = parquet_file.read_row_group(i).to_pandas()
 
         # Convert all the unicode columns to utf-8
-        types = data_row_df.apply(lambda x: pd.api.types.infer_dtype(
-                                                x.values, skipna=True))
+        types = data_row_df.apply(
+            lambda x: pd.api.types.infer_dtype(x.values, skipna=True)
+        )
 
-        mixed_and_unicode_cols = types[types == 'unicode'] \
-            .index.union(types[types == 'mixed'].index)
+        mixed_and_unicode_cols = types[types == "unicode"].index.union(
+            types[types == "mixed"].index
+        )
 
         for col in mixed_and_unicode_cols:
             data_row_df[col] = data_row_df[col].apply(
-                lambda x: x.encode('utf-8').strip() if isinstance(x, str) else x)
+                lambda x: x.encode("utf-8").strip() if isinstance(x, str) else x
+            )
             data_row_df[col] = data_row_df[col].apply(
-                lambda x: x.decode('utf-8').strip() if isinstance(x, bytes) else x)
+                lambda x: x.decode("utf-8").strip() if isinstance(x, bytes) else x
+            )
 
         if selected_columns:
             data_row_df = data_row_df[selected_columns]
@@ -370,7 +380,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     """
     detector = UniversalDetector()
     line_count = 0
-    with FileOrBufferHandler(file_path, 'rb') as input_file:
+    with FileOrBufferHandler(file_path, "rb") as input_file:
         chunk = input_file.read(buffer_size)
         while chunk and line_count < max_lines:
             detector.feed(chunk)
@@ -380,14 +390,14 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     encoding = detector.result["encoding"]
 
     # Typical file representation is utf-8 instead of ascii, treat as such.
-    if not encoding or encoding.lower() in ['ascii', 'windows-1254']:
-        encoding = 'utf-8'
+    if not encoding or encoding.lower() in ["ascii", "windows-1254"]:
+        encoding = "utf-8"
 
     # Check if encoding can be used to decode without throwing an error
     def _decode_is_valid(encoding):
-        try: 
+        try:
             with FileOrBufferHandler(file_path, encoding=encoding) as input_file:
-                input_file.read(1024*1024)
+                input_file.read(1024 * 1024)
                 return True
         except:
             return False
@@ -396,38 +406,51 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
         try:
             from charset_normalizer import CharsetNormalizerMatches as CnM
 
-            # Try with small sample 
-            with FileOrBufferHandler(file_path, 'rb') as input_file:
+            # Try with small sample
+            with FileOrBufferHandler(file_path, "rb") as input_file:
                 raw_data = input_file.read(10000)
-                result = CnM.from_bytes(raw_data, steps=5, 
-                                        chunk_size=512, threshold=0.2,
-                                        cp_isolation=None, cp_exclusion=None,
-                                        preemptive_behaviour=True, explain=False)
+                result = CnM.from_bytes(
+                    raw_data,
+                    steps=5,
+                    chunk_size=512,
+                    threshold=0.2,
+                    cp_isolation=None,
+                    cp_exclusion=None,
+                    preemptive_behaviour=True,
+                    explain=False,
+                )
                 result = result.best()
             if result:
                 if result.first():
                     encoding = result.first().encoding
 
             # Try again with full sample
-            if not _decode_is_valid(encoding): 
-                with FileOrBufferHandler(file_path, 'rb') as input_file:
-                    raw_data = input_file.read(max_lines*buffer_size)
-                    result = CnM.from_bytes(raw_data, steps=max_lines, 
-                                            chunk_size=buffer_size, threshold=0.2,
-                                            cp_isolation=None, cp_exclusion=None,
-                                            preemptive_behaviour=True, explain=False)
+            if not _decode_is_valid(encoding):
+                with FileOrBufferHandler(file_path, "rb") as input_file:
+                    raw_data = input_file.read(max_lines * buffer_size)
+                    result = CnM.from_bytes(
+                        raw_data,
+                        steps=max_lines,
+                        chunk_size=buffer_size,
+                        threshold=0.2,
+                        cp_isolation=None,
+                        cp_exclusion=None,
+                        preemptive_behaviour=True,
+                        explain=False,
+                    )
                     result = result.best()
                 if result:
                     if result.first():
                         encoding = result.first().encoding
 
         except:
-            logger.info("Install charset_normalizer for improved file "
-                        "encoding detection")
+            logger.info(
+                "Install charset_normalizer for improved file " "encoding detection"
+            )
 
     # If no encoding is still found, default to utf-8
     if not encoding:
-        encoding = 'utf-8'
+        encoding = "utf-8"
     return encoding.lower()
 
 
@@ -438,29 +461,29 @@ def detect_cell_type(cell):
     :param cell: String designated for data type detection
     :type cell: str
     """
-    
-    cell_type = 'str'
+
+    cell_type = "str"
     if len(cell) == 0:
-        cell_type = 'none'
+        cell_type = "none"
     else:
 
         try:
             if dateutil.parser.parse(cell, fuzzy=False):
-                cell_type = 'date'
+                cell_type = "date"
         except (ValueError, OverflowError, TypeError):
             pass
 
         try:
             f_cell = float(cell)
-            cell_type = 'float'
+            cell_type = "float"
             if f_cell.is_integer():
-                cell_type = 'int'
+                cell_type = "int"
         except ValueError:
             pass
 
         if cell.isupper():
-            cell_type = 'upstr'
-            
+            cell_type = "upstr"
+
     return cell_type
 
 
@@ -473,7 +496,7 @@ def get_delimiter_regex(delimiter=",", quotechar=","):
     :param quotechar: Quotechar to be added to regex
     :type delimiter: str
     """
-    
+
     if delimiter is None:
         return ""
 
@@ -481,15 +504,15 @@ def get_delimiter_regex(delimiter=",", quotechar=","):
         quotechar = '"'
 
     delimiter_regex = re.escape(str(delimiter))
-    quotechar_escape= re.escape(quotechar)
-    quotechar_regex = "(?=" 
-    quotechar_regex +=  "(?:"
-    quotechar_regex +=    "[^"+quotechar_escape+"]*"
-    quotechar_regex +=    quotechar_escape
-    quotechar_regex +=    "[^"+quotechar_escape+"]*"
-    quotechar_regex +=    quotechar_escape
-    quotechar_regex +=   ")*"
-    quotechar_regex +=   "[^"+quotechar_escape+"]*"
+    quotechar_escape = re.escape(quotechar)
+    quotechar_regex = "(?="
+    quotechar_regex += "(?:"
+    quotechar_regex += "[^" + quotechar_escape + "]*"
+    quotechar_regex += quotechar_escape
+    quotechar_regex += "[^" + quotechar_escape + "]*"
+    quotechar_regex += quotechar_escape
+    quotechar_regex += ")*"
+    quotechar_regex += "[^" + quotechar_escape + "]*"
     quotechar_regex += "$)"
 
     return re.compile(delimiter_regex + quotechar_regex)
@@ -523,7 +546,7 @@ def find_nth_loc(string=None, search_query=None, n=0, ignore_consecutive=True):
     # create the search pattern
     pattern = re.escape(search_query)
     if ignore_consecutive:
-        pattern += '+'
+        pattern += "+"
     r_iter = re.finditer(pattern, string)
 
     # Find index of nth occurrence of search_query
@@ -542,8 +565,9 @@ def find_nth_loc(string=None, search_query=None, n=0, ignore_consecutive=True):
     return idx, id_count
 
 
-def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
-                          max_bytes=65536, chunk_size_bytes=1024):
+def load_as_str_from_file(
+    file_path, file_encoding=None, max_lines=10, max_bytes=65536, chunk_size_bytes=1024
+):
     """
     Loads data from a csv file up to a specific line OR byte_size.
 
@@ -567,29 +591,31 @@ def load_as_str_from_file(file_path, file_encoding=None, max_lines=10,
     with FileOrBufferHandler(file_path, encoding=file_encoding) as csvfile:
 
         sample_size_bytes = min(max_bytes, chunk_size_bytes)
-        
+
         # Read the file until the appropriate number of occurrences
         for byte_count in range(0, max_bytes, sample_size_bytes):
-            
+
             sample_lines = csvfile.read(sample_size_bytes)
             if len(sample_lines) == 0:
                 break  # No more bytes in file
 
             # Number of lines remaining to be added to data_as_str
             remaining_lines = max_lines - total_occurrences
-            
+
             # Return either the last index of sample_lines OR
             # the index of the newline char that matches remaining_lines
-            search_query_value = '\n'
-            if (isinstance(sample_lines, bytes)):
-                search_query_value = b'\n'
+            search_query_value = "\n"
+            if isinstance(sample_lines, bytes):
+                search_query_value = b"\n"
 
             start_loc = 0
             len_sample_lines = len(sample_lines)
             while start_loc < len_sample_lines - 1 and total_occurrences < max_lines:
-                loc, occurrence = find_nth_loc(sample_lines[start_loc:],
-                                               search_query=search_query_value,
-                                               n=remaining_lines)
+                loc, occurrence = find_nth_loc(
+                    sample_lines[start_loc:],
+                    search_query=search_query_value,
+                    n=remaining_lines,
+                )
 
                 # Add sample_lines to data_as_str no more than max_lines
                 if isinstance(sample_lines[start_loc:loc], bytes):
@@ -636,17 +662,20 @@ def url_to_bytes(url_as_string, options):
     stream = BytesIO()
 
     verify_ssl = True
-    if 'verify_ssl' in options:
-        verify_ssl = options['verify_ssl']
+    if "verify_ssl" in options:
+        verify_ssl = options["verify_ssl"]
 
     try:
         with requests.get(url_as_string, stream=True, verify=verify_ssl) as url:
             url.raise_for_status()
-            if 'Content-length' in url.headers \
-                    and int(url.headers['Content-length']) >= 1024 ** 3:
+            if (
+                "Content-length" in url.headers
+                and int(url.headers["Content-length"]) >= 1024 ** 3
+            ):
 
-                raise ValueError('The downloaded file from the url may not be '
-                                 'larger than 1GB')
+                raise ValueError(
+                    "The downloaded file from the url may not be " "larger than 1GB"
+                )
 
             total_bytes = 0
             c_size = 8192
@@ -656,14 +685,16 @@ def url_to_bytes(url_as_string, options):
                 total_bytes += c_size
 
                 if total_bytes > 1024 ** 3:
-                    raise ValueError('The downloaded file from the url may not '
-                                     'be larger than 1GB')
+                    raise ValueError(
+                        "The downloaded file from the url may not " "be larger than 1GB"
+                    )
     except requests.exceptions.SSLError as e:
         raise RuntimeError(
             "The URL given has an untrusted SSL certificate. Although highly "
             "discouraged, you can proceed with reading the data by setting "
             "'verify_ssl' to False in options "
-            "(i.e. options=dict(verify_ssl=False)).") from e
+            "(i.e. options=dict(verify_ssl=False))."
+        ) from e
 
     stream.seek(0)
     return stream

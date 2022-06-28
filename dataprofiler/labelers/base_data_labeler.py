@@ -11,9 +11,7 @@ from .. import data_readers
 from . import data_processing
 from .base_model import BaseModel
 
-default_labeler_dir = pkg_resources.resource_filename(
-    'resources', 'labelers'
-)
+default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 class BaseDataLabeler(object):
@@ -29,8 +27,9 @@ class BaseDataLabeler(object):
                              for model or processors
         """
         if dirpath is not None and not isinstance(dirpath, str):
-            raise ValueError('`dirpath` must be a file directory where a '
-                             'DataLabeler exists.')
+            raise ValueError(
+                "`dirpath` must be a file directory where a " "DataLabeler exists."
+            )
         # Example: self._model is an instance of BaseModel
         self._model = None
 
@@ -42,8 +41,7 @@ class BaseDataLabeler(object):
         # load default model
         if dirpath or self._default_model_loc:
             if dirpath is None:
-                dirpath = os.path.join(default_labeler_dir,
-                                       self._default_model_loc)
+                dirpath = os.path.join(default_labeler_dir, self._default_model_loc)
             self._load_data_labeler(dirpath, load_options)
 
     def __eq__(self, other):
@@ -60,9 +58,11 @@ class BaseDataLabeler(object):
         """
         if not isinstance(other, BaseDataLabeler):
             return False
-        if self._preprocessor != other.preprocessor \
-                or self._model != other.model \
-                or self._postprocessor != other.postprocessor:
+        if (
+            self._preprocessor != other.preprocessor
+            or self._model != other.model
+            or self._postprocessor != other.postprocessor
+        ):
             return False
         return True
 
@@ -142,7 +142,7 @@ class BaseDataLabeler(object):
         return self._postprocessor
 
     @staticmethod
-    def _check_and_return_valid_data_format(data, fit_or_predict='fit'):
+    def _check_and_return_valid_data_format(data, fit_or_predict="fit"):
         """
         Checks incoming data to match the specified fit or predict format.
 
@@ -152,8 +152,8 @@ class BaseDataLabeler(object):
         :type fit_or_predict: str
         :return: validated and formatted data
         """
-        if fit_or_predict not in ['fit', 'predict']:
-            raise ValueError('`fit_or_predict` must equal `fit` or `predict`')
+        if fit_or_predict not in ["fit", "predict"]:
+            raise ValueError("`fit_or_predict` must equal `fit` or `predict`")
 
         # Pull dataframe out of data reader object
         if isinstance(data, data_readers.base_data.BaseData):
@@ -195,35 +195,45 @@ class BaseDataLabeler(object):
         """
         is_params_error = True
         if params and isinstance(params, dict):
-            unknown_keys = set(params.keys()) - \
-                           {'preprocessor', 'model', 'postprocessor'}
+            unknown_keys = set(params.keys()) - {
+                "preprocessor",
+                "model",
+                "postprocessor",
+            }
             if not unknown_keys:
                 is_params_error = False
 
         if is_params_error:
             raise ValueError(
-                'The params dict must have the following format:\n'
-                'params=dict(preprocessor=dict(...), model=dict(...), '
-                'postprocessor=dict(...)), where each sub-dict contains '
-                'parameters of the specified data_labeler pipeline components.')
-        elif not self._preprocessor and 'preprocessor' in params \
-                or not self._model and 'model' in params \
-                or not self._postprocessor and 'postprocessor' in params:
+                "The params dict must have the following format:\n"
+                "params=dict(preprocessor=dict(...), model=dict(...), "
+                "postprocessor=dict(...)), where each sub-dict contains "
+                "parameters of the specified data_labeler pipeline components."
+            )
+        elif (
+            not self._preprocessor
+            and "preprocessor" in params
+            or not self._model
+            and "model" in params
+            or not self._postprocessor
+            and "postprocessor" in params
+        ):
             raise ValueError(
-                'Parameters for the preprocessor, model, or postprocessor were '
-                'specified when one or more of these were not set in the '
-                'DataLabeler.'
+                "Parameters for the preprocessor, model, or postprocessor were "
+                "specified when one or more of these were not set in the "
+                "DataLabeler."
             )
 
-        if self._preprocessor and 'preprocessor' in params:
-            self._preprocessor.set_params(**params['preprocessor'])
-        if self._model and 'model' in params:
-            self._model.set_params(**params['model'])
-        if self._postprocessor and 'postprocessor' in params:
-            self._postprocessor.set_params(**params['postprocessor'])
+        if self._preprocessor and "preprocessor" in params:
+            self._preprocessor.set_params(**params["preprocessor"])
+        if self._model and "model" in params:
+            self._model.set_params(**params["model"])
+        if self._postprocessor and "postprocessor" in params:
+            self._postprocessor.set_params(**params["postprocessor"])
 
-        self.check_pipeline(skip_postprocessor=self._postprocessor is None,
-                            error_on_mismatch=False)
+        self.check_pipeline(
+            skip_postprocessor=self._postprocessor is None, error_on_mismatch=False
+        )
 
     def add_label(self, label, same_as=None):
         """
@@ -249,8 +259,14 @@ class BaseDataLabeler(object):
         # convert to valid format
         self._model.set_label_mapping(label_mapping=labels)
 
-    def predict(self, data, batch_size=32, predict_options=None,
-                error_on_mismatch=False, verbose=1):
+    def predict(
+        self,
+        data,
+        batch_size=32,
+        predict_options=None,
+        error_on_mismatch=False,
+        verbose=1,
+    ):
         """
         Predicts labels of input data based with the data labeler model.
 
@@ -266,22 +282,22 @@ class BaseDataLabeler(object):
 
         if predict_options is None:
             predict_options = {}
-        data = self._check_and_return_valid_data_format(
-            data, fit_or_predict='predict'
-        )
+        data = self._check_and_return_valid_data_format(data, fit_or_predict="predict")
 
         # check for valid pipeline
         self.check_pipeline(
-            skip_postprocessor=False, error_on_mismatch=error_on_mismatch)
+            skip_postprocessor=False, error_on_mismatch=error_on_mismatch
+        )
 
         # preprocess
         samples = self._preprocessor.process(data, batch_size=batch_size)
 
         # predicting:
         results = self._model.predict(
-            samples, batch_size,
-            show_confidences=predict_options.get('show_confidences', False),
-            verbose=verbose
+            samples,
+            batch_size,
+            show_confidences=predict_options.get("show_confidences", False),
+            verbose=verbose,
         )
 
         # postprocessing:
@@ -298,8 +314,10 @@ class BaseDataLabeler(object):
         :return: None
         """
         if not isinstance(data_processor, data_processing.BaseDataPreprocessor):
-            raise TypeError('The specified preprocessor was not of the correct'
-                            ' type, `DataProcessing`.')
+            raise TypeError(
+                "The specified preprocessor was not of the correct"
+                " type, `DataProcessing`."
+            )
         self._preprocessor = data_processor
 
     def set_model(self, model):
@@ -311,8 +329,9 @@ class BaseDataLabeler(object):
         :return: None
         """
         if not isinstance(model, BaseModel):
-            raise TypeError('The specified model was not of the correct'
-                            ' type, `BaseModel`.')
+            raise TypeError(
+                "The specified model was not of the correct" " type, `BaseModel`."
+            )
         self._model = model
 
     def set_postprocessor(self, data_processor):
@@ -324,8 +343,10 @@ class BaseDataLabeler(object):
         :return: None
         """
         if not isinstance(data_processor, data_processing.BaseDataPostprocessor):
-            raise TypeError('The specified postprocessor was not of the '
-                            'correct type, `DataProcessing`.')
+            raise TypeError(
+                "The specified postprocessor was not of the "
+                "correct type, `DataProcessing`."
+            )
         self._postprocessor = data_processor
 
     def check_pipeline(self, skip_postprocessor=False, error_on_mismatch=False):
@@ -366,9 +387,8 @@ class BaseDataLabeler(object):
         )
         for param in mismatch_overlaps:
             messages.append(
-                'Model and preprocessor value for `{}` do not match. {} != '
-                '{}'.format(param, model_params[param],
-                            preprocessor_params[param])
+                "Model and preprocessor value for `{}` do not match. {} != "
+                "{}".format(param, model_params[param], preprocessor_params[param])
             )
 
         if not skip_postprocessor:
@@ -378,24 +398,25 @@ class BaseDataLabeler(object):
             )
             for param in mismatch_overlaps:
                 messages.append(
-                    'Model and postprocessor value for `{}` do not match. '
-                    '{} != {}'.format(param, model_params[param],
-                                      postprocessor_params[param])
+                    "Model and postprocessor value for `{}` do not match. "
+                    "{} != {}".format(
+                        param, model_params[param], postprocessor_params[param]
+                    )
                 )
             mismatch_overlaps = get_parameter_overlap_mismatches(
                 preprocessor_params, postprocessor_params
             )
             for param in mismatch_overlaps:
                 messages.append(
-                    'Preprocessor and postprocessor value for `{}` do not '
-                    'match. {} != {}'.format(param,
-                                             preprocessor_params[param],
-                                             postprocessor_params[param])
+                    "Preprocessor and postprocessor value for `{}` do not "
+                    "match. {} != {}".format(
+                        param, preprocessor_params[param], postprocessor_params[param]
+                    )
                 )
         if messages:
             if error_on_mismatch:
-                raise RuntimeError('\n'.join(messages))
-            warnings.warn('\n'.join(messages), category=RuntimeWarning)
+                raise RuntimeError("\n".join(messages))
+            warnings.warn("\n".join(messages), category=RuntimeWarning)
 
     @staticmethod
     def _load_parameters(dirpath, load_options=None):
@@ -412,50 +433,51 @@ class BaseDataLabeler(object):
         if not load_options:
             load_options = {}
 
-        with open(os.path.join(dirpath, 'data_labeler_parameters.json')) as fp:
+        with open(os.path.join(dirpath, "data_labeler_parameters.json")) as fp:
             params = json.load(fp)
-            
-        if 'model_class' in load_options:
-            model_class = load_options.get('model_class')
+
+        if "model_class" in load_options:
+            model_class = load_options.get("model_class")
             if not isinstance(model_class, BaseModel):
-                raise TypeError('`model_class` must be a BaseModel')
-            param_model_class = params.get('model', {}).get('class', None)
+                raise TypeError("`model_class` must be a BaseModel")
+            param_model_class = params.get("model", {}).get("class", None)
             if param_model_class != model_class.__name__:
-                raise ValueError('The load_options model class does not match '
-                                 'the required DataLabeler model.\n {} != {}'.
-                                 format(model_class.__name__,
-                                        param_model_class))
-            params['model']['class'] = model_class
-        if 'preprocessor_class' in load_options:
-            processor_class = load_options.get('preprocessor_class')
-            if not isinstance(processor_class,
-                              data_processing.BaseDataPreprocessor):
-                raise TypeError('`preprocessor_class` must be a '
-                                'BaseDataPreprocessor')
-            param_processor_class = params.get('preprocessor', {}).\
-                get('class', None)
+                raise ValueError(
+                    "The load_options model class does not match "
+                    "the required DataLabeler model.\n {} != {}".format(
+                        model_class.__name__, param_model_class
+                    )
+                )
+            params["model"]["class"] = model_class
+        if "preprocessor_class" in load_options:
+            processor_class = load_options.get("preprocessor_class")
+            if not isinstance(processor_class, data_processing.BaseDataPreprocessor):
+                raise TypeError(
+                    "`preprocessor_class` must be a " "BaseDataPreprocessor"
+                )
+            param_processor_class = params.get("preprocessor", {}).get("class", None)
             if param_processor_class != processor_class:
-                raise ValueError('The load_options preprocessor class does not '
-                                 'match the required DataLabeler preprocessor.'
-                                 '\n {} != {}'.
-                                 format(processor_class, param_processor_class))
-            params['preprocessor']['class'] = load_options.get(
-                'preprocessor_class')
-        if 'postprocessor_class' in load_options:
-            processor_class = load_options.get('postprocessor_class')
-            if not isinstance(processor_class,
-                              data_processing.BaseDataPostprocessor):
-                raise TypeError('`postprocessor_class` must be a '
-                                'BaseDataPostprocessor')
-            param_processor_class = params.get('postprocessor', {}).\
-                get('class', None)
+                raise ValueError(
+                    "The load_options preprocessor class does not "
+                    "match the required DataLabeler preprocessor."
+                    "\n {} != {}".format(processor_class, param_processor_class)
+                )
+            params["preprocessor"]["class"] = load_options.get("preprocessor_class")
+        if "postprocessor_class" in load_options:
+            processor_class = load_options.get("postprocessor_class")
+            if not isinstance(processor_class, data_processing.BaseDataPostprocessor):
+                raise TypeError(
+                    "`postprocessor_class` must be a " "BaseDataPostprocessor"
+                )
+            param_processor_class = params.get("postprocessor", {}).get("class", None)
             if param_processor_class != processor_class.__name__:
                 raise ValueError(
-                    'The load_options postprocessor class does not match '
-                    'the required DataLabeler postprocessor.\n {} != {}'.
-                    format(processor_class.__name__, param_processor_class))
-            params['postprocessor']['class'] = load_options.get(
-                'postprocessor_class')
+                    "The load_options postprocessor class does not match "
+                    "the required DataLabeler postprocessor.\n {} != {}".format(
+                        processor_class.__name__, param_processor_class
+                    )
+                )
+            params["postprocessor"]["class"] = load_options.get("postprocessor_class")
         return params
 
     def _load_model(self, model_class, dirpath):
@@ -472,9 +494,11 @@ class BaseDataLabeler(object):
         if isinstance(model_class, str):
             model_class = BaseModel.get_class(model_class)
         if not model_class:
-            raise ValueError('`model_class`, {}, was not set in load_options '
-                             'and could not be found as a registered model '
-                             'class in BaseModel.'.format(str(model_class)))
+            raise ValueError(
+                "`model_class`, {}, was not set in load_options "
+                "and could not be found as a registered model "
+                "class in BaseModel.".format(str(model_class))
+            )
         self.set_model(model_class.load_from_disk(dirpath))
 
     def _load_preprocessor(self, processor_class, dirpath):
@@ -489,12 +513,14 @@ class BaseDataLabeler(object):
         """
         if isinstance(processor_class, str):
             processor_class = data_processing.BaseDataProcessor.get_class(
-                processor_class)
+                processor_class
+            )
         if not processor_class:
-            raise ValueError('`processor_class`, {}, was not set in load_options '
-                             'and could not be found as a registered model '
-                             'class in BaseDataProcessor.'.format(
-                str(processor_class)))
+            raise ValueError(
+                "`processor_class`, {}, was not set in load_options "
+                "and could not be found as a registered model "
+                "class in BaseDataProcessor.".format(str(processor_class))
+            )
         self.set_preprocessor(processor_class.load_from_disk(dirpath))
 
     def _load_postprocessor(self, processor_class, dirpath):
@@ -509,12 +535,16 @@ class BaseDataLabeler(object):
         """
         if isinstance(processor_class, str):
             processor_class = data_processing.BaseDataProcessor.get_class(
-                processor_class)
+                processor_class
+            )
         if not processor_class:
-            raise ValueError('`processor_class`, {}, was not set in '
-                             'load_options and could not be found as a '
-                             'registered model class in BaseDataProcessor.'.
-                             format(str(processor_class)))
+            raise ValueError(
+                "`processor_class`, {}, was not set in "
+                "load_options and could not be found as a "
+                "registered model class in BaseDataProcessor.".format(
+                    str(processor_class)
+                )
+            )
         self.set_postprocessor(processor_class.load_from_disk(dirpath))
 
     def _load_data_labeler(self, dirpath, load_options=None):
@@ -531,14 +561,14 @@ class BaseDataLabeler(object):
 
         # get loaded parameters
         params = self._load_parameters(dirpath, load_options)
-        model_params = params.get('model')
-        preprocessor_params = params.get('preprocessor')
-        postprocessor_params = params.get('postprocessor')
+        model_params = params.get("model")
+        preprocessor_params = params.get("preprocessor")
+        postprocessor_params = params.get("postprocessor")
 
         # setup data labeler based on parameters
-        self._load_model(model_params.get('class'), dirpath)
-        self._load_preprocessor(preprocessor_params.get('class'), dirpath)
-        self._load_postprocessor(postprocessor_params.get('class'), dirpath)
+        self._load_model(model_params.get("class"), dirpath)
+        self._load_preprocessor(preprocessor_params.get("class"), dirpath)
+        self._load_postprocessor(postprocessor_params.get("class"), dirpath)
 
     @classmethod
     def load_from_library(cls, name):
@@ -623,19 +653,11 @@ class BaseDataLabeler(object):
         :return: None
         """
         parameters = {
-            'model': {
-                'class': self._model.__class__.__name__
-            },
-            'preprocessor': {
-                'class': self._preprocessor.__class__.__name__,
-            },
-            'postprocessor': {
-                'class': self._postprocessor.__class__.__name__,
-
-            },
+            "model": {"class": self._model.__class__.__name__},
+            "preprocessor": {"class": self._preprocessor.__class__.__name__,},
+            "postprocessor": {"class": self._postprocessor.__class__.__name__,},
         }
-        with open(os.path.join(dirpath,
-                               'data_labeler_parameters.json'), 'w') as fp:
+        with open(os.path.join(dirpath, "data_labeler_parameters.json"), "w") as fp:
             json.dump(parameters, fp)
 
     def _save_data_labeler(self, dirpath):
@@ -665,9 +687,17 @@ class BaseDataLabeler(object):
 
 
 class TrainableDataLabeler(BaseDataLabeler):
-
-    def fit(self, x, y, validation_split=0.2, labels=None, reset_weights=False,
-            batch_size=32, epochs=1, error_on_mismatch=False):
+    def fit(
+        self,
+        x,
+        y,
+        validation_split=0.2,
+        labels=None,
+        reset_weights=False,
+        batch_size=32,
+        epochs=1,
+        error_on_mismatch=False,
+    ):
         """
         Fits the data labeler model for the dataset.
 
@@ -696,21 +726,21 @@ class TrainableDataLabeler(BaseDataLabeler):
         """
 
         # input validation checks
-        x = self._check_and_return_valid_data_format(x, fit_or_predict='fit')
-        y = self._check_and_return_valid_data_format(y, fit_or_predict='fit')
+        x = self._check_and_return_valid_data_format(x, fit_or_predict="fit")
+        y = self._check_and_return_valid_data_format(y, fit_or_predict="fit")
 
         num_samples = len(x)
         if num_samples == 0 or len(y) == 0:
             raise ValueError("No data or labels to fit.")
         elif num_samples != len(y):
             raise ValueError("Data and labels must be the same length.")
-        elif validation_split < 0. or validation_split >= 1.0:
-            raise ValueError(
-                "`validation_split` must be >= 0 and less than 1.0")
+        elif validation_split < 0.0 or validation_split >= 1.0:
+            raise ValueError("`validation_split` must be >= 0 and less than 1.0")
 
         # check pipeline
         self.check_pipeline(
-            skip_postprocessor=False, error_on_mismatch=error_on_mismatch)
+            skip_postprocessor=False, error_on_mismatch=error_on_mismatch
+        )
 
         # fit to model
         if labels is not None:
@@ -729,12 +759,21 @@ class TrainableDataLabeler(BaseDataLabeler):
         # preprocess data
         cv_split_index = max(1, int(num_samples * (1 - validation_split)))
         train_data = self._preprocessor.process(
-            x[:cv_split_index], labels=y[:cv_split_index],
-            label_mapping=self.label_mapping, batch_size=batch_size)
-        cv_data = None if not validation_split or cv_split_index < 2 else \
-            self._preprocessor.process(
-                x[cv_split_index:], labels=y[cv_split_index:],
-                label_mapping=self.label_mapping, batch_size=batch_size)
+            x[:cv_split_index],
+            labels=y[:cv_split_index],
+            label_mapping=self.label_mapping,
+            batch_size=batch_size,
+        )
+        cv_data = (
+            None
+            if not validation_split or cv_split_index < 2
+            else self._preprocessor.process(
+                x[cv_split_index:],
+                labels=y[cv_split_index:],
+                label_mapping=self.label_mapping,
+                batch_size=batch_size,
+            )
+        )
 
         results = []
         for i in range(epochs):
@@ -749,12 +788,21 @@ class TrainableDataLabeler(BaseDataLabeler):
                 del shuffle_inds
 
                 train_data = self._preprocessor.process(
-                    train_data_x, labels=train_data_y,
-                    label_mapping=self.label_mapping, batch_size=batch_size)
-                cv_data = None if not validation_split or cv_split_index < 2 \
+                    train_data_x,
+                    labels=train_data_y,
+                    label_mapping=self.label_mapping,
+                    batch_size=batch_size,
+                )
+                cv_data = (
+                    None
+                    if not validation_split or cv_split_index < 2
                     else self._preprocessor.process(
-                        x[cv_split_index:], labels=y[cv_split_index:],
-                        label_mapping=self.label_mapping, batch_size=batch_size)
+                        x[cv_split_index:],
+                        labels=y[cv_split_index:],
+                        label_mapping=self.label_mapping,
+                        batch_size=batch_size,
+                    )
+                )
         return results
 
     def set_model(self, model):
@@ -766,9 +814,8 @@ class TrainableDataLabeler(BaseDataLabeler):
         :type model: base_model.BaseModel
         :return: None
         """
-        if not hasattr(model, 'fit'):
-            raise ValueError('`model` must have a fit function to be '
-                             'trainable.')
+        if not hasattr(model, "fit"):
+            raise ValueError("`model` must have a fit function to be " "trainable.")
         BaseDataLabeler.set_model(self, model)
 
     @classmethod
@@ -784,10 +831,8 @@ class TrainableDataLabeler(BaseDataLabeler):
         :type postprocessor: data_processing.BaseDataPostprocessor
         :return:
         """
-        data_labeler = type(
-            "CustomTrainableDataLabeler", (TrainableDataLabeler,), {})()
+        data_labeler = type("CustomTrainableDataLabeler", (TrainableDataLabeler,), {})()
         data_labeler.set_preprocessor(preprocessor)
         data_labeler.set_model(model)
         data_labeler.set_postprocessor(postprocessor)
         return data_labeler
-

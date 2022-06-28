@@ -236,6 +236,18 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
+    def report(self, remove_disabled_flag=False):
+        """
+        Private abstract method for returning report.
+
+        :param remove_disabled_flag: flag to determine if disabled 
+            options should be excluded in the report.
+        :type remove_disabled_flag: boolean
+        """
+
+        raise NotImplementedError()
+
 
 class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta, BaseColumnProfiler)):
     """

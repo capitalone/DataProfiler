@@ -106,6 +106,18 @@ class TestOrderColumn(unittest.TestCase):
             # key and value populated correctly
             self.assertDictEqual(expected_profile, profile)
 
+    def test_report(self):
+        data = [1]
+        df = pd.Series(data).apply(str)
+
+        profile = OrderColumn(df.name)
+
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
+
     def test_profile_merge(self):
         data = [1, 2, 3, 4, 5, 6]
         df = pd.Series(data).apply(str)

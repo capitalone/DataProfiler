@@ -38,10 +38,22 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
             self.name = df_series.name
             self._create_profile(df_series, options, pool)
 
-    @property
     @abc.abstractmethod
-    def profile(self):
+    def report(self, remove_disabled_flag=False):
+        """
+        Abstract method for returning report.
+
+        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :type remove_disabled_flag: boolean
+        """
         raise NotImplementedError()
+
+    @property
+    def profile(self):
+        """
+        Property for profile. Returns the profile of the column.
+        """
+        return self.report(remove_disabled_flag=False)
 
     def _create_profile(self, df_series, options=None, pool=None):
         """
@@ -203,8 +215,13 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
     ]
     _option_class = StructuredOptions
 
-    @property
-    def profile(self):
+    def report(self, remove_disabled_flag=False):
+        """
+        Method for returning report.
+
+        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :type remove_disabled_flag: boolean
+        """
         profile = {
             "data_type_representation": dict(),
             "data_type": None,
@@ -214,14 +231,28 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
 
         for _, profiler in self._profiles.items():
             if not has_found_match and profiler.data_type_ratio == 1.0:
+<<<<<<< HEAD
                 profile.update(
                     {"data_type": profiler.type, "statistics": profiler.profile,}
                 )
+=======
+                profile.update({
+                    "data_type": profiler.type,
+                    "statistics": profiler.report(remove_disabled_flag),
+                })
+>>>>>>> 7de75ed4c23d98f443c090474251b90014e5fd89
                 has_found_match = True
             profile["data_type_representation"].update(
                 dict([(profiler.type, profiler.data_type_ratio)])
             )
         return profile
+
+    @property
+    def profile(self):
+        """
+        Property for profile. Returns the profile of the column.
+        """
+        return self.report(remove_disabled_flag=False)
 
     @property
     def selected_data_type(self):
@@ -298,12 +329,17 @@ class ColumnStatsProfileCompiler(BaseCompiler):
     ]
     _option_class = StructuredOptions
 
-    @property
-    def profile(self):
-        profile = dict()
+    def report(self, remove_disabled_flag=False):
+        """
+        Method for returning report.
+
+        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :type remove_disabled_flag: boolean
+        """
+        report = dict()
         for _, profiler in self._profiles.items():
-            profile.update(profiler.profile)
-        return profile
+            report.update(profiler.report(remove_disabled_flag))
+        return report
 
     def diff(self, other, options=None):
         """
@@ -333,6 +369,7 @@ class ColumnDataLabelerCompiler(BaseCompiler):
     _profilers = [DataLabelerColumn]
     _option_class = StructuredOptions
 
+<<<<<<< HEAD
     @property
     def profile(self):
         profile = {"data_label": None, "statistics": dict()}
@@ -343,6 +380,26 @@ class ColumnDataLabelerCompiler(BaseCompiler):
             profile["statistics"].update(col_profile)
         return profile
 
+=======
+    def report(self, remove_disabled_flag=False):
+        """
+        Method for returning report.
+
+        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :type remove_disabled_flag: boolean
+        """
+        report = {
+            "data_label": None,
+            "statistics": dict()
+        }
+        # TODO: Only works for last profiler. Abstracted for now.
+        for _, profiler in self._profiles.items():
+            col_profile = profiler.report(remove_disabled_flag)
+            report["data_label"] = col_profile.pop("data_label")
+            report["statistics"].update(col_profile)
+        return report
+    
+>>>>>>> 7de75ed4c23d98f443c090474251b90014e5fd89
     def diff(self, other, options=None):
         """
         Finds the difference between 2 compilers and returns the report
@@ -381,6 +438,7 @@ class UnstructuredCompiler(BaseCompiler):
 
     _option_class = UnstructuredOptions
 
+<<<<<<< HEAD
     @property
     def profile(self):
         profile = {"data_label": dict(), "statistics": dict()}
@@ -390,6 +448,22 @@ class UnstructuredCompiler(BaseCompiler):
             ].profile
         if TextProfiler.type in self._profiles:
             profile["statistics"] = self._profiles[TextProfiler.type].profile
+=======
+    def report(self, remove_disabled_flag=False):
+        """Report on profile attribute of the class and pop value
+            from self.profile if key not in self.__calculations
+        """
+        profile = {
+            "data_label": dict(),
+            "statistics": dict()
+        }
+        if UnstructuredLabelerProfile.type in self._profiles:
+            profile["data_label"] = \
+                self._profiles[UnstructuredLabelerProfile.type].report(remove_disabled_flag)
+        if TextProfiler.type in self._profiles:
+            profile["statistics"] = \
+                self._profiles[TextProfiler.type].report(remove_disabled_flag)
+>>>>>>> 7de75ed4c23d98f443c090474251b90014e5fd89
         return profile
 
     def diff(self, other, options=None):

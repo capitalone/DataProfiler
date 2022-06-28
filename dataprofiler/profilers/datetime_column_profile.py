@@ -115,6 +115,16 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         )
         return merged_profile
 
+    def report(self, remove_disabled_flag=False):
+        """
+        Private abstract method for returning report.
+
+        :param remove_disabled_flag: flag to determine if disabled
+            options should be excluded in the report.
+        :type remove_disabled_flag: boolean
+        """
+        return self.profile
+
     @property
     def profile(self):
         """

@@ -540,6 +540,59 @@ class TestUnstructuredTextProfile(unittest.TestCase):
         self.assertDictEqual(expected_word_count, text_profile.word_count)
         self.assertDictEqual(expected_vocab, text_profile.vocab_count)
 
+    def test_report(self):
+        """Test report method in TextProfiler class under four (4) scenarios.
+        First, test under scenario of disabling vocab and word. Second, test with no options and
+        `remove_disabled_flag`=True. Third, test no options and default
+        `remove_disabled_flag`. Lastly, test under scenario of disabling vocab but not word.
+        """
+        options = (
+            TextProfilerOptions()
+        )  # With TextProfilerOptions as False and remove_disabled_flag == True
+        options.vocab.is_enabled = False
+        options.words.is_enabled = False
+
+        profiler = TextProfiler("Name", options)
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        profiler.update(sample)
+
+        report = profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+        self.assertNotIn("vocab", report_keys)
+        self.assertNotIn("words", report_keys)
+
+        profiler = TextProfiler(
+            "Name"
+        )  # w/o TextProfilerOptions and remove_disabled_flag == True
+        report = profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+        self.assertIn("vocab", report_keys)
+        self.assertIn("words", report_keys)
+
+        profiler = TextProfiler(
+            "Name"
+        )  # w/o TextProfilerOptions and remove_disabled_flag default
+        report = profiler.report()
+        report_keys = list(report.keys())
+        self.assertIn("vocab", report_keys)
+        self.assertIn("words", report_keys)
+
+        options = (
+            TextProfilerOptions()
+        )  # With TextProfilerOptions True/False and remove_disabled_flag == True
+        options.vocab.is_enabled = True
+        options.words.is_enabled = False
+
+        profiler = TextProfiler("Name", options)
+        sample = pd.Series(["This is test, a Test sentence.!!!"])
+        profiler.update(sample)
+
+        report = profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+
+        self.assertIn("vocab", report_keys)
+        self.assertNotIn("words", report_keys)
+
     def test_options_case_sensitive(self):
         # change is_case_sensitive, other options remain the same as default values
         options = TextProfilerOptions()

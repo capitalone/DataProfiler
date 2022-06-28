@@ -171,6 +171,18 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             expected = defaultdict(float, {"data_labeler_predict": 2.0})
             self.assertEqual(expected, profiler.profile["times"])
 
+    def test_report(self, mock_instance):
+        self._setup_data_labeler_mock(mock_instance)
+
+        data = pd.Series(["1", "2", "3"])
+        profile = DataLabelerColumn(data.name)
+
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
+
     def test_label_match(self, mock_instance):
         """
         Test label match between avg_prediction and data_label_representation

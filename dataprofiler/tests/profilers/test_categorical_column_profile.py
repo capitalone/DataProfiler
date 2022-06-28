@@ -317,6 +317,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 ]
             ),
         )
+
         # We have to pop these values because sometimes the order changes
         self.assertCountEqual(
             expected_profile["statistics"].pop("categories"),
@@ -340,6 +341,17 @@ class TestCategoricalColumn(unittest.TestCase):
             statistics=dict([("unique_count", 20), ("unique_ratio", 1),]),
         )
         self.assertEqual(report, expected_profile)
+
+    def test_report(self):
+        df_non_categorical = pd.Series(list(map(str, range(0, 20))))
+        profile = CategoricalColumn(df_non_categorical.name)
+        profile.update(df_non_categorical)
+
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
 
     def test_categorical_merge(self):
         df1 = pd.Series(

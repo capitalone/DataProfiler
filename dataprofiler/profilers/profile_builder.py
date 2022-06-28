@@ -303,11 +303,15 @@ class StructuredColProfiler(object):
 
         return profile
 
+<<<<<<< HEAD
     @property
     def profile(self):
+=======
+    def report(self, remove_disabled_flag=False):
+>>>>>>> 7de75ed4c23d98f443c090474251b90014e5fd89
         unordered_profile = dict()
         for profile in self.profiles.values():
-            utils.dict_merge(unordered_profile, profile.profile)
+            utils.dict_merge(unordered_profile, profile.report(remove_disabled_flag))
 
         name = self.name
         if isinstance(self.name, np.integer):
@@ -354,6 +358,10 @@ class StructuredColProfiler(object):
                 profile[key] = None
 
         return profile
+
+    @property
+    def profile(self):
+        return self.report(remove_disabled_flag=False)
 
     def _update_base_stats(self, base_stats):
         self.sample_size += base_stats["sample_size"]
@@ -1193,11 +1201,14 @@ class UnstructuredProfiler(BaseProfiler):
             report_options = {
                 "output_format": None,
                 "omit_keys": None,
+                "remove_disabled_flag": False,
             }
 
         output_format = report_options.get("output_format", None)
         omit_keys = report_options.get("omit_keys", None)
+        remove_disabled_flag = report_options.get("remove_disabled_flag", False)
 
+<<<<<<< HEAD
         report = OrderedDict(
             [
                 (
@@ -1215,6 +1226,20 @@ class UnstructuredProfiler(BaseProfiler):
             ]
         )
         report["data_stats"] = self._profile.profile
+=======
+        report = OrderedDict([
+            ("global_stats", {
+                "samples_used": self.total_samples,
+                "empty_line_count": self._empty_line_count,
+                "file_type": self.file_type,
+                "encoding": self.encoding,
+                "memory_size": self.memory_size,
+                "times": self.times,
+            }),
+            ("data_stats", OrderedDict()),
+        ])
+        report["data_stats"] = self._profile.report(remove_disabled_flag)
+>>>>>>> 7de75ed4c23d98f443c090474251b90014e5fd89
         return _prepare_report(report, output_format, omit_keys)
 
     @utils.method_timeit(name="clean_and_base_stats")
@@ -1685,11 +1710,13 @@ class StructuredProfiler(BaseProfiler):
             report_options = {
                 "output_format": None,
                 "num_quantile_groups": 4,
+                "remove_disabled_flag": False,
             }
 
         output_format = report_options.get("output_format", None)
         omit_keys = report_options.get("omit_keys", [])
         num_quantile_groups = report_options.get("num_quantile_groups", 4)
+        remove_disabled_flag = report_options.get("remove_disabled_flag", False)
 
         report = OrderedDict(
             [
@@ -1718,8 +1745,13 @@ class StructuredProfiler(BaseProfiler):
         for i in range(len(self._profile)):
             col_name = self._profile[i].name
             report["global_stats"]["profile_schema"][col_name].append(i)
+<<<<<<< HEAD
             report["data_stats"].append(self._profile[i].profile)
             quantiles = report["data_stats"][i]["statistics"].get("quantiles")
+=======
+            report["data_stats"].append(self._profile[i].report(remove_disabled_flag))
+            quantiles = report["data_stats"][i]["statistics"].get('quantiles')
+>>>>>>> 7de75ed4c23d98f443c090474251b90014e5fd89
             if quantiles:
                 quantiles = calculate_quantiles(num_quantile_groups, quantiles)
                 report["data_stats"][i]["statistics"]["quantiles"] = quantiles

@@ -244,6 +244,37 @@ class TestTextColumnProfiler(unittest.TestCase):
             self.assertAlmostEqual(expected_median_abs_dev, median_abs_dev, places=2)
             self.assertCountEqual(expected_vocab, vocab)
 
+    def test_report(self):
+        """Test report method in TextColumn class under three (3) scenarios.
+        First, test under scenario of disabling vocab. Second, test with no options and
+        `remove_disabled_flag`=True. Finally, test no options and default
+        `remove_disabled_flag`.
+        """
+        data = [2.0, 12.5, "not a float", 6.0, "not a float"]
+        df = pd.Series(data).apply(str)
+
+        options = TextOptions()  # With TextOptions and remove_disabled_flag == True
+        options.vocab.is_enabled = False
+
+        profiler = TextColumn(df.name, options)
+        report = profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+        self.assertNotIn("vocab", report_keys)
+
+        profiler = TextColumn(
+            df.name
+        )  # w/o TextOptions and remove_disabled_flag == True
+        report = profiler.report(remove_disabled_flag=True)
+        report_keys = list(report.keys())
+        self.assertIn("vocab", report_keys)
+
+        profiler = TextColumn(
+            df.name
+        )  # w/o TextOptions and remove_disabled_flag default
+        report = profiler.report()
+        report_keys = list(report.keys())
+        self.assertIn("vocab", report_keys)
+
     def test_option_timing(self):
         data = [2.0, 12.5, "not a float", 6.0, "not a float"]
         df = pd.Series(data).apply(str)

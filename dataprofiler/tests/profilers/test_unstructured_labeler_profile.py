@@ -146,10 +146,48 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
         # key and value populated correctly
         self.assertDictEqual(expected_profile, profile)
 
+<<<<<<< HEAD
     @mock.patch("dataprofiler.profilers." "unstructured_labeler_profile.DataLabeler")
     @mock.patch(
         "dataprofiler.profilers." "unstructured_labeler_profile." "CharPostprocessor"
     )
+=======
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.DataLabeler')
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.'
+                'CharPostprocessor')
+    def test_report(self, processor_class_mock, model_class_mock):
+        # setup mocks
+        model_mock = mock.Mock()
+        model_mock.reverse_label_mapping = {1: 'UNKNOWN'}
+        model_mock.predict.return_value = dict(pred=[[1]])
+        model_class_mock.return_value = model_mock
+        processor_mock = mock.Mock()
+        processor_mock.process.return_value = dict(pred=[[]])
+        processor_class_mock.return_value = processor_mock
+
+        # initialize labeler profile
+        profile = UnstructuredLabelerProfile()
+
+        sample = pd.Series(["a"])
+
+        time_array = [float(i) for i in range(4, 0, -1)]
+        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+            profile.update(sample)
+
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
+
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.DataLabeler')
+    @mock.patch('dataprofiler.profilers.'
+                'unstructured_labeler_profile.'
+                'CharPostprocessor')
+>>>>>>> 7de75ed4c23d98f443c090474251b90014e5fd89
     def test_entity_percentages(self, mock1, mock2):
         """
         Tests to see that entity percentages match the counts given

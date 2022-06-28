@@ -157,8 +157,13 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
             BaseColumnPrimitiveTypeProfiler()
         self.assertEqual(
             "Can't instantiate abstract class BaseColumnPrimitiveTypeProfiler "
+<<<<<<< HEAD
             "with abstract methods _update_helper, profile, update",
             str(e.exception),
+=======
+            "with abstract methods _update_helper, profile, report, update",
+            str(e.exception)
+>>>>>>> 7de75ed4c23d98f443c090474251b90014e5fd89
         )
 
     def test_combine_unqiue_sets(self):
@@ -186,8 +191,13 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
             self,
+<<<<<<< HEAD
             {"_update_helper", "update", "profile"},
             BaseColumnPrimitiveTypeProfiler.__abstractmethods__,
+=======
+            {'_update_helper', 'update', 'report', 'profile'},
+            BaseColumnPrimitiveTypeProfiler.__abstractmethods__
+>>>>>>> 7de75ed4c23d98f443c090474251b90014e5fd89
         )
 
     def test_add_helper(self):
@@ -262,6 +272,10 @@ class AbstractTestColumnProfiler(object):
                 "data type": profiler.type,
                 "statistics": dict(),
             }
+            mock_object.return_value.report.return_value = {
+                "data type": profiler.type,
+                "statistics": dict()
+            }
             mock_object.return_value.data_type_ratio = 1.0
             profiler_mocks.append(mock_object)
         self.column_profiler._profilers = profiler_mocks
@@ -289,6 +303,16 @@ class AbstractTestColumnProfiler(object):
         for profiler_mock in profiler_mocks:
             self.assertEqual(1, profiler_mock.call_count)
         self._delete_profiler_mocks()
+
+    def test_report(self):
+        self._create_profiler_mocks()
+        profile = self.column_profiler(self.aws_dataset["datetime"])
+
+        report1 = profile.profile
+        report2 = profile.report(remove_disabled_flag=False)
+        report3 = profile.report(remove_disabled_flag=True)
+        self.assertDictEqual(report1, report2)
+        self.assertDictEqual(report1, report3)
 
     def test_profile(self):
         self._create_profiler_mocks()

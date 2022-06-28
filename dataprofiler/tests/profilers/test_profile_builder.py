@@ -972,6 +972,63 @@ class TestStructuredProfiler(unittest.TestCase):
         for col_report in report["data_stats"]:
             self.assertIsNone(col_report)
 
+    def test_report_remove_disabled_flag(self):
+        data = pd.DataFrame([[1.01, 2.02, 'if you'],
+                            [10.01, 20.02,'read this you'],
+                            [100.01,200.02, 'are cool']],
+                    columns=["a", "b", "wordy_text_words"])
+
+        # with options to disable FloatColumn `precision`
+        # and with remove_disabled_flag == True
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"precision.is_enabled": False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
+
+        for iter_value in range(0, len(data.columns)-1):
+            self.assertNotIn("precision", report["data_stats"][iter_value]["statistics"])
+
+        # with options to disable NumericalMixIn cal `min`
+        # and with remove_disabled_flag == True
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"min.is_enabled": False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
+
+        for iter_value in range(0,len(data.columns)-1):
+            self.assertNotIn("min", report["data_stats"][iter_value]["statistics"])
+
+        # with options to disable TextColumn cal `vocab`
+        # and with remove_disabled_flag == True
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"vocab.is_enabled": False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
+
+        for iter_value in range(0,len(data.columns)):
+            self.assertNotIn("vocab", report["data_stats"][iter_value])
+
+        # with profiler options and default remove_disabled_flag
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"min.is_enabled": False})
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+        report = profiler.report()
+
+        for iter_value in range(0,len(data.columns)):
+            self.assertIn("min", report["data_stats"][iter_value]["statistics"])
+
+        # w/o profiler options and default remove_disabled_flag
+        profiler = dp.StructuredProfiler(data=data)
+        report = profiler.report()
+
+        for iter_value in range(0, len(data.columns)-1):
+            self.assertIn("precision", report["data_stats"][iter_value]["statistics"])
+            self.assertIn("min", report["data_stats"][iter_value]["statistics"])
+
+        self.assertNotIn("precision", report["data_stats"][2]["statistics"])
+        self.assertIn("min", report["data_stats"][2]["statistics"])
+        self.assertIn("vocab", report["data_stats"][2]["statistics"])
+
     def test_report_quantiles(self):
         report_none = self.trained_schema.report(
             report_options={"num_quantile_groups": None})
@@ -1836,7 +1893,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
     def test_update_match_are_abstract(self):
         six.assertCountEqual(
             self,
-            {'profile', '_update_helper', 'update'},
+            {'profile', '_update_helper', 'report', 'update'},
             dp.profilers.BaseColumnProfiler.__abstractmethods__
         )
 
@@ -2606,6 +2663,19 @@ class TestUnstructuredProfilerWData(unittest.TestCase):
         self.assertDictEqual(
             expected_word_count,
             report['data_stats']['statistics']['word_count'])
+
+    def test_report_remove_disabled_flag(self):
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"vocab.is_enabled": False})
+        profiler = dp.UnstructuredProfiler(data=self.dataset, options=profiler_options)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
+        self.assertNotIn('vocab', report['data_stats']['statistics'])
+        self.assertIn('words', report['data_stats']['statistics'])
+
+        profiler = dp.UnstructuredProfiler(data=self.dataset)
+        report = profiler.report(report_options={"remove_disabled_flag": True})
+        self.assertIn('vocab', report['data_stats']['statistics'])
+        self.assertIn('words', report['data_stats']['statistics'])
 
     def test_save_and_load(self):
         data_folder = "dataprofiler/tests/data/"

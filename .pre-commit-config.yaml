@@ -1,0 +1,47 @@
+repos:
+  # Black: format Python code
+  # https://github.com/psf/black/blob/master/.pre-commit-hooks.yaml
+  - repo: https://github.com/psf/black
+    rev: 19.10b0
+    hooks:
+      - id: black
+        types: [file, python]
+        language_version: python3.8
+  # Isort: sort import statements
+  # https://github.com/timothycrosley/isort/blob/develop/.pre-commit-hooks.yaml
+  # The setup.cfg holds the compatible config for use with black
+  # https://github.com/psf/black/blob/master/docs/compatible_configs.md#isort
+  - repo: https://github.com/asottile/seed-isort-config
+    rev: v1.9.1
+    hooks:
+      - id: seed-isort-config
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.9.3
+    hooks:
+      - id: isort
+        language_version: python3.8
+  # Flake8: complexity and style checking
+  # https://flake8.pycqa.org/en/latest/user/using-hooks.html
+  - repo: https://github.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-docstrings]
+        exclude: (^docs/)
+        language_version: python3.8
+  # Mypy: Optional static type checking
+  # https://github.com/pre-commit/mirrors-mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.910
+    hooks:
+      - id: mypy
+        exclude: ^docs/
+        language_version: python3.8
+  # General fixers: format files for white spaces and trailing new lines, warn on debug statements
+  # https://github.com/pre-commit/pre-commit-hooks#hooks-available
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: trailing-whitespace
+      - id: debug-statements
+      - id: end-of-file-fixer

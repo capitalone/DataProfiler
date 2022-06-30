@@ -17,18 +17,12 @@ import networkx as nx
 
 
 class GraphDifferentiator():
-    
-    data_type = 'csv'
-    
-    def __init__(self, input_file_path=None, data=None, options=None):
         
+    def __init__(self, input_file_path=None, data=None, options=None):
         options = self._check_and_return_options(options)
-        BaseData.__init__(self, input_file_path, data, options)
+        BaseData.__init__(self, input_file_path, data, options)        
         SpreadSheetDataMixin.__init__(self, input_file_path, data, options)
-
-        self._data_formats["records"] = self._get_data_as_records
-        self.SAMPLES_PER_LINE_DEFAULT = options.get("record_samples_per_line",
-                                                    1)
+        self.SAMPLES_PER_LINE_DEFAULT = options.get("record_samples_per_line", 1)
         self._selected_data_format = options.get("data_format", "dataframe")
         self._delimiter = options.get("delimiter", None)
         self._quotechar = options.get("quotechar", None)
@@ -45,21 +39,47 @@ class GraphDifferentiator():
             if not self._quotechar:
                 self._quotechar = self._default_quotechar
 
-    def graph_subset(file):
+    def file_subset(file, number_lines, format):
+        '''
+        Returns a subset of a file
+        '''
 
-        return
+        # check for input errors
+        # check correct handled format
+        if not (format.__eq__("csv") or format.__eq__("json")):
+            raise ValueError("input file has to be csv or json")
+
+        # operations for input csv
+        if format.__eq__("csv"):
+            with open('subset.csv', 'w') as subset:
+                csvwriter = csv.writer(subset, delimiter=",")
+                with open(file, 'r') as fp:
+                    csvreader = csv.reader(fp)
+                    line_number = 0
+                    
+                    for row in csvreader:
+                        if line_number > number_lines:
+                            break
+                        csvwriter.writerow(row)
+                        line_number += 1
+            return subset
+
+        if format.__eq__("json"):
+            # create subset for json
+            return
 
     def is_match(file, options):
         '''
         Determines whether the file is a graph
-        User is able to specify particular format to check through options parameter
         Current formats checked:
             - adjacency list
             - edge list
+        User is able to specify particular format to check through options parameter
         '''
         graph = True
         file_handle = open(file, "rb")
 
+        # need to take subset first (later implementation)
         if options.format.__eq__("adjacency_list"):
             try:
                 adjacency_list = nx.read_adjlist(file_handle)
@@ -80,24 +100,7 @@ class GraphDifferentiator():
                 adjacency_list = nx.read_edgelist(file_handle)
             except nx.NetworkXAlgorithmError:
                 graph = False
-                return
             except nx.NetworkXUnfeasible:
                 graph = False
-                return
         return graph
-
-    @classmethod
-    def convert_graph(file, format):
-        '''
-        Allows the user to input a desired format
-        '''
-        file_handle = open(file, "rb")
-
-        if is_graph(file):
-            if format.__eq__("adj_list"):
-                return nx.read_adjlist(file_handle)
-            if format.__eq__("edge_list"):
-                return nx.read_edgelist(file_handle)
-            else:
-                raise ValueError("Need to specify desired format")
     

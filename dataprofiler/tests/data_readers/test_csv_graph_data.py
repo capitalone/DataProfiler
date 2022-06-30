@@ -6,6 +6,7 @@ import pandas as pd
 
 from dataprofiler.data_readers.data import CSVData, Data
 from dataprofiler.data_readers.data_utils import is_stream_buffer
+from dataprofiler.data_readers import graph_differentiator
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -25,7 +26,13 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
                  num_columns=11, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/guns.csv'),
                  count=100799, delimiter=',', has_header=[None],
-                 num_columns=10, encoding='utf-8'),            
+                 num_columns=10, encoding='utf-8'),    
+            dict(path=os.path.join(test_dir, 'csv/graph-differentiator-input-subset-standard-1.csv'),
+                 count=4, delimiter=',', has_header=[0],
+                 num_columns=4, encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/graph-differentiator-input-subset-standard-2.csv'),
+                 count=6, delimiter=',', has_header=[0],
+                 num_columns=4, encoding='utf-8'),
         ]
 
         cls.buffer_list = []
@@ -51,31 +58,82 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
         for buffer in cls.buffer_list:
             buffer['path'].seek(0)
 
-    def test_graph_converter_positive(self):
+    # test taking subsets of csv files
+    def test_file_subset_1(self):
         """
-        Determine if the graph converter works at converting a graph file to a standardized graph format
+        Determine if the the subset function works as intended (test 1)
         """
-        input_file = self.input_file_names[1]['path']
-        standard_file = self.input_file_names[0]['path']
-        self.assertEqual(CSVData.convert_graph(input_file), standard_file)
+        input_file = self.input_file_names[0]['path']
+        check_file = self.input_file_names[3]['path']
 
-    def test_is_graph_negative(self):
-        """
-        Determine if the input CSV file can be automatically recognized as not being a graph
-        """
-        input_file = self.input_file_names[2]['path']
-        test_graph = input_file.is_graph()
-        self.assertFalse(test_graph)
+        subset = graph_differentiator.GraphDifferentiator.file_subset(input_file, 4, "csv")
+        self.assertEqual(subset, check_file)
 
-    def test_is_graph_positive(self):
+    def test_file_subset_2(self):
+        """
+        Determine if the the subset function works as intended (test 2)
+        """
+        input_file = self.input_file_names[0]['path']
+        check_file = self.input_file_names[4]['path']
+
+        subset = graph_differentiator.GraphDifferentiator.file_subset(input_file, 6, "csv")
+        self.assertEqual(subset, check_file)
+
+    # test is_match for true output w/ different options
+    def test_is_graph_positive_1(self):
         """
         Determine if the input CSV file can automatically be recognized as being a graph
         """
         input_file = self.input_file_names[1]['path']
-        test_graph = input_file.is_graph()
+        options = '{"format":"none"}'
+        test_graph = graph_differentiator.GraphDifferentiator.is_match(input_file, options)
+        self.assertTrue(test_graph)
+
+    def test_is_graph_positive_2(self):
+        """
+        Determine if the input CSV file can automatically be recognized as being a graph w/ adjacency list option selected
+        """
+        input_file = self.input_file_names[1]['path']
+        options = '{"format":"adjacency_list"}'
+        test_graph = graph_differentiator.GraphDifferentiator.is_match(input_file, options)
+        self.assertTrue(test_graph)
+
+    def test_is_graph_positive_3(self):
+        """
+        Determine if the input CSV file can automatically be recognized as being a graph w/ edge list option selected
+        """
+        input_file = self.input_file_names[1]['path']
+        options = '{"format":"edge_list"}'
+        test_graph = graph_differentiator.GraphDifferentiator.is_match(input_file, options)
+        self.assertTrue(test_graph)
+
+    # test is_match for false output w/ different options
+    def test_is_graph_negative_1(self):
+        """
+        Determine if the input CSV file can be automatically recognized as not being a graph w/ no options selected
+        """
+        input_file = self.input_file_names[2]['path']
+        options = '{"format":"none"}'
+        test_graph = graph_differentiator.GraphDifferentiator.is_match(input_file, options)
         self.assertFalse(test_graph)
 
+    def test_is_graph_negative_2(self):
+        """
+        Determine if the input CSV file can be automatically recognized as not being a graph w/ adjacency list option selected
+        """
+        input_file = self.input_file_names[2]['path']
+        options = '{"format":"adjacency_list"}'
+        test_graph = graph_differentiator.GraphDifferentiator.is_match(input_file, options)
+        self.assertFalse(test_graph)
 
+    def test_is_graph_negative_3(self):
+        """
+        Determine if the input CSV file can be automatically recognized as not being a graph w/ edge list option selected
+        """
+        input_file = self.input_file_names[2]['path']
+        options = '{"format":"edge_list"}'
+        test_graph = graph_differentiator.GraphDifferentiator.is_match(input_file, options)
+        self.assertFalse(test_graph)
 
 if __name__ == '__main__':
     unittest.main()

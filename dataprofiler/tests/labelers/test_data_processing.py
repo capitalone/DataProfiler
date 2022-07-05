@@ -12,7 +12,7 @@ import pkg_resources
 from dataprofiler.labelers.data_processing import BaseDataProcessor, \
     CharPostprocessor, CharPreprocessor, DirectPassPreprocessor, \
     RegexPostProcessor, StructCharPostprocessor, StructCharPreprocessor, \
-    StructRegexPostProcessor
+    StructRegexPostProcessor, CharEncodedPreprocessor
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -1267,6 +1267,252 @@ class TestCharPostprocessor(unittest.TestCase):
         self.assertEqual(results, post_process_results)
 
 
+class TestCharEncodedPreprocessor(unittest.TestCase):
+
+    def test_registered_subclass(self):
+        self.assertEqual(
+            CharEncodedPreprocessor,
+            BaseDataProcessor.get_class(CharEncodedPreprocessor.__name__))
+
+    def test_validate_parameters(self):
+
+        def test_raises(error_msg, flatten_split=0, flatten_separator='',
+                        is_separate_at_max_len=True, encoding_map='None'):
+            if encoding_map == 'None':
+                encoding_map = {'a': 1}
+            input_params = dict(
+                flatten_split=flatten_split,
+                flatten_separator=flatten_separator,
+                is_separate_at_max_len=is_separate_at_max_len,
+                encoding_map=encoding_map)
+            with self.assertRaises(ValueError, msg=str(input_params)) as e:
+                CharEncodedPreprocessor._validate_parameters(
+                    mock_processor,
+                    input_params)
+            self.assertEqual(error_msg, str(e.exception))
+
+        def test_success(flatten_split=0, flatten_separator='',
+                         is_separate_at_max_len=True, encoding_map=None):
+            if encoding_map is None:
+                encoding_map = {'a': 1}
+            try:
+                CharEncodedPreprocessor._validate_parameters(
+                    mock_processor,
+                    dict(flatten_split=flatten_split,
+                         flatten_separator=flatten_separator,
+                         is_separate_at_max_len=is_separate_at_max_len,
+                         encoding_map=encoding_map))
+            except Exception as e:
+                self.fail(str(e))
+
+        mock_processor = mock.Mock(spec=CharEncodedPreprocessor)
+
+        encoding_map_error_msg = '`encoding_map` must be a dict[str, int]'
+        flatten_error_msg = '`flatten_split` must be a float or int >= 0 and ' \
+                            '<= 1'
+        separator_error_msg = '`flatten_separator` must be a str'
+        at_max_len_error_msg = '`is_separate_at_max_len` must be a bool'
+        test_cases = [
+            # flatten_split test cases
+            dict(params=dict(flatten_split=None), error_msg=flatten_error_msg),
+            dict(params=dict(flatten_split=''), error_msg=flatten_error_msg),
+            dict(params=dict(flatten_split=BaseDataProcessor),
+                 error_msg=flatten_error_msg),
+            dict(params=dict(flatten_split=-.1), error_msg=flatten_error_msg),
+            dict(params=dict(flatten_split=1.1), error_msg=flatten_error_msg),
+            dict(params=dict(flatten_split=float('nan')),
+                 error_msg=flatten_error_msg),
+
+            # no exception
+            dict(params=dict(flatten_split=0), error_msg=None),
+            dict(params=dict(flatten_split=1), error_msg=None),
+            dict(params=dict(flatten_split=0.5), error_msg=None),
+            dict(params=dict(flatten_split=1/3), error_msg=None),
+
+            # flatten_separator test cases
+            dict(params=dict(flatten_separator=None),
+                 error_msg=separator_error_msg),
+            dict(params=dict(flatten_separator=1),
+                 error_msg=separator_error_msg),
+            dict(params=dict(flatten_separator=BaseDataProcessor),
+                 error_msg=separator_error_msg),
+
+            # no exception
+            dict(params=dict(flatten_separator=''), error_msg=None),
+            dict(params=dict(flatten_separator=' '), error_msg=None),
+            dict(params=dict(flatten_separator='abcdefghi'), error_msg=None),
+
+            # is_separate_at_max_len test cases
+            dict(params=dict(is_separate_at_max_len=None),
+                 error_msg=at_max_len_error_msg),
+            dict(params=dict(is_separate_at_max_len=1),
+                 error_msg=at_max_len_error_msg),
+            dict(params=dict(is_separate_at_max_len=BaseDataProcessor),
+                 error_msg=at_max_len_error_msg),
+
+            # no exception
+            dict(params=dict(is_separate_at_max_len=False), error_msg=None),
+            dict(params=dict(is_separate_at_max_len=True), error_msg=None),
+
+            # encoding_map test cases
+            dict(params=dict(encoding_map=None),
+                 error_msg=encoding_map_error_msg),
+            dict(params=dict(encoding_map=1),
+                 error_msg=encoding_map_error_msg),
+            dict(params=dict(encoding_map=BaseDataProcessor),
+                 error_msg=encoding_map_error_msg),
+
+            # no exception
+            dict(params=dict(encoding_map={}), error_msg=None),
+            dict(params=dict(encoding_map={'t': 1}), error_msg=None),
+            dict(params=dict(encoding_map={'test': 3, 'a': 3}), error_msg=None),
+
+            # combination error test cases
+            dict(params=dict(flatten_split=None, flatten_separator=None),
+                 error_msg='\n'.join([flatten_error_msg, separator_error_msg])),
+            dict(params=dict(flatten_split=None, is_separate_at_max_len=None),
+                 error_msg='\n'.join([flatten_error_msg,
+                                      at_max_len_error_msg])),
+            dict(params=dict(flatten_separator=None,
+                             is_separate_at_max_len=None),
+                 error_msg='\n'.join([separator_error_msg,
+                                      at_max_len_error_msg])),
+            dict(params=dict(flatten_split=None, flatten_separator=None,
+                             is_separate_at_max_len=None),
+                 error_msg='\n'.join([flatten_error_msg, separator_error_msg,
+                                      at_max_len_error_msg])),
+        ]
+
+        for test_case in test_cases:
+            if test_case['error_msg'] is None:
+                test_success(**test_case['params'])
+            else:
+                test_raises(test_case['error_msg'], **test_case['params'])
+
+    @mock.patch('sys.stdout', new_callable=StringIO)
+    def test_help(self, mock_stdout):
+        CharEncodedPreprocessor.help()
+        self.assertIn("Parameters", mock_stdout.getvalue())
+        self.assertIn("Input Format", mock_stdout.getvalue())
+
+    def test_get_parameters(self):
+
+        # test default params
+        processor = CharEncodedPreprocessor(encoding_map={'a': 1})
+        self.assertDictEqual(dict(encoding_map={'a': 1},
+                                  max_length=5000,
+                                  default_label='UNKNOWN',
+                                  pad_label='PAD',
+                                  flatten_split=0,
+                                  flatten_separator=' ',
+                                  is_separate_at_max_len=False),
+                             processor.get_parameters())
+
+        # test set params
+        params = dict(encoding_map={'a': 1},
+                      max_length=10,
+                      default_label='test default',
+                      pad_label='test pad',
+                      flatten_split=1,
+                      flatten_separator='test',
+                      is_separate_at_max_len=True)
+        processor = CharEncodedPreprocessor(**params)
+        self.assertDictEqual(params, processor.get_parameters())
+
+        # test subset set params
+        params = dict(encoding_map={'a': 1},
+                      max_length=10,
+                      default_label='test default',
+                      pad_label='test pad',
+                      flatten_split=1,
+                      flatten_separator='test',
+                      is_separate_at_max_len=True)
+        processor = CharEncodedPreprocessor(**params)
+        self.assertDictEqual(
+            dict(max_length=10, encoding_map={'a': 1}),
+            processor.get_parameters(['max_length', 'encoding_map']))
+
+    def test_process(self):
+        preprocessor = CharEncodedPreprocessor(
+            encoding_map={'t': 1, 's': 2}, max_length=5,
+            default_label='UNKNOWN', pad_label='PAD',)
+
+        label_mapping = {
+            'PAD': 0,
+            'UNKNOWN': 1,
+            "TEST1": 2,
+            "TEST2": 3,
+            "TEST3": 4,
+        }
+
+        # test a single sentence
+        test_sentences = np.array(['this is my test sentence. How nice.'])
+        expected_output = [
+            np.array([[1, 0, 0, 2, 0], [0, 0, 2, 0, 0]]),
+            np.array([[0, 0, 0, 0, 0], [0, 1, 0, 2, 1]]),
+            np.array([[0, 2, 0, 0, 1], [0, 0, 0, 0, 0]]),
+            np.array([[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]),
+            np.array([[0, 0, 0, 0, 0]]),
+        ]
+
+        # without labels process
+        preprocessor._parameters['max_length'] = 5
+        process_generator = preprocessor.process(
+            test_sentences, label_mapping=label_mapping, batch_size=2)
+
+        process_output = [data for data in process_generator]
+        for expected, output in zip(expected_output, process_output):
+            self.assertTrue((expected == output).all())
+
+        # with labels process
+        test_sentences = np.array(['this is my'])
+        labels = [
+            [
+                [5, 7, 'TEST1'],
+                [11, 24, 'TEST2'],
+                [26, 29, 'TEST1'],
+                [30, 34, 'TEST2']
+            ]
+        ]
+        expected_sentence_output = [
+            [[1, 0, 0, 2, 0], [0, 0, 2, 0, 0]],
+            [[0, 0, 0, 0, 0]],
+        ]
+        expected_labels_output = [
+            np.array([
+                   [[0., 1., 0., 0., 0.],  # this
+                    [0., 1., 0., 0., 0.],
+                    [0., 1., 0., 0., 0.],
+                    [0., 1., 0., 0., 0.],
+                    [1., 0., 0., 0., 0.]],
+
+                   [[0., 1., 0., 0., 0.],  # is
+                    [0., 0., 1., 0., 0.],
+                    [0., 0., 1., 0., 0.],
+                    [1., 0., 0., 0., 0.],
+                    [1., 0., 0., 0., 0.]]
+            ]),
+
+            np.array([[[0., 1., 0., 0., 0.],  # my
+                       [0., 1., 0., 0., 0.],
+                       [0., 1., 0., 0., 0.],
+                       [1., 0., 0., 0., 0.],
+                       [1., 0., 0., 0., 0.]]]),
+
+        ]
+        expected_output = tuple(zip(expected_sentence_output,
+                                    expected_labels_output))
+        process_generator = preprocessor.process(
+            test_sentences, labels=labels, label_mapping=label_mapping,
+            batch_size=2)
+
+        process_output = [data for data in process_generator]
+        for expected, output in zip(expected_output, process_output):
+            self.assertIsInstance(output, tuple)
+            self.assertTrue((expected[0] == output[0]).all())
+            self.assertTrue((expected[1] == output[1]).all())
+
+
 class TestPreandPostCharacterProcessorConnection(unittest.TestCase):
 
     def test_flatten_convert(self):
@@ -2059,7 +2305,7 @@ class TestRegexPostProcessor(unittest.TestCase):
         aggregation_func_error_msg2 = ("`aggregation_func` must be a one of "
                                        "['split', 'priority', 'random'].")
         priority_order_error_msg1 = ("`priority_order` cannot be None if " 
-                                     "`aggregtation_func` == priority.")
+                                     "`aggregation_func` == priority.")
         priority_order_error_msg2 = ("`priority_order` must be a list or " 
                                      "numpy.ndarray.")
         random_state_error_msg = '`random_state` must be a random.Random.'

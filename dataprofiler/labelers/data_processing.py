@@ -648,7 +648,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             )
             if labels is not None:
                 num_classes = max(label_mapping.values()) + 1
-                
+
                 Y_train = tf.keras.utils.to_categorical(
                     batch_data['labels'], num_classes)
                 yield X_train, Y_train
@@ -928,7 +928,7 @@ class CharPostprocessor(BaseDataPostprocessor,
 
         # Iterate over both lists, should be same length
         for sample, char_pred in zip(data, predictions):
-            
+
             # Copy entities_in_sample so can return later
             # changed input param to "predictions" for ease
             # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
@@ -951,7 +951,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                     if label not in label_count:
                         label_count[label] = 0
                     label_count[label] += 1
-                
+
                 if is_separator or is_end:
 
                     # Find sum of labels over entity
@@ -1143,7 +1143,7 @@ class CharPostprocessor(BaseDataPostprocessor,
         # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
         results = self.match_sentence_lengths(data, dict(results),
                                               flatten_separator)
-        
+
         if use_word_level_argmax:
             results['pred'] = self._word_level_argmax(
                 data, results['pred'], label_mapping, default_label)
@@ -1802,7 +1802,7 @@ class RegexPostProcessor(BaseDataPostprocessor,
         aggregation_func = aggregation_func.lower()
 
         results = copy.deepcopy(labels)
-        
+
         if aggregation_func == 'split':
             self.split_prediction(results)
         elif aggregation_func == 'priority':
@@ -1838,7 +1838,7 @@ class RegexPostProcessor(BaseDataPostprocessor,
 
 class StructRegexPostProcessor(BaseDataPostprocessor,
                                metaclass=AutoSubRegistrationMeta):
-                               
+
     def __init__(self, random_state=None):
         """
         Initialize the RegexPostProcessor class
@@ -1921,18 +1921,18 @@ class StructRegexPostProcessor(BaseDataPostprocessor,
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
         """Data preprocessing function."""
-        
+
         # predictions come from regex_processor in the split format which
         # still is in a 3d format [samples x characters x labels]
         # split meaning it can have a partial prediction between labels, hence
         # it is still like a confidence
         results = self._parameters['regex_processor'].process(
             data, labels, label_mapping)
-        
+
         # get the average of the label confidences over a cell for each label
         for i in range(len(results['pred'])):
             results['pred'][i] = np.mean(results['pred'][i], axis=0)
-            
+
         # since the output is uniform after averaging the characters, stack
         # into a single array, this is now essentially confidences, but we are
         # doing in place as 'conf' may not exist

@@ -460,13 +460,7 @@ class CharLoadTFModel(BaseTrainableModel,
                                "predict.")
         # Pre-allocate space for predictions
         confidences = []
-        # sentence_lengths = np.zeros((batch_size,), dtype=int)
-        # predictions = np.zeros((batch_size, self._parameters['max_length']))
         predictions = []
-        # if show_confidences:
-        #     confidences = np.zeros((batch_size,
-        #                             self._parameters['max_length'],
-        #                             self.num_labels))
 
         # Run model with batching
         allocation_index = 0
@@ -482,16 +476,12 @@ class CharLoadTFModel(BaseTrainableModel,
             # Double array size
             if len(predictions) <= allocation_index:
                 predictions += predictions
-                # sentence_lengths = np.pad(
-                #     sentence_lengths, pad_width=((0, len(sentence_lengths)),),
-                #     mode='constant')
                 if show_confidences:
                     confidences += confidences
 
             if show_confidences:
                 confidences[allocation_index:allocation_index + num_samples_in_batch] = model_output[0].numpy()
             predictions[allocation_index:allocation_index + num_samples_in_batch] = model_output[1].numpy()
-            # sentence_lengths[allocation_index:allocation_index + num_samples_in_batch] = list(map(lambda x: len(x), batch_data))
 
             allocation_index += num_samples_in_batch
 
@@ -501,13 +491,6 @@ class CharLoadTFModel(BaseTrainableModel,
         if show_confidences:
             confidences = [confidences[i].tolist()
                            for i in range(0, allocation_index)]
-
-        # # Append slices of predictions to return prediction & confidence matrices
-        # for index, sentence_length \
-        #         in enumerate(sentence_lengths[:allocation_index]):
-        #     predictions_list[index] = list(predictions[index][:sentence_length])
-        #     if show_confidences:
-        #         confidences_list[index] = list(confidences[index][:sentence_length])
 
         if show_confidences:
             return {'pred': predictions, 'conf': confidences}

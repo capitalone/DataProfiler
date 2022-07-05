@@ -1241,7 +1241,7 @@ class StructCharPreprocessor(CharPreprocessor,
 
     def convert_to_unstructured_format(self, data, labels):
         """
-        Converts the list of data samples into the CharPreprocessor
+        Converts the list of data samples into the StructCharPreprocessor
         required input data format.
 
         :param data: list of strings

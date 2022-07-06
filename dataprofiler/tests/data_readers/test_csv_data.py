@@ -25,7 +25,7 @@ class TestCSVDataClass(unittest.TestCase):
                  num_columns=6, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/iris_no_header.csv'),
                  count=20, delimiter=',', has_header=[None],
-                 num_columns=6, encoding='utf-8'),            
+                 num_columns=6, encoding='utf-8'),
             dict(path=os.path.join(test_dir, 'csv/iris-utf-8.csv'),
                  count=150, delimiter=',', has_header=[0],
                  num_columns=6, encoding='utf-8'),

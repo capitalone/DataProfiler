@@ -222,7 +222,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
     def __init__(self, max_length=3400, default_label='UNKNOWN',
                  pad_label='PAD', flatten_split=0, flatten_separator=" ",
-                 is_separate_at_max_len=False):
+                 is_separate_at_max_len=False, **kwargs):
         """
         Initialize the CharPreprocessor class
 
@@ -252,6 +252,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             flatten_split=flatten_split,
             flatten_separator=flatten_separator,
             is_separate_at_max_len=is_separate_at_max_len,
+            **kwargs
         )
 
     def _validate_parameters(self, parameters):
@@ -647,12 +648,129 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             )
             if labels is not None:
                 num_classes = max(label_mapping.values()) + 1
-                
+
                 Y_train = tf.keras.utils.to_categorical(
                     batch_data['labels'], num_classes)
                 yield X_train, Y_train
             else:  # must be an else or will yield this as well
                 yield X_train
+
+
+class CharEncodedPreprocessor(CharPreprocessor,
+                              metaclass=AutoSubRegistrationMeta):
+
+    def __init__(self, encoding_map=None, max_length=5000,
+                 default_label='UNKNOWN', pad_label='PAD', flatten_split=0,
+                 flatten_separator=" ", is_separate_at_max_len=False):
+        """
+        Initialize the CharEncodedPreprocessor class
+
+        :param encoding_map: char to int encoding map
+        :type encoding_map: dict
+        :param max_length: Maximum char length in a sample.
+        :type max_length: int
+        :param default_label: Key for label_mapping that is the default label
+        :type default_label: string (could be int, char, etc.)
+        :param pad_label: Key for label_mapping that is the pad label
+        :type pad_label: string (could be int, char, etc.)
+        :param flatten_separator: separator used to put between flattened
+            samples.
+        :type flatten_separator: str
+        :param is_separate_at_max_len: if true, separates at max_length,
+            otherwise at nearest separator
+        :type is_separate_at_max_len: bool
+        """
+        super().__init__(
+            encoding_map=encoding_map,
+            max_length=max_length,
+            pad_label=pad_label,
+            default_label=default_label,
+            flatten_split=flatten_split,
+            flatten_separator=flatten_separator,
+            is_separate_at_max_len=is_separate_at_max_len
+        )
+
+    def _validate_parameters(self, parameters):
+        """
+        Validates the parameters set in the processor, raises an error if any
+        issues exist.
+
+        :param parameters: parameter dict containing the following parameters:
+            max_length: Maximum char length in a sample.
+            default_label: Key for label_mapping that is the default label
+            pad_label: Key for label_mapping that is the pad label
+            flatten_split: Approximate output of split between flattened and
+                non-flattened characters, value between [0, 1]. When the current
+                flattened split becomes more than the `flatten_split` value,
+                any leftover sample or subsequent samples will be non-flattened
+                until the current flattened split is below the `flatten_split`
+                value
+            flatten_separator: Separator used to put between flattened samples.
+            is_separate_at_max_len: If true, separates at max_length, otherwise
+                at nearest separator
+        :type parameters: dict
+        :return: None
+        :rtype: None
+        """
+        super()._validate_parameters(parameters)
+        errors = []
+        allowed_parameters = self.__class__.__init__.__code__.co_varnames[
+                            1:self.__class__.__init__.__code__.co_argcount]
+        for param in parameters:
+            value = parameters[param]
+            if param == 'encoding_map':
+                if isinstance(value, dict):
+                    are_dict_keys_str = map(lambda x: isinstance(x, str),
+                                            value.keys())
+                    are_dict_values_int = map(lambda x: isinstance(x, int),
+                                              value.values())
+                    if all(are_dict_keys_str) or all(are_dict_values_int):
+                        continue
+                errors.append('`{}` must be a dict[str, int]'.format(param))
+            elif param not in allowed_parameters:
+                errors.append("{} is not an accepted parameter.".format(param))
+
+        if errors:
+            raise ValueError('\n'.join(errors))
+
+    def process(self, data, labels=None, label_mapping=None, batch_size=32):
+        """
+        Process structured data for being processed by the
+        CharacterLevelCnnModel.
+
+        :param data: List of strings to create embeddings for
+        :type data: numpy.ndarray
+        :param labels: labels for each input character
+        :type labels: numpy.ndarray
+        :param label_mapping: maps labels to their encoded integers
+        :type label_mapping: Union[dict, None]
+        :param batch_size: Number of samples in the batch of data
+        :type batch_size: int
+        :return batch_data: A dict containing  samples of size batch_size
+        :rtype batch_data: dict
+        """
+        char_processor_gen = super().process(
+            data, labels, label_mapping, batch_size)
+        encoding_map = self._parameters['encoding_map']
+        max_length = self._parameters['max_length']
+        for char_processed_data in char_processor_gen:
+            x = char_processed_data
+            if labels:
+                x = char_processed_data[0]
+                y = char_processed_data[1]
+
+            processed_x = np.zeros((len(x), max_length), dtype='int64')
+            for i, text in enumerate(x):
+                text_len = len(text[0])
+                processed_x[i][:text_len] = [
+                    # defaults 0
+                    encoding_map.get(c, 0) for c in text[0]
+                ]
+
+            if labels:
+                yield processed_x, y
+            else:
+                yield processed_x
 
 
 class CharPostprocessor(BaseDataPostprocessor,
@@ -810,7 +928,7 @@ class CharPostprocessor(BaseDataPostprocessor,
 
         # Iterate over both lists, should be same length
         for sample, char_pred in zip(data, predictions):
-            
+
             # Copy entities_in_sample so can return later
             # changed input param to "predictions" for ease
             # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
@@ -833,7 +951,7 @@ class CharPostprocessor(BaseDataPostprocessor,
                     if label not in label_count:
                         label_count[label] = 0
                     label_count[label] += 1
-                
+
                 if is_separator or is_end:
 
                     # Find sum of labels over entity
@@ -1025,7 +1143,7 @@ class CharPostprocessor(BaseDataPostprocessor,
         # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
         results = self.match_sentence_lengths(data, dict(results),
                                               flatten_separator)
-        
+
         if use_word_level_argmax:
             results['pred'] = self._word_level_argmax(
                 data, results['pred'], label_mapping, default_label)
@@ -1123,7 +1241,7 @@ class StructCharPreprocessor(CharPreprocessor,
 
     def convert_to_unstructured_format(self, data, labels):
         """
-        Converts the list of data samples into the CharPreprocessor
+        Converts the list of data samples into the StructCharPreprocessor
         required input data format.
 
         :param data: list of strings
@@ -1600,13 +1718,13 @@ class RegexPostProcessor(BaseDataPostprocessor,
             elif param == 'priority_order':
                 # if aggregation function is being set to priority, or is not
                 # being changed and is already set
-                aggregtation_func = parameters.get(
+                aggregation_func = parameters.get(
                     'aggregation_func',
                     self._parameters.get('aggregation_func')
                     if hasattr(self, '_parameters') else None)
-                if value is None and aggregtation_func == 'priority':
+                if value is None and aggregation_func == 'priority':
                     errors.append(
-                        '`{}` cannot be None if `aggregtation_func` == '
+                        '`{}` cannot be None if `aggregation_func` == '
                         'priority.'.format(param))
                 elif value is not None \
                         and not isinstance(value, (list, np.ndarray)):
@@ -1684,7 +1802,7 @@ class RegexPostProcessor(BaseDataPostprocessor,
         aggregation_func = aggregation_func.lower()
 
         results = copy.deepcopy(labels)
-        
+
         if aggregation_func == 'split':
             self.split_prediction(results)
         elif aggregation_func == 'priority':
@@ -1720,7 +1838,7 @@ class RegexPostProcessor(BaseDataPostprocessor,
 
 class StructRegexPostProcessor(BaseDataPostprocessor,
                                metaclass=AutoSubRegistrationMeta):
-                               
+
     def __init__(self, random_state=None):
         """
         Initialize the RegexPostProcessor class
@@ -1803,18 +1921,18 @@ class StructRegexPostProcessor(BaseDataPostprocessor,
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
         """Data preprocessing function."""
-        
+
         # predictions come from regex_processor in the split format which
         # still is in a 3d format [samples x characters x labels]
         # split meaning it can have a partial prediction between labels, hence
         # it is still like a confidence
         results = self._parameters['regex_processor'].process(
             data, labels, label_mapping)
-        
+
         # get the average of the label confidences over a cell for each label
         for i in range(len(results['pred'])):
             results['pred'][i] = np.mean(results['pred'][i], axis=0)
-            
+
         # since the output is uniform after averaging the characters, stack
         # into a single array, this is now essentially confidences, but we are
         # doing in place as 'conf' may not exist

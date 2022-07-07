@@ -1,43 +1,14 @@
 import csv
-import random
-import re
-from collections import Counter
-from io import BytesIO
-from readline import add_history
-from dataprofiler.data_readers.csv_data import CSVData
-from six import StringIO
-import os
 
-#from . import data_utils
-#from .avro_data import AVROData
-#from .json_data import JSONData
-#from .parquet_data import ParquetData
 from .base_data import BaseData
-#from .structured_mixins import SpreadSheetDataMixin
+from .csv_data import CSVData
 
-class GraphDifferentiator():
+class GraphData(BaseData):
         
     def __init__(self, input_file_path=None, data=None, options=None):
         BaseData.__init__(self, input_file_path, data, options)        
-        #SpreadSheetDataMixin.__init__(self, input_file_path, data, options)
-        #self.SAMPLES_PER_LINE_DEFAULT = options.get("record_samples_per_line", 1)
-        #self._selected_data_format = options.get("data_format", "dataframe")
-        #self._delimiter = options.get("delimiter", None)
-        #self._quotechar = options.get("quotechar", None)
-        #self._selected_columns = options.get("selected_columns", list())
-        #self._header = options.get("header", 'auto')
-        #self._checked_header = "header" in options and self._header != 'auto'
-        #self._default_delimiter = ','
-        #self._default_quotechar = '"'
 
-        #if data is not None:
-        #    self._load_data(data)
-        #    if not self._delimiter:
-        #        self._delimiter = self._default_delimiter
-        #    if not self._quotechar:
-        #        self._quotechar = self._default_quotechar
-
-    def find_target_string_in_column(self, column_names, keyword_list):
+    def _find_target_string_in_column(self, column_names, keyword_list):
         '''
         Find whether one of the columns names contains a keyword that could refer to a target node column
         '''
@@ -61,14 +32,15 @@ class GraphDifferentiator():
         
         return has_target
 
-    def csv_column_names(self, file, input_delimiter):
+    def csv_column_names(self, file_path, options):
         '''
         fetches a list of column names from the csv file
         '''
+
         column_names = []
 
-        with open(file) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter = input_delimiter)
+        with open(file_path) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter = options["delimiter"])
             
             # fetch only column names
             for row in csv_reader:
@@ -83,7 +55,7 @@ class GraphDifferentiator():
 
         return column_names
     
-    def is_match(self, file, input_delimiter):
+    def is_match(self, file_path, options):
         '''
         Determines whether the file is a graph
         Current formats checked:
@@ -92,14 +64,25 @@ class GraphDifferentiator():
         This works by finding whether the file contains a target and a source node
         '''
 
+        if options is None:
+            options = dict()
+        if 'delimiter' not in options:
+            options["delimiter"] = ','
+        if 'header' not in options:
+            options["header"] = True
+
+        if options["header"] is False or CSVData.is_match(file_path, options):
+            return False
+
         graph = False
-        column_names = self.csv_column_names(file, input_delimiter)
+
+        column_names = self.csv_column_names(file_path, options)
 
         target_keywords = ['target', 'destination', 'dst']
         source_keywords = ['source', 'src', 'origin']
 
-        has_target = self.find_target_string_in_column(column_names, target_keywords)
-        has_source = self.find_target_string_in_column(column_names, source_keywords)
+        has_target = self._find_target_string_in_column(column_names, target_keywords)
+        has_source = self._find_target_string_in_column(column_names, source_keywords)
 
         if has_target and has_source:
             graph = True

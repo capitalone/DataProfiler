@@ -3,104 +3,105 @@ import random
 import re
 from collections import Counter
 from io import BytesIO
+from readline import add_history
 from dataprofiler.data_readers.csv_data import CSVData
-
 from six import StringIO
+import os
 
-from . import data_utils
-from .avro_data import AVROData
+#from . import data_utils
+#from .avro_data import AVROData
+#from .json_data import JSONData
+#from .parquet_data import ParquetData
 from .base_data import BaseData
-from .json_data import JSONData
-from .parquet_data import ParquetData
-from .structured_mixins import SpreadSheetDataMixin
-import networkx as nx
-
+#from .structured_mixins import SpreadSheetDataMixin
 
 class GraphDifferentiator():
         
     def __init__(self, input_file_path=None, data=None, options=None):
-        options = self._check_and_return_options(options)
         BaseData.__init__(self, input_file_path, data, options)        
-        SpreadSheetDataMixin.__init__(self, input_file_path, data, options)
-        self.SAMPLES_PER_LINE_DEFAULT = options.get("record_samples_per_line", 1)
-        self._selected_data_format = options.get("data_format", "dataframe")
-        self._delimiter = options.get("delimiter", None)
-        self._quotechar = options.get("quotechar", None)
-        self._selected_columns = options.get("selected_columns", list())
-        self._header = options.get("header", 'auto')
-        self._checked_header = "header" in options and self._header != 'auto'
-        self._default_delimiter = ','
-        self._default_quotechar = '"'
+        #SpreadSheetDataMixin.__init__(self, input_file_path, data, options)
+        #self.SAMPLES_PER_LINE_DEFAULT = options.get("record_samples_per_line", 1)
+        #self._selected_data_format = options.get("data_format", "dataframe")
+        #self._delimiter = options.get("delimiter", None)
+        #self._quotechar = options.get("quotechar", None)
+        #self._selected_columns = options.get("selected_columns", list())
+        #self._header = options.get("header", 'auto')
+        #self._checked_header = "header" in options and self._header != 'auto'
+        #self._default_delimiter = ','
+        #self._default_quotechar = '"'
 
-        if data is not None:
-            self._load_data(data)
-            if not self._delimiter:
-                self._delimiter = self._default_delimiter
-            if not self._quotechar:
-                self._quotechar = self._default_quotechar
+        #if data is not None:
+        #    self._load_data(data)
+        #    if not self._delimiter:
+        #        self._delimiter = self._default_delimiter
+        #    if not self._quotechar:
+        #        self._quotechar = self._default_quotechar
 
-    def file_subset(file, number_lines, format):
+    def find_target_string_in_column(self, column_names, keyword_list):
         '''
-        Returns a subset of a file
+        Find whether one of the columns names contains a keyword that could refer to a target node column
         '''
 
-        # check for input errors
-        # check correct handled format
-        if not (format.__eq__("csv") or format.__eq__("json")):
-            raise ValueError("input file has to be csv or json")
-
-        # operations for input csv
-        if format.__eq__("csv"):
-            with open('subset.csv', 'w') as subset:
-                csvwriter = csv.writer(subset, delimiter=",")
-                with open(file, 'r') as fp:
-                    csvreader = csv.reader(fp)
-                    line_number = 0
+        column_name_symbols = ['_', '.', '-']
+        has_target = False
+        
+        # iterate through columns, keywords, and delimiter name symbols to see if any permutation is contained in column names
+        for column in column_names:
+            for keyword in keyword_list:
+                for symbol in column_name_symbols:
                     
-                    for row in csvreader:
-                        if line_number > number_lines:
-                            break
-                        csvwriter.writerow(row)
-                        line_number += 1
-            return subset
+                    append_start_word = symbol + keyword
+                    append_end_word = keyword + symbol
 
-        if format.__eq__("json"):
-            # create subset for json
-            return
+                    if append_start_word in column or append_end_word in column:
+                        has_target = True
+                        break
+            if has_target:
+                break
+        
+        return has_target
 
-    def is_match(file, options):
+    def csv_column_names(self, file, input_delimiter):
+        '''
+        fetches a list of column names from the csv file
+        '''
+        column_names = []
+
+        with open(file) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter = input_delimiter)
+            
+            # fetch only column names
+            for row in csv_reader:
+                column_names.append(row)
+                break
+        
+        column_names = column_names[0]
+
+        # replace all whitespaces in the column names
+        for index in range(0, len(column_names)):
+            column_names[index] = column_names[index].replace(" ", "")
+
+        return column_names
+    
+    def is_match(self, file, input_delimiter):
         '''
         Determines whether the file is a graph
         Current formats checked:
-            - adjacency list
-            - edge list
-        User is able to specify particular format to check through options parameter
-        '''
-        graph = True
-        file_handle = open(file, "rb")
+            - attributed edge list
 
-        # need to take subset first (later implementation)
-        if options.format.__eq__("adjacency_list"):
-            try:
-                adjacency_list = nx.read_adjlist(file_handle)
-            except nx.NetworkXAlgorithmError:
-                graph = False
-            except nx.NetworkXUnfeasible:
-                graph = False
-        if options.format.__eq__("edge_list"):
-            try:
-                edge_list = nx.read_edgelist(file_handle)
-            except nx.NetworkXAlgorithmError:
-                graph = False
-            except nx.NetworkXUnfeasible:
-                graph = False
-        else:
-            try:
-                adjacency_list = nx.read_adjlist(file_handle)
-                adjacency_list = nx.read_edgelist(file_handle)
-            except nx.NetworkXAlgorithmError:
-                graph = False
-            except nx.NetworkXUnfeasible:
-                graph = False
+        This works by finding whether the file contains a target and a source node
+        '''
+
+        graph = False
+        column_names = self.csv_column_names(file, input_delimiter)
+
+        target_keywords = ['target', 'destination', 'dst']
+        source_keywords = ['source', 'src', 'origin']
+
+        has_target = self.find_target_string_in_column(column_names, target_keywords)
+        has_source = self.find_target_string_in_column(column_names, source_keywords)
+
+        if has_target and has_source:
+            graph = True
+
         return graph
-    

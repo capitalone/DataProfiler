@@ -1,7 +1,1 @@
-Current_step,Account,Current State,Component Nodes,Max Component Size,lob_applied_src,po_box_ind_src,risky_zip_not_socal_src,attrib_type,annual_income_src,bureau_file_age_years_src
-0,0,Current_State.GOOD,"{0, 395, 206, 383}",5,MS,0,0,NAME_DOB,-0.21390270384796842,-0.006228452197958145
-0,1,Current_State.DEACT_GOOD,{1},5,SB,0,0,ADDRESS,0.47008257001121034,1.2406546117962025
-0,2,Current_State.GOOD,"{2, 93}",5,MS,0,0,ADDRESS,0.046091489690932325,-1.2859910175519624
-0,3,Current_State.GOOD,"{3, 675, 775, 527, 562}",5,MS,1,0,SSN,-0.4348175664797495,-0.5286835905452774
-0,4,Current_State.GOOD,"{4, 44, 365, 621, 116, 344, 601, 60, 830}",5,MS,0,1,APP_IP,-0.5809336411872201,-0.3408693594350563
-0,5,Current_State.GOOD,"{674, 5, 934, 168, 249}",5,MS,0,1,APP_IP,-0.0680694321230785,-0.4976593182410005
+node_id_dst, node_id_src, attrib_id, attrib_type, edge_date, open_date_src, open_date_dst, pplication_received_date_src, application_received_date_dst,open_edge_src, open_edge_dst, state_change, state_change_type,fpf_co_ind_3yr_src, rar_ind_src, lob_applied_src, socal_ind_src,risky_zip_not_socal_src, credit_line_src,bureau_file_age_years_src, annual_income_src, po_box_ind_src,cls_dt_src, chrgof_dt_src, ring_entry_dt_src,fpf_co_ind_3yr_dst, rar_ind_dst, lob_applied_dst, socal_ind_dst,risky_zip_not_socal_dst, credit_line_dst,bureau_file_age_years_dst, annual_income_dst, po_box_ind_dst,cls_dt_dst, chrgof_dt_dst, ring_entry_dt_dst, src, dst,ring_state_src, ring_state_dst, co_state_src, co_state_dst,clsd_state_src, clsd_state_dst, fpf_state_src, fpf_state_dst,edge_id, label_mask_src, label_mask_dst, edge_date_partition

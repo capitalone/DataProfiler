@@ -2,9 +2,8 @@ import os
 import unittest
 from io import BytesIO, StringIO, TextIOWrapper
 
-from dataprofiler.data_readers.data import CSVData, Data
 from dataprofiler.data_readers.data_utils import is_stream_buffer
-from dataprofiler.data_readers.graph_differentiator import GraphDifferentiator
+from dataprofiler.data_readers.graph_data import GraphData
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -57,7 +56,7 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
         '''
         column_names = ['node_src', 'node_dst', 'attribute1']
         keyword_list = ['src', 'source']
-        self.assertTrue(GraphDifferentiator().find_target_string_in_column(column_names, keyword_list))
+        self.assertTrue(GraphData().find_target_string_in_column(column_names, keyword_list))
 
     def test_finding_string_in_column_positive_2(self):
         '''
@@ -65,7 +64,7 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
         '''
         column_names = ['src_node', 'dst_node', 'attribute1']
         keyword_list = ['src', 'source']
-        self.assertTrue(GraphDifferentiator().find_target_string_in_column(column_names, keyword_list))
+        self.assertTrue(GraphData().find_target_string_in_column(column_names, keyword_list))
 
     def test_finding_string_in_column_negative(self):
         '''
@@ -73,7 +72,7 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
         '''
         column_names = ['movie', 'audience_type', 'audience_source']
         keyword_list = ['dst', 'destination', 'target']
-        self.assertFalse(GraphDifferentiator().find_target_string_in_column(column_names, keyword_list))
+        self.assertFalse(GraphData().find_target_string_in_column(column_names, keyword_list))
 
     def test_finding_string_in_column_negative(self):
             '''
@@ -81,7 +80,7 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
             '''
             column_names = ['flight_number', 'destination', 'price']
             keyword_list = ['dst', 'destination', 'target']
-            self.assertFalse(GraphDifferentiator().find_target_string_in_column(column_names, keyword_list))
+            self.assertFalse(GraphData().find_target_string_in_column(column_names, keyword_list))
 
     #test csv_column_name
     def test_csv_column_names(self):
@@ -91,7 +90,7 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
 
         column_names = ['node_id_dst', 'node_id_src', 'attrib_id', 'attrib_type', 'edge_date', 'open_date_src', 'open_date_dst']
         input_file = self.input_file_names[1]['path']
-        self.assertEqual(GraphDifferentiator().csv_column_names(input_file, ','), column_names)
+        self.assertEqual(GraphData().csv_column_names(input_file, ','), column_names)
         
     # test is_match for true output w/ different options
     def test_is_graph_positive_1(self):
@@ -99,7 +98,7 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
         Determine if the input CSV file can automatically be recognized as being a graph
         """
         input_file = self.input_file_names[0]['path']
-        test_graph = GraphDifferentiator().is_match(input_file, ',')
+        test_graph = GraphData().is_match(input_file, ',')
         self.assertTrue(test_graph)
 
     def test_is_graph_positive_2(self):
@@ -107,7 +106,7 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
         Determine if the input CSV file can automatically be recognized as being a graph w/ adjacency list option selected
         """
         input_file = self.input_file_names[1]['path']
-        test_graph = GraphDifferentiator().is_match(input_file, ',')
+        test_graph = GraphData().is_match(input_file, ',')
         self.assertTrue(test_graph)
 
     # test is_match for false output w/ different options
@@ -116,7 +115,7 @@ class TestGraphDifferentiatorClass(unittest.TestCase):
         Determine if the input CSV file can be automatically recognized as not being a graph w/ no options selected
         """
         input_file = self.input_file_names[2]['path']
-        test_graph = GraphDifferentiator().is_match(input_file, ',')
+        test_graph = GraphData().is_match(input_file, ',')
         self.assertFalse(test_graph)
 
 if __name__ == '__main__':

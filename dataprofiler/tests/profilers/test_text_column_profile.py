@@ -16,7 +16,6 @@ test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 class TestTextColumnProfiler(unittest.TestCase):
-
     def setUp(self):
         test_utils.set_seed(seed=0)
 
@@ -25,33 +24,30 @@ class TestTextColumnProfiler(unittest.TestCase):
         Checks whether the vocab list for the profiler is correct.
         :return:
         """
-        df1 = pd.Series([
-            "abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2",
-        ]).apply(str)
-        df2 = pd.Series(["1", "1", "ee", "ff", "ff", "gg",
-                         "gg", "abcd", "aa", "b", "ee", "b"]).apply(str)
-        df3 = pd.Series([
-            "NaN", "b", "nan", "c",
-        ]).apply(str)
+        df1 = pd.Series(
+            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2",]
+        ).apply(str)
+        df2 = pd.Series(
+            ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
+        ).apply(str)
+        df3 = pd.Series(["NaN", "b", "nan", "c",]).apply(str)
 
         text_profiler = TextColumn(df1.name)
         text_profiler.update(df1)
 
-        unique_vocab = dict.fromkeys(''.join(df1.tolist())).keys()
+        unique_vocab = dict.fromkeys("".join(df1.tolist())).keys()
         six.assertCountEqual(self, unique_vocab, text_profiler.vocab)
-        six.assertCountEqual(
-            self, set(text_profiler.vocab), text_profiler.vocab)
+        six.assertCountEqual(self, set(text_profiler.vocab), text_profiler.vocab)
 
         text_profiler.update(df2)
         df = pd.concat([df1, df2])
-        unique_vocab = dict.fromkeys(''.join(df.tolist())).keys()
+        unique_vocab = dict.fromkeys("".join(df.tolist())).keys()
         six.assertCountEqual(self, unique_vocab, text_profiler.vocab)
-        six.assertCountEqual(
-            self, set(text_profiler.vocab), text_profiler.vocab)
+        six.assertCountEqual(self, set(text_profiler.vocab), text_profiler.vocab)
 
         text_profiler.update(df3)
         df = pd.concat([df1, df2, df3])
-        unique_vocab = dict.fromkeys(''.join(df.tolist())).keys()
+        unique_vocab = dict.fromkeys("".join(df.tolist())).keys()
         six.assertCountEqual(self, unique_vocab, text_profiler.vocab)
 
     def test_profiled_str_numerics(self):
@@ -77,26 +73,23 @@ class TestTextColumnProfiler(unittest.TestCase):
             delta = mean_b - mean_a
             m_a = var_a * (count_a - 1)
             m_b = var_b * (count_b - 1)
-            M2 = m_a + m_b + delta ** 2 * count_a * count_b / (
-                count_a + count_b)
+            M2 = m_a + m_b + delta ** 2 * count_a * count_b / (count_a + count_b)
             return M2 / (count_a + count_b - 1)
 
-        df1 = pd.Series([
-            "abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2", np.nan,
-        ]).apply(str)
-        df2 = pd.Series(["1", "1", "ee", "ff", "ff", "gg",
-                         "gg", "abcd", "aa", "b", "ee", "b"]).apply(str)
-        df3 = pd.Series([
-            "NaN", "b", "nan", "c", None,
-        ]).apply(str)
+        df1 = pd.Series(
+            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2", np.nan,]
+        ).apply(str)
+        df2 = pd.Series(
+            ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
+        ).apply(str)
+        df3 = pd.Series(["NaN", "b", "nan", "c", None,]).apply(str)
 
         text_profiler = TextColumn(df1.name)
         text_profiler.update(df1)
 
         self.assertEqual(mean(df1.str.len()), text_profiler.mean)
         self.assertAlmostEqual(var(df1.str.len()), text_profiler.variance)
-        self.assertAlmostEqual(
-            np.sqrt(var(df1.str.len())), text_profiler.stddev)
+        self.assertAlmostEqual(np.sqrt(var(df1.str.len())), text_profiler.stddev)
 
         variance = batch_variance(
             mean_a=text_profiler.mean,
@@ -104,7 +97,7 @@ class TestTextColumnProfiler(unittest.TestCase):
             count_a=text_profiler.sample_size,
             mean_b=mean(df2.str.len()),
             var_b=var(df2.str.len()),
-            count_b=df2.count()
+            count_b=df2.count(),
         )
         text_profiler.update(df2)
         df = pd.concat([df1, df2])
@@ -118,7 +111,7 @@ class TestTextColumnProfiler(unittest.TestCase):
             count_a=text_profiler.match_count,
             mean_b=mean(df3.str.len()),
             var_b=var(df3.str.len()),
-            count_b=df3.count()
+            count_b=df3.count(),
         )
         text_profiler.update(df3)
 
@@ -141,9 +134,9 @@ class TestTextColumnProfiler(unittest.TestCase):
 
     def test_data_ratio(self):
         # should always be 1.0 unless empty
-        df1 = pd.Series([
-            "abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2",
-        ]).apply(str)
+        df1 = pd.Series(
+            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2",]
+        ).apply(str)
 
         profiler = TextColumn(df1.name)
         profiler.update(df1)
@@ -192,59 +185,63 @@ class TestTextColumnProfiler(unittest.TestCase):
             kurtosis=-1251.0 / 1372.0,
             stddev=np.sqrt(14.0 / 9.0),
             histogram={
-                'bin_counts': np.array([5, 0, 2, 0, 1, 2]),
-                'bin_edges': np.array([1., 1.5, 2., 2.5, 3., 3.5, 4.])
+                "bin_counts": np.array([5, 0, 2, 0, 1, 2]),
+                "bin_edges": np.array([1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]),
             },
             quantiles={0: 1.25, 1: 1.5, 2: 3.0},
             median_abs_deviation=0.5,
-            vocab=['a', 'b', 'c', 'd', '4', '3', '2', 'f'],
-            times=defaultdict(float, {'vocab': 1.0,
-                                      'max': 1.0,
-                                      'min': 1.0,
-                                      'histogram_and_quantiles': 1.0,
-                                      'sum': 1.0,
-                                      'variance': 1.0,
-                                      'skewness': 1.0,
-                                      'num_negatives': 1.0,
-                                      'num_zeros': 1.0,
-                                      'kurtosis': 1.0})
+            vocab=["a", "b", "c", "d", "4", "3", "2", "f"],
+            times=defaultdict(
+                float,
+                {
+                    "vocab": 1.0,
+                    "max": 1.0,
+                    "min": 1.0,
+                    "histogram_and_quantiles": 1.0,
+                    "sum": 1.0,
+                    "variance": 1.0,
+                    "skewness": 1.0,
+                    "num_negatives": 1.0,
+                    "num_zeros": 1.0,
+                    "kurtosis": 1.0,
+                },
+            ),
         )
         time_array = [float(x) for x in range(30, 0, -1)]
-        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch("time.time", side_effect=lambda: time_array.pop()):
             profiler.update(df)
             profile = profiler.profile
-            expected_histogram = expected_profile.pop('histogram')
-            expected_quantiles = expected_profile.pop('quantiles')
-            expected_median_abs_dev = \
-                expected_profile.pop('median_abs_deviation')
-            expected_vocab = expected_profile.pop('vocab')
-            quantiles = profile.pop('quantiles')
-            histogram = profile.pop('histogram')
-            median_abs_dev = profile.pop('median_abs_deviation')
-            vocab = profile.pop('vocab')
+            expected_histogram = expected_profile.pop("histogram")
+            expected_quantiles = expected_profile.pop("quantiles")
+            expected_median_abs_dev = expected_profile.pop("median_abs_deviation")
+            expected_vocab = expected_profile.pop("vocab")
+            quantiles = profile.pop("quantiles")
+            histogram = profile.pop("histogram")
+            median_abs_dev = profile.pop("median_abs_deviation")
+            vocab = profile.pop("vocab")
 
             # validate mode and median
-            expected_mode = expected_profile.pop('mode')
-            mode = profile.pop('mode')
+            expected_mode = expected_profile.pop("mode")
+            mode = profile.pop("mode")
             np.testing.assert_array_almost_equal(expected_mode, mode, decimal=2)
 
-            expected_median = expected_profile.pop('median')
-            median = profile.pop('median')
+            expected_median = expected_profile.pop("median")
+            median = profile.pop("median")
             self.assertAlmostEqual(expected_median, median, places=2)
 
             # key and value populated correctly
             self.assertDictEqual(expected_profile, profile)
-            self.assertTrue(np.all(
-                expected_histogram['bin_counts'] == histogram['bin_counts']
-            ))
-            self.assertTrue(np.all(
-                expected_histogram['bin_edges'] == histogram['bin_edges']
-            ))
+            self.assertTrue(
+                np.all(expected_histogram["bin_counts"] == histogram["bin_counts"])
+            )
+            self.assertTrue(
+                np.all(expected_histogram["bin_edges"] == histogram["bin_edges"])
+            )
             self.assertCountEqual(
-                expected_quantiles, {
-                    0: quantiles[249], 1: quantiles[499], 2: quantiles[749]})
-            self.assertAlmostEqual(
-                expected_median_abs_dev, median_abs_dev, places=2)
+                expected_quantiles,
+                {0: quantiles[249], 1: quantiles[499], 2: quantiles[749]},
+            )
+            self.assertAlmostEqual(expected_median_abs_dev, median_abs_dev, places=2)
             self.assertCountEqual(expected_vocab, vocab)
 
     def test_report(self):
@@ -253,29 +250,33 @@ class TestTextColumnProfiler(unittest.TestCase):
         `remove_disabled_flag`=True. Finally, test no options and default
         `remove_disabled_flag`.
         """
-        data = [2.0, 12.5, 'not a float', 6.0, 'not a float']
+        data = [2.0, 12.5, "not a float", 6.0, "not a float"]
         df = pd.Series(data).apply(str)
 
-        options = TextOptions() # With TextOptions and remove_disabled_flag == True
+        options = TextOptions()  # With TextOptions and remove_disabled_flag == True
         options.vocab.is_enabled = False
 
         profiler = TextColumn(df.name, options)
         report = profiler.report(remove_disabled_flag=True)
         report_keys = list(report.keys())
-        self.assertNotIn('vocab', report_keys)
+        self.assertNotIn("vocab", report_keys)
 
-        profiler = TextColumn(df.name) # w/o TextOptions and remove_disabled_flag == True
+        profiler = TextColumn(
+            df.name
+        )  # w/o TextOptions and remove_disabled_flag == True
         report = profiler.report(remove_disabled_flag=True)
         report_keys = list(report.keys())
-        self.assertIn('vocab', report_keys)
+        self.assertIn("vocab", report_keys)
 
-        profiler = TextColumn(df.name) # w/o TextOptions and remove_disabled_flag default
+        profiler = TextColumn(
+            df.name
+        )  # w/o TextOptions and remove_disabled_flag default
         report = profiler.report()
         report_keys = list(report.keys())
-        self.assertIn('vocab', report_keys)
+        self.assertIn("vocab", report_keys)
 
     def test_option_timing(self):
-        data = [2.0, 12.5, 'not a float', 6.0, 'not a float']
+        data = [2.0, 12.5, "not a float", 6.0, "not a float"]
         df = pd.Series(data).apply(str)
 
         options = TextOptions()
@@ -284,36 +285,44 @@ class TestTextColumnProfiler(unittest.TestCase):
         profiler = TextColumn(df.name, options=options)
 
         time_array = [float(i) for i in range(100, 0, -1)]
-        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch("time.time", side_effect=lambda: time_array.pop()):
             # Validate that the times dictionary is empty
-            self.assertCountEqual(defaultdict(float), profiler.profile['times'])
+            self.assertCountEqual(defaultdict(float), profiler.profile["times"])
             profiler.update(df)
 
             # Validate the time in the datetime class has the expected time.
             profile = profiler.profile
 
-            expected = defaultdict(float,
-                                   {'max': 1.0,
-                                    'sum': 1.0,
-                                    'variance': 1.0,
-                                    'skewness': 1.0,
-                                    'kurtosis': 1.0,
-                                    'histogram_and_quantiles': 15.0,
-                                    'vocab': 1.0})
-            self.assertCountEqual(expected, profile['times'])
+            expected = defaultdict(
+                float,
+                {
+                    "max": 1.0,
+                    "sum": 1.0,
+                    "variance": 1.0,
+                    "skewness": 1.0,
+                    "kurtosis": 1.0,
+                    "histogram_and_quantiles": 15.0,
+                    "vocab": 1.0,
+                },
+            )
+            self.assertCountEqual(expected, profile["times"])
 
             # Validate time in datetime class has expected time after second
             # update
             profiler.update(df)
-            expected = defaultdict(float,
-                                   {'max': 2.0,
-                                    'sum': 2.0,
-                                    'variance': 2.0,
-                                    'skewness': 2.0,
-                                    'kurtosis': 2.0,
-                                    'histogram_and_quantiles': 30.0,
-                                    'vocab': 2.0})
-            self.assertCountEqual(expected, profiler.profile['times'])
+            expected = defaultdict(
+                float,
+                {
+                    "max": 2.0,
+                    "sum": 2.0,
+                    "variance": 2.0,
+                    "skewness": 2.0,
+                    "kurtosis": 2.0,
+                    "histogram_and_quantiles": 30.0,
+                    "vocab": 2.0,
+                },
+            )
+            self.assertCountEqual(expected, profiler.profile["times"])
 
     def test_merge_profile(self):
         df = pd.Series(
@@ -325,8 +334,31 @@ class TestTextColumnProfiler(unittest.TestCase):
         ).apply(str)
 
         expected_vocab = [
-            'a', 'b', 'c', 'd', '4', '3', '2', 'f', 'h', 'e', 'l', 'o', 'm',
-            'y', 'n', 'i', 's', 'G', 'r', 't', 'I', 'v', '6', '7', 'g'
+            "a",
+            "b",
+            "c",
+            "d",
+            "4",
+            "3",
+            "2",
+            "f",
+            "h",
+            "e",
+            "l",
+            "o",
+            "m",
+            "y",
+            "n",
+            "i",
+            "s",
+            "G",
+            "r",
+            "t",
+            "I",
+            "v",
+            "6",
+            "7",
+            "g",
         ]
 
         profiler = TextColumn("placeholder_name")
@@ -338,8 +370,9 @@ class TestTextColumnProfiler(unittest.TestCase):
         profiler3 = profiler + profiler2
 
         self.assertAlmostEqual(profiler3.mean, 2.578947, 3)
-        self.assertEqual(profiler3.sample_size,
-                         profiler.sample_size + profiler2.sample_size)
+        self.assertEqual(
+            profiler3.sample_size, profiler.sample_size + profiler2.sample_size
+        )
         self.assertEqual(profiler3.max, profiler2.max)
         self.assertCountEqual(expected_vocab, profiler3.vocab)
         self.assertEqual(49, profiler3.sum)
@@ -347,17 +380,17 @@ class TestTextColumnProfiler(unittest.TestCase):
     def test_merge_timing(self):
         profiler1 = TextColumn("placeholder_name")
         profiler2 = TextColumn("placeholder_name")
-            
+
         profiler1.times = dict(vocab=2.0)
         profiler2.times = dict(vocab=3.0)
 
         time_array = [float(i) for i in range(2, 0, -1)]
-        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch("time.time", side_effect=lambda: time_array.pop()):
             profiler3 = profiler1 + profiler2
 
             # __add__() call adds 1 so expected is 6
-            expected_times = defaultdict(float, {'vocab': 6.0})
-            self.assertCountEqual(expected_times, profiler3.profile['times'])
+            expected_times = defaultdict(float, {"vocab": 6.0})
+            self.assertCountEqual(expected_times, profiler3.profile["times"])
 
     def test_profile_merge_with_different_options(self):
         # Creating first profiler with default options
@@ -386,15 +419,16 @@ class TestTextColumnProfiler(unittest.TestCase):
         profiler2.update(df2)
 
         # Asserting warning when adding 2 profilers with different options
-        with self.assertWarnsRegex(RuntimeWarning,
-                                   "vocab is disabled because it is not "
-                                   "enabled in both profiles."):
+        with self.assertWarnsRegex(
+            RuntimeWarning,
+            "vocab is disabled because it is not " "enabled in both profiles.",
+        ):
             profiler3 = profiler1 + profiler2
 
         # Assert that these features are still merged
         profile = profiler3.profile
         self.assertEqual("doane", profiler3.histogram_selection)
-        self.assertAlmostEqual(6.20467836, profile['variance'])
+        self.assertAlmostEqual(6.20467836, profile["variance"])
         self.assertEqual(62.0, profiler3.sum)
 
         # Assert that these features are not calculated
@@ -403,9 +437,9 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertListEqual([], profiler3.vocab)
 
     def test_text_column_with_wrong_options(self):
-        with self.assertRaisesRegex(ValueError,
-                                    "TextColumn parameter 'options' must be of"
-                                    " type TextOptions."):
+        with self.assertRaisesRegex(
+            ValueError, "TextColumn parameter 'options' must be of" " type TextOptions."
+        ):
             profiler = TextColumn("Text", options="wrong_data_type")
 
     def test_custom_bin_count_merge(self):
@@ -413,12 +447,12 @@ class TestTextColumnProfiler(unittest.TestCase):
         options = TextOptions()
         options.histogram_and_quantiles.bin_count_or_method = 10
 
-        data = ['this', 'is', 'a', 'test']
+        data = ["this", "is", "a", "test"]
         df = pd.Series(data).apply(str)
         profiler1 = TextColumn("Float", options)
         profiler1.update(df)
 
-        data2 = ['this', 'is', 'another', 'test']
+        data2 = ["this", "is", "another", "test"]
         df2 = pd.Series(data2).apply(str)
         profiler2 = TextColumn("Float", options)
         profiler2.update(df2)
@@ -431,9 +465,11 @@ class TestTextColumnProfiler(unittest.TestCase):
 
         # make bin counts different and get warning
         profiler2.user_set_histogram_bin = 120
-        with self.assertWarnsRegex(UserWarning,
-                                   'User set histogram bin counts did not '
-                                   'match. Choosing the larger bin count.'):
+        with self.assertWarnsRegex(
+            UserWarning,
+            "User set histogram bin counts did not "
+            "match. Choosing the larger bin count.",
+        ):
             merged_profile = profiler1 + profiler2
         self.assertEqual(120, merged_profile.user_set_histogram_bin)
 
@@ -444,8 +480,7 @@ class TestTextColumnProfiler(unittest.TestCase):
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges"], num_profiler.histogram_bin_method_names)
 
-        options.histogram_and_quantiles.bin_count_or_method = ["sturges",
-                                                               "doane"]
+        options.histogram_and_quantiles.bin_count_or_method = ["sturges", "doane"]
         num_profiler = TextColumn(name="test2", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
         self.assertEqual(["sturges", "doane"], num_profiler.histogram_bin_method_names)
@@ -454,23 +489,22 @@ class TestTextColumnProfiler(unittest.TestCase):
         options.histogram_and_quantiles.bin_count_or_method = 100
         num_profiler = TextColumn(name="test3", options=options)
         self.assertIsNone(num_profiler.histogram_selection)
-        self.assertEqual(['custom'], num_profiler.histogram_bin_method_names)
+        self.assertEqual(["custom"], num_profiler.histogram_bin_method_names)
 
         # case when just 1 unique value, should just set bin size to be 1
-        num_profiler.update(pd.Series(['1', '1']))
+        num_profiler.update(pd.Series(["1", "1"]))
         self.assertEqual(
-            1,
-            len(num_profiler.histogram_methods['custom']['histogram'][
-                    'bin_counts'])
+            1, len(num_profiler.histogram_methods["custom"]["histogram"]["bin_counts"])
         )
 
         # case when more than 1 unique value, by virtue of a streaming update
-        num_profiler.update(pd.Series(['22']))
+        num_profiler.update(pd.Series(["22"]))
         self.assertEqual(
-            100, len(num_profiler._stored_histogram['histogram']['bin_counts']))
+            100, len(num_profiler._stored_histogram["histogram"]["bin_counts"])
+        )
 
-        histogram, _ = num_profiler._histogram_for_profile('custom')
-        self.assertEqual(100, len(histogram['bin_counts']))
+        histogram, _ = num_profiler._histogram_for_profile("custom")
+        self.assertEqual(100, len(histogram["bin_counts"]))
 
     def test_diff(self):
         df = pd.Series(
@@ -489,39 +523,39 @@ class TestTextColumnProfiler(unittest.TestCase):
         profiler2.update(df2)
         profile2 = profiler2.profile
 
-        expected_diff = {'min': "unchanged",
-                         'max': -1.0,
-                         'sum': -9.0,
-                         'mean': profile1['mean'] - profile2['mean'],
-                         'median': -2.5,
-                         'mode': [[1], [], [2, 4]],
-                         'median_absolute_deviation': -0.5,
-                         'variance': profile1['variance'] - profile2['variance'],
-                         'stddev': profile1['stddev'] - profiler2['stddev'],
-                         'vocab': utils.find_diff_of_lists_and_sets(
-                             profile1['vocab'], profile2['vocab']),
-                         't-test': {
-                             't-statistic': -1.9339958714826413,
-                             'conservative': {
-                                 'df': 8,
-                                 'p-value': 0.08916903961929257
-                             },
-                             'welch': {
-                                 'df': 15.761400272034564,
-                                 'p-value': 0.07127621949432528
-                             }
-                         }
-                         }
+        expected_diff = {
+            "min": "unchanged",
+            "max": -1.0,
+            "sum": -9.0,
+            "mean": profile1["mean"] - profile2["mean"],
+            "median": -2.5,
+            "mode": [[1], [], [2, 4]],
+            "median_absolute_deviation": -0.5,
+            "variance": profile1["variance"] - profile2["variance"],
+            "stddev": profile1["stddev"] - profiler2["stddev"],
+            "vocab": utils.find_diff_of_lists_and_sets(
+                profile1["vocab"], profile2["vocab"]
+            ),
+            "t-test": {
+                "t-statistic": -1.9339958714826413,
+                "conservative": {"df": 8, "p-value": 0.08916903961929257},
+                "welch": {"df": 15.761400272034564, "p-value": 0.07127621949432528},
+            },
+        }
 
         profile_diff = profiler1.diff(profiler2)
         self.assertAlmostEqual(
-            expected_diff.pop('median'), profile_diff.pop('median'), places=2)
-        expected_diff_mode = expected_diff.pop('mode')
-        diff_mode = profile_diff.pop('mode')
+            expected_diff.pop("median"), profile_diff.pop("median"), places=2
+        )
+        expected_diff_mode = expected_diff.pop("mode")
+        diff_mode = profile_diff.pop("mode")
         for i in range(len(expected_diff_mode)):
-            np.testing.assert_almost_equal(sorted(expected_diff_mode[i]),
-                                           sorted(diff_mode[i]), 2)
-        self.assertAlmostEqual(expected_diff.pop('median_absolute_deviation'),
-                               profile_diff.pop('median_absolute_deviation'),
-                               places=2)
+            np.testing.assert_almost_equal(
+                sorted(expected_diff_mode[i]), sorted(diff_mode[i]), 2
+            )
+        self.assertAlmostEqual(
+            expected_diff.pop("median_absolute_deviation"),
+            profile_diff.pop("median_absolute_deviation"),
+            places=2,
+        )
         self.assertDictEqual(expected_diff, profile_diff)

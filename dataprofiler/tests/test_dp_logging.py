@@ -4,12 +4,12 @@ from io import StringIO
 from unittest import mock
 
 
-@mock.patch('sys.stdout', new_callable=StringIO)
+@mock.patch("sys.stdout", new_callable=StringIO)
 class TestDPLogging(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         from dataprofiler import dp_logging
+
         root_logger = logging.getLogger()
         root_logger.removeHandler(dp_logging.get_logger())
         dp_logging._dp_logger = None
@@ -17,14 +17,16 @@ class TestDPLogging(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         from dataprofiler import dp_logging
+
         root_logger = logging.getLogger()
         root_logger.removeHandler(dp_logging.get_logger())
         dp_logging._dp_logger = None
 
     def test_default_verbosity(self, mock_stdout):
         # Ensure that default effective level is INFO
-        self.assertEqual(logging.INFO,
-                         logging.getLogger('DataProfiler').getEffectiveLevel())
+        self.assertEqual(
+            logging.INFO, logging.getLogger("DataProfiler").getEffectiveLevel()
+        )
 
     def test_set_verbosity(self, mock_stdout):
         from dataprofiler import dp_logging
@@ -33,11 +35,10 @@ class TestDPLogging(unittest.TestCase):
         dp_logging.get_logger()
 
         # Make dummy logger that inherits from DataProfiler logger
-        dummy_logger = logging.getLogger('DataProfiler.dummy.logger')
+        dummy_logger = logging.getLogger("DataProfiler.dummy.logger")
 
         # Set to INFO by default
-        self.assertEqual(logging.INFO,
-                         dummy_logger.getEffectiveLevel())
+        self.assertEqual(logging.INFO, dummy_logger.getEffectiveLevel())
 
         # Info appears in stdout
         dummy_logger.info("this is info 1")

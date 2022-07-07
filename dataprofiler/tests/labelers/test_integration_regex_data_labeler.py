@@ -6,21 +6,17 @@ import pkg_resources
 
 from dataprofiler.labelers.data_labelers import BaseDataLabeler
 
-default_labeler_dir = pkg_resources.resource_filename(
-    'resources', 'labelers'
-)
+default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 class TestRegexDataLabeler(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls) -> None:
         cls.data = np.array(
-            ['123 Fake St.', '1/2/2020', 'nice.', '4/3/22', 'abc',
-             '333-44-2341']
+            ["123 Fake St.", "1/2/2020", "nice.", "4/3/22", "abc", "333-44-2341"]
         ).reshape((-1,))
         cls.data_labeler = BaseDataLabeler.load_from_disk(
-            os.path.join(default_labeler_dir, 'regex_model')
+            os.path.join(default_labeler_dir, "regex_model")
         )
 
     def test_default_model(self):
@@ -43,13 +39,16 @@ class TestRegexDataLabeler(unittest.TestCase):
 
         # get char-level predictions/confidence scores on default model
         results = data_labeler.predict(
-            self.data, predict_options=dict(show_confidences=True))
-        model_predictions_char_level, model_confidences_char_level = \
-            results["pred"], results["conf"]
+            self.data, predict_options=dict(show_confidences=True)
+        )
+        model_predictions_char_level, model_confidences_char_level = (
+            results["pred"],
+            results["conf"],
+        )
 
         # for now just checking that it's not empty
         self.assertIsNotNone(model_confidences_char_level)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

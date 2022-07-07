@@ -7,6 +7,7 @@ class OrderColumn(BaseColumnProfiler):
     Index column profile subclass of BaseColumnProfiler. Represents a column in
     the dataset which is an index column.
     """
+
     type = "order"
 
     def __init__(self, name, options=None):
@@ -19,8 +20,9 @@ class OrderColumn(BaseColumnProfiler):
         :type options: OrderOptions
         """
         if options and not isinstance(options, OrderOptions):
-            raise ValueError("OrderColumn parameter 'options' must be of type"
-                             " OrderOptions.")
+            raise ValueError(
+                "OrderColumn parameter 'options' must be of type" " OrderOptions."
+            )
         self.order = None
         self._last_value = None
         self._first_value = None
@@ -53,11 +55,13 @@ class OrderColumn(BaseColumnProfiler):
         high_value2 = max(first_value2, last_value2)
         is_intersecting = False
 
-        if (low_value2 < low_value1 < high_value2) \
-                or (low_value2 < high_value1 < high_value2) \
-                or (low_value1 < low_value2 < high_value1) \
-                or (low_value1 < high_value2 < high_value1)\
-                or (low_value1 == low_value2 and high_value1 == high_value2):
+        if (
+            (low_value2 < low_value1 < high_value2)
+            or (low_value2 < high_value1 < high_value2)
+            or (low_value1 < low_value2 < high_value1)
+            or (low_value1 < high_value2 < high_value1)
+            or (low_value1 == low_value2 and high_value1 == high_value2)
+        ):
             is_intersecting = True
         return is_intersecting
 
@@ -89,8 +93,17 @@ class OrderColumn(BaseColumnProfiler):
         return is_enveloping
 
     @BaseColumnProfiler._timeit(name="order")
-    def _merge_order(self, order1, first_value1, last_value1, piecewise1,
-                     order2, first_value2, last_value2, piecewise2):
+    def _merge_order(
+        self,
+        order1,
+        first_value1,
+        last_value1,
+        piecewise1,
+        order2,
+        first_value2,
+        last_value2,
+        piecewise2,
+    ):
         """
         Adds the order of two datasets together
 
@@ -119,12 +132,15 @@ class OrderColumn(BaseColumnProfiler):
         elif not order2:
             return order1, first_value1, last_value1, piecewise1
 
-        is_intersecting = self._is_intersecting(first_value1, last_value1,
-                                                first_value2, last_value2)
-        self_envelopes_other = self._is_enveloping(first_value1, last_value1,
-                                                   first_value2, last_value2)
-        other_envelopes_self = self._is_enveloping(first_value2, last_value2,
-                                                   first_value1, last_value1)
+        is_intersecting = self._is_intersecting(
+            first_value1, last_value1, first_value2, last_value2
+        )
+        self_envelopes_other = self._is_enveloping(
+            first_value1, last_value1, first_value2, last_value2
+        )
+        other_envelopes_self = self._is_enveloping(
+            first_value2, last_value2, first_value1, last_value1
+        )
 
         # Default initialization
         order = "random"
@@ -138,19 +154,22 @@ class OrderColumn(BaseColumnProfiler):
         elif order1 == order2:
             if not is_intersecting or (piecewise1 and piecewise2):
                 order = order1
-            elif piecewise1 and self_envelopes_other:  # Intersect and not both piecewise
+            elif (
+                piecewise1 and self_envelopes_other
+            ):  # Intersect and not both piecewise
                 order = order1
             elif piecewise2 and other_envelopes_self:
                 order = order1
             elif order1 == "constant value":  # Constants that intersect
                 order = order1
             else:  # Ascending/Descending that intersect but not both piecewise
-                   # and dont envelope one or the other
+                # and dont envelope one or the other
                 order = "random"
 
         # Neither Random, nor the same order
-        elif (order1 == "ascending" and order2 == "descending") or \
-                (order1 == "descending" and order2 == "ascending"):
+        elif (order1 == "ascending" and order2 == "descending") or (
+            order1 == "descending" and order2 == "ascending"
+        ):
             order = "random"
 
         # One must be ascending/descending and one must be constant
@@ -178,20 +197,13 @@ class OrderColumn(BaseColumnProfiler):
             first_value = max(first_value1, first_value2)
             last_value = min(last_value1, last_value2)
         elif order == "random" or order == "constant value":
-            first_value = min(
-                first_value1,
-                first_value2,
-                last_value1,
-                last_value2)
-            last_value = max(
-                first_value1,
-                first_value2,
-                last_value1,
-                last_value2)
+            first_value = min(first_value1, first_value2, last_value1, last_value2)
+            last_value = max(first_value1, first_value2, last_value1, last_value2)
 
         piecewise = True
-        if (order == "constant value" and first_value == last_value) \
-                or order == "random":
+        if (
+            order == "constant value" and first_value == last_value
+        ) or order == "random":
             piecewise = False
 
         return order, first_value, last_value, piecewise
@@ -208,14 +220,22 @@ class OrderColumn(BaseColumnProfiler):
         :rtype: OrderColumn
         """
         if not isinstance(other, OrderColumn):
-            raise TypeError("Unsupported operand type(s) for +: "
-                            "'OrderColumn' and '{}'".format(
-                                other.__class__.__name__))
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                "'OrderColumn' and '{}'".format(other.__class__.__name__)
+            )
 
         merged_profile = OrderColumn(None)
         order, first_value, last_value, piecewise = self._merge_order(
-            self.order, self._first_value, self._last_value, self._piecewise, 
-            other.order, other._first_value, other._last_value, other._piecewise)
+            self.order,
+            self._first_value,
+            self._last_value,
+            self._piecewise,
+            other.order,
+            other._first_value,
+            other._last_value,
+            other._piecewise,
+        )
 
         merged_profile.order = order
         merged_profile._first_value = first_value
@@ -223,9 +243,9 @@ class OrderColumn(BaseColumnProfiler):
         merged_profile._piecewise = piecewise
 
         BaseColumnProfiler._add_helper(merged_profile, self, other)
-        self._merge_calculations(merged_profile.__calculations,
-                                 self.__calculations,
-                                 other.__calculations)
+        self._merge_calculations(
+            merged_profile.__calculations, self.__calculations, other.__calculations
+        )
         return merged_profile
 
     def report(self, remove_disabled_flag=False):
@@ -258,8 +278,9 @@ class OrderColumn(BaseColumnProfiler):
         super().diff(other_profile, options)
 
         differences = {
-            "order": utils.find_diff_of_strings_and_bools(self.order, 
-                                                          other_profile.order)
+            "order": utils.find_diff_of_strings_and_bools(
+                self.order, other_profile.order
+            )
         }
         return differences
 
@@ -286,24 +307,25 @@ class OrderColumn(BaseColumnProfiler):
 
         for i in range(1, len(df_series)):
             value = df_series.iloc[i]
-            if value < last_value and order == 'ascending':
-                order = 'random'
+            if value < last_value and order == "ascending":
+                order = "random"
                 break
             elif value < last_value and order is None:
-                order = 'descending'
-            elif value > last_value and order == 'descending':
-                order = 'random'
+                order = "descending"
+            elif value > last_value and order == "descending":
+                order = "random"
                 break
             elif value > last_value and order is None:
-                order = 'ascending'
+                order = "ascending"
             last_value = value
         if not order:
             order = "constant value"
 
         return order, first_value, last_value
 
-    def _update_order(self, df_series, prev_dependent_properties=None, 
-                      subset_properties=None):
+    def _update_order(
+        self, df_series, prev_dependent_properties=None, subset_properties=None
+    ):
         """
         Updates the order profile with order information attained
         from the new dataset in two steps:
@@ -325,11 +347,21 @@ class OrderColumn(BaseColumnProfiler):
             return
         order, first_value, last_value = self._get_data_order(df_series)
 
-        self.order, self._first_value, self._last_value, self._piecewise = \
-            self._merge_order(self.order, self._first_value,
-                              self._last_value, self._piecewise, order,
-                              first_value, last_value,
-                              piecewise2=False)
+        (
+            self.order,
+            self._first_value,
+            self._last_value,
+            self._piecewise,
+        ) = self._merge_order(
+            self.order,
+            self._first_value,
+            self._last_value,
+            self._piecewise,
+            order,
+            first_value,
+            last_value,
+            piecewise2=False,
+        )
 
     def _update_helper(self, df_series_clean, profile):
         """
@@ -358,8 +390,12 @@ class OrderColumn(BaseColumnProfiler):
         profile = dict(sample_size=len(df_series))
         OrderColumn._update_order(self, df_series=df_series)
         BaseColumnProfiler._perform_property_calcs(
-            self, self.__calculations, df_series=df_series,
-            prev_dependent_properties={}, subset_properties=profile)
+            self,
+            self.__calculations,
+            df_series=df_series,
+            prev_dependent_properties={},
+            subset_properties=profile,
+        )
         self._update_helper(df_series, profile)
 
         return self

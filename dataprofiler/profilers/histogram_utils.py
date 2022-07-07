@@ -5,8 +5,11 @@ Histogram-related functions
 import operator
 
 import numpy as np
-from numpy.lib.histograms import _get_outer_edges, _hist_bin_selectors, \
-    _unsigned_subtract
+from numpy.lib.histograms import (
+    _get_outer_edges,
+    _hist_bin_selectors,
+    _unsigned_subtract,
+)
 
 
 def _get_bin_edges(a, bins, range, weights):
@@ -38,17 +41,20 @@ def _get_bin_edges(a, bins, range, weights):
         # this will replace it with the number of bins calculated
         if bin_name not in _hist_bin_selectors:
             raise ValueError(
-                "{!r} is not a valid estimator for `bins`".format(bin_name))
+                "{!r} is not a valid estimator for `bins`".format(bin_name)
+            )
         if weights is not None:
-            raise TypeError("Automated estimation of the number of "
-                            "bins is not supported for weighted data")
+            raise TypeError(
+                "Automated estimation of the number of "
+                "bins is not supported for weighted data"
+            )
 
         first_edge, last_edge = _get_outer_edges(a, range)
 
         # truncate the range if needed
         if range is not None:
-            keep = (a >= first_edge)
-            keep &= (a <= last_edge)
+            keep = a >= first_edge
+            keep &= a <= last_edge
             if not np.logical_and.reduce(keep):
                 a = a[keep]
 
@@ -58,7 +64,9 @@ def _get_bin_edges(a, bins, range, weights):
             # Do not call selectors on empty arrays
             width = _hist_bin_selectors[bin_name](a, (first_edge, last_edge))
             if width:
-                n_equal_bins = int(np.ceil(_unsigned_subtract(last_edge, first_edge) / width))
+                n_equal_bins = int(
+                    np.ceil(_unsigned_subtract(last_edge, first_edge) / width)
+                )
             else:
                 # Width can be zero for some estimators, e.g. FD when
                 # the IQR of the data is zero.
@@ -68,12 +76,11 @@ def _get_bin_edges(a, bins, range, weights):
         try:
             n_equal_bins = operator.index(bins)
         except TypeError as e:
-            raise TypeError(
-                '`bins` must be an integer, a string, or an array') from e
+            raise TypeError("`bins` must be an integer, a string, or an array") from e
         if n_equal_bins < 1:
-            raise ValueError('`bins` must be positive, when an integer')
+            raise ValueError("`bins` must be positive, when an integer")
 
     else:
-        raise ValueError('`bins` must be 1d, when an array')
+        raise ValueError("`bins` must be 1d, when an array")
 
     return bin_edges, n_equal_bins

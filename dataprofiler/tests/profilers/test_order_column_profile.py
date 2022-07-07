@@ -14,7 +14,6 @@ unittest.case._AssertWarnsContext.__enter__ = test_utils.patched_assert_warns
 
 
 class TestOrderColumn(unittest.TestCase):
-
     @staticmethod
     def _update_order(data):
         df = pd.Series(data).apply(str)
@@ -33,64 +32,64 @@ class TestOrderColumn(unittest.TestCase):
         self.assertIsNone(profiler.order)
 
     def test_descending(self):
-        data = ['za', 'z', 'c', 'a']
+        data = ["za", "z", "c", "a"]
         order = self._update_order(data)
-        self.assertEqual(order, 'descending')
+        self.assertEqual(order, "descending")
 
         data = [5, 3, 2]
         order = self._update_order(data)
-        self.assertEqual(order, 'descending')
+        self.assertEqual(order, "descending")
 
     def test_ascending(self):
-        data = ['a', 'b', 'z', 'za']
+        data = ["a", "b", "z", "za"]
         order = self._update_order(data)
-        self.assertEqual(order, 'ascending')
+        self.assertEqual(order, "ascending")
 
         data = [2, 3, 11]
         order = self._update_order(data)
-        self.assertEqual(order, 'ascending')
+        self.assertEqual(order, "ascending")
 
     def test_constant_value(self):
-        data = ['a']
+        data = ["a"]
         order = self._update_order(data)
-        self.assertEqual(order, 'constant value')
+        self.assertEqual(order, "constant value")
 
-        data = ['a', 'a', 'a', 'a', 'a']
+        data = ["a", "a", "a", "a", "a"]
         order = self._update_order(data)
-        self.assertEqual(order, 'constant value')
+        self.assertEqual(order, "constant value")
 
     def test_random(self):
-        data = ['a', 'b', 'ab']
+        data = ["a", "b", "ab"]
         order = self._update_order(data)
-        self.assertEqual(order, 'random')
+        self.assertEqual(order, "random")
 
         data = [1, 11, 4]
         order = self._update_order(data)
-        self.assertEqual(order, 'random')
+        self.assertEqual(order, "random")
 
     def test_batch_updates(self):
-        data = ['a', 'a', 'a']
+        data = ["a", "a", "a"]
         df = pd.Series(data)
         profiler = OrderColumn(df.name)
         profiler.update(df)
-        self.assertEqual(profiler.order, 'constant value')
+        self.assertEqual(profiler.order, "constant value")
 
-        data = ['a', 'b', 'c']
+        data = ["a", "b", "c"]
         df = pd.Series(data)
         profiler.update(df)
-        self.assertEqual(profiler.order, 'ascending')
+        self.assertEqual(profiler.order, "ascending")
 
         # previous was ascending, should stay ascending bc now receiving const
-        data = ['c', 'c', 'c']
+        data = ["c", "c", "c"]
         df = pd.Series(data)
         profiler.update(df)
-        self.assertEqual(profiler.order, 'ascending')
+        self.assertEqual(profiler.order, "ascending")
 
         # previous was ascending, should be random now receiving descending
-        data = ['c', 'b', 'a']
+        data = ["c", "b", "a"]
         df = pd.Series(data)
         profiler.update(df)
-        self.assertEqual(profiler.order, 'random')
+        self.assertEqual(profiler.order, "random")
 
     def test_profile(self):
         data = [1]
@@ -98,12 +97,9 @@ class TestOrderColumn(unittest.TestCase):
 
         profiler = OrderColumn(df.name)
 
-        expected_profile = dict(
-            order='constant value',
-            times={'order' : 2.0}
-        )
+        expected_profile = dict(order="constant value", times={"order": 2.0})
         time_array = [float(x) for x in range(4, 0, -1)]
-        with mock.patch('time.time', side_effect = lambda: time_array.pop()):
+        with mock.patch("time.time", side_effect=lambda: time_array.pop()):
             profiler.update(df)
             profile = profiler.profile
 
@@ -114,7 +110,7 @@ class TestOrderColumn(unittest.TestCase):
         data = [1]
         df = pd.Series(data).apply(str)
 
-        profile  = OrderColumn(df.name)
+        profile = OrderColumn(df.name)
 
         report1 = profile.profile
         report2 = profile.report(remove_disabled_flag=False)
@@ -179,21 +175,21 @@ class TestOrderColumn(unittest.TestCase):
         profiler11 = OrderColumn("placeholder_name")
         profiler11.update(df11)
 
-        #Ascending + Ascending, non-intersecting, non-piecewise
+        # Ascending + Ascending, non-intersecting, non-piecewise
         profiler_merged = profiler + profiler2
         self.assertEqual(profiler_merged.order, "ascending")
         self.assertEqual(profiler_merged._last_value, 10)
         self.assertEqual(profiler_merged._piecewise, True)
         self.assertEqual(profiler_merged._first_value, 1)
 
-        #Ascending + Ascending, intersecting, non-piecewise
+        # Ascending + Ascending, intersecting, non-piecewise
         profiler_merged = profiler + profiler3
         self.assertEqual(profiler_merged.order, "random")
         self.assertEqual(profiler_merged._last_value, 6)
         self.assertEqual(profiler_merged._piecewise, False)
         self.assertEqual(profiler_merged._first_value, 1)
 
-        #Ascending + Ascending, intersecting, both piecewise
+        # Ascending + Ascending, intersecting, both piecewise
         profiler_merged = profiler + profiler2
         profiler_merged2 = profiler + profiler2
         profiler_merged = profiler_merged + profiler_merged2
@@ -304,38 +300,38 @@ class TestOrderColumn(unittest.TestCase):
     def test_merge_timing(self):
         profiler1 = OrderColumn("placeholder_name")
         profiler2 = OrderColumn("placeholder_name")
-            
+
         profiler1.times = dict(order=2.0)
         profiler2.times = dict(order=3.0)
 
         time_array = [float(i) for i in range(2, 0, -1)]
-        with mock.patch('time.time', side_effect=lambda: time_array.pop()):
+        with mock.patch("time.time", side_effect=lambda: time_array.pop()):
             profiler3 = profiler1 + profiler2
 
             # __add__() call adds 1 so expected is 6
-            expected_times = defaultdict(float, {'order': 6.0})
-            self.assertDictEqual(expected_times, profiler3.profile['times'])
+            expected_times = defaultdict(float, {"order": 6.0})
+            self.assertDictEqual(expected_times, profiler3.profile["times"])
 
-    @mock.patch('dataprofiler.profilers.OrderColumn._get_data_order')
-    def test_random_order_prevents_update_from_occuring(self,
-                                                        mock_get_data_order):
+    @mock.patch("dataprofiler.profilers.OrderColumn._get_data_order")
+    def test_random_order_prevents_update_from_occuring(self, mock_get_data_order):
         mock_get_data_order.return_value = ["random", 1, 2]
-        data = ['a', 'b', 'ab']
+        data = ["a", "b", "ab"]
         df = pd.Series(data).apply(str)
 
         # Assert the order is random
         profiler = OrderColumn(df.name)
         profiler.update(df)
-        self.assertEqual(profiler.order, 'random')
+        self.assertEqual(profiler.order, "random")
 
         # Assert that the update wasn't called again
         profiler.update(data)
         mock_get_data_order.assert_called_once()
-        
+
     def test_order_column_with_wrong_options(self):
-        with self.assertRaisesRegex(ValueError,
-                                   "OrderColumn parameter 'options' must be of"
-                                   " type OrderOptions."):
+        with self.assertRaisesRegex(
+            ValueError,
+            "OrderColumn parameter 'options' must be of" " type OrderOptions.",
+        ):
             profiler = OrderColumn("Order", options="wrong_data_type")
 
     def test_diff(self):

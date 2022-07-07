@@ -1,7 +1,0 @@
-Current_step,Account,Current State,Component Nodes
-0,0,Current_State.GOOD,"{0, 395, 206, 383}"
-0,1,Current_State.DEACT_GOOD,{1}
-0,2,Current_State.GOOD,"{2, 93}"
-0,3,Current_State.GOOD,"{3, 675, 775, 527, 562}"
-0,4,Current_State.GOOD,"{4, 44, 365, 621, 116, 344, 601, 60, 830}"
-0,5,Current_State.GOOD,"{674, 5, 934, 168, 249}"

@@ -32,21 +32,24 @@ class UnstructuredLabelerProfile(object):
                 data_labeler_dirpath = options.data_labeler_dirpath
 
             self.data_labeler = DataLabeler(
-                labeler_type='unstructured',
+                labeler_type="unstructured",
                 dirpath=data_labeler_dirpath,
-                load_options=None)
+                load_options=None,
+            )
 
         self.entity_counts = dict(
             word_level=defaultdict(int),
             true_char_level=defaultdict(int),
-            postprocess_char_level=defaultdict(int))
+            postprocess_char_level=defaultdict(int),
+        )
         self.entity_percentages = dict(
             word_level=defaultdict(int),
             true_char_level=defaultdict(int),
-            postprocess_char_level=defaultdict(int))
+            postprocess_char_level=defaultdict(int),
+        )
         self.char_sample_size = 0
         self.word_sample_size = 0
-        self.separators = (' ', ',', ';', '"', ':', '\n', '\t', ".", "!", "'")
+        self.separators = (" ", ",", ";", '"', ":", "\n", "\t", ".", "!", "'")
         self.times = defaultdict(float)
 
     def __add__(self, other):
@@ -61,13 +64,15 @@ class UnstructuredLabelerProfile(object):
         """
 
         if not isinstance(other, UnstructuredLabelerProfile):
-            raise TypeError("Unsupported operand type(s) for +: "
-                            "'UnstructuredLabelerProfile' and '{}'".format(
-                other.__class__.__name__))
-        
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                "'UnstructuredLabelerProfile' and '{}'".format(other.__class__.__name__)
+            )
+
         if self.data_labeler != other.data_labeler:
-            raise AttributeError("Cannot merge. The data labeler is not the "
-                                 "same for both profiles.")
+            raise AttributeError(
+                "Cannot merge. The data labeler is not the " "same for both profiles."
+            )
 
         # recreate options so the DataLabeler is transferred and not duplicated
         options = DataLabelerOptions()
@@ -75,21 +80,19 @@ class UnstructuredLabelerProfile(object):
 
         merged_profile = UnstructuredLabelerProfile(options=options)
         merged_profile.entity_counts = utils.add_nested_dictionaries(
-            self.entity_counts, other.entity_counts)
+            self.entity_counts, other.entity_counts
+        )
 
-        merged_profile.char_sample_size = self.char_sample_size + \
-                                          other.char_sample_size
-        merged_profile.word_sample_size = self.word_sample_size + \
-                                          other.word_sample_size
+        merged_profile.char_sample_size = self.char_sample_size + other.char_sample_size
+        merged_profile.word_sample_size = self.word_sample_size + other.word_sample_size
 
-        merged_profile.times = utils.add_nested_dictionaries(self.times,
-                                                             other.times)
+        merged_profile.times = utils.add_nested_dictionaries(self.times, other.times)
 
         merged_profile._update_percentages()
 
         return merged_profile
 
-    def     report(self, remove_disabled_flag=False):
+    def report(self, remove_disabled_flag=False):
         """
         Private abstract method for returning report.
 
@@ -111,21 +114,24 @@ class UnstructuredLabelerProfile(object):
         """
         cls = self.__class__
         if not isinstance(other_profile, cls):
-            raise TypeError("Unsupported operand type(s) for diff: '{}' "
-                            "and '{}'".format(cls.__name__,
-                                              other_profile.__class__.__name__))
+            raise TypeError(
+                "Unsupported operand type(s) for diff: '{}' "
+                "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
+            )
 
         entity_counts_diff = {}
         entity_percentages_diff = {}
-        for key in ['word_level', 'true_char_level', 'postprocess_char_level']:
+        for key in ["word_level", "true_char_level", "postprocess_char_level"]:
             entity_percentages_diff[key] = utils.find_diff_of_dicts(
-                self.entity_percentages[key], other_profile.entity_percentages[key])
+                self.entity_percentages[key], other_profile.entity_percentages[key]
+            )
             entity_counts_diff[key] = utils.find_diff_of_dicts(
-                self.entity_counts[key], other_profile.entity_counts[key])
+                self.entity_counts[key], other_profile.entity_counts[key]
+            )
 
         differences = {
             "entity_counts": entity_counts_diff,
-            "entity_percentages": entity_percentages_diff
+            "entity_percentages": entity_percentages_diff,
         }
 
         return differences
@@ -134,7 +140,7 @@ class UnstructuredLabelerProfile(object):
     def label_encoding(self):
         return self.data_labeler.labels
 
-    @BaseColumnProfiler._timeit(name='data_labeler_predict')
+    @BaseColumnProfiler._timeit(name="data_labeler_predict")
     def _update_helper(self, df_series_clean, profile):
         """
         Method for updating the column profile properties with a cleaned
@@ -150,18 +156,19 @@ class UnstructuredLabelerProfile(object):
         predictions = self.data_labeler.predict(df_series_clean)
 
         # also store spacy/NER format
-        postprocessor = CharPostprocessor(use_word_level_argmax=True,
-                                          output_format="NER")
+        postprocessor = CharPostprocessor(
+            use_word_level_argmax=True, output_format="NER"
+        )
         format_predictions = postprocessor.process(
-            df_series_clean, predictions.copy(),
-            self.data_labeler.label_mapping)
+            df_series_clean, predictions.copy(), self.data_labeler.label_mapping
+        )
 
         # Update counts and percent values
-        self._update_word_label_counts(
-            df_series_clean, format_predictions['pred'])
-        self._update_true_char_label_counts(predictions['pred'])
+        self._update_word_label_counts(df_series_clean, format_predictions["pred"])
+        self._update_true_char_label_counts(predictions["pred"])
         self._update_postprocess_char_label_counts(
-            df_series_clean, format_predictions['pred'])
+            df_series_clean, format_predictions["pred"]
+        )
         self._update_percentages()
 
         # This will update the Profiler base properties on NUMBER OF
@@ -171,8 +178,10 @@ class UnstructuredLabelerProfile(object):
     def update(self, df_series):
         if len(df_series) == 0:
             return
-        profile = dict(char_sample_size=self.char_sample_size,
-                       word_sample_size=self.word_sample_size)
+        profile = dict(
+            char_sample_size=self.char_sample_size,
+            word_sample_size=self.word_sample_size,
+        )
         self._update_helper(df_series, profile)
 
     @property
@@ -180,7 +189,7 @@ class UnstructuredLabelerProfile(object):
         profile = {
             "entity_counts": self.entity_counts,
             "entity_percentages": self.entity_percentages,
-            "times": self.times
+            "times": self.times,
         }
         return profile
 
@@ -202,11 +211,14 @@ class UnstructuredLabelerProfile(object):
         :return: Dict of entities and percentages
         :rtype: Dict
         """
-        if level != 'word_level' and level != 'true_char_level' \
-                and level != 'postprocess_char_level':
+        if (
+            level != "word_level"
+            and level != "true_char_level"
+            and level != "postprocess_char_level"
+        ):
             return
         total = self.word_sample_size
-        if level == 'true_char_level' or level == 'postprocess_char_level':
+        if level == "true_char_level" or level == "postprocess_char_level":
             total = self.char_sample_size
 
         percentages = {}
@@ -221,9 +233,13 @@ class UnstructuredLabelerProfile(object):
         :param: None
         :return: None
         """
-        self.entity_percentages['word_level'] = self._get_percentages('word_level')
-        self.entity_percentages['true_char_level'] = self._get_percentages('true_char_level')
-        self.entity_percentages['postprocess_char_level'] = self._get_percentages('postprocess_char_level')
+        self.entity_percentages["word_level"] = self._get_percentages("word_level")
+        self.entity_percentages["true_char_level"] = self._get_percentages(
+            "true_char_level"
+        )
+        self.entity_percentages["postprocess_char_level"] = self._get_percentages(
+            "postprocess_char_level"
+        )
 
     def _update_true_char_label_counts(self, predictions):
         """
@@ -242,8 +258,9 @@ class UnstructuredLabelerProfile(object):
                 char_label_counts[curr_label] += 1
             self.char_sample_size += len(sample)
 
-    def _update_postprocess_char_label_counts(self, df_series_clean,
-                                              format_predictions):
+    def _update_postprocess_char_label_counts(
+        self, df_series_clean, format_predictions
+    ):
         """
         Updates the postprocess character label counts
         :param df_series_clean: df series with nulls removed
@@ -255,21 +272,20 @@ class UnstructuredLabelerProfile(object):
         """
         char_label_counts = self.entity_counts["postprocess_char_level"]
 
-        for index, result in enumerate(zip(df_series_clean,
-                                           format_predictions)):
+        for index, result in enumerate(zip(df_series_clean, format_predictions)):
             text, entities = result
             index = 0
             for entity in entities:
-                char_label_counts['UNKNOWN'] += (entity[0] - index)
+                char_label_counts["UNKNOWN"] += entity[0] - index
 
-                #Add entity char count
-                char_label_counts[entity[2]] += (entity[1] - entity[0])
+                # Add entity char count
+                char_label_counts[entity[2]] += entity[1] - entity[0]
 
-                #Update index
+                # Update index
                 index = entity[1]
 
-            #Add background from end if there is any
-            char_label_counts['UNKNOWN'] += (len(text) - index)
+            # Add background from end if there is any
+            char_label_counts["UNKNOWN"] += len(text) - index
 
     def _update_word_label_counts(self, df_series_clean, format_predictions):
         """
@@ -282,33 +298,32 @@ class UnstructuredLabelerProfile(object):
         """
         word_label_counts = self.entity_counts["word_level"]
 
-        for index, result in enumerate(zip(df_series_clean,
-                                           format_predictions)):
+        for index, result in enumerate(zip(df_series_clean, format_predictions)):
             text, entities = result
             begin_word_idx = -1
             index = 0
 
-            #Find all the background words by searching the non-entity parts
+            # Find all the background words by searching the non-entity parts
             for entity in entities:
-                #Loop through background characters
-                while index<entity[0]:
+                # Loop through background characters
+                while index < entity[0]:
                     if begin_word_idx != -1:
-                        #Add background words when separator is found
+                        # Add background words when separator is found
                         if text[index] in self.separators:
-                            word_label_counts['UNKNOWN'] += 1
+                            word_label_counts["UNKNOWN"] += 1
                             begin_word_idx = -1
-                    #Reset index when new word is found
+                    # Reset index when new word is found
                     elif text[index] not in self.separators:
                         begin_word_idx = index
-                    index+=1
-                #Update index when entity is reached
+                    index += 1
+                # Update index when entity is reached
                 index = entity[1]
 
-            #Same thing as above but after the last entity
+            # Same thing as above but after the last entity
             while index < len(text):
                 if begin_word_idx != -1:
                     if text[index] in self.separators:
-                        word_label_counts['UNKNOWN'] += 1
+                        word_label_counts["UNKNOWN"] += 1
                         begin_word_idx = -1
                 elif text[index] not in self.separators:
                     begin_word_idx = index

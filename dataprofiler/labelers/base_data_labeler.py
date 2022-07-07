@@ -654,8 +654,12 @@ class BaseDataLabeler(object):
         """
         parameters = {
             "model": {"class": self._model.__class__.__name__},
-            "preprocessor": {"class": self._preprocessor.__class__.__name__,},
-            "postprocessor": {"class": self._postprocessor.__class__.__name__,},
+            "preprocessor": {
+                "class": self._preprocessor.__class__.__name__,
+            },
+            "postprocessor": {
+                "class": self._postprocessor.__class__.__name__,
+            },
         }
         with open(os.path.join(dirpath, "data_labeler_parameters.json"), "w") as fp:
             json.dump(parameters, fp)

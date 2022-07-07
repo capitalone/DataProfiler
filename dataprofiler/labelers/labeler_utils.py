@@ -129,7 +129,7 @@ def evaluate_accuracy(
     # is equal to the number of observations known to be in group :math:`i` but
     # predicted to be in group :math:`j`.
     conf_mat = np.zeros((num_labels, num_labels), dtype=np.int64)
-    batch_size = min(2 ** 20, len(true_labels_flatten))
+    batch_size = min(2**20, len(true_labels_flatten))
     for batch_ind in range(len(true_labels_flatten) // batch_size + 1):
         true_label_batch = true_labels_flatten[
             batch_size * batch_ind : (batch_ind + 1) * batch_size

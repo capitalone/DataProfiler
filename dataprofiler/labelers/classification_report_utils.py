@@ -178,7 +178,7 @@ def precision_recall_fscore_support(
         true_sum = np.array([true_sum.sum()])
 
     # Finally, we have all our sufficient statistics. Divide! #
-    beta2 = beta ** 2
+    beta2 = beta**2
 
     # Divide, and on zero-division, set scores to 0 and warn:
 

@@ -462,8 +462,10 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                         # if the sample_buffer will be split, look, for a
                         # separator to split the sample_buffer so as to not
                         # break words.
-                        separate_ind = CharPreprocessor._find_nearest_sentence_break_before_ind(
-                            sample_buffer, separate_ind, min_ind=buffer_ind
+                        separate_ind = (
+                            CharPreprocessor._find_nearest_sentence_break_before_ind(
+                                sample_buffer, separate_ind, min_ind=buffer_ind
+                            )
                         )
 
                         # if no separator found, just split on the maximum
@@ -524,8 +526,10 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                         # if the sample_buffer will be split, look for a
                         # separator to split the sample_buffer so as to not
                         # break words.
-                        separate_ind = CharPreprocessor._find_nearest_sentence_break_before_ind(
-                            sample_buffer, separate_ind, min_ind=buffer_ind
+                        separate_ind = (
+                            CharPreprocessor._find_nearest_sentence_break_before_ind(
+                                sample_buffer, separate_ind, min_ind=buffer_ind
+                            )
                         )
 
                         # if no separator found, just split on the maximum

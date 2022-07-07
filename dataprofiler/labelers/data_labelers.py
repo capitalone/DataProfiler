@@ -72,7 +72,8 @@ class StructuredDataLabeler(BaseDataLabeler):
 class DataLabeler(object):
 
     labeler_classes = dict(
-        structured=StructuredDataLabeler, unstructured=UnstructuredDataLabeler,
+        structured=StructuredDataLabeler,
+        unstructured=UnstructuredDataLabeler,
     )
 
     def __new__(cls, labeler_type, dirpath=None, load_options=None, trainable=False):

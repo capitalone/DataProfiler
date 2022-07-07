@@ -12,9 +12,7 @@ from collections import Counter
 import numpy as np
 import pkg_resources
 
-default_labeler_dir = pkg_resources.resource_filename(
-    'resources', 'labelers'
-)
+default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
@@ -60,8 +58,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         :return: Whether or not self and other are equal
         :rtype: bool
         """
-        if type(self) != type(other) \
-                or self._parameters != other._parameters:
+        if type(self) != type(other) or self._parameters != other._parameters:
             return False
         return True
 
@@ -97,8 +94,11 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
             if param in self._parameters:
                 param_dict[param] = self._parameters.get(param)
             else:
-                raise ValueError('`{}` does not exist as a parameter in {}.'.
-                                 format(param, self.__class__.__name__))
+                raise ValueError(
+                    "`{}` does not exist as a parameter in {}.".format(
+                        param, self.__class__.__name__
+                    )
+                )
         return param_dict
 
     def set_params(self, **kwargs):
@@ -118,8 +118,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
     @classmethod
     def load_from_disk(cls, dirpath):
         """Loads a data processor from a given path on disk"""
-        with open(os.path.join(dirpath,
-                               cls.processor_type + '_parameters.json')) as fp:
+        with open(os.path.join(dirpath, cls.processor_type + "_parameters.json")) as fp:
             parameters = json.load(fp)
 
         return cls(**parameters)
@@ -131,9 +130,9 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
 
     def _save_processor(self, dirpath):
         """Generic method for saving a data processor"""
-        with open(os.path.join(dirpath,
-                               self.processor_type + '_parameters.json'),
-                  'w') as fp:
+        with open(
+            os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
+        ) as fp:
             json.dump(self.get_parameters(), fp)
 
     def save_to_disk(self, dirpath):
@@ -144,7 +143,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
 class BaseDataPreprocessor(BaseDataProcessor):
     """Abstract Data preprocessing class."""
 
-    processor_type = 'preprocessor'
+    processor_type = "preprocessor"
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, **parameters):
@@ -159,7 +158,7 @@ class BaseDataPreprocessor(BaseDataProcessor):
 class BaseDataPostprocessor(BaseDataProcessor):
     """Abstract Data postprocessing class."""
 
-    processor_type = 'postprocessor'
+    processor_type = "postprocessor"
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, **parameters):
@@ -171,9 +170,7 @@ class BaseDataPostprocessor(BaseDataProcessor):
         raise NotImplementedError()
 
 
-class DirectPassPreprocessor(BaseDataPreprocessor,
-                             metaclass=AutoSubRegistrationMeta):
-
+class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
     def __init__(self):
         """
         Initialize the DirectPassPreprocessor class
@@ -192,7 +189,7 @@ class DirectPassPreprocessor(BaseDataPreprocessor,
         :rtype: None
         """
         if parameters:
-            raise ValueError('`DirectPassPreprocessor` has no parameters.')
+            raise ValueError("`DirectPassPreprocessor` has no parameters.")
 
     @classmethod
     def help(cls):
@@ -203,12 +200,12 @@ class DirectPassPreprocessor(BaseDataPreprocessor,
         :return: None
         """
         help_str = (
-            cls.__name__ + "\n\n"
-            + "Parameters:\n"
+            cls.__name__ + "\n\n" + "Parameters:\n"
             "    There are no parameters for this processor."
             "\nProcess Input Format:\n"
             "    There is no required format for data or labels parameters for "
-            "    this processor. Please refer to the Model for input format.")
+            "    this processor. Please refer to the Model for input format."
+        )
         print(help_str)
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
@@ -219,10 +216,16 @@ class DirectPassPreprocessor(BaseDataPreprocessor,
 
 
 class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
-
-    def __init__(self, max_length=3400, default_label='UNKNOWN',
-                 pad_label='PAD', flatten_split=0, flatten_separator=" ",
-                 is_separate_at_max_len=False, **kwargs):
+    def __init__(
+        self,
+        max_length=3400,
+        default_label="UNKNOWN",
+        pad_label="PAD",
+        flatten_split=0,
+        flatten_separator=" ",
+        is_separate_at_max_len=False,
+        **kwargs,
+    ):
         """
         Initialize the CharPreprocessor class
 
@@ -252,7 +255,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             flatten_split=flatten_split,
             flatten_separator=flatten_separator,
             is_separate_at_max_len=is_separate_at_max_len,
-            **kwargs
+            **kwargs,
         )
 
     def _validate_parameters(self, parameters):
@@ -279,30 +282,30 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         """
         errors = []
         allowed_parameters = self.__class__.__init__.__code__.co_varnames[
-                            1:self.__class__.__init__.__code__.co_argcount]
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
         for param in parameters:
             value = parameters[param]
-            if param == 'max_length' \
-                    and (not isinstance(value, int) or value < 1):
-                errors.append('`max_length` must be an int > 0')
-            elif param in ['default_label', 'pad_label'] and \
-                    not isinstance(value, str):
+            if param == "max_length" and (not isinstance(value, int) or value < 1):
+                errors.append("`max_length` must be an int > 0")
+            elif param in ["default_label", "pad_label"] and not isinstance(value, str):
                 errors.append("`{}` must be a string.".format(param))
-            elif param == 'flatten_split' \
-                    and (not isinstance(value, (int, float))
-                         or value < 0 or value > 1 or math.isnan(value)):
-                errors.append('`flatten_split` must be a float or int '
-                              '>= 0 and <= 1')
-            elif param == 'flatten_separator' and not isinstance(value, str):
-                errors.append('`flatten_separator` must be a str')
-            elif param == 'is_separate_at_max_len' \
-                    and not isinstance(value, bool):
-                errors.append('`{}` must be a bool'.format(param))
+            elif param == "flatten_split" and (
+                not isinstance(value, (int, float))
+                or value < 0
+                or value > 1
+                or math.isnan(value)
+            ):
+                errors.append("`flatten_split` must be a float or int " ">= 0 and <= 1")
+            elif param == "flatten_separator" and not isinstance(value, str):
+                errors.append("`flatten_separator` must be a str")
+            elif param == "is_separate_at_max_len" and not isinstance(value, bool):
+                errors.append("`{}` must be a bool".format(param))
             elif param not in allowed_parameters:
                 errors.append("{} is not an accepted parameter.".format(param))
 
         if errors:
-            raise ValueError('\n'.join(errors))
+            raise ValueError("\n".join(errors))
 
     @classmethod
     def help(cls):
@@ -313,25 +316,28 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         :return: None
         """
         param_docs = inspect.getdoc(cls._validate_parameters)
-        param_start_ind = param_docs.find('parameters:\n') + 12
-        param_end_ind = param_docs.find(':type parameters:')
+        param_start_ind = param_docs.find("parameters:\n") + 12
+        param_end_ind = param_docs.find(":type parameters:")
 
         help_str = (
-            cls.__name__ + "\n\n"
+            cls.__name__
+            + "\n\n"
             + "Parameters:\n"
             + param_docs[param_start_ind:param_end_ind]
             + "\nProcess Input Format:\n"
             "    data = List of strings ['1st string', 'second string', ...]\n"
-            "    labels = [[(<INT>, <INT>, \"<LABEL>\"), "
-            "...(num_samples in string)], ...(num strings in data)]")
+            '    labels = [[(<INT>, <INT>, "<LABEL>"), '
+            "...(num_samples in string)], ...(num strings in data)]"
+        )
         print(help_str)
 
     @staticmethod
-    def _find_nearest_sentence_break_before_ind(sentence, start_ind,
-                                                min_ind=0,
-                                                separators=(' ', '\n', ',',
-                                                            '\t', '\r', '\x00',
-                                                            '\x01', ';')):
+    def _find_nearest_sentence_break_before_ind(
+        sentence,
+        start_ind,
+        min_ind=0,
+        separators=(" ", "\n", ",", "\t", "\r", "\x00", "\x01", ";"),
+    ):
         """
         Find nearest separator before the start_ind and return the index.
 
@@ -349,14 +355,23 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         ind_distance = 0
         separator_dict = dict(zip(separators, [None] * len(separators)))
         while (start_ind - ind_distance) > min_ind:
-            if (start_ind - ind_distance) >= min_ind and \
-                    sentence[start_ind - ind_distance] in separator_dict:
+            if (start_ind - ind_distance) >= min_ind and sentence[
+                start_ind - ind_distance
+            ] in separator_dict:
                 return start_ind - ind_distance
             ind_distance += 1
         return min_ind
 
-    def _process_batch_helper(self, data, max_length, default_label, pad_label,
-                              labels=None, label_mapping=None, batch_size=32):
+    def _process_batch_helper(
+        self,
+        data,
+        max_length,
+        default_label,
+        pad_label,
+        labels=None,
+        label_mapping=None,
+        batch_size=32,
+    ):
         """
         Flatten batches of data
 
@@ -378,20 +393,22 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         :rtype batch_data: dicts
         """
         # get processor parameters
-        flatten_separator = self._parameters['flatten_separator']
-        flatten_split = self._parameters['flatten_split']
-        is_separate_at_max_len = self._parameters['is_separate_at_max_len']
+        flatten_separator = self._parameters["flatten_separator"]
+        flatten_split = self._parameters["flatten_split"]
+        is_separate_at_max_len = self._parameters["is_separate_at_max_len"]
 
         flatten_separator_len = len(flatten_separator)
         if flatten_separator_len >= max_length:
             raise ValueError(
-                'The `flatten_separator` length cannot be more than ' +
-                'or equal to the `max_length`.')
+                "The `flatten_separator` length cannot be more than "
+                + "or equal to the `max_length`."
+            )
         # Create list of vectors for samples
         flattened_entities = []
         flattened_sample = []
-        batch_data = {'samples': []} if labels is None \
-            else {'samples': [], 'labels': []}
+        batch_data = (
+            {"samples": []} if labels is None else {"samples": [], "labels": []}
+        )
 
         flattened_sample_len = 0
         batch_count = 0
@@ -402,10 +419,12 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
         # create None generator if labels is not set
         if labels is None:
+
             def gen_none():
                 """Generates infinite None(s). Must be closed manually."""
                 while True:
                     yield None
+
             labels = gen_none()
 
         # loop through each sample
@@ -417,8 +436,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
             if label_set is not None:
                 # Create an entity buffer for sample, assign the default entity
-                label_buffer = np.full(
-                    sample_len, label_mapping[default_label])
+                label_buffer = np.full(sample_len, label_mapping[default_label])
 
                 # Map the entity to the corresponding character
                 for start, end, label in label_set:
@@ -434,20 +452,22 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
                 # choose whether to flatten the current buffer based on the
                 # requested `flatten_ratio` and `curr_flatten_ratio`
-                curr_flatten_split = (flatten_count /
-                                      max(1, flatten_count + non_flatten_count))
+                curr_flatten_split = flatten_count / max(
+                    1, flatten_count + non_flatten_count
+                )
                 if curr_flatten_split > flatten_split or not flatten_split:
                     # Don't flatten if the flatten percentage is more than asked
 
                     separate_ind = max_length + buffer_ind
-                    if not is_separate_at_max_len and \
-                            separate_ind < buffer_len:
+                    if not is_separate_at_max_len and separate_ind < buffer_len:
                         # if the sample_buffer will be split, look, for a
                         # separator to split the sample_buffer so as to not
                         # break words.
-                        separate_ind = CharPreprocessor.\
-                            _find_nearest_sentence_break_before_ind(
-                                sample_buffer, separate_ind, min_ind=buffer_ind)
+                        separate_ind = (
+                            CharPreprocessor._find_nearest_sentence_break_before_ind(
+                                sample_buffer, separate_ind, min_ind=buffer_ind
+                            )
+                        )
 
                         # if no separator found, just split on the maximum
                         # possible length.
@@ -456,8 +476,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                             # have carry over from flattening, if it is 0, it
                             # reverts to max_length which is if splitting a
                             # non-flattened sample at worse case.
-                            separate_ind = max_length - flattened_sample_len + \
-                                           buffer_ind
+                            separate_ind = (
+                                max_length - flattened_sample_len + buffer_ind
+                            )
 
                     # padding cases:
                     # 1. if sample is over length: label_buffer[:separate_ind]
@@ -465,16 +486,17 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                     #    but truly becomes label_buffer[:sample_len]
 
                     # pad the data until fits maximum length
-                    pad_len = max(max_length - separate_ind + buffer_ind,
-                                  max_length - sample_len)
+                    pad_len = max(
+                        max_length - separate_ind + buffer_ind, max_length - sample_len
+                    )
 
                     # Only add the buffer up until maximum length
-                    batch_data['samples'].append(
-                        sample_buffer[buffer_ind:separate_ind])
+                    batch_data["samples"].append(sample_buffer[buffer_ind:separate_ind])
                     if label_set is not None:
-                        batch_data['labels'].append(
-                            label_buffer[buffer_ind:separate_ind] +
-                            [label_mapping[pad_label]] * pad_len)
+                        batch_data["labels"].append(
+                            label_buffer[buffer_ind:separate_ind]
+                            + [label_mapping[pad_label]] * pad_len
+                        )
 
                     non_flatten_count += 1
                     batch_count += 1
@@ -496,70 +518,74 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                     if flattened_sample_len > 0:
                         if label_set is not None:
                             flattened_entities.extend(
-                                [label_mapping[default_label]] *
-                                flatten_separator_len)
+                                [label_mapping[default_label]] * flatten_separator_len
+                            )
                         flattened_sample_len += flatten_separator_len
 
-                    separate_ind = max_length - flattened_sample_len \
-                        + buffer_ind
-                    if not is_separate_at_max_len and \
-                            separate_ind < buffer_len:
+                    separate_ind = max_length - flattened_sample_len + buffer_ind
+                    if not is_separate_at_max_len and separate_ind < buffer_len:
                         # if the sample_buffer will be split, look for a
                         # separator to split the sample_buffer so as to not
                         # break words.
-                        separate_ind = CharPreprocessor.\
-                            _find_nearest_sentence_break_before_ind(
-                                sample_buffer, separate_ind, min_ind=buffer_ind)
+                        separate_ind = (
+                            CharPreprocessor._find_nearest_sentence_break_before_ind(
+                                sample_buffer, separate_ind, min_ind=buffer_ind
+                            )
+                        )
 
                         # if no separator found, just split on the maximum
                         # possible length.
-                        if separate_ind == buffer_ind \
-                                and flattened_sample_len > 0:
+                        if separate_ind == buffer_ind and flattened_sample_len > 0:
                             separate_ind = buffer_ind
                             flattened_sample_len -= flatten_separator_len
                             if label_set is not None:
-                                flattened_entities = \
-                                    flattened_entities[:-flatten_separator_len]
+                                flattened_entities = flattened_entities[
+                                    :-flatten_separator_len
+                                ]
                             force_sample = True
                         elif separate_ind == buffer_ind:
-                            separate_ind = max_length - flattened_sample_len + \
-                                           buffer_ind
+                            separate_ind = (
+                                max_length - flattened_sample_len + buffer_ind
+                            )
 
                     # maximize the amount of the buffer added to the flattened
                     # sample
                     if separate_ind > 0:
                         if buffer_ind != separate_ind:
                             flattened_sample.append(
-                                sample_buffer[buffer_ind:separate_ind])
+                                sample_buffer[buffer_ind:separate_ind]
+                            )
 
                             # update the length of the flattened sample
                             flattened_sample_len += len(flattened_sample[-1])
 
                         if label_set is not None:
                             flattened_entities.extend(
-                                label_buffer[buffer_ind:separate_ind])
+                                label_buffer[buffer_ind:separate_ind]
+                            )
 
                         buffer_ind = separate_ind
 
                     # add to flattened sample to the batch if it reaches the
                     # maximum length
-                    if flattened_sample_len >= \
-                            max_length - flatten_separator_len \
-                            or force_sample:
+                    if (
+                        flattened_sample_len >= max_length - flatten_separator_len
+                        or force_sample
+                    ):
                         force_sample = False
-                        batch_sample = flatten_separator.join(
-                            flattened_sample)
+                        batch_sample = flatten_separator.join(flattened_sample)
 
                         # pad the data until fits maximum length
                         pad_len = max_length - flattened_sample_len
                         if label_set is not None:
                             flattened_entities.extend(
-                                [label_mapping[pad_label]] * pad_len)
+                                [label_mapping[pad_label]] * pad_len
+                            )
 
                         # Add the flattened sample to the batch
-                        batch_data['samples'].append(batch_sample)
+                        batch_data["samples"].append(batch_sample)
                         if label_set is not None:
-                            batch_data['labels'].append(flattened_entities)
+                            batch_data["labels"].append(flattened_entities)
 
                         # update counts
                         batch_count += 1
@@ -575,25 +601,27 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                     yield batch_data
 
                     # reset batch data for next iteration
-                    batch_data = {'samples': []} if label_set is None \
-                        else {'samples': [], 'labels': []}
+                    batch_data = (
+                        {"samples": []}
+                        if label_set is None
+                        else {"samples": [], "labels": []}
+                    )
                     batch_count = 0
 
         # if anything left in flattened sample, add to batch
         if len(flattened_sample):
             pad_len = max_length - flattened_sample_len
             batch_sample = flatten_separator.join(flattened_sample)
-            batch_data['samples'].append(batch_sample)
+            batch_data["samples"].append(batch_sample)
             if label_set is not None:
-                flattened_entities.extend(
-                    [label_mapping[pad_label]] * pad_len)
-                batch_data['labels'].append(flattened_entities)
+                flattened_entities.extend([label_mapping[pad_label]] * pad_len)
+                batch_data["labels"].append(flattened_entities)
             flatten_count += 1
 
         if isinstance(labels, types.GeneratorType):
             labels.close()
         # only provide data if it exists
-        if batch_data['samples']:
+        if batch_data["samples"]:
             yield batch_data
 
     def process(self, data, labels=None, label_mapping=None, batch_size=32):
@@ -613,55 +641,72 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         """
         num_dim = sum([dim > 1 for dim in data.shape])
         if num_dim > 1:
-            raise ValueError("Multidimensional data given to "
-                             "CharPreprocessor. Consider using a different "
-                             "preprocessor or flattening data (and labels)")
+            raise ValueError(
+                "Multidimensional data given to "
+                "CharPreprocessor. Consider using a different "
+                "preprocessor or flattening data (and labels)"
+            )
         # Flattened data into single dimensional np array, if it was truly 1D
         data = data.reshape(-1)
 
         if labels is not None:
             if not label_mapping:
-                raise ValueError('If `labels` are specified, `label_mapping` '
-                                 'must also be specified.')
+                raise ValueError(
+                    "If `labels` are specified, `label_mapping` "
+                    "must also be specified."
+                )
             if len(data) != len(labels):
-                raise ValueError(f"Data and labels given to CharPreprocessor "
-                                 f"are different lengths, "
-                                 f"{len(data)} != {len(labels)}")
+                raise ValueError(
+                    f"Data and labels given to CharPreprocessor "
+                    f"are different lengths, "
+                    f"{len(data)} != {len(labels)}"
+                )
 
         # Import tensorflow
         import tensorflow as tf
 
         # get parameters
-        max_length = self._parameters['max_length']
-        default_label = self._parameters['default_label']
-        pad_label = self._parameters['pad_label']
+        max_length = self._parameters["max_length"]
+        default_label = self._parameters["default_label"]
+        pad_label = self._parameters["pad_label"]
 
         batch_process_generator = self._process_batch_helper(
-            data, max_length, default_label,  pad_label, labels, label_mapping,
-            batch_size)
+            data,
+            max_length,
+            default_label,
+            pad_label,
+            labels,
+            label_mapping,
+            batch_size,
+        )
 
         for batch_data in batch_process_generator:
             # Convert to necessary training data format.
             X_train = np.array(
-                [[sentence] for sentence in batch_data['samples']],
-                dtype=object
+                [[sentence] for sentence in batch_data["samples"]], dtype=object
             )
             if labels is not None:
                 num_classes = max(label_mapping.values()) + 1
 
                 Y_train = tf.keras.utils.to_categorical(
-                    batch_data['labels'], num_classes)
+                    batch_data["labels"], num_classes
+                )
                 yield X_train, Y_train
             else:  # must be an else or will yield this as well
                 yield X_train
 
 
-class CharEncodedPreprocessor(CharPreprocessor,
-                              metaclass=AutoSubRegistrationMeta):
-
-    def __init__(self, encoding_map=None, max_length=5000,
-                 default_label='UNKNOWN', pad_label='PAD', flatten_split=0,
-                 flatten_separator=" ", is_separate_at_max_len=False):
+class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta):
+    def __init__(
+        self,
+        encoding_map=None,
+        max_length=5000,
+        default_label="UNKNOWN",
+        pad_label="PAD",
+        flatten_split=0,
+        flatten_separator=" ",
+        is_separate_at_max_len=False,
+    ):
         """
         Initialize the CharEncodedPreprocessor class
 
@@ -687,7 +732,7 @@ class CharEncodedPreprocessor(CharPreprocessor,
             default_label=default_label,
             flatten_split=flatten_split,
             flatten_separator=flatten_separator,
-            is_separate_at_max_len=is_separate_at_max_len
+            is_separate_at_max_len=is_separate_at_max_len,
         )
 
     def _validate_parameters(self, parameters):
@@ -715,23 +760,24 @@ class CharEncodedPreprocessor(CharPreprocessor,
         super()._validate_parameters(parameters)
         errors = []
         allowed_parameters = self.__class__.__init__.__code__.co_varnames[
-                            1:self.__class__.__init__.__code__.co_argcount]
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
         for param in parameters:
             value = parameters[param]
-            if param == 'encoding_map':
+            if param == "encoding_map":
                 if isinstance(value, dict):
-                    are_dict_keys_str = map(lambda x: isinstance(x, str),
-                                            value.keys())
-                    are_dict_values_int = map(lambda x: isinstance(x, int),
-                                              value.values())
+                    are_dict_keys_str = map(lambda x: isinstance(x, str), value.keys())
+                    are_dict_values_int = map(
+                        lambda x: isinstance(x, int), value.values()
+                    )
                     if all(are_dict_keys_str) or all(are_dict_values_int):
                         continue
-                errors.append('`{}` must be a dict[str, int]'.format(param))
+                errors.append("`{}` must be a dict[str, int]".format(param))
             elif param not in allowed_parameters:
                 errors.append("{} is not an accepted parameter.".format(param))
 
         if errors:
-            raise ValueError('\n'.join(errors))
+            raise ValueError("\n".join(errors))
 
     def process(self, data, labels=None, label_mapping=None, batch_size=32):
         """
@@ -749,22 +795,22 @@ class CharEncodedPreprocessor(CharPreprocessor,
         :return batch_data: A dict containing  samples of size batch_size
         :rtype batch_data: dict
         """
-        char_processor_gen = super().process(
-            data, labels, label_mapping, batch_size)
-        encoding_map = self._parameters['encoding_map']
-        max_length = self._parameters['max_length']
+        char_processor_gen = super().process(data, labels, label_mapping, batch_size)
+        encoding_map = self._parameters["encoding_map"]
+        max_length = self._parameters["max_length"]
         for char_processed_data in char_processor_gen:
             x = char_processed_data
             if labels:
                 x = char_processed_data[0]
                 y = char_processed_data[1]
 
-            processed_x = np.zeros((len(x), max_length), dtype='int64')
+            processed_x = np.zeros((len(x), max_length), dtype="int64")
             for i, text in enumerate(x):
                 text_len = len(text[0])
                 processed_x[i][:text_len] = [
                     # defaults 0
-                    encoding_map.get(c, 0) for c in text[0]
+                    encoding_map.get(c, 0)
+                    for c in text[0]
                 ]
 
             if labels:
@@ -773,16 +819,17 @@ class CharEncodedPreprocessor(CharPreprocessor,
                 yield processed_x
 
 
-class CharPostprocessor(BaseDataPostprocessor,
-                        metaclass=AutoSubRegistrationMeta):
-
-    def __init__(self,
-                 default_label='UNKNOWN', pad_label='PAD',
-                 flatten_separator=" ",
-                 use_word_level_argmax=False,
-                 output_format='character_argmax',
-                 separators=(' ', ',', ';', "'", '"', ':', '\n', '\t', "."),
-                 word_level_min_percent=0.75):
+class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta):
+    def __init__(
+        self,
+        default_label="UNKNOWN",
+        pad_label="PAD",
+        flatten_separator=" ",
+        use_word_level_argmax=False,
+        output_format="character_argmax",
+        separators=(" ", ",", ";", "'", '"', ":", "\n", "\t", "."),
+        word_level_min_percent=0.75,
+    ):
         """
         Initialize the CharPostprocessor class
 
@@ -842,33 +889,45 @@ class CharPostprocessor(BaseDataPostprocessor,
         """
         errors = []
         allowed_parameters = self.__class__.__init__.__code__.co_varnames[
-                            1:self.__class__.__init__.__code__.co_argcount]
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
         for param in parameters:
             value = parameters[param]
-            if param in ['default_label', 'pad_label', 'flatten_separator'] \
-                    and not isinstance(value, str):
+            if param in [
+                "default_label",
+                "pad_label",
+                "flatten_separator",
+            ] and not isinstance(value, str):
                 errors.append("`{}` must be a string.".format(param))
-            if param == 'use_word_level_argmax' and not isinstance(value, bool):
-                errors.append('`use_word_level_argmax` must be a bool')
-            elif param == 'output_format' \
-                    and (not isinstance(value, str)
-                         or value.lower() not in ['character_argmax', 'ner']):
-                errors.append('`output_format` must be a str of value '
-                              '`character_argmax` or `ner`')
-            elif param == 'separators' \
-                    and (not isinstance(value, (list, tuple))
-                         or sum(map(lambda x: not isinstance(x, str), value))):
-                errors.append('`separators` must be a list of str')
-            elif param == 'word_level_min_percent' \
-                    and (not isinstance(value, (int, float))
-                         or value < 0 or value > 1 or math.isnan(value)):
-                errors.append('`word_level_min_percent` must be a float or int '
-                              '>= 0 and <= 1')
+            if param == "use_word_level_argmax" and not isinstance(value, bool):
+                errors.append("`use_word_level_argmax` must be a bool")
+            elif param == "output_format" and (
+                not isinstance(value, str)
+                or value.lower() not in ["character_argmax", "ner"]
+            ):
+                errors.append(
+                    "`output_format` must be a str of value "
+                    "`character_argmax` or `ner`"
+                )
+            elif param == "separators" and (
+                not isinstance(value, (list, tuple))
+                or sum(map(lambda x: not isinstance(x, str), value))
+            ):
+                errors.append("`separators` must be a list of str")
+            elif param == "word_level_min_percent" and (
+                not isinstance(value, (int, float))
+                or value < 0
+                or value > 1
+                or math.isnan(value)
+            ):
+                errors.append(
+                    "`word_level_min_percent` must be a float or int " ">= 0 and <= 1"
+                )
             elif param not in allowed_parameters:
                 errors.append("{} is not an accepted parameter.".format(param))
 
         if errors:
-            raise ValueError('\n'.join(errors))
+            raise ValueError("\n".join(errors))
 
     @classmethod
     def help(cls):
@@ -879,11 +938,12 @@ class CharPostprocessor(BaseDataPostprocessor,
         :return: None
         """
         param_docs = inspect.getdoc(cls._validate_parameters)
-        param_start_ind = param_docs.find('parameters:\n') + 12
-        param_end_ind = param_docs.find(':type parameters:')
+        param_start_ind = param_docs.find("parameters:\n") + 12
+        param_end_ind = param_docs.find(":type parameters:")
 
         help_str = (
-            cls.__name__ + "\n\n"
+            cls.__name__
+            + "\n\n"
             + "Parameters:\n"
             + param_docs[param_start_ind:param_end_ind]
             + "\nProcess Output Format:\n"
@@ -902,8 +962,7 @@ class CharPostprocessor(BaseDataPostprocessor,
         )
         print(help_str)
 
-    def _word_level_argmax(self, data, predictions, label_mapping,
-                           default_label):
+    def _word_level_argmax(self, data, predictions, label_mapping, default_label):
         """
         Convert char level predictions to word level predictions
 
@@ -919,8 +978,8 @@ class CharPostprocessor(BaseDataPostprocessor,
                  level predictions
         """
         # get processor parameters
-        separators = self._parameters['separators']
-        word_level_min_percent = self._parameters['word_level_min_percent']
+        separators = self._parameters["separators"]
+        word_level_min_percent = self._parameters["word_level_min_percent"]
 
         # Get word level labelling
         word_level_predictions = []
@@ -944,7 +1003,7 @@ class CharPostprocessor(BaseDataPostprocessor,
 
                 # Split on separator or last sample
                 is_separator = sample[idx] in separator_dict
-                is_end = (idx == len(sample)-1 and start_idx > 0)
+                is_end = idx == len(sample) - 1 and start_idx > 0
 
                 if not is_separator:
                     label = entities_in_sample[idx]
@@ -962,9 +1021,12 @@ class CharPostprocessor(BaseDataPostprocessor,
                     dominate_label_count = 1
                     for label in label_count:
                         label_ratio = float(label_count[label]) / max(
-                            float(total_label_count), 1)
-                        if label_ratio >= word_level_min_percent and \
-                                label_count[label] > dominate_label_count:
+                            float(total_label_count), 1
+                        )
+                        if (
+                            label_ratio >= word_level_min_percent
+                            and label_count[label] > dominate_label_count
+                        ):
                             dominate_label_count = label_count[label]
                             dominate_label = label
 
@@ -974,24 +1036,28 @@ class CharPostprocessor(BaseDataPostprocessor,
 
                     # Set to background if not relabeled
                     if dominate_label == background_label:
-                        if start_idx > 0 and entities_in_sample[idx] != \
-                                entities_in_sample[start_idx - 1]:
+                        if (
+                            start_idx > 0
+                            and entities_in_sample[idx]
+                            != entities_in_sample[start_idx - 1]
+                        ):
                             entities_in_sample[start_idx - 1] = background_label
                             entities_in_sample[idx] = background_label
 
                     # Reset for next value
                     start_idx = idx + 1
                     label_count = {background_label: 0}
-                    if char_pred[idx] == background_label and \
-                            sample[idx] in separator_dict:
+                    if (
+                        char_pred[idx] == background_label
+                        and sample[idx] in separator_dict
+                    ):
                         continue
             word_level_predictions.append(entities_in_sample)
 
         return word_level_predictions
 
     @staticmethod
-    def convert_to_NER_format(predictions, label_mapping, default_label,
-                              pad_label):
+    def convert_to_NER_format(predictions, label_mapping, default_label, pad_label):
         """
         Converts word level predictions to specified format
 
@@ -1026,11 +1092,16 @@ class CharPostprocessor(BaseDataPostprocessor,
                 if begin_idx != -1:
                     if curr_label != sample[begin_idx]:
                         sample_output.append(
-                            (begin_idx, curr_idx,
-                             reverse_label_mapping[int(sample[begin_idx])]))
+                            (
+                                begin_idx,
+                                curr_idx,
+                                reverse_label_mapping[int(sample[begin_idx])],
+                            )
+                        )
                         # Reset for next iteration
-                        begin_idx = -1 if curr_label in [pad_ind, default_ind] \
-                            else curr_idx
+                        begin_idx = (
+                            -1 if curr_label in [pad_ind, default_ind] else curr_idx
+                        )
                 # Check if need to set a new begin
                 elif curr_label not in [pad_ind, default_ind]:
                     begin_idx = curr_idx
@@ -1038,8 +1109,8 @@ class CharPostprocessor(BaseDataPostprocessor,
             if begin_idx != -1:
                 # Add last sample
                 sample_output.append(
-                    (begin_idx, curr_idx + 1,
-                     reverse_label_mapping[(int(curr_label))]))
+                    (begin_idx, curr_idx + 1, reverse_label_mapping[(int(curr_label))])
+                )
             # Add to total output list
             output_result.append(sample_output)
 
@@ -1065,24 +1136,23 @@ class CharPostprocessor(BaseDataPostprocessor,
         pred_buffer = []
         conf_buffer = []
         result_ind = 0
-        buffer_add_inds = np.cumsum(list(map(len, results['pred']))).tolist()
+        buffer_add_inds = np.cumsum(list(map(len, results["pred"]))).tolist()
         separator_len = len(flatten_separator)
 
         if not inplace:
             results = copy.deepcopy(results)
 
-        if results['pred']:
-            pred_buffer = np.concatenate(results['pred'])
-        results['pred'] = [np.array([])] * len(data)
+        if results["pred"]:
+            pred_buffer = np.concatenate(results["pred"])
+        results["pred"] = [np.array([])] * len(data)
 
-        if 'conf' in results:
-            if results['conf']:
-                conf_buffer = np.concatenate(results['conf'])
-            results['conf'] = [np.array([])] * len(data)
+        if "conf" in results:
+            if results["conf"]:
+                conf_buffer = np.concatenate(results["conf"])
+            results["conf"] = [np.array([])] * len(data)
 
         # move out of loop bc faster
         data_lens = list(map(lambda x: len(str(x)), data))
-
 
         for data_ind in range(len(data)):
 
@@ -1091,11 +1161,13 @@ class CharPostprocessor(BaseDataPostprocessor,
                 continue
 
             # overwrite results with expected data from buffer
-            results['pred'][data_ind] = \
-                pred_buffer[result_ind:result_ind + data_lens[data_ind]]
-            if 'conf' in results:
-                results['conf'][data_ind] = \
-                    conf_buffer[result_ind:result_ind + data_lens[data_ind]]
+            results["pred"][data_ind] = pred_buffer[
+                result_ind : result_ind + data_lens[data_ind]
+            ]
+            if "conf" in results:
+                results["conf"][data_ind] = conf_buffer[
+                    result_ind : result_ind + data_lens[data_ind]
+                ]
 
             result_ind += data_lens[data_ind]
             # if data in buffer, move to next piece of data with separator
@@ -1113,8 +1185,9 @@ class CharPostprocessor(BaseDataPostprocessor,
                 # index matches the end of the data index. If this is the case,
                 # a separator was not added. All other cases need a flattened
                 # index added.
-                if (result_ind > curr_buffer_add_in) \
-                        or ((curr_buffer_add_in - result_ind) > separator_len):
+                if (result_ind > curr_buffer_add_in) or (
+                    (curr_buffer_add_in - result_ind) > separator_len
+                ):
                     result_ind += separator_len
 
         return results
@@ -1133,33 +1206,37 @@ class CharPostprocessor(BaseDataPostprocessor,
         :return: dict of predictions and if they exist, confidences
         """
         # get processor parameters
-        output_format = self._parameters['output_format']
-        use_word_level_argmax = self._parameters['use_word_level_argmax']
-        flatten_separator = self._parameters['flatten_separator']
-        default_label = self._parameters['default_label']
-        pad_label = self._parameters['pad_label']
+        output_format = self._parameters["output_format"]
+        use_word_level_argmax = self._parameters["use_word_level_argmax"]
+        flatten_separator = self._parameters["flatten_separator"]
+        default_label = self._parameters["default_label"]
+        pad_label = self._parameters["pad_label"]
 
         # Format predictions
         # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
-        results = self.match_sentence_lengths(data, dict(results),
-                                              flatten_separator)
+        results = self.match_sentence_lengths(data, dict(results), flatten_separator)
 
         if use_word_level_argmax:
-            results['pred'] = self._word_level_argmax(
-                data, results['pred'], label_mapping, default_label)
+            results["pred"] = self._word_level_argmax(
+                data, results["pred"], label_mapping, default_label
+            )
         if output_format.lower() == "ner":
-            results['pred'] = self.convert_to_NER_format(
-                results['pred'], label_mapping, default_label, pad_label)
+            results["pred"] = self.convert_to_NER_format(
+                results["pred"], label_mapping, default_label, pad_label
+            )
 
         return results
 
 
-class StructCharPreprocessor(CharPreprocessor,
-                             metaclass=AutoSubRegistrationMeta):
-
-    def __init__(self, max_length=3400, default_label='UNKNOWN',
-                 pad_label='PAD', flatten_separator="\x01"*5,
-                 is_separate_at_max_len=False):
+class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta):
+    def __init__(
+        self,
+        max_length=3400,
+        default_label="UNKNOWN",
+        pad_label="PAD",
+        flatten_separator="\x01" * 5,
+        is_separate_at_max_len=False,
+    ):
         """
         Initialize the StructCharPreprocessor class
 
@@ -1182,7 +1259,7 @@ class StructCharPreprocessor(CharPreprocessor,
             default_label=default_label,
             flatten_split=1.0,
             flatten_separator=flatten_separator,
-            is_separate_at_max_len=is_separate_at_max_len
+            is_separate_at_max_len=is_separate_at_max_len,
         )
 
     def _validate_parameters(self, parameters):
@@ -1203,7 +1280,7 @@ class StructCharPreprocessor(CharPreprocessor,
         """
         # flatten_split is hard coded above hence cannot be passed
         parameters = copy.deepcopy(parameters)
-        parameters.pop('flatten_split', None)
+        parameters.pop("flatten_split", None)
         super()._validate_parameters(parameters)
 
     @classmethod
@@ -1215,16 +1292,18 @@ class StructCharPreprocessor(CharPreprocessor,
         :return: None
         """
         param_docs = inspect.getdoc(cls._validate_parameters)
-        param_start_ind = param_docs.find('parameters:\n') + 12
-        param_end_ind = param_docs.find(':type parameters:')
+        param_start_ind = param_docs.find("parameters:\n") + 12
+        param_end_ind = param_docs.find(":type parameters:")
 
         help_str = (
-            cls.__name__ + "\n\n"
+            cls.__name__
+            + "\n\n"
             + "Parameters:\n"
             + param_docs[param_start_ind:param_end_ind]
             + "\nProcess Input Format:\n"
             "    data = List of strings ['1st string', 'second string', ...]\n"
-            "    labels = [\"<LABEL>\", \"<LABEL>\", ...(num_samples in data)]")
+            '    labels = ["<LABEL>", "<LABEL>", ...(num_samples in data)]'
+        )
         print(help_str)
 
     def get_parameters(self, param_list=None):
@@ -1236,7 +1315,7 @@ class StructCharPreprocessor(CharPreprocessor,
         :return: dict of parameters
         """
         params = super().get_parameters(param_list)
-        params.pop('flatten_split', None)
+        params.pop("flatten_split", None)
         return params
 
     def convert_to_unstructured_format(self, data, labels):
@@ -1253,8 +1332,8 @@ class StructCharPreprocessor(CharPreprocessor,
                  entities=[(start=<INT>, end=<INT>, label="<LABEL>"),
                                   ...(num_samples in data)])
         """
-        separator = self._parameters['flatten_separator']
-        default_label = self._parameters['default_label']
+        separator = self._parameters["flatten_separator"]
+        default_label = self._parameters["default_label"]
 
         text = separator.join(data.astype(str))
         if labels is None:
@@ -1270,7 +1349,7 @@ class StructCharPreprocessor(CharPreprocessor,
                 entities.append((start, start + len(sample), entity))
             start += len(sample) + separator_length
             if start < text_len:
-                entities.append((start - separator_length, start, 'PAD'))
+                entities.append((start - separator_length, start, "PAD"))
 
         return text, entities
 
@@ -1292,19 +1371,25 @@ class StructCharPreprocessor(CharPreprocessor,
         """
         if labels is not None:
             if not label_mapping:
-                raise ValueError('If `labels` are specified, `label_mapping` '
-                                 'must also be specified.')
+                raise ValueError(
+                    "If `labels` are specified, `label_mapping` "
+                    "must also be specified."
+                )
             if data.shape != labels.shape:
-                raise ValueError(f"Data and labels given to "
-                                 f"StructCharPreprocessor are of different "
-                                 f"shapes, {data.shape} != {labels.shape}")
+                raise ValueError(
+                    f"Data and labels given to "
+                    f"StructCharPreprocessor are of different "
+                    f"shapes, {data.shape} != {labels.shape}"
+                )
 
         num_dim = sum([dim > 1 for dim in data.shape])
         if num_dim > 1:
-            warnings.warn("Data given to StructCharPreprocessor was "
-                          "multidimensional, it will be flattened for model "
-                          "processing. Results may be inaccurate, consider "
-                          "reformatting data or changing preprocessor.")
+            warnings.warn(
+                "Data given to StructCharPreprocessor was "
+                "multidimensional, it will be flattened for model "
+                "processing. Results may be inaccurate, consider "
+                "reformatting data or changing preprocessor."
+            )
         # Flattened data and labels, confirmed to be same shape
         data = data.reshape(-1)
         if labels is not None:
@@ -1316,10 +1401,12 @@ class StructCharPreprocessor(CharPreprocessor,
 
         # with rework, can be tuned to be batches > size 1
         for ind in range(len(data)):
-            batch_data = data[ind:ind+1]
-            batch_labels = None if labels is None else labels[ind:ind+1]
-            unstructured_text, unstructured_label_set = \
-                self.convert_to_unstructured_format(batch_data, batch_labels)
+            batch_data = data[ind : ind + 1]
+            batch_labels = None if labels is None else labels[ind : ind + 1]
+            (
+                unstructured_text,
+                unstructured_label_set,
+            ) = self.convert_to_unstructured_format(batch_data, batch_labels)
             unstructured_data[ind] = unstructured_text
             if labels is not None:
                 unstructured_labels[ind] = unstructured_label_set
@@ -1329,16 +1416,20 @@ class StructCharPreprocessor(CharPreprocessor,
         else:
             np_unstruct_labels = None
 
-        return super().process(np.array(unstructured_data), np_unstruct_labels,
-                               label_mapping, batch_size)
+        return super().process(
+            np.array(unstructured_data), np_unstruct_labels, label_mapping, batch_size
+        )
 
 
-class StructCharPostprocessor(BaseDataPostprocessor,
-                              metaclass=AutoSubRegistrationMeta):
-
-    def __init__(self, default_label='UNKNOWN', pad_label='PAD',
-                 flatten_separator="\x01"*5, is_pred_labels=True,
-                 random_state=None):
+class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta):
+    def __init__(
+        self,
+        default_label="UNKNOWN",
+        pad_label="PAD",
+        flatten_separator="\x01" * 5,
+        is_pred_labels=True,
+        random_state=None,
+    ):
         """
         Initialize the StructCharPostprocessor class
 
@@ -1374,11 +1465,13 @@ class StructCharPostprocessor(BaseDataPostprocessor,
             except (TypeError, ValueError):
                 pass  # error will raise in validate parameters
 
-        super().__init__(default_label=default_label,
-                         pad_label=pad_label,
-                         flatten_separator=flatten_separator,
-                         is_pred_labels=is_pred_labels,
-                         random_state=random_state)
+        super().__init__(
+            default_label=default_label,
+            pad_label=pad_label,
+            flatten_separator=flatten_separator,
+            is_pred_labels=is_pred_labels,
+            random_state=random_state,
+        )
 
     def __eq__(self, other):
         """
@@ -1392,15 +1485,14 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :rtype: bool
         """
 
-        if type(self) != type(other) \
-                or self._parameters["default_label"] != \
-                    other._parameters["default_label"]\
-                or self._parameters["pad_label"] != \
-                    other._parameters["pad_label"]\
-                or self._parameters["flatten_separator"] != \
-                    other._parameters["flatten_separator"] \
-                or self._parameters["is_pred_labels"] != \
-                    other._parameters["is_pred_labels"]:
+        if (
+            type(self) != type(other)
+            or self._parameters["default_label"] != other._parameters["default_label"]
+            or self._parameters["pad_label"] != other._parameters["pad_label"]
+            or self._parameters["flatten_separator"]
+            != other._parameters["flatten_separator"]
+            or self._parameters["is_pred_labels"] != other._parameters["is_pred_labels"]
+        ):
             return False
         return True
 
@@ -1421,21 +1513,25 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         """
         errors = []
         allowed_parameters = self.__class__.__init__.__code__.co_varnames[
-                            1:self.__class__.__init__.__code__.co_argcount]
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
         for param in parameters:
             value = parameters[param]
-            if param in ['default_label', 'pad_label', 'flatten_separator'] \
-                    and not isinstance(value, str):
+            if param in [
+                "default_label",
+                "pad_label",
+                "flatten_separator",
+            ] and not isinstance(value, str):
                 errors.append("`{}` must be a string.".format(param))
-            if param in ['is_pred_labels'] and not isinstance(value, bool):
+            if param in ["is_pred_labels"] and not isinstance(value, bool):
                 errors.append("`{}` must be a boolean.".format(param))
-            if param == 'random_state' and not isinstance(value, random.Random):
-                errors.append('`{}` must be a random.Random.'.format(param))
+            if param == "random_state" and not isinstance(value, random.Random):
+                errors.append("`{}` must be a random.Random.".format(param))
             elif param not in allowed_parameters:
                 errors.append("{} is not an accepted parameter.".format(param))
 
         if errors:
-            raise ValueError('\n'.join(errors))
+            raise ValueError("\n".join(errors))
 
     @classmethod
     def help(cls):
@@ -1446,18 +1542,20 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :return: None
         """
         param_docs = inspect.getdoc(cls._validate_parameters)
-        param_start_ind = param_docs.find('parameters:\n') + 12
-        param_end_ind = param_docs.find(':type parameters:')
+        param_start_ind = param_docs.find("parameters:\n") + 12
+        param_end_ind = param_docs.find(":type parameters:")
 
         help_str = (
-           cls.__name__ + "\n\n"
+            cls.__name__
+            + "\n\n"
             + "Parameters:\n"
             + param_docs[param_start_ind:param_end_ind]
             + "\nProcess Output Format:\n"
-              "    Each sample receives a label.\n"
-              "    Original data - ['My', 'String', ...]\n"
-              "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
-              "..(num_samples)]")
+            "    Each sample receives a label.\n"
+            "    Original data - ['My', 'String', ...]\n"
+            "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
+            "..(num_samples)]"
+        )
         print(help_str)
 
     @staticmethod
@@ -1480,20 +1578,20 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         pred_buffer = []
         conf_buffer = []
         result_ind = 0
-        buffer_add_inds = np.cumsum(list(map(len, results['pred']))).tolist()
+        buffer_add_inds = np.cumsum(list(map(len, results["pred"]))).tolist()
         separator_len = len(flatten_separator)
 
         if not inplace:
             results = copy.deepcopy(results)
 
-        if results['pred']:
-            pred_buffer = np.concatenate(results['pred'])
-        results['pred'] = [np.array([])] * len(data)
+        if results["pred"]:
+            pred_buffer = np.concatenate(results["pred"])
+        results["pred"] = [np.array([])] * len(data)
 
-        if 'conf' in results:
-            if results['conf']:
-                conf_buffer = np.concatenate(results['conf'])
-            results['conf'] = [np.array([])] * len(data)
+        if "conf" in results:
+            if results["conf"]:
+                conf_buffer = np.concatenate(results["conf"])
+            results["conf"] = [np.array([])] * len(data)
 
         # move out of loop bc faster
         data_lens = list(map(lambda x: len(str(x)), data))
@@ -1505,11 +1603,13 @@ class StructCharPostprocessor(BaseDataPostprocessor,
                 continue
 
             # overwrite results with expected data from buffer
-            results['pred'][data_ind] = \
-                pred_buffer[result_ind:result_ind + data_lens[data_ind]]
-            if 'conf' in results:
-                results['conf'][data_ind] = \
-                    conf_buffer[result_ind:result_ind + data_lens[data_ind]]
+            results["pred"][data_ind] = pred_buffer[
+                result_ind : result_ind + data_lens[data_ind]
+            ]
+            if "conf" in results:
+                results["conf"][data_ind] = conf_buffer[
+                    result_ind : result_ind + data_lens[data_ind]
+                ]
 
             result_ind += data_lens[data_ind]
             # if data in buffer, move to next piece of data with separator
@@ -1527,14 +1627,16 @@ class StructCharPostprocessor(BaseDataPostprocessor,
                 # index matches the end of the data index. If this is the case,
                 # a separator was not added. All other cases need a flattened
                 # index added.
-                if (result_ind > curr_buffer_add_in) \
-                        or ((curr_buffer_add_in - result_ind) > separator_len):
+                if (result_ind > curr_buffer_add_in) or (
+                    (curr_buffer_add_in - result_ind) > separator_len
+                ):
                     result_ind += separator_len
 
         return results
 
-    def convert_to_structured_analysis(self, sentences, results, label_mapping,
-                                       default_label, pad_label):
+    def convert_to_structured_analysis(
+        self, sentences, results, label_mapping, default_label, pad_label
+    ):
         """
         Converts unstructured results to a structured column analysis assuming
         the column was flattened into a single sample. This takes the mode of
@@ -1558,19 +1660,21 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         ignore_value = label_mapping[pad_label]
         num_labels = max(label_mapping.values()) + 1
 
-        labels_out = np.ones((len(results['pred']),))
-        if 'conf' in results:
-            confs_out = np.zeros((len(results['pred']), num_labels))
+        labels_out = np.ones((len(results["pred"]),))
+        if "conf" in results:
+            confs_out = np.zeros((len(results["pred"]), num_labels))
 
-        for i, label_samples in enumerate(zip(results['pred'], sentences)):
+        for i, label_samples in enumerate(zip(results["pred"], sentences)):
             column_labels, sample = label_samples
 
             # get count of all labels in prediction
-            column_label_counter = Counter(column_labels[:len(str(sample))])
+            column_label_counter = Counter(column_labels[: len(str(sample))])
             column_label_counter.pop(ignore_value, None)
-            modes = [entity_id for entity_id, count in
-                     column_label_counter.most_common() if
-                     column_label_counter.most_common(1)[0][1] == count]
+            modes = [
+                entity_id
+                for entity_id, count in column_label_counter.most_common()
+                if column_label_counter.most_common(1)[0][1] == count
+            ]
             if len(modes) == 0:
                 labels_out[i] = None
             elif len(modes) == 1:
@@ -1579,15 +1683,15 @@ class StructCharPostprocessor(BaseDataPostprocessor,
                 # always choose other than background, otherwise randomly choose
                 if default_ind in modes:
                     modes.remove(default_ind)
-                labels_out[i] = self._parameters['random_state'].choice(modes)
-            if 'conf' in results:
+                labels_out[i] = self._parameters["random_state"].choice(modes)
+            if "conf" in results:
                 sample_count = sum(column_label_counter.values())
                 for label_id, count in column_label_counter.items():
                     confs_out[i, int(label_id)] = count / sample_count
 
-        results['pred'] = labels_out
-        if 'conf' in results:
-            results['conf'] = confs_out
+        results["pred"] = labels_out
+        if "conf" in results:
+            results["conf"] = confs_out
 
         return results
 
@@ -1606,26 +1710,28 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :rtype: dict
         """
         # get processor parameters
-        flatten_separator = self._parameters['flatten_separator']
-        default_label = self._parameters['default_label']
-        pad_label = self._parameters['pad_label']
-        is_pred_labels = self._parameters['is_pred_labels']
+        flatten_separator = self._parameters["flatten_separator"]
+        default_label = self._parameters["default_label"]
+        pad_label = self._parameters["pad_label"]
+        is_pred_labels = self._parameters["is_pred_labels"]
 
         # Format predictions
         # FORMER DEEPCOPY, SHALLOW AS ONLY INTERNAL
-        results = self.match_sentence_lengths(data, dict(results),
-                                              flatten_separator)
+        results = self.match_sentence_lengths(data, dict(results), flatten_separator)
         results = self.convert_to_structured_analysis(
-            data, results,
+            data,
+            results,
             label_mapping=label_mapping,
             default_label=default_label,
-            pad_label=pad_label)
+            pad_label=pad_label,
+        )
 
         if is_pred_labels:
             reverse_label_mapping = {v: k for k, v in label_mapping.items()}
             rev_label_map_vec_func = np.vectorize(
-                lambda x: reverse_label_mapping.get(x, None))
-            results['pred'] = rev_label_map_vec_func(results['pred'])
+                lambda x: reverse_label_mapping.get(x, None)
+            )
+            results["pred"] = rev_label_map_vec_func(results["pred"])
         return results
 
     def _save_processor(self, dirpath):
@@ -1637,18 +1743,17 @@ class StructCharPostprocessor(BaseDataPostprocessor,
         :return:
         """
         params = copy.deepcopy(self._parameters)
-        params['random_state'] = params['random_state'].getstate()
-        with open(os.path.join(dirpath,
-                               self.processor_type + '_parameters.json'),
-                  'w') as fp:
+        params["random_state"] = params["random_state"].getstate()
+        with open(
+            os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
+        ) as fp:
             json.dump(params, fp)
 
 
-class RegexPostProcessor(BaseDataPostprocessor,
-                         metaclass=AutoSubRegistrationMeta):
-
-    def __init__(self, aggregation_func='split', priority_order=None,
-                 random_state=None):
+class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta):
+    def __init__(
+        self, aggregation_func="split", priority_order=None, random_state=None
+    ):
         """
         Initialize the RegexPostProcessor class
 
@@ -1683,7 +1788,7 @@ class RegexPostProcessor(BaseDataPostprocessor,
         parameters = {
             "aggregation_func": aggregation_func,
             "priority_order": priority_order,
-            "random_state": random_state
+            "random_state": random_state,
         }
 
         super().__init__(**parameters)
@@ -1706,39 +1811,41 @@ class RegexPostProcessor(BaseDataPostprocessor,
         """
         errors = []
         allowed_parameters = self.__class__.__init__.__code__.co_varnames[
-                             1:self.__class__.__init__.__code__.co_argcount]
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
         for param in parameters:
             value = parameters[param]
-            if param == 'aggregation_func':
+            if param == "aggregation_func":
                 if not isinstance(value, str):
                     errors.append("`{}` must be a string.".format(param))
-                elif value.lower() not in ['split', 'priority', 'random']:
-                    errors.append("`{}` must be a one of ['split', 'priority', "
-                                  "'random'].".format(param))
-            elif param == 'priority_order':
+                elif value.lower() not in ["split", "priority", "random"]:
+                    errors.append(
+                        "`{}` must be a one of ['split', 'priority', "
+                        "'random'].".format(param)
+                    )
+            elif param == "priority_order":
                 # if aggregation function is being set to priority, or is not
                 # being changed and is already set
                 aggregation_func = parameters.get(
-                    'aggregation_func',
-                    self._parameters.get('aggregation_func')
-                    if hasattr(self, '_parameters') else None)
-                if value is None and aggregation_func == 'priority':
+                    "aggregation_func",
+                    self._parameters.get("aggregation_func")
+                    if hasattr(self, "_parameters")
+                    else None,
+                )
+                if value is None and aggregation_func == "priority":
                     errors.append(
-                        '`{}` cannot be None if `aggregation_func` == '
-                        'priority.'.format(param))
-                elif value is not None \
-                        and not isinstance(value, (list, np.ndarray)):
-                    errors.append(
-                        '`{}` must be a list or numpy.ndarray.'.format(param))
-            elif param == 'random_state' \
-                    and not isinstance(value, random.Random):
-                errors.append('`{}` must be a random.Random.'.format(param))
+                        "`{}` cannot be None if `aggregation_func` == "
+                        "priority.".format(param)
+                    )
+                elif value is not None and not isinstance(value, (list, np.ndarray)):
+                    errors.append("`{}` must be a list or numpy.ndarray.".format(param))
+            elif param == "random_state" and not isinstance(value, random.Random):
+                errors.append("`{}` must be a random.Random.".format(param))
             elif param not in allowed_parameters:
-                errors.append(
-                    "{} is not an accepted parameter.".format(param))
+                errors.append("{} is not an accepted parameter.".format(param))
 
         if errors:
-            raise ValueError('\n'.join(errors))
+            raise ValueError("\n".join(errors))
 
     @classmethod
     def help(cls):
@@ -1749,18 +1856,20 @@ class RegexPostProcessor(BaseDataPostprocessor,
         :return: None
         """
         param_docs = inspect.getdoc(cls._validate_parameters)
-        param_start_ind = param_docs.find('parameters:\n') + 12
-        param_end_ind = param_docs.find(':type parameters:')
+        param_start_ind = param_docs.find("parameters:\n") + 12
+        param_end_ind = param_docs.find(":type parameters:")
 
         help_str = (
-                cls.__name__ + "\n\n"
-                + "Parameters:\n"
-                + param_docs[param_start_ind:param_end_ind]
-                + "\nProcess Output Format:\n"
-                  "    Each sample receives a label.\n"
-                  "    Original data - ['My', 'String', ...]\n"
-                  "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
-                  "..(num samples)]")
+            cls.__name__
+            + "\n\n"
+            + "Parameters:\n"
+            + param_docs[param_start_ind:param_end_ind]
+            + "\nProcess Output Format:\n"
+            "    Each sample receives a label.\n"
+            "    Original data - ['My', 'String', ...]\n"
+            "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
+            "..(num samples)]"
+        )
         print(help_str)
 
     @staticmethod
@@ -1778,8 +1887,8 @@ class RegexPostProcessor(BaseDataPostprocessor,
         """
         # default aggregation function which selects the first predicted label
         # with the lowest priority of integer.
-        for i, pred in enumerate(results['pred']):
-            results['pred'][i] = entity_priority_order[
+        for i, pred in enumerate(results["pred"]):
+            results["pred"][i] = entity_priority_order[
                 np.argmax(pred[:, entity_priority_order], axis=1)
             ]
 
@@ -1791,32 +1900,35 @@ class RegexPostProcessor(BaseDataPostprocessor,
         :type results: dict
         :return: aggregated predictions
         """
-        for i, pred in enumerate(results['pred']):
-            results['pred'][i] = \
-                pred / np.linalg.norm(pred, axis=1, ord=1, keepdims=True)
+        for i, pred in enumerate(results["pred"]):
+            results["pred"][i] = pred / np.linalg.norm(
+                pred, axis=1, ord=1, keepdims=True
+            )
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
         """Data preprocessing function."""
 
-        aggregation_func = self._parameters['aggregation_func']
+        aggregation_func = self._parameters["aggregation_func"]
         aggregation_func = aggregation_func.lower()
 
         results = copy.deepcopy(labels)
 
-        if aggregation_func == 'split':
+        if aggregation_func == "split":
             self.split_prediction(results)
-        elif aggregation_func == 'priority':
+        elif aggregation_func == "priority":
             self.priority_prediction(
-                results, np.array(self._parameters['priority_order']))
-        elif aggregation_func == 'random':
+                results, np.array(self._parameters["priority_order"])
+            )
+        elif aggregation_func == "random":
             num_labels = max(label_mapping.values()) + 1
-            random_state = self._parameters['random_state']
+            random_state = self._parameters["random_state"]
             priority_order = np.array(list(range(num_labels)))
             random_state.shuffle(priority_order)
             self.priority_prediction(results, priority_order)
         else:
-            raise ValueError('`{}` is not a valid aggregation function'.format(
-                aggregation_func))
+            raise ValueError(
+                "`{}` is not a valid aggregation function".format(aggregation_func)
+            )
 
         return results
 
@@ -1829,16 +1941,16 @@ class RegexPostProcessor(BaseDataPostprocessor,
         :return:
         """
         params = copy.deepcopy(self._parameters)
-        params['random_state'] = params['random_state'].getstate()
-        with open(os.path.join(dirpath,
-                               self.processor_type + '_parameters.json'),
-                  'w') as fp:
+        params["random_state"] = params["random_state"].getstate()
+        with open(
+            os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
+        ) as fp:
             json.dump(params, fp)
 
 
-class StructRegexPostProcessor(BaseDataPostprocessor,
-                               metaclass=AutoSubRegistrationMeta):
-
+class StructRegexPostProcessor(
+    BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
+):
     def __init__(self, random_state=None):
         """
         Initialize the RegexPostProcessor class
@@ -1849,8 +1961,9 @@ class StructRegexPostProcessor(BaseDataPostprocessor,
         :type random_state: random.Random
         """
         super().__init__()
-        self._parameters['regex_processor'] = RegexPostProcessor(
-            random_state=random_state)
+        self._parameters["regex_processor"] = RegexPostProcessor(
+            random_state=random_state
+        )
 
     def _validate_parameters(self, parameters):
         """
@@ -1869,15 +1982,15 @@ class StructRegexPostProcessor(BaseDataPostprocessor,
     def set_params(self, **kwargs):
         """Given kwargs, set the parameters if they exist."""
         allowed_parameters = self.__class__.__init__.__code__.co_varnames[
-                             1:self.__class__.__init__.__code__.co_argcount]
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
         errors = []
         for param in kwargs:
             if param not in allowed_parameters:
-                    errors.append("{} is not an accepted parameter.".format(
-                        param))
+                errors.append("{} is not an accepted parameter.".format(param))
         if errors:
-            raise ValueError('\n'.join(errors))
-        self._parameters['regex_processor'].set_params(**kwargs)
+            raise ValueError("\n".join(errors))
+        self._parameters["regex_processor"].set_params(**kwargs)
 
     @classmethod
     def help(cls):
@@ -1888,18 +2001,20 @@ class StructRegexPostProcessor(BaseDataPostprocessor,
         :return: None
         """
         param_docs = inspect.getdoc(cls._validate_parameters)
-        param_start_ind = param_docs.find('parameters:\n') + 12
-        param_end_ind = param_docs.find(':type parameters:')
+        param_start_ind = param_docs.find("parameters:\n") + 12
+        param_end_ind = param_docs.find(":type parameters:")
 
         help_str = (
-                cls.__name__ + "\n\n"
-                + "Parameters:\n"
-                + param_docs[param_start_ind:param_end_ind]
-                + "\nProcess Output Format:\n"
-                  "    Each sample receives a label.\n"
-                  "    Original data - ['My', 'String', ...]\n"
-                  "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
-                  "..(num samples)]")
+            cls.__name__
+            + "\n\n"
+            + "Parameters:\n"
+            + param_docs[param_start_ind:param_end_ind]
+            + "\nProcess Output Format:\n"
+            "    Each sample receives a label.\n"
+            "    Original data - ['My', 'String', ...]\n"
+            "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
+            "..(num samples)]"
+        )
         print(help_str)
 
     def _save_processor(self, dirpath):
@@ -1910,13 +2025,13 @@ class StructRegexPostProcessor(BaseDataPostprocessor,
         :type dirpath: str
         :return:
         """
-        regex_processor = self._parameters['regex_processor']
-        regex_params = regex_processor.get_parameters(['random_state'])
-        random_state = regex_params['random_state']
+        regex_processor = self._parameters["regex_processor"]
+        regex_params = regex_processor.get_parameters(["random_state"])
+        random_state = regex_params["random_state"]
         params = dict(random_state=random_state.getstate())
-        with open(os.path.join(dirpath,
-                               self.processor_type + '_parameters.json'),
-                  'w') as fp:
+        with open(
+            os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
+        ) as fp:
             json.dump(params, fp)
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
@@ -1926,20 +2041,21 @@ class StructRegexPostProcessor(BaseDataPostprocessor,
         # still is in a 3d format [samples x characters x labels]
         # split meaning it can have a partial prediction between labels, hence
         # it is still like a confidence
-        results = self._parameters['regex_processor'].process(
-            data, labels, label_mapping)
+        results = self._parameters["regex_processor"].process(
+            data, labels, label_mapping
+        )
 
         # get the average of the label confidences over a cell for each label
-        for i in range(len(results['pred'])):
-            results['pred'][i] = np.mean(results['pred'][i], axis=0)
+        for i in range(len(results["pred"])):
+            results["pred"][i] = np.mean(results["pred"][i], axis=0)
 
         # since the output is uniform after averaging the characters, stack
         # into a single array, this is now essentially confidences, but we are
         # doing in place as 'conf' may not exist
-        results['pred'] = np.vstack(results['pred'])
-        if 'conf' in results:
-            results['conf'] = np.vstack(results['pred'])
+        results["pred"] = np.vstack(results["pred"])
+        if "conf" in results:
+            results["conf"] = np.vstack(results["pred"])
 
         # predictions is the argmax of the average of the cell's label votes
-        results['pred'] = np.argmax(results['pred'], axis=1)
+        results["pred"] = np.argmax(results["pred"], axis=1)
         return results

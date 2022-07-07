@@ -891,12 +891,12 @@ Just remember the golden rule of comments: "Explaining WHY something was done is
 
 e.g.
 
- // We loop over the employees         
- for(var n = employee.Count; n > 0; n--)  { ... }        
+ // We loop over the employees
+ for(var n = employee.Count; n > 0; n--)  { ... }
 Vs.
 
  // Inverted because list comes down in reverse-alphabetical from employees view
- for(var n = employee.Count; n > 0; n--)  { ... }    
+ for(var n = employee.Count; n > 0; n--)  { ... }
 One of these is useful insight, the other is obvious.
 
 Reply
@@ -1009,7 +1009,7 @@ dont_judge_me_monkey
 13 points
 ·
 3 hours ago
-//open file  
+//open file
 File.Open(filename);
 jfc
 
@@ -1025,7 +1025,7 @@ Jeffy29
 10 points
 ·
 3 hours ago
-//open file  
+//open file
 x3.Open(name_variable);
 #CollegeCode
 
@@ -1502,13 +1502,13 @@ Package DB is
     -- can be assured that no variable has an invalid Query.
     Type Query(<>) is private;
     Type Table is (User, Administrator, Company); -- Each has a name col.
-    
+
     Function Get_Name( Name : String; From : Table ) return Query;
 Private
     Type DB_Input_String  is new String;
     Type DB_Output_String is new String;
     Type Query is null record; -- A stub for the example.
-    
+
     Function Do_SQL   ( Name  : DB_Input_String;
                         From  : Table  ) return DB_Output_String;
     Function Sanitize ( Input : String ) return DB_Input_String;
@@ -2534,7 +2534,7 @@ whocouldwinaportal
 It's mostly pre-C#6 code that looks like that. One liner properties should now get away with using expression bodied methods.
 
 private string _foo;
-public string Foo 
+public string Foo
 {
     get => _foo;
     set => _foo = "Prefix " + value;
@@ -2609,10 +2609,10 @@ namespace NS
 class Foo
 {
 public:
-  void method() 
+  void method()
   {
      // sweet 2-space indents of love
-     if(foo) 
+     if(foo)
      {
        do_bar();
        do_baz();
@@ -3337,17 +3337,17 @@ Here is the other way to write the code just to put it in contrast.
 if !things_are_broken() && !input_is_invalid():
     if easy_common_solution():
         return simple_answer()
-        
+
     intermediate = do_some_prep()
     if !prep_failed(intermediate):
         if less_easy_solution(intermediate):
             return less_simple_answer(intermediate)
-        
+
         if weird_special_case(intermediate):
             return "cows"
-        
+
         perflog_event(FULL_ANSWER_REQUIRED)
-        
+
         more_intermediate = lots_more_prep(intermediate)
         if !invalid_state(more_intermediate) && degenerate_result(more_intermediate):
             return 0

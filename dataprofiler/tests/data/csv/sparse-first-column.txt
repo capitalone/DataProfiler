@@ -3,7 +3,7 @@ COUNT, NAMES
 2, John Adams
 , Thomas Jefferson
 , James Madison
-, James Monroe 
+, James Monroe
 , John Adams
 7, Andrew Jackson
 , Martin Van Buren

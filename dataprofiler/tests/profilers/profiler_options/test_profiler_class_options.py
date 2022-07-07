@@ -1,6 +1,7 @@
 from dataprofiler.profilers.profiler_options import ProfilerOptions
-from dataprofiler.tests.profilers.profiler_options.test_base_option import \
-    TestBaseOption
+from dataprofiler.tests.profilers.profiler_options.test_base_option import (
+    TestBaseOption,
+)
 
 
 class TestProfilerOptions(TestBaseOption):
@@ -33,15 +34,15 @@ class TestProfilerOptions(TestBaseOption):
         option.unstructured_options.text.is_enabled = True
 
         # test set False
-        option._set_helper({'structured_options.text.is_enabled': False}, '')
+        option._set_helper({"structured_options.text.is_enabled": False}, "")
         self.assertFalse(option.structured_options.text.is_enabled)
-        option._set_helper({'unstructured_options.text.is_enabled': False}, '')
+        option._set_helper({"unstructured_options.text.is_enabled": False}, "")
         self.assertFalse(option.unstructured_options.text.is_enabled)
 
         # test set True
-        option._set_helper({'structured_options.text.is_enabled': True}, '')
+        option._set_helper({"structured_options.text.is_enabled": True}, "")
         self.assertTrue(option.structured_options.text.is_enabled)
-        option._set_helper({'unstructured_options.text.is_enabled': True}, '')
+        option._set_helper({"unstructured_options.text.is_enabled": True}, "")
         self.assertTrue(option.unstructured_options.text.is_enabled)
 
     def test_set(self):
@@ -58,23 +59,25 @@ class TestProfilerOptions(TestBaseOption):
         option.unstructured_options.text.is_enabled = True
 
         # test set False
-        option.set({'structured_options.text.is_enabled': False})
+        option.set({"structured_options.text.is_enabled": False})
         self.assertFalse(option.structured_options.text.is_enabled)
-        option.set({'unstructured_options.text.is_enabled': False})
+        option.set({"unstructured_options.text.is_enabled": False})
         self.assertFalse(option.unstructured_options.text.is_enabled)
 
         # test set True
-        option.set({'structured_options.text.is_enabled': True})
+        option.set({"structured_options.text.is_enabled": True})
         self.assertTrue(option.structured_options.text.is_enabled)
-        option.set({'unstructured_options.text.is_enabled': True})
+        option.set({"unstructured_options.text.is_enabled": True})
         self.assertTrue(option.unstructured_options.text.is_enabled)
 
         # validate raises assert error in lower properties due to bad calls
-        for key in ['structured_options', 'unstructured_options']:
-            expected_error = "type object '{}.text.is_enabled' " \
-                             "has no attribute 'is_enabled'".format(key)
+        for key in ["structured_options", "unstructured_options"]:
+            expected_error = (
+                "type object '{}.text.is_enabled' "
+                "has no attribute 'is_enabled'".format(key)
+            )
             with self.assertRaisesRegex(AttributeError, expected_error):
-                option.set({'{}.text.is_enabled.is_enabled'.format(key): True})
+                option.set({"{}.text.is_enabled.is_enabled".format(key): True})
 
     def test_validate_helper(self):
         # Valid cases should return [] while invalid cases
@@ -92,24 +95,25 @@ class TestProfilerOptions(TestBaseOption):
 
         # Option is_enabled is not a boolean
         for key in self.keys:
-            option.set({'{}.text.is_enabled'.format(key): "Hello World"})
-        expected_error = ['{}.{}.text.is_enabled must be a '
-                          'Boolean.'.format(optpth, key) for key in self.keys]
+            option.set({"{}.text.is_enabled".format(key): "Hello World"})
+        expected_error = [
+            "{}.{}.text.is_enabled must be a " "Boolean.".format(optpth, key)
+            for key in self.keys
+        ]
         expected_error = set(expected_error)
 
         # Verify expected errors are a subset of all errors
-        self.assertSetEqual(expected_error,
-                            expected_error.intersection(
-                                set(option._validate_helper())))
+        self.assertSetEqual(
+            expected_error, expected_error.intersection(set(option._validate_helper()))
+        )
 
         # Wrong Class Type
         option = self.get_options()
         option.structured_options = ProfilerOptions()
         option.unstructured_options = ProfilerOptions()
         expected_error = [
-            '{}.structured_options must be a StructuredOptions.'.format(optpth),
-            '{}.unstructured_options must be an UnstructuredOptions.'.format(
-                optpth)
+            "{}.structured_options must be a StructuredOptions.".format(optpth),
+            "{}.unstructured_options must be an UnstructuredOptions.".format(optpth),
         ]
         self.assertEqual(expected_error, option._validate_helper())
 
@@ -124,30 +128,31 @@ class TestProfilerOptions(TestBaseOption):
 
         # Option is_enabled is not a boolean
         for key in self.keys:
-            option.set({'{}.text.is_enabled'.format(key): "Hello World"})
-        expected_error = ['{}.{}.text.is_enabled must be a '
-                          'Boolean.'.format(optpth, key) for key in self.keys]
+            option.set({"{}.text.is_enabled".format(key): "Hello World"})
+        expected_error = [
+            "{}.{}.text.is_enabled must be a " "Boolean.".format(optpth, key)
+            for key in self.keys
+        ]
         expected_error = set(expected_error)
 
         # Verify expected errors are a subset of all errors
         with self.assertRaises(ValueError) as cm:
             option.validate(raise_error=True)
         raised_error = set(str(cm.exception).split("\n"))
-        self.assertSetEqual(expected_error,
-                            expected_error.intersection(raised_error))
-        self.assertSetEqual(expected_error,
-                            expected_error.intersection(
-                                set(option.validate(raise_error=False))))
+        self.assertSetEqual(expected_error, expected_error.intersection(raised_error))
+        self.assertSetEqual(
+            expected_error,
+            expected_error.intersection(set(option.validate(raise_error=False))),
+        )
 
         # Wrong Class Type
         option = self.get_options()
         option.structured_options = ProfilerOptions()
         option.unstructured_options = ProfilerOptions()
         expected_error = [
-            '{}.structured_options must be a StructuredOptions.'.format(optpth),
-            '{}.unstructured_options must be an UnstructuredOptions.'.format(
-                optpth),
+            "{}.structured_options must be a StructuredOptions.".format(optpth),
+            "{}.unstructured_options must be an UnstructuredOptions.".format(optpth),
         ]
-        with self.assertRaisesRegex(ValueError, '\n'.join(expected_error)):
+        with self.assertRaisesRegex(ValueError, "\n".join(expected_error)):
             option.validate()
         self.assertListEqual(expected_error, option.validate(raise_error=False))

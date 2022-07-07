@@ -8,8 +8,8 @@ assignees: JGSweets, ksneab7, micdavis, taylorfturner
 ---
 
 **General Information:**
- - OS: 
- - Python version: 
+ - OS:
+ - Python version:
  - Library version:
 
 **Describe the bug:**

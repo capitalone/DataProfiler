@@ -86,7 +86,8 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
 
                 try:
                     self._profiles[profiler.type] = profiler(
-                        df_series.name, options=profiler_options)
+                        df_series.name, options=profiler_options
+                    )
                 except Exception as e:
                     utils.warn_on_profile(profiler.type, e)
 
@@ -102,16 +103,22 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
         :return: merger of the two column profilers
         """
         if type(other) is not type(self):
-            raise TypeError('`{}` and `{}` are not of the same profile compiler'
-                            ' type.'.format(type(self).__name__,
-                                            type(other).__name__))
+            raise TypeError(
+                "`{}` and `{}` are not of the same profile compiler"
+                " type.".format(type(self).__name__, type(other).__name__)
+            )
         elif self.name != other.name:
-            raise ValueError('Column profile names are unmatched: {} != {}'
-                             .format(self.name, other.name))
+            raise ValueError(
+                "Column profile names are unmatched: {} != {}".format(
+                    self.name, other.name
+                )
+            )
         elif set(self._profiles) != set(other._profiles):  # options check
-            raise ValueError('Column profilers were not setup with the same '
-                             'options, hence they do not calculate the same '
-                             'profiles and cannot be added together.')
+            raise ValueError(
+                "Column profilers were not setup with the same "
+                "options, hence they do not calculate the same "
+                "profiles and cannot be added together."
+            )
         merged_profile_compiler = self.__class__()
         merged_profile_compiler.name = self.name
         for profile_name in self._profiles:
@@ -130,9 +137,10 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
         :rtype: dict
         """
         if type(other) is not type(self):
-            raise TypeError('`{}` and `{}` are not of the same profile compiler'
-                            ' type.'.format(type(self).__name__,
-                                            type(other).__name__))
+            raise TypeError(
+                "`{}` and `{}` are not of the same profile compiler"
+                " type.".format(type(self).__name__, type(other).__name__)
+            )
         return {}
 
     def update_profile(self, df_series, pool=None):
@@ -167,7 +175,8 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
 
                 try:  # Add update function to be applied on the pool
                     multi_process_dict[profile_type] = pool.apply_async(
-                        self._profiles[profile_type].update, (df_series,))
+                        self._profiles[profile_type].update, (df_series,)
+                    )
                 except Exception as e:  # Attempt again as a single process
                     self._profiles[profile_type].thread_safe = False
 
@@ -196,7 +205,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
 
 
 class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
-    
+
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
         DateTimeColumn,
@@ -216,16 +225,18 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
         profile = {
             "data_type_representation": dict(),
             "data_type": None,
-            "statistics": dict()
+            "statistics": dict(),
         }
         has_found_match = False
 
         for _, profiler in self._profiles.items():
             if not has_found_match and profiler.data_type_ratio == 1.0:
-                profile.update({
-                    "data_type": profiler.type,
-                    "statistics": profiler.report(remove_disabled_flag),
-                })
+                profile.update(
+                    {
+                        "data_type": profiler.type,
+                        "statistics": profiler.report(remove_disabled_flag),
+                    }
+                )
                 has_found_match = True
             profile["data_type_representation"].update(
                 dict([(profiler.type, profiler.data_type_ratio)])
@@ -243,7 +254,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
     def selected_data_type(self):
         """
         Finds the selected data_type in a primitive compiler
-        
+
         :return: name of the selected data type
         :rtype: str
         """
@@ -258,7 +269,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
     def diff(self, other, options=None):
         """
         Finds the difference between 2 compilers and returns the report
-        
+
         :param other: profile compiler finding the difference with this one.
         :type other: ColumnPrimitiveTypeProfileCompiler
         :return: difference of the profiles
@@ -275,25 +286,28 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
         if all_profiles:
             for key in all_profiles:
                 if key in self._profiles and key in other._profiles:
-                    diff = utils.find_diff_of_numbers(self._profiles[key].data_type_ratio,
-                                                      other._profiles[key].data_type_ratio)
+                    diff = utils.find_diff_of_numbers(
+                        self._profiles[key].data_type_ratio,
+                        other._profiles[key].data_type_ratio,
+                    )
                 elif key in self._profiles:
                     diff = [self._profiles[key].data_type_ratio, None]
                 else:
                     diff = [None, other._profiles[key].data_type_ratio]
                 diff_profile["data_type_representation"].update({key: diff})
 
-
         # Find data_type diff
         data_type1 = self.selected_data_type
         data_type2 = other.selected_data_type
         if data_type1 is not None or data_type2 is not None:
             diff_profile["data_type"] = utils.find_diff_of_strings_and_bools(
-                data_type1, data_type2)
+                data_type1, data_type2
+            )
             # Find diff of matching profile statistics
             if diff_profile["data_type"] == "unchanged":
-                diff_profile["statistics"] = self._profiles[data_type1]\
-                    .diff(other._profiles[data_type2], options)
+                diff_profile["statistics"] = self._profiles[data_type1].diff(
+                    other._profiles[data_type2], options
+                )
 
         # If there is no data, pop the data
         if not diff_profile["data_type_representation"]:
@@ -339,8 +353,7 @@ class ColumnStatsProfileCompiler(BaseCompiler):
         all_profiles = set(self._profiles.keys()) | set(other._profiles.keys())
         for key in all_profiles:
             if key in self._profiles and key in other._profiles:
-                diff = self._profiles[key].diff(other._profiles[key], 
-                                                options)
+                diff = self._profiles[key].diff(other._profiles[key], options)
                 diff_profile.update(diff)
 
         return diff_profile
@@ -349,9 +362,7 @@ class ColumnStatsProfileCompiler(BaseCompiler):
 class ColumnDataLabelerCompiler(BaseCompiler):
 
     # NOTE: these profilers are ordered. Test functionality if changed.
-    _profilers = [
-        DataLabelerColumn
-    ]
+    _profilers = [DataLabelerColumn]
     _option_class = StructuredOptions
 
     def report(self, remove_disabled_flag=False):
@@ -361,17 +372,14 @@ class ColumnDataLabelerCompiler(BaseCompiler):
         :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
         :type remove_disabled_flag: boolean
         """
-        report = {
-            "data_label": None,
-            "statistics": dict()
-        }
+        report = {"data_label": None, "statistics": dict()}
         # TODO: Only works for last profiler. Abstracted for now.
         for _, profiler in self._profiles.items():
             col_profile = profiler.report(remove_disabled_flag)
             report["data_label"] = col_profile.pop("data_label")
             report["statistics"].update(col_profile)
         return report
-    
+
     def diff(self, other, options=None):
         """
         Finds the difference between 2 compilers and returns the report
@@ -396,7 +404,7 @@ class ColumnDataLabelerCompiler(BaseCompiler):
 
         if not diff_profile["statistics"]:
             diff_profile.pop("statistics")
-        
+
         return diff_profile
 
 
@@ -412,18 +420,17 @@ class UnstructuredCompiler(BaseCompiler):
 
     def report(self, remove_disabled_flag=False):
         """Report on profile attribute of the class and pop value
-            from self.profile if key not in self.__calculations
+        from self.profile if key not in self.__calculations
         """
-        profile = {
-            "data_label": dict(),
-            "statistics": dict()
-        }
+        profile = {"data_label": dict(), "statistics": dict()}
         if UnstructuredLabelerProfile.type in self._profiles:
-            profile["data_label"] = \
-                self._profiles[UnstructuredLabelerProfile.type].report(remove_disabled_flag)
+            profile["data_label"] = self._profiles[
+                UnstructuredLabelerProfile.type
+            ].report(remove_disabled_flag)
         if TextProfiler.type in self._profiles:
-            profile["statistics"] = \
-                self._profiles[TextProfiler.type].report(remove_disabled_flag)
+            profile["statistics"] = self._profiles[TextProfiler.type].report(
+                remove_disabled_flag
+            )
         return profile
 
     def diff(self, other, options=None):
@@ -441,11 +448,13 @@ class UnstructuredCompiler(BaseCompiler):
         diff_profile = super().diff(other, options)
 
         if "data_labeler" in self._profiles and "data_labeler" in other._profiles:
-            diff_profile["data_label"] = self._profiles["data_labeler"].\
-                diff(other._profiles["data_labeler"], options)
+            diff_profile["data_label"] = self._profiles["data_labeler"].diff(
+                other._profiles["data_labeler"], options
+            )
 
         if "text" in self._profiles and "text" in other._profiles:
-            diff_profile["statistics"] = self._profiles["text"].\
-                diff(other._profiles["text"], options)
+            diff_profile["statistics"] = self._profiles["text"].diff(
+                other._profiles["text"], options
+            )
 
         return diff_profile

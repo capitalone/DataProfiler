@@ -1,9 +1,9 @@
 NAMES, NUMBERS
 George Washington, 1
 John Adams, 12
-Thomas Jefferson, 
+Thomas Jefferson,
 James Madison, 13
-James Monroe, 
+James Monroe,
 John Adams,
 Andrew Jackson,
 Martin Van Buren,

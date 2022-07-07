@@ -31,7 +31,7 @@ def dict_merge(dct, merge_dct):
     #
     # You should have received a copy of the GNU General Public License
     # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-    """ Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
+    """Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
     updating only top-level keys, dict_merge recurses down into dicts nested
     to an arbitrary depth, updating keys. The ``merge_dct`` is merged into
     ``dct``.
@@ -41,8 +41,11 @@ def dict_merge(dct, merge_dct):
     :return: None
     """
     for k, v in merge_dct.items():
-        if (k in dct and isinstance(dct[k], dict)
-                and isinstance(merge_dct[k], collections.abc.Mapping)):
+        if (
+            k in dct
+            and isinstance(dct[k], dict)
+            and isinstance(merge_dct[k], collections.abc.Mapping)
+        ):
             dict_merge(dct[k], merge_dct[k])
         else:
             dct[k] = merge_dct[k]
@@ -55,6 +58,7 @@ class KeyDict(collections.defaultdict):
     From:
     https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/
     """
+
     def __missing__(self, key):
         return key
 
@@ -90,15 +94,14 @@ def shuffle_in_chunks(data_length, chunk_size):
     :return: list of shuffled indices of chunk size
     """
 
-    if not data_length or data_length == 0 \
-       or not chunk_size or chunk_size == 0:
+    if not data_length or data_length == 0 or not chunk_size or chunk_size == 0:
         return []
 
     rng = np.random.default_rng(settings._seed)
 
-    if 'DATAPROFILER_SEED' in os.environ and settings._seed is None:
+    if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
         try:
-            seed_value = int(os.environ.get('DATAPROFILER_SEED'))
+            seed_value = int(os.environ.get("DATAPROFILER_SEED"))
             rng = np.random.default_rng(seed_value)
         except ValueError as e:
             warnings.warn("Seed should be an integer", RuntimeWarning)
@@ -143,12 +146,14 @@ def warn_on_profile(col_profile, e):
     :type e: Exception
     """
     import warnings
+
     warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
     warning_msg += "Profiling Type: {}".format(col_profile)
     warning_msg += "\nException: {}".format(type(e).__name__)
     warning_msg += "\nMessage: {}".format(e)
     # This is considered a major error
-    if type(e).__name__ == "ValueError": raise ValueError(e)
+    if type(e).__name__ == "ValueError":
+        raise ValueError(e)
     warning_msg += "\n\nFor labeler errors, try installing "
     warning_msg += "the extra ml requirements via:\n\n"
     warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
@@ -166,7 +171,7 @@ def partition(data, chunk_size):
     :type chunk_size: int
     """
     for idx in range(0, len(data), chunk_size):
-        yield data[idx:idx+chunk_size]
+        yield data[idx : idx + chunk_size]
 
 
 def suggest_pool_size(data_size=None, cols=None):
@@ -235,9 +240,9 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
         except Exception as e:
             pool = None
             warnings.warn(
-                'Multiprocessing disabled, please change the multiprocessing'+
-                ' start method, via: multiprocessing.set_start_method(<method>)'+
-                ' Possible methods include: fork, spawn, forkserver, None'
+                "Multiprocessing disabled, please change the multiprocessing"
+                + " start method, via: multiprocessing.set_start_method(<method>)"
+                + " Possible methods include: fork, spawn, forkserver, None"
             )
 
     return pool, max_pool_size
@@ -249,10 +254,7 @@ def overlap(x1, x2, y1, y2):
     """
     if not all([isinstance(i, int) for i in [x1, x2, y1, y2]]):
         return False
-    return ((y1 <= x1 <= y2) or
-            (y1 <= x2 <= y2) or
-            (x1 <= y1 <= x2) or
-            (x1 <= y2 <= x2))
+    return (y1 <= x1 <= y2) or (y1 <= x2 <= y2) or (x1 <= y1 <= x2) or (x1 <= y2 <= x2)
 
 
 def add_nested_dictionaries(first_dict, second_dict):
@@ -273,7 +275,8 @@ def add_nested_dictionaries(first_dict, second_dict):
         if item in second_dict:
             if isinstance(first_dict[item], dict):
                 merged_dict[item] = add_nested_dictionaries(
-                    first_dict[item], second_dict[item])
+                    first_dict[item], second_dict[item]
+                )
             else:
                 merged_dict[item] = first_dict[item] + second_dict[item]
         else:
@@ -305,7 +308,7 @@ def biased_skew(df_series):
         return np.nan
 
     diffs = df_series - mean
-    squared_diffs = diffs ** 2
+    squared_diffs = diffs**2
     cubed_diffs = squared_diffs * diffs
     M2 = sum(squared_diffs)
     M3 = sum(cubed_diffs)
@@ -315,11 +318,11 @@ def biased_skew(df_series):
     M2 = 0 if np.abs(M2) < 1e-14 else M2
     M3 = 0 if np.abs(M3) < 1e-14 else M3
 
-    if (M2 == 0):
+    if M2 == 0:
         return 0.0
 
-    with np.errstate(all='ignore'):
-        skew = np.sqrt(n) * M3 / np.power(M2,  1.5)
+    with np.errstate(all="ignore"):
+        skew = np.sqrt(n) * M3 / np.power(M2, 1.5)
     return skew
 
 
@@ -334,7 +337,7 @@ def biased_kurt(df_series):
     :rtype: float
     """
     n = len(df_series)
-    if (n < 1):
+    if n < 1:
         return np.nan
 
     mean = sum(df_series) / n
@@ -342,7 +345,7 @@ def biased_kurt(df_series):
         return np.nan
 
     diffs = df_series - mean
-    squared_diffs = diffs ** 2
+    squared_diffs = diffs**2
     fourth_diffs = squared_diffs * squared_diffs
     M2 = sum(squared_diffs)
     M4 = sum(fourth_diffs)
@@ -352,10 +355,10 @@ def biased_kurt(df_series):
     M2 = 0 if np.abs(M2) < 1e-14 else M2
     M4 = 0 if np.abs(M4) < 1e-14 else M4
 
-    if (M2 == 0):
+    if M2 == 0:
         return -3.0
 
-    with np.errstate(all='ignore'):
+    with np.errstate(all="ignore"):
         kurt = n * M4 / np.power(M2, 2) - 3
     return kurt
 
@@ -394,7 +397,7 @@ def find_diff_of_strings_and_bools(stat1, stat2):
     """
     diff = "unchanged"
     if stat1 != stat2:
-       diff = [stat1, stat2]
+        diff = [stat1, stat2]
     return diff
 
 
@@ -521,6 +524,7 @@ def find_diff_of_matrices(matrix1, matrix2):
 
     return diff
 
+
 def find_diff_of_dicts_with_diff_keys(dict1, dict2):
     """
     Finds the difference between two dicts. For each key in each dict,
@@ -567,7 +571,7 @@ def find_diff_of_dicts_with_diff_keys(dict1, dict2):
     return diff
 
 
-def get_memory_size(data, unit='M'):
+def get_memory_size(data, unit="M"):
     """
     Get memory size of the input data
 
@@ -579,11 +583,13 @@ def get_memory_size(data, unit='M'):
     """
     unit_map = collections.defaultdict(B=0, K=1, M=2, G=3)
     if unit not in unit_map:
-        raise ValueError('Currently only supports the '
-                         'memory size unit in {}'.format(list(unit_map.keys())))
+        raise ValueError(
+            "Currently only supports the "
+            "memory size unit in {}".format(list(unit_map.keys()))
+        )
     memory_size = 0
     for sentence in data:
-        memory_size += len(sentence.encode('utf-8'))
+        memory_size += len(sentence.encode("utf-8"))
     memory_size /= 1024.0 ** unit_map[unit]  # Conversion based on unit_map
     return memory_size
 
@@ -609,7 +615,7 @@ def method_timeit(method=None, name=None):
             ts = time.time()
             result = method(self, *args, **kw)
             te = time.time()
-            self.times[name_dec] += (te - ts)
+            self.times[name_dec] += te - ts
             return result
 
         return wrapper
@@ -618,8 +624,10 @@ def method_timeit(method=None, name=None):
         return decorator(method, name_dec=name)
     return decorator
 
-def perform_chi_squared_test_for_homogeneity(categories1, sample_size1,
-                                             categories2, sample_size2):
+
+def perform_chi_squared_test_for_homogeneity(
+    categories1, sample_size1, categories2, sample_size2
+):
     """
     Performs a Chi Squared test for homogeneity between two groups.
 
@@ -634,11 +642,7 @@ def perform_chi_squared_test_for_homogeneity(categories1, sample_size1,
     :return: Results of the chi squared test
     :rtype: dict
     """
-    results = {
-        "chi2-statistic": None,
-        "df": None,
-        "p-value": None
-    }
+    results = {"chi2-statistic": None, "df": None, "p-value": None}
 
     cat_counts = add_nested_dictionaries(categories1, categories2)
 
@@ -646,8 +650,11 @@ def perform_chi_squared_test_for_homogeneity(categories1, sample_size1,
     # appropriate value for this context
     num_cats = len(cat_counts)
     if len(cat_counts) <= 1:
-        warnings.warn("Insufficient number of categories. "
-                      "Chi-squared test cannot be performed.", RuntimeWarning)
+        warnings.warn(
+            "Insufficient number of categories. "
+            "Chi-squared test cannot be performed.",
+            RuntimeWarning,
+        )
         return results
 
     # Calculate degrees of freedom
@@ -670,10 +677,8 @@ def perform_chi_squared_test_for_homogeneity(categories1, sample_size1,
     for cat, count in cat_counts.items():
         expected1 = sample_size1 * count / total
         expected2 = sample_size2 * count / total
-        chi2_statistic += (categories1.get(cat, 0) - expected1) \
-                          ** 2 / expected1
-        chi2_statistic += (categories2.get(cat, 0) - expected2) \
-                          ** 2 / expected2
+        chi2_statistic += (categories1.get(cat, 0) - expected1) ** 2 / expected1
+        chi2_statistic += (categories2.get(cat, 0) - expected2) ** 2 / expected2
     results["chi2-statistic"] = chi2_statistic
 
     # Calculate p-value, i.e. P(X > chi2_statistic)

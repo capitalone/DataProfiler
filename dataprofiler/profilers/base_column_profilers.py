@@ -23,6 +23,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class for profiling a column of data.
     """
+
     col_type = None
 
     # This specifies the minimum percent of elements in a column to meet the
@@ -46,7 +47,6 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         self.times = defaultdict(float)
         self.thread_safe = True
 
-
     @staticmethod
     def _combine_unique_sets(a, b):  # TODO: Not needed for data labeling
         """
@@ -63,11 +63,10 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         elif not b:
             combined_list = set(a)
         else:
-            combined_list = set().union(a,b)
-        combined_list = list(combined_list)        
+            combined_list = set().union(a, b)
+        combined_list = list(combined_list)
         return combined_list
 
-        
     @staticmethod
     def _timeit(method=None, name=None):
         """
@@ -96,8 +95,9 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
             if options and not options.is_prop_enabled(prop):
                 del calculations[prop]
 
-    def _perform_property_calcs(self, calculations, df_series,
-                                prev_dependent_properties, subset_properties):
+    def _perform_property_calcs(
+        self, calculations, df_series, prev_dependent_properties, subset_properties
+    ):
         """
         Cycles through the properties of the columns and calculate them.
 
@@ -105,7 +105,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :type calculations: dict
         :param df_series: Data to be profiled
         :type df_series: pandas.Dataframe
-        :param prev_dependent_properties: Contains all the previous properties 
+        :param prev_dependent_properties: Contains all the previous properties
         that the calculations depend on.
         :type prev_dependent_properties: dict
         :param subset_properties: Contains the results of the properties of the
@@ -114,10 +114,9 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :return: None
         """
         for prop in calculations:
-            calculations[prop](self,
-                               df_series,
-                               prev_dependent_properties,
-                               subset_properties)
+            calculations[prop](
+                self, df_series, prev_dependent_properties, subset_properties
+            )
 
     @staticmethod
     def _merge_calculations(merged_profile_calcs, profile1_calcs, profile2_calcs):
@@ -138,8 +137,11 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
             if calc not in profile1_calcs or calc not in profile2_calcs:
                 del merged_profile_calcs[calc]
                 if calc in profile1_calcs or calc in profile2_calcs:
-                    warnings.warn("{} is disabled because it is not enabled in "
-                                  "both profiles.".format(calc), RuntimeWarning)
+                    warnings.warn(
+                        "{} is disabled because it is not enabled in "
+                        "both profiles.".format(calc),
+                        RuntimeWarning,
+                    )
 
     def _add_helper(self, other1, other2):
         """
@@ -155,19 +157,22 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         elif other1.col_index == other2.col_index:
             self.col_index = other1.col_index
         else:
-            raise ValueError("Column indexes unmatched: {} != {}"
-                             .format(other1.col_index, other2.col_index))
+            raise ValueError(
+                "Column indexes unmatched: {} != {}".format(
+                    other1.col_index, other2.col_index
+                )
+            )
         if other1.name == other2.name:
             self.name = other1.name
         else:
-            raise ValueError("Column names unmatched: {} != {}"
-                             .format(other1.name, other2.name))
+            raise ValueError(
+                "Column names unmatched: {} != {}".format(other1.name, other2.name)
+            )
 
-        self.times = utils.add_nested_dictionaries(other1.times,
-                                                   other2.times)
+        self.times = utils.add_nested_dictionaries(other1.times, other2.times)
 
         self.sample_size = other1.sample_size + other2.sample_size
-        
+
     def diff(self, other_profile, options=None):
         """
         Finds the differences for columns.
@@ -179,9 +184,10 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         """
         cls = self.__class__
         if not isinstance(other_profile, cls):
-            raise TypeError("Unsupported operand type(s) for diff: '{}' "
-                            "and '{}'".format(cls.__name__,
-                                              other_profile.__class__.__name__))
+            raise TypeError(
+                "Unsupported operand type(s) for diff: '{}' "
+                "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
+            )
         return {}
 
     def _update_column_base_properties(self, profile):
@@ -235,7 +241,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         """
         Private abstract method for returning report.
 
-        :param remove_disabled_flag: flag to determine if disabled 
+        :param remove_disabled_flag: flag to determine if disabled
             options should be excluded in the report.
         :type remove_disabled_flag: boolean
         """
@@ -243,8 +249,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         raise NotImplementedError()
 
 
-class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta,
-                                                     BaseColumnProfiler)):
+class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta, BaseColumnProfiler)):
     """
     Abstract class for profiling the primative data type for a column of data.
     """
@@ -259,7 +264,7 @@ class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta,
         BaseColumnProfiler.__init__(self, name)
         # Number of values that match the column type. eg. how many floats match
         # in the float column
-        self.match_count = 0 
+        self.match_count = 0
 
     def _update_column_base_properties(self, profile):
         """
@@ -270,8 +275,7 @@ class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta,
         :return: None
         """
         self.match_count += profile.pop("match_count")
-        BaseColumnProfiler. \
-            _update_column_base_properties(self, profile)
+        BaseColumnProfiler._update_column_base_properties(self, profile)
 
     def _add_helper(self, other1, other2):
         """

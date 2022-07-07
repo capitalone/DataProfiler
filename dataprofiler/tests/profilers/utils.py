@@ -66,15 +66,14 @@ def find_col_index_with_name(name, trained_schema):
     :rtype: int
     """
     for i in range(len(trained_schema)):
-        if trained_schema[i]['name'] == name:
+        if trained_schema[i]["name"] == name:
             return i
     return None
 
 
-def generate_random_date_sample(start_date,
-                                end_date,
-                                date_formats=["%Y-%m-%d %H:%M:%S"],
-                                t=None):
+def generate_random_date_sample(
+    start_date, end_date, date_formats=["%Y-%m-%d %H:%M:%S"], t=None
+):
     """
     Generate a synthetic date
     :param start_date: earliest date in date
@@ -117,26 +116,34 @@ def clean_report(report):
     :return:
     """
     global_stats = report["global_stats"]
-    if "correlation_matrix" in global_stats and \
-            report["global_stats"]["correlation_matrix"] is not None:
-        report["global_stats"]["correlation_matrix"] = \
-            report["global_stats"]["correlation_matrix"].tolist()
+    if (
+        "correlation_matrix" in global_stats
+        and report["global_stats"]["correlation_matrix"] is not None
+    ):
+        report["global_stats"]["correlation_matrix"] = report["global_stats"][
+            "correlation_matrix"
+        ].tolist()
 
-    if "chi2_matrix" in global_stats and \
-            report["global_stats"]["chi2_matrix"] is not None:
-        report["global_stats"]["chi2_matrix"] = \
-            report["global_stats"]["chi2_matrix"].tolist()
+    if (
+        "chi2_matrix" in global_stats
+        and report["global_stats"]["chi2_matrix"] is not None
+    ):
+        report["global_stats"]["chi2_matrix"] = report["global_stats"][
+            "chi2_matrix"
+        ].tolist()
 
     data_stats = report["data_stats"]
     for i in range(len(data_stats)):
         stats = data_stats[i]["statistics"]
         if "histogram" in stats:
             if "bin_counts" in stats["histogram"]:
-                stats["histogram"]["bin_counts"] = \
-                    stats["histogram"]["bin_counts"].tolist()
+                stats["histogram"]["bin_counts"] = stats["histogram"][
+                    "bin_counts"
+                ].tolist()
             if "bin_edges" in stats["histogram"]:
-                stats["histogram"]["bin_edges"] = \
-                    stats["histogram"]["bin_edges"].tolist()
+                stats["histogram"]["bin_edges"] = stats["histogram"][
+                    "bin_edges"
+                ].tolist()
 
     return report
 
@@ -146,10 +153,12 @@ def mock_timeit(*args, **kwargs):
     Creates a mock for the time.time function that increments the time for
     every call.
     """
+
     def increment_counter():
         counter = 0
         while True:
             counter += 1
             yield counter
+
     counter = increment_counter()
-    return mock.patch('time.time', side_effect=lambda: next(counter))
+    return mock.patch("time.time", side_effect=lambda: next(counter))

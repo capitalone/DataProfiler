@@ -22,8 +22,14 @@ class FileOrBufferHandler:
     return a readable buffer.
     """
 
-    def __init__(self, filepath_or_buffer, open_method='r', encoding=None,
-                 seek_offset=None, seek_whence=0):
+    def __init__(
+        self,
+        filepath_or_buffer,
+        open_method="r",
+        encoding=None,
+        seek_offset=None,
+        seek_whence=0,
+    ):
         """
         Context manager class used for inputting a file or buffer and returning
         a structure that is always a buffer.
@@ -47,20 +53,22 @@ class FileOrBufferHandler:
     def __enter__(self):
         if isinstance(self._filepath_or_buffer, str):
             self._filepath_or_buffer = open(
-                self._filepath_or_buffer, self.open_method,
-                encoding=self._encoding)
+                self._filepath_or_buffer, self.open_method, encoding=self._encoding
+            )
 
-        elif isinstance(self._filepath_or_buffer, BytesIO) \
-                and self.open_method == 'r':
-            self._filepath_or_buffer = \
-                TextIOWrapper(self._filepath_or_buffer, encoding=self._encoding)
+        elif isinstance(self._filepath_or_buffer, BytesIO) and self.open_method == "r":
+            self._filepath_or_buffer = TextIOWrapper(
+                self._filepath_or_buffer, encoding=self._encoding
+            )
             self._is_wrapped = True
 
         elif not is_stream_buffer(self._filepath_or_buffer):
             # Raise AttributeError if attribute value not found.
-            raise AttributeError(f'Type {type(self._filepath_or_buffer)} is '
-                                 f'invalid. filepath_or_buffer must be a '
-                                 f'string or StringIO/BytesIO object')
+            raise AttributeError(
+                f"Type {type(self._filepath_or_buffer)} is "
+                f"invalid. filepath_or_buffer must be a "
+                f"string or StringIO/BytesIO object"
+            )
 
         if self.seek_offset is not None:
             self._filepath_or_buffer.seek(self.seek_offset, self.seek_whence)

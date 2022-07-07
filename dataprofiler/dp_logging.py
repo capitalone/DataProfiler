@@ -19,13 +19,14 @@ def get_logger():
 
     try:
         # Initialize specifically to DP logging
-        logger = logging.getLogger('DataProfiler')
+        logger = logging.getLogger("DataProfiler")
         logger.setLevel(logging.INFO)
 
         # Set formatting of logs
         stream_handler = logging.StreamHandler(stream=sys.stdout)
         stream_handler.setFormatter(
-            logging.Formatter("%(levelname)s:%(name)s: %(message)s"))
+            logging.Formatter("%(levelname)s:%(name)s: %(message)s")
+        )
         logger.addHandler(stream_handler)
 
         _dp_logger = logger
@@ -55,4 +56,4 @@ def get_child_logger(name):
     :type name: str
     :return: Logger instance for given file
     """
-    return get_logger().getChild(name.replace('dataprofiler.', ''))
+    return get_logger().getChild(name.replace("dataprofiler.", ""))

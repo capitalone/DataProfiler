@@ -19,7 +19,7 @@ def is_in_range(x, config):
     :returns: bool
     """
     try:
-        return config['start'] <= float(x) <= config['end']
+        return config["start"] <= float(x) <= config["end"]
     except:
         raise TypeError("Value is not a float")
 
@@ -37,8 +37,7 @@ def is_in_list(x, config):
     return float(x) in config
 
 
-class Validator():
-
+class Validator:
     def __init__(self):
         self.config = None
         self.report = None
@@ -78,16 +77,17 @@ class Validator():
         if not config:
             raise ValueError("Config is required")
 
-        known_anomaly_validation = config.get('known_anomaly_validation', {})
+        known_anomaly_validation = config.get("known_anomaly_validation", {})
         for iter_key, value in known_anomaly_validation.items():
             if len(value) < 1:
                 raise Warning(
                     f"Pass at a minimum one value for a specified column "
-                    f"(i.e. iter_key variable) -- not both for {iter_key}")
+                    f"(i.e. iter_key variable) -- not both for {iter_key}"
+                )
 
         self.config = config
 
-        df_type = config.get('df_type', '').lower()
+        df_type = config.get("df_type", "").lower()
 
         for iter_key, value in known_anomaly_validation.items():
             self.validation_report[iter_key] = dict()
@@ -96,34 +96,30 @@ class Validator():
                 self.validation_report[iter_key][sub_key] = dict()
 
                 if sub_key not in ["range", "list"]:
-                    raise TypeError(
-                        'Range and list only acceptable key values.')
+                    raise TypeError("Range and list only acceptable key values.")
                 apply_type = is_in_range if sub_key == "range" else is_in_list
 
-                if df_type == 'dask':
+                if df_type == "dask":
                     temp_results = df_series.apply(
-                        apply_type,
-                        meta=(iter_key, 'bool'),
-                        args=(sub_value,))
+                        apply_type, meta=(iter_key, "bool"), args=(sub_value,)
+                    )
                     temp_results = temp_results.compute()
                     # Dask evaluates this to be an nd array so we have to
                     # convert it to a normal list
                     self.validation_report[iter_key][sub_key] = [
-                        idx for idx, val
-                        in enumerate(temp_results.values.tolist()) if val
+                        idx
+                        for idx, val in enumerate(temp_results.values.tolist())
+                        if val
                     ]
-                elif df_type == 'pandas':
-                    temp_results = df_series.apply(
-                        apply_type,
-                        args=(sub_value,)
-                    )
+                elif df_type == "pandas":
+                    temp_results = df_series.apply(apply_type, args=(sub_value,))
                     self.validation_report[iter_key][sub_key] = [
                         idx for idx, val in temp_results.items() if val
                     ]
                 else:
                     raise ValueError(
-                        'Dask and Pandas are the only supported dataframe '
-                        'types.')
+                        "Dask and Pandas are the only supported dataframe " "types."
+                    )
                 del temp_results
         self.validation_run = True
 
@@ -137,4 +133,5 @@ class Validator():
         else:
             raise Warning(
                 "Precondition for get method not met. Must validate data prior "
-                "to getting results.")
+                "to getting results."
+            )

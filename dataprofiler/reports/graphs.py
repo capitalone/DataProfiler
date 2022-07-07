@@ -13,12 +13,11 @@ except ImportError:
     # installed
     pass
 
-from ..profilers.profile_builder import StructuredColProfiler, \
-    StructuredProfiler
+from ..profilers.profile_builder import StructuredColProfiler, StructuredProfiler
 from . import utils
 
 
-@utils.require_module(['matplotlib', 'seaborn'])
+@utils.require_module(["matplotlib", "seaborn"])
 def plot_histograms(profiler, column_names=None, column_inds=None):
     """
     Take a input of StructuredProfiler class and a list of specified column
@@ -38,17 +37,23 @@ def plot_histograms(profiler, column_names=None, column_inds=None):
     if column_names and column_inds:
         raise ValueError(
             "Can only specify either `column_names` or `column_inds` but not "
-            "both simultaneously")
-    elif (column_names is not None
-            and not (isinstance(column_names, list)
-                     and all(isinstance(x, (int, str)) for x in column_names))):
-        raise ValueError("`column_names` must be a list integers or strings "
-                         "matching the names of columns in the profiler.")
-    elif (column_inds is not None
-            and not (isinstance(column_inds, list)
-                     and all(isinstance(x, int) for x in column_inds))):
-        raise ValueError("`column_inds` must be a list of integers matching "
-                         "column indexes in the profiler")
+            "both simultaneously"
+        )
+    elif column_names is not None and not (
+        isinstance(column_names, list)
+        and all(isinstance(x, (int, str)) for x in column_names)
+    ):
+        raise ValueError(
+            "`column_names` must be a list integers or strings "
+            "matching the names of columns in the profiler."
+        )
+    elif column_inds is not None and not (
+        isinstance(column_inds, list) and all(isinstance(x, int) for x in column_inds)
+    ):
+        raise ValueError(
+            "`column_inds` must be a list of integers matching "
+            "column indexes in the profiler"
+        )
 
     # get all inds to graph, raise error if user specified doesn't exist
     inds_to_graph = column_inds if column_inds else []
@@ -60,8 +65,9 @@ def plot_histograms(profiler, column_names=None, column_inds=None):
             if isinstance(col, str):
                 col = col.lower()
             if col not in profiler._col_name_to_idx:
-                raise ValueError("Column \"" + str(col) + "\" is not found as a "
-                                                       "profiler column")
+                raise ValueError(
+                    'Column "' + str(col) + '" is not found as a ' "profiler column"
+                )
             inds_to_graph.extend(profiler._col_name_to_idx[col])
 
     # sort the column indexes to be in the same order as the original profiler.
@@ -74,16 +80,18 @@ def plot_histograms(profiler, column_names=None, column_inds=None):
         data type that is not a int or float, otherwise true
         """
         col_profiler = profiler.profile[ind_to_graph]
-        data_compiler = col_profiler.profiles['data_type_profile']
-        if data_compiler.selected_data_type not in ['int', 'float']:
+        data_compiler = col_profiler.profiles["data_type_profile"]
+        if data_compiler.selected_data_type not in ["int", "float"]:
             return False
         return True
 
     inds_to_graph = list(filter(is_index_graphable_column, inds_to_graph))
 
     if not inds_to_graph:
-        warnings.warn("No plots were constructed"
-                      " because no int or float columns were found in columns")
+        warnings.warn(
+            "No plots were constructed"
+            " because no int or float columns were found in columns"
+        )
         return
 
     # get proper tile format for graph
@@ -100,11 +108,12 @@ def plot_histograms(profiler, column_names=None, column_inds=None):
     # graph the plots
     for col_ind, ax in zip(inds_to_graph, axs):
         col_profiler = profiler.profile[col_ind]
-        data_compiler = col_profiler.profiles['data_type_profile']
+        data_compiler = col_profiler.profiles["data_type_profile"]
         data_type = data_compiler.selected_data_type
         data_type_profiler = data_compiler._profiles[data_type]
         ax = plot_col_histogram(
-            data_type_profiler, ax=ax, title=str(data_type_profiler.name))
+            data_type_profiler, ax=ax, title=str(data_type_profiler.name)
+        )
 
         # remove x/ylabel on subplots
         ax.set(xlabel=None)
@@ -112,7 +121,7 @@ def plot_histograms(profiler, column_names=None, column_inds=None):
 
     # turn off all unused axes
     for ax in axs[n:]:
-        ax.axis('off')
+        ax.axis("off")
 
     # add figure x/ylabel and formatting
     fig.text(0.5, 0.01, "bins", ha="center", va="center")
@@ -121,7 +130,7 @@ def plot_histograms(profiler, column_names=None, column_inds=None):
     return fig
 
 
-@utils.require_module(['matplotlib', 'seaborn'])
+@utils.require_module(["matplotlib", "seaborn"])
 def plot_col_histogram(data_type_profiler, ax=None, title=None):
     """
     Take a input of a Int or Float Column and plots the histogram
@@ -136,22 +145,27 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
     """
 
     histogram = data_type_profiler._get_best_histogram_for_profile()
-    if histogram['bin_counts'] is None or histogram['bin_edges'] is None:
+    if histogram["bin_counts"] is None or histogram["bin_edges"] is None:
         raise ValueError(
-            "The column profiler, " + str(data_type_profiler.name)
-            + ", had no data and therefore could not be plotted.")
+            "The column profiler, "
+            + str(data_type_profiler.name)
+            + ", had no data and therefore could not be plotted."
+        )
     ax = sns.histplot(
-        x=histogram['bin_edges'][:-1], bins=histogram['bin_edges'].tolist(),
-        weights=histogram['bin_counts'], ax=ax)
+        x=histogram["bin_edges"][:-1],
+        bins=histogram["bin_edges"].tolist(),
+        weights=histogram["bin_counts"],
+        ax=ax,
+    )
 
-    ax.set(xlabel='bins')
+    ax.set(xlabel="bins")
     if title is None:
         title = str(data_type_profiler.name)
     ax.set_title(title)
     return ax
 
 
-@utils.require_module(['matplotlib', 'seaborn'])
+@utils.require_module(["matplotlib", "seaborn"])
 def plot_missing_values_matrix(profiler, ax=None, title=None):
     """
     Generates a matrix of bar graphs for the missing value locations within
@@ -167,11 +181,11 @@ def plot_missing_values_matrix(profiler, ax=None, title=None):
     :return: matplotlib figure of where the graph was plotted
     """
     if not isinstance(profiler, StructuredProfiler):
-        raise ValueError('`profiler` must of type StructuredProfiler.')
+        raise ValueError("`profiler` must of type StructuredProfiler.")
     return plot_col_missing_values(profiler.profile, ax=ax, title=title)
 
 
-@utils.require_module(['matplotlib', 'seaborn'])
+@utils.require_module(["matplotlib", "seaborn"])
 def plot_col_missing_values(col_profiler_list, ax=None, title=None):
     """
     Generates a bar graph of the missing value locations within a column where
@@ -185,14 +199,20 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
     :type title: str
     :return: matplotlib figure of where the graph was plotted
     """
-    if not (isinstance(col_profiler_list, list)
-            and all(isinstance(col_profile, StructuredColProfiler)
-                    for col_profile in col_profiler_list)):
-        raise ValueError('`col_profiler_list` must be a list of '
-                         'StructuredColProfilers')
+    if not (
+        isinstance(col_profiler_list, list)
+        and all(
+            isinstance(col_profile, StructuredColProfiler)
+            for col_profile in col_profiler_list
+        )
+    ):
+        raise ValueError(
+            "`col_profiler_list` must be a list of " "StructuredColProfilers"
+        )
     elif not col_profiler_list:
-        warnings.warn('There was no data in the profiles to plot missing '
-                      'column values.')
+        warnings.warn(
+            "There was no data in the profiles to plot missing " "column values."
+        )
         return
 
     # bar width settings and height settings for each null value
@@ -203,7 +223,7 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
     # determine the colors for the plot, first color reserved for background of
     # each column, subsequent colors are for null values.
     nan_to_color = dict()
-    color_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color'][1:]
+    color_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"][1:]
 
     # setup plot
     is_own_fig = False
@@ -219,10 +239,16 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
 
         # plot the values background bar
         sample_size = col_profiler.sample_size
-        ax.add_patch(matplotlib.patches.Rectangle(
-            xy=(col_id - width / 2 + 0.5, - height / 2),
-            width=width, height=sample_size,
-            linewidth=1, color='blue', fill=True))
+        ax.add_patch(
+            matplotlib.patches.Rectangle(
+                xy=(col_id - width / 2 + 0.5, -height / 2),
+                width=width,
+                height=sample_size,
+                linewidth=1,
+                color="blue",
+                fill=True,
+            )
+        )
 
         # get the list of null values in the column and plot contiguous nulls
         # as a single value
@@ -238,8 +264,7 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
                 nan_to_color[null_type] = color_cycle.pop(0)
                 # restart cycle if empty
                 if not len(color_cycle):
-                    color_cycle = (
-                        plt.rcParams['axes.prop_cycle'].by_key()['color'][1:])
+                    color_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"][1:]
             nan_color = nan_to_color[null_type]
 
             # loop through contiguous patches to plot a single bar
@@ -253,26 +278,38 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
                 if next_value - value == 1:
                     y_end = next_value
                 else:
-                    ax.add_patch(matplotlib.patches.Rectangle(
-                        xy=(col_id - width / 2 + 0.5, y_start - height / 2),
-                        width=width, height=y_end - y_start + 1,
-                        linewidth=1, color=nan_color, fill=True,
-                        label='"' + null_type + '"'))
+                    ax.add_patch(
+                        matplotlib.patches.Rectangle(
+                            xy=(col_id - width / 2 + 0.5, y_start - height / 2),
+                            width=width,
+                            height=y_end - y_start + 1,
+                            linewidth=1,
+                            color=nan_color,
+                            fill=True,
+                            label='"' + null_type + '"',
+                        )
+                    )
                     y_start = next_value
                 null_ind += 1
             y_end = null_indexes[-1]
             # plot the patch of the last null value
-            ax.add_patch(matplotlib.patches.Rectangle(
-                xy=(col_id - width / 2 + 0.5, y_start - height / 2),
-                width=width, height=y_end - y_start + 1,
-                linewidth=1, color=nan_color, fill=True,
-                label='"' + null_type + '"'))
+            ax.add_patch(
+                matplotlib.patches.Rectangle(
+                    xy=(col_id - width / 2 + 0.5, y_start - height / 2),
+                    width=width,
+                    height=y_end - y_start + 1,
+                    linewidth=1,
+                    color=nan_color,
+                    fill=True,
+                    label='"' + null_type + '"',
+                )
+            )
 
     # setup the graph axes and labels
     column_names = ['"' + str(col.name) + '"' for col in col_profiler_list]
     xticks = [0.5 + i for i in range(col_id + 1)]
     ax.set_xticks(xticks)
-    ax.set_xticklabels(column_names, rotation=90, ha='right')
+    ax.set_xticklabels(column_names, rotation=90, ha="right")
     ax.set_xbound(0, col_id + 1)
     ax.autoscale(enable=True)
 
@@ -280,8 +317,8 @@ def plot_col_missing_values(col_profiler_list, ax=None, title=None):
     handles, labels = ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     ax.legend(by_label.values(), by_label.keys())
-    ax.set_xlabel('column name')
-    ax.set_ylabel('row index')
+    ax.set_xlabel("column name")
+    ax.set_ylabel("row index")
     if title:
         ax.set_title(title)
 

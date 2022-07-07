@@ -29,17 +29,21 @@ def require_module(names):
     :param names: list of module names to check for in sys.modules
     :type names: list[str]
     """
+
     def check_module(f):
         def new_f(*args, **kwds):
             for module_name in names:
                 if module_name not in sys.modules.keys():
                     # attempt to reload if missing
                     import importlib
+
                     importlib.reload(sys.modules[f.__module__])
                     if module_name not in sys.modules.keys():
                         warn_missing_module(f.__name__, module_name)
                         return
             return f(*args, **kwds)
+
         new_f.__name__ = f.__name__
         return new_f
+
     return check_module

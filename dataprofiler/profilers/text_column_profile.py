@@ -1,8 +1,7 @@
 import itertools
 
 from . import utils
-from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, \
-    BaseColumnProfiler
+from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import TextOptions
 
@@ -12,8 +11,9 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     Text column profile subclass of BaseColumnProfiler. Represents a column in
     the dataset which is a text column.
     """
+
     type = "text"
-    
+
     def __init__(self, name, options=None):
         """
         Initialization of column base properties and itself.
@@ -24,14 +24,13 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type options: TextOptions
         """
         if options and not isinstance(options, TextOptions):
-            raise ValueError("TextColumn parameter 'options' must be of type"
-                             " TextOptions.")
+            raise ValueError(
+                "TextColumn parameter 'options' must be of type" " TextOptions."
+            )
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
         self.vocab = list()
-        self.__calculations = {
-            "vocab": TextColumn._update_vocab
-        }
+        self.__calculations = {"vocab": TextColumn._update_vocab}
         self._filter_properties_w_options(self.__calculations, options)
 
     def __add__(self, other):
@@ -45,14 +44,16 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: New TextColumn merged profile
         """
         if not isinstance(other, TextColumn):
-            raise TypeError("Unsupported operand type(s) for +: "
-                            "'TextColumn' and '{}'".format(other.__class__.__name__))
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                "'TextColumn' and '{}'".format(other.__class__.__name__)
+            )
         merged_profile = TextColumn(None)
         NumericStatsMixin._add_helper(merged_profile, self, other)
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
-        self._merge_calculations(merged_profile.__calculations,
-                                 self.__calculations,
-                                 other.__calculations)
+        self._merge_calculations(
+            merged_profile.__calculations, self.__calculations, other.__calculations
+        )
         if "vocab" in merged_profile.__calculations:
             merged_profile.vocab = self.vocab.copy()
             merged_profile._update_vocab(other.vocab)
@@ -68,8 +69,8 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if remove_disabled_flag:
             profile_keys = list(profile.keys())
             for profile_key in profile_keys:
-                if profile_key == 'vocab':
-                    if 'vocab' in calcs_dict_keys:
+                if profile_key == "vocab":
+                    if "vocab" in calcs_dict_keys:
                         continue
                 profile.pop(profile_key)
 
@@ -84,8 +85,8 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         profile = NumericStatsMixin.profile(self)
         # remove num_zeros and num_negative updated from numeric profile
-        profile.pop('num_zeros')
-        profile.pop('num_negatives')
+        profile.pop("num_zeros")
+        profile.pop("num_negatives")
         # and add the vocab update for text profile
         profile.update(dict(vocab=self.vocab))
         return profile
@@ -100,8 +101,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :rtype: dict
         """
         differences = NumericStatsMixin.diff(self, other_profile, options)
-        vocab_diff = utils.find_diff_of_lists_and_sets(
-            self.vocab, other_profile.vocab)
+        vocab_diff = utils.find_diff_of_lists_and_sets(self.vocab, other_profile.vocab)
         differences["vocab"] = vocab_diff
         return differences
 
@@ -116,10 +116,11 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :rtype: float
         """
         return 1.0 if self.sample_size else None
-    
-    @BaseColumnProfiler._timeit(name='vocab')
-    def _update_vocab(self, data, prev_dependent_properties=None,
-                      subset_properties=None):
+
+    @BaseColumnProfiler._timeit(name="vocab")
+    def _update_vocab(
+        self, data, prev_dependent_properties=None, subset_properties=None
+    ):
         """
         Finds the unique vocabulary used in the text column.
 
@@ -133,7 +134,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type subset_properties: dict
         :return: None
         """
-        
+
         data_flat = list(itertools.chain(*data))
         self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
 
@@ -153,7 +154,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             NumericStatsMixin._update_helper(self, text_lengths, profile)
         self._update_column_base_properties(profile)
         if self.max:
-            self.type = 'string' if self.max <= 255 else 'text'
+            self.type = "string" if self.max <= 255 else "text"
 
     def update(self, df_series):
         """
@@ -166,12 +167,16 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         len_df = len(df_series)
         if len_df == 0:
             return self
-        
+
         profile = dict(match_count=len_df, sample_size=len_df)
 
         BaseColumnProfiler._perform_property_calcs(
-            self, self.__calculations, df_series=df_series,
-            prev_dependent_properties={}, subset_properties=profile)
+            self,
+            self.__calculations,
+            df_series=df_series,
+            prev_dependent_properties={},
+            subset_properties=profile,
+        )
 
         self._update_helper(df_series, profile)
 

@@ -5,8 +5,7 @@ import re
 import numpy as np
 
 from . import utils
-from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, \
-    BaseColumnProfiler
+from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
 from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import FloatOptions
 
@@ -28,19 +27,20 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type options: FloatOptions
         """
         if options and not isinstance(options, FloatOptions):
-            raise ValueError("FloatColumn parameter 'options' must be of type"
-                             " FloatOptions.")
+            raise ValueError(
+                "FloatColumn parameter 'options' must be of type" " FloatOptions."
+            )
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
 
         self._precision = {
-            'min': None,
-            'max': None,
-            'sum': None,
-            'mean': None,
-            'biased_var': None,
-            'sample_size': None,
-            'confidence_level': 0.999
+            "min": None,
+            "max": None,
+            "sum": None,
+            "mean": None,
+            "biased_var": None,
+            "sample_size": None,
+            "confidence_level": 0.999,
         }
 
         # https://www.calculator.net/confidence-interval-calculator.html
@@ -49,7 +49,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         self.__precision_sample_ratio = None
         if options and options.precision and options.precision.is_enabled:
             self.__precision_sample_ratio = options.precision.sample_ratio
-        
+
         self.__calculations = {
             "precision": FloatColumn._update_precision,
         }
@@ -65,45 +65,52 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: New FloatColumn merged profile
         """
         if not isinstance(other, FloatColumn):
-            raise TypeError("Unsupported operand type(s) for +: "
-                            "'FloatColumn' and '{}'"
-                            .format(other.__class__.__name__))
+            raise TypeError(
+                "Unsupported operand type(s) for +: "
+                "'FloatColumn' and '{}'".format(other.__class__.__name__)
+            )
 
         merged_profile = FloatColumn(None)
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
         NumericStatsMixin._add_helper(merged_profile, self, other)
-        
-        self._merge_calculations(merged_profile.__calculations,
-                                 self.__calculations,
-                                 other.__calculations)
+
+        self._merge_calculations(
+            merged_profile.__calculations, self.__calculations, other.__calculations
+        )
 
         if "precision" in merged_profile.__calculations:
 
-            if self._precision['min'] is None:
+            if self._precision["min"] is None:
                 merged_profile._precision = copy.deepcopy(other._precision)
-            elif other.precision['min'] is None:
+            elif other.precision["min"] is None:
                 merged_profile._precision = copy.deepcopy(self._precision)
             else:
-                merged_profile._precision['min'] = min(
-                    self._precision['min'], other._precision['min'])
-                merged_profile._precision['max'] = max(
-                    self._precision['max'], other._precision['max'])
-                merged_profile._precision['sum'] = \
-                    self._precision['sum'] + other._precision['sum']
-                merged_profile._precision['sample_size'] = \
-                    self._precision['sample_size'] + other._precision['sample_size']
+                merged_profile._precision["min"] = min(
+                    self._precision["min"], other._precision["min"]
+                )
+                merged_profile._precision["max"] = max(
+                    self._precision["max"], other._precision["max"]
+                )
+                merged_profile._precision["sum"] = (
+                    self._precision["sum"] + other._precision["sum"]
+                )
+                merged_profile._precision["sample_size"] = (
+                    self._precision["sample_size"] + other._precision["sample_size"]
+                )
 
-                merged_profile._precision['mean'] = \
-                    merged_profile._precision['sum'] \
-                    / merged_profile._precision['sample_size']
+                merged_profile._precision["mean"] = (
+                    merged_profile._precision["sum"]
+                    / merged_profile._precision["sample_size"]
+                )
 
-                merged_profile._precision['biased_var'] = self._merge_biased_variance(
-                    self._precision['sample_size'],
-                    self._precision['biased_var'],
-                    self._precision['mean'],
-                    other._precision['sample_size'],
-                    other._precision['biased_var'],
-                    other._precision['mean'])
+                merged_profile._precision["biased_var"] = self._merge_biased_variance(
+                    self._precision["sample_size"],
+                    self._precision["biased_var"],
+                    self._precision["mean"],
+                    other._precision["sample_size"],
+                    other._precision["biased_var"],
+                    other._precision["mean"],
+                )
 
         return merged_profile
 
@@ -117,11 +124,12 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :rtype: dict
         """
         differences = NumericStatsMixin.diff(self, other_profile, options=None)
-        other_precision = other_profile.profile['precision']
+        other_precision = other_profile.profile["precision"]
         precision_diff = dict()
-        for key in self.profile['precision'].keys():
+        for key in self.profile["precision"].keys():
             precision_diff[key] = utils.find_diff_of_numbers(
-                self.profile['precision'][key], other_precision[key])
+                self.profile["precision"][key], other_precision[key]
+            )
         precision_diff.pop("confidence_level")
         differences["precision"] = precision_diff
         return differences
@@ -136,8 +144,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if remove_disabled_flag:
             profile_keys = list(profile.keys())
             for profile_key in profile_keys:
-                if profile_key == 'precision':
-                    if 'precision' in calcs_dict_keys:
+                if profile_key == "precision":
+                    if "precision" in calcs_dict_keys:
                         continue
                 profile.pop(profile_key)
 
@@ -153,14 +161,18 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile.update(
             dict(
                 precision=dict(
-                    min=self.np_type_to_type(self.precision['min']),
-                    max=self.np_type_to_type(self.precision['max']),
-                    mean=self.np_type_to_type(self.precision['mean']),
-                    var=self.np_type_to_type(self.precision['var']),
-                    std=self.np_type_to_type(self.precision['std']),
-                    sample_size=self.np_type_to_type(self.precision['sample_size']),
-                    margin_of_error=self.np_type_to_type(self.precision['margin_of_error']),
-                    confidence_level=self.np_type_to_type(self.precision['confidence_level'])
+                    min=self.np_type_to_type(self.precision["min"]),
+                    max=self.np_type_to_type(self.precision["max"]),
+                    mean=self.np_type_to_type(self.precision["mean"]),
+                    var=self.np_type_to_type(self.precision["var"]),
+                    std=self.np_type_to_type(self.precision["std"]),
+                    sample_size=self.np_type_to_type(self.precision["sample_size"]),
+                    margin_of_error=self.np_type_to_type(
+                        self.precision["margin_of_error"]
+                    ),
+                    confidence_level=self.np_type_to_type(
+                        self.precision["confidence_level"]
+                    ),
                 )
             )
         )
@@ -176,31 +188,33 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         # First add the stats that don't need to be re-calculated
         precision = dict(
-            min=self._precision['min'],
-            max=self._precision['max'],
-            mean=self._precision['mean'],
-            sum=self._precision['sum'],
-            sample_size=self._precision['sample_size'],
-            confidence_level=0.999
+            min=self._precision["min"],
+            max=self._precision["max"],
+            mean=self._precision["mean"],
+            sum=self._precision["sum"],
+            sample_size=self._precision["sample_size"],
+            confidence_level=0.999,
         )
         var = self._correct_bias_variance(
-            self._precision['sample_size'],
-            self._precision['biased_var']
+            self._precision["sample_size"], self._precision["biased_var"]
         )
 
         std = np.sqrt(var)
-        margin_of_error = None if self._precision['sample_size'] is None \
-                            else self.__z_value_precision * std / \
-                                  np.sqrt(self._precision['sample_size'])
-        precision['var'] = var
-        precision['std'] = std
-        precision['margin_of_error'] = margin_of_error
+        margin_of_error = (
+            None
+            if self._precision["sample_size"] is None
+            else self.__z_value_precision
+            * std
+            / np.sqrt(self._precision["sample_size"])
+        )
+        precision["var"] = var
+        precision["std"] = std
+        precision["margin_of_error"] = margin_of_error
         # Set the significant figures
-        if self._precision['max'] is not None:
-            sigfigs = int(self._precision['max'])
-            for key in ['mean', 'var', 'std', 'margin_of_error']:
-                precision[key] = \
-                    float('{:.{p}g}'.format(precision[key], p=sigfigs))
+        if self._precision["max"] is not None:
+            sigfigs = int(self._precision["max"])
+            for key in ["mean", "var", "std", "margin_of_error"]:
+                precision[key] = float("{:.{p}g}".format(precision[key], p=sigfigs))
 
         return precision
 
@@ -229,11 +243,12 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :rtype: int
         """
         len_df = len(df_series_clean)
-        if not len_df: return None
+        if not len_df:
+            return None
 
         # Lead zeros: ^[+-.0\s]+ End zeros: \.?0+(\s|$)
         # Scientific Notation: (?<=[e])(.*) Any non-digits: \D
-        r = re.compile(r'^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D')
+        r = re.compile(r"^[+-.0\s]+|\.?0+(\s|$)|(?<=[e])(.*)|\D")
 
         # DEFAULT: Sample the dataset. If small use full dataset,
         # OR 20k samples or 5% of the dataset which ever is larger.
@@ -243,22 +258,23 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             sample_size = int(len_df * sample_ratio)
 
         # length of sampled cells after all punctuation removed
-        len_per_float = df_series_clean.sample(sample_size).replace(
-            to_replace=r, value='').map(len)
+        len_per_float = (
+            df_series_clean.sample(sample_size).replace(to_replace=r, value="").map(len)
+        )
 
         # Determine statistics precision
         precision_sum = len_per_float.sum()
         subset_precision = {
-            'min': len_per_float.min(),
-            'max': len_per_float.max(),
-            'biased_var': float(np.var(len_per_float)),
-            'sum': precision_sum,
-            'mean': precision_sum / sample_size,
-            'sample_size': sample_size
+            "min": len_per_float.min(),
+            "max": len_per_float.max(),
+            "biased_var": float(np.var(len_per_float)),
+            "sum": precision_sum,
+            "mean": precision_sum / sample_size,
+            "sample_size": sample_size,
         }
-        
+
         return subset_precision
-    
+
     @classmethod
     def _is_each_row_float(cls, df_series):
         """
@@ -273,12 +289,14 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: is_float_col
         :rtype: list
         """
-        if len(df_series) == 0: return list()
+        if len(df_series) == 0:
+            return list()
         return df_series.map(NumericStatsMixin.is_float)
 
-    @BaseColumnProfiler._timeit(name='precision')
-    def _update_precision(self, df_series, prev_dependent_properties,
-                          subset_properties):
+    @BaseColumnProfiler._timeit(name="precision")
+    def _update_precision(
+        self, df_series, prev_dependent_properties, subset_properties
+    ):
         """
         Updates the precision value of the column.
 
@@ -295,30 +313,36 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         sample_ratio = None
         if self.__precision_sample_ratio is not None:
             sample_ratio = self.__precision_sample_ratio
-        
+
         # (min, max, var, sum, sample_size)
         subset_precision = self._get_float_precision(df_series, sample_ratio)
         if subset_precision is None:
             return
-        elif self._precision['min'] is None:
+        elif self._precision["min"] is None:
             self._precision.update(subset_precision)
         else:
             # Update the calculations as data is valid
-            self._precision['min'] = min(
-                self._precision['min'], subset_precision['min'])
-            self._precision['max'] = max(
-                self._precision['max'], subset_precision['max'])
-            self._precision['sum'] += subset_precision['sum']
-            self._precision['sample_size'] += subset_precision['sample_size']
+            self._precision["min"] = min(
+                self._precision["min"], subset_precision["min"]
+            )
+            self._precision["max"] = max(
+                self._precision["max"], subset_precision["max"]
+            )
+            self._precision["sum"] += subset_precision["sum"]
+            self._precision["sample_size"] += subset_precision["sample_size"]
 
-            self._precision['biased_var'] = self._merge_biased_variance(
-                self._precision['sample_size'], self._precision['biased_var'],
-                self._precision['mean'],
-                subset_precision['sample_size'], subset_precision['biased_var'],
-                subset_precision['mean'])
+            self._precision["biased_var"] = self._merge_biased_variance(
+                self._precision["sample_size"],
+                self._precision["biased_var"],
+                self._precision["mean"],
+                subset_precision["sample_size"],
+                subset_precision["biased_var"],
+                subset_precision["mean"],
+            )
 
-            self._precision['mean'] = self._precision['sum'] \
-                                     / self._precision['sample_size']
+            self._precision["mean"] = (
+                self._precision["sum"] / self._precision["sample_size"]
+            )
 
     def _update_helper(self, df_series_clean, profile):
         """
@@ -333,9 +357,10 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if self._NumericStatsMixin__calculations:
             NumericStatsMixin._update_helper(self, df_series_clean, profile)
         self._update_column_base_properties(profile)
-        
-    def _update_numeric_stats(self, df_series, prev_dependent_properties,
-                              subset_properties):
+
+    def _update_numeric_stats(
+        self, df_series, prev_dependent_properties, subset_properties
+    ):
         """
         Calls the numeric stats update function. This is a wrapper to allow
         for modularity.
@@ -350,7 +375,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :return: None 
         """
         super(FloatColumn, self)._update_helper(df_series, subset_properties)
-        
+
     def update(self, df_series):
         """
         Updates the column profile.
@@ -360,19 +385,22 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         if len(df_series) == 0:
             return self
-        
+
         is_each_row_float = self._is_each_row_float(df_series)
         sample_size = len(is_each_row_float)
         float_count = np.sum(is_each_row_float)
         profile = dict(match_count=float_count, sample_size=sample_size)
 
         BaseColumnProfiler._perform_property_calcs(
-            self, self.__calculations, df_series=df_series[is_each_row_float],
-            prev_dependent_properties={}, subset_properties=profile)
+            self,
+            self.__calculations,
+            df_series=df_series[is_each_row_float],
+            prev_dependent_properties={},
+            subset_properties=profile,
+        )
 
         self._update_helper(
-            df_series_clean=df_series[is_each_row_float],
-            profile=profile
+            df_series_clean=df_series[is_each_row_float], profile=profile
         )
 
         return self

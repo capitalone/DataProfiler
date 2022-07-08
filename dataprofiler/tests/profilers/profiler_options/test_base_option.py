@@ -1,17 +1,18 @@
 import unittest
 
 from dataprofiler.profilers.profiler_options import BaseOption
-from dataprofiler.tests.profilers.profiler_options.abstract_test_options import \
-    AbstractTestOptions
+from dataprofiler.tests.profilers.profiler_options.abstract_test_options import (
+    AbstractTestOptions,
+)
 
 
 class TestBaseOption(AbstractTestOptions, unittest.TestCase):
 
     option_class = BaseOption
-    
+
     def test_init(self):
         options = self.get_options()
-        self.assertDictEqual({}, options.properties) 
+        self.assertDictEqual({}, options.properties)
 
     def test_set_helper(self):
         options = self.get_options()
@@ -39,13 +40,13 @@ class TestBaseOption(AbstractTestOptions, unittest.TestCase):
             options.set("notadictionary")
         with self.assertRaisesRegex(ValueError, expected_error):
             options.set(["not", "a", "dictionary"])
-    
+
     def test_validate_helper(self):
         options = self.get_options()
 
         with self.assertRaises(NotImplementedError):
             options._validate_helper()
-    
+
     def test_validate(self):
         options = self.get_options()
 

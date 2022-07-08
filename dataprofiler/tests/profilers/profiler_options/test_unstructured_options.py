@@ -1,7 +1,7 @@
-from dataprofiler.profilers.profiler_options import BooleanOption, \
-    UnstructuredOptions
-from dataprofiler.tests.profilers.profiler_options.test_base_option import \
-    TestBaseOption
+from dataprofiler.profilers.profiler_options import BooleanOption, UnstructuredOptions
+from dataprofiler.tests.profilers.profiler_options.test_base_option import (
+    TestBaseOption,
+)
 
 
 class TestUnstructuredOptions(TestBaseOption):
@@ -36,17 +36,17 @@ class TestUnstructuredOptions(TestBaseOption):
 
         # validate, variable path being passed
         expected_error = (
-            "type object 'test.text.is_enabled' has no attribute "
-            "'other_props'")
+            "type object 'test.text.is_enabled' has no attribute " "'other_props'"
+        )
         with self.assertRaisesRegex(AttributeError, expected_error):
-            option._set_helper({'text.is_enabled.other_props': True}, 'test')
+            option._set_helper({"text.is_enabled.other_props": True}, "test")
 
         expected_error = (
             "type object 'test.data_labeler.is_enabled' has no attribute "
-            "'other_props'")
+            "'other_props'"
+        )
         with self.assertRaisesRegex(AttributeError, expected_error):
-            option._set_helper({'data_labeler.is_enabled.other_props': True},
-                               'test')
+            option._set_helper({"data_labeler.is_enabled.other_props": True}, "test")
 
     def test_set(self):
         super().test_set()
@@ -54,25 +54,25 @@ class TestUnstructuredOptions(TestBaseOption):
 
         # Enable and Disable Options
         for key in self.keys:
-            option.set({'{}.is_enabled'.format(key): False})
+            option.set({"{}.is_enabled".format(key): False})
             self.assertFalse(option.properties[key].is_enabled)
-            option.set({'{}.is_enabled'.format(key): True})
+            option.set({"{}.is_enabled".format(key): True})
             self.assertTrue(option.properties[key].is_enabled)
 
         # Set text options
-        option.set({'text.is_case_sensitive': False})
+        option.set({"text.is_case_sensitive": False})
         self.assertFalse(option.text.is_case_sensitive)
-        option.set({'text.stop_words': ['hello', 'there']})
-        self.assertEqual(['hello', 'there'], option.text.stop_words)
-        option.set({'text.vocab.is_enabled': False})
+        option.set({"text.stop_words": ["hello", "there"]})
+        self.assertEqual(["hello", "there"], option.text.stop_words)
+        option.set({"text.vocab.is_enabled": False})
         self.assertFalse(option.text.vocab.is_enabled)
-        option.set({'text.words.is_enabled': False})
+        option.set({"text.words.is_enabled": False})
         self.assertFalse(option.text.words.is_enabled)
 
         # Set data labeler options
-        option.set({'data_labeler.data_labeler_dirpath': 'hi'})
-        self.assertEqual('hi', option.data_labeler.data_labeler_dirpath)
-        option.set({'data_labeler.max_sample_size': 12})
+        option.set({"data_labeler.data_labeler_dirpath": "hi"})
+        self.assertEqual("hi", option.data_labeler.data_labeler_dirpath)
+        option.set({"data_labeler.max_sample_size": 12})
         self.assertEqual(12, option.data_labeler.max_sample_size)
 
     def test_validate_helper(self):
@@ -81,12 +81,12 @@ class TestUnstructuredOptions(TestBaseOption):
         # validate, variable path being passed
         expected_errors = ["test.text must be a(n) TextProfilerOptions."]
         option.text = 7
-        self.assertEqual(expected_errors, option._validate_helper('test'))
+        self.assertEqual(expected_errors, option._validate_helper("test"))
 
         expected_errors = ["test.data_labeler must be a(n) DataLabelerOptions."]
         option = self.get_options()
         option.data_labeler = 7
-        self.assertEqual(expected_errors, option._validate_helper('test'))
+        self.assertEqual(expected_errors, option._validate_helper("test"))
 
     def test_validate(self):
         option = self.get_options()
@@ -96,33 +96,37 @@ class TestUnstructuredOptions(TestBaseOption):
 
         # Wrong text option type
         option.text = BooleanOption()
-        self.assertEqual(option.validate(raise_error=False),
-                         ["UnstructuredOptions.text must be a(n) "
-                          "TextProfilerOptions."])
+        self.assertEqual(
+            option.validate(raise_error=False),
+            ["UnstructuredOptions.text must be a(n) " "TextProfilerOptions."],
+        )
 
         # Wrong labeler option type
         option = self.get_options()
         option.data_labeler = BooleanOption()
-        self.assertEqual(option.validate(raise_error=False),
-                         ["UnstructuredOptions.data_labeler must be a(n) "
-                          "DataLabelerOptions."])
+        self.assertEqual(
+            option.validate(raise_error=False),
+            ["UnstructuredOptions.data_labeler must be a(n) " "DataLabelerOptions."],
+        )
 
         # Both incorrect
         option.text = BooleanOption()
-        self.assertCountEqual(option.validate(raise_error=False),
-                              ["UnstructuredOptions.text must be a(n) "
-                               "TextProfilerOptions.",
-                               "UnstructuredOptions.data_labeler must be a(n) "
-                               "DataLabelerOptions."])
+        self.assertCountEqual(
+            option.validate(raise_error=False),
+            [
+                "UnstructuredOptions.text must be a(n) " "TextProfilerOptions.",
+                "UnstructuredOptions.data_labeler must be a(n) " "DataLabelerOptions.",
+            ],
+        )
 
     def test_enabled_profilers(self):
         # Default
         option = self.get_options()
-        self.assertCountEqual(['text', 'data_labeler'], option.enabled_profiles)
+        self.assertCountEqual(["text", "data_labeler"], option.enabled_profiles)
 
         # Disable via set
-        option.set({'text.is_enabled': False})
-        self.assertEqual(['data_labeler'], option.enabled_profiles)
+        option.set({"text.is_enabled": False})
+        self.assertEqual(["data_labeler"], option.enabled_profiles)
 
         # Disable directly
         option.data_labeler.is_enabled = False

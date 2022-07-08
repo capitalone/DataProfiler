@@ -3,11 +3,13 @@ import csv
 from .base_data import BaseData
 from .csv_data import CSVData
 
+
 class GraphData(BaseData):
         
     def __init__(self, input_file_path=None, data=None, options=None):
         BaseData.__init__(self, input_file_path, data, options)        
 
+    @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):
         '''
         Find whether one of the columns names contains a keyword that could refer to a target node column
@@ -32,7 +34,8 @@ class GraphData(BaseData):
         
         return has_target
 
-    def csv_column_names(self, file_path, options):
+    @classmethod
+    def csv_column_names(cls, file_path, options):
         '''
         fetches a list of column names from the csv file
         '''
@@ -54,8 +57,9 @@ class GraphData(BaseData):
             column_names[index] = column_names[index].replace(" ", "")
 
         return column_names
-    
-    def is_match(self, file_path, options):
+
+    @classmethod
+    def is_match(cls, file_path, options):
         '''
         Determines whether the file is a graph
         Current formats checked:
@@ -66,23 +70,19 @@ class GraphData(BaseData):
 
         if options is None:
             options = dict()
-        if 'delimiter' not in options:
-            options["delimiter"] = ','
-        if 'header' not in options:
-            options["header"] = True
 
         if options["header"] is False or CSVData.is_match(file_path, options):
             return False
 
         graph = False
 
-        column_names = self.csv_column_names(file_path, options)
+        column_names = cls.csv_column_names(file_path, options)
 
         target_keywords = ['target', 'destination', 'dst']
         source_keywords = ['source', 'src', 'origin']
 
-        has_target = self._find_target_string_in_column(column_names, target_keywords)
-        has_source = self._find_target_string_in_column(column_names, source_keywords)
+        has_target = cls._find_target_string_in_column(column_names, target_keywords)
+        has_source = cls._find_target_string_in_column(column_names, source_keywords)
 
         if has_target and has_source:
             graph = True

@@ -59,7 +59,7 @@ class TestGraphDataClass(unittest.TestCase):
         '''
         column_names = ['node_src', 'node_dst', 'attribute1']
         keyword_list = ['src', 'source']
-        self.assertTrue(GraphData()._find_target_string_in_column(column_names, keyword_list))
+        self.assertTrue(GraphData._find_target_string_in_column(column_names, keyword_list))
 
     def test_finding_string_in_column_positive_2(self):
         '''
@@ -67,7 +67,7 @@ class TestGraphDataClass(unittest.TestCase):
         '''
         column_names = ['src_node', 'dst_node', 'attribute1']
         keyword_list = ['src', 'source']
-        self.assertTrue(GraphData()._find_target_string_in_column(column_names, keyword_list))
+        self.assertTrue(GraphData._find_target_string_in_column(column_names, keyword_list))
 
     def test_finding_string_in_column_negative(self):
         '''
@@ -75,7 +75,7 @@ class TestGraphDataClass(unittest.TestCase):
         '''
         column_names = ['movie', 'audience_type', 'audience_source']
         keyword_list = ['dst', 'destination', 'target']
-        self.assertFalse(GraphData()._find_target_string_in_column(column_names, keyword_list))
+        self.assertFalse(GraphData._find_target_string_in_column(column_names, keyword_list))
 
     def test_finding_string_in_column_negative(self):
         '''
@@ -83,7 +83,7 @@ class TestGraphDataClass(unittest.TestCase):
         '''
         column_names = ['flight_number', 'destination', 'price']
         keyword_list = ['dst', 'destination', 'target']
-        self.assertFalse(GraphData()._find_target_string_in_column(column_names, keyword_list))
+        self.assertFalse(GraphData._find_target_string_in_column(column_names, keyword_list))
 
     #test csv_column_name
     def test_csv_column_names(self):
@@ -103,7 +103,7 @@ class TestGraphDataClass(unittest.TestCase):
         """
         input_file = self.input_file_names[0]['path']
         options = {"header": True, "delimiter": ","}
-        self.assertTrue(GraphData().is_match(input_file, options))
+        self.assertTrue(GraphData.is_match(input_file, options))
 
     def test_is_graph_positive_2(self):
         """
@@ -111,7 +111,7 @@ class TestGraphDataClass(unittest.TestCase):
         """
         input_file = self.input_file_names[1]['path']
         options = {"header": True, "delimiter": ","}
-        self.assertTrue(GraphData().is_match(input_file, options))
+        self.assertTrue(GraphData.is_match(input_file, options))
 
     # test is_match for false output w/ different options
     def test_is_graph_negative_1(self):
@@ -120,7 +120,7 @@ class TestGraphDataClass(unittest.TestCase):
         """
         input_file = self.input_file_names[2]['path']
         options = {"header": True, "delimiter": ","}
-        self.assertFalse(GraphData().is_match(input_file, options))
+        self.assertFalse(GraphData.is_match(input_file, options))
 
     def test_is_graph_negative_2(self):
         """
@@ -128,7 +128,7 @@ class TestGraphDataClass(unittest.TestCase):
         """
         input_file = self.input_file_names[3]['path']
         options = {"header": True, "delimiter": ","}
-        self.assertFalse(GraphData().is_match(input_file, options))
+        self.assertFalse(GraphData.is_match(input_file, options))
 
     def test_is_graph_negative_3(self):
         """
@@ -136,7 +136,7 @@ class TestGraphDataClass(unittest.TestCase):
         """
         input_file = self.input_file_names[1]['path']
         options = {"header": False, "delimiter": ","}
-        self.assertFalse(GraphData().is_match(input_file, options))
+        self.assertFalse(GraphData.is_match(input_file, options))
 
 if __name__ == '__main__':
     unittest.main()

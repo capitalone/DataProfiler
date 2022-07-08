@@ -254,7 +254,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             flatten_split=flatten_split,
             flatten_separator=flatten_separator,
             is_separate_at_max_len=is_separate_at_max_len,
-            **kwargs
+            **kwargs,
         )
 
     def _validate_parameters(self, parameters):

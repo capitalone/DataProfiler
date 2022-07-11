@@ -24,7 +24,12 @@ class TestClassificationReport(unittest.TestCase):
                 "f1-score": 1 / 2,
                 "support": 2,
             },
-            "UNKNOWN": {"precision": 0, "recall": 0, "f1-score": 0, "support": 1,},
+            "UNKNOWN": {
+                "precision": 0,
+                "recall": 0,
+                "f1-score": 0,
+                "support": 1,
+            },
             "OTHER": {
                 "precision": 2 / 3,
                 "recall": 2 / 3,

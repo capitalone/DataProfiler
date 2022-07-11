@@ -18,6 +18,7 @@ class SpreadSheetDataMixin(object):
     :type options: dict
     :return: None
     """
+
     def __init__(self, input_file_path, data, options):
         self._data_formats["dataframe"] = self._get_data_as_df
         if data is not None and isinstance(data, pd.DataFrame):
@@ -42,9 +43,7 @@ class SpreadSheetDataMixin(object):
             elif data is not None and isinstance(data, str):
                 self._data = self._load_data_from_str(data)
             elif data is not None:
-                raise ValueError(
-                    "Input data type is not string or pandas.DataFrame"
-                )
+                raise ValueError("Input data type is not string or pandas.DataFrame")
         elif self.input_file_path:
             self._data = self._load_data_from_file(self.input_file_path)
         else:
@@ -60,9 +59,11 @@ class SpreadSheetDataMixin(object):
     def _get_data_as_records(self, data):
         records_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
         data = [
-            str("\n".join(
-                data[i * records_per_line:(i + 1) * records_per_line]
-            ).encode("UTF-8").decode())
+            str(
+                "\n".join(data[i * records_per_line : (i + 1) * records_per_line])
+                .encode("UTF-8")
+                .decode()
+            )
             for i in range((len(data) + records_per_line - 1) // records_per_line)
         ]
         return data

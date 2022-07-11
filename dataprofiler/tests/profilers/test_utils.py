@@ -214,13 +214,13 @@ class TestShuffleInChunks(unittest.TestCase):
         # test with different data sizes
         self.assertEqual(0, utils.get_memory_size([]))
         self.assertEqual(
-            33 / 1024 ** 2, utils.get_memory_size(["This is test, a Test sentence.!!!"])
+            33 / 1024**2, utils.get_memory_size(["This is test, a Test sentence.!!!"])
         )
         self.assertEqual(
-            33 / 1024 ** 2,
+            33 / 1024**2,
             utils.get_memory_size(["This is test,", " a Test sentence.!!!"]),
         )
         self.assertEqual(
-            33 / 1024 ** 3,
+            33 / 1024**3,
             utils.get_memory_size(["This is test, a Test sentence.!!!"], unit="G"),
         )

@@ -24,7 +24,7 @@ def calculate_quantiles(num_quantile_groups, quantiles):
 
 def flat_dict(od, separator="_", key=""):
     """
-    Function to flatten nested dictionary. Each level is collapsed and 
+    Function to flatten nested dictionary. Each level is collapsed and
     joined with the specified seperator.
 
     :param od: dictionary or dictionary-like object
@@ -51,10 +51,10 @@ def _prepare_report(report, output_format=None, omit_keys=None):
     """
     Prepares report dictionary for users upon request.
 
-    output_format options: 
+    output_format options:
 
     - Pretty: floats are rounded to four decimal places & lists are shortened.
-    - Compact: Similar to pretty, but removes detailed statistics such as 
+    - Compact: Similar to pretty, but removes detailed statistics such as
                runtimes, label probabilities, index locations of null types
     - Serializable: Output is json serializable and not prettified
     - Flat: Nested output is returned as a flattened dictionary
@@ -64,9 +64,9 @@ def _prepare_report(report, output_format=None, omit_keys=None):
     :param output_format: designation for how to format the returned report;
                           possible options: pretty, serializable, flat, compact
     :type output_format: dict()
-    :param omit_keys: Keys to omit from the output report, to omit keys in the 
-                      report a '.' represents a level of recursion example: 
-                      report: { 'test1': { 'test2': val, 'test3': val }, 
+    :param omit_keys: Keys to omit from the output report, to omit keys in the
+                      report a '.' represents a level of recursion example:
+                      report: { 'test1': { 'test2': val, 'test3': val },
                       to omit key 'test3' from report: omit_keys=['test1.test3']
                       wildcards are also possible, so: omit_keys=['*.test3']
     :type omit_keys: list(str)

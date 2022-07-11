@@ -26,7 +26,6 @@ from dataprofiler.labelers.character_level_cnn_model import F1Score, FBetaScore
 
 
 class TestFScore(unittest.TestCase):
-
     def test_config_fbeta(self):
         fbeta_obj = FBetaScore(num_classes=3, beta=0.5, threshold=0.3, average=None)
         assert fbeta_obj.beta == 0.5
@@ -51,8 +50,12 @@ class TestFScore(unittest.TestCase):
         fbeta.update_state(act, pred, sample_weights)
         return fbeta.result().numpy()
 
-    def _test_fbeta_score(self, actuals, preds, sample_weights, avg, beta_val, result, threshold):
-        tf_score = self._test_tf(avg, beta_val, actuals, preds, sample_weights, threshold)
+    def _test_fbeta_score(
+        self, actuals, preds, sample_weights, avg, beta_val, result, threshold
+    ):
+        tf_score = self._test_tf(
+            avg, beta_val, actuals, preds, sample_weights, threshold
+        )
         np.testing.assert_allclose(tf_score, result, atol=1e-7, rtol=1e-6)
 
     def test_fbeta_perfect_score(self):
@@ -175,7 +178,9 @@ class TestFScore(unittest.TestCase):
         actuals = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0], [1, 0, 0], [0, 0, 1]]
 
         for avg_val, beta, sample_weights, result in params:
-            self._test_fbeta_score(actuals, preds, sample_weights, avg_val, beta, result, None)
+            self._test_fbeta_score(
+                actuals, preds, sample_weights, avg_val, beta, result, None
+            )
 
     def test_eq(self):
         f1 = F1Score(3)
@@ -215,5 +220,5 @@ class TestFScore(unittest.TestCase):
         np.testing.assert_allclose(f1.result().numpy(), f1_weighted.result().numpy())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

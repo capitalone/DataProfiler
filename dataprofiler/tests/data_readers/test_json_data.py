@@ -11,51 +11,65 @@ test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
 class TestNestedJSON(unittest.TestCase):
-
     def test_flat_to_nested_json(self):
-        dic = {
-            'a.b': 'ab',
-            'a.c': 'ac',
-            'a.d.f': 'adf',
-            'b': 'b'
-        }
+        dic = {"a.b": "ab", "a.c": "ac", "a.d.f": "adf", "b": "b"}
 
         converted_dic = json_data.JSONData._convert_flat_to_nested_cols(dic)
-        self.assertTrue(converted_dic == {
-            'a': {'b': 'ab', 'c': 'ac', 'd': {'f': 'adf'}},
-            'b': 'b'
-        })
+        self.assertTrue(
+            converted_dic == {"a": {"b": "ab", "c": "ac", "d": {"f": "adf"}}, "b": "b"}
+        )
 
 
 class TestJSONDataClass(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.input_file_path = None
         cls.output_file_path = None
         cls.ss = None
 
-        test_dir = os.path.join(test_root_path, 'data')
+        test_dir = os.path.join(test_root_path, "data")
         cls.input_file_names = [
-            dict(path=os.path.join(test_dir, 'json/iris-utf-8.json'), encoding='utf-8', count=150),
-            dict(path=os.path.join(test_dir, 'json/iris-utf-16.json'), encoding='utf-16', count=150),
-            dict(path=os.path.join(test_dir, "json/honeypot"), encoding='utf-8', count=14),
-            dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.csv"), encoding='utf-8', count=14),
-            dict(path=os.path.join(test_dir, "json/honeypot_intentially_mislabeled_file.parquet"), encoding='utf-8', count=14)
+            dict(
+                path=os.path.join(test_dir, "json/iris-utf-8.json"),
+                encoding="utf-8",
+                count=150,
+            ),
+            dict(
+                path=os.path.join(test_dir, "json/iris-utf-16.json"),
+                encoding="utf-16",
+                count=150,
+            ),
+            dict(
+                path=os.path.join(test_dir, "json/honeypot"), encoding="utf-8", count=14
+            ),
+            dict(
+                path=os.path.join(
+                    test_dir, "json/honeypot_intentially_mislabeled_file.csv"
+                ),
+                encoding="utf-8",
+                count=14,
+            ),
+            dict(
+                path=os.path.join(
+                    test_dir, "json/honeypot_intentially_mislabeled_file.parquet"
+                ),
+                encoding="utf-8",
+                count=14,
+            ),
         ]
 
         cls.buffer_list = []
         for input_file in cls.input_file_names:
             # add StringIO
             buffer_info = input_file.copy()
-            with open(input_file['path'], 'r', encoding=input_file['encoding']) as fp:
-                buffer_info['path'] = StringIO(fp.read())
+            with open(input_file["path"], "r", encoding=input_file["encoding"]) as fp:
+                buffer_info["path"] = StringIO(fp.read())
             cls.buffer_list.append(buffer_info)
-            
+
             # add BytesIO
             buffer_info = input_file.copy()
-            with open(input_file['path'], 'rb') as fp:
-                buffer_info['path'] = BytesIO(fp.read())
+            with open(input_file["path"], "rb") as fp:
+                buffer_info["path"] = BytesIO(fp.read())
             cls.buffer_list.append(buffer_info)
 
         cls.file_or_buf_list = cls.input_file_names + cls.buffer_list
@@ -63,7 +77,7 @@ class TestJSONDataClass(unittest.TestCase):
     @classmethod
     def setUp(cls):
         for buffer in cls.buffer_list:
-            buffer['path'].seek(0)
+            buffer["path"].seek(0)
 
     def test_is_match(self):
         """
@@ -71,7 +85,7 @@ class TestJSONDataClass(unittest.TestCase):
         byte stream or stringio stream or filepath
         """
         for input_file in self.file_or_buf_list:
-            self.assertTrue(JSONData.is_match(input_file['path']))
+            self.assertTrue(JSONData.is_match(input_file["path"]))
 
     def test_json_file_identification(self):
         """
@@ -79,15 +93,15 @@ class TestJSONDataClass(unittest.TestCase):
         """
         for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"])
-            self.assertEqual(input_data_obj.data_type, 'json')
+            self.assertEqual(input_data_obj.data_type, "json")
 
     def test_specifying_data_type(self):
         """
         Determine if the json file can be loaded with manual data_type setting
         """
         for input_file in self.file_or_buf_list:
-            input_data_obj = Data(input_file["path"], data_type='json')
-            self.assertEqual(input_data_obj.data_type, 'json')
+            input_data_obj = Data(input_file["path"], data_type="json")
+            self.assertEqual(input_data_obj.data_type, "json")
 
     def test_reload_data(self):
         """
@@ -96,42 +110,42 @@ class TestJSONDataClass(unittest.TestCase):
         for input_file in self.file_or_buf_list:
             input_data_obj = Data(input_file["path"])
             input_data_obj.reload(input_file["path"])
-            self.assertEqual(input_data_obj.data_type, 'json')
-            self.assertEqual(input_file['path'], input_data_obj.input_file_path)
+            self.assertEqual(input_data_obj.data_type, "json")
+            self.assertEqual(input_file["path"], input_data_obj.input_file_path)
 
     def test_json_from_string(self):
         """
         Determine if the json file can be loaded with manual data_type setting
         """
         passing_json_strings = [
-            '[]',
-            '{}',
-            '[1, 2, 3]',
+            "[]",
+            "{}",
+            "[1, 2, 3]",
             '[{"a": 1}, {"a": 2}, {"a": 3}, {"a": 1, "b":2}]',
         ]
         failing_json_strings = [
-            dict(value='[1,[1]]',
-                 error='Only JSON which represents structured data is '
-                       'supported for this data type (i.e. list-dicts).'),
-            dict(value='[{"a": 1}, 2, [3]]',
-                 error='Only JSON which represents structured data is '
-                       'supported for this data type (i.e. list-dicts).'),
-            dict(value='{',
-                 error='No JSON data could be read from these data.')
+            dict(
+                value="[1,[1]]",
+                error="Only JSON which represents structured data is "
+                "supported for this data type (i.e. list-dicts).",
+            ),
+            dict(
+                value='[{"a": 1}, 2, [3]]',
+                error="Only JSON which represents structured data is "
+                "supported for this data type (i.e. list-dicts).",
+            ),
+            dict(value="{", error="No JSON data could be read from these data."),
         ]
         for json_string in passing_json_strings:
             # in memory data must specify the data_type category
-            input_data_obj = Data(data=json_string, data_type='json')
-            self.assertEqual(input_data_obj.data_type, 'json')
+            input_data_obj = Data(data=json_string, data_type="json")
+            self.assertEqual(input_data_obj.data_type, "json")
 
         for json_string in failing_json_strings:
             # in memory data must specify the data_type category
             with self.assertRaises(ValueError) as assert_raised:
-                Data(data=json_string['value'], data_type='json').data
-            self.assertEqual(
-                str(assert_raised.exception),
-                json_string['error']
-            )
+                Data(data=json_string["value"], data_type="json").data
+            self.assertEqual(str(assert_raised.exception), json_string["error"])
 
     def test_data_formats(self):
         """
@@ -145,6 +159,7 @@ class TestJSONDataClass(unittest.TestCase):
                 data = input_data_obj.data
                 if data_format == "dataframe":
                     import pandas as pd
+
                     self.assertIsInstance(data, pd.DataFrame)
                 elif data_format in ["records", "json"]:
                     self.assertIsInstance(data, list)
@@ -158,50 +173,57 @@ class TestJSONDataClass(unittest.TestCase):
 
         for input_file in self.file_or_buf_list:
             data = Data(input_file["path"])
-            self.assertEqual(input_file['count'],
-                             len(data),
-                             msg=input_file['path'])
-            self.assertEqual(input_file['count'],
-                             data.length,
-                             msg=input_file['path'])
+            self.assertEqual(input_file["count"], len(data), msg=input_file["path"])
+            self.assertEqual(input_file["count"], data.length, msg=input_file["path"])
 
     def test_flattened_dataframe_format_with_no_payload(self):
-        test_dir = os.path.join(test_root_path, 'data')
-        input_file_name = os.path.join(test_dir, 'json/simple.json')
+        test_dir = os.path.join(test_root_path, "data")
+        input_file_name = os.path.join(test_dir, "json/simple.json")
 
-        simple = Data(input_file_name, options={"data_format": "flattened_dataframe", 
-                                                "payload_keys": "data"})
-        
+        simple = Data(
+            input_file_name,
+            options={"data_format": "flattened_dataframe", "payload_keys": "data"},
+        )
+
         self.assertEqual(3, len(simple.data_and_metadata.columns))
         self.assertEqual(2, len(simple.data.columns))
         self.assertEqual(1, len(simple.metadata.columns))
 
-        simple = Data(input_file_name, options={"data_format": "flattened_dataframe", 
-                                                "payload_keys": "no_data_key_test"})
+        simple = Data(
+            input_file_name,
+            options={
+                "data_format": "flattened_dataframe",
+                "payload_keys": "no_data_key_test",
+            },
+        )
 
         self.assertEqual(3, len(simple.data_and_metadata.columns))
         self.assertEqual(3, len(simple.data.columns))
-        with self.assertWarnsRegex(UserWarning,"No metadata was detected."):
+        with self.assertWarnsRegex(UserWarning, "No metadata was detected."):
             self.assertIsNone(simple.metadata)
 
     def test_key_separator_in_flattened_dataframe_format(self):
-        test_dir = os.path.join(test_root_path, 'data')
-        input_file_name = os.path.join(test_dir, 'json/simple.json')
+        test_dir = os.path.join(test_root_path, "data")
+        input_file_name = os.path.join(test_dir, "json/simple.json")
 
         simple = Data(input_file_name, options={"key_separator": "~~~"})
-        expected_columns = ["data~~~list_of_things~~~id",
-                            "data~~~list_of_things~~~tags"]
+        expected_columns = [
+            "data~~~list_of_things~~~id",
+            "data~~~list_of_things~~~tags",
+        ]
 
         self.assertListEqual(expected_columns, list(simple.data.columns))
 
     def test_complex_nested_json_in_flattened_dataframe_format(self):
-        test_dir = os.path.join(test_root_path, 'data')
-        input_file_name = os.path.join(test_dir, 'json/complex_nested.json')
+        test_dir = os.path.join(test_root_path, "data")
+        input_file_name = os.path.join(test_dir, "json/complex_nested.json")
 
         complex = Data(input_file_name)
         self.assertEqual(8, len(complex.data.columns))
-        self.assertEqual("Depression", complex.data["payload.Lion.medical_condition"][0])
-        
+        self.assertEqual(
+            "Depression", complex.data["payload.Lion.medical_condition"][0]
+        )
+
         self.assertEqual(11, len(complex.data_and_metadata.columns))
         self.assertEqual("Frodo", complex.data_and_metadata["meta.creator"][0])
 
@@ -209,72 +231,75 @@ class TestJSONDataClass(unittest.TestCase):
         self.assertEqual("Frodo", complex.data_and_metadata["meta.creator"][0])
 
     def test_list_of_dictionaries_in_flattened_dataframe_format(self):
-        test_dir = os.path.join(test_root_path, 'data')
-        input_file_name = os.path.join(test_dir, 'json/iris-utf-8.json')
+        test_dir = os.path.join(test_root_path, "data")
+        input_file_name = os.path.join(test_dir, "json/iris-utf-8.json")
 
         simple = Data(input_file_name)
         self.assertEqual(6, len(simple.data.columns))
         self.assertEqual(150, len(simple.data))
-        
+
     def test_flattened_dataframe_format(self):
-        test_dir = os.path.join(test_root_path, 'data')
-        input_file_name = os.path.join(test_dir, 'json/math.json')
+        test_dir = os.path.join(test_root_path, "data")
+        input_file_name = os.path.join(test_dir, "json/math.json")
 
         math = Data(input_file_name)
-        self.assertIn("meta.view.columns.cachedContents.largest",
-                      math.data_and_metadata.columns)
-        self.assertEqual(math.metadata["meta.view.columns.cachedContents.largest"][9]
-                         ,"102188")
+        self.assertIn(
+            "meta.view.columns.cachedContents.largest", math.data_and_metadata.columns
+        )
+        self.assertEqual(
+            math.metadata["meta.view.columns.cachedContents.largest"][9], "102188"
+        )
         self.assertIn("data.22", math.data.columns)
         self.assertEqual(math.data["data.22"][167], "77.9")
-        
+
     def test_payload_key(self):
-        test_dir = os.path.join(test_root_path, 'data')
-        input_file_name = os.path.join(test_dir, 'json/hits.json')
+        test_dir = os.path.join(test_root_path, "data")
+        input_file_name = os.path.join(test_dir, "json/hits.json")
 
         hits = Data(input_file_name, options={"payload_keys": "hits"})
-        self.assertIn("hits._highlightResult.story_url.value",
-                      hits.data.columns)
-        self.assertNotIn("hits._highlightResult.story_url.value",
-                      hits.metadata.columns)
+        self.assertIn("hits._highlightResult.story_url.value", hits.data.columns)
+        self.assertNotIn("hits._highlightResult.story_url.value", hits.metadata.columns)
         self.assertNotIn("processingTimeMS", hits.data.columns)
         self.assertIn("processingTimeMS", hits.metadata.columns)
 
         self.assertIn("processingTimeMS", hits.data_and_metadata.columns)
-        self.assertIn("hits._highlightResult.story_url.value",
-                      hits.data_and_metadata.columns)
+        self.assertIn(
+            "hits._highlightResult.story_url.value", hits.data_and_metadata.columns
+        )
 
     def test_find_data(self):
         JSONDataObject = json_data.JSONData()
-        
+
         data = {
-                    "Top_level":
-                        [
-                            {"mid_level_one": {
-                                "third_level_one": "badabing",
-                                "third_level_two": "badaboom",
-                                "third_level_three": "hello",
-                                }
-                            },
-                            {"mid_level_two": "hello1"},
-                            {"mid_level_three": "hello2"}
-                        ]
-                }
+            "Top_level": [
+                {
+                    "mid_level_one": {
+                        "third_level_one": "badabing",
+                        "third_level_two": "badaboom",
+                        "third_level_three": "hello",
+                    }
+                },
+                {"mid_level_two": "hello1"},
+                {"mid_level_three": "hello2"},
+            ]
+        }
         expected_list = [
-            {'Top_level.mid_level_one.third_level_one': 'badabing'}, 
-            {'Top_level.mid_level_one.third_level_two': 'badaboom'}, 
-            {'Top_level.mid_level_one.third_level_three': 'hello'}, 
-            {'Top_level.mid_level_two': 'hello1'}, 
-            {'Top_level.mid_level_three': 'hello2'}]
+            {"Top_level.mid_level_one.third_level_one": "badabing"},
+            {"Top_level.mid_level_one.third_level_two": "badaboom"},
+            {"Top_level.mid_level_one.third_level_three": "hello"},
+            {"Top_level.mid_level_two": "hello1"},
+            {"Top_level.mid_level_three": "hello2"},
+        ]
 
         self.assertListEqual(expected_list, JSONDataObject._find_data(data))
 
     def test_flattened_dataframe_format_with_dual_payload(self):
-        test_dir = os.path.join(test_root_path, 'data')
-        input_file_name = os.path.join(test_dir, 'json/dual_payloads.json')
+        test_dir = os.path.join(test_root_path, "data")
+        input_file_name = os.path.join(test_dir, "json/dual_payloads.json")
 
-        dual_payload = Data(input_file_name,
-                      options={"data_format": "flattened_dataframe"})
+        dual_payload = Data(
+            input_file_name, options={"data_format": "flattened_dataframe"}
+        )
         # Make sure the larger payload is selected
         self.assertIn("payload.bigger_list_of_things.id", dual_payload.data.columns)
         self.assertEqual(2, len(dual_payload.data.columns))
@@ -301,5 +326,5 @@ class TestJSONDataClass(unittest.TestCase):
         self.assertFalse(data.is_structured)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

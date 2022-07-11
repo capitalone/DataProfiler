@@ -10,9 +10,9 @@ def patched_assert_warns(self):
     #   The __warningregistry__'s need to be in a pristine state for tests
     #   to work properly.
     for v in list(sys.modules.values()):
-        if getattr(v, '__warningregistry__', None):
+        if getattr(v, "__warningregistry__", None):
             v.__warningregistry__ = {}
     self.warnings_manager = warnings.catch_warnings(record=True)
     self.warnings = self.warnings_manager.__enter__()
-    warnings.simplefilter('always', self.expected)
+    warnings.simplefilter("always", self.expected)
     return self

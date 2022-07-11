@@ -12,7 +12,7 @@ class AVROData(JSONData, BaseData):
     AVROData class to save and load spreadsheet data
     """
 
-    data_type = 'avro'
+    data_type = "avro"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
@@ -20,12 +20,12 @@ class AVROData(JSONData, BaseData):
         passing in memory data or via a file path. Options pertaining the AVRO
         may also be specified using the options dict parameter.
         Possible Options::
-        
+
             options = dict(
                 data_format= type: str, choices: "dataframe", "records", "avro"
                 selected_keys= type: list(str)
             )
-            
+
         data_format: user selected format in which to return data can only be of specified types
         selected_keys: keys being selected from the entire dataset
 
@@ -61,7 +61,7 @@ class AVROData(JSONData, BaseData):
         """
         Test the given file to check if the file has valid
         AVRO format or not.
-        
+
         :param file_path: path to the file to be examined
         :type file_path: str
         :param options: avro read options
@@ -91,7 +91,7 @@ class AVROData(JSONData, BaseData):
         Example of output:
             {'name': 1, 'favorite_number': 1, 'favorite_color': 1,
             'address': {'streetaddress': 1, 'city': 1}}
-            
+
         :param dict_line: dictionary that may contain nested keys
         :type dict_line: dict
         :param nested_key: the current nested keys that needs to be updated
@@ -101,13 +101,11 @@ class AVROData(JSONData, BaseData):
         for key, value in dict_line.items():
             if key in nested_key:
                 if type(value) is dict:
-                    nested_key[key] = cls._get_nested_key(
-                                                value, nested_key[key])
+                    nested_key[key] = cls._get_nested_key(value, nested_key[key])
             else:
                 if type(value) is dict:
                     nested_key[key] = {}
-                    nested_key[key] = cls._get_nested_key(
-                                                value, nested_key[key])
+                    nested_key[key] = cls._get_nested_key(value, nested_key[key])
                 else:
                     nested_key[key] = 1
 
@@ -119,7 +117,7 @@ class AVROData(JSONData, BaseData):
         Extract nested keys from a list of dictionaries. Example of output:
         {'name': 1, 'favorite_number': 1, 'favorite_color': 1,
         'address': {'streetaddress': 1, 'city': 1}}
-        
+
         :param dicts: list of dictionaries
         :type dicts: list(dict)
         :return: a dictionary containing nested keys
@@ -133,7 +131,7 @@ class AVROData(JSONData, BaseData):
     def _get_schema_avro(cls, nested_keys, schema_avro):
         """
         Update avro schema from the nested keys and the current avro schema
-        
+
         :param nested_keys: a dictionary containing nested keys, from that
             avro schema is extracted. E.g.
             {'name': 1, 'favorite_number': 1, 'favorite_color': 1,
@@ -173,18 +171,13 @@ class AVROData(JSONData, BaseData):
                 # for every lines
                 schema_avro_temp = {
                     "name": key,
-                    "type": [{
-                        "name": key,
-                        "type": "record",
-                        "fields": []
-                    }, "null"]
+                    "type": [{"name": key, "type": "record", "fields": []}, "null"],
                 }
                 schema_avro_temp["type"][0] = cls._get_schema_avro(
-                                    value, schema_avro_temp["type"][0])
+                    value, schema_avro_temp["type"][0]
+                )
                 schema_avro["fields"].append(schema_avro_temp)
             else:
-                schema_avro["fields"].append(
-                                {"name": key, "type": ["string", "null"]})
+                schema_avro["fields"].append({"name": key, "type": ["string", "null"]})
 
         return schema_avro
-

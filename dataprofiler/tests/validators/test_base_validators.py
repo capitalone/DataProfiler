@@ -64,7 +64,7 @@ class TestDataValidator(unittest.TestCase):
 
     def test_data_validation(self):
         """
-        Testing to ensure that the validate method does not return None. 
+        Testing to ensure that the validate method does not return None.
         """
         validator = Validator()
         validator.validate(data=self.sub_data, config=self.correct_pandas_config)
@@ -72,7 +72,7 @@ class TestDataValidator(unittest.TestCase):
 
     def test_dask_data_validation(self):
         """
-        Testing to ensure that the validate method does not return None. 
+        Testing to ensure that the validate method does not return None.
         """
         validator = Validator()
         validator.validate(data=self.dask_data, config=self.correct_dask_config)
@@ -95,8 +95,8 @@ class TestDataValidator(unittest.TestCase):
 
     def test_data_validation_wrong_config(self):
         """
-        Test that the validation method raises exceptions when provided 
-        a wrong configuration dictionary. 
+        Test that the validation method raises exceptions when provided
+        a wrong configuration dictionary.
         """
         validator = Validator()
         with self.assertRaises(TypeError):
@@ -104,8 +104,8 @@ class TestDataValidator(unittest.TestCase):
 
     def test_data_validation_empty_config(self):
         """
-        Test that the validation method raises exceptions when provided 
-        a empty configuration dictionary. 
+        Test that the validation method raises exceptions when provided
+        a empty configuration dictionary.
         """
         validator = Validator()
         with self.assertRaises(Warning):
@@ -113,8 +113,8 @@ class TestDataValidator(unittest.TestCase):
 
     def test_data_validation_no_run_with_get(self):
         """
-        Test that the validation method raises exceptions when provided 
-        a empty configuration dictionary. 
+        Test that the validation method raises exceptions when provided
+        a empty configuration dictionary.
         """
         validator = Validator()
         with self.assertRaises(Warning):

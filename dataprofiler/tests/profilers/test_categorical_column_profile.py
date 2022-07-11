@@ -233,12 +233,44 @@ class TestCategoricalColumn(unittest.TestCase):
     def test_categorical_mapping(self):
 
         df1 = pd.Series(
-            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2", np.nan,]
+            [
+                "abcd",
+                "aa",
+                "abcd",
+                "aa",
+                "b",
+                "4",
+                "3",
+                "2",
+                "dfd",
+                "2",
+                np.nan,
+            ]
         )
         df2 = pd.Series(
-            ["1", "null", "ee", "NaN", "ff", "nan", "gg", "None", "aa", "b", "ee",]
+            [
+                "1",
+                "null",
+                "ee",
+                "NaN",
+                "ff",
+                "nan",
+                "gg",
+                "None",
+                "aa",
+                "b",
+                "ee",
+            ]
         )
-        df3 = pd.Series(["NaN", "b", "nan", "c", None,])
+        df3 = pd.Series(
+            [
+                "NaN",
+                "b",
+                "nan",
+                "c",
+                None,
+            ]
+        )
 
         column_profile = StructuredColProfiler(df1)
         cat_profiler = column_profile.profiles["data_stats_profile"]._profiles[
@@ -297,7 +329,20 @@ class TestCategoricalColumn(unittest.TestCase):
 
     def test_true_categorical_report(self):
         df_categorical = pd.Series(
-            ["a", "a", "a", "b", "b", "b", "b", "c", "c", "c", "c", "c",]
+            [
+                "a",
+                "a",
+                "a",
+                "b",
+                "b",
+                "b",
+                "b",
+                "c",
+                "c",
+                "c",
+                "c",
+                "c",
+            ]
         )
         profile = CategoricalColumn(df_categorical.name)
         profile.update(df_categorical)
@@ -338,7 +383,12 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertIsNotNone(report.pop("times", None))
         expected_profile = dict(
             categorical=False,
-            statistics=dict([("unique_count", 20), ("unique_ratio", 1),]),
+            statistics=dict(
+                [
+                    ("unique_count", 20),
+                    ("unique_ratio", 1),
+                ]
+            ),
         )
         self.assertEqual(report, expected_profile)
 
@@ -447,7 +497,12 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertIsNotNone(report.pop("times", None))
         expected_profile = dict(
             categorical=False,
-            statistics=dict([("unique_count", 16), ("unique_ratio", 16 / 33),]),
+            statistics=dict(
+                [
+                    ("unique_count", 16),
+                    ("unique_ratio", 16 / 33),
+                ]
+            ),
         )
         self.assertEqual(report, expected_profile)
 

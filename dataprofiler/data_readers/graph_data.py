@@ -15,7 +15,6 @@ class GraphData(BaseData):
 
         if options is None:
             options = dict()
-        return self._load_data()
 
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):

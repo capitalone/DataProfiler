@@ -10,9 +10,7 @@ from .filepath_or_buffer import FileOrBufferHandler
 class GraphData(BaseData):
         
     def __init__(self, input_file_path=None, data=None, options=None):
-
         BaseData.__init__(self, input_file_path, data, options)
-
         if options is None:
             options = dict()
 
@@ -75,7 +73,6 @@ class GraphData(BaseData):
 
         This works by finding whether the file contains a target and a source node
         '''
-
         if options is None:
             options = dict()
         if not CSVData.is_match(file_path, options):
@@ -89,7 +86,6 @@ class GraphData(BaseData):
         has_target = True if destination_index >= 0 else False
 
         if has_target and has_source:
-            options.update(delimiter = ",")
             options.update(source_node = source_index)
             options.update(destination_node = destination_index)
             options.update(destination_list = target_keywords)

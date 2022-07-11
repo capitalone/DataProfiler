@@ -70,7 +70,7 @@ class TestGraphDataClass(unittest.TestCase):
         column_names = ['node_id_dst', 'node_id_src', 'attrib_id', 'attrib_type',\
              'edge_date', 'open_date_src', 'open_date_dst']
         input_file = self.input_file_names_pos[1]['path']
-        options = {"header": True, "delimiter": ","}
+        options = {"delimiter": ","}
         self.assertEqual(GraphData.csv_column_names(input_file, options), column_names)
         
     # test is_match for true output w/ different options
@@ -88,7 +88,6 @@ class TestGraphDataClass(unittest.TestCase):
         """
         for input_file in self.input_file_names_neg:
             self.assertFalse(GraphData.is_match(input_file["path"]))   
-
 
 if __name__ == '__main__':
     unittest.main()

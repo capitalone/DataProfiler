@@ -90,7 +90,7 @@ class BaseOption(object):
 
     def set(self, options):
         """
-        Set all the options. Send in a dict that contains all of or a subset of 
+        Set all the options. Send in a dict that contains all of or a subset of
         the appropriate options. Set the values of the options. Will raise error
         if the formatting is improper.
 

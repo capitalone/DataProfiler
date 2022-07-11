@@ -252,7 +252,9 @@ class StructuredColProfiler(object):
             name = int(name)
 
         unordered_profile.update(
-            {"column_name": name,}
+            {
+                "column_name": name,
+            }
         )
 
         unordered_profile["statistics"].update(
@@ -313,7 +315,10 @@ class StructuredColProfiler(object):
             name = int(name)
 
         unordered_profile.update(
-            {"column_name": name, "samples": self.sample,}
+            {
+                "column_name": name,
+                "samples": self.sample,
+            }
         )
 
         unordered_profile["statistics"].update(
@@ -1128,7 +1133,7 @@ class UnstructuredProfiler(BaseProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the difference between 2 unstuctured profiles and returns the 
+        Finds the difference between 2 unstuctured profiles and returns the
         report.
 
         :param other_profile: profile finding the difference with this one.
@@ -2049,9 +2054,9 @@ class StructuredProfiler(BaseProfiler):
         cov = cov / (n - 1)
 
         delta = mean2 - mean1
-        M2_1 = (n1 - 1) * (std1 ** 2)
-        M2_2 = (n2 - 1) * (std2 ** 2)
-        M2 = M2_1 + M2_2 + delta ** 2 * n1 * n2 / n
+        M2_1 = (n1 - 1) * (std1**2)
+        M2_2 = (n2 - 1) * (std2**2)
+        M2 = M2_1 + M2_2 + delta**2 * n1 * n2 / n
         std = np.sqrt(M2 / (n - 1))
 
         std_mat = np.outer(std, std)

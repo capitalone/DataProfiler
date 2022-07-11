@@ -190,7 +190,7 @@ class CategoricalColumn(BaseColumnProfiler):
     @property
     def unique_ratio(self):
         """
-        Property for unique_ratio. Returns ratio of unique 
+        Property for unique_ratio. Returns ratio of unique
         categories to sample_size
         """
         unique_ratio = 1.0
@@ -319,5 +319,5 @@ class CategoricalColumn(BaseColumnProfiler):
             unalike_sum += (
                 self.sample_size - self._categories[category]
             ) * self._categories[category]
-        unalike = unalike_sum / (self.sample_size ** 2 - self.sample_size)
+        unalike = unalike_sum / (self.sample_size**2 - self.sample_size)
         return unalike

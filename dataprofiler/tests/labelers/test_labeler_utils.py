@@ -28,7 +28,12 @@ class TestEvaluateAccuracy(unittest.TestCase):
                 "f1-score": 1 / 2,
                 "support": 2,
             },
-            "UNKNOWN": {"precision": 0, "recall": 0, "f1-score": 0, "support": 1,},
+            "UNKNOWN": {
+                "precision": 0,
+                "recall": 0,
+                "f1-score": 0,
+                "support": 1,
+            },
             "OTHER": {
                 "precision": 2 / 3,
                 "recall": 2 / 3,
@@ -65,7 +70,12 @@ class TestEvaluateAccuracy(unittest.TestCase):
     def test_omit_1_class(self):
 
         expected_output = {
-            "UNKNOWN": {"precision": 0, "recall": 0, "f1-score": 0, "support": 1,},
+            "UNKNOWN": {
+                "precision": 0,
+                "recall": 0,
+                "f1-score": 0,
+                "support": 1,
+            },
             "OTHER": {
                 "precision": 2 / 3,
                 "recall": 2 / 3,
@@ -153,8 +163,18 @@ class TestEvaluateAccuracy(unittest.TestCase):
                 "f1-score": 2 / 3,
                 "support": 3,
             },
-            "NO_SUPPORT": {"precision": 0, "recall": 0, "f1-score": 0, "support": 0,},
-            "NO_SUPPORT2": {"precision": 0, "recall": 0, "f1-score": 0, "support": 0,},
+            "NO_SUPPORT": {
+                "precision": 0,
+                "recall": 0,
+                "f1-score": 0,
+                "support": 0,
+            },
+            "NO_SUPPORT2": {
+                "precision": 0,
+                "recall": 0,
+                "f1-score": 0,
+                "support": 0,
+            },
             "micro avg": {
                 "precision": 2 / 3,
                 "recall": 2 / 3,
@@ -218,7 +238,13 @@ class TestEvaluateAccuracy(unittest.TestCase):
 
         # ideally mock out the actual contents written to file, but
         # would be difficult to get this completely worked out.
-        expected_conf_mat = np.array([[1, 0, 1], [1, 0, 0], [0, 1, 2],])
+        expected_conf_mat = np.array(
+            [
+                [1, 0, 1],
+                [1, 0, 0],
+                [0, 1, 2],
+            ]
+        )
         expected_row_col_names = dict(
             columns=["pred:PAD", "pred:UNKNOWN", "pred:OTHER"],
             index=["true:PAD", "true:UNKNOWN", "true:OTHER"],

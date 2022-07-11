@@ -17,7 +17,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def __init__(self, name, options=None):
         """
         Initialization of column base properties and itself.
-        
+
         :param name: Name of the data
         :type name: String
         :param options: Options for the Text column
@@ -36,7 +36,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def __add__(self, other):
         """
         Merges the properties of two TextColumn profiles
-        
+
         :param self: first profile
         :param other: second profile
         :type self: TextColumn
@@ -61,7 +61,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def report(self, remove_disabled_flag=False):
         """Report on profile attribute of the class and pop value
-            from self.profile if key not in self.__calculations
+        from self.profile if key not in self.__calculations
         """
         calcs_dict_keys = self._TextColumn__calculations.keys()
         profile = self.profile
@@ -80,7 +80,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def profile(self):
         """
         Property for profile. Returns the profile of the column.
-        
+
         :return:
         """
         profile = NumericStatsMixin.profile(self)
@@ -111,7 +111,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         Calculates the ratio of samples which match this data type.
         NOTE: all values can be considered string so always returns 1 in this
         case.
-        
+
         :return: ratio of data type
         :rtype: float
         """
@@ -142,7 +142,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         Method for updating the column profile properties with a cleaned
         dataset and the known null parameters of the dataset.
-        
+
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
         :param profile: text profile dictionary
@@ -159,7 +159,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def update(self, df_series):
         """
         Updates the column profile.
-        
+
         :param df_series: df series
         :type df_series: pandas.core.series.Series
         :return: None

@@ -78,7 +78,7 @@ class TestDataReadFromURL(unittest.TestCase):
     def test_read_url_content_overflow(self, mock_request_get):
         # assumed chunk size
         c_size = 8192
-        max_allows_file_size = 1024 ** 3  # 1GB
+        max_allows_file_size = 1024**3  # 1GB
 
         try:
             # mock the iter_content to return just under 1GB so no error raises
@@ -112,7 +112,7 @@ class TestDataReadFromURL(unittest.TestCase):
     def test_read_url_header_overflow(self, mock_request_get):
         # assumed chunk size
         c_size = 8192
-        max_allows_file_size = 1024 ** 3  # 1GB
+        max_allows_file_size = 1024**3  # 1GB
 
         # set valid content length size
         content_length = 5000

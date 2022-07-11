@@ -660,7 +660,11 @@ class TestNumericStatsMixin(unittest.TestCase):
                 "bin_counts": np.array([1, 1, 1]),
                 "bin_edges": np.array([1.0, 2.0, 3.0, 4.0]),
             },
-            quantiles={0: 2.0, 1: 3.0, 2: 4.0,},
+            quantiles={
+                0: 2.0,
+                1: 3.0,
+                2: 4.0,
+            },
             num_zeros=0,  # default
             num_negatives=0,  # default
             times=defaultdict(float),  # default

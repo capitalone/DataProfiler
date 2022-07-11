@@ -349,14 +349,26 @@ class TestUnstructuredLabelerProfile(unittest.TestCase):
 
         expected_diff = {
             "entity_counts": {
-                "postprocess_char_level": {"UNKNOWN": [5, None],},
-                "true_char_level": {"UNKNOWN": [5, None],},
-                "word_level": {"UNKNOWN": [5, None],},
+                "postprocess_char_level": {
+                    "UNKNOWN": [5, None],
+                },
+                "true_char_level": {
+                    "UNKNOWN": [5, None],
+                },
+                "word_level": {
+                    "UNKNOWN": [5, None],
+                },
             },
             "entity_percentages": {
-                "postprocess_char_level": {"UNKNOWN": [1, None],},
-                "true_char_level": {"UNKNOWN": [1, None],},
-                "word_level": {"UNKNOWN": [1, None],},
+                "postprocess_char_level": {
+                    "UNKNOWN": [1, None],
+                },
+                "true_char_level": {
+                    "UNKNOWN": [1, None],
+                },
+                "word_level": {
+                    "UNKNOWN": [1, None],
+                },
             },
         }
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))

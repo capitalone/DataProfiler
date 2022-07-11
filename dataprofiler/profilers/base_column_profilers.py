@@ -105,7 +105,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :type calculations: dict
         :param df_series: Data to be profiled
         :type df_series: pandas.Dataframe
-        :param prev_dependent_properties: Contains all the previous properties 
+        :param prev_dependent_properties: Contains all the previous properties
         that the calculations depend on.
         :type prev_dependent_properties: dict
         :param subset_properties: Contains the results of the properties of the
@@ -241,7 +241,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         """
         Private abstract method for returning report.
 
-        :param remove_disabled_flag: flag to determine if disabled 
+        :param remove_disabled_flag: flag to determine if disabled
             options should be excluded in the report.
         :type remove_disabled_flag: boolean
         """

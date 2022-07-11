@@ -10,7 +10,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
     SpreadsheetData class to save and load spreadsheet data
     """
 
-    data_type = 'parquet'
+    data_type = "parquet"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
@@ -18,13 +18,13 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         passing in memory data or via a file path. Options pertaining the
         PARQUET may also be specified using the options dict parameter.
         Possible Options::
-        
+
             options = dict(
                 data_format= type: str, choices: "dataframe", "records", "json"
                 selected_columns= type: list(str)
                 header= type: any
             )
-        
+
         data_format: user selected format in which to return data
         can only be of specified types
         selected_columns: columns being selected from the entire dataset
@@ -75,17 +75,14 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
     def _load_data_from_str(self, data_as_str):
         data_generator = data_utils.data_generator(data_as_str.splitlines())
         data, original_df_dtypes = data_utils.read_json_df(
-            data_generator=data_generator,
-            read_in_string=True
+            data_generator=data_generator, read_in_string=True
         )
         self._original_df_dtypes = original_df_dtypes
         return data
 
     def _load_data_from_file(self, input_file_path):
         data, original_df_dtypes = data_utils.read_parquet_df(
-            input_file_path,
-            self.selected_columns,
-            read_in_string=True
+            input_file_path, self.selected_columns, read_in_string=True
         )
         self._original_df_dtypes = original_df_dtypes
         return data
@@ -99,14 +96,14 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
     def _get_data_as_json(self, data):
         data = data.to_json(orient="records")
         chars_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
-        return list(map(''.join, zip(*[iter(data)] * chars_per_line)))
+        return list(map("".join, zip(*[iter(data)] * chars_per_line)))
 
     @classmethod
     def is_match(cls, file_path, options=None):
         """
         Test the given file to check if the file has valid
         Parquet format or not.
-        
+
         :param file_path: path to the file to be examined
         :type file_path: str
         :param options: parquet read options
@@ -137,7 +134,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         """
         Reload the data class with a new dataset. This erases all existing
         data/options and replaces it with the input data/options.
-        
+
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str
         :param data: data being loaded into the class instead of an input file

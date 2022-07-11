@@ -280,7 +280,7 @@ class TestIntColumn(unittest.TestCase):
             delta = mean_b - mean_a
             m_a = var_a * (count_a - 1)
             m_b = var_b * (count_b - 1)
-            M2 = m_a + m_b + delta ** 2 * count_a * count_b / (count_a + count_b)
+            M2 = m_a + m_b + delta**2 * count_a * count_b / (count_a + count_b)
             return M2 / (count_a + count_b - 1)
 
         data = np.linspace(-5, 5, 11).tolist()
@@ -542,7 +542,11 @@ class TestIntColumn(unittest.TestCase):
                 "bin_counts": np.array([1, 0, 1]),
                 "bin_edges": np.array([2.0, 10.0 / 3.0, 14.0 / 3.0, 6.0]),
             },
-            quantiles={0: 2.002, 1: 4, 2: 5.998,},
+            quantiles={
+                0: 2.002,
+                1: 4,
+                2: 5.998,
+            },
             times=defaultdict(
                 float,
                 {

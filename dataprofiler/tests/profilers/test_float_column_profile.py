@@ -435,7 +435,7 @@ class TestFloatColumn(unittest.TestCase):
             delta = mean_b - mean_a
             m_a = var_a * (count_a - 1)
             m_b = var_b * (count_b - 1)
-            M2 = m_a + m_b + delta ** 2 * count_a * count_b / (count_a + count_b)
+            M2 = m_a + m_b + delta**2 * count_a * count_b / (count_a + count_b)
             return M2 / (count_a + count_b - 1)
 
         data = np.linspace(-5, 5, 11).tolist()
@@ -668,10 +668,10 @@ class TestFloatColumn(unittest.TestCase):
         list_data_test.append([df4, expected_histogram4])
 
         # this data has only one unique value, overflow
-        df5 = pd.Series([-(10.0 ** 20)]).apply(str)
+        df5 = pd.Series([-(10.0**20)]).apply(str)
         expected_histogram5 = {
             "bin_counts": np.array([1]),
-            "bin_edges": np.array([-(10.0 ** 20), -(10.0 ** 20)]),
+            "bin_edges": np.array([-(10.0**20), -(10.0**20)]),
         }
         list_data_test.append([df5, expected_histogram5])
 
@@ -776,7 +776,7 @@ class TestFloatColumn(unittest.TestCase):
         # this data uses large number of bins, which will be set to
         # the max limit
         df2 = pd.Series(
-            [3.195103249264023e18, 9999995.0, 9999999.0, 0.0, -(10 ** 10)]
+            [3.195103249264023e18, 9999995.0, 9999999.0, 0.0, -(10**10)]
         ).apply(str)
         profiler2 = FloatColumn(df2.name)
         profiler2.max_histogram_bin = 50
@@ -1063,7 +1063,11 @@ class TestFloatColumn(unittest.TestCase):
                 "bin_counts": np.array([1, 1, 0, 1]),
                 "bin_edges": np.array([2.5, 5.0, 7.5, 10.0, 12.5]),
             },
-            quantiles={0: 2.5075, 1: 5.005, 2: 12.4925,},
+            quantiles={
+                0: 2.5075,
+                1: 5.005,
+                2: 12.4925,
+            },
             times=defaultdict(
                 float,
                 {

@@ -225,7 +225,11 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             min="03/10/13 15:43",
             max="Mar 11, 2013",
             histogram=None,
-            format=["%Y-%m-%d %H:%M:%S", "%m/%d/%y %H:%M", "%b %d, %Y",],
+            format=[
+                "%Y-%m-%d %H:%M:%S",
+                "%m/%d/%y %H:%M",
+                "%b %d, %Y",
+            ],
             times=defaultdict(float, {"datetime": 1.0}),
         )
         time_array = [float(i) for i in range(4, 0, -1)]

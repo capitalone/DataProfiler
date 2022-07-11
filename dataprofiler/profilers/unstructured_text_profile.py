@@ -622,7 +622,7 @@ class TextProfiler(object):
 
     def report(self, remove_disabled_flag=False):
         """Report on profile attribute of the class and pop value
-            from self.profile if key not in self.__calculations
+        from self.profile if key not in self.__calculations
         """
         calcs_dict_keys = self._TextProfiler__calculations.keys()
         profile = self.profile

@@ -240,7 +240,10 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
 
         # make preprocess and model the same, but different from postprocessor
         data_labeler.set_params(
-            {"model": {"default_label": "a"}, "postprocessor": {"default_label": "b"},}
+            {
+                "model": {"default_label": "a"},
+                "postprocessor": {"default_label": "b"},
+            }
         )
         with self.assertRaisesRegex(
             RuntimeError,

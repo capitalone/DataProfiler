@@ -254,7 +254,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
     def selected_data_type(self):
         """
         Finds the selected data_type in a primitive compiler
-        
+
         :return: name of the selected data type
         :rtype: str
         """
@@ -269,7 +269,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
     def diff(self, other, options=None):
         """
         Finds the difference between 2 compilers and returns the report
-        
+
         :param other: profile compiler finding the difference with this one.
         :type other: ColumnPrimitiveTypeProfileCompiler
         :return: difference of the profiles
@@ -420,7 +420,7 @@ class UnstructuredCompiler(BaseCompiler):
 
     def report(self, remove_disabled_flag=False):
         """Report on profile attribute of the class and pop value
-            from self.profile if key not in self.__calculations
+        from self.profile if key not in self.__calculations
         """
         profile = {"data_label": dict(), "statistics": dict()}
         if UnstructuredLabelerProfile.type in self._profiles:

@@ -4,7 +4,6 @@ from io import BytesIO, StringIO, TextIOWrapper
 
 import networkx as nx
 
-from dataprofiler.data_readers.data_utils import is_stream_buffer
 from dataprofiler.data_readers.graph_data import GraphData
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -16,12 +15,32 @@ class TestGraphDataClass(unittest.TestCase):
     def setUpClass(cls):
         
         test_dir = os.path.join(test_root_path, 'data')
-        cls.input_file_names = [
-            dict(path=os.path.join(test_dir, 'csv/graph-differentiator-input-positive.csv')),
-            dict(path=os.path.join(test_dir, 'csv/graph-differentiator-input-standard-positive.csv')),
-            dict(path=os.path.join(test_dir, 'csv/graph-differentiator-input-negative.csv')),
-            dict(path=os.path.join(test_dir, 'csv/graph-data-input-json.json')),
+        cls.input_file_names_pos = [
+            dict(path=os.path.join(test_dir, 'csv/graph-differentiator-input-positive.csv'), encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/graph-differentiator-input-standard-positive.csv'), encoding='utf-8'),
         ]
+
+        cls.input_file_names_neg = [
+            dict(path=os.path.join(test_dir, 'csv/graph-differentiator-input-negative.csv'), encoding='utf-8'),
+            dict(path=os.path.join(test_dir, 'csv/graph-data-input-json.json'), encoding='utf-8'),
+        ]
+
+        cls.buffer_list = []
+        for input_file in cls.input_file_names_pos:
+            # add StringIO
+            buffer_info = input_file.copy()
+            with open(input_file["path"], "r", encoding=input_file["encoding"]) as fp:
+                buffer_info["path"] = StringIO(fp.read())
+            cls.buffer_list.append(buffer_info)
+
+            # add BytesIO
+            buffer_info = input_file.copy()
+            with open(input_file["path"], "rb") as fp:
+                buffer_info["path"] = BytesIO(fp.read())
+            cls.buffer_list.append(buffer_info)
+
+        cls.file_or_buf_list = cls.input_file_names_pos + cls.buffer_list
+
 
     def test_finding_string_in_column_positive(self):
         '''
@@ -50,7 +69,7 @@ class TestGraphDataClass(unittest.TestCase):
         """
         column_names = ['node_id_dst', 'node_id_src', 'attrib_id', 'attrib_type',\
              'edge_date', 'open_date_src', 'open_date_dst']
-        input_file = self.input_file_names[1]['path']
+        input_file = self.input_file_names_pos[1]['path']
         options = {"header": True, "delimiter": ","}
         self.assertEqual(GraphData.csv_column_names(input_file, options), column_names)
         
@@ -59,26 +78,17 @@ class TestGraphDataClass(unittest.TestCase):
         """
         Determine if the input CSV file can automatically be recognized as being a graph
         """
-        input_file_1 = self.input_file_names[0]['path']
-        input_file_2 = self.input_file_names[1]['path']
-        options_1 = {"header": True, "delimiter": ","}
-        options_2 = {"header": True, "delimiter": ","}
-        self.assertTrue(GraphData.is_match(input_file_1, options_2))
-        self.assertTrue(GraphData.is_match(input_file_1, options_2))
+        for input_file in self.file_or_buf_list:
+            self.assertTrue(GraphData.is_match(input_file["path"]))
 
     # test is_match for false output w/ different options
     def test_is_graph_negative_1(self):
         """
         Determine if the input CSV file can be automatically recognized as not being a graph w/ no options selected
         """
-        input_file = self.input_file_names[1]['path']
-        input_file_1 = self.input_file_names[2]['path']
-        input_file_2 = self.input_file_names[3]['path']
-        options_1 = {"header": False, "delimiter": ","}
-        options = {"header": True, "delimiter": ","}
-        self.assertFalse(GraphData.is_match(input_file_1, options))
-        self.assertFalse(GraphData.is_match(input_file_2, options))   
-        self.assertFalse(GraphData.is_match(input_file, options_1))
+        for input_file in self.input_file_names_neg:
+            self.assertFalse(GraphData.is_match(input_file["path"]))   
+
 
 if __name__ == '__main__':
     unittest.main()

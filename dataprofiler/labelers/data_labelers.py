@@ -6,9 +6,7 @@ import pkg_resources
 from .. import data_readers
 from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler
 
-default_labeler_dir = pkg_resources.resource_filename(
-    'resources', 'labelers'
-)
+default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs=2):
@@ -23,8 +21,9 @@ def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs
     :type epochs: int
     :return:
     """
-    if isinstance(data, data_readers.base_data.BaseData) \
-            and not isinstance(data, data_readers.text_data.TextData):
+    if isinstance(data, data_readers.base_data.BaseData) and not isinstance(
+        data, data_readers.text_data.TextData
+    ):
         data = data.data
     elif isinstance(data, pd.DataFrame):
         pass
@@ -37,59 +36,61 @@ def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs
         if not isinstance(save_dirpath, str):
             raise TypeError("The output dirpath must be a string.")
         elif not os.access(save_dirpath, os.W_OK):
-            raise ValueError(
-                "The `save_dirpath` is not valid or not accessible."
-            )
+            raise ValueError("The `save_dirpath` is not valid or not accessible.")
 
     # prep data
     value_label_df = data.reset_index(drop=True).melt()
     value_label_df.columns = [1, 0]  # labels=1, values=0 in that order
     value_label_df = value_label_df.astype(str)
 
-    data_labeler = DataLabeler(labeler_type='structured', trainable=True)
+    data_labeler = DataLabeler(labeler_type="structured", trainable=True)
     labels = value_label_df[1].unique().tolist()
 
     # set default label to the data labeler pipeline
     if default_label:
-        params = {'default_label': default_label}
+        params = {"default_label": default_label}
         data_labeler.set_params(
-            {'preprocessor': params, 'model': params, 'postprocessor': params})
+            {"preprocessor": params, "model": params, "postprocessor": params}
+        )
 
     data_labeler.fit(
-        x=value_label_df[0], y=value_label_df[1], labels=labels, epochs=epochs)
+        x=value_label_df[0], y=value_label_df[1], labels=labels, epochs=epochs
+    )
     if save_dirpath:
         data_labeler.save_to_disk(save_dirpath)
     return data_labeler
 
 
 class UnstructuredDataLabeler(BaseDataLabeler):
-    _default_model_loc = 'unstructured_model'
+    _default_model_loc = "unstructured_model"
 
 
 class StructuredDataLabeler(BaseDataLabeler):
-    _default_model_loc = 'structured_model'
+    _default_model_loc = "structured_model"
 
 
 class DataLabeler(object):
-    
+
     labeler_classes = dict(
         structured=StructuredDataLabeler,
         unstructured=UnstructuredDataLabeler,
     )
 
-    def __new__(cls, labeler_type, dirpath=None, load_options=None,
-                trainable=False):
+    def __new__(cls, labeler_type, dirpath=None, load_options=None, trainable=False):
 
         data_labeler = cls.labeler_classes.get(labeler_type, None)
         if data_labeler is None:
             raise ValueError(
-                'No DataLabeler class types matched the input, `{}`. '
-                'Allowed types {}.'.format(
-                    labeler_type, list(cls.labeler_classes.keys())))
+                "No DataLabeler class types matched the input, `{}`. "
+                "Allowed types {}.".format(
+                    labeler_type, list(cls.labeler_classes.keys())
+                )
+            )
         if trainable:
             if dirpath is None:
-                dirpath = os.path.join(default_labeler_dir,
-                                       data_labeler._default_model_loc)
+                dirpath = os.path.join(
+                    default_labeler_dir, data_labeler._default_model_loc
+                )
             return TrainableDataLabeler(dirpath, load_options)
         return data_labeler(dirpath, load_options)
 
@@ -129,8 +130,7 @@ class DataLabeler(object):
         return BaseDataLabeler.load_from_disk(dirpath, load_options)
 
     @classmethod
-    def load_with_components(cls, preprocessor, model, postprocessor,
-                             trainable=False):
+    def load_with_components(cls, preprocessor, model, postprocessor, trainable=False):
         """
         Loads the data labeler from a its set  of components.
 
@@ -147,6 +147,6 @@ class DataLabeler(object):
         """
         if trainable:
             return TrainableDataLabeler.load_with_components(
-                preprocessor, model, postprocessor)
-        return BaseDataLabeler.load_with_components(
-            preprocessor, model, postprocessor)
+                preprocessor, model, postprocessor
+            )
+        return BaseDataLabeler.load_with_components(preprocessor, model, postprocessor)

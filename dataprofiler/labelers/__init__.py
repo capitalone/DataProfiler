@@ -29,9 +29,14 @@ Data Labelers:
 # import data labelers
 # import models
 from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler
-from .data_labelers import DataLabeler, StructuredDataLabeler, \
-    UnstructuredDataLabeler
+from .data_labelers import DataLabeler, StructuredDataLabeler, UnstructuredDataLabeler
+
 # import data processors
-from .data_processing import CharPostprocessor, CharPreprocessor, \
-    DirectPassPreprocessor, RegexPostProcessor, StructCharPostprocessor, \
-    StructCharPreprocessor
+from .data_processing import (
+    CharPostprocessor,
+    CharPreprocessor,
+    DirectPassPreprocessor,
+    RegexPostProcessor,
+    StructCharPostprocessor,
+    StructCharPreprocessor,
+)

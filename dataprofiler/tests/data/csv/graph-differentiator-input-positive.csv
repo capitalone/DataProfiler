@@ -1,0 +1,10 @@
+node_id_dst, node_id_src, dst_node, src_node, weight, edge_attribute1, edge_attribute2, edge_attribute3, edge_destination_attribute1
+1,2,0,0,0,0,0,0,0
+2,3,0,0,0,0,0,0,0
+2,4,0,0,0,0,0,0,0
+2,5,0,0,0,0,0,0,0
+2,6,0,0,0,0,0,0,0
+2,7,0,0,0,0,0,0,0
+2,8,0,0,0,0,0,0,0
+2,9,0,0,0,0,0,0,0
+2,10,0,0,0,0,0,0,0

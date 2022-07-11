@@ -14,7 +14,7 @@ class TextData(BaseData):
     TextData class to save and load text files
     """
 
-    data_type = 'text'
+    data_type = "text"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
@@ -22,12 +22,12 @@ class TextData(BaseData):
         passing in memory data or via a file path. Options pertaining the TEXT
         may also be specified using the options dict parameter.
         Possible Options::
-        
+
             options = dict(
                 data_format= type: str, choices: "text"
                 samples_per_line= type: int
             )
-            
+
         data_format: user selected format in which to return data
         can only be of specified types
         samples_per_line: chunks by which to read in the specified dataset
@@ -81,32 +81,32 @@ class TextData(BaseData):
             )
 
     def _get_data_as_text(self, data):
-        if (isinstance(data, list) and len(data)
-                and isinstance(data[0], (str, basestring))):
-            data = ''.join(data)
+        if (
+            isinstance(data, list)
+            and len(data)
+            and isinstance(data[0], (str, basestring))
+        ):
+            data = "".join(data)
         elif not isinstance(data, str) and data:
             raise ValueError(
-                "Data is not in a str or list of str format and cannot be "
-                "converted."
+                "Data is not in a str or list of str format and cannot be " "converted."
             )
 
         samples_per_line = min(max(len(data), 1), self.samples_per_line)
         data = [
-            data[i * samples_per_line:(i + 1) * samples_per_line]
+            data[i * samples_per_line : (i + 1) * samples_per_line]
             for i in range((len(data) + samples_per_line - 1) // samples_per_line)
         ]
         return data
 
     def tokenize(self):
-        raise NotImplementedError(
-            "Tokenizing does not currently exist for text data."
-        )
+        raise NotImplementedError("Tokenizing does not currently exist for text data.")
 
     @classmethod
     def is_match(cls, file_path, options=None):
         """
         All files can be considered text files, hence returns True
-        
+
         :param file_path: path to the file to be examined
         :type file_path: str
         :param options: text file read options
@@ -118,15 +118,15 @@ class TextData(BaseData):
             options = {}
 
         # if user passes options, this will update them for encodings
-        if 'encoding' not in options and not isinstance(file_path, StringIO):
-            options = {'encoding': data_utils.detect_file_encoding(file_path)}
+        if "encoding" not in options and not isinstance(file_path, StringIO):
+            options = {"encoding": data_utils.detect_file_encoding(file_path)}
         return True
 
     def reload(self, input_file_path=None, data=None, options=None):
         """
         Reload the data class with a new dataset. This erases all existing
         data/options and replaces it with the input data/options.
-        
+
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str
         :param data: data being loaded into the class instead of an input file

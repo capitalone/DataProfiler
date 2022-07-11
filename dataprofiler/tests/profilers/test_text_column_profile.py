@@ -25,12 +25,30 @@ class TestTextColumnProfiler(unittest.TestCase):
         :return:
         """
         df1 = pd.Series(
-            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2",]
+            [
+                "abcd",
+                "aa",
+                "abcd",
+                "aa",
+                "b",
+                "4",
+                "3",
+                "2",
+                "dfd",
+                "2",
+            ]
         ).apply(str)
         df2 = pd.Series(
             ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
         ).apply(str)
-        df3 = pd.Series(["NaN", "b", "nan", "c",]).apply(str)
+        df3 = pd.Series(
+            [
+                "NaN",
+                "b",
+                "nan",
+                "c",
+            ]
+        ).apply(str)
 
         text_profiler = TextColumn(df1.name)
         text_profiler.update(df1)
@@ -73,16 +91,36 @@ class TestTextColumnProfiler(unittest.TestCase):
             delta = mean_b - mean_a
             m_a = var_a * (count_a - 1)
             m_b = var_b * (count_b - 1)
-            M2 = m_a + m_b + delta ** 2 * count_a * count_b / (count_a + count_b)
+            M2 = m_a + m_b + delta**2 * count_a * count_b / (count_a + count_b)
             return M2 / (count_a + count_b - 1)
 
         df1 = pd.Series(
-            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2", np.nan,]
+            [
+                "abcd",
+                "aa",
+                "abcd",
+                "aa",
+                "b",
+                "4",
+                "3",
+                "2",
+                "dfd",
+                "2",
+                np.nan,
+            ]
         ).apply(str)
         df2 = pd.Series(
             ["1", "1", "ee", "ff", "ff", "gg", "gg", "abcd", "aa", "b", "ee", "b"]
         ).apply(str)
-        df3 = pd.Series(["NaN", "b", "nan", "c", None,]).apply(str)
+        df3 = pd.Series(
+            [
+                "NaN",
+                "b",
+                "nan",
+                "c",
+                None,
+            ]
+        ).apply(str)
 
         text_profiler = TextColumn(df1.name)
         text_profiler.update(df1)
@@ -135,7 +173,18 @@ class TestTextColumnProfiler(unittest.TestCase):
     def test_data_ratio(self):
         # should always be 1.0 unless empty
         df1 = pd.Series(
-            ["abcd", "aa", "abcd", "aa", "b", "4", "3", "2", "dfd", "2",]
+            [
+                "abcd",
+                "aa",
+                "abcd",
+                "aa",
+                "b",
+                "4",
+                "3",
+                "2",
+                "dfd",
+                "2",
+            ]
         ).apply(str)
 
         profiler = TextColumn(df1.name)

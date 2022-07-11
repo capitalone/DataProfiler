@@ -634,7 +634,9 @@ class TestCharPreprocessor(unittest.TestCase):
 
     def test_process(self):
         preprocessor = CharPreprocessor(
-            max_length=5, default_label="UNKNOWN", pad_label="PAD",
+            max_length=5,
+            default_label="UNKNOWN",
+            pad_label="PAD",
         )
 
         label_mapping = {
@@ -1769,7 +1771,10 @@ class TestPreandPostCharacterProcessorConnection(unittest.TestCase):
         )
         postprocessor = CharPostprocessor(flatten_separator=flatten_separator)
 
-        output_generator = preprocessor.process(test_sentences, batch_size=batch_size,)
+        output_generator = preprocessor.process(
+            test_sentences,
+            batch_size=batch_size,
+        )
 
         # mimic model output as a sentence instead of prediction
         output = [
@@ -1832,7 +1837,9 @@ class TestPreandPostCharacterProcessorConnection(unittest.TestCase):
             list(data[0]) for batch_data in output_generator for data in batch_data
         ]
         output = postprocessor.process(
-            test_sentences, dict(pred=output), label_mapping=dict(test=0),
+            test_sentences,
+            dict(pred=output),
+            label_mapping=dict(test=0),
         )
         reconstructed_test_sentences = [
             "".join(sentence) for sentence in output["pred"]
@@ -2065,7 +2072,9 @@ class TestStructCharPreprocessor(unittest.TestCase):
 
     def test_convert_to_unstructured_format(self):
         preprocessor = StructCharPreprocessor(
-            max_length=10, default_label="UNKNOWN", pad_label="PAD",
+            max_length=10,
+            default_label="UNKNOWN",
+            pad_label="PAD",
         )
 
         # test a single sentence
@@ -2114,7 +2123,9 @@ class TestStructCharPreprocessor(unittest.TestCase):
 
     def test_process(self):
         preprocessor = StructCharPreprocessor(
-            max_length=10, default_label="UNKNOWN", pad_label="PAD",
+            max_length=10,
+            default_label="UNKNOWN",
+            pad_label="PAD",
         )
 
         label_mapping = {

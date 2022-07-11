@@ -1,13 +1,32 @@
 import csv
 
+import networkx as nx
+
 from .base_data import BaseData
 from .csv_data import CSVData
-
 
 class GraphData(BaseData):
         
     def __init__(self, input_file_path=None, data=None, options=None):
-        BaseData.__init__(self, input_file_path, data, options)        
+
+        BaseData.__init__(self, input_file_path, data, options)
+
+        if options is None:
+            options = dict()
+        if options.get("delimiter", None) is None:
+            options.update(delimiter = ",")
+        if options.get("column_names", None) is None:
+            options.update(column_name = self.csv_column_names(self.input_file_path, options))
+        if options.get("source_list", None) is None:
+            options.update(source_list = ['source', 'src', 'origin'])
+        if options.get("destination_list", None) is None:
+            options.update(destination_list = ['target', 'destination', 'dst'])
+        if options.get("source_node", None) is None:
+            options.update(source_node = self._find_target_string_in_column(options.get("column_name", None), options.get("source_list", None)))
+        if options.get("destination_node", None) is None:
+            options.update(destination_node = self._find_target_string_in_column(options.get("column_name", None), options.get("destination_list", None)))
+
+        #return self._load_data()
 
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):
@@ -17,22 +36,25 @@ class GraphData(BaseData):
 
         column_name_symbols = ['_', '.', '-']
         has_target = False
+        target_index = -1
         
         # iterate through columns, keywords, and delimiter name symbols to see if any permutation is contained in column names
-        for column in column_names:
+        for column in range(0, len(column_names)):
             for keyword in keyword_list:
                 for symbol in column_name_symbols:
                     
                     append_start_word = symbol + keyword
                     append_end_word = keyword + symbol
 
-                    if append_start_word in column or append_end_word in column:
+                    if append_start_word in column_names[column] or append_end_word in column_names[column]:
+                        target_index = column
                         has_target = True
                         break
             if has_target:
                 break
         
-        return has_target
+        return target_index
+
 
     @classmethod
     def csv_column_names(cls, file_path, options):
@@ -43,7 +65,7 @@ class GraphData(BaseData):
         column_names = []
 
         with open(file_path) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter = options["delimiter"])
+            csv_reader = csv.reader(csv_file, delimiter = options.get("delimiter", None))
             
             # fetch only column names
             for row in csv_reader:
@@ -58,6 +80,7 @@ class GraphData(BaseData):
 
         return column_names
 
+
     @classmethod
     def is_match(cls, file_path, options):
         '''
@@ -70,21 +93,22 @@ class GraphData(BaseData):
 
         if options is None:
             options = dict()
-
-        if options["header"] is False or CSVData.is_match(file_path, options):
+        if CSVData.is_match(file_path, options):
             return False
-
-        graph = False
-
         column_names = cls.csv_column_names(file_path, options)
-
-        target_keywords = ['target', 'destination', 'dst']
         source_keywords = ['source', 'src', 'origin']
-
-        has_target = cls._find_target_string_in_column(column_names, target_keywords)
-        has_source = cls._find_target_string_in_column(column_names, source_keywords)
+        target_keywords = ['target', 'destination', 'dst']
+        source_index = cls._find_target_string_in_column(column_names, source_keywords)
+        destination_index = cls._find_target_string_in_column(column_names, target_keywords)
+        has_source = True if source_index >= 0 else False
+        has_target = True if destination_index >= 0 else False
 
         if has_target and has_source:
-            graph = True
+            options.update(delimiter = ",")
+            options.update(source_node = source_index)
+            options.update(destination_node = destination_index)
+            options.update(destination_list = target_keywords)
+            options.update(source_list = source_keywords)
+            return True
 
-        return graph
+        return False

@@ -82,7 +82,7 @@ class DataLabelerColumn(BaseColumnProfiler):
     def assert_equal_conditions(data_labeler, data_labeler2):
         """
         Ensures data labelers have the same values. Raises error otherwise.
-        
+
         :param data_labeler: first data_labeler
         :param data_labeler2: second data_labeler
         :type data_labeler: DataLabelerColumn
@@ -134,7 +134,7 @@ class DataLabelerColumn(BaseColumnProfiler):
     def __add__(self, other):
         """
         Merges the properties of two DataLabelerColumn profiles
-        
+
         :param self: first profile
         :param other: second profile
         :type self: DataLabelerColumn
@@ -345,7 +345,7 @@ class DataLabelerColumn(BaseColumnProfiler):
     def _update_helper(self, df_series_clean, profile):
         """
         Updating the column profile properties
-        
+
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
         :param profile: float profile dictionary
@@ -357,7 +357,7 @@ class DataLabelerColumn(BaseColumnProfiler):
     def update(self, df_series):
         """
         Updates the column profile.
-        
+
         :param df_series: df series
         :type df_series: pandas.core.series.Series
         :return: None

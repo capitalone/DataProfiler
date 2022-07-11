@@ -31,7 +31,7 @@ def dict_merge(dct, merge_dct):
     #
     # You should have received a copy of the GNU General Public License
     # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-    """ Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
+    """Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
     updating only top-level keys, dict_merge recurses down into dicts nested
     to an arbitrary depth, updating keys. The ``merge_dct`` is merged into
     ``dct``.
@@ -308,7 +308,7 @@ def biased_skew(df_series):
         return np.nan
 
     diffs = df_series - mean
-    squared_diffs = diffs ** 2
+    squared_diffs = diffs**2
     cubed_diffs = squared_diffs * diffs
     M2 = sum(squared_diffs)
     M3 = sum(cubed_diffs)
@@ -345,7 +345,7 @@ def biased_kurt(df_series):
         return np.nan
 
     diffs = df_series - mean
-    squared_diffs = diffs ** 2
+    squared_diffs = diffs**2
     fourth_diffs = squared_diffs * squared_diffs
     M2 = sum(squared_diffs)
     M4 = sum(fourth_diffs)

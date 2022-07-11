@@ -136,7 +136,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def report(self, remove_disabled_flag=False):
         """Report on profile attribute of the class and pop value
-            from self.profile if key not in self.__calculations
+        from self.profile if key not in self.__calculations
         """
         calcs_dict_keys = self._FloatColumn__calculations.keys()
         profile = self.profile
@@ -233,7 +233,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def _get_float_precision(cls, df_series_clean, sample_ratio=None):
         """
         Determines the precision of the numeric value.
-        
+
         :param df_series_clean: df series with nulls removed, assumes all values
             are floats as well
         :type df_series_clean: pandas.core.series.Series
@@ -364,7 +364,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         Calls the numeric stats update function. This is a wrapper to allow
         for modularity.
-        :param prev_dependent_properties: Contains all the previous properties 
+        :param prev_dependent_properties: Contains all the previous properties
         that the calculations depend on.
         :type prev_dependent_properties: Dict
         :param subset_properties: Contains the results of the properties of the
@@ -372,7 +372,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type subset_properties: Dict
         :param df_series: Data to be profiled
         :type df_series: Pandas Dataframe
-        :return: None 
+        :return: None
         """
         super(FloatColumn, self)._update_helper(df_series, subset_properties)
 

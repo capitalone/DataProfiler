@@ -16,7 +16,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def __init__(self, name, options=None):
         """
         Initialization of column base properties and itself.
-        
+
         :param name: Name of the data
         :type name: String
         :param options: Options for the integer column
@@ -69,7 +69,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def profile(self):
         """
         Property for profile. Returns the profile of the column.
-        
+
         :return:
         """
         return NumericStatsMixin.profile(self)
@@ -78,7 +78,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def data_type_ratio(self):
         """
         Calculates the ratio of samples which match this data type.
-        
+
         :return: ratio of data type
         :rtype: float
         """
@@ -95,7 +95,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         For column [1.0 1.0 1.0] returns True
         For column [1.0 1.0 1.1] returns False
         For column [1.1 1.1 1.1] returns False
-        
+
         :param df_series: series of values to evaluate
         :type df_series: pandas.core.series.Series
         :return: is_int_col
@@ -111,7 +111,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         Method for updating the column profile properties with a cleaned
         dataset and the known null parameters of the dataset.
-        
+
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
         :param profile: int profile dictionary
@@ -125,7 +125,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     def update(self, df_series):
         """
         Updates the column profile.
-        
+
         :param df_series: df series
         :type df_series: pandas.core.series.Series
         :return: None

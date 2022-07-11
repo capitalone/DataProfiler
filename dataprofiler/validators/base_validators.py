@@ -61,9 +61,9 @@ class Validator:
         :type config: dict
 
         :Example:
-        
+
             This is an example of the config::
-            
+
                 config = {
                         <column_name>: {
                                 range: {

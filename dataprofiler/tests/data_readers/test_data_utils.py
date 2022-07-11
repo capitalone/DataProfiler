@@ -53,7 +53,7 @@ class TestDataReadingWriting(unittest.TestCase):
     def test_nth_loc_detection(self):
         """
         Tests the ability for the `data_utils.find_nth_location` to detect the
-        nth index of a search_query in a string. 
+        nth index of a search_query in a string.
         """
         # Input args: string, query, n
         # Expected results: index, occurrences
@@ -122,7 +122,7 @@ class TestDataReadingWriting(unittest.TestCase):
 
     def test_load_as_str_from_file(self):
         """
-        Tests if the load_as_str_file function can appropriately load files 
+        Tests if the load_as_str_file function can appropriately load files
         thresholded by bytes or max lines.
         """
 

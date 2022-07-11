@@ -51,7 +51,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
     def __init__(self, name, options=None):
         """
         Initialization of column base properties and itself.
-        
+
         :param name: Name of the data
         :type name: String
         :param options: Options for the datetime column
@@ -143,7 +143,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
     def data_type_ratio(self):
         """
         Calculates the ratio of samples which match this data type.
-        
+
         :return: ratio of data type
         :rtype: float
         """
@@ -178,7 +178,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
     def _validate_datetime(date, date_format):
         """
         Check to see if a string contains a certain date format
-        
+
         :param date: a string that is possibly a date
         :type date: str
         :param date_format: a date regex that will be checked against date
@@ -214,7 +214,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         """
         For each value in a column determines if it is a datetime and the format
         of the value. Also collects datetime stats for the column.
-        
+
         :param df_series: a given column
         :type df_series: pandas.core.series.Series
         :return: parameters for datetime columns
@@ -313,7 +313,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
     def _is_subset_datetime_column(self, df_series):
         """
         Checks whether a subset of the data could be considered datetime.
-        
+
         :param df_series: df series
         :type df_series: pandas.core.series.Series
         :return: True or False
@@ -389,7 +389,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
     def update(self, df_series):
         """
         Updates the column profile.
-        
+
         :param df_series: df series
         :type df_series: pandas.core.series.Series
         :return: None

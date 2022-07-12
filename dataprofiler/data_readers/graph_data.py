@@ -69,8 +69,6 @@ class GraphData(BaseData):
         self._quotechar = options.get("quotechar", None)
         self._header = options.get("header", 'auto')
 
-        self._data = self._format_data_networkx()
-
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):
         """
@@ -181,3 +179,6 @@ class GraphData(BaseData):
 
         # get NetworkX object from list
         return networkx_graph
+
+    def _load_data(self, data=None):
+        self._data = self._format_data_networkx()

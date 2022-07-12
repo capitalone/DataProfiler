@@ -14,7 +14,7 @@ class GraphData(BaseData):
     GraphData class to identify, read, and load graph data
     """
     data_type = 'graph'
-        
+
     def __init__(self, input_file_path=None, options=None, data=None):
         """
         Data class for identifying, reading, and loading graph data. Current 
@@ -52,21 +52,19 @@ class GraphData(BaseData):
         :return: None
         """
 
+        options = self._check_and_return_options(options)
         BaseData.__init__(self, input_file_path, data, options)
 
         if data is not None:
             raise NotImplementedError("Inputting data is not yet implemented.")
         if input_file_path is None:
             raise ValueError("Please input a file dataset.")
-        if options is None:
-            options = dict()
 
         self._source_node = options.get("source_node", None)
         self._destination_node = options.get("destination_node", None)
         self._target_keywords = options.get("target_keywords", ['target', 'destination', 'dst'])
         self._source_keywords = options.get("source_keywords", ['source', 'src', 'origin'])
         self._column_names = options.get("column_names", self.csv_column_names(self.input_file_path, self.options))
-
         self._delimiter = options.get("delimiter", None)
         self._quotechar = options.get("quotechar", None)
         self._header = options.get("header", 'auto')

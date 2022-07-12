@@ -1,11 +1,9 @@
 import copy
 import json
-import logging
 import os
 import sys
 import time
 from collections import defaultdict
-import functools
 
 import numpy as np
 import tensorflow as tf

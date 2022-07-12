@@ -3,13 +3,10 @@ import copy
 import os
 import sys
 import time
-import logging
 from collections import defaultdict
-import functools
 
 import tensorflow as tf
 import numpy as np
-from sklearn import decomposition
 
 from . import labeler_utils
 from .base_model import BaseModel, BaseTrainableModel

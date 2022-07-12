@@ -13,7 +13,6 @@ class GraphData(BaseData):
     """
     GraphData class to identify, read, and load graph data
     """
-
     data_type = 'graph'
         
     def __init__(self, input_file_path=None, options=None, data=None):
@@ -108,7 +107,6 @@ class GraphData(BaseData):
         fetches a list of column names from the csv file
         """
         column_names = []
-
         with FileOrBufferHandler(file_path) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=options.get("delimiter", ","))
 
@@ -182,7 +180,6 @@ class GraphData(BaseData):
                 elif column is self._source_node or column is self._destination_node:
                     networkx_graph.add_node(csv_as_list[line][column])
             networkx_graph.add_edge(csv_as_list[line][self._destination_node], csv_as_list[line][self._source_node], **attributes)
-
 
         # get NetworkX object from list
         return networkx_graph

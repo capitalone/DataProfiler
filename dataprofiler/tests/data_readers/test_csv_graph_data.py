@@ -125,8 +125,34 @@ class TestGraphDataClass(unittest.TestCase):
         Determine if the input CSV file can be automatically recognized as not being a graph w/ no options selected
         """
         for input_file in self.input_file_names_neg:
-            self.assertFalse(GraphData.is_match(input_file["path"]))
+            self.assertFalse(GraphData.is_match(input_file["path"]))  
+    
+    # test loading data
+    def test_data_loader_nodes(self):
+        """
+        Determine whether the data loader works as expected for nodes
+        """
+        data = GraphData(self.input_file_names_pos[1]['path'], None)
+        list_nodes = ['1','2','3','4']
+        self.assertEqual(list_nodes, sorted(data.nodes))
+
+    def test_data_loader_edges(self):
+        """
+        Determine whether the data loader works as expected for edges
+        """
+        data = GraphData(self.input_file_names_pos[1]['path'], None)
+        all_edges_present = True
+        data_edges = list(data.edges)
+        list_edges = [
+            ('1', '2'),
+            ('3', '1'),
+            ('4', '2')
+        ]
+        for edge in list_edges:
+            if edge not in data_edges:
+                all_edges_present = False
+        self.assertTrue(all_edges_present)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

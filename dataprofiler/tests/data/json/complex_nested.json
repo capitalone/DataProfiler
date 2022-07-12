@@ -1,10 +1,10 @@
-{ 
+{
   "meta": {
     "date": "January",
     "size": "300 Mb",
     "creator": "Frodo"
   },
-  "payload": 
+  "payload":
   {
     "Octopus": [
       {
@@ -46,4 +46,3 @@
     ]
   }
 }
-          

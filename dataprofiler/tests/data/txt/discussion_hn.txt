@@ -1,4 +1,4 @@
-	
+
 l9k 1 hour ago [-]
 
 At this point, though, such a public-relations strategy feels dated. On balance, the celebrity of even the most caricatured CEO (Zuckerberg) appears to be a net positive for his company.
@@ -12,7 +12,7 @@ Only loss is for the Senators not getting the spotlight.
 
 reply
 
-	
+
 ballenf 49 minutes ago [-]
 
 Bloomberg fail to acknowledge their clear bias: no news (Page absent) means fewer clicks. Regardless of whether the strategy is good or bad for Google, a high-profile Page generating lots of sightings and rumors and virtual stalking stories would be much better for the media.
@@ -20,19 +20,19 @@ I think you see this reality generating a lot of the pressure against the "lie l
 
 reply
 
-	
+
 jonathanstrange 29 minutes ago [-]
 
 I'm always amazed about the amount of hatred directed at anyone who is in the public spotlight. There is a whole Internet mob out there, and it doesn't even matter where the fame comes from. If you're prominent in any way it seems that the best option is to seclude yourself and avoid the public. At least that's what I would do, I guess it's a personal preference in the end.
 reply
 
-	
+
 kevin_thibedeau 18 minutes ago [-]
 
 A large segment of the population is wrapped up in consuming celebrity culture. Most of us will never know or meet these people and have little reason to know the particulars of their lives but they are a marketable product due to human nature.
 reply
 
-	
+
 georgiecasey 1 hour ago [-]
 
 i agree, in this time of outrage culture, i don't know why anybody at the centre of any controversy gives it oxygen. anything you say is another story. some would say you need to get your point of view across but i'd say people have made up their mind anyway.
@@ -40,7 +40,7 @@ say nothing and the media and public move on to the next story.
 
 reply
 
-	
+
 CiPHPerCoder 1 hour ago [-]
 
 The point of political discourse is never to change your opponent's mind, it's to sway the undecided people to align with you instead of them.
@@ -48,7 +48,7 @@ That's why it's so adversarial.
 
 reply
 
-	
+
 JumpCrisscross 1 hour ago [-]
 
 > Page staying in the dark only generated this one article
@@ -56,13 +56,13 @@ Eh, it’s going to generate nasty side effects. Google spends a lot on lobbying
 
 reply
 
-	
+
 fullshark 22 minutes ago [-]
 
 When has public attention ever been beneficial for corporate lobbying efforts?
 reply
 
-	
+
 RIMR 1 hour ago [-]
 
 The real loss is Senators no longer trusting Alphabet/Google after this snub.
@@ -70,19 +70,19 @@ You really don't want to turn the government against you.
 
 reply
 
-	
+
 vasilipupkin 59 minutes ago [-]
 
 Please. All that stuff happens behind the scenes anyway
 reply
 
-	
+
 ballenf 24 minutes ago [-]
 
 Half of Congress is the House (and 80% by head count). They kind of enjoy seeing Senators get snubbed, since Senators so often personify the stereotype of arrogance.
 reply
 
-	
+
 ThomPete 22 minutes ago [-]
 
 This is why I more or less stopped reading or watching the news. If something is important I will find out. If I want to understand the world better I will either read a book about a given subject, ask someone who knows something, explore it on my own or debate it with someone who holds the opposite view of me.
@@ -96,7 +96,7 @@ Each to their own of course but that's why I stopped following the news cycles. 
 
 reply
 
-	
+
 nostrademons 9 minutes ago [-]
 
 I'd wondered about this when I heard Google wasn't sending any of their top brass. In my experience, it's very out of character for Google's top leadership to not predict when people are going to be pissed off about a decision. And it was stupendously easy to tell that Congress would be pissed off by this decision - when I mentioned the news to my wife she was like "You can do that? Just stand up Congress?"
@@ -106,7 +106,7 @@ Lest we start panicking, I don't think that this necessarily means we're all goi
 
 reply
 
-	
+
 Zelphyr 2 hours ago [-]
 
 It's kind-of Congress' own fault here. They so often have these... events, that are mostly for show and for the politicians to grandstand making them seem tough to voters but really have very little substance. I doubt any meaningful policy ever comes of them. Doesn't everybody know by now that they're grilling these CEO's in front of the cameras and begging them for money behind the cameras?
@@ -114,7 +114,7 @@ It's kind-of Congress' own fault here. They so often have these... events, that 
 
 reply
 
-	
+
 wybiral 1 hour ago [-]
 
 The Senate Intelligence Committee hearings are usually pretty facts-first unlike the other random hearings and sessions. I watch them on C-SPAN whenever they happen (which isn't that frequent).
@@ -122,7 +122,7 @@ Edit: I strongly recommend watching these directly from C-SPAN rather than the s
 
 reply
 
-	
+
 puzzle 1 hour ago [-]
 
 The SSCI might be less of a circus show than e.g. House committees, but you still hear preposterous things from them. Look at this interview:
@@ -136,25 +136,25 @@ And this is from a Democrat who has more latitude to do his real job on the comm
 
 reply
 
-	
+
 wybiral 59 minutes ago [-]
 
 You're citing a Wired interview with one member of the committee which isn't the same thing as a real committee hearing.
 reply
 
-	
+
 puzzle 46 minutes ago [-]
 
 I used to be a Googler, years ago. That's how I know how ridiculous the outrage and the downplaying of Walker are. I'm glad I can talk now without being accused of defending my employer. I brought up Warner because he's one of the most persistent voices, yet he wanted to bring up China, which is not about election interference.
 reply
 
-	
+
 Retric 1 hour ago [-]
 
 On C-SPAN those jabs don't seem like much, but they are mostly what's included on regular news coverage. Making them the main point of the exercise.
 reply
 
-	
+
 wybiral 1 hour ago [-]
 
 The main point of the "exercise" is to discuss the issues and a few politicians hijack a few minutes of time to make political jabs for the media.
@@ -162,7 +162,7 @@ The rest of it is still important. They're asking questions and forming their pe
 
 reply
 
-	
+
 Retric 1 hour ago [-]
 
 If they simply want fact finding they could do that over a phone call.* The circus is very much the point.
@@ -170,7 +170,7 @@ If they simply want fact finding they could do that over a phone call.* The circ
 
 reply
 
-	
+
 wybiral 1 hour ago [-]
 
 In this case it isn't a "circus". Watch these hearings, they aren't as sensational as you seem to think [1].
@@ -182,7 +182,7 @@ PS: If our politicians did all of these behind closed doors and on private phone
 
 reply
 
-	
+
 joshuamorton 1 hour ago [-]
 
 There kavanaugh hearing wasn't a circus either (ignoring the protestors), but it's still just a tool to generate soundbites.
@@ -190,7 +190,7 @@ A closed door hearing is for fact finding, public ones are for proselytizing.
 
 reply
 
-	
+
 wybiral 53 minutes ago [-]
 
 Or... It's done in public to keep the public informed as to what issues they're looking at and help us follow along because transparency is a useful component in democracy?
@@ -200,7 +200,7 @@ Full disclosure, you're a Googler.
 
 reply
 
-	
+
 joshuamorton 45 minutes ago [-]
 
 Your first paragraph would be spot on if there were only a tiny amount of grandstanding.
@@ -208,13 +208,13 @@ The majority of questions at every hearing I've seen have been politically biase
 
 reply
 
-	
+
 wybiral 25 minutes ago [-]
 
 Which Intelligence Committee hearings are you talking about? I linked to a recent one in a grandparent post that has almost no grandstanding as far as I'm concerned and for the IC that's usually how it is. I can't speak for the larger committees with more media attention.
 reply
 
-	
+
 joshuamorton 18 minutes ago [-]
 
 Let me put it this way: if you want to have a real productive discussion on data privacy, you want the head lawyer who, despite Senate grandstanding, probably does make legal decisions for the company.
@@ -223,12 +223,12 @@ You don't want the guy who thinks that google, probably uses version control sof
 The ic didn't want a decision maker, they wanted a heel.
 
 
-	
+
 wybiral 1 minute ago [-]
 
 Let me put it this way: when the entire point is to educate the public about ongoing attacks and to show that these companies are taking all of this seriously... Snubbing our Intelligence Committee because Page didn't prioritize it highly enough seems, to me, to be the least helpful thing your employer could have done.
 
-	
+
 RIMR 1 hour ago [-]
 
 We live in a Democracy. These fact finding exercises must occur in view of the public.
@@ -236,7 +236,7 @@ C-SPAN covers this stuff verbatim, with zero spin. This stuff is very important 
 
 reply
 
-	
+
 RIMR 1 hour ago [-]
 
 The point of the exercise was never to make the news, it's about governing.
@@ -244,7 +244,7 @@ The news just doesn't like reporting on the boring stuff.
 
 reply
 
-	
+
 dibstern 1 hour ago [-]
 
 Completely disagree. I don’t know how you could say that. Business leaders have to answer for their companies actions, and senate hearings is one way we have of them doing that. And as wybiral said, it was a Senate Intelligence Committee hearing.
@@ -252,7 +252,7 @@ Maybe I’m jaded, but your response reminds me of those from Theranos employees
 
 reply
 
-	
+
 Zelphyr 1 hour ago [-]
 
 I agree that business leaders have to answer for their actions. But that is clearly not what is happening at these inquiries. The CEO of Equifax was called to one when they had their major security breach last year. What came of that? Can we all honestly say, a year later, that he answered for his company's actions? Nothing of consequence happened to him, very little if anything of consequence happened to his company, and as far as I know only minor changes happened to their industry.
@@ -262,7 +262,7 @@ But, sadly, none of that is going to happen and we all know it. Because you don'
 
 reply
 
-	
+
 tssva 3 minutes ago [-]
 
 Why should he be facing jail time? He was invited to attend and didn't. Declining an invitation isn't a crime.
@@ -274,7 +274,7 @@ After all the hearing were just for show. The real questions they wanted answere
 
 reply
 
-	
+
 pdonis 1 hour ago [-]
 
 > these inquiries should have WAY harsher consequences than they have
@@ -282,7 +282,7 @@ As another commenter posted, we have a judicial system for that. We have separat
 
 reply
 
-	
+
 ams6110 1 hour ago [-]
 
 "Business leaders have to answer for their companies actions"
@@ -290,25 +290,25 @@ We have a law enforcement and judicial system for that. Most Senators don't know
 
 reply
 
-	
+
 wybiral 1 hour ago [-]
 
 The Intelligence Committee is more "with it" when it comes to technology and information warfare than the senate pool at large.
 reply
 
-	
+
 lr 1 hour ago [-]
 
 Who do you think passes the laws that are then (supposedly) enforced by law enforcement and the judicial system?
 reply
 
-	
+
 Retric 1 hour ago [-]
 
 In practice, Lobbyists write these laws. Passage or non-passage is less important than content.
 reply
 
-	
+
 RIMR 1 hour ago [-]
 
 Politicians are the ones that introduce these laws, and these companies answer to the people, not just to lobbyists.
@@ -316,7 +316,7 @@ You seem pretty consistently dismissive of the democratic process in this thread
 
 reply
 
-	
+
 mbesto 20 minutes ago [-]
 
 > Politicians are the ones that introduce these laws
@@ -326,7 +326,7 @@ It's the equivalent of engaging a Partner at a big 4 consultancy. They show up f
 
 reply
 
-	
+
 Retric 32 minutes ago [-]
 
 I am not saying these things are pointless, just that the value is different than what you're suggesting.
@@ -334,19 +334,19 @@ Sound bytes are an important part of the democratic process. Politions need to d
 
 reply
 
-	
+
 agoodthrowaway 2 hours ago [-]
 
 From a PR point of view Google has handled this whole privacy debacle very well. By keeping a very low profile on privacy, they’ve made sure Facebook takes the heat. Facebook’s horrendous management of the issue has also allowed Google to slide under the radar on the topic. Generally I think Page is doing the right thing by keeping a low public profile.
 reply
 
-	
+
 godzillabrennus 1 hour ago [-]
 
 Google didn’t play as fast and loose with sharing data as Facebook did. That helps.
 reply
 
-	
+
 dspillett 1 hour ago [-]
 
 The sales pitches to partners were quite different, from what I can see.
@@ -366,7 +366,7 @@ How did it go on like that for so long? There were four sets of entities involve
 
 reply
 
-	
+
 duxup 1 hour ago [-]
 
 That we know of so far.
@@ -374,25 +374,25 @@ Maybe they didn't, but it's not like we know exactly what Google is doing with d
 
 reply
 
-	
+
 kungtotte 1 hour ago [-]
 
 They never got caught doing it. That doesn't mean they never have.
 reply
 
-	
+
 chooseaname 1 hour ago [-]
 
 Google wasn't ambiguous at all about how they manage location data.
 reply
 
-	
+
 dibstern 1 hour ago [-]
 
 Not showing up here was the opposite of keeping a low profile though.
 reply
 
-	
+
 ballenf 30 minutes ago [-]
 
 It's really not, because showing up at such a high-profile event makes it nearly impossible to return to obscurity. There are too many legitimate follow up issues that are impossible to ignore. Especially if something comes out later that is even a tiny bit in conflict with the testimony.
@@ -400,19 +400,19 @@ If this were chess, Page sacrificed a pawn for critical board control/position. 
 
 reply
 
-	
+
 jiveturkey 1 hour ago [-]
 
 nailed it
 reply
 
-	
+
 GW150914 1 hour ago [-]
 
 Even if you don’t like what Google does vis a vis privacy (and I don’t) I think you’d have to completely agree with your assessment. Public congressional hearings are almost always political circuses, and you’re not going to “win” one of them. Congress needs to legislate the issue of privacy (something like GDPR would be nice) not do a piece of meaningless and self-serving theater.
 reply
 
-	
+
 JumpCrisscross 1 hour ago [-]
 
 > Facebook’s horrendous management of the issue
@@ -420,7 +420,7 @@ Part of that "horrendous management" involved sending surrogates to apologize in
 
 reply
 
-	
+
 dibstern 1 hour ago [-]
 
 I don’t understand people on here complaining about the Senate demanding that the leaders of a business answer for its actions. Sending your lawyer or an underling is (1) a show of disrespect, (2) it shows you’re not taking responsibility for your company, and (3) when the person answering the questions isn’t really in charge, they can’t answer properly and they can’t commit their companies to behaving differently.
@@ -428,13 +428,13 @@ People just seem propagandistically pro-Google on here. You’re mostly pretty d
 
 reply
 
-	
+
 y-c-o-m-b 1 hour ago [-]
 
 I don't think it's pro-Google, I think it has to do with the fact that these hearings are made up of a gang of angry old people with God complex that not only do not understand technology, but don't really have a desire to understand it nor the desire to really change anything. I don't blame Google one bit for not wanting to waste time and be ridiculed by these clowns.
 reply
 
-	
+
 atomical 0 minutes ago [-]
 
 What you wrote could easily be applied to Google.
@@ -442,7 +442,7 @@ https://www.realclearpolitics.com/video/2018/09/13/breitbart...
 
 reply
 
-	
+
 skybrian 59 minutes ago [-]
 
 Treating everyone except the CEO, including seasoned executives who are much more competent at answering trick legal questions, as "some underling" is itself petty political posturing.
@@ -450,13 +450,13 @@ Also, making commitments in the middle of a high-stress congressional hearing wi
 
 reply
 
-	
+
 dctoedt 1 hour ago [-]
 
 See Zelphyr's comment just below yours (for the moment) at https://news.ycombinator.com/item?id=17978894
 reply
 
-	
+
 throwaway5752 51 minutes ago [-]
 
 Google offered to send someone to the hearing, but the Senate didn't feel they were high ranking enough, so they didn't let the person fill the seat and let it remain "empty" even though Google offered.
@@ -464,13 +464,13 @@ Disgraceful grandstanding by Warner.
 
 reply
 
-	
+
 forgot-my-pw 47 minutes ago [-]
 
 Can't blame him for not going. They tried to crucify Mark Zuckerberg on live broadcast last time.
 reply
 
-	
+
 lisper 1 hour ago [-]
 
 One thing this article completely neglects to mention: Larry has vocal chord paralysis and so has difficulty speaking.
@@ -482,7 +482,7 @@ This could have something to do with why he's reluctant to do a lot of public sp
 
 reply
 
-	
+
 Arubis 11 minutes ago [-]
 
 While it's true (sibling comments) that this is indeed mentioned in the article, it's well into the body, about two-thirds down. This strikes me as extremely relevant information: Page acts "as if [he] had only so many words left to speak." (ftfa)
@@ -490,7 +490,7 @@ Why would he waste his breath, if it's actually limited? The mistake here wasn't
 
 reply
 
-	
+
 Sgt_Apone 1 hour ago [-]
 
 It mentions that several times.
@@ -498,25 +498,25 @@ It mentions that several times.
 
 reply
 
-	
+
 jakobegger 1 hour ago [-]
 
 This is mentioned multiple times in the article.
 reply
 
-	
+
 chosenbreed 2 hours ago [-]
 
 I might be missing something here but my thinking is that Google Inc/Alphabet is bigger than Larry Page. If for whatever reason he was not able to attend he could have sent a representative chosen from among the senior executives. It seems that neither his attendance nor Google's participation in the whole thing was not mandatory
 reply
 
-	
+
 sidibe 2 hours ago [-]
 
 They offered their legal guy who is also one of the main leaders at Google and is probably the right person to talk about this but Congress refused. They want figureheads.
 reply
 
-	
+
 theDoug 2 hours ago [-]
 
 This is correct, they rejected anyone but top officials.
@@ -526,7 +526,7 @@ https://www.law.com/2018/09/04/after-senate-intelligence-com...
 
 reply
 
-	
+
 deusofnull 2 hours ago [-]
 
 Of course they only wanted the senior flesh.
@@ -538,7 +538,7 @@ The Dems were looking to further the Russia election manipulation spectacle, and
 
 reply
 
-	
+
 DFHippie 1 hour ago [-]
 
 To be fair to Congress, their job is really to shape events in the public interest. Considering these hearings to be pure fact-finding is a category error. If they browbeat a celebrity, this shapes events in multiple ways: it affects fundraising, it affects the behavior of the individual browbeaten and those in this individual's orbit, it affects the public narrative, and if affects actions at the voting booth. And that is only the beginning. It is an extremely complicated game with numerous players and feedback loops. You can call it "grandstanding", as though it's purposeless and ineffectual, but obviously it isn't, and really this is their job. They want to speak to certain people because they calculate that this will give them leverage to shape events in a certain way.
@@ -546,7 +546,7 @@ This is how the sausage is made.
 
 reply
 
-	
+
 deusofnull 1 hour ago [-]
 
 Certainly. One name for that for that entire phenomenon you're describing the functioning of is 'The Spectacle'.
@@ -558,13 +558,13 @@ Guy Debord’s The Society of the Spectacle (Paris, 1967). http://www.bopsecrets
 
 reply
 
-	
+
 RIMR 1 hour ago [-]
 
 Hey, at least one of you in this thread is disclosing your employment with Google as you criticize the Government for demanding answers from your employer's top executives on matters of Foreign actors threatening our Democracy.
 reply
 
-	
+
 dragonwriter 17 minutes ago [-]
 
 > They want figureheads.
@@ -574,19 +574,19 @@ By not doing so, they are, in fact, saying they don't consider the testimony of 
 
 reply
 
-	
+
 wjp3 2 hours ago [-]
 
 Which should tell folks what kind of hearing this was.
 reply
 
-	
+
 oihoaihsfoiahsf 2 hours ago [-]
 
 No need to guess. You can look at the treatment Jack and Sheryl received. A bunch of ignorant, annoyed blowhards basically talked at them for a few hours, accomplishing nothing and expanding the pool of useful knowledge exactly zero.
 reply
 
-	
+
 chooseaname 1 hour ago [-]
 
 > A bunch of ignorant, annoyed blowhards...
@@ -594,19 +594,19 @@ The very ones that the citizens _voted_ for.
 
 reply
 
-	
+
 oihoaihsfoiahsf 1 hour ago [-]
 
 The citizens might be idiots, or the human social system might be so broken such that no matter who you vote for they are game-theoretically forced to behave this way. Whatever the case may be, I don't blame Page for declining to inflict that experience on himself.
 reply
 
-	
+
 close04 2 hours ago [-]
 
 It makes sense to get the person at the top. They are ultimately responsible/accountable for things. They are well prepared in advance so why not go for them?
 reply
 
-	
+
 mcny 1 hour ago [-]
 
 > It makes sense to get the person at the top. They are ultimately responsible/accountable for things. They are well prepared in advance so why not go for them?
@@ -622,7 +622,7 @@ Previously on HN: https://news.ycombinator.com/item?id=12696494
 
 reply
 
-	
+
 adventured 47 minutes ago [-]
 
 > Did anything change at Wells Fargo?
@@ -640,13 +640,13 @@ https://www.cnbc.com/2016/09/27/wells-fargo-ceo-stumpf-to-fo...
 
 reply
 
-	
+
 tptacek 21 minutes ago [-]
 
 That's not how it works. When they called Wells Fargo to testify, they didn't allow them to send a risk or compliance officer; they subpoena'd Tim Sloan, the CEO of the bank.
 reply
 
-	
+
 394549 1 hour ago [-]
 
 > They offered their legal guy who is also one of the main leaders at Google and is probably the right person to talk about this but Congress refused. They want figureheads.
@@ -654,7 +654,7 @@ Why is this a problem? The CEO is the public face of the company. If Congress wa
 
 reply
 
-	
+
 dragonwriter 7 minutes ago [-]
 
 > Why is this a problem?
@@ -668,7 +668,7 @@ And if people learned to recognize these signals of unseriousness, then unseriou
 
 reply
 
-	
+
 joering2 56 minutes ago [-]
 
 That and also they learnt their lesson: first Facebook hearings were very frustrating when all they heard was: “I dont know answer to this questio, and I will ask Mr. Zickerberg [when I see him next time] and will let you know [when in reality I will never see you again because if FB is ever invited again we will send another top exec]”.
@@ -676,13 +676,13 @@ I for once appload congressmen/women for not falling for this sinple trick again
 
 reply
 
-	
+
 chosenbreed 10 minutes ago [-]
 
 Okay...so they didn't fall that trick...but I get the impression that all they want is the opportunity to grill the top executive. The best that can happen is that said executive will apologize, prostrate, etc and the show goes on...
 reply
 
-	
+
 dragonwriter 1 minute ago [-]
 
 > but I get the impression that all they want is the opportunity to grill the top executive
@@ -697,7 +697,7 @@ What they want is, in order of preference:
 If they were interested in substance, they would accept the firm sending the most appropriate person to address the actual issue, and if they felt the offered person wasn't the right person, they'd issue subpoenas to compel the testimony of the people who are really needed. But substantive answers aren't what the hearing is about.
 
 
-	
+
 wjoe 2 hours ago [-]
 
 Agreed. It feels like this is two separate stories really.
@@ -711,7 +711,7 @@ Edit: Seems that Google did offer to send a senior legal executive, and the sena
 
 reply
 
-	
+
 gnode 1 hour ago [-]
 
 > Seems that Google did offer to send a senior legal executive, and the senate refused them.
@@ -719,7 +719,7 @@ This just goes to show how much of a charade these hearings are.
 
 reply
 
-	
+
 394549 1 hour ago [-]
 
 > This just goes to show how much of a charade these hearings are.
@@ -729,7 +729,7 @@ It's not a charade to want to question the one guy in the company who unquestion
 
 reply
 
-	
+
 tensor 32 minutes ago [-]
 
 They are looking for information, they should question the person who can answer those the best. They are not compelling the company to make any decisions/changes and if they were it would be through legal action anyways, not talking to a CEO.
@@ -737,25 +737,25 @@ This is pure grandstanding for the purpose of public spectacle. Good on Page for
 
 reply
 
-	
+
 theossuary 2 hours ago [-]
 
 I'd refuse to attend any meeting where the sole reason for my presence was for others to play politics. It's like the senators are wheeling out their prized horses for others to gawk at. It's ridiculous.
 reply
 
-	
+
 skummetmaelk 2 hours ago [-]
 
 According to the article they did offer to send someone else. Presumable the senate was not satisfied with anyone other than the top guy.
 reply
 
-	
+
 notsofastbuddy 2 hours ago [-]
 
 They did seem to find Sandberg acceptable.
 reply
 
-	
+
 dahdum 1 hour ago [-]
 
 Sandberg is COO, on the board, and with Facebook for over 10 years. She's most definitely top level.
@@ -763,7 +763,7 @@ Google offered Walker, who was just promoted to the position back in July, and h
 
 reply
 
-	
+
 kyrra 1 hour ago [-]
 
 Kent Walker has been at Google since 2006, has testified before the Senate Intelligence Committee before[0], and just knows a lot about Google.
@@ -771,13 +771,13 @@ Kent Walker has been at Google since 2006, has testified before the Senate Intel
 
 reply
 
-	
+
 dahdum 58 minutes ago [-]
 
 Yes, but only promoted recently, and has more of an advisory role than a leadership one. Certainly a talented guy, but not comparable to Sandberg or Dorsey.
 reply
 
-	
+
 puzzle 27 minutes ago [-]
 
 You have no idea. Whether it's about GDPR, the Google Books lawsuit, surveillance reform, relationships with China or whatever else the policy issue of the day might be, Kent Walker was involved. He's not a leader? He has hundreds of people under him. Your "only promoted recently" makes it sound like he's a small potato. He's been around for a long time. When Google wasn't even born, at Netscape he gave JWZ the bad news about Microsoft and bad-attitude in the antitrust lawsuit (https://www.jwz.org/gruntle/rbarip.html).
@@ -785,13 +785,13 @@ Source: I used to work at Google. I would have asked Kent a policy question well
 
 reply
 
-	
+
 nostrademons 22 minutes ago [-]
 
 Kent Walker had a leadership role back when I was hired at Google, which was nearly a decade ago. Titles don't necessarily mean all that much - he's been handling high-level legal issues (including dealing with governments) for over a decade.
 reply
 
-	
+
 ocdtrekkie 49 minutes ago [-]
 
 They would've accepted either Sundar Pichai, or I believe even Eric Schmidt, who is now just a "technical advisor" but was the former CEO of Google, and former executive chairman of both Google and Alphabet, would've been acceptable as well.
@@ -801,7 +801,7 @@ Anyone can look up Kent's numerous writings on Google's Public Policy blog, the 
 
 reply
 
-	
+
 gok 1 hour ago [-]
 
 > The vision was to stretch this tube system, arced hundreds of feet in the air, from a ground-level entry point on Google’s Mountain View campus to an exit 35 miles north, in San Francisco, so Google’s rainbow-colored beach cruisers might one day be seen flying over U.S. Highway 101. Yes, it sounds like a Hyperloop for bikes.
@@ -809,13 +809,13 @@ And you're telling me this ran into problems!?
 
 reply
 
-	
+
 dzdt 2 hours ago [-]
 
 I would feel much better about being a google user if they were standing up strongly for the original "do no evil" ethos. Where is Page indeed? It really seems like the ethical stance has faded away.
 reply
 
-	
+
 maxxxxx 2 hours ago [-]
 
 Idealism goes away once a company has reached a certain size and has to reach for big growth like Google. They all have to turn into big faceless corporations.
@@ -823,7 +823,7 @@ That's why we shouldn't celebrate things like trillion dollar companies or the r
 
 reply
 
-	
+
 puzzle 2 hours ago [-]
 
 Or maybe this is largely a manufactured issue. Alphabet sent Walker, but the committee didn't allow him to sit down. Between him and Salgado, the experts that Page and Pichai defer to, I don't think there's anyone better qualified to talk about these issues, because they deal with them all the time. If you want to have a meaningful conversation, that is. The problem is that the hearing was mostly an excuse for the senators to posture and to go on off topic rants about pet peeves. It's a media event, not a venue to get anything of substance done. Page has little tolerance for such BS.
@@ -831,7 +831,7 @@ While the senators' whining was to be expected, because it largely called their 
 
 reply
 
-	
+
 alexgmcm 2 hours ago [-]
 
 Big companies are just successful small companies.
@@ -839,7 +839,7 @@ IBM, Bell Labs etc. did far more innovation than any Mom and Pop shop.
 
 reply
 
-	
+
 gnodar 2 hours ago [-]
 
 > Big companies are just successful small companies.
@@ -847,13 +847,13 @@ That would imply either that big companies all started as small companies which 
 
 reply
 
-	
+
 PascLeRasc 2 hours ago [-]
 
 Successful at what? "Mom and Pop" shops are totally different and provide for their small communities in ways no big company ever could. Individuals like Alexandra Elbakyan, Bram Moolenaar, and Guido van Rossum have done great things on their own without the help of corporations.
 reply
 
-	
+
 justaguyhere 1 hour ago [-]
 
 I'm no fan of big companies, but I feel we need both big and small companies. Mom and Pop shops can never tackle huge infrastructure projects or projects that require intense capital (space etc).
@@ -863,7 +863,7 @@ I wish we had more cooperatives...
 
 reply
 
-	
+
 gnode 1 hour ago [-]
 
 I don't think this is not so much a property of the big company than it is of the public company. The only thing which generally unites public investors is a desire to see a positive return on their investment, typically with a high aversion to risk.
@@ -871,13 +871,13 @@ I would argue there is something to be celebrated about the "richest man in the 
 
 reply
 
-	
+
 tmalsburg2 2 hours ago [-]
 
 I always felt that "don't be evil" is a shallow and effectively vacuous feel-good slogan because they never spelled out what it means for them not to be evil, which I think is a completely non-trivial question.
 reply
 
-	
+
 DoreenMichele 2 hours ago [-]
 
 I always felt it was a bit like that old saw about not knowing how to define porn, but "I know when I see it." I took it as the broadest possible encouragement to Do The Right Thing as you see fit instead of spending a lot of time second-guessing what corporate would think.
@@ -885,19 +885,19 @@ I always felt it was a bit like that old saw about not knowing how to define por
 
 reply
 
-	
+
 narrator 2 hours ago [-]
 
 Google is the biggest media company in the world and with that comes political power and political pressure. Larry and Sergey are probably really sick of that problem and just want to make everyone putting pressure on them happy enough so they can focus on the tech stuff. Part of that strategy is keeping a low profile even though it is impossible in their position.
 reply
 
-	
+
 cycrutchfield 2 hours ago [-]
 
 It was never “do no evil”. It was “don’t be evil”. There is a rather important semantic difference. Regardless, that ethical stance still exists and informs decisions.
 reply
 
-	
+
 standon 2 hours ago [-]
 
 They removed the ~"do no evil"~ " Don't be evil" from the preface of Google corporate code of conduct April 2018.
@@ -905,7 +905,7 @@ They have "don't be evil" in a last sentence: "And remember… don't be evil, an
 
 reply
 
-	
+
 mdwrigh2 2 hours ago [-]
 
 It was always "don't be evil" [1]
@@ -913,7 +913,7 @@ It was always "don't be evil" [1]
 
 reply
 
-	
+
 m_st 2 hours ago [-]
 
 Disclosure: I didn't fully read the article as it's rather dull... "404 - Page not found", doesn't Bloomberg have more niveau than that?
@@ -921,7 +921,7 @@ It's known that Page has problems with his vocal chords. So I wouldn't be astoni
 
 reply
 
-	
+
 ocdtrekkie 2 hours ago [-]
 
 I could totally understand that in a vacuum, but Google also chose not to send Sundar Pichai, Google's current CEO, whose vocal chords work just fine. Which sends a much stronger message that Google just doesn't want to talk to Congress.
@@ -929,13 +929,13 @@ My personal impression of Page and Brin's near silence of late is that they have
 
 reply
 
-	
+
 thrav 2 hours ago [-]
 
 Benioff is in the process of doing the same. None of these people have any desire to run Ops for a giant corporation. They want to focus on the stuff they like. For Page, it’s the tech. For Benioff, it’s the philanthropy, social responsibility, equality, political stuff.
 reply
 
-	
+
 Jerry2 45 minutes ago [-]
 
 Larry Page probably didn't attend the Senate hearings because he knew that this video was going to get leaked:
@@ -945,49 +945,49 @@ He would have been grilled for hours over it.
 
 reply
 
-	
+
 eutropia 32 minutes ago [-]
 
 At the risk of sounding partisan, why should I trust a breitbart dot com link?
 reply
 
-	
+
 Jerry2 11 minutes ago [-]
 
 You shouldn't. It's an internal Google video. So unless you're a conspiracy theorist who think it was faked, it should be eye opening.
 reply
 
-	
+
 ibejoeb 32 minutes ago [-]
 
 That video is amazing. Certainly doesn't hurt Damore's suit.
 reply
 
-	
+
 pwaivers 2 hours ago [-]
 
 It is interesting that Larry Page stays out of the spotlight so much. Everyone knows who Mark Zuckerberg is, but many probably couldn't tell you who the CEO of Google/Alphabet is.
 reply
 
-	
+
 dec0dedab0de 2 hours ago [-]
 
 I think part of that is our collective fascination of young self made *illionaires, as well as the more personal interactions a user has with Facebook vs Google. Heck, I bet more people are aware of Tom from Myspace, than they are of Larry Page or Sergey Brin.
 reply
 
-	
+
 meowface 2 hours ago [-]
 
 Larry Page made his first million by 25. I can't find info about when Sergey Brin made his first million, but probably not far off from that. They definitely count as young self-made millionaires.
 reply
 
-	
+
 nostrademons 19 minutes ago [-]
 
 Same time - they have equal shares in Google. "First million" probably refers to Google's first angel investment, which set a valuation on the company of maybe $10M and valued each founder's shares at probably $3-4M (I'm guessing on valuation, but this would be typical for an angel investment of $700K for a company this far along. Possibly a bit higher).
 reply
 
-	
+
 chiefalchemist 2 hours ago [-]
 
 But could we not flip that around? That is, Zuck goes for the limelight (why?) while his peers do not?
@@ -997,31 +997,31 @@ Prehaps, sometimes, it's also the media who makes or breaks public perceptions?
 
 reply
 
-	
+
 creaghpatr 2 hours ago [-]
 
 Facebook got "The Social Network", Google got..."The Internship"?
 reply
 
-	
+
 wolco 2 hours ago [-]
 
 How many twitter movies have been made? The facebook movie pushed his platform higher.
 reply
 
-	
+
 rileyphone 2 hours ago [-]
 
 It doesn't hurt that the Zuck was the focus of a popular film.
 reply
 
-	
+
 Taylor_OD 2 hours ago [-]
 
 I mention this on a somewhat regular basis. Most people know nothing about Sundar while they will bring up Zuck all the time. It's odd how different the two organizations operate at the top.
 reply
 
-	
+
 wolco 2 hours ago [-]
 
 Sundar isn't a founder and most will forget his name when he moves on if they ever knew.
@@ -1029,25 +1029,25 @@ Tim Cook is more well known but will never reach Steve.
 
 reply
 
-	
+
 martythemaniak 2 hours ago [-]
 
 I think everyone knows "The Google Guys" without knowing either of them.
 reply
 
-	
+
 mediterrenean 2 hours ago [-]
 
 I like him giving the the middle finger. Why does he have to satisfy a bunch of egomaniac corrupt politician who has been net negative for the society. Why we have to watch in awe of their complete disconnect from current affairs of the society due to their total ignorance?
 reply
 
-	
+
 maxxxxx 2 hours ago [-]
 
 You could say the same about any CEO of a large company. They are also egomaniacs who are disconnected from current affairs of society.
 reply
 
-	
+
 kowdermeister 2 hours ago [-]
 
 I agree, questions like: "Mr Page, have your organization used computer software to track citizen's activities?" would lead nowhere.
@@ -1055,7 +1055,7 @@ https://www.youtube.com/watch?v=stXgn2iZAAY
 
 reply
 
-	
+
 abraham_lincoln 2 hours ago [-]
 
 Right?
@@ -1067,13 +1067,13 @@ Don't worry about college or healthcare costs when Twitter users are being 'unfa
 
 reply
 
-	
+
 supercanuck 2 hours ago [-]
 
 because those egomaniac, corrupt politician are elected, representatives of people living in and participating in a democratic republic. They of all people should be able to question citizens of this country.
 reply
 
-	
+
 394549 1 hour ago [-]
 
 >I like him giving the the middle finger. Why does he have to satisfy a bunch of egomaniac corrupt politician who has been net negative for the society. Why we have to watch in awe of their complete disconnect from current affairs of the society due to their total ignorance?
@@ -1081,7 +1081,7 @@ So, what's your opinion of democracy? It doesn't seem like you care for it that 
 
 reply
 
-	
+
 mrhappyunhappy 2 hours ago [-]
 
 "Hey Larry, wanna head down to the Senate hearing so a bunch of morons can grill you about stuff they don't understand?"
@@ -1089,19 +1089,19 @@ Nope.
 
 reply
 
-	
+
 toomuchtodo 2 hours ago [-]
 
 Because as a voter and citizen, I want my politicians keeping Google and other tech companies in check, and regulate them if necessary.
 reply
 
-	
+
 mrhappyunhappy 2 hours ago [-]
 
 Are you sure they are your politicians and have any of your interests in mind?
 reply
 
-	
+
 toomuchtodo 2 hours ago [-]
 
 They're closer to my interests then those running large tech companies.
@@ -1109,7 +1109,7 @@ I care about my privacy more than free Facebook and Gmail, and continue to evang
 
 reply
 
-	
+
 kawsper 2 hours ago [-]
 
 > “What I didn’t see in the last year was a strong central voice about how [Google’s] going to operate on these issues that are societal and less technical,”
@@ -1117,7 +1117,7 @@ That's not careful phrasing when talking about a man with paralysed vocal chords
 
 reply
 
-	
+
 paulsutter 32 minutes ago [-]
 
 Long before the hearing Google said they would send Kent Walker to answer questions. He was not allowed to attend the hearing, in order to create the stunt of an empty chair.
@@ -1125,13 +1125,13 @@ Bloomberg I’m disappointed.
 
 reply
 
-	
+
 CodeSheikh 1 hour ago [-]
 
 It is interesting they had "GOOGLE" printed on the reserved seat. Where in reality Sundar Pichai is the ceo of Google and Larry Page is the ceo of Alphabet. So the Senate committee was actually expecting Mr. Pichai and Bloomberg got it wrong.
 reply
 
-	
+
 394549 1 hour ago [-]
 
 > It is interesting they had "GOOGLE" printed on the reserved seat. Where in reality Sundar Pichai is the ceo of Google and Larry Page is the ceo of Alphabet. So the Senate committee was actually expecting Mr. Pichai and Bloomberg got it wrong.
@@ -1139,13 +1139,13 @@ But only technically. Google is Alphabet and Alphabet is Google, just like Black
 
 reply
 
-	
+
 m3kw9 1 hour ago [-]
 
 Didn't know he was missing till now. Maybe he is just doing some heads down work and letter another person take media duties.
 reply
 
-	
+
 kyledrake 1 hour ago [-]
 
 > Alphabet said in a statement that it had offered its head of global affairs for the hearing and that “enabling Larry to focus on the other bets and long-term technical problems is exactly what Alphabet was set up for.”
@@ -1153,7 +1153,7 @@ So basically they had offered someone of authority here, but the politicians wan
 
 reply
 
-	
+
 wybiral 1 hour ago [-]
 
 In the domain of information warfare and propaganda campaigns public awareness and attention is a large part of the counter strategy. So even if it were just to attract eyeballs to the issue that doesn't mean it was a "show trial".
@@ -1161,7 +1161,7 @@ If you watch these Intelligence Committee hearings I think you'll find them to b
 
 reply
 
-	
+
 kyledrake 10 minutes ago [-]
 
 Then they should have invited the actual experts on the topic at these companies. Google, again, says they offered someone to speak and were told it could only be Page. What if they told Facebook it could only be Mark and not Sheryl?
@@ -1169,19 +1169,19 @@ Either way, if they actually wanted the CEO of Google, that happens to be Sundar
 
 reply
 
-	
+
 theandrewbailey 1 hour ago [-]
 
 At this rate, I can see Mr. Page being the rich (evil?) guy from the movies that no one ever sees or has heard from in decades, and everyone is scared of. He will pull up in a limousine, slip you a piece of paper (with bad news on it) out of a crack in the window, and drive off again.
 reply
 
-	
+
 stevehawk 1 hour ago [-]
 
 In all seriousness he probably didn't show because he was offended they'd make him. He has been a large proponent of perfect data preventing crime and maintaining society and is very cooperative with the IC.
 reply
 
-	
+
 908087 35 minutes ago [-]
 
 > According to one Larry loyalist, Page’s privacy, besides being a personal preference, is also a carefully considered company strategy.
@@ -1189,7 +1189,7 @@ That's gold, given the fact that his company has set out to completely destroy t
 
 reply
 
-	
+
 snaky 2 hours ago [-]
 
 TLDR
@@ -1199,16 +1199,16 @@ TLDR
 
 reply
 
-	
+
 mrhappyunhappy 2 hours ago [-]
 
 I don't know, if I were a billionaire with a private island in the Caribbean, had paralyzed vocal cords and knew damn well what would happen at the hearing (see Zuckerberg), I'd also agree with my colleagues that showing up would do no good and that staying on the sidelines would be the best course of action. Why indulge a bunch of bloodthirsty politicians when you can do pretty much anything else please like working on things you love. Bonus: stock won't tank if you slip up and say the wrong word.
 reply
 
-	
+
 chasd00 2 hours ago [+2]
 
-	
+
 warent 2 hours ago [-]
 
 I wonder if he's been diagnosed with something that could potentially be terminal if it goes uncured (e.g. aggressive cancer) and he's trying to keep it a secret so that Alphabet's stock price isn't severely damaged
@@ -1216,25 +1216,25 @@ EDIT I'm not sure why this is receiving so many downvotes. Is it that unlikely? 
 
 reply
 
-	
+
 _jal 2 hours ago [-]
 
 Or maybe he's on a secret spy mission to another planet!
 reply
 
-	
+
 IncRnd 2 hours ago [-]
 
 Well, the FBI just closed down the NM solar observatory for Page to communicate with aliens.
 reply
 
-	
+
 chiefalchemist 2 hours ago [-]
 
 To your point, a few weeks ago someone pointed out to me that Rupert Murdoch hadn't been seen in public in a very long time. There were - still are? - theories that he was very ill or perhaps dead and it was being kept secret for the sake of the stock price and awaiting sale / deal.
 reply
 
-	
+
 *
 
 -3 points by citilife 2 hours ago [-]

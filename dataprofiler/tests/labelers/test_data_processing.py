@@ -11,6 +11,7 @@ import pkg_resources
 
 from dataprofiler.labelers.data_processing import (
     BaseDataProcessor,
+    CharEncodedPreprocessor,
     CharPostprocessor,
     CharPreprocessor,
     DirectPassPreprocessor,
@@ -18,7 +19,6 @@ from dataprofiler.labelers.data_processing import (
     StructCharPostprocessor,
     StructCharPreprocessor,
     StructRegexPostProcessor,
-    CharEncodedPreprocessor,
 )
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

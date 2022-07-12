@@ -132,7 +132,10 @@ class TestGraphDataClass(unittest.TestCase):
         """
         Determine whether the data loader works as expected for nodes
         """
-        data = GraphData(self.input_file_names_pos[1]['path'], None)
+        options = dict()
+        if not GraphData.is_match(self.input_file_names_pos[1]['path'], options):
+            return
+        data = GraphData(self.input_file_names_pos[1]['path'], options)
         list_nodes = ['1','2','3','4']
         self.assertEqual(list_nodes, sorted(data.nodes))
 
@@ -140,7 +143,10 @@ class TestGraphDataClass(unittest.TestCase):
         """
         Determine whether the data loader works as expected for edges
         """
-        data = GraphData(self.input_file_names_pos[1]['path'], None)
+        options = dict()
+        if not GraphData.is_match(self.input_file_names_pos[1]['path'], options):
+            return
+        data = GraphData(self.input_file_names_pos[1]['path'], options)
         all_edges_present = True
         data_edges = list(data.edges)
         list_edges = [

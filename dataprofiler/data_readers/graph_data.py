@@ -76,17 +76,7 @@ class GraphData(BaseData):
         self._quotechar = options.get("quotechar", None)
         self._header = options.get("header", "auto")
 
-        self._source_node = options.get("source_node", None)
-        self._destination_node = options.get("destination_node", None)
-        self._target_keywords = options.get("target_keywords", ['target', 'destination', 'dst'])
-        self._source_keywords = options.get("source_keywords", ['source', 'src', 'origin'])
-        self._column_names = options.get("column_names", self.csv_column_names(self.input_file_path, self.options))
-
-        self._delimiter = options.get("delimiter", None)
-        self._quotechar = options.get("quotechar", None)
-        self._header = options.get("header", 'auto')
-
-        self._data = self._format_data_networkx()
+        self._data = self._load_data()
 
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):
@@ -194,9 +184,6 @@ class GraphData(BaseData):
         csv_as_list = data_as_pd.values.tolist()
 
         # grab list of edges from source/dest nodes
-        list_edges = []
-        list_nodes = set()
-
         for line in range(0, len(csv_as_list)):
             # fetch attributes in columns
             attributes = dict()

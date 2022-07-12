@@ -2,7 +2,6 @@ from __future__ import print_function
 from cgi import test
 
 import os
-import profile
 import unittest
 
 import networkx as nx

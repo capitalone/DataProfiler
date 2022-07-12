@@ -76,8 +76,17 @@ class GraphData(BaseData):
         self._quotechar = options.get("quotechar", None)
         self._header = options.get("header", "auto")
 
-        return self._load_data()
+        self._source_node = options.get("source_node", None)
+        self._destination_node = options.get("destination_node", None)
+        self._target_keywords = options.get("target_keywords", ['target', 'destination', 'dst'])
+        self._source_keywords = options.get("source_keywords", ['source', 'src', 'origin'])
+        self._column_names = options.get("column_names", self.csv_column_names(self.input_file_path, self.options))
 
+        self._delimiter = options.get("delimiter", None)
+        self._quotechar = options.get("quotechar", None)
+        self._header = options.get("header", 'auto')
+
+        self._data = self._format_data_networkx()
 
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):

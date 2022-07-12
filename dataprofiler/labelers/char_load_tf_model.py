@@ -162,12 +162,14 @@ class CharLoadTFModel(BaseTrainableModel,
             self._reconstruct_model()
 
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
+        model_parameters = self._parameters.copy()
+        model_parameters.pop("model_path")
         with open(model_param_dirpath, 'w') as fp:
-            json.dump(self._parameters, fp)
+            json.dump(model_parameters, fp)
         labels_dirpath = os.path.join(dirpath, "label_mapping.json")
         with open(labels_dirpath, 'w') as fp:
             json.dump(self.label_mapping, fp)
-        self._model.save(os.path.join(dirpath))
+        self._model.save(dirpath)
 
     @classmethod
     def load_from_disk(cls, dirpath):
@@ -194,12 +196,12 @@ class CharLoadTFModel(BaseTrainableModel,
             "F1Score": labeler_utils.F1Score(
                 num_classes=max(label_mapping.values()) + 1,
                 average='micro'),
-            "CharacterLevelCnnModel": cls,
+            "CharLoadTFModel": cls,
         }
         with tf.keras.utils.custom_object_scope(custom_objects):
             tf_model = tf.keras.models.load_model(dirpath)
 
-        loaded_model = cls(label_mapping, parameters)
+        loaded_model = cls(dirpath, label_mapping, parameters)
         loaded_model._model = tf_model
 
         # load self
@@ -448,8 +450,7 @@ class CharLoadTFModel(BaseTrainableModel,
         :rtype: dict
         """
         if not self._model:
-            raise ValueError("You are trying to predict without a model. "
-                             "Construct/Load a model before predicting.")
+            self._construct_model()
         elif self._need_to_reconstruct_model():
             raise RuntimeError("The model label mapping definitions have been "
                                "altered without additional training. Please "
@@ -468,7 +469,6 @@ class CharLoadTFModel(BaseTrainableModel,
 
             # Count number of samples in batch to prevent array mismatch
             num_samples_in_batch = len(batch_data)
-            allocation_index = batch_id * batch_size
 
             # Double array size
             if len(predictions) <= allocation_index:
@@ -483,7 +483,7 @@ class CharLoadTFModel(BaseTrainableModel,
             allocation_index += num_samples_in_batch
 
         # Convert predictions, confidences to lists from numpy
-        predictions = [predictions[i].tolist() for i in range(0, allocation_index)]
+        predictions = [predictions[i].tolist() for i in range(allocation_index)]
         confidences_list = None
         if show_confidences:
             confidences = [confidences[i].tolist()
@@ -498,6 +498,9 @@ class CharLoadTFModel(BaseTrainableModel,
         Prints the relevant details of the model (summary, parameters, label
         mapping)
         """
+        if not self._model:
+            self._construct_model()
+
         print("\n###### Model Details ######\n")
         self._model.summary()
         print("\nModel Parameters:")

@@ -294,8 +294,8 @@ class TestTFFunctions(unittest.TestCase):
 
     def test_hide_tf_logger_warnings(self):
         logger = logging.getLogger('tensorflow')
-        self.assertListEqual([], logger.filters)
+        num_loggers = len(logger.filters)
 
         # make change and validate updated filter
         labeler_utils.hide_tf_logger_warnings()
-        self.assertEqual(1, len(logger.filters))
+        self.assertEqual(1 + num_loggers, len(logger.filters))

@@ -32,11 +32,14 @@ mock_label_mapping = {
 def mock_tf_model(*args, **kwargs):
     model = tf.keras.models.Sequential()
     model.add(tf.keras.layers.Input(shape=(None,), dtype=tf.int64))
-    model.add(tf.keras.layers.Embedding(
-        input_dim=100,
-        output_dim=30,
-        embeddings_initializer="normal",
-        trainable=True))
+    model.add(
+        tf.keras.layers.Embedding(
+            input_dim=100,
+            output_dim=30,
+            embeddings_initializer="normal",
+            trainable=True,
+        )
+    )
     model.add(tf.keras.layers.Dense(units=10, activation="relu"))
     model.add(tf.keras.layers.Dense(10, activation="softmax"))
     return model
@@ -56,7 +59,7 @@ def setup_save_mock_open(mock_open):
     return mock_file
 
 
-@mock.patch('tensorflow.keras.models.load_model', side_effect=mock_tf_model)
+@mock.patch("tensorflow.keras.models.load_model", side_effect=mock_tf_model)
 class TestCharLoadTFModel(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -121,7 +124,7 @@ class TestCharLoadTFModel(unittest.TestCase):
         ]
 
         self.assertDictEqual(self.label_mapping, model.label_mapping)
-        self.assertEqual(self.model_path, model._parameters['model_path'])
+        self.assertEqual(self.model_path, model._parameters["model_path"])
         self.assertListEqual(expected_labels, model.labels)
 
     def test_reverse_label_mapping(self, *mocks):
@@ -151,8 +154,7 @@ class TestCharLoadTFModel(unittest.TestCase):
         }
 
         self.assertDictEqual(
-            expected_reverse_label_mapping,
-            model.reverse_label_mapping
+            expected_reverse_label_mapping, model.reverse_label_mapping
         )
 
     def test_set_label_mapping(self, *mocks):
@@ -219,15 +221,12 @@ class TestCharLoadTFModel(unittest.TestCase):
         data_gen = [np.array([[1, 3], [1, 2]])]
         result = model.predict(data_gen)
         self.assertIn("pred", result)
-        self.assertEqual((2, 2), np.array(result['pred']).shape)
+        self.assertEqual((2, 2), np.array(result["pred"]).shape)
 
         result = model.predict(data_gen, show_confidences=True)
         self.assertIn("pred", result)
         self.assertIn("conf", result)
-        self.assertEqual(
-            (2, 2, model.num_labels),
-            np.array(result['conf']).shape
-        )
+        self.assertEqual((2, 2, model.num_labels), np.array(result["conf"]).shape)
 
     def test_fit_and_predict(self, *mocks):
         # model
@@ -260,7 +259,7 @@ class TestCharLoadTFModel(unittest.TestCase):
             "TEST": 1,
             "NEW": 2,
             "MAPPING": 3,
-            model._parameters['default_label']: 4,
+            model._parameters["default_label"]: 4,
         }
         data_gen = [
             [
@@ -304,9 +303,7 @@ class TestCharLoadTFModel(unittest.TestCase):
             "fake_extra_param": "fails",
         }
         model = CharLoadTFModel(
-            self.model_path,
-            label_mapping=self.label_mapping,
-            parameters=parameters
+            self.model_path, label_mapping=self.label_mapping, parameters=parameters
         )
         model._construct_model()
         self.assertDictEqual(parameters, model._parameters)
@@ -314,7 +311,7 @@ class TestCharLoadTFModel(unittest.TestCase):
             CharLoadTFModel(
                 self.model_path,
                 label_mapping=self.label_mapping,
-                parameters=invalid_parameters
+                parameters=invalid_parameters,
             )
 
     @mock.patch("sys.stdout", new_callable=StringIO)

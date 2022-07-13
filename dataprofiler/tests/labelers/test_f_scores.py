@@ -22,7 +22,7 @@ import unittest
 import numpy as np
 import tensorflow as tf
 
-from dataprofiler.labelers.character_level_cnn_model import F1Score, FBetaScore
+from dataprofiler.labelers.labeler_utils import F1Score, FBetaScore
 
 
 class TestFScore(unittest.TestCase):

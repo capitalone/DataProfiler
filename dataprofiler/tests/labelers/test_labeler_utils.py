@@ -1,6 +1,6 @@
+import logging
 import unittest
 from unittest import mock
-import logging
 
 import numpy as np
 import pandas as pd
@@ -272,28 +272,27 @@ class TestEvaluateAccuracy(unittest.TestCase):
 
 
 class TestTFFunctions(unittest.TestCase):
-
     def test_get_tf_layer_index_from_name(self):
         model = tf.keras.Sequential()
-        model.add(tf.keras.Input((1, 2), name='input'))
-        model.add(tf.keras.layers.Dense(units=4, name='dense0'))
-        model.add(tf.keras.layers.Dense(units=3, name='dense1'))
+        model.add(tf.keras.Input((1, 2), name="input"))
+        model.add(tf.keras.layers.Dense(units=4, name="dense0"))
+        model.add(tf.keras.layers.Dense(units=3, name="dense1"))
 
-        ind = labeler_utils.get_tf_layer_index_from_name(model, 'not a layer')
+        ind = labeler_utils.get_tf_layer_index_from_name(model, "not a layer")
         self.assertIsNone(ind)
 
         # input is not counted in the layer
-        ind = labeler_utils.get_tf_layer_index_from_name(model, 'input')
+        ind = labeler_utils.get_tf_layer_index_from_name(model, "input")
         self.assertIsNone(ind)
 
-        ind = labeler_utils.get_tf_layer_index_from_name(model, 'dense1')
+        ind = labeler_utils.get_tf_layer_index_from_name(model, "dense1")
         self.assertEqual(1, ind)
 
-        ind = labeler_utils.get_tf_layer_index_from_name(model, 'dense0')
+        ind = labeler_utils.get_tf_layer_index_from_name(model, "dense0")
         self.assertEqual(0, ind)
 
     def test_hide_tf_logger_warnings(self):
-        logger = logging.getLogger('tensorflow')
+        logger = logging.getLogger("tensorflow")
         num_loggers = len(logger.filters)
 
         # make change and validate updated filter

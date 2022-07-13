@@ -11,6 +11,6 @@ from .text_column_profile import TextColumn
 from .unstructured_labeler_profile import UnstructuredLabelerProfile
 
 """
-The purpose of this package is to provide statistics and predictions for a 
+The purpose of this package is to provide statistics and predictions for a
 given dataset.
 """

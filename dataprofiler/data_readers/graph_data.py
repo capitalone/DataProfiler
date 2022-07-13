@@ -103,20 +103,19 @@ class GraphData(BaseData):
         fetches a list of column names from the csv file
         """
         column_names = []
+        if options.get("header") is None:
+                return column_names
+        
         with FileOrBufferHandler(file_path) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=options.get("delimiter", ","))
 
-            # skip comments
-            if options.get("header") is None:
-                return column_names
-            else:
-                # fetch only column names
-                row_count = 0
-                for row in csv_reader:
-                    if row_count is options.get("header"):
-                        column_names.append(row)
-                        break
-                    row_count+=1
+            # fetch only column names
+            row_count = 0
+            for row in csv_reader:
+                if row_count is options.get("header"):
+                    column_names.append(row)
+                    break
+                row_count+=1
         column_names = column_names[0]
 
         # replace all whitespaces in the column names

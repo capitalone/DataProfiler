@@ -1,3 +1,5 @@
+Author: John Doe
+Date: 3/22/2022
 node_id_dst,node_id_src,attrib_id,attrib_type,edge_date,open_date_src,open_date_dst
 1,2,0,0,0,0,0
 2,3,0,0,0,0,0

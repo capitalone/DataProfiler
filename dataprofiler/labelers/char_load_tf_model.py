@@ -1,17 +1,16 @@
-import json
 import copy
+import json
 import os
 import sys
 import time
 from collections import defaultdict
 
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
 
-from . import labeler_utils
-from .base_model import BaseModel, BaseTrainableModel
-from .base_model import AutoSubRegistrationMeta
 from .. import dp_logging
+from . import labeler_utils
+from .base_model import AutoSubRegistrationMeta, BaseModel, BaseTrainableModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,14 +18,12 @@ logger = dp_logging.get_child_logger(__name__)
 labeler_utils.hide_tf_logger_warnings()
 
 
-class CharLoadTFModel(BaseTrainableModel,
-                      metaclass=AutoSubRegistrationMeta):
+class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     # boolean if the label mapping requires the mapping for index 0 reserved
     requires_zero_mapping = False
 
-    def __init__(self, model_path, label_mapping=None,
-                 parameters=None):
+    def __init__(self, model_path, label_mapping=None, parameters=None):
         """
         Loadable TF Model Initializer.
 
@@ -45,9 +42,9 @@ class CharLoadTFModel(BaseTrainableModel,
         # parameter initialization
         if not parameters:
             parameters = {}
-        parameters.setdefault('default_label', "UNKNOWN")
-        parameters['model_path'] = model_path
-        parameters['pad_label'] = 'PAD'
+        parameters.setdefault("default_label", "UNKNOWN")
+        parameters["model_path"] = model_path
+        parameters["pad_label"] = "PAD"
         self._epoch_id = 0
 
         # reconstruct flags for model
@@ -68,8 +65,10 @@ class CharLoadTFModel(BaseTrainableModel,
         :return: Whether or not self and other are equal
         :rtype: bool
         """
-        if self._parameters != other._parameters \
-                or self._label_mapping != other._label_mapping:
+        if (
+            self._parameters != other._parameters
+            or self._label_mapping != other._label_mapping
+        ):
             return False
         return True
 
@@ -92,12 +91,11 @@ class CharLoadTFModel(BaseTrainableModel,
         :return: None
         """
         errors = []
-        list_of_necessary_params = ['model_path', 'default_label',
-                                    'pad_label']
+        list_of_necessary_params = ["model_path", "default_label", "pad_label"]
 
         # Make sure the necessary parameters are present and valid.
         for param in parameters:
-            if param in ['default_label', 'model_path', 'pad_label']:
+            if param in ["default_label", "model_path", "pad_label"]:
                 if not isinstance(parameters[param], str):
                     error = str(param) + " must be a string."
                     errors.append(error)
@@ -107,7 +105,7 @@ class CharLoadTFModel(BaseTrainableModel,
             if param not in list_of_necessary_params:
                 errors.append(param + " is not an accepted parameter.")
         if errors:
-            raise ValueError('\n'.join(errors))
+            raise ValueError("\n".join(errors))
 
     def set_label_mapping(self, label_mapping):
         """
@@ -118,22 +116,24 @@ class CharLoadTFModel(BaseTrainableModel,
         :return: None
         """
         if not isinstance(label_mapping, (list, dict)):
-            raise TypeError("Labels must either be a non-empty encoding dict "
-                            "which maps labels to index encodings or a list.")
+            raise TypeError(
+                "Labels must either be a non-empty encoding dict "
+                "which maps labels to index encodings or a list."
+            )
 
         label_mapping = copy.deepcopy(label_mapping)
-        if 'PAD' not in label_mapping:
+        if "PAD" not in label_mapping:
             if isinstance(label_mapping, list):  # if list missing PAD
-                label_mapping = ['PAD'] + label_mapping
+                label_mapping = ["PAD"] + label_mapping
             elif 0 not in label_mapping.values():  # if dict missing PAD and 0
-                label_mapping.update({'PAD': 0})
+                label_mapping.update({"PAD": 0})
             else:
-                label_mapping.update(
-                    {'PAD': max(list(label_mapping.values())) + 1})
-        if self._parameters['default_label'] not in label_mapping:
-            raise ValueError("The `default_label` of {} must exist in the "
-                             "label mapping.".format(
-                                self._parameters['default_label']))
+                label_mapping.update({"PAD": max(list(label_mapping.values())) + 1})
+        if self._parameters["default_label"] not in label_mapping:
+            raise ValueError(
+                "The `default_label` of {} must exist in the "
+                "label mapping.".format(self._parameters["default_label"])
+            )
         super().set_label_mapping(label_mapping)
 
     def _need_to_reconstruct_model(self):
@@ -144,9 +144,11 @@ class CharLoadTFModel(BaseTrainableModel,
         """
         if not self._model:
             return False
-        default_ind = self.label_mapping[self._parameters['default_label']]
-        return self.num_labels != self._model_num_labels or \
-            default_ind != self._model_default_ind
+        default_ind = self.label_mapping[self._parameters["default_label"]]
+        return (
+            self.num_labels != self._model_num_labels
+            or default_ind != self._model_default_ind
+        )
 
     def save_to_disk(self, dirpath):
         """
@@ -164,10 +166,10 @@ class CharLoadTFModel(BaseTrainableModel,
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
         model_parameters = self._parameters.copy()
         model_parameters.pop("model_path")
-        with open(model_param_dirpath, 'w') as fp:
+        with open(model_param_dirpath, "w") as fp:
             json.dump(model_parameters, fp)
         labels_dirpath = os.path.join(dirpath, "label_mapping.json")
-        with open(labels_dirpath, 'w') as fp:
+        with open(labels_dirpath, "w") as fp:
             json.dump(self.label_mapping, fp)
         self._model.save(dirpath)
 
@@ -183,19 +185,19 @@ class CharLoadTFModel(BaseTrainableModel,
 
         # load parameters
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
-        with open(model_param_dirpath, 'r') as fp:
+        with open(model_param_dirpath, "r") as fp:
             parameters = json.load(fp)
 
         # load label_mapping
         labels_dirpath = os.path.join(dirpath, "label_mapping.json")
-        with open(labels_dirpath, 'r') as fp:
+        with open(labels_dirpath, "r") as fp:
             label_mapping = json.load(fp)
 
         # use f1 score metric
         custom_objects = {
             "F1Score": labeler_utils.F1Score(
-                num_classes=max(label_mapping.values()) + 1,
-                average='micro'),
+                num_classes=max(label_mapping.values()) + 1, average="micro"
+            ),
             "CharLoadTFModel": cls,
         }
         with tf.keras.utils.custom_object_scope(custom_objects):
@@ -207,7 +209,7 @@ class CharLoadTFModel(BaseTrainableModel,
         # load self
         loaded_model._model_num_labels = loaded_model.num_labels
         loaded_model._model_default_ind = loaded_model.label_mapping[
-            loaded_model._parameters['default_label']
+            loaded_model._parameters["default_label"]
         ]
         return loaded_model
 
@@ -219,37 +221,38 @@ class CharLoadTFModel(BaseTrainableModel,
         :return: None
         """
         num_labels = self.num_labels
-        default_ind = self.label_mapping[self._parameters['default_label']]
-        model_loc = self._parameters['model_path']
+        default_ind = self.label_mapping[self._parameters["default_label"]]
+        model_loc = self._parameters["model_path"]
 
         self._model = tf.keras.models.load_model(model_loc)
-        softmax_output_layer_name = self._model.outputs[0].name.split('/')[0]
+        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
         softmax_layer_ind = labeler_utils.get_tf_layer_index_from_name(
-            self._model, softmax_output_layer_name)
+            self._model, softmax_output_layer_name
+        )
         softmax_layer = self._model.get_layer(softmax_output_layer_name)
         prev_softmax_layer = softmax_layer.input
 
         new_softmax_layer = softmax_layer.output
         if softmax_layer.weights[0].shape[-1] != num_labels:
             new_softmax_layer = tf.keras.layers.Dense(
-                num_labels, activation='softmax', name="softmax_output")(
-                self._model.layers[softmax_layer_ind - 1].output)
+                num_labels, activation="softmax", name="softmax_output"
+            )(self._model.layers[softmax_layer_ind - 1].output)
 
         # Output the model into a .pb file for TensorFlow
         argmax_layer = tf.keras.backend.argmax(new_softmax_layer)
-
 
         argmax_outputs = [new_softmax_layer, argmax_layer]
         self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
 
         # Compile the model w/ metrics
-        softmax_output_layer_name = self._model.outputs[0].name.split('/')[0]
+        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(
-            num_classes=num_labels, average='micro')
-        metrics = {softmax_output_layer_name: ['acc', f1_score_training]}
+            num_classes=num_labels, average="micro"
+        )
+        metrics = {softmax_output_layer_name: ["acc", f1_score_training]}
 
         self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
 
@@ -277,7 +280,7 @@ class CharLoadTFModel(BaseTrainableModel,
         tf.keras.backend.clear_session()
 
         num_labels = self.num_labels
-        default_ind = self.label_mapping[self._parameters['default_label']]
+        default_ind = self.label_mapping[self._parameters["default_label"]]
 
         # Remove the 2 output layers ('softmax', 'tf_op_layer_ArgMax')
         for _ in range(2):
@@ -285,24 +288,24 @@ class CharLoadTFModel(BaseTrainableModel,
 
         # Add the final Softmax layer to the previous spot
         final_softmax_layer = tf.keras.layers.Dense(
-            num_labels, activation='softmax', name="softmax_output")(
-            self._model.layers[-4].output)
+            num_labels, activation="softmax", name="softmax_output"
+        )(self._model.layers[-4].output)
 
         # Output the model into a .pb file for TensorFlow
         argmax_layer = tf.keras.backend.argmax(final_softmax_layer)
-
 
         argmax_outputs = [final_softmax_layer, argmax_layer]
         self._model = tf.keras.Model(self._model.inputs, argmax_outputs)
 
         # Compile the model
-        softmax_output_layer_name = self._model.outputs[0].name.split('/')[0]
+        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
         losses = {softmax_output_layer_name: "categorical_crossentropy"}
 
         # use f1 score metric
         f1_score_training = labeler_utils.F1Score(
-            num_classes=num_labels, average='micro')
-        metrics = {softmax_output_layer_name: ['acc', f1_score_training]}
+            num_classes=num_labels, average="micro"
+        )
+        metrics = {softmax_output_layer_name: ["acc", f1_score_training]}
 
         self._model.compile(loss=losses, optimizer="adam", metrics=metrics)
 
@@ -310,8 +313,15 @@ class CharLoadTFModel(BaseTrainableModel,
         self._model_num_labels = num_labels
         self._model_default_ind = default_ind
 
-    def fit(self, train_data, val_data=None, batch_size=32, label_mapping=None,
-            reset_weights=False, verbose=True):
+    def fit(
+        self,
+        train_data,
+        val_data=None,
+        batch_size=32,
+        label_mapping=None,
+        reset_weights=False,
+        verbose=True,
+    ):
         """
         Train the current model with the training data and validation data
 
@@ -347,19 +357,20 @@ class CharLoadTFModel(BaseTrainableModel,
         f1_report = []
 
         self._model.reset_metrics()
-        softmax_output_layer_name = self._model.outputs[0].name.split('/')[0]
+        softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
 
         start_time = time.time()
         batch_id = 0
         for x_train, y_train in train_data:
             model_results = self._model.train_on_batch(
-                x_train, {softmax_output_layer_name: y_train})
+                x_train, {softmax_output_layer_name: y_train}
+            )
             sys.stdout.flush()
             if verbose:
                 sys.stdout.write(
                     "\rEPOCH %d, batch_id %d: loss: %f - acc: %f - "
-                    "f1_score %f" %
-                    (self._epoch_id, batch_id, *model_results[1:]))
+                    "f1_score %f" % (self._epoch_id, batch_id, *model_results[1:])
+                )
             batch_id += 1
 
         for i, metric_label in enumerate(self._model.metrics_names):
@@ -367,26 +378,34 @@ class CharLoadTFModel(BaseTrainableModel,
 
         if val_data:
             f1, f1_report = self._validate_training(val_data)
-            history['f1_report'] = f1_report
+            history["f1_report"] = f1_report
 
-            val_f1 = f1_report['weighted avg']['f1-score'] \
-                if f1_report else np.NAN
-            val_precision = f1_report['weighted avg']['precision'] \
-                if f1_report else np.NAN
-            val_recall = f1_report['weighted avg']['recall'] \
-                if f1_report else np.NAN
+            val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.NAN
+            val_precision = (
+                f1_report["weighted avg"]["precision"] if f1_report else np.NAN
+            )
+            val_recall = f1_report["weighted avg"]["recall"] if f1_report else np.NAN
             epoch_time = time.time() - start_time
-            logger.info("\rEPOCH %d (%ds), loss: %f - acc: %f - f1_score %f -- "
-                        "val_f1: %f - val_precision: %f - val_recall %f" %
-                        (self._epoch_id, epoch_time, *model_results[1:],
-                         val_f1, val_precision, val_recall))
+            logger.info(
+                "\rEPOCH %d (%ds), loss: %f - acc: %f - f1_score %f -- "
+                "val_f1: %f - val_precision: %f - val_recall %f"
+                % (
+                    self._epoch_id,
+                    epoch_time,
+                    *model_results[1:],
+                    val_f1,
+                    val_precision,
+                    val_recall,
+                )
+            )
 
         self._epoch_id += 1
 
         return history, f1, f1_report
 
-    def _validate_training(self, val_data, batch_size_test=32,
-                           verbose_log=True, verbose_keras=False):
+    def _validate_training(
+        self, val_data, batch_size_test=32, verbose_log=True, verbose_keras=False
+    ):
         """
         Validate the model on the test set and return the evaluation metrics.
 
@@ -413,28 +432,32 @@ class CharLoadTFModel(BaseTrainableModel,
         y_val_pred = []
         y_val_test = []
         for x_val, y_val in val_data:
-            y_val_pred.append(self._model.predict(
-                x_val, batch_size=batch_size_test, verbose=verbose_keras)[1])
+            y_val_pred.append(
+                self._model.predict(
+                    x_val, batch_size=batch_size_test, verbose=verbose_keras
+                )[1]
+            )
             y_val_test.append(np.argmax(y_val, axis=-1))
             batch_id += 1
             sys.stdout.flush()
             if verbose_log:
-                sys.stdout.write("\rEPOCH %g, validation_batch_id %d" %
-                                 (self._epoch_id, batch_id))
+                sys.stdout.write(
+                    "\rEPOCH %g, validation_batch_id %d" % (self._epoch_id, batch_id)
+                )
 
-        tf.keras.backend.set_floatx('float32')
+        tf.keras.backend.set_floatx("float32")
         # Clean the predicted entities and the actual entities
         f1, f1_report = labeler_utils.evaluate_accuracy(
             np.concatenate(y_val_pred, axis=0),
             np.concatenate(y_val_test, axis=0),
             self.num_labels,
             self.reverse_label_mapping,
-            verbose=verbose_keras)
+            verbose=verbose_keras,
+        )
 
         return f1, f1_report
 
-    def predict(self, data, batch_size=32, show_confidences=False,
-                verbose=True):
+    def predict(self, data, batch_size=32, show_confidences=False, verbose=True):
         """
         Run model and get predictions
 
@@ -452,10 +475,12 @@ class CharLoadTFModel(BaseTrainableModel,
         if not self._model:
             self._construct_model()
         elif self._need_to_reconstruct_model():
-            raise RuntimeError("The model label mapping definitions have been "
-                               "altered without additional training. Please "
-                               "train the model or reset the label mapping to "
-                               "predict.")
+            raise RuntimeError(
+                "The model label mapping definitions have been "
+                "altered without additional training. Please "
+                "train the model or reset the label mapping to "
+                "predict."
+            )
         # Pre-allocate space for predictions
         confidences = []
         predictions = []
@@ -463,9 +488,7 @@ class CharLoadTFModel(BaseTrainableModel,
         # Run model with batching
         allocation_index = 0
         for batch_id, batch_data in enumerate(data):
-            model_output = self._model(
-                tf.convert_to_tensor(batch_data)
-            )
+            model_output = self._model(tf.convert_to_tensor(batch_data))
 
             # Count number of samples in batch to prevent array mismatch
             num_samples_in_batch = len(batch_data)
@@ -477,8 +500,12 @@ class CharLoadTFModel(BaseTrainableModel,
                     confidences += confidences
 
             if show_confidences:
-                confidences[allocation_index:allocation_index + num_samples_in_batch] = model_output[0].numpy()
-            predictions[allocation_index:allocation_index + num_samples_in_batch] = model_output[1].numpy()
+                confidences[
+                    allocation_index : allocation_index + num_samples_in_batch
+                ] = model_output[0].numpy()
+            predictions[
+                allocation_index : allocation_index + num_samples_in_batch
+            ] = model_output[1].numpy()
 
             allocation_index += num_samples_in_batch
 
@@ -486,12 +513,11 @@ class CharLoadTFModel(BaseTrainableModel,
         predictions = [predictions[i].tolist() for i in range(allocation_index)]
         confidences_list = None
         if show_confidences:
-            confidences = [confidences[i].tolist()
-                           for i in range(0, allocation_index)]
+            confidences = [confidences[i].tolist() for i in range(0, allocation_index)]
 
         if show_confidences:
-            return {'pred': predictions, 'conf': confidences}
-        return {'pred': predictions}
+            return {"pred": predictions, "conf": confidences}
+        return {"pred": predictions}
 
     def details(self):
         """

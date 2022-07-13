@@ -1,0 +1,24 @@
+# Black: format Python code
+  # https://github.com/psf/black/blob/master/.pre-commit-hooks.yaml
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+        types: [file, python]
+        language_version: python3.9
+  # Isort: sort import statements
+  # https://github.com/timothycrosley/isort/blob/develop/.pre-commit-hooks.yaml
+  # The setup.cfg holds the compatible config for use with black
+  # https://github.com/psf/black/blob/master/docs/compatible_configs.md#isort
+  - repo: https://github.com/timothycrosley/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
+        language_version: python3.9
+
+# General fixers: format files for white spaces and trailing new lines, warn on debug statements
+  # https://github.com/pre-commit/pre-commit-hooks#hooks-available
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: trailing-whitespace

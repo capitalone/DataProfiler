@@ -106,10 +106,17 @@ class GraphData(BaseData):
         with FileOrBufferHandler(file_path) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=options.get("delimiter", ","))
 
-            # fetch only column names
-            for row in csv_reader:
-                column_names.append(row)
-                break
+            # skip comments
+            if options.get("header") is None:
+                return column_names
+            else:
+                # fetch only column names
+                row_count = 0
+                for row in csv_reader:
+                    if row_count is options.get("header"):
+                        column_names.append(row)
+                        break
+                    row_count+=1
         column_names = column_names[0]
 
         # replace all whitespaces in the column names
@@ -175,7 +182,7 @@ class GraphData(BaseData):
                     attributes[self._column_names[column]] = (csv_as_list[line][column])
                 elif column is self._source_node or column is self._destination_node:
                     networkx_graph.add_node(csv_as_list[line][column])
-            networkx_graph.add_edge(csv_as_list[line][self._destination_node], csv_as_list[line][self._source_node], **attributes)
+            networkx_graph.add_edge(csv_as_list[line][self._source_node], csv_as_list[line][self._destination_node], **attributes)
 
         # get NetworkX object from list
         return networkx_graph

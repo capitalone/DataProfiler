@@ -16,3 +16,10 @@ repos:
     hooks:
       - id: isort
         language_version: python3.9
+  # General fixers: format files for white spaces and trailing new lines, warn on debug statements
+  # https://github.com/pre-commit/pre-commit-hooks#hooks-available
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: trailing-whitespace
+        exclude: (^dataprofiler/tests/data/|^dataprofiler/tests/speed_tests/data/)

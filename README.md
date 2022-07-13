@@ -38,7 +38,7 @@ If you have suggestions or find a bug, [please open an issue](https://github.com
 
 If you want to install the ml dependencies without generating reports use `DataProfiler[ml]`
 
-If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package with `DataProfiler[reports]`. The slimmer package disables the default sensitive data detection / entity recognition (labler) 
+If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package with `DataProfiler[reports]`. The slimmer package disables the default sensitive data detection / entity recognition (labler)
 
 Install from pypi: `pip install DataProfiler`
 
@@ -48,7 +48,7 @@ If you want to install the dependencies for developing and updating the code bas
 
 # What is a Data Profile?
 
-In the case of this library, a data profile is a dictionary containing statistics and predictions about the underlying dataset. There are "global statistics" or `global_stats`, which contain dataset level data and there are "column/row level statistics" or `data_stats` (each column is a new key-value entry). 
+In the case of this library, a data profile is a dictionary containing statistics and predictions about the underlying dataset. There are "global statistics" or `global_stats`, which contain dataset level data and there are "column/row level statistics" or `data_stats` (each column is a new key-value entry).
 
 The format for a structured profile is below:
 
@@ -58,7 +58,7 @@ The format for a structured profile is below:
     "column_count": int,
     "row_count": int,
     "row_has_null_ratio": float,
-    "row_is_null_ratio": float,    
+    "row_is_null_ratio": float,
     "unique_row_ratio": float,
     "duplicate_row_count": int,
     "file_type": string,
@@ -85,11 +85,11 @@ The format for a structured profile is below:
             "null_types_index": {
                 string: list[int]
             },
-            "data_type_representation": dict[string, float], 
+            "data_type_representation": dict[string, float],
             "min": [null, float, str],
             "max": [null, float, str],
             "mode": float,
-            "median": float, 
+            "median": float,
             "median_absolute_deviation": float,
             "sum": float,
             "mean": float,
@@ -99,7 +99,7 @@ The format for a structured profile is below:
             "kurtosis": float,
             "num_zeros": int,
             "num_negatives": int,
-            "histogram": { 
+            "histogram": {
                 "bin_counts": list[int],
                 "bin_edges": list[float],
             },
@@ -107,7 +107,7 @@ The format for a structured profile is below:
                 int: float
             },
             "vocab": list[char],
-            "avg_predictions": dict[string, float], 
+            "avg_predictions": dict[string, float],
             "data_label_representation": dict[string, float],
             "categories": list[str],
             "unique_count": int,
@@ -123,7 +123,7 @@ The format for a structured profile is below:
                 'std': float,
                 'sample_size': int,
                 'margin_of_error': float,
-                'confidence_level': float     
+                'confidence_level': float
             },
             "times": dict[string, float],
             "format": string
@@ -181,7 +181,7 @@ The format for an unstructured profile is below:
 * `duplicate_row_count` - the number of rows that occur more than once in the input dataset
 * `file_type` - the format of the file containing the input dataset (ex: .csv)
 * `encoding` - the encoding of the file containing the input dataset (ex: UTF-8)
-* `correlation_matrix` - matrix of shape `column_count` x `column_count` containing the correlation coefficients between each column in the dataset 
+* `correlation_matrix` - matrix of shape `column_count` x `column_count` containing the correlation coefficients between each column in the dataset
 * `chi2_matrix` - matrix of shape `column_count` x `column_count` containing the chi-square statistics between each column in the dataset
 * `profile_schema` - a description of the format of the input dataset labeling each column and its index in the dataset
     * `string` - the label of the column in question and its index in the profile schema
@@ -290,7 +290,7 @@ The format for an unstructured profile is below:
 * BAN (bank account number, 10-18 digits)
 * CREDIT_CARD
 * EMAIL_ADDRESS
-* UUID 
+* UUID
 * HASH_OR_KEY (md5, sha1, sha256, random hash, etc.)
 * IPV4
 * IPV6
@@ -329,7 +329,7 @@ Along with other attributtes the `Data class` enables data to be accessed via a 
 
 ```python
 # Load a csv file, return a CSVData object
-csv_data = Data('your_file.csv') 
+csv_data = Data('your_file.csv')
 
 # Print the first 10 rows of the csv file
 print(csv_data.data.head(10))
@@ -347,10 +347,10 @@ print(parquet_data.data.head(10))
 json_data = Data('https://github.com/capitalone/DataProfiler/blob/main/dataprofiler/tests/data/json/iris-utf-8.json')
 ```
 
-If the file type is not automatically identified (rare), you can specify them 
+If the file type is not automatically identified (rare), you can specify them
 specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-filetype-or-delimiter).
 
-### Profile a File 
+### Profile a File
 
 Example uses a CSV file for example, but CSV, JSON, Avro, Parquet or Text should also work.
 
@@ -359,7 +359,7 @@ import json
 from dataprofiler import Data, Profiler
 
 # Load file (CSV should be automatically identified)
-data = Data("your_file.csv") 
+data = Data("your_file.csv")
 
 # Profile the dataset
 profile = Profiler(data)
@@ -396,7 +396,7 @@ Note that if the data you update the profile with contains integer indices that 
 
 ### Merging Profiles
 
-If you have two files with the same schema (but different data), it is possible to merge the two profiles together via an addition operator. 
+If you have two files with the same schema (but different data), it is possible to merge the two profiles together via an addition operator.
 
 This also enables profiles to be determined in a distributed manner.
 
@@ -423,8 +423,8 @@ Note that if merged profiles had overlapping integer indices, when null rows are
 
 ### Profiler Differences
 For finding the change between profiles with the same schema we can utilize the
-profile's `diff` function. The diff will provide overall file and sampling 
-differences as well as detailed differences of the data's statistics. For 
+profile's `diff` function. The diff will provide overall file and sampling
+differences as well as detailed differences of the data's statistics. For
 example, numerical columns have a t-test applied to evaluate similarity.
 More information is described in the Profiler section of the [Github Pages](
 https://capitalone.github.io/DataProfiler/).
@@ -464,7 +464,7 @@ print(json.dumps(report["data_stats"][0], indent=4))
 ```
 
 ### Unstructured profiler
-In addition to the structured profiler, DataProfiler provides unstructured profiling for the TextData object or string. The unstructured profiler also works with list[string], pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of the unstructured profiler with a text file. 
+In addition to the structured profiler, DataProfiler provides unstructured profiling for the TextData object or string. The unstructured profiler also works with list[string], pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of the unstructured profiler with a text file.
 ```python
 import dataprofiler as dp
 import json

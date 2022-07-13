@@ -35,8 +35,8 @@ conditions affect profiling speed. The parameters are as follows:
   * ALLOW_SUBSAMPLING: turns on or off subsampling for large data (True / False)
   * PERCENT_TO_NAN:    percentage of data in each column to set as NaN (0 - 100)
   * sample_sizes:      list of dataset sizes to evaluate
-  
-  
+
+
 ### Dataset Details
 
 The dataset evaluated in this script utilizes a subset of data from the CSV

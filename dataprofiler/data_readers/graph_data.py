@@ -3,9 +3,9 @@ import csv
 import networkx as nx
 from numpy import source
 
+from . import data_utils
 from .base_data import BaseData
 from .csv_data import CSVData
-from . import data_utils
 from .filepath_or_buffer import FileOrBufferHandler
 
 
@@ -13,11 +13,12 @@ class GraphData(BaseData):
     """
     GraphData class to identify, read, and load graph data
     """
-    data_type = 'graph'
+
+    data_type = "graph"
 
     def __init__(self, input_file_path=None, options=None, data=None):
         """
-        Data class for identifying, reading, and loading graph data. Current 
+        Data class for identifying, reading, and loading graph data. Current
         implementation only accepts file path as input. An options parameter is
         also passed in to specify properties of the input file.
 
@@ -62,12 +63,18 @@ class GraphData(BaseData):
 
         self._source_node = options.get("source_node", None)
         self._destination_node = options.get("destination_node", None)
-        self._target_keywords = options.get("target_keywords", ['target', 'destination', 'dst'])
-        self._source_keywords = options.get("source_keywords", ['source', 'src', 'origin'])
-        self._column_names = options.get("column_names", self.csv_column_names(self.input_file_path, self.options))
+        self._target_keywords = options.get(
+            "target_keywords", ["target", "destination", "dst"]
+        )
+        self._source_keywords = options.get(
+            "source_keywords", ["source", "src", "origin"]
+        )
+        self._column_names = options.get(
+            "column_names", self.csv_column_names(self.input_file_path, self.options)
+        )
         self._delimiter = options.get("delimiter", None)
         self._quotechar = options.get("quotechar", None)
-        self._header = options.get("header", 'auto')
+        self._header = options.get("header", "auto")
 
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):
@@ -104,8 +111,8 @@ class GraphData(BaseData):
         """
         column_names = []
         if options.get("header") is None:
-                return column_names
-        
+            return column_names
+
         with FileOrBufferHandler(file_path) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=options.get("delimiter", ","))
 
@@ -115,7 +122,7 @@ class GraphData(BaseData):
                 if row_count is options.get("header"):
                     column_names.append(row)
                     break
-                row_count+=1
+                row_count += 1
         column_names = column_names[0]
 
         # replace all whitespaces in the column names
@@ -147,23 +154,30 @@ class GraphData(BaseData):
         has_target = True if destination_index >= 0 else False
 
         if has_target and has_source:
-            options.update(source_node = source_index)
-            options.update(destination_node = destination_index)
-            options.update(destination_list = target_keywords)
-            options.update(source_list = source_keywords)
-            options.update(column_names = column_names)
+            options.update(source_node=source_index)
+            options.update(destination_node=destination_index)
+            options.update(destination_list=target_keywords)
+            options.update(source_list=source_keywords)
+            options.update(column_names=column_names)
             return True
         return False
-        
+
     def _format_data_networkx(self):
-        '''
+        """
         Formats the input file into a networkX graph
-        '''
+        """
         networkx_graph = nx.DiGraph()
 
         # read lines from csv
         csv_as_list = []
-        data_as_pd = data_utils.read_csv_df(self.input_file_path,self._delimiter,self._header,[],read_in_string=True,encoding=self.file_encoding)
+        data_as_pd = data_utils.read_csv_df(
+            self.input_file_path,
+            self._delimiter,
+            self._header,
+            [],
+            read_in_string=True,
+            encoding=self.file_encoding,
+        )
         data_as_pd = data_as_pd.apply(lambda x: x.str.strip())
         csv_as_list = data_as_pd.values.tolist()
 
@@ -177,11 +191,18 @@ class GraphData(BaseData):
             for column in range(0, len(csv_as_list[0])):
                 if csv_as_list[line][column] is None:
                     continue
-                if column is not self._source_node or column is not self._destination_node:
-                    attributes[self._column_names[column]] = (csv_as_list[line][column])
+                if (
+                    column is not self._source_node
+                    or column is not self._destination_node
+                ):
+                    attributes[self._column_names[column]] = csv_as_list[line][column]
                 elif column is self._source_node or column is self._destination_node:
                     networkx_graph.add_node(csv_as_list[line][column])
-            networkx_graph.add_edge(csv_as_list[line][self._source_node], csv_as_list[line][self._destination_node], **attributes)
+            networkx_graph.add_edge(
+                csv_as_list[line][self._source_node],
+                csv_as_list[line][self._destination_node],
+                **attributes
+            )
 
         # get NetworkX object from list
         return networkx_graph

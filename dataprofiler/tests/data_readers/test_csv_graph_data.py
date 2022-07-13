@@ -20,27 +20,43 @@ class TestGraphDataClass(unittest.TestCase):
                 path=os.path.join(
                     test_dir, "csv/graph-differentiator-input-positive.csv"
                 ),
-                list_nodes = ['1','2','3','4','5','6','7','8','9'],
-                list_edges = [('2', '1'),('3', '2'),('4', '2'),('5','2'),('6','2'),('7','2'),('8','2'),('9','2')],
-                options = {"header": 0, "delimiter": ","},
+                list_nodes=["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+                list_edges=[
+                    ("2", "1"),
+                    ("3", "2"),
+                    ("4", "2"),
+                    ("5", "2"),
+                    ("6", "2"),
+                    ("7", "2"),
+                    ("8", "2"),
+                    ("9", "2"),
+                ],
+                options={"header": 0, "delimiter": ","},
                 encoding="utf-8",
             ),
             dict(
                 path=os.path.join(
                     test_dir, "csv/graph-differentiator-input-standard-positive.csv"
                 ),
-                list_nodes = ['1','2','3','4'],
-                list_edges = [('2', '1'),('1', '3'),('2', '4')],
-                options = {"header": 0, "delimiter": ","},
+                list_nodes=["1", "2", "3", "4"],
+                list_edges=[("2", "1"), ("1", "3"), ("2", "4")],
+                options={"header": 0, "delimiter": ","},
                 encoding="utf-8",
             ),
             dict(
-                path=os.path.join(
-                    test_dir, "csv/graph-data-input-positive-header.csv"
-                ),
-                list_nodes = ['1','2','3','4','5','6','7','8','9'],
-                list_edges = [('2', '1'),('3', '2'),('4', '2'),('5','2'),('6','2'),('7','2'),('8','2'),('9','2')],
-                options = {"header": 2, "delimiter": ","},
+                path=os.path.join(test_dir, "csv/graph-data-input-positive-header.csv"),
+                list_nodes=["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+                list_edges=[
+                    ("2", "1"),
+                    ("3", "2"),
+                    ("4", "2"),
+                    ("5", "2"),
+                    ("6", "2"),
+                    ("7", "2"),
+                    ("8", "2"),
+                    ("9", "2"),
+                ],
+                options={"header": 2, "delimiter": ","},
                 encoding="utf-8",
             ),
         ]
@@ -124,7 +140,10 @@ class TestGraphDataClass(unittest.TestCase):
             "open_date_dst",
         ]
         for input_file in self.input_file_names_pos:
-            self.assertEqual(GraphData.csv_column_names(input_file["path"], input_file["options"]), column_names)
+            self.assertEqual(
+                GraphData.csv_column_names(input_file["path"], input_file["options"]),
+                column_names,
+            )
 
     # test is_match for true output w/ different options
     def test_is_graph_positive_1(self):
@@ -140,8 +159,8 @@ class TestGraphDataClass(unittest.TestCase):
         Determine if the input CSV file can be automatically recognized as not being a graph w/ no options selected
         """
         for input_file in self.input_file_names_neg:
-            self.assertFalse(GraphData.is_match(input_file["path"]))  
-    
+            self.assertFalse(GraphData.is_match(input_file["path"]))
+
     # test loading data
     def test_data_loader_nodes(self):
         """
@@ -174,5 +193,5 @@ class TestGraphDataClass(unittest.TestCase):
             self.assertTrue(all_edges_present)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

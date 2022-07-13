@@ -1,11 +1,11 @@
+import logging
 import os
 import warnings
-import logging
 
 import numpy as np
 import scipy
-from sklearn.exceptions import UndefinedMetricWarning
 import tensorflow as tf
+from sklearn.exceptions import UndefinedMetricWarning
 
 from .. import dp_logging
 from .classification_report_utils import classification_report
@@ -217,31 +217,36 @@ def hide_tf_logger_warnings():
     """
     Filters out a set of warnings from the tf logger.
     """
+
     class NoV1ResourceMessageFilter(logging.Filter):
         """Removes TF2 warning for using TF1 model which has resources."""
+
         def filter(self, record):
-            msg = 'is a problem, consider rebuilding the SavedModel after ' + \
-                'running tf.compat.v1.enable_resource_variables()'
+            msg = (
+                "is a problem, consider rebuilding the SavedModel after "
+                + "running tf.compat.v1.enable_resource_variables()"
+            )
             return msg not in record.getMessage()
 
-
-    tf_logger = logging.getLogger('tensorflow')
+    tf_logger = logging.getLogger("tensorflow")
     tf_logger.addFilter(NoV1ResourceMessageFilter())
 
 
-def protected_register_keras_serializable(package='Custom', name=None):
+def protected_register_keras_serializable(package="Custom", name=None):
     """
     Protects against already registered keras serializable layers. This
     ensures that if it was already registered, it will not try to register it
     again.
     """
+
     def decorator(arg):
         """Protects against double registration of a keras layer."""
         class_name = name if name is not None else arg.__name__
-        registered_name = package + '>' + class_name
+        registered_name = package + ">" + class_name
         if tf.keras.utils.get_registered_object(registered_name) is None:
             tf.keras.utils.register_keras_serializable(package, name)(arg)
         return arg
+
     return decorator
 
 
@@ -290,8 +295,16 @@ class FBetaScore(tf.keras.metrics.Metric):
     """
 
     # Modification: remove the run-time type checking for functions
-    def __init__(self, num_classes, average=None, beta=1.0, threshold=None,
-                 name="fbeta_score", dtype=None, **kwargs):
+    def __init__(
+        self,
+        num_classes,
+        average=None,
+        beta=1.0,
+        threshold=None,
+        name="fbeta_score",
+        dtype=None,
+        **kwargs,
+    ):
         super().__init__(name=name, dtype=dtype)
 
         if average not in (None, "micro", "macro", "weighted"):
@@ -442,8 +455,9 @@ class F1Score(FBetaScore):
     """
 
     # Modification: remove the run-time type checking for functions
-    def __init__(self, num_classes, average=None, threshold=None,
-                 name="f1_score", dtype=None):
+    def __init__(
+        self, num_classes, average=None, threshold=None, name="f1_score", dtype=None
+    ):
         super().__init__(num_classes, average, 1.0, threshold, name=name, dtype=dtype)
 
     def get_config(self):

@@ -14,17 +14,33 @@ class TestGraphDataClass(unittest.TestCase):
     def setUpClass(cls):
 
         test_dir = os.path.join(test_root_path, "data")
+
         cls.input_file_names_pos = [
             dict(
                 path=os.path.join(
                     test_dir, "csv/graph-differentiator-input-positive.csv"
                 ),
+                list_nodes = ['1','2','3','4','5','6','7','8','9'],
+                list_edges = [('2', '1'),('3', '2'),('4', '2'),('5','2'),('6','2'),('7','2'),('8','2'),('9','2')],
+                options = {"header": 0, "delimiter": ","},
                 encoding="utf-8",
             ),
             dict(
                 path=os.path.join(
                     test_dir, "csv/graph-differentiator-input-standard-positive.csv"
                 ),
+                list_nodes = ['1','2','3','4'],
+                list_edges = [('2', '1'),('1', '3'),('2', '4')],
+                options = {"header": 0, "delimiter": ","},
+                encoding="utf-8",
+            ),
+            dict(
+                path=os.path.join(
+                    test_dir, "csv/graph-data-input-positive-header.csv"
+                ),
+                list_nodes = ['1','2','3','4','5','6','7','8','9'],
+                list_edges = [('2', '1'),('3', '2'),('4', '2'),('5','2'),('6','2'),('7','2'),('8','2'),('9','2')],
+                options = {"header": 2, "delimiter": ","},
                 encoding="utf-8",
             ),
         ]
@@ -107,9 +123,8 @@ class TestGraphDataClass(unittest.TestCase):
             "open_date_src",
             "open_date_dst",
         ]
-        input_file = self.input_file_names_pos[1]["path"]
-        options = {"delimiter": ","}
-        self.assertEqual(GraphData.csv_column_names(input_file, options), column_names)
+        for input_file in self.input_file_names_pos:
+            self.assertEqual(GraphData.csv_column_names(input_file["path"], input_file["options"]), column_names)
 
     # test is_match for true output w/ different options
     def test_is_graph_positive_1(self):
@@ -125,8 +140,39 @@ class TestGraphDataClass(unittest.TestCase):
         Determine if the input CSV file can be automatically recognized as not being a graph w/ no options selected
         """
         for input_file in self.input_file_names_neg:
-            self.assertFalse(GraphData.is_match(input_file["path"]))
+            self.assertFalse(GraphData.is_match(input_file["path"]))  
+    
+    # test loading data
+    def test_data_loader_nodes(self):
+        """
+        Determine whether the data loader works as expected for nodes
+        """
+
+        for input_file in self.input_file_names_pos:
+            options = dict()
+            if not GraphData.is_match(input_file["path"], options):
+                return
+            data = GraphData(input_file["path"], options)
+            self.assertEqual(input_file["list_nodes"], sorted(data.nodes))
+
+    def test_data_loader_edges(self):
+        """
+        Determine whether the data loader works as expected for edges
+        """
+
+        for input_file in self.input_file_names_pos:
+            options = dict()
+            all_edges_present = True
+            if not GraphData.is_match(input_file["path"], options):
+                return
+            data = GraphData(input_file["path"], options)
+            data_edges = list(data.edges)
+
+            for edge in input_file["list_edges"]:
+                if edge not in data_edges:
+                    all_edges_present = False
+            self.assertTrue(all_edges_present)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()

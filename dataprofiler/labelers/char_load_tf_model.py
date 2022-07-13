@@ -95,7 +95,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         # Make sure the necessary parameters are present and valid.
         for param in parameters:
-            if param in ["default_label", "model_path", "pad_label"]:
+            if param in list_of_necessary_params:
                 if not isinstance(parameters[param], str):
                     error = str(param) + " must be a string."
                     errors.append(error)

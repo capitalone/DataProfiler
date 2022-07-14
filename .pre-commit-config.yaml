@@ -23,3 +23,4 @@ repos:
     hooks:
       - id: trailing-whitespace
         exclude: (^dataprofiler/tests/data/|^dataprofiler/tests/speed_tests/data/)
+      - id: debug-statements

@@ -689,7 +689,9 @@ def perform_chi_squared_test_for_homogeneity(
 
 
 def merge_list_of_profiles(list_of_profiles):
-    """Using the profile object's `__add__` method,
+    """Using the profile object's `__add__` method, to merge all the
+        provided profiles in the list into a single profile, which
+        is returned by the function.
 
     :param list_of_profiles: List of Data Profiler profile objects.
         Acceptable profile types are `StructuredProfiler` and

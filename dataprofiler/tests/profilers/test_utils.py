@@ -224,3 +224,9 @@ class TestShuffleInChunks(unittest.TestCase):
             33 / 1024**3,
             utils.get_memory_size(["This is test, a Test sentence.!!!"], unit="G"),
         )
+
+    def test_merge_list_of_profiles(self):
+        """
+        Test multiple scenarios of merging list of profiles
+        """
+        pass

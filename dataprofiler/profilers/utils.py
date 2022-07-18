@@ -702,3 +702,5 @@ def merge_list_of_profiles(list_of_profiles):
     :rtype: Profile
     """
     raise NotImplementedError()
+    # check all profile types in the list are the same type
+    # implement post order tree traversal DFS

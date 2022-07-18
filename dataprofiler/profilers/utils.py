@@ -686,3 +686,12 @@ def perform_chi_squared_test_for_homogeneity(
     results["p-value"] = p_value
 
     return results
+
+
+def merge_list_of_profiles(list_of_profiles):
+    """_summary_
+
+    Args:
+        list_of_profiles (_type_): _description_
+    """
+    raise NotImplementedError()

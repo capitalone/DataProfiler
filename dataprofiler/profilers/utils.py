@@ -7,6 +7,7 @@ import multiprocessing as mp
 import os
 import time
 import warnings
+from lib2to3.pytree import type_repr
 
 import numpy as np
 import psutil
@@ -688,6 +689,66 @@ def perform_chi_squared_test_for_homogeneity(
     return results
 
 
+class BinaryNode:
+    """Defining a class for building a binary tree of profiles.
+    To be utilized when trying to merge profiles in a better than
+    linear time complexity.
+    """
+
+    def __init__(self, data):
+        self.left = None
+        self.right = None
+        self.data = data
+
+
+def create_tree(list_of_profiles):
+    """Build a binary tree using the list of profiles provided
+    and the `BinaryNode` class.
+
+    :param profile_tree: Binary tree where class `BinaryNode`
+    :type profile_tree: BinaryNode
+    :return: Merged profiles from the binary tree. One profile
+        should return
+    :rtype: BinaryNode
+    """
+    tree_dict = {}
+
+    for idx, profile_idx in enumerate(list_of_profiles):
+        tree_dict[idx] = BinaryNode(profile_idx)
+
+    root = None
+
+    # traverse the parent list and build the tree
+    for idx, profile in enumerate(list_of_profiles):
+        if idx == 0:
+            root = tree_dict[profile]
+        else:
+            ptr = tree_dict[profile]
+
+            if ptr.left:
+                ptr.right = tree_dict[idx]
+            else:
+                ptr.left = tree_dict[idx]
+
+    return root
+
+
+def post_order_merge(profile_tree):
+    """Execute post order depth first search of binary tree.
+
+    :param profile_tree: Binary tree where class `BinaryNode`
+    :type profile_tree: Node
+    :return: Merged profiles from the binary tree. One profile
+        should return
+    :rtype: Profile
+    """
+    return (
+        post_order_merge(profile_tree.left)
+        + post_order_merge(profile_tree.right)
+        + post_order_merge(profile_tree.data)
+    )
+
+
 def merge_list_of_profiles(list_of_profiles):
     """Using the profile object's `__add__` method, to merge all the
         provided profiles in the list into a single profile, which
@@ -701,6 +762,13 @@ def merge_list_of_profiles(list_of_profiles):
         provided in the parameter `list_of_profiles`.
     :rtype: Profile
     """
-    raise NotImplementedError()
     # check all profile types in the list are the same type
+    for profile_idx, profile in enumerate(list_of_profiles):
+        if not isinstance(profile, type(list_of_profiles[0])):
+            raise TypeError
+
+    # instantiate binary tree from list
+    profile_tree = create_tree(list_of_profiles)
+
     # implement post order tree traversal DFS
+    return post_order_merge(profile_tree)

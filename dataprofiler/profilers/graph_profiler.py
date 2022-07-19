@@ -64,13 +64,13 @@ class GraphProfile(object):
         self.metadata = dict()
 
         # self.line_length = {'max': None, 'min': None,...} #numeric stats mixin?
-
+        """
         if options and not isinstance(options, GraphOptions):
             raise ValueError(
                 "Graphrofiler parameter 'options' must be of type"
                 " GraphOptions."
             )
-        """
+        
         self._<PROP_option> = None
         if options:
             self.<PROP_option> = options.<PROP_option>

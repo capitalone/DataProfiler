@@ -1,16 +1,14 @@
+from collections import Counter, defaultdict
 
 import networkx as nx
 import numpy as np
 import scipy.stats as st
-
-from collections import Counter, defaultdict
 
 from . import BaseColumnProfiler, utils
 from .profiler_options import TextProfilerOptions
 
 
 class GraphProfile(object):
-
     def __init__(self, name, data=None, options=None):
         """
         Initialization of Graph Profiler.
@@ -25,11 +23,10 @@ class GraphProfile(object):
         if not isinstance(data, nx.Graph):
             raise NotImplementedError("Data must be a valid NetworkX graph.")
 
-        
         self.name = name
         self.sample_size = 0
         self.times = defaultdict(float)
-        
+
         """
         Properties
         """
@@ -38,7 +35,7 @@ class GraphProfile(object):
 
         self._num_nodes = self._compute_num_nodes()
         self._num_edges = self._compute_num_edges()
-        
+
         attribute_tuple = self._find_categorical_and_continuous_attributes()
         self._categorical_attributes = attribute_tuple[0]
         self._continuous_attributes = attribute_tuple[1]
@@ -50,16 +47,11 @@ class GraphProfile(object):
             self._global_max_component_size = self._compute_global_max_component_size()
         else:
             self._global_max_component_size = None
-            
-        self._continuous_distributions = None #self._compute_continuous_distribution()
-        self._categorical_probabilities = None #self._compute_categorical_probabilities()
 
-        # case specific
-        self._activation_probability = self._compute_activation_probabilities()
-        self._deactivation_probability = self._compute_deactivation_probabilities()
-        self._end_state_probabilities = self._compute_end_state_probabilities()
-        self._link_probability = self._compute_link_probabilities()
-        self._conditional_probabilities = self._compute_conditional_probabilities()
+        self._continuous_distributions = None  # self._compute_continuous_distribution()
+        self._categorical_probabilities = (
+            None  # self._compute_categorical_probabilities()
+        )
 
         self.metadata = dict()
 
@@ -70,7 +62,7 @@ class GraphProfile(object):
                 "Graphrofiler parameter 'options' must be of type"
                 " GraphOptions."
             )
-        
+
         self._<PROP_option> = None
         if options:
             self.<PROP_option> = options.<PROP_option>
@@ -88,16 +80,16 @@ class GraphProfile(object):
         :return: the profile of the graph in data
         """
         profile = dict(
-            num_nodes = self._num_nodes,
-            avg_node_degree = self._avg_node_degree,
-            global_max_component_size = self._global_max_component_size,
-            continuous_distributions = self._continuous_distributions,
-            categorical_probabilities = self._categorical_probabilities,
-            activation_probability = self._activation_probability,
-            deactivation_probability = self._deactivation_probability,
-            end_state_probabilities = self._end_state_probabilities,
-            link_probability = self._link_probability,
-            conditional_probabilities = self._conditional_probabilities,
+            num_nodes=self._num_nodes,
+            avg_node_degree=self._avg_node_degree,
+            global_max_component_size=self._global_max_component_size,
+            continuous_distributions=self._continuous_distributions,
+            categorical_probabilities=self._categorical_probabilities,
+            activation_probability=self._activation_probability,
+            deactivation_probability=self._deactivation_probability,
+            end_state_probabilities=self._end_state_probabilities,
+            link_probability=self._link_probability,
+            conditional_probabilities=self._conditional_probabilities,
             times=self.times,
         )
         return profile
@@ -141,13 +133,18 @@ class GraphProfile(object):
     """
     Computation functions
     """
+
     def _find_all_attributes(self):
         """
         Compute the number of attributes for each edge
         """
-        attribute_list = set(np.array([list(self._graph.edges[n].keys()) for n in self._graph.edges()]).flatten())
+        attribute_list = set(
+            np.array(
+                [list(self._graph.edges[n].keys()) for n in self._graph.edges()]
+            ).flatten()
+        )
         return list(attribute_list)
-    
+
     def _find_categorical_and_continuous_attributes(self):
         """
         Finds and lists categorical and continuous attributes
@@ -156,7 +153,7 @@ class GraphProfile(object):
         continuous_attributes = []
         for attribute in self._attributes:
             is_categorical = False
-            for u,v in self._graph.edges():
+            for u, v in self._graph.edges():
                 attribute_value = self._graph[u][v][attribute]
                 if float(attribute_value).is_integer():
                     is_categorical = True
@@ -166,13 +163,13 @@ class GraphProfile(object):
             else:
                 continuous_attributes.append(attribute)
         return (categorical_attributes, continuous_attributes)
-    
+
     def _attribute_data_as_list(self, attribute):
         """
         Fetches graph attribute data and converts it to a conveniently readable list
         """
         data_as_list = []
-        for u,v in list(self._graph.edges):
+        for u, v in list(self._graph.edges):
             value = self._graph[u][v][attribute]
             data_as_list.append(value)
         return data_as_list
@@ -180,6 +177,7 @@ class GraphProfile(object):
     """
     The following functions compute generic properties for the graph profile
     """
+
     def _compute_num_nodes(self):
         """
         Compute the number of nodes
@@ -199,13 +197,15 @@ class GraphProfile(object):
         total_degree = 0
         for node in self._graph:
             total_degree += self._graph.degree[node]
-        return total_degree/self._num_nodes
+        return total_degree / self._num_nodes
 
     def _compute_global_max_component_size(self):
         """
         Compute largest subgraph component of the graph
         """
-        graph_connected_components = sorted(nx.connected_components(self._graph), key=len, reverse=True)
+        graph_connected_components = sorted(
+            nx.connected_components(self._graph), key=len, reverse=True
+        )
         largest_component = self._graph.subgraph(graph_connected_components[0])
         return largest_component.size()
 
@@ -217,19 +217,19 @@ class GraphProfile(object):
         data_as_list = self._attribute_data_as_list(attribute)
 
         distribution_candidates = [
-            st.norm, 
-            st.uniform, 
-            st.expon, 
-            st.logistic, 
-            st.lognorm, 
-            st.gamma
+            st.norm,
+            st.uniform,
+            st.expon,
+            st.logistic,
+            st.lognorm,
+            st.gamma,
         ]
         best_mle = ("initial value", 1000)
         for distribution in distribution_candidates:
             # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
             fit = distribution.fit(data_as_list)
             mle = distribution.nnlf(fit, data_as_list)
-            ktest = st.kstest(data_as_list , 'norm' , fit)
+            ktest = st.kstest(data_as_list, "norm", fit)
 
             test_points = np.linspace(min(data_as_list), max(data_as_list), 1000)
             pdf = distribution.pdf(test_points, fit)
@@ -245,18 +245,13 @@ class GraphProfile(object):
         # create a list compiling all data for that attribute
         data_as_list = self._attribute_data_as_list(attribute)
 
-        distribution_candidates = [
-            st.bernoulli, 
-            st.binom, 
-            st.geom, 
-            st.poisson
-        ]
+        distribution_candidates = [st.bernoulli, st.binom, st.geom, st.poisson]
         best_mle = ("initial value", 1000)
         for distribution in distribution_candidates:
             # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
             fit = distribution.fit(data_as_list)
             mle = distribution.nnlf(fit, data_as_list)
-            ktest = st.kstest(data_as_list, 'norm' , fit)
+            ktest = st.kstest(data_as_list, "norm", fit)
 
             test_points = np.linspace(min(data_as_list), max(data_as_list), 1000)
             pdf = distribution.pdf(test_points, fit)
@@ -264,17 +259,3 @@ class GraphProfile(object):
             if mle <= best_mle[0]:
                 best_mle = (distribution.name, mle, pdf, ktest)
         return best_mle
-
-    """
-    The following functions compute case-specific properties for the graph profile
-    """
-    def _compute_conditional_probabilities(self):
-        return
-    def _compute_end_state_probabilities(self):
-        return
-    def _compute_link_probabilities(self):
-        return
-    def _compute_activation_probabilities(self):
-        return
-    def _compute_deactivation_probabilities(self):
-        return

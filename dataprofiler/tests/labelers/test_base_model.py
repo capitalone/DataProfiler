@@ -1,3 +1,9 @@
+"""
+This is a test to verify that base_model.py works properly.
+
+...
+"""
+
 import unittest
 from unittest import mock
 
@@ -5,11 +11,22 @@ from dataprofiler.labelers import base_model
 
 
 class TestBaseModel(unittest.TestCase):
+    """_summary_.
+
+    Args:
+        unittest (_type_): _description_
+    """
+
     @mock.patch(
         "dataprofiler.labelers.base_model.BaseModel." "_BaseModel__subclasses",
         new_callable=mock.PropertyMock,
     )
     def test_register_subclass(self, mock_subclasses):
+        """_summary_.
+
+        Args:
+            mock_subclasses (_type_): _description_
+        """
         # remove not implemented func
 
         fake_class = type("FakeModel", (base_model.BaseModel,), {})
@@ -28,7 +45,7 @@ class TestBaseModel(unittest.TestCase):
         return_value=None,
     )
     def test_equality_checks(self, *mocks):
-
+        """_summary_."""
         FakeModel1 = type("FakeModel1", (base_model.BaseModel,), {})
         FakeModel2 = type("FakeModel2", (base_model.BaseModel,), {})
 
@@ -59,7 +76,7 @@ class TestBaseModel(unittest.TestCase):
 
     # @mock.patch('data_profiler.labelers.base_model.BaseModel._validate_parameters')
     def test_get_parameters(self):
-
+        """_summary_."""
         mock_model = mock.Mock(spec=base_model.BaseModel)
         mock_model._label_mapping = {"a": 1, "c": "2"}
         mock_model._parameters = {"test1": 1, "test2": "2"}
@@ -83,7 +100,7 @@ class TestBaseModel(unittest.TestCase):
         )
 
     def test_set_parameters(self):
-
+        """_summary_."""
         # validate params set successfully
         mock_model = mock.Mock(spec=base_model.BaseModel)
         mock_model._parameters = dict()
@@ -107,7 +124,7 @@ class TestBaseModel(unittest.TestCase):
         _validate_parameters=mock.MagicMock(return_value=None),
     )
     def test_add_labels(self, *args):
-
+        """_summary_."""
         # setup model with mocked abstract methods
         mock_model = base_model.BaseModel(label_mapping={"NEW_LABEL": 1}, parameters={})
 
@@ -155,7 +172,7 @@ class TestBaseModel(unittest.TestCase):
         )
 
     def test_set_label_mapping_parameters(self):
-
+        """_summary_."""
         # setup mock
         mock_model = mock.Mock(spec=base_model.BaseModel)
         mock_model._convert_labels_to_label_mapping.side_effect = (
@@ -196,7 +213,7 @@ class TestBaseModel(unittest.TestCase):
         self.assertDictEqual({"test": "test"}, mock_model._label_mapping)
 
     def test_convert_labels_to_encodings(self, *mocks):
-
+        """_summary_."""
         # test label list to label_mapping
         labels = ["a", "b", "d", "c"]
         label_mapping = base_model.BaseModel._convert_labels_to_label_mapping(

@@ -1844,7 +1844,7 @@ class StructuredProfiler(BaseProfiler):
         columns = self.options.correlation.columns
         column_ids = list(range(len(self._profile)))
         if columns is not None:
-            column_ids = [self._col_name_to_idx[col_name][0] for col_name in columns]
+            column_ids = [idx for col_name in columns for idx in self._col_name_to_idx[col_name]]
         clean_column_ids = []
         for idx in column_ids:
             data_type = (

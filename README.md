@@ -47,7 +47,7 @@ Install from pypi: `pip install DataProfiler`
 If you want to install the dependencies for developing and updating the code base, be sure to run `pip install -r requirements-dev.txt`
 
 ## Pre-Commit
-To install pre-commit hooks, run the following commands:
+To install `pre-commit` hooks, run the following commands:
 
 ```cli
 pre-commit install

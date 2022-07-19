@@ -76,6 +76,9 @@ class GraphData(BaseData):
         self._quotechar = options.get("quotechar", None)
         self._header = options.get("header", "auto")
 
+        return self._load_data()
+
+
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):
         """

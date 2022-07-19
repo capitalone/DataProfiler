@@ -43,14 +43,20 @@ If the ML requirements are too strict (say, you don't want to install tensorflow
 Install from pypi: `pip install DataProfiler`
 
 
-## Pre-Commit Install
-To install pre-commit hooks, first install the `dev` requirements by running: `pip install -r requirements-dev.txt`
+# Contribute
+If you want to install the dependencies for developing and updating the code base, be sure to run `pip install -r requirements-dev.txt`
 
-Next run the following:
+## Pre-Commit
+To install pre-commit hooks, run the following commands:
 
 ```cli
 pre-commit install
 pre-commit run
+```
+
+If you want to run the `pre-commit` fresh over over all the files, run the following:
+```cli
+pre-commit run --all-files
 ```
 
 ------------------

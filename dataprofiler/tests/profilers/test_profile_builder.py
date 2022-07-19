@@ -737,6 +737,28 @@ class TestStructuredProfiler(unittest.TestCase):
             expected_corr_mat, profiler.correlation_matrix
         )
 
+        data = data.rename(columns={"d": "b"})
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "correlation.columns": ["a", "b"],
+                "structured_options.multiprocess.is_enabled": False,
+            }
+        )
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        expected_corr_mat = np.array(
+            [
+                [1.0, -0.26559389, np.nan, 0.14982219],
+                [-0.26559389, 1.0, np.nan, -0.02132435],
+                [np.nan, np.nan, np.nan, np.nan],
+                [0.14982219, -0.02132435, np.nan, 1.0],
+            ]
+        )
+        np.testing.assert_array_almost_equal(
+            expected_corr_mat, profiler.correlation_matrix
+        )
+
     def test_chi2(self, *mocks):
         # Empty
         data = pd.DataFrame([])

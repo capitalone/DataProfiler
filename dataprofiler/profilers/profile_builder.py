@@ -1844,7 +1844,9 @@ class StructuredProfiler(BaseProfiler):
         columns = self.options.correlation.columns
         column_ids = list(range(len(self._profile)))
         if columns is not None:
-            column_ids = [idx for col_name in columns for idx in self._col_name_to_idx[col_name]]
+            column_ids = [
+                idx for col_name in columns for idx in self._col_name_to_idx[col_name]
+            ]
         clean_column_ids = []
         for idx in column_ids:
             data_type = (
@@ -1858,7 +1860,7 @@ class StructuredProfiler(BaseProfiler):
         means = {index: mean for index, mean in enumerate(batch_properties["mean"])}
         data = data.fillna(value=means)
         data = data[clean_column_ids]
-        
+
         # Update the counts/std if needed (i.e. if null rows or exist)
         if (len(data) != batch_properties["count"]).any():
             adjusted_stds = np.sqrt(

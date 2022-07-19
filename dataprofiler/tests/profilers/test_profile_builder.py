@@ -707,6 +707,36 @@ class TestStructuredProfiler(unittest.TestCase):
     @mock.patch(
         "dataprofiler.profilers.profile_builder.DataLabeler", spec=StructuredDataLabeler
     )
+    def test_correlation_selected_columns(self, *mocks):
+        data = pd.DataFrame(
+            {
+                "a": [3, 2, 1, 7, 5, 9, 4, 10, 7, 2],
+                "b": [10, 11, 1, 4, 2, 5, 6, 3, 9, 8],
+                "c": [1, 5, 3, 5, 7, 2, 6, 8, 1, 2],
+                "d": [-2, 5, 1, 4, 5, 6, 0, 2, 3, 7],
+            }
+        )
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "correlation.is_enabled": True,
+                "correlation.columns": ["a", "c"],
+                "structured_options.multiprocess.is_enabled": False,
+            }
+        )
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        expected_corr_mat = np.array(
+            [
+                [1.0, np.nan, 0.26594894270403086, np.nan],
+                [np.nan, np.nan, np.nan, np.nan],
+                [0.26594894270403086, np.nan, 1.0, np.nan],
+                [np.nan, np.nan, np.nan, np.nan],
+            ]
+        )
+        np.testing.assert_array_almost_equal(
+            expected_corr_mat, profiler.correlation_matrix
+        )
+
     def test_chi2(self, *mocks):
         # Empty
         data = pd.DataFrame([])

@@ -1,18 +1,25 @@
+"""
+This is the order-column profiler module.
+
+This profiler handles index columns.
+"""
+
 from . import BaseColumnProfiler, utils
 from .profiler_options import OrderOptions
 
 
 class OrderColumn(BaseColumnProfiler):
     """
-    Index column profile subclass of BaseColumnProfiler. Represents a column in
-    the dataset which is an index column.
+    Index column profile subclass of BaseColumnProfiler.
+
+    Represents a column in the dataset which is an index column.
     """
 
     type = "order"
 
     def __init__(self, name, options=None):
         """
-        Initialization of column base properties and itself.
+        Initialize column base properties and self.
 
         :param name: Name of the data
         :type name: String
@@ -34,7 +41,7 @@ class OrderColumn(BaseColumnProfiler):
     @staticmethod
     def _is_intersecting(first_value1, last_value1, first_value2, last_value2):
         """
-        Checks to see if the range of the datasets intersect
+        Check to see if the range of the datasets intersect.
 
         :param first_value1: beginning value of dataset 1
         :type first_value1: Integer
@@ -68,7 +75,7 @@ class OrderColumn(BaseColumnProfiler):
     @staticmethod
     def _is_enveloping(first_value1, last_value1, first_value2, last_value2):
         """
-        Checks to see if the range of the dataset 1 envelopes dataset 2
+        Check to see if the range of the dataset 1 envelopes dataset 2.
 
         :param first_value1: beginning value of dataset 1
         :type first_value1: Integer
@@ -105,7 +112,7 @@ class OrderColumn(BaseColumnProfiler):
         piecewise2,
     ):
         """
-        Adds the order of two datasets together
+        Add the order of two datasets together.
 
         :param order1: order of original dataset
         :param first_value1: beginning value of original dataset
@@ -210,7 +217,7 @@ class OrderColumn(BaseColumnProfiler):
 
     def __add__(self, other):
         """
-        Merges the properties of two OrderColumn profiles
+        Merge the properties of two OrderColumn profiles.
 
         :param self: first profile
         :param other: second profile
@@ -269,7 +276,7 @@ class OrderColumn(BaseColumnProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Generates the differences between the orders of two OrderColumns
+        Generate the differences between the orders of two OrderColumns.
 
         :return: Dict containing the differences between orders in their
         appropriate output formats
@@ -287,9 +294,10 @@ class OrderColumn(BaseColumnProfiler):
     @BaseColumnProfiler._timeit(name="order")
     def _get_data_order(self, df_series):
         """
-        Retrieves the order profile of a given data series.
-        Will return either: ascending, descending, constant value, or random.
-        Additionally, returns the first and last value of the series.
+        Retrieve the order profile of a given data series.
+
+        Return either: ascending, descending, constant value, or random.
+        Additionally, return the first and last value of the series.
 
         :param df_series: a given column
         :type df_series: pandas.core.series.Series
@@ -327,8 +335,9 @@ class OrderColumn(BaseColumnProfiler):
         self, df_series, prev_dependent_properties=None, subset_properties=None
     ):
         """
-        Updates the order profile with order information attained
-        from the new dataset in two steps:
+        Update order profile with order info attained from new dataset.
+
+        Do this in following two steps:
         1. Get order information from input column data.
         2. Merge information between existing profile and new column
            order information.
@@ -365,8 +374,7 @@ class OrderColumn(BaseColumnProfiler):
 
     def _update_helper(self, df_series_clean, profile):
         """
-        Method for updating the column profile properties with a cleaned
-        dataset and the known null parameters of the dataset.
+        Update col profile properties with clean dataset and its known null parameters.
 
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
@@ -378,7 +386,7 @@ class OrderColumn(BaseColumnProfiler):
 
     def update(self, df_series):
         """
-        Updates the column profile.
+        Update the column profile.
 
         :param df_series: df series
         :type df_series: pandas.core.series.Series

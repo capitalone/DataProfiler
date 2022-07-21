@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """
-coding=utf-8
-
-Profiles the data.
+Lowest level column profiler class to be used further up in the inheritance tree of the package.
 """
 
 from __future__ import division, print_function

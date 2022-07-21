@@ -1,8 +1,4 @@
-"""
-This is the float-column profiler module.
-
-This profiler handles float columns.
-"""
+"""Float profile analysis for individual col within structured profiling."""
 
 import copy
 import re

@@ -1,8 +1,4 @@
-"""
-This is the order-column profiler module.
-
-This profiler handles index columns.
-"""
+"""Index profile analysis for individual col within structured profiling."""
 
 from . import BaseColumnProfiler, utils
 from .profiler_options import OrderOptions

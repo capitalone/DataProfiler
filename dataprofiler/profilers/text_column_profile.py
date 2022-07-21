@@ -1,8 +1,4 @@
-"""
-This is the text-column profiler module.
-
-This profiler handles text columns.
-"""
+"""Text profile analysis for individual col within structured profiling.."""
 
 import itertools
 

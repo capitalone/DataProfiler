@@ -1,3 +1,5 @@
+"""Module to train and choose between structured and unstructured data labelers."""
+
 import os
 
 import pandas as pd
@@ -11,7 +13,7 @@ default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs=2):
     """
-    Uses provided data to create and save a structured data labeler
+    Use provided data to create and save a structured data labeler.
 
     :param data: data to be trained upon
     :type data: Union[None, pd.DataFrame]
@@ -62,14 +64,19 @@ def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs
 
 
 class UnstructuredDataLabeler(BaseDataLabeler):
+    """BaseDataLabeler subclass specified as unstructured with internal variable."""
+
     _default_model_loc = "unstructured_model"
 
 
 class StructuredDataLabeler(BaseDataLabeler):
+    """BaseDataLabeler subclass specified as structured with internal variable."""
+
     _default_model_loc = "structured_model"
 
 
 class DataLabeler(object):
+    """Wrapper class for choosing between structured and unstructured labeler."""
 
     labeler_classes = dict(
         structured=StructuredDataLabeler,
@@ -77,7 +84,18 @@ class DataLabeler(object):
     )
 
     def __new__(cls, labeler_type, dirpath=None, load_options=None, trainable=False):
+        """
+        Create structured and unstructred data labeler objects.
 
+        :param dirpath: Path to load data labeler
+        :type dirpath: Any
+        :param load_options: Optional arguments to include for load.
+        :type load_options: Any
+        :param trainable: variable to dictate whether you want a trainable data
+            labeler
+        :type trainable: bool
+        :return:
+        """
         data_labeler = cls.labeler_classes.get(labeler_type, None)
         if data_labeler is None:
             raise ValueError(
@@ -97,7 +115,7 @@ class DataLabeler(object):
     @classmethod
     def load_from_library(cls, name, trainable=False):
         """
-        Loads the data labeler from the data labeler zoo in the library.
+        Load the data labeler from the data labeler zoo in the library.
 
         :param name: name of the data labeler.
         :type name: str
@@ -113,7 +131,7 @@ class DataLabeler(object):
     @classmethod
     def load_from_disk(cls, dirpath, load_options=None, trainable=False):
         """
-        Loads the data labeler from a saved location on disk.
+        Load the data labeler from a saved location on disk.
 
         :param dirpath: path to data labeler files.
         :type dirpath: str
@@ -132,7 +150,7 @@ class DataLabeler(object):
     @classmethod
     def load_with_components(cls, preprocessor, model, postprocessor, trainable=False):
         """
-        Loads the data labeler from a its set  of components.
+        Load the data labeler from a its set  of components.
 
         :param preprocessor: processor to set as the preprocessor
         :type preprocessor: data_processing.BaseDataPreprocessor

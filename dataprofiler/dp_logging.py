@@ -54,7 +54,7 @@ def set_verbosity(level):
 
 def get_child_logger(name):
     """
-    Return logger for given filepath.
+    Return logger for the given filepath.
 
     :param name: name of file in need of accessing child logger
     :type name: str

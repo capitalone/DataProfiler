@@ -900,7 +900,7 @@ class DataLabelerOptions(BaseInspectorOptions):
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
-        :ivar data_labeler_dirpath: String to load data labeler from
+        :ivar data_labeler_dirpath: String to load data labeler
         :vartype data_labeler_dirpath: str
         :ivar max_sample_size: Int to decide sample size
         :vartype max_sample_size: int

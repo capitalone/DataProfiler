@@ -1,4 +1,4 @@
-"""Module to train and choose btw/ structured and unstructured data labelers."""
+"""Module to train and choose between structured and unstructured data labelers."""
 
 import os
 
@@ -76,7 +76,7 @@ class StructuredDataLabeler(BaseDataLabeler):
 
 
 class DataLabeler(object):
-    """Wrapper class for choosing betwen structured and unstructured labeler."""
+    """Wrapper class for choosing between structured and unstructured labeler."""
 
     labeler_classes = dict(
         structured=StructuredDataLabeler,

@@ -730,10 +730,15 @@ def merge_profile_list(list_of_profiles, pool_count=5):
         `list_of_profiles` list.
     :rtype: Profile
     """
+    # remove the labeler model from the first profile object
+    # assuming that the labeler models are all the same across each profile
+    # in the list
     data_labeler = profile_builder._remove_data_labelers(list_of_profiles[0])
+
     while len(list_of_profiles) > 1:
         list_of_profiles = chunk(list_of_profiles, 2)
         with mp.Pool(pool_count) as p:
             list_of_profiles = p.starmap(merge, list_of_profiles)
+
     list_of_profiles[0]._restore_data_labelers(data_labeler)
     return list_of_profiles[0]

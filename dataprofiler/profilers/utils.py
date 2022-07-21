@@ -7,6 +7,7 @@ import multiprocessing as mp
 import os
 import time
 import warnings
+from itertools import islice
 
 import numpy as np
 import psutil
@@ -686,3 +687,22 @@ def perform_chi_squared_test_for_homogeneity(
     results["p-value"] = p_value
 
     return results
+
+
+def chunk(it, size):
+    it = iter(it)
+    return iter(lambda: tuple(islice(it, size)), ())
+
+
+def add(x, y=None):
+    if not y:
+        return x
+    return x + y
+
+
+def merge_profile_list(list_of_profiles, pool_count=5):
+    while len(list_of_profiles) > 1:
+        list_of_profiles = chunk(list_of_profiles, 2)
+        with mp.Pool(pool_count) as p:
+            list_of_profiles = p.starmap(add, list_of_profiles)
+    return list_of_profiles[0]

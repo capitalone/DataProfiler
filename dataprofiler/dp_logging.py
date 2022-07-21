@@ -42,7 +42,7 @@ def set_verbosity(level):
     """
     Set verbosity level for DataProfiler logger.
 
-    Must set it to one of
+    Must set it to one of the following values:
     [logging.NOTSET, logging.DEBUG, logging.INFO,
      logging.WARNING, logging.ERROR, logging.CRITICAL]
 

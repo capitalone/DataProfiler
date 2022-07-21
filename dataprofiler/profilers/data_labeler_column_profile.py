@@ -46,23 +46,10 @@ class DataLabelerColumn(BaseColumnProfiler):
                 load_options=None,
             )
 
-        self.reverse_label_mapping = self.data_labeler.reverse_label_mapping
-        num_labels = self.data_labeler.model.num_labels
-
-        # remove PAD from output (reserved zero index)
-        if self.data_labeler.model.requires_zero_mapping:
-            self.reverse_label_mapping.pop(0, None)
-            num_labels -= 1
-
-        self._possible_data_labels = list(self.reverse_label_mapping.values())
-        self._possible_data_labels = [  # sort the data_labels based on index
-            x
-            for _, x in sorted(
-                zip(self.reverse_label_mapping.keys(), self._possible_data_labels)
-            )
-        ]
-        self.rank_distribution = dict([(key, 0) for key in self._possible_data_labels])
-        self._sum_predictions = np.zeros(num_labels)
+        self._reverse_label_mapping = None
+        self._possible_data_labels = None
+        self.rank_distribution = None
+        self._sum_predictions = None
 
         # rank distribution variables
         self._top_k_voting = 1
@@ -194,6 +181,14 @@ class DataLabelerColumn(BaseColumnProfiler):
         return merged_profile
 
     @property
+    def reverse_label_mapping(self):
+        if self._reverse_label_mapping is None:
+            self._reverse_label_mapping = self.data_labeler.reverse_label_mapping
+            if self.data_labeler.model.requires_zero_mapping:
+                self._reverse_label_mapping.pop(0, None)
+        return self._reverse_label_mapping
+
+    @property
     def data_label(self):
         """
         Returns the data labels which best fit the data it has seen based on
@@ -317,6 +312,26 @@ class DataLabelerColumn(BaseColumnProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
+        if self._possible_data_labels is None:
+            self._possible_data_labels = list(self.reverse_label_mapping.values())
+            self._possible_data_labels = [  # sort the data_labels based on index
+                x
+                for _, x in sorted(
+                    zip(self.reverse_label_mapping.keys(), self._possible_data_labels)
+                )
+            ]
+
+        if self.rank_distribution is None:
+            self.rank_distribution = dict(
+                [(key, 0) for key in self._possible_data_labels]
+            )
+
+        if self._sum_predictions is None:
+            num_labels = self.data_labeler.model.num_labels
+            if self.data_labeler.model.requires_zero_mapping:
+                num_labels -= 1
+            self._sum_predictions = np.zeros(num_labels)
+
         predictions = self.data_labeler.predict(
             df_series, predict_options=dict(show_confidences=True)
         )

@@ -720,7 +720,7 @@ def merge(top_profile, other_profile=None):
     return top_profile + other_profile
 
 
-def merge_profile_list(list_of_profiles, pool_count=5, replacement_type=None):
+def merge_profile_list(list_of_profiles, pool_count=5):
     """Merge list of profiles into a single profile.
 
     :param list_of_profiles: Categories and respective counts of the second group
@@ -735,13 +735,8 @@ def merge_profile_list(list_of_profiles, pool_count=5, replacement_type=None):
     # assuming that the labeler models are all the same across each profile
     # in the list
     for profile_idx, profile in enumerate(list_of_profiles):
-        if profile_idx == 0:
-            data_labeler = list_of_profiles[profile_idx]._remove_data_labelers(
-                replacement_type=replacement_type
-            )
-            continue
-        list_of_profiles[profile_idx]._remove_data_labelers(
-            replacement_type=replacement_type
+        data_labeler = list_of_profiles[profile_idx]._remove_data_labelers(
+            replacement_type=BaseDataLabeler()
         )
 
     while len(list_of_profiles) > 1:

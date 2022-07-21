@@ -15,6 +15,8 @@ import scipy
 
 from dataprofiler import settings
 
+from ..labelers.base_data_labeler import BaseDataLabeler
+
 
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
@@ -742,6 +744,11 @@ def merge_profile_list(list_of_profiles, pool_count=5):
         list_of_profiles = chunk(list_of_profiles, 2)
         with mp.Pool(pool_count) as p:
             list_of_profiles = p.starmap(merge, list_of_profiles)
+
+    if not issubclass(type(data_labeler), BaseDataLabeler):
+        raise TypeError(
+            "Data Labeler is not inheriting from subclass `BaseDataLabeler`"
+        )
 
     list_of_profiles[0]._restore_data_labelers(data_labeler)
     return list_of_profiles[0]

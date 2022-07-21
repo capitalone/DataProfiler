@@ -720,7 +720,7 @@ def merge(top_profile, other_profile=None):
     return top_profile + other_profile
 
 
-def merge_profile_list(list_of_profiles, pool_count=5):
+def merge_profile_list(list_of_profiles, pool_count=5, replacement_type=None):
     """Merge list of profiles into a single profile.
 
     :param list_of_profiles: Categories and respective counts of the second group
@@ -736,19 +736,18 @@ def merge_profile_list(list_of_profiles, pool_count=5):
     # in the list
     for profile_idx, profile in enumerate(list_of_profiles):
         if profile_idx == 0:
-            data_labeler = list_of_profiles[profile_idx]._remove_data_labelers()
+            data_labeler = list_of_profiles[profile_idx]._remove_data_labelers(
+                replacement_type=replacement_type
+            )
             continue
-        list_of_profiles[profile_idx]._remove_data_labelers()
+        list_of_profiles[profile_idx]._remove_data_labelers(
+            replacement_type=replacement_type
+        )
 
     while len(list_of_profiles) > 1:
         list_of_profiles = chunk(list_of_profiles, 2)
         with mp.Pool(pool_count) as p:
             list_of_profiles = p.starmap(merge, list_of_profiles)
-
-    if not issubclass(type(data_labeler), BaseDataLabeler):
-        raise TypeError(
-            "Data Labeler is not inheriting from subclass `BaseDataLabeler`"
-        )
 
     list_of_profiles[0]._restore_data_labelers(data_labeler)
     return list_of_profiles[0]

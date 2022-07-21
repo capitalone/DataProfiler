@@ -1,24 +1,30 @@
-from collections import Counter, defaultdict
+"""Class and functions to calculate and profile properties of graph data."""
+from collections import defaultdict
 
 import networkx as nx
 import numpy as np
 import scipy.stats as st
 
-from . import BaseColumnProfiler, utils
-from .profiler_options import TextProfilerOptions
+from . import BaseColumnProfiler
 
 
 class GraphProfile(object):
+    """
+    GraphProfiler class.
+
+    Creates a profile describing a graph dataset
+    Statistical properties of graph
+    """
+
     def __init__(self, name, options=None):
         """
-        Initialization of Graph Profiler.
+        Initialize Graph Profiler.
 
         :param name: Name of the data
         :type name: String
         :param options: Options for the Graph Profiler
         :type options: GraphOptions
         """
-
         self.name = name
         self.sample_size = 0
         self.times = defaultdict(float)
@@ -52,11 +58,15 @@ class GraphProfile(object):
     @property
     def profile(self):
         """
-        Returns the profile of the graph
+        Return the profile of the graph.
+
         :return: the profile of the graph in data
         """
         profile = dict(
             num_nodes=self._num_nodes,
+            num_edges=self._num_edges,
+            categorical_attributes=self._categorical_attributes,
+            continuous_attributes=self._continuous_attributes,
             avg_node_degree=self._avg_node_degree,
             global_max_component_size=self._global_max_component_size,
             continuous_distribution=self._continuous_distribution,
@@ -67,7 +77,7 @@ class GraphProfile(object):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for two unstructured text profiles
+        Find the differences for two unstructured text profiles.
 
         :param other_profile: profile to find the difference with
         :type other_profile: GraphProfiler
@@ -86,7 +96,9 @@ class GraphProfile(object):
 
     def report(self, remove_disabled_flag=False):
         """
-        Report on profile attribute of the class and pop value from self.profile if key not in self.__calculations
+        Report on profile attribute of the class.
+
+        Pop value from self.profile if key not in self.__calculations
         """
         calcs_dict_keys = self.__calculations.keys()
         profile = self.profile
@@ -95,16 +107,36 @@ class GraphProfile(object):
             profile_keys = list(profile.keys())
             for profile_key in profile_keys:
                 # need to add props
-                if profile_key == "<PROP>":
-                    if "<PROP>" in calcs_dict_keys:
+                if profile_key == "num_nodes":
+                    if "num_nodes" in calcs_dict_keys:
+                        continue
+                if profile_key == "num_edges":
+                    if "num_edges" in calcs_dict_keys:
+                        continue
+                if profile_key == "categorical_attributes":
+                    if "categorical_attributes" in calcs_dict_keys:
+                        continue
+                if profile_key == "continuous_attributes":
+                    if "continuous_attributes" in calcs_dict_keys:
+                        continue
+                if profile_key == "avg_node_degree":
+                    if "avg_node_degree" in calcs_dict_keys:
+                        continue
+                if profile_key == "global_max_component_size":
+                    if "global_max_component_size" in calcs_dict_keys:
+                        continue
+                if profile_key == "continuous_distribution":
+                    if "continuous_distribution" in calcs_dict_keys:
+                        continue
+                if profile_key == "categorical_distribution":
+                    if "categorical_distribution" in calcs_dict_keys:
                         continue
                 profile.pop(profile_key)
         return profile
 
     def _update_helper(self, data, profile):
         """
-        Method for updating the graph profile properties with a cleaned
-        dataset and the known null parameters of the dataset.
+        Update the graph profile properties with a cleaned dataset.
 
         :param data: networkx graph
         :type data: NetworkX Graph
@@ -117,7 +149,7 @@ class GraphProfile(object):
 
     def update(self, graph):
         """
-        Updates the graph profile.
+        Update the graph profile.
 
         :param data: networkx graph
         :type data: NetworkX Graph
@@ -145,27 +177,35 @@ class GraphProfile(object):
     """
 
     def _update_num_nodes(self, graph):
+        """Update num_nodes for profile."""
         return self._get_num_nodes(graph)
 
     def _update_num_edges(self, graph):
+        """Update num_edges for profile."""
         return self._get_num_edges(graph)
 
     def _update_avg_node_degree(self, graph):
+        """Update avg_node_degree for profile."""
         return self._get_avg_node_degree(graph)
 
     def _update_global_max_component_size(self, graph):
+        """Update global_max_component_size for profile."""
         return self._get_global_max_component_size(graph)
 
     def _update_categorical_attributes(self, graph):
+        """Update categorical_attributes for profile."""
         return self._get_categorical_attributes(graph)
 
     def _update_continuous_attributes(self, graph):
+        """Update continuous_attributes for profile."""
         return self._get_continuous_attributes(graph)
 
     def _update_continuous_distribution(self, graph):
+        """Update continuous_distribution for profile."""
         return self._get_continuous_distribution(graph)
 
     def _update_categorical_distribution(self, graph):
+        """Update categorical_distribution for profile."""
         return self._get_categorical_distribution(graph)
 
     """
@@ -174,31 +214,27 @@ class GraphProfile(object):
 
     @staticmethod
     def _get_num_nodes(graph):
-        """
-        Compute the number of nodes
-        """
+        """Compute the number of nodes."""
         return graph.number_of_nodes()
 
     @staticmethod
     def _get_num_edges(graph):
-        """
-        Compute the number of edges
-        """
+        """Compute the number of edges."""
         return graph.number_of_edges()
 
     @staticmethod
     def _get_categorical_attributes(graph):
+        """Fetch list of categorical attributes."""
         return GraphProfile._get_categorical_and_continuous_attributes(graph)[0]
 
     @staticmethod
     def _get_continuous_attributes(graph):
+        """Fetch list of continuous attributes."""
         return GraphProfile._get_categorical_and_continuous_attributes(graph)[1]
 
     @staticmethod
     def _get_avg_node_degree(graph):
-        """
-        Compute average node degree of nodes in graph
-        """
+        """Compute average node degree of nodes in graph."""
         total_degree = 0
         for node in graph:
             total_degree += graph.degree[node]
@@ -206,9 +242,7 @@ class GraphProfile(object):
 
     @staticmethod
     def _get_global_max_component_size(graph):
-        """
-        Compute largest subgraph component of the graph
-        """
+        """Compute largest subgraph component of the graph."""
         graph_connected_components = sorted(
             nx.connected_components(graph), key=len, reverse=True
         )
@@ -217,9 +251,7 @@ class GraphProfile(object):
 
     @staticmethod
     def _get_continuous_distribution(self, graph):
-        """
-        Compute the continuous distribution of graph edge continuous attributes
-        """
+        """Compute the continuous distribution of graph edge continuous attributes."""
         attributes = GraphProfile.find_all_attributes(graph)
         continuous_attributes = GraphProfile._get_continuous_attributes(graph)
 
@@ -260,9 +292,7 @@ class GraphProfile(object):
 
     @staticmethod
     def _get_categorical_distribution(self, graph):
-        """
-        Compute categorical probabilities of graph edge categorical attributes
-        """
+        """Compute categorical probabilities of graph edge categorical attributes."""
         attributes = GraphProfile.find_all_attributes(graph)
         categorical_attributes = GraphProfile._get_categorical_attributes(graph)
 
@@ -295,9 +325,7 @@ class GraphProfile(object):
 
     @staticmethod
     def _get_categorical_and_continuous_attributes(graph):
-        """
-        Finds and lists categorical and continuous attributes
-        """
+        """Find and list categorical and continuous attributes."""
         categorical_attributes = []
         continuous_attributes = []
         attributes = GraphProfile._find_all_attributes(graph)
@@ -320,18 +348,14 @@ class GraphProfile(object):
 
     @staticmethod
     def _find_all_attributes(graph):
-        """
-        Compute the number of attributes for each edge
-        """
+        """Compute the number of attributes for each edge."""
         attribute_list = set(
             np.array([list(graph.edges[n].keys()) for n in graph.edges()]).flatten()
         )
         return list(attribute_list)
 
     def _attribute_data_as_list(self, graph, attribute):
-        """
-        Fetches graph attribute data and converts it to a conveniently readable list
-        """
+        """Fetch graph attribute data and convert it to a readable list."""
         data_as_list = []
         for u, v in list(graph.edges):
             value = graph[u][v][attribute]

@@ -1,4 +1,4 @@
-"""coding=utf-8."""
+"""Text profile analysis for individual col within structured profiling.."""
 
 import itertools
 

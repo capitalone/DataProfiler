@@ -1,4 +1,4 @@
-"""coding=utf-8."""
+"""Index profile analysis for individual col within structured profiling."""
 
 from . import BaseColumnProfiler, utils
 from .profiler_options import OrderOptions

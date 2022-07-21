@@ -1,4 +1,4 @@
-"""coding=utf-8."""
+"""Float profile analysis for individual col within structured profiling."""
 
 import copy
 import re

@@ -1,4 +1,4 @@
-"""coding=utf-8."""
+"""Utility funcs allowing alteration of logging level/verbosity within dp lib."""
 
 import logging
 import sys

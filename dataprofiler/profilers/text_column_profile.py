@@ -1,3 +1,9 @@
+"""
+This is the text-column profiler module.
+
+This profiler handles text columns.
+"""
+
 import itertools
 
 from . import utils
@@ -8,15 +14,16 @@ from .profiler_options import TextOptions
 
 class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     """
-    Text column profile subclass of BaseColumnProfiler. Represents a column in
-    the dataset which is a text column.
+    Text column profile subclass of BaseColumnProfiler.
+
+    Represents a column in the dataset which is a text column.
     """
 
     type = "text"
 
     def __init__(self, name, options=None):
         """
-        Initialization of column base properties and itself.
+        Initialize column base properties and itself.
 
         :param name: Name of the data
         :type name: String
@@ -35,7 +42,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def __add__(self, other):
         """
-        Merges the properties of two TextColumn profiles
+        Merge properties of two TextColumn profiles.
 
         :param self: first profile
         :param other: second profile
@@ -60,9 +67,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return merged_profile
 
     def report(self, remove_disabled_flag=False):
-        """Report on profile attribute of the class and pop value
-        from self.profile if key not in self.__calculations
-        """
+        """Report profile attribute of class; potentially pop val from self.profile."""
         calcs_dict_keys = self._TextColumn__calculations.keys()
         profile = self.profile
 
@@ -79,7 +84,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @property
     def profile(self):
         """
-        Property for profile. Returns the profile of the column.
+        Return the profile of the column.
 
         :return:
         """
@@ -93,7 +98,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for text columns
+        Find the differences for text columns.
 
         :param other_profile: profile to find the difference with
         :type other_profile: TextColumn Profile
@@ -108,7 +113,8 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @property
     def data_type_ratio(self):
         """
-        Calculates the ratio of samples which match this data type.
+        Calculate the ratio of samples which match this data type.
+
         NOTE: all values can be considered string so always returns 1 in this
         case.
 
@@ -122,7 +128,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         self, data, prev_dependent_properties=None, subset_properties=None
     ):
         """
-        Finds the unique vocabulary used in the text column.
+        Find the unique vocabulary used in the text column.
 
         :param data: list or array of data from which to extract vocab
         :type data: Union[list, numpy.array, pandas.DataFrame]
@@ -134,14 +140,12 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :type subset_properties: dict
         :return: None
         """
-
         data_flat = list(itertools.chain(*data))
         self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
 
     def _update_helper(self, df_series_clean, profile):
         """
-        Method for updating the column profile properties with a cleaned
-        dataset and the known null parameters of the dataset.
+        Update col profile properties with clean dataset and its known null parameters.
 
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
@@ -158,7 +162,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def update(self, df_series):
         """
-        Updates the column profile.
+        Update the column profile.
 
         :param df_series: df series
         :type df_series: pandas.core.series.Series

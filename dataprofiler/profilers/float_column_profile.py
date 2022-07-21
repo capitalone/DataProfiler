@@ -1,5 +1,10 @@
+"""
+This is the float-column profiler module.
+
+This profiler handles float columns.
+"""
+
 import copy
-import math
 import re
 
 import numpy as np
@@ -12,15 +17,17 @@ from .profiler_options import FloatOptions
 
 class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     """
-    Float column profile mixin with of numerical stats. Represents a column in
-    the dataset which is a float column.
+    Float column profile mixin with numerical stats.
+
+    Represents a column in the dataset which is a float column.
     """
 
     type = "float"
 
     def __init__(self, name, options=None):
         """
-        Initialization of column base properties and itself.
+        Initialize column base properties and itself.
+
         :param name: Name of the data
         :type name: String
         :param options: Options for the float column
@@ -57,7 +64,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def __add__(self, other):
         """
-        Merges the properties of two FloatColumn profiles
+        Merge the properties of two FloatColumn profiles.
+
         :param self: first profile
         :param other: second profile
         :type self: FloatColumn
@@ -116,7 +124,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for FloatColumns.
+        Find the differences for FloatColumns.
 
         :param other_profile: profile to find the difference with
         :type other_profile: FloatColumn
@@ -135,9 +143,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return differences
 
     def report(self, remove_disabled_flag=False):
-        """Report on profile attribute of the class and pop value
-        from self.profile if key not in self.__calculations
-        """
+        """Report profile attribute of class; potentially pop val from self.profile."""
         calcs_dict_keys = self._FloatColumn__calculations.keys()
         profile = self.profile
 
@@ -154,7 +160,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @property
     def profile(self):
         """
-        Property for profile. Returns the profile of the column.
+        Return the profile of the column.
+
         :return:
         """
         profile = NumericStatsMixin.profile(self)
@@ -181,8 +188,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @property
     def precision(self):
         """
-        Property reporting statistics on the significant figures of each
-        element in the data.
+        Report statistics on the significant figures of each element in the data.
+
         :return: Precision statistics
         :rtype: dict
         """
@@ -221,7 +228,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @property
     def data_type_ratio(self):
         """
-        Calculates the ratio of samples which match this data type.
+        Calculate the ratio of samples which match this data type.
+
         :return: ratio of data type
         :rtype: float
         """
@@ -232,7 +240,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @classmethod
     def _get_float_precision(cls, df_series_clean, sample_ratio=None):
         """
-        Determines the precision of the numeric value.
+        Determine the precision of the numeric value.
 
         :param df_series_clean: df series with nulls removed, assumes all values
             are floats as well
@@ -278,8 +286,9 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @classmethod
     def _is_each_row_float(cls, df_series):
         """
-        Determines if each value in a dataframe is a float. Integers and NaNs
-        can be considered a float.
+        Determine if each value in a dataframe is a float.
+
+        Integers and NaNs can be considered a float.
         e.g.
         For column [1, 1, 1] returns [True, True, True]
         For column [1.0, np.NaN, 1.0] returns [True, True, True]
@@ -298,7 +307,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         self, df_series, prev_dependent_properties, subset_properties
     ):
         """
-        Updates the precision value of the column.
+        Update the precision value of the column.
 
         :param prev_dependent_properties: Contains all the previous properties
         that the calculations depend on.
@@ -346,8 +355,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def _update_helper(self, df_series_clean, profile):
         """
-        Method for updating the column profile properties with a cleaned
-        dataset and the known profile of the dataset.
+        Update column profile properties with cleaned dataset and its known profile.
+
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
         :param profile: float profile dictionary
@@ -362,8 +371,9 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         self, df_series, prev_dependent_properties, subset_properties
     ):
         """
-        Calls the numeric stats update function. This is a wrapper to allow
-        for modularity.
+        Call the numeric stats update function.
+
+        This is a wrapper to allow for modularity.
         :param prev_dependent_properties: Contains all the previous properties
         that the calculations depend on.
         :type prev_dependent_properties: Dict
@@ -378,7 +388,8 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def update(self, df_series):
         """
-        Updates the column profile.
+        Update the column profile.
+
         :param df_series: df series
         :type df_series: pandas.core.series.Series
         :return: None

@@ -17,7 +17,7 @@ from .profiler_options import FloatOptions
 
 class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     """
-    Float column profile mixin with of numerical stats.
+    Float column profile mixin with numerical stats.
 
     Represents a column in the dataset which is a float column.
     """

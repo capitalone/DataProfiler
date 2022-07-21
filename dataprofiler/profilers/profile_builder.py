@@ -890,7 +890,7 @@ class BaseProfiler(object):
             and data_labeler_options.data_labeler_object is not None
         ):
             data_labeler = data_labeler_options.data_labeler_object
-            data_labeler_options.data_labeler_object = replacement_type()
+            data_labeler_options.data_labeler_object = replacement_type
 
         # get all profiles, unstructured is a single profile and hence needs to
         # be in a list, whereas structured is already a list
@@ -912,7 +912,7 @@ class BaseProfiler(object):
                 data_labeler = profiler._profiles["data_labeler"].data_labeler
 
             if profiler and "data_labeler" in profiler._profiles:
-                profiler._profiles["data_labeler"].data_labeler = replacement_type()
+                profiler._profiles["data_labeler"].data_labeler = replacement_type
 
         return data_labeler
 

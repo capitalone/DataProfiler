@@ -1,8 +1,4 @@
-"""
-This is the float-column profiler module.
-
-This profiler handles float columns.
-"""
+"""coding=utf-8."""
 
 import copy
 import re

@@ -1,8 +1,4 @@
-"""
-This is the order-column profiler module.
-
-This profiler handles index columns.
-"""
+"""coding=utf-8."""
 
 from . import BaseColumnProfiler, utils
 from .profiler_options import OrderOptions

@@ -1,8 +1,4 @@
-"""
-This is the text-column profiler module.
-
-This profiler handles text columns.
-"""
+"""coding=utf-8."""
 
 import itertools
 

@@ -1,3 +1,5 @@
+"""coding=utf-8."""
+
 import logging
 import sys
 import threading
@@ -7,7 +9,7 @@ _dp_logger_lock = threading.Lock()
 
 
 def get_logger():
-    """Access DataProfiler-specific logger"""
+    """Access DataProfiler-specific logger."""
     global _dp_logger
 
     # Return _logger if initialized
@@ -38,7 +40,9 @@ def get_logger():
 
 def set_verbosity(level):
     """
-    Set verbosity level for DataProfiler logger. Must set it to one of
+    Set verbosity level for DataProfiler logger.
+
+    Must set it to one of
     [logging.NOTSET, logging.DEBUG, logging.INFO,
      logging.WARNING, logging.ERROR, logging.CRITICAL]
 
@@ -50,7 +54,7 @@ def set_verbosity(level):
 
 def get_child_logger(name):
     """
-    Returns logger for given filepath
+    Return logger for given filepath.
 
     :param name: name of file in need of accessing child logger
     :type name: str

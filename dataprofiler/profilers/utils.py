@@ -14,7 +14,6 @@ import psutil
 import scipy
 
 from dataprofiler import settings
-from dataprofiler.profilers import profile_builder
 
 
 def dict_merge(dct, merge_dct):
@@ -733,7 +732,11 @@ def merge_profile_list(list_of_profiles, pool_count=5):
     # remove the labeler model from the first profile object
     # assuming that the labeler models are all the same across each profile
     # in the list
-    data_labeler = profile_builder._remove_data_labelers(list_of_profiles[0])
+    for profile_idx, profile in enumerate(list_of_profiles):
+        if profile_idx == 0:
+            data_labeler = list_of_profiles[profile_idx]._remove_data_labelers()
+            continue
+        list_of_profiles[profile_idx]._remove_data_labelers()
 
     while len(list_of_profiles) > 1:
         list_of_profiles = chunk(list_of_profiles, 2)

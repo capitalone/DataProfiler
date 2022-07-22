@@ -56,11 +56,6 @@ class GraphData(BaseData):
         options = self._check_and_return_options(options)
         BaseData.__init__(self, input_file_path, data, options)
 
-        if data is not None:
-            raise NotImplementedError("Inputting data is not yet implemented.")
-        if input_file_path is None:
-            raise ValueError("Please input a file dataset.")
-
         self._source_node = options.get("source_node", None)
         self._destination_node = options.get("destination_node", None)
         self._target_keywords = options.get(
@@ -75,6 +70,9 @@ class GraphData(BaseData):
         self._delimiter = options.get("delimiter", None)
         self._quotechar = options.get("quotechar", None)
         self._header = options.get("header", "auto")
+
+        if data is not None:
+            self._load_data(data)
 
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):
@@ -182,9 +180,6 @@ class GraphData(BaseData):
         csv_as_list = data_as_pd.values.tolist()
 
         # grab list of edges from source/dest nodes
-        list_edges = []
-        list_nodes = set()
-
         for line in range(0, len(csv_as_list)):
             # fetch attributes in columns
             attributes = dict()
@@ -195,7 +190,9 @@ class GraphData(BaseData):
                     column is not self._source_node
                     or column is not self._destination_node
                 ):
-                    attributes[self._column_names[column]] = csv_as_list[line][column]
+                    attributes[self._column_names[column]] = float(
+                        csv_as_list[line][column]
+                    )
                 elif column is self._source_node or column is self._destination_node:
                     networkx_graph.add_node(csv_as_list[line][column])
             networkx_graph.add_edge(
@@ -208,4 +205,9 @@ class GraphData(BaseData):
         return networkx_graph
 
     def _load_data(self, data=None):
-        self._data = self._format_data_networkx()
+        if data is not None:
+            if not isinstance(data, nx.Graph):
+                raise ValueError("Only NetworkX Graph objects allowed as input data.")
+            self._data = data
+        else:
+            self._data = self._format_data_networkx()

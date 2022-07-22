@@ -3,6 +3,7 @@ from collections import defaultdict
 
 import networkx as nx
 import numpy as np
+import pandas as pd
 import scipy.stats as st
 
 from . import BaseColumnProfiler
@@ -42,17 +43,16 @@ class GraphProfile(object):
         self._continuous_distribution = None
         self._categorical_distribution = None
         self.metadata = dict()
-        self.times = dict()
 
         self.__calculations = {
-            "num_nodes": GraphProfile._get_num_nodes,
-            "num_edges": GraphProfile._get_num_edges,
-            "categorical_attributes": GraphProfile._get_categorical_attributes,
-            "continuous_attributes": GraphProfile._get_continuous_attributes,
-            "avg_node_degree": GraphProfile._get_avg_node_degree,
-            "global_max_component_size": GraphProfile._get_global_max_component_size,
-            "continuous_distribution": GraphProfile._get_continuous_distribution,
-            "categorical_distribution": GraphProfile._get_categorical_distribution,
+            "num_nodes": GraphProfile._update_num_nodes,
+            "num_edges": GraphProfile._update_num_edges,
+            "categorical_attributes": GraphProfile._update_categorical_attributes,
+            "continuous_attributes": GraphProfile._update_continuous_attributes,
+            "avg_node_degree": GraphProfile._update_avg_node_degree,
+            "global_max_component_size": GraphProfile._update_global_max_component_size,
+            "continuous_distribution": GraphProfile._update_continuous_distribution,
+            "categorical_distribution": GraphProfile._update_categorical_distribution,
         }
 
     @property
@@ -102,39 +102,28 @@ class GraphProfile(object):
         """
         calcs_dict_keys = self.__calculations.keys()
         profile = self.profile
+        list_keys = [
+            "num_nodes",
+            "num_edges",
+            "categorical_attributes",
+            "continuous_attributes",
+            "avg_node_degree",
+            "global_max_component_size",
+            "continuous_distribution",
+            "categorical_distribution",
+        ]
 
         if remove_disabled_flag:
             profile_keys = list(profile.keys())
             for profile_key in profile_keys:
                 # need to add props
-                if profile_key == "num_nodes":
+                if profile_key in list_keys:
                     if "num_nodes" in calcs_dict_keys:
-                        continue
-                if profile_key == "num_edges":
-                    if "num_edges" in calcs_dict_keys:
-                        continue
-                if profile_key == "categorical_attributes":
-                    if "categorical_attributes" in calcs_dict_keys:
-                        continue
-                if profile_key == "continuous_attributes":
-                    if "continuous_attributes" in calcs_dict_keys:
-                        continue
-                if profile_key == "avg_node_degree":
-                    if "avg_node_degree" in calcs_dict_keys:
-                        continue
-                if profile_key == "global_max_component_size":
-                    if "global_max_component_size" in calcs_dict_keys:
-                        continue
-                if profile_key == "continuous_distribution":
-                    if "continuous_distribution" in calcs_dict_keys:
-                        continue
-                if profile_key == "categorical_distribution":
-                    if "categorical_distribution" in calcs_dict_keys:
                         continue
                 profile.pop(profile_key)
         return profile
 
-    def _update_helper(self, data, profile):
+    def _update_helper(self, profile):
         """
         Update the graph profile properties with a cleaned dataset.
 
@@ -163,12 +152,12 @@ class GraphProfile(object):
         BaseColumnProfiler._perform_property_calcs(
             self,
             self.__calculations,
-            df_series=graph_size,
+            df_series=graph,
             prev_dependent_properties={},
             subset_properties={},
         )
 
-        self._update_helper(graph_size, profile)
+        self._update_helper(profile)
 
         return self
 
@@ -176,72 +165,97 @@ class GraphProfile(object):
     Update functions to update props with get functions
     """
 
-    def _update_num_nodes(self, graph):
+    def _update_num_nodes(
+        self, graph, prev_dependent_properties=None, subset_properties=None
+    ):
         """Update num_nodes for profile."""
-        return self._get_num_nodes(graph)
+        self._num_nodes = self._get_num_nodes(graph)
+        subset_properties["num_nodes"] = self._num_nodes
 
-    def _update_num_edges(self, graph):
+    def _update_num_edges(
+        self, graph, prev_dependent_properties=None, subset_properties=None
+    ):
         """Update num_edges for profile."""
-        return self._get_num_edges(graph)
+        self._num_edges = self._get_num_edges(graph)
 
-    def _update_avg_node_degree(self, graph):
+    def _update_avg_node_degree(
+        self, graph, prev_dependent_properties=None, subset_properties=None
+    ):
         """Update avg_node_degree for profile."""
-        return self._get_avg_node_degree(graph)
+        self._avg_node_degree = self._get_avg_node_degree(
+            graph, subset_properties["num_nodes"]
+        )
 
-    def _update_global_max_component_size(self, graph):
+    def _update_global_max_component_size(
+        self, graph, prev_dependent_properties=None, subset_properties=None
+    ):
         """Update global_max_component_size for profile."""
-        return self._get_global_max_component_size(graph)
+        self._global_max_component_size = self._get_global_max_component_size(graph)
 
-    def _update_categorical_attributes(self, graph):
+    def _update_categorical_attributes(
+        self, graph, prev_dependent_properties=None, subset_properties=None
+    ):
         """Update categorical_attributes for profile."""
-        return self._get_categorical_attributes(graph)
+        self._categorical_attributes = self._get_categorical_attributes(graph)
+        subset_properties["categorical_attributes"] = self._categorical_attributes
 
-    def _update_continuous_attributes(self, graph):
+    def _update_continuous_attributes(
+        self, graph, prev_dependent_properties=None, subset_properties=None
+    ):
         """Update continuous_attributes for profile."""
-        return self._get_continuous_attributes(graph)
+        self._continuous_attributes = self._get_continuous_attributes(graph)
+        subset_properties["continuous_attributes"] = self._continuous_attributes
 
-    def _update_continuous_distribution(self, graph):
+    def _update_continuous_distribution(
+        self, graph, prev_dependent_properties=None, subset_properties=None
+    ):
         """Update continuous_distribution for profile."""
-        return self._get_continuous_distribution(graph)
+        self._continuous_distribution = self._get_continuous_distribution(
+            graph, subset_properties["continuous_attributes"]
+        )
 
-    def _update_categorical_distribution(self, graph):
+    def _update_categorical_distribution(
+        self, graph, prev_dependent_properties=None, subset_properties=None
+    ):
         """Update categorical_distribution for profile."""
-        return self._get_categorical_distribution(graph)
+        self._categorical_distribution = self._get_categorical_distribution(
+            graph, subset_properties["categorical_attributes"]
+        )
 
     """
     Get functions to calculate props
     """
 
-    @staticmethod
-    def _get_num_nodes(graph):
+    @BaseColumnProfiler._timeit(name="num_nodes")
+    def _get_num_nodes(self, graph):
         """Compute the number of nodes."""
         return graph.number_of_nodes()
 
-    @staticmethod
-    def _get_num_edges(graph):
+    @BaseColumnProfiler._timeit(name="num_edges")
+    def _get_num_edges(self, graph):
         """Compute the number of edges."""
         return graph.number_of_edges()
 
-    @staticmethod
-    def _get_categorical_attributes(graph):
+    @BaseColumnProfiler._timeit(name="categorical_attributes")
+    def _get_categorical_attributes(self, graph):
         """Fetch list of categorical attributes."""
-        return GraphProfile._get_categorical_and_continuous_attributes(graph)[0]
+        return self._get_categorical_and_continuous_attributes(graph)[0]
 
-    @staticmethod
-    def _get_continuous_attributes(graph):
+    @BaseColumnProfiler._timeit(name="continuous_attributes")
+    def _get_continuous_attributes(self, graph):
         """Fetch list of continuous attributes."""
-        return GraphProfile._get_categorical_and_continuous_attributes(graph)[1]
+        return self._get_categorical_and_continuous_attributes(graph)[1]
 
-    @staticmethod
-    def _get_avg_node_degree(graph):
+    @BaseColumnProfiler._timeit(name="avg_node_degree")
+    def _get_avg_node_degree(self, graph, num_nodes):
         """Compute average node degree of nodes in graph."""
         total_degree = 0
         for node in graph:
             total_degree += graph.degree[node]
-        return total_degree / GraphProfile._get_num_nodes(graph)
+        return total_degree / num_nodes
 
-    @staticmethod
-    def _get_global_max_component_size(graph):
+    @BaseColumnProfiler._timeit(name="global_max_component_size")
+    def _get_global_max_component_size(self, graph):
         """Compute largest subgraph component of the graph."""
         graph_connected_components = sorted(
             nx.connected_components(graph), key=len, reverse=True
@@ -249,75 +263,59 @@ class GraphProfile(object):
         largest_component = graph.subgraph(graph_connected_components[0])
         return largest_component.size()
 
-    @staticmethod
-    def _get_continuous_distribution(self, graph):
+    @BaseColumnProfiler._timeit(name="continuous_distribution")
+    def _get_continuous_distribution(self, graph, continuous_attributes):
         """Compute the continuous distribution of graph edge continuous attributes."""
-        attributes = GraphProfile.find_all_attributes(graph)
-        continuous_attributes = GraphProfile._get_continuous_attributes(graph)
-
-        distribution_candidates = [st.bernoulli, st.binom, st.geom, st.poisson]
+        attributes = self._find_all_attributes(graph)
         continuous_distributions = dict()
 
+        distribution_candidates = [
+            st.norm,
+            st.uniform,
+            st.expon,
+            st.logistic,
+            st.lognorm,
+            st.gamma,
+        ]
         for attribute in attributes:
             if attribute in continuous_attributes:
                 data_as_list = self._attribute_data_as_list(graph, attribute)
+                df = pd.DataFrame({attribute: data_as_list})
 
-                distribution_candidates = [
-                    st.norm,
-                    st.uniform,
-                    st.expon,
-                    st.logistic,
-                    st.lognorm,
-                    st.gamma,
-                ]
-                best_mle = ("initial value", 1000)
+                best_fit = None
+                best_mle = 1000
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
-                    fit = distribution.fit(data_as_list)
-                    mle = distribution.nnlf(fit, data_as_list)
-                    ktest = st.kstest(data_as_list, "norm", fit)
+                    fit = distribution.fit(df)
+                    mle = distribution.nnlf(fit, df)
 
-                    test_points = np.linspace(
-                        min(data_as_list), max(data_as_list), 1000
-                    )
-                    pdf = distribution.pdf(test_points, fit)
-
-                    if mle <= best_mle[0]:
-                        best_mle = (distribution.name, mle, pdf, ktest)
-                continuous_distributions[attribute] = best_mle
+                    if mle <= best_mle:
+                        best_fit = distribution.name
+                        best_mle = mle
+                continuous_distributions[attribute] = {
+                    "name": best_fit,
+                    "scale": list(best_mle),
+                }
             else:
                 continuous_distributions[attribute] = None
 
         return continuous_distributions
 
-    @staticmethod
-    def _get_categorical_distribution(self, graph):
-        """Compute categorical probabilities of graph edge categorical attributes."""
-        attributes = GraphProfile.find_all_attributes(graph)
-        categorical_attributes = GraphProfile._get_categorical_attributes(graph)
+    @BaseColumnProfiler._timeit(name="categorical_distribution")
+    def _get_categorical_distribution(self, graph, categorical_attributes):
+        """Compute histogram of graph edge categorical attributes."""
+        attributes = GraphProfile._find_all_attributes(graph)
 
-        distribution_candidates = [st.bernoulli, st.binom, st.geom, st.poisson]
         categorical_distributions = dict()
 
         for attribute in attributes:
             if attribute in categorical_attributes:
-                best_mle = ("initial value", 1000)
                 data_as_list = self._attribute_data_as_list(graph, attribute)
-
-                for distribution in distribution_candidates:
-                    # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
-                    fit = distribution.fit(data_as_list)
-                    mle = distribution.nnlf(fit, data_as_list)
-                    ktest = st.kstest(data_as_list, "norm", fit)
-
-                    test_points = np.linspace(
-                        min(data_as_list), max(data_as_list), 1000
-                    )
-                    pdf = distribution.pdf(test_points, fit)
-
-                    if mle <= best_mle[0]:
-                        best_mle = (distribution.name, mle, pdf, ktest)
-                categorical_distributions[attribute] = best_mle
+                hist, edges = np.histogram(data_as_list, bins="auto", density=False)
+                categorical_distributions[attribute] = {
+                    "bin_counts": list(hist),
+                    "bin_edges": list(edges),
+                }
             else:
                 categorical_distributions[attribute] = None
 

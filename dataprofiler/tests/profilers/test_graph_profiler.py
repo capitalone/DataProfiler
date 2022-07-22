@@ -39,7 +39,7 @@ class TestGraphProfiler(unittest.TestCase):
             global_max_component_size=5,
             continuous_distribution={
                 "id": None,
-                "weight": {"name": "lognorm", "scale": [-15.250985118262854]},
+                "weight": {"name": "lognorm", "scale": -15.250985118262854},
             },
             categorical_distribution={
                 "id": {

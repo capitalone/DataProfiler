@@ -1,7 +1,14 @@
+import os
 import unittest
 from datetime import datetime
+from unittest import mock
 
+import pandas as pd
+import numpy as np
+
+import dataprofiler as dp
 from dataprofiler.profilers import utils
+from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
 
 
 class TestShuffleInChunks(unittest.TestCase):
@@ -224,3 +231,94 @@ class TestShuffleInChunks(unittest.TestCase):
             33 / 1024**3,
             utils.get_memory_size(["This is test, a Test sentence.!!!"], unit="G"),
         )
+
+@mock.patch(
+    "dataprofiler.profilers.profile_builder.DataLabeler", spec=BaseDataLabeler
+)
+class TestProfileDistributedMerge(unittest.TestCase):
+    """
+    Validates utils.merge_profile_list is properly working.
+    """
+    @staticmethod
+    def _setup_data_labeler_mock(mock_instance):
+        mock_DataLabeler = mock_instance.return_value
+        mock_DataLabeler.label_mapping = {"a": 0, "b": 1}
+        mock_DataLabeler.reverse_label_mapping = {0: "a", 1: "b"}
+        mock_DataLabeler.model.num_labels = 2
+        mock_DataLabeler.model.requires_zero_mapping = False
+
+        def mock_predict(data, *args, **kwargs):
+            len_data = len(data)
+            output = [[1, 0], [0, 1]] * (len_data // 2)
+            if len_data % 2:
+                output += [[1, 0]]
+            conf = np.array(output)
+            if mock_DataLabeler.model.requires_zero_mapping:
+                conf = np.concatenate([[[0]] * len_data, conf], axis=1)
+            pred = np.argmax(conf, axis=1)
+            return {"pred": pred, "conf": conf}
+
+        mock_DataLabeler.predict.side_effect = mock_predict
+
+    def test_merge_profile_list(self, mock_data_labeler, *mocks):
+        """
+        A top-level function which takes in a list of profile objects, merges
+            all the profiles together into one profile, and returns the single
+            merged profile as the return value.
+
+            The labeler object is removed prior to merge and added back to the
+            single profile object.
+        """
+        self._setup_data_labeler_mock(mock_data_labeler)
+
+        data = pd.DataFrame([1, 2, 3, 4, 5, 60, 1])
+        profile_one = dp.Profiler(data[:2])
+        profile_two = dp.Profiler(data[2:])
+
+        list_of_profiles = [profile_one, profile_two]
+        single_profile = utils.merge_profile_list(list_of_profiles=list_of_profiles)
+        single_report = single_profile.report()
+
+        self.assertEqual(1, len(single_report["data_stats"]))
+        self.assertEqual(1, single_report["global_stats"]["column_count"])
+        self.assertEqual(7, single_report["global_stats"]["row_count"])
+
+        self.assertEqual("int", single_report["data_stats"][0]["data_type"])
+
+        self.assertEqual(1, single_report["data_stats"][0]["statistics"]["min"])
+        self.assertEqual(60.0, single_report["data_stats"][0]["statistics"]["max"])
+        self.assertEqual(
+            2.9764999999999997, single_report["data_stats"][0]["statistics"]["median"]
+        )
+        self.assertEqual(
+            10.857142857142858, single_report["data_stats"][0]["statistics"]["mean"]
+        )
+
+    def test_odd_merge_profile_list(self, mock_data_labeler, *mocks):
+        """
+        A top-level function which takes in a list of profile objects, merges
+            all the profiles together into one profile, and returns the single
+            merged profile as the return value.
+
+            The labeler object is removed prior to merge and added back to the
+            single profile object.
+        """
+        self._setup_data_labeler_mock(mock_data_labeler)
+
+        data = pd.DataFrame([1, 2, 3, 4, 5, 60, 1])
+        profile_one = dp.Profiler(data[:2])
+        profile_two = dp.Profiler(data[2:])
+        profile_three = dp.Profiler(data[2:])
+
+        list_of_profiles = [profile_one, profile_two, profile_three]
+        single_profile = utils.merge_profile_list(list_of_profiles=list_of_profiles)
+        single_report = single_profile.report()
+
+        self.assertEqual(1, len(single_report["data_stats"]))
+        self.assertEqual(1, single_report["global_stats"]["column_count"])
+        self.assertEqual(12, single_report["global_stats"]["row_count"])
+
+        self.assertEqual("int", single_report["data_stats"][0]["data_type"])
+
+        self.assertEqual(1, single_report["data_stats"][0]["statistics"]["min"])
+        self.assertEqual(60.0, single_report["data_stats"][0]["statistics"]["max"])

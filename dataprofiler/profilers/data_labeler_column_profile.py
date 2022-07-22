@@ -46,23 +46,10 @@ class DataLabelerColumn(BaseColumnProfiler):
                 load_options=None,
             )
 
-        self.reverse_label_mapping = self.data_labeler.reverse_label_mapping
-        num_labels = self.data_labeler.model.num_labels
-
-        # remove PAD from output (reserved zero index)
-        if self.data_labeler.model.requires_zero_mapping:
-            self.reverse_label_mapping.pop(0, None)
-            num_labels -= 1
-
-        self._possible_data_labels = list(self.reverse_label_mapping.values())
-        self._possible_data_labels = [  # sort the data_labels based on index
-            x
-            for _, x in sorted(
-                zip(self.reverse_label_mapping.keys(), self._possible_data_labels)
-            )
-        ]
-        self.rank_distribution = dict([(key, 0) for key in self._possible_data_labels])
-        self._sum_predictions = np.zeros(num_labels)
+        self._reverse_label_mapping = None
+        self._possible_data_labels = None
+        self._rank_distribution = None
+        self._sum_predictions = None
 
         # rank distribution variables
         self._top_k_voting = 1
@@ -119,11 +106,11 @@ class DataLabelerColumn(BaseColumnProfiler):
                 "in both DataLabeler Profilers being merged, "
                 "as required".format("_min_top_label_prob")
             )
-        if data_labeler._possible_data_labels != data_labeler2._possible_data_labels:
+        if data_labeler.possible_data_labels != data_labeler2.possible_data_labels:
             raise ValueError(
                 "Sorry, can't merge profiles: {} are not the same "
                 "in both DataLabeler Profilers being merged, "
-                "as required".format("_possible_data_labels")
+                "as required".format("possible_data_labels")
             )
         if data_labeler.data_labeler != data_labeler2.data_labeler:
             raise ValueError(
@@ -179,10 +166,10 @@ class DataLabelerColumn(BaseColumnProfiler):
         merged_profile._top_k_voting = self._top_k_voting
 
         # Combine rank distribution
-        merged_profile.rank_distribution = {
-            key: self.rank_distribution.get(key, 0)
-            + other.rank_distribution.get(key, 0)
-            for key in set(self.rank_distribution) | set(other.rank_distribution)
+        merged_profile._rank_distribution = {
+            key: self._rank_distribution.get(key, 0)
+            + other._rank_distribution.get(key, 0)
+            for key in set(self._rank_distribution) | set(other._rank_distribution)
         }
 
         # Combine Sum Predictions
@@ -192,6 +179,47 @@ class DataLabelerColumn(BaseColumnProfiler):
             merged_profile.__calculations, self.__calculations, other.__calculations
         )
         return merged_profile
+
+    @property
+    def reverse_label_mapping(self):
+        if self._reverse_label_mapping is None:
+            self._reverse_label_mapping = self.data_labeler.reverse_label_mapping
+            if self.data_labeler.model.requires_zero_mapping:
+                self._reverse_label_mapping.pop(0, None)
+        return self._reverse_label_mapping
+
+    @property
+    def possible_data_labels(self):
+        if self._possible_data_labels is None:
+            self._possible_data_labels = list(self.reverse_label_mapping.values())
+            self._possible_data_labels = [  # sort the data_labels based on index
+                x
+                for _, x in sorted(
+                    zip(self.reverse_label_mapping.keys(), self._possible_data_labels)
+                )
+            ]
+        return self._possible_data_labels
+
+    @property
+    def rank_distribution(self):
+        if self._rank_distribution is None:
+            self._rank_distribution = dict(
+                [(key, 0) for key in self.possible_data_labels]
+            )
+        return self._rank_distribution
+
+    @property
+    def sum_predictions(self):
+        if self._sum_predictions is None:
+            num_labels = self.data_labeler.model.num_labels
+            if self.data_labeler.model.requires_zero_mapping:
+                num_labels -= 1
+            self._sum_predictions = np.zeros(num_labels)
+        return self._sum_predictions
+
+    @sum_predictions.setter
+    def sum_predictions(self, value):
+        self._sum_predictions = value
 
     @property
     def data_label(self):
@@ -231,8 +259,8 @@ class DataLabelerColumn(BaseColumnProfiler):
         if not self.sample_size:
             return None
 
-        avg_predictions = self._sum_predictions / self.sample_size
-        return dict(zip(self._possible_data_labels, avg_predictions))
+        avg_predictions = self.sum_predictions / self.sample_size
+        return dict(zip(self.possible_data_labels, avg_predictions))
 
     @property
     def label_representation(self):
@@ -244,7 +272,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         if not self.sample_size:
             return None
 
-        label_representation = dict([(key, 0) for key in self._possible_data_labels])
+        label_representation = dict([(key, 0) for key in self.possible_data_labels])
         total_votes = max(1, sum(list(self.rank_distribution.values())))
         for key in label_representation:
             label_representation[key] = self.rank_distribution[key] / total_votes
@@ -325,7 +353,7 @@ class DataLabelerColumn(BaseColumnProfiler):
             ignore_value = 0  # PAD index
             predictions["conf"] = np.delete(predictions["conf"], ignore_value, axis=1)
         sum_predictions = np.sum(predictions["conf"], axis=0)
-        self._sum_predictions += sum_predictions
+        self.sum_predictions += sum_predictions
 
         rank_predictions = np.argpartition(
             predictions["conf"], axis=1, kth=-self._top_k_voting

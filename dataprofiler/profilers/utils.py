@@ -7,6 +7,7 @@ import multiprocessing as mp
 import os
 import time
 import warnings
+from itertools import islice
 
 import numpy as np
 import psutil
@@ -686,3 +687,58 @@ def perform_chi_squared_test_for_homogeneity(
     results["p-value"] = p_value
 
     return results
+
+
+def chunk(it, size):
+    """Chunking things out
+
+    :param top_profile: Categories and respective counts of the second group
+    :type top_profile: list
+    :param other_profile: Number of samples in second group
+    :type other_profile: int
+    :return: Merge of two profile objects
+    :rtype: Profile
+    """
+    it = iter(it)
+    return iter(lambda: tuple(islice(it, size)), ())
+
+
+def merge(top_profile, other_profile=None):
+    """Merge two Profiles
+
+    :param top_profile: Categories and respective counts of the second group
+    :type top_profile: list
+    :param other_profile: Number of samples in second group
+    :type other_profile: int
+    :return: Merge of two profile objects
+    :rtype: Profile
+    """
+    if not other_profile:
+        return top_profile
+    return top_profile + other_profile
+
+
+def merge_profile_list(list_of_profiles, pool_count=5):
+    """Merge list of profiles into a single profile.
+
+    :param list_of_profiles: Categories and respective counts of the second group
+    :type list_of_profiles: list
+    :param pool_count: Number of samples in second group
+    :type pool_count: int
+    :return: Single profile that is the merge of all profiles in the
+        `list_of_profiles` list.
+    :rtype: Profile
+    """
+    # remove the labeler model from the first profile object
+    # assuming that the labeler models are all the same across each profile
+    # in the list
+    for profile_idx, profile in enumerate(list_of_profiles):
+        data_labeler = list_of_profiles[profile_idx]._remove_data_labelers()
+
+    while len(list_of_profiles) > 1:
+        list_of_profiles = chunk(list_of_profiles, 2)
+        with mp.Pool(pool_count) as p:
+            list_of_profiles = p.starmap(merge, list_of_profiles)
+
+    list_of_profiles[0]._restore_data_labelers(data_labeler)
+    return list_of_profiles[0]

@@ -15,8 +15,6 @@ import scipy
 
 from dataprofiler import settings
 
-from ..labelers.base_data_labeler import BaseDataLabeler
-
 
 def dict_merge(dct, merge_dct):
     # Recursive dictionary merge
@@ -735,9 +733,7 @@ def merge_profile_list(list_of_profiles, pool_count=5):
     # assuming that the labeler models are all the same across each profile
     # in the list
     for profile_idx, profile in enumerate(list_of_profiles):
-        data_labeler = list_of_profiles[profile_idx]._remove_data_labelers(
-            replacement_type=BaseDataLabeler()
-        )
+        data_labeler = list_of_profiles[profile_idx]._remove_data_labelers()
 
     while len(list_of_profiles) > 1:
         list_of_profiles = chunk(list_of_profiles, 2)

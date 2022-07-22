@@ -21,6 +21,7 @@ import pandas as pd
 
 from .. import data_readers, dp_logging
 from ..labelers.data_labelers import DataLabeler
+from ..labelers.base_data_labeler import BaseDataLabeler
 from . import utils
 from .column_profile_compilers import (
     ColumnDataLabelerCompiler,
@@ -865,7 +866,7 @@ class BaseProfiler(object):
         if file_type is not None:
             self.file_type = file_type
 
-    def _remove_data_labelers(self, replacement_type):
+    def _remove_data_labelers(self, replacement_type=BaseDataLabeler()):
         """
         Helper method for removing all data labelers before saving to disk.
 

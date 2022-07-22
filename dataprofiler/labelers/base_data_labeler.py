@@ -1,3 +1,5 @@
+"""Contains abstract classes from which labeler classes will inherit."""
+
 import json
 import os
 import sys
@@ -15,6 +17,7 @@ default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 class BaseDataLabeler(object):
+    """Parent class for data labeler objects."""
 
     _default_model_loc = None
 
@@ -46,8 +49,9 @@ class BaseDataLabeler(object):
 
     def __eq__(self, other):
         """
-        Checks if two data labelers are equal with one another, only checks
-        important variables
+        Check if two data labelers are equal with one another.
+
+        Only checks important variables.
 
         :param self: a data labeler
         :param other: a data labeler
@@ -68,12 +72,13 @@ class BaseDataLabeler(object):
 
     def help(self):
         """
-        Help function describing alterable parameters, input data formats
-        for preprocessors, and output data formats for postprocessors.
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for postprocessors.
 
         :return: None
         """
-
         print("DataLabeler Information:")
         print("=" * 80)
         sys.stdout.write("Preprocessor: ")
@@ -90,7 +95,7 @@ class BaseDataLabeler(object):
     @property
     def label_mapping(self):
         """
-        Retrieves the label encodings
+        Retrieve the label encodings.
 
         :return: dictionary for associating labels to indexes
         """
@@ -99,7 +104,7 @@ class BaseDataLabeler(object):
     @property
     def reverse_label_mapping(self):
         """
-        Retrieves the index to label encoding
+        Retrieve the index to label encoding.
 
         :return: dictionary for associating indexes to labels
         """
@@ -108,7 +113,7 @@ class BaseDataLabeler(object):
     @property
     def labels(self):
         """
-        Retrieves the label
+        Retrieve the label.
 
         :return: list of labels
         """
@@ -117,7 +122,7 @@ class BaseDataLabeler(object):
     @property
     def preprocessor(self):
         """
-        Retrieves the data preprocessor
+        Retrieve the data preprocessor.
 
         :return: returns the preprocessor instance
         """
@@ -126,7 +131,7 @@ class BaseDataLabeler(object):
     @property
     def model(self):
         """
-        Retrieves the data labeler model
+        Retrieve the data labeler model.
 
         :return: returns the model instance
         """
@@ -135,7 +140,7 @@ class BaseDataLabeler(object):
     @property
     def postprocessor(self):
         """
-        Retrieves the data postprocessor
+        Retrieve the data postprocessor.
 
         :return: returns the postprocessor instance
         """
@@ -144,7 +149,7 @@ class BaseDataLabeler(object):
     @staticmethod
     def _check_and_return_valid_data_format(data, fit_or_predict="fit"):
         """
-        Checks incoming data to match the specified fit or predict format.
+        Check incoming data to match the specified fit or predict format.
 
         :param data: data to check
         :type data: Union[pandas.DataFrame, pandas.Series, numpy.array, list]
@@ -176,8 +181,9 @@ class BaseDataLabeler(object):
 
     def set_params(self, params):
         """
-        Allows user to set parameters of pipeline components in the following
-        format:
+        Allow user to set parameters of pipeline components.
+
+        Done in the following format:
             params = dict(
                 preprocessor=dict(...),
                 model=dict(...),
@@ -237,7 +243,7 @@ class BaseDataLabeler(object):
 
     def add_label(self, label, same_as=None):
         """
-        Adds a label to the data labeler.
+        Add a label to the data labeler.
 
         :param label: new label being added to the data labeler
         :type label: str
@@ -250,7 +256,7 @@ class BaseDataLabeler(object):
 
     def set_labels(self, labels):
         """
-        Sets the labels for the data labeler.
+        Set the labels for the data labeler.
 
         :param labels: new labels in either encoding list or dict
         :type labels: list or dict
@@ -268,7 +274,7 @@ class BaseDataLabeler(object):
         verbose=1,
     ):
         """
-        Predicts labels of input data based with the data labeler model.
+        Predict labels of input data based with the data labeler model.
 
         :param data: data to be predicted upon
         :param batch_size: batch size of prediction
@@ -279,7 +285,6 @@ class BaseDataLabeler(object):
         :param verbose: Flag to determine whether to print status or not
         :return: predictions
         """
-
         if predict_options is None:
             predict_options = {}
         data = self._check_and_return_valid_data_format(data, fit_or_predict="predict")
@@ -307,7 +312,7 @@ class BaseDataLabeler(object):
 
     def set_preprocessor(self, data_processor):
         """
-        Set the data preprocessor for the data labeler
+        Set the data preprocessor for the data labeler.
 
         :param data_processor: processor to set as the preprocessor
         :type data_processor: data_processing.BaseDataPreprocessor
@@ -322,7 +327,7 @@ class BaseDataLabeler(object):
 
     def set_model(self, model):
         """
-        Set the model for the data labeler
+        Set the model for the data labeler.
 
         :param model: model to use within the data labeler
         :type model: base_model.BaseModel
@@ -336,7 +341,7 @@ class BaseDataLabeler(object):
 
     def set_postprocessor(self, data_processor):
         """
-        Set the data postprocessor for the data labeler
+        Set the data postprocessor for the data labeler.
 
         :param data_processor: processor to set as the postprocessor
         :type data_processor: data_processing.BaseDataPostprocessor
@@ -351,7 +356,7 @@ class BaseDataLabeler(object):
 
     def check_pipeline(self, skip_postprocessor=False, error_on_mismatch=False):
         """
-        Checks whether the processors and models connect together without error.
+        Check whether the processors and models connect together without error.
 
         :param skip_postprocessor: skip checking postprocessor is valid in
             pipeline
@@ -421,7 +426,7 @@ class BaseDataLabeler(object):
     @staticmethod
     def _load_parameters(dirpath, load_options=None):
         """
-        Loads the data labeler parameters
+        Load the data labeler parameters.
 
         :param dirpath: directory where the saved datalabeler exists.
         :type dirpath: str
@@ -482,7 +487,9 @@ class BaseDataLabeler(object):
 
     def _load_model(self, model_class, dirpath):
         """
-        Load the data labeler model either by using a provided model class or
+        Load the data labeler model.
+
+        Can be done by either using a provided model class or
         retrieving a registered data labeler model.
 
         :param model_class: class of model being loaded
@@ -503,7 +510,7 @@ class BaseDataLabeler(object):
 
     def _load_preprocessor(self, processor_class, dirpath):
         """
-        Loads the preprocessor for the data labeler.
+        Load the preprocessor for the data labeler.
 
         :param processor_class: class of model being loaded
         :type processor_class: Union[data_processing.BaseDataProcessor, str]
@@ -525,7 +532,7 @@ class BaseDataLabeler(object):
 
     def _load_postprocessor(self, processor_class, dirpath):
         """
-        Loads the postprocessor for the data labeler.
+        Load the postprocessor for the data labeler.
 
         :param processor_class: class of model being loaded
         :type processor_class: Union[data_processing.BaseDataProcessor, str]
@@ -549,7 +556,7 @@ class BaseDataLabeler(object):
 
     def _load_data_labeler(self, dirpath, load_options=None):
         """
-        Loads and initializes the data data labeler in the given path.
+        Load and initializes the data data labeler in the given path.
 
         :param dirpath: location of data labeler info files.
         :type dirpath: str
@@ -558,7 +565,6 @@ class BaseDataLabeler(object):
         :type load_options: dict
         :return: DataLabeler class
         """
-
         # get loaded parameters
         params = self._load_parameters(dirpath, load_options)
         model_params = params.get("model")
@@ -573,7 +579,7 @@ class BaseDataLabeler(object):
     @classmethod
     def load_from_library(cls, name):
         """
-        Loads the data labeler from the data labeler zoo in the library.
+        Load the data labeler from the data labeler zoo in the library.
 
         :param name: name of the data labeler.
         :type name: str
@@ -584,7 +590,7 @@ class BaseDataLabeler(object):
     @classmethod
     def load_from_disk(cls, dirpath, load_options=None):
         """
-        Loads the data labeler from a saved location on disk.
+        Load the data labeler from a saved location on disk.
 
         :param dirpath: path to data labeler files.
         :type dirpath: str
@@ -598,7 +604,7 @@ class BaseDataLabeler(object):
     @classmethod
     def load_with_components(cls, preprocessor, model, postprocessor):
         """
-        Loads the data labeler from a its set  of components.
+        Load the data labeler from a its set  of components.
 
         :param preprocessor: processor to set as the preprocessor
         :type preprocessor: data_processing.BaseDataPreprocessor
@@ -616,7 +622,7 @@ class BaseDataLabeler(object):
 
     def _save_model(self, dirpath):
         """
-        Saves the data labeler model.
+        Save the data labeler model.
 
         :param dirpath: path to save the data labeler
         :type dirpath: str
@@ -626,7 +632,7 @@ class BaseDataLabeler(object):
 
     def _save_preprocessor(self, dirpath):
         """
-        Saves the preprocessor for the data labeler.
+        Save the preprocessor for the data labeler.
 
         :param dirpath: path to save the data processor
         :type dirpath: str
@@ -636,7 +642,7 @@ class BaseDataLabeler(object):
 
     def _save_postprocessor(self, dirpath):
         """
-        Saves the postprocessor for the data labeler.
+        Save the postprocessor for the data labeler.
 
         :param dirpath: path to save the data processor
         :type dirpath: str
@@ -646,7 +652,7 @@ class BaseDataLabeler(object):
 
     def _save_parameters(self, dirpath):
         """
-        Data labeler specific parameters to save.
+        Save data labeler-specific parameters.
 
         :param dirpath: location to save the parameters
         :type dirpath: str
@@ -666,7 +672,7 @@ class BaseDataLabeler(object):
 
     def _save_data_labeler(self, dirpath):
         """
-        Saves each component of the data labeler to the specified location.
+        Save each component of the data labeler to the specified location.
 
         :param dirpath: path to where to save the data labeler.
         :type dirpath: str
@@ -679,7 +685,7 @@ class BaseDataLabeler(object):
 
     def save_to_disk(self, dirpath):
         """
-        Saves the data labeler to the specified location
+        Save the data labeler to the specified location.
 
         :param dirpath: location to save the data labeler.
         :type dirpath: str
@@ -691,6 +697,8 @@ class BaseDataLabeler(object):
 
 
 class TrainableDataLabeler(BaseDataLabeler):
+    """Subclass of BaseDataLabeler that can be trained."""
+
     def fit(
         self,
         x,
@@ -703,7 +711,7 @@ class TrainableDataLabeler(BaseDataLabeler):
         error_on_mismatch=False,
     ):
         """
-        Fits the data labeler model for the dataset.
+        Fit the data labeler model for the dataset.
 
         :param x: samples to fit model
         :type x: Union[pd.DataFrame, pd.Series, np.ndarray]
@@ -728,7 +736,6 @@ class TrainableDataLabeler(BaseDataLabeler):
         :type error_on_mismatch: bool
         :return: model output
         """
-
         # input validation checks
         x = self._check_and_return_valid_data_format(x, fit_or_predict="fit")
         y = self._check_and_return_valid_data_format(y, fit_or_predict="fit")
@@ -811,8 +818,9 @@ class TrainableDataLabeler(BaseDataLabeler):
 
     def set_model(self, model):
         """
-        Set the model for a trainable data labeler. Model must have a train
-        function to be able to be set.
+        Set the model for a trainable data labeler.
+
+        Model must have a train function to be able to be set.
 
         :param model: model to use within the data labeler
         :type model: base_model.BaseModel
@@ -825,7 +833,7 @@ class TrainableDataLabeler(BaseDataLabeler):
     @classmethod
     def load_with_components(cls, preprocessor, model, postprocessor):
         """
-        Loads the data labeler from a its set  of components.
+        Load the data labeler from a its set  of components.
 
         :param preprocessor: processor to set as the preprocessor
         :type preprocessor: data_processing.BaseDataPreprocessor

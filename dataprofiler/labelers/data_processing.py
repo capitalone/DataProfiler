@@ -1,3 +1,5 @@
+"""Contains pre-built processors for data labeling/processing."""
+
 import abc
 import copy
 import inspect
@@ -16,7 +18,10 @@ default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
+    """For registering subclasses."""
+
     def __new__(cls, clsname, bases, attrs):
+        """Create AutoSubRegistration object."""
         new_class = super(AutoSubRegistrationMeta, cls).__new__(
             cls, clsname, bases, attrs
         )
@@ -31,25 +36,24 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
     __subclasses = {}
 
     def __init__(self, **parameters):
-
+        """Initialize BaseDataProcessor object."""
         self._validate_parameters(parameters)
         self._parameters = parameters
 
     @classmethod
     def _register_subclass(cls):
-        """
-        Registers a subclass for the class factory.
-        """
+        """Register a subclass for the class factory."""
         if not inspect.isabstract(cls):
             cls._BaseDataProcessor__subclasses[cls.__name__.lower()] = cls
 
     @classmethod
     def get_class(cls, class_name):
+        """Get class of BaseDataProcessor object."""
         return cls._BaseDataProcessor__subclasses.get(class_name.lower(), None)
 
     def __eq__(self, other):
         """
-        Checks if two processors are equal with one another.
+        Check if two processors are equal with one another.
 
         :param self: a processor
         :param other: a processor
@@ -64,15 +68,17 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def _validate_parameters(self, parameters):
-        """Validates class input parameters for processing"""
+        """Validate class input parameters for processing."""
         raise NotImplementedError()
 
     @classmethod
     @abc.abstractmethod
     def help(cls):
         """
-        Help function describing alterable parameters, input data formats
-        for preprocessors, and output data formats for postprocessors.
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for postprocessors.
 
         :return: None
         """
@@ -80,7 +86,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
 
     def get_parameters(self, param_list=None):
         """
-        Returns a dict of parameters from the model given a list.
+        Return a dict of parameters from the model given a list.
 
         :param param_list: list of parameters to retrieve from the model.
         :type param_list: list
@@ -102,8 +108,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         return param_dict
 
     def set_params(self, **kwargs):
-        """Given kwargs, set the parameters if they exist."""
-
+        """Set the parameters if they exist given kwargs."""
         # first check if any parameters are invalid
         self._validate_parameters(kwargs)
 
@@ -112,12 +117,12 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def process(self, *args):
-        """Data processing function."""
+        """Process data."""
         raise NotImplementedError()
 
     @classmethod
     def load_from_disk(cls, dirpath):
-        """Loads a data processor from a given path on disk"""
+        """Load data processor from a given path on disk."""
         with open(os.path.join(dirpath, cls.processor_type + "_parameters.json")) as fp:
             parameters = json.load(fp)
 
@@ -125,18 +130,18 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
 
     @classmethod
     def load_from_library(cls, name):
-        """Loads a data processor from within the library"""
+        """Load data processor from within the library."""
         return cls.load_from_disk(os.path.join(default_labeler_dir, name))
 
     def _save_processor(self, dirpath):
-        """Generic method for saving a data processor"""
+        """Save data processor."""
         with open(
             os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
         ) as fp:
             json.dump(self.get_parameters(), fp)
 
     def save_to_disk(self, dirpath):
-        """Saves a data processor to a path on disk."""
+        """Save data processor to a path on disk."""
         self._save_processor(dirpath)
 
 
@@ -147,11 +152,12 @@ class BaseDataPreprocessor(BaseDataProcessor):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, **parameters):
+        """Initialize BaseDataPreprocessor object."""
         super(BaseDataPreprocessor, self).__init__(**parameters)
 
     @abc.abstractmethod
     def process(self, data, labels, label_mapping, batch_size):
-        """Data preprocessing function."""
+        """Preprocess data."""
         raise NotImplementedError()
 
 
@@ -162,25 +168,25 @@ class BaseDataPostprocessor(BaseDataProcessor):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, **parameters):
+        """Initialize BaseDataPostprocessor object."""
         super(BaseDataPostprocessor, self).__init__(**parameters)
 
     @abc.abstractmethod
     def process(self, data, results, label_mapping):
-        """Data postprocessing function."""
+        """Postprocess data."""
         raise NotImplementedError()
 
 
 class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
+    """Subclass of BaseDataPreprocessor for preprocessing data."""
+
     def __init__(self):
-        """
-        Initialize the DirectPassPreprocessor class
-        """
+        """Initialize the DirectPassPreprocessor class."""
         super(DirectPassPreprocessor, self).__init__()
 
     def _validate_parameters(self, parameters):
         """
-        Validates the parameters set in the processor, raises an error if any
-        issues exist.
+        Validate params set in processor and raise error if issues exist.
 
         :param parameters: parameter dict containing the following parameters:
             N/A
@@ -194,8 +200,10 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
     @classmethod
     def help(cls):
         """
-        Help function describing alterable parameters, input data formats
-        for preprocessors, and output data formats for postprocessors.
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for postprocessors.
 
         :return: None
         """
@@ -209,13 +217,15 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
         print(help_str)
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
-        """Data preprocessing function."""
+        """Preprocess data."""
         if labels is not None:
             return data, labels
         return data
 
 
 class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
+    """Subclass of BaseDataPreprocessor for preprocessing char data."""
+
     def __init__(
         self,
         max_length=3400,
@@ -227,7 +237,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         **kwargs,
     ):
         """
-        Initialize the CharPreprocessor class
+        Initialize the CharPreprocessor class.
 
         :param max_length: Maximum char length in a sample.
         :type max_length: int
@@ -260,8 +270,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
     def _validate_parameters(self, parameters):
         """
-        Validates the parameters set in the processor, raises an error if any
-        issues exist.
+        Validate params set in processor and raise error if issues exist.
 
         :param parameters: parameter dict containing the following parameters:
             max_length: Maximum char length in a sample.
@@ -310,8 +319,10 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
     @classmethod
     def help(cls):
         """
-        Help function describing alterable parameters, input data formats
-        for preprocessors, and output data formats for postprocessors.
+        Describe alterable parameters.
+
+        Input data formats.
+        Output data formats for postprocessors.
 
         :return: None
         """
@@ -373,7 +384,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         batch_size=32,
     ):
         """
-        Flatten batches of data
+        Flatten batches of data.
 
         :param data: List of strings to create embeddings for
         :type data: list(str)
@@ -421,7 +432,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         if labels is None:
 
             def gen_none():
-                """Generates infinite None(s). Must be closed manually."""
+                """Generate infinite None(s). Must be closed manually."""
                 while True:
                     yield None
 
@@ -626,7 +637,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
     def process(self, data, labels=None, label_mapping=None, batch_size=32):
         """
-        Flatten batches of data
+        Flatten batches of data.
 
         :param data: List of strings to create embeddings for
         :type data: numpy.ndarray
@@ -697,6 +708,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
 
 class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta):
+    """Subclass of CharPreprocessor for preprocessing char encoded data."""
+
     def __init__(
         self,
         encoding_map=None,
@@ -708,7 +721,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
         is_separate_at_max_len=False,
     ):
         """
-        Initialize the CharEncodedPreprocessor class
+        Initialize the CharEncodedPreprocessor class.
 
         :param encoding_map: char to int encoding map
         :type encoding_map: dict
@@ -737,8 +750,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
 
     def _validate_parameters(self, parameters):
         """
-        Validates the parameters set in the processor, raises an error if any
-        issues exist.
+        Validate params set in processor and raise error if issues exist.
 
         :param parameters: parameter dict containing the following parameters:
             max_length: Maximum char length in a sample.
@@ -781,8 +793,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
 
     def process(self, data, labels=None, label_mapping=None, batch_size=32):
         """
-        Process structured data for being processed by the
-        CharacterLevelCnnModel.
+        Process structured data for being processed by CharacterLevelCnnModel.
 
         :param data: List of strings to create embeddings for
         :type data: numpy.ndarray
@@ -820,6 +831,8 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
 
 
 class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta):
+    """Subclass of BaseDataPostprocessor for postprocessing char data."""
+
     def __init__(
         self,
         default_label="UNKNOWN",
@@ -831,7 +844,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         word_level_min_percent=0.75,
     ):
         """
-        Initialize the CharPostprocessor class
+        Initialize the CharPostprocessor class.
 
         :param default_label: Key for label_mapping that is the default label
         :type default_label: string (could be int, char, etc.)
@@ -867,8 +880,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
     def _validate_parameters(self, parameters):
         """
-        Validates the parameters set in the processor, raises an error if any
-        issues exist.
+        Validate params set in processor and raise error if issues exist.
 
         :param parameters: parameter dict containing the following parameters:
             default_label: Key for label_mapping that is the default label
@@ -932,8 +944,10 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
     @classmethod
     def help(cls):
         """
-        Help function describing alterable parameters, input data formats
-        for preprocessors, and output data formats for postprocessors.
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for postprocessors.
 
         :return: None
         """
@@ -964,7 +978,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
     def _word_level_argmax(self, data, predictions, label_mapping, default_label):
         """
-        Convert char level predictions to word level predictions
+        Convert char level predictions to word level predictions.
 
         :param data: input text
         :type data: np.ndarray
@@ -1059,7 +1073,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
     @staticmethod
     def convert_to_NER_format(predictions, label_mapping, default_label, pad_label):
         """
-        Converts word level predictions to specified format
+        Convert word level predictions to specified format.
 
         :param predictions: predictions
         :type predictions: list
@@ -1119,8 +1133,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
     @staticmethod
     def match_sentence_lengths(data, results, flatten_separator, inplace=True):
         """
-        Converts the results from the model into the same ragged data shapes as
-        the original data.
+        Convert results from model into same ragged data shapes as original data.
 
         :param data: original input data to the data labeler
         :type data: numpy.ndarray
@@ -1194,8 +1207,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
     def process(self, data, results, label_mapping):
         """
-        Conducts the processing on the data given the predictions,
-        label_mapping, and default_label.
+        Conduct processing on data given predictions, label_mapping, and default_label.
 
         :param data: original input data to the data labeler
         :type data: np.ndarray
@@ -1229,6 +1241,8 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
 
 class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta):
+    """Subclass of CharPreprocessor for preprocessing struct char data."""
+
     def __init__(
         self,
         max_length=3400,
@@ -1238,7 +1252,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         is_separate_at_max_len=False,
     ):
         """
-        Initialize the StructCharPreprocessor class
+        Initialize the StructCharPreprocessor class.
 
         :param max_length: Maximum char length in a sample.
         :type max_length: int
@@ -1264,8 +1278,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
     def _validate_parameters(self, parameters):
         """
-        Validates the parameters set in the processor, raises an error if any
-        issues exist.
+        Validate params set in processor and raise error if issues exist.
 
         :param parameters: parameter dict containing the following parameters:
             max_length: Maximum char length in a sample.
@@ -1286,8 +1299,10 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
     @classmethod
     def help(cls):
         """
-        Help function describing alterable parameters, input data formats
-        for preprocessors, and output data formats for preprocessors.
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for preprocessors.
 
         :return: None
         """
@@ -1308,7 +1323,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
     def get_parameters(self, param_list=None):
         """
-        Returns a dict of parameters from the model given a list.
+        Return a dict of parameters from the model given a list.
 
         :param param_list: list of parameters to retrieve from the model.
         :type param_list: list
@@ -1320,8 +1335,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
     def convert_to_unstructured_format(self, data, labels):
         """
-        Converts the list of data samples into the StructCharPreprocessor
-        required input data format.
+        Convert data samples list to StructCharPreprocessor required input data format.
 
         :param data: list of strings
         :type data: numpy.ndarray
@@ -1355,8 +1369,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
     def process(self, data, labels=None, label_mapping=None, batch_size=32):
         """
-        Process structured data for being processed by the
-        CharacterLevelCnnModel.
+        Process structured data for being processed by CharacterLevelCnnModel.
 
         :param data: List of strings to create embeddings for
         :type data: numpy.ndarray
@@ -1422,6 +1435,8 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
 
 class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta):
+    """Subclass of BaseDataPostprocessor for postprocessing struct char data."""
+
     def __init__(
         self,
         default_label="UNKNOWN",
@@ -1431,7 +1446,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         random_state=None,
     ):
         """
-        Initialize the StructCharPostprocessor class
+        Initialize the StructCharPostprocessor class.
 
         :param default_label: Key for label_mapping that is the default label
         :type default_label: str
@@ -1475,7 +1490,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
     def __eq__(self, other):
         """
-        Checks if two processors are equal with one another.
+        Check if two processors are equal with one another.
 
         :param self: a processor
         :param other: a processor
@@ -1484,7 +1499,6 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         :return: Whether or not self and other are equal
         :rtype: bool
         """
-
         if (
             type(self) != type(other)
             or self._parameters["default_label"] != other._parameters["default_label"]
@@ -1498,8 +1512,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
     def _validate_parameters(self, parameters):
         """
-        Validates the parameters set in the processor, raises an error if any
-        issues exist.
+        Validate params set in processor and raise error if issues exist.
 
         :param parameters: parameter dict containing the following parameters:
             default_label: Key for label_mapping that is the default label
@@ -1536,8 +1549,10 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
     @classmethod
     def help(cls):
         """
-        Help function describing alterable parameters, input data formats
-        for preprocessors, and output data formats for postprocessors.
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for postprocessors.
 
         :return: None
         """
@@ -1561,8 +1576,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
     @staticmethod
     def match_sentence_lengths(data, results, flatten_separator, inplace=True):
         """
-        Converts the results from the model into the same ragged data shapes as
-        the original data.
+        Convert results from model into same ragged data shapes as original data.
 
         :param data: original input data to the data labeler
         :type data: np.ndarray
@@ -1638,8 +1652,9 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         self, sentences, results, label_mapping, default_label, pad_label
     ):
         """
-        Converts unstructured results to a structured column analysis assuming
-        the column was flattened into a single sample. This takes the mode of
+        Convert unstructured results to a structured column analysis.
+
+        This assumes the column was flattened into a single sample, and takes mode of
         all character predictions except for the separator labels. In cases of
         tie, chose anything but background, otherwise randomly choose between
         the remaining labels.
@@ -1697,8 +1712,9 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
     def process(self, data, results, label_mapping):
         """
-        Postprocessing of CharacterLevelCnnModel results when given structured
-        data processed by StructCharPreprocessor.
+        Postprocess CharacterLevelCnnModel results when given structured data.
+
+        Said structured data is processed by StructCharPreprocessor.
 
         :param data: original input data to the data labeler
         :type data: Union[numpy.ndarray, pandas.DataFrame]
@@ -1736,7 +1752,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
     def _save_processor(self, dirpath):
         """
-        Saves the data processor
+        Save the data processor.
 
         :param dirpath: directory to save the processor
         :type dirpath: str
@@ -1751,11 +1767,13 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
 
 class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta):
+    """Subclass of BaseDataPostprocessor for postprocessing regex data."""
+
     def __init__(
         self, aggregation_func="split", priority_order=None, random_state=None
     ):
         """
-        Initialize the RegexPostProcessor class
+        Initialize the RegexPostProcessor class.
 
         :param aggregation_func: aggregation function to apply to regex model
                 output (split, random, priority)
@@ -1795,8 +1813,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
 
     def _validate_parameters(self, parameters):
         """
-        Validates the parameters set in the processor, raises an error if any
-        issues exist.
+        Validate params set in the processor and raise error if issues exist.
 
         :param parameters: parameter dict containing the following parameters:
             aggregation_func: aggregation function to apply to regex model
@@ -1850,8 +1867,10 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
     @classmethod
     def help(cls):
         """
-        Help function describing alterable parameters, input data formats
-        for preprocessors, and output data formats for postprocessors.
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for postprocessors.
 
         :return: None
         """
@@ -1875,8 +1894,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
     @staticmethod
     def priority_prediction(results, entity_priority_order):
         """
-        Aggregation function using priority of regex to give entity
-        determination.
+        Use priority of regex to give entity determination.
 
         :param results: regex from model in format: dict(pred=..., conf=...)
         :type results: dict
@@ -1895,7 +1913,8 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
     @staticmethod
     def split_prediction(results):
         """
-        Splits the prediction across votes.
+        Split the prediction across votes.
+
         :param results: regex from model in format: dict(pred=..., conf=...)
         :type results: dict
         :return: aggregated predictions
@@ -1906,8 +1925,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
             )
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
-        """Data preprocessing function."""
-
+        """Preprocess data."""
         aggregation_func = self._parameters["aggregation_func"]
         aggregation_func = aggregation_func.lower()
 
@@ -1934,7 +1952,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
 
     def _save_processor(self, dirpath):
         """
-        Saves the data processor
+        Save the data processor.
 
         :param dirpath: directory to save the processor
         :type dirpath: str
@@ -1951,9 +1969,11 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
 class StructRegexPostProcessor(
     BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 ):
+    """Subclass of BaseDataPostprocessor for postprocessing struct regex data."""
+
     def __init__(self, random_state=None):
         """
-        Initialize the RegexPostProcessor class
+        Initialize the RegexPostProcessor class.
 
         :param random_state: random state setting to be used for randomly
             selecting a prediction when two labels have equal opportunity for
@@ -1967,8 +1987,7 @@ class StructRegexPostProcessor(
 
     def _validate_parameters(self, parameters):
         """
-        Validates the parameters set in the processor, raises an error if any
-        issues exist.
+        Validate parameters set in processor and raise an error if any issues exist.
 
         :param parameters: parameter dict containing the following parameters:
             random_state: Random state setting to be used for randomly
@@ -1995,8 +2014,10 @@ class StructRegexPostProcessor(
     @classmethod
     def help(cls):
         """
-        Help function describing alterable parameters, input data formats
-        for preprocessors, and output data formats for postprocessors.
+        Describe alterable parameters.
+
+        Input data formats for preprocessors
+        Output data formats for postprocessors.
 
         :return: None
         """
@@ -2019,7 +2040,7 @@ class StructRegexPostProcessor(
 
     def _save_processor(self, dirpath):
         """
-        Saves the data processor
+        Save the data processor.
 
         :param dirpath: directory to save the processor
         :type dirpath: str
@@ -2035,8 +2056,7 @@ class StructRegexPostProcessor(
             json.dump(params, fp)
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
-        """Data preprocessing function."""
-
+        """Preprocess data."""
         # predictions come from regex_processor in the split format which
         # still is in a 3d format [samples x characters x labels]
         # split meaning it can have a partial prediction between labels, hence

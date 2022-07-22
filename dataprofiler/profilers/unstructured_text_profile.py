@@ -1,5 +1,6 @@
+"""For profiling unstructured text data."""
+
 import itertools
-import re
 import string
 import warnings
 from collections import Counter, defaultdict
@@ -9,11 +10,13 @@ from .profiler_options import TextProfilerOptions
 
 
 class TextProfiler(object):
+    """Profiles text data."""
+
     type = "text"
 
     def __init__(self, name, options=None):
         """
-        Initialization of Text Profiler.
+        Initialize TextProfiler object.
 
         :param name: Name of the data
         :type name: String
@@ -469,7 +472,7 @@ class TextProfiler(object):
     @staticmethod
     def _merge_vocab(vocab_count1, vocab_count2):
         """
-        Merges the vocab counts of two TextProfiler profiles
+        Merge the vocab counts of two TextProfiler profiles.
 
         :param vocab_count1: vocab count of the first profile
         :param vocab_count2: vocab count of the second profile
@@ -481,7 +484,7 @@ class TextProfiler(object):
 
     def _merge_words(self, other, merged_profile):
         """
-        Merges the words of two TextProfiler profiles
+        Merge the words of two TextProfiler profiles.
 
         :param self: first profile
         :param other: second profile
@@ -508,7 +511,7 @@ class TextProfiler(object):
 
     def __add__(self, other):
         """
-        Merges the properties of two TextProfiler profiles
+        Merge the properties of two TextProfiler profiles.
 
         :param self: first profile
         :param other: second profile
@@ -573,7 +576,7 @@ class TextProfiler(object):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for two unstructured text profiles
+        Find the differences for two unstructured text profiles.
 
         :param other_profile: profile to find the difference with
         :type other_profile: TextProfiler
@@ -621,9 +624,7 @@ class TextProfiler(object):
         return diff
 
     def report(self, remove_disabled_flag=False):
-        """Report on profile attribute of the class and pop value
-        from self.profile if key not in self.__calculations
-        """
+        """Report profile attribute of class; potentially pop val from self.profile."""
         calcs_dict_keys = self._TextProfiler__calculations.keys()
         profile = self.profile
 
@@ -643,7 +644,7 @@ class TextProfiler(object):
     @property
     def profile(self):
         """
-        Property for profile. Returns the profile of the column.
+        Return the profile of the column.
 
         :return:
         """
@@ -661,7 +662,7 @@ class TextProfiler(object):
         self, data, prev_dependent_properties=None, subset_properties=None
     ):
         """
-        Finds the vocabulary counts used in the text samples.
+        Find the vocabulary counts used in the text samples.
 
         :param data: list or array of data from which to extract vocab
         :type data: Union[list, numpy.array, pandas.DataFrame]
@@ -681,7 +682,7 @@ class TextProfiler(object):
         self, data, prev_dependent_properties=None, subset_properties=None
     ):
         """
-        Finds the unique words and word count used in the text samples.
+        Find unique words and word count used in the text samples.
 
         :param data: list or array of data from which to extract vocab
         :type data: Union[list, numpy.array, pandas.DataFrame]
@@ -708,8 +709,7 @@ class TextProfiler(object):
 
     def _update_helper(self, data, profile):
         """
-        Method for updating the column profile properties with a cleaned
-        dataset and the known null parameters of the dataset.
+        Update col profile properties with clean dataset and its known null parameters.
 
         :param data: df series with nulls removed
         :type data: pandas.core.series.Series
@@ -722,7 +722,7 @@ class TextProfiler(object):
 
     def update(self, data):
         """
-        Updates the column profile.
+        Update the column profile.
 
         :param data: df series
         :type data: pandas.core.series.Series

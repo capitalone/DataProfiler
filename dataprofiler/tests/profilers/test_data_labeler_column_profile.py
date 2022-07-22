@@ -47,7 +47,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             profiler.update(data)
 
             self.assertEqual(0, profiler.sample_size)
-            self.assertEqual(["a", "b"], profiler._possible_data_labels)
+            self.assertEqual(["a", "b"], profiler.possible_data_labels)
             self.assertEqual(None, profiler.data_label)
             self.assertEqual(None, profiler.avg_predictions)
             six.assertCountEqual(
@@ -73,7 +73,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         profiler.update(data)
 
         self.assertEqual(3, profiler.sample_size)
-        self.assertEqual(["a", "b"], profiler._possible_data_labels)
+        self.assertEqual(["a", "b"], profiler.possible_data_labels)
         self.assertEqual("a", profiler.data_label)
         self.assertDictEqual(dict(a=2 / 3, b=1 / 3), profiler.avg_predictions)
         self.assertDictEqual(dict(a=2, b=1), profiler.rank_distribution)
@@ -91,7 +91,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         profiler = DataLabelerColumn(data.name)
         profiler.update(data)
 
-        self.assertEqual(["a", "b"], profiler._possible_data_labels)
+        self.assertEqual(["a", "b"], profiler.possible_data_labels)
         self.assertEqual("a", profiler.data_label)
         self.assertDictEqual(dict(a=2 / 3, b=1 / 3), profiler.avg_predictions)
         self.assertDictEqual(dict(a=2, b=1), profiler.rank_distribution)
@@ -204,7 +204,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         profiler = DataLabelerColumn(data.name)
         profiler.sample_size = 1
 
-        self.assertEqual(["a", "c", "e", "f"], profiler._possible_data_labels)
+        self.assertEqual(["a", "c", "e", "f"], profiler.possible_data_labels)
         self.assertDictEqual(dict(a=0, c=0, e=0, f=0), profiler.label_representation)
         self.assertDictEqual(dict(a=0, c=0, e=0, f=0), profiler.avg_predictions)
 
@@ -236,13 +236,13 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             # Assert correct values
             self.assertEqual(expected_profile, profiler3.profile)
             self.assertEqual(
-                expected_sum_predictions, profiler3._sum_predictions.tolist()
+                expected_sum_predictions, profiler3.sum_predictions.tolist()
             )
             self.assertEqual(expected_rank_distribution, profiler3.rank_distribution)
             self.assertEqual(expected_profile, profiler3.profile)
             self.assertEqual(profiler.data_labeler, profiler3.data_labeler)
             self.assertEqual(
-                profiler._possible_data_labels, profiler3._possible_data_labels
+                profiler.possible_data_labels, profiler3.possible_data_labels
             )
             self.assertEqual(profiler._top_k_voting, profiler3._top_k_voting)
             self.assertEqual(profiler._min_voting_prob, profiler3._min_voting_prob)
@@ -276,7 +276,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             self.assertEqual(expected_profile, profiler3.profile)
             self.assertEqual(profiler.data_labeler, profiler3.data_labeler)
             self.assertEqual(
-                profiler._possible_data_labels, profiler3._possible_data_labels
+                profiler.possible_data_labels, profiler3.possible_data_labels
             )
             self.assertEqual(profiler._top_k_voting, profiler3._top_k_voting)
             self.assertEqual(profiler._min_voting_prob, profiler3._min_voting_prob)

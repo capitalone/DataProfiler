@@ -267,3 +267,30 @@ class TestProfileDistributedMerge(unittest.TestCase):
         self.assertEqual(
             10.857142857142858, single_report["data_stats"][0]["statistics"]["mean"]
         )
+
+    def test_odd_merge_profile_list(self):
+        """
+        A top-level function which takes in a list of profile objects, merges
+            all the profiles together into one profile, and returns the single
+            merged profile as the return value.
+
+            The labeler object is removed prior to merge and added back to the
+            single profile object.
+        """
+        data = pd.DataFrame([1, 2, 3, 4, 5, 60, 1])
+        profile_one = dp.Profiler(data[:2])
+        profile_two = dp.Profiler(data[2:])
+        profile_three = dp.Profiler(data[2:])
+
+        list_of_profiles = [profile_one, profile_two, profile_three]
+        single_profile = utils.merge_profile_list(list_of_profiles=list_of_profiles)
+        single_report = single_profile.report()
+
+        self.assertEqual(1, len(single_report["data_stats"]))
+        self.assertEqual(1, single_report["global_stats"]["column_count"])
+        self.assertEqual(12, single_report["global_stats"]["row_count"])
+
+        self.assertEqual("int", single_report["data_stats"][0]["data_type"])
+
+        self.assertEqual(1, single_report["data_stats"][0]["statistics"]["min"])
+        self.assertEqual(60.0, single_report["data_stats"][0]["statistics"]["max"])

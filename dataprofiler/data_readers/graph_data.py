@@ -56,10 +56,8 @@ class GraphData(BaseData):
         options = self._check_and_return_options(options)
         BaseData.__init__(self, input_file_path, data, options)
 
-        if data is not None:
-            raise NotImplementedError("Inputting data is not yet implemented.")
-        if input_file_path is None:
-            raise ValueError("Please input a file dataset.")
+        if input_file_path is None and data is None:
+            raise ValueError("Please input a file dataset or a NetworkX Graph object.")
 
         self._source_node = options.get("source_node", None)
         self._destination_node = options.get("destination_node", None)
@@ -192,7 +190,9 @@ class GraphData(BaseData):
                     column is not self._source_node
                     or column is not self._destination_node
                 ):
-                    attributes[self._column_names[column]] = csv_as_list[line][column]
+                    attributes[self._column_names[column]] = float(
+                        csv_as_list[line][column]
+                    )
                 elif column is self._source_node or column is self._destination_node:
                     networkx_graph.add_node(csv_as_list[line][column])
             networkx_graph.add_edge(

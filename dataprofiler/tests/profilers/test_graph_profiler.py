@@ -8,6 +8,7 @@ from collections import defaultdict
 import networkx as nx
 import utils
 
+from dataprofiler.data_readers.graph_data import GraphData
 from dataprofiler.profilers.graph_profiler import GraphProfile
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -68,11 +69,18 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
-        graph_profile = GraphProfile("test_update")
+        graph_profile = GraphProfile("test_report")
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
         self.maxDiff = None
         self.assertDictEqual(self.expected_profile, graph_profile.report())
+
+    def test_graph_data_object(self):
+        data = GraphData(input_file_path=None, options=None, data=self.graph)
+        graph_profile = GraphProfile("test_graph_data_object_update")
+        with utils.mock_timeit():
+            profile = graph_profile.update(data)
+        self.assertDictEqual(self.expected_profile, profile.profile)
 
 
 if __name__ == "__main__":

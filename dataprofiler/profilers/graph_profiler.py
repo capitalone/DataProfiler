@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import scipy.stats as st
 
+from dataprofiler.data_readers.graph_data import GraphData
+
 from . import BaseColumnProfiler
 
 
@@ -144,6 +146,12 @@ class GraphProfile(object):
         :type data: NetworkX Graph
         :return: None
         """
+        if not isinstance(graph, nx.Graph) and not isinstance(graph, GraphData):
+            raise NotImplementedError(
+                "Profiler only takes GraphData objects or NetworkXGraph"
+            )
+        if isinstance(graph, GraphData):
+            graph = graph.data
         graph_size = graph.size()
         if graph_size == 0:
             return self

@@ -288,8 +288,7 @@ class GraphProfile(object):
         for attribute in attributes:
             if attribute in continuous_attributes:
                 data_as_list = self._attribute_data_as_list(graph, attribute)
-                df = pd.DataFrame({attribute: data_as_list})
-
+                df = pd.Series(data_as_list)
                 best_fit = None
                 best_mle = 1000
                 for distribution in distribution_candidates:
@@ -302,7 +301,7 @@ class GraphProfile(object):
                         best_mle = mle
                 continuous_distributions[attribute] = {
                     "name": best_fit,
-                    "scale": list(best_mle),
+                    "scale": best_mle,
                 }
             else:
                 continuous_distributions[attribute] = None

@@ -118,7 +118,7 @@ class GraphProfile(object):
             for profile_key in profile_keys:
                 # need to add props
                 if profile_key in list_keys:
-                    if "num_nodes" in calcs_dict_keys:
+                    if profile_key in calcs_dict_keys:
                         continue
                 profile.pop(profile_key)
         return profile

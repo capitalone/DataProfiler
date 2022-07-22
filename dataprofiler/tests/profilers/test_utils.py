@@ -3,12 +3,12 @@ import unittest
 from datetime import datetime
 from unittest import mock
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 import dataprofiler as dp
-from dataprofiler.profilers import utils
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
+from dataprofiler.profilers import utils
 
 
 class TestShuffleInChunks(unittest.TestCase):
@@ -232,13 +232,13 @@ class TestShuffleInChunks(unittest.TestCase):
             utils.get_memory_size(["This is test, a Test sentence.!!!"], unit="G"),
         )
 
-@mock.patch(
-    "dataprofiler.profilers.profile_builder.DataLabeler", spec=BaseDataLabeler
-)
+
+@mock.patch("dataprofiler.profilers.profile_builder.DataLabeler", spec=BaseDataLabeler)
 class TestProfileDistributedMerge(unittest.TestCase):
     """
     Validates utils.merge_profile_list is properly working.
     """
+
     @staticmethod
     def _setup_data_labeler_mock(mock_instance):
         mock_DataLabeler = mock_instance.return_value

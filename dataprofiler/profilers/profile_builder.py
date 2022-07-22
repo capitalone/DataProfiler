@@ -21,6 +21,7 @@ import pandas as pd
 
 from .. import data_readers, dp_logging
 from ..labelers.data_labelers import DataLabeler
+from ..labelers.base_data_labeler import BaseDataLabeler
 from . import utils
 from .column_profile_compilers import (
     ColumnDataLabelerCompiler,
@@ -865,7 +866,7 @@ class BaseProfiler(object):
         if file_type is not None:
             self.file_type = file_type
 
-    def _remove_data_labelers(self):
+    def _remove_data_labelers(self, replacement_type=BaseDataLabeler()):
         """
         Helper method for removing all data labelers before saving to disk.
 
@@ -890,7 +891,7 @@ class BaseProfiler(object):
             and data_labeler_options.data_labeler_object is not None
         ):
             data_labeler = data_labeler_options.data_labeler_object
-            data_labeler_options.data_labeler_object = None
+            data_labeler_options.data_labeler_object = replacement_type
 
         # get all profiles, unstructured is a single profile and hence needs to
         # be in a list, whereas structured is already a list
@@ -912,7 +913,7 @@ class BaseProfiler(object):
                 data_labeler = profiler._profiles["data_labeler"].data_labeler
 
             if profiler and "data_labeler" in profiler._profiles:
-                profiler._profiles["data_labeler"].data_labeler = None
+                profiler._profiles["data_labeler"].data_labeler = replacement_type
 
         return data_labeler
 

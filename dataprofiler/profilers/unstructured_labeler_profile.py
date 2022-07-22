@@ -1,3 +1,4 @@
+"""Profile analysis for applying labels within unstructured profiling."""
 from collections import defaultdict
 
 from ..labelers.data_labelers import DataLabeler
@@ -8,12 +9,13 @@ from .profiler_options import DataLabelerOptions
 
 
 class UnstructuredLabelerProfile(object):
+    """Profiles and labels unstructured data."""
 
     type = "data_labeler"
 
     def __init__(self, data_labeler_dirpath=None, options=None):
         """
-        Initialization of Data Label profiling for unstructured datasets.
+        Initialize of Data Label profiling for unstructured datasets.
 
         :param data_labeler_dirpath: Directory path to the data labeler
         :type data_labeler_dirpath: String
@@ -54,7 +56,7 @@ class UnstructuredLabelerProfile(object):
 
     def __add__(self, other):
         """
-        Merges the properties of two UnstructuredLabelerProfile
+        Merge the properties of two UnstructuredLabelerProfile.
 
         :param self: first profile
         :param other: second profile
@@ -62,7 +64,6 @@ class UnstructuredLabelerProfile(object):
         :type other: UnstructuredLabelerProfile
         :return: New UnstructuredLabelerProfile merged profile
         """
-
         if not isinstance(other, UnstructuredLabelerProfile):
             raise TypeError(
                 "Unsupported operand type(s) for +: "
@@ -94,16 +95,17 @@ class UnstructuredLabelerProfile(object):
 
     def report(self, remove_disabled_flag=False):
         """
-        Private abstract method for returning report.
+        Return profile object.
 
-        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :param remove_disabled_flag: flag to determine if disabled options
+            should be excluded in report.
         :type remove_disabled_flag: boolean
         """
         return self.profile
 
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for two unstructured labeler profiles
+        Find the differences for two unstructured labeler profiles.
 
         :param other_profile: profile to find the difference with
         :type other_profile: UnstructuredLabelerProfile
@@ -138,13 +140,13 @@ class UnstructuredLabelerProfile(object):
 
     @property
     def label_encoding(self):
+        """Return list of labels."""
         return self.data_labeler.labels
 
     @BaseColumnProfiler._timeit(name="data_labeler_predict")
     def _update_helper(self, df_series_clean, profile):
         """
-        Method for updating the column profile properties with a cleaned
-        dataset and the known profile of the dataset.
+        Update col profile properties with clean dataset and its known profile.
 
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
@@ -176,6 +178,7 @@ class UnstructuredLabelerProfile(object):
         self._update_column_base_properties(profile)
 
     def update(self, df_series):
+        """Update profile."""
         if len(df_series) == 0:
             return
         profile = dict(
@@ -186,6 +189,7 @@ class UnstructuredLabelerProfile(object):
 
     @property
     def profile(self):
+        """Return a profile."""
         profile = {
             "entity_counts": self.entity_counts,
             "entity_percentages": self.entity_percentages,
@@ -195,7 +199,8 @@ class UnstructuredLabelerProfile(object):
 
     def _update_column_base_properties(self, profile):
         """
-        Updates the base properties with the base schema.
+        Update the base properties with the base schema.
+
         :param profile: profile dictionary of data type
         :type profile: dict
         :return: None
@@ -204,7 +209,8 @@ class UnstructuredLabelerProfile(object):
 
     def _get_percentages(self, level):
         """
-        Creates a sorted dictionary of each entity percentages
+        Create a sorted dictionary of each entity percentages.
+
         :param level: type of percentages returned (either word level or true
             char level or postproceess char level)
         :type level: string
@@ -229,7 +235,8 @@ class UnstructuredLabelerProfile(object):
 
     def _update_percentages(self):
         """
-        Helper to update each entity percentage
+        Update each entity percentage.
+
         :param: None
         :return: None
         """
@@ -243,7 +250,8 @@ class UnstructuredLabelerProfile(object):
 
     def _update_true_char_label_counts(self, predictions):
         """
-        Updates the true character label counts
+        Update the true character label counts.
+
         :param predictions: contains array of samples with predictions on the
             character level
         :type predictions: list
@@ -262,7 +270,8 @@ class UnstructuredLabelerProfile(object):
         self, df_series_clean, format_predictions
     ):
         """
-        Updates the postprocess character label counts
+        Update the postprocess character label counts.
+
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
         :param format_predictions: contains dict of samples with predictions on
@@ -289,7 +298,8 @@ class UnstructuredLabelerProfile(object):
 
     def _update_word_label_counts(self, df_series_clean, format_predictions):
         """
-        Updates the sorted dictionary of each entity count
+        Update the sorted dictionary of each entity count.
+
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
         :param format_predictions: Dictionary of sample text and entities

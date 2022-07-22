@@ -6,10 +6,11 @@ from cgi import test
 from collections import defaultdict
 
 import networkx as nx
-import utils
 
 from dataprofiler.data_readers.graph_data import GraphData
 from dataprofiler.profilers.graph_profiler import GraphProfile
+
+from . import utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

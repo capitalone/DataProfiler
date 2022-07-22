@@ -39,7 +39,7 @@ class TestGraphProfiler(unittest.TestCase):
             global_max_component_size=5,
             continuous_distribution={
                 "id": None,
-                "weight": {"name": "lognorm", "scale": -15.250985118262854},
+                "weight": {"name": "lognorm"},
             },
             categorical_distribution={
                 "id": {
@@ -67,13 +67,16 @@ class TestGraphProfiler(unittest.TestCase):
         graph_profile = GraphProfile("test_update")
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
+        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
+        self.assertAlmostEqual(scale, -15.250985118262854)
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
         graph_profile = GraphProfile("test_report")
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
-        self.maxDiff = None
+        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
+        self.assertAlmostEqual(scale, -15.250985118262854)
         self.assertDictEqual(self.expected_profile, graph_profile.report())
 
     def test_graph_data_object(self):
@@ -81,6 +84,8 @@ class TestGraphProfiler(unittest.TestCase):
         graph_profile = GraphProfile("test_graph_data_object_update")
         with utils.mock_timeit():
             profile = graph_profile.update(data)
+        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
+        self.assertAlmostEqual(scale, -15.250985118262854)
         self.assertDictEqual(self.expected_profile, profile.profile)
 
 

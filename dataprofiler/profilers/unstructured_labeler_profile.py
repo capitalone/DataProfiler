@@ -95,7 +95,7 @@ class UnstructuredLabelerProfile(object):
 
     def report(self, remove_disabled_flag=False):
         """
-        Return report.
+        Return profile object.
 
         :param remove_disabled_flag: flag to determine if disabled options
             should be excluded in report.

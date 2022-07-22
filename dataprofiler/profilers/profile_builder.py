@@ -20,8 +20,8 @@ import numpy as np
 import pandas as pd
 
 from .. import data_readers, dp_logging
-from ..labelers.data_labelers import DataLabeler
 from ..labelers.base_data_labeler import BaseDataLabeler
+from ..labelers.data_labelers import DataLabeler
 from . import utils
 from .column_profile_compilers import (
     ColumnDataLabelerCompiler,

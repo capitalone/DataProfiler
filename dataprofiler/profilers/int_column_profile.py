@@ -1,3 +1,4 @@
+"""Int profile analysis for individual col within structured profiling."""
 import numpy as np
 
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -7,15 +8,16 @@ from .profiler_options import IntOptions
 
 class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     """
-    Integer column profile mixin with of numerical stats. Represents a column in
-    the dataset which is an integer column.
+    Integer column profile mixin with of numerical stats.
+
+    Represents a column in the dataset which is an integer column.
     """
 
     type = "int"
 
     def __init__(self, name, options=None):
         """
-        Initialization of column base properties and itself.
+        Initialize column base properties and itself.
 
         :param name: Name of the data
         :type name: String
@@ -33,7 +35,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def __add__(self, other):
         """
-        Merges the properties of two IntColumn profiles
+        Merge the properties of two IntColumn profiles.
 
         :param self: first profile
         :param other: second profile
@@ -57,7 +59,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def report(self, remove_disabled_flag=False):
         """
-        Private abstract method for returning report.
+        Return the report.
 
         :param remove_disabled_flag: flag to determine if disabled
             options should be excluded in the report.
@@ -68,7 +70,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @property
     def profile(self):
         """
-        Property for profile. Returns the profile of the column.
+        Return the profile of the column.
 
         :return:
         """
@@ -77,7 +79,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @property
     def data_type_ratio(self):
         """
-        Calculates the ratio of samples which match this data type.
+        Calculate the ratio of samples which match this data type.
 
         :return: ratio of data type
         :rtype: float
@@ -89,7 +91,8 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @classmethod
     def _is_each_row_int(cls, df_series):
         """
-        if given is numerical and int values
+        Return true if given is numerical and int values.
+
         e.g.
         For column [1 1 1] returns True
         For column [1.0 1.0 1.0] returns True
@@ -109,8 +112,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def _update_helper(self, df_series_clean, profile):
         """
-        Method for updating the column profile properties with a cleaned
-        dataset and the known null parameters of the dataset.
+        Update col profile properties with clean dataset and its known null params.
 
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
@@ -124,7 +126,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     def update(self, df_series):
         """
-        Updates the column profile.
+        Update the column profile.
 
         :param df_series: df series
         :type df_series: pandas.core.series.Series

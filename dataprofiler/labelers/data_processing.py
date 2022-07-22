@@ -1,4 +1,4 @@
-"""Contains classes for processing data."""
+"""Contains pre-built processors for data labeling/processing."""
 
 import abc
 import copy

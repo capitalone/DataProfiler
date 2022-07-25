@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-"""
-coding=utf-8
-Build model for a dataset by identifying type of column along with its
-respective parameters.
-"""
+"""Build model for dataset by identifying col type along with its respective params."""
 from __future__ import division, print_function
 
 import abc
@@ -21,10 +17,12 @@ from .profiler_options import NumericalOptions
 
 
 class abstractstaticmethod(staticmethod):
+    """For making function an abstract method."""
 
     __slots__ = ()
 
     def __init__(self, function):
+        """Initialize abstract static method."""
         super(abstractstaticmethod, self).__init__(function)
         function.__isabstractmethod__ = True
 
@@ -33,15 +31,17 @@ class abstractstaticmethod(staticmethod):
 
 class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     """
-    Abstract numerical column profile subclass of BaseColumnProfiler. Represents
-    a column in the dataset which is a text column. Has Subclasses itself.
+    Abstract numerical column profile subclass of BaseColumnProfiler.
+
+    Represents column in the dataset which is a text column.
+    Has Subclasses itself.
     """
 
     type = None
 
     def __init__(self, options=None):
         """
-        Initialization of column base properties and itself.
+        Initialize column base properties and itself.
 
         :param options: Options for the numerical stats.
         :type options: NumericalOptions
@@ -123,9 +123,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self._filter_properties_w_options(self.__calculations, options)
 
     def __getattribute__(self, name):
+        """Return computed attribute value."""
         return super(NumericStatsMixin, self).__getattribute__(name)
 
     def __getitem__(self, item):
+        """Return indexed item."""
         return super(NumericStatsMixin, self).__getitem__(item)
 
     @property
@@ -135,7 +137,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name="histogram_and_quantiles")
     def _add_helper_merge_profile_histograms(self, other1, other2):
         """
-        Adds histogram of two profiles together
+        Add histogram of two profiles together.
 
         :param other1: profile1 being added to self
         :type other1: BaseColumnProfiler
@@ -190,13 +192,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _add_helper(self, other1, other2):
         """
-        Helper function for merging profiles.
+        Help merge profiles.
 
         :param other1: profile1 being added to self
         :param other2: profile2 being added to self
         :return: None
         """
-
         BaseColumnProfiler._merge_calculations(
             self._NumericStatsMixin__calculations,
             other1._NumericStatsMixin__calculations,
@@ -288,7 +289,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def profile(self):
         """
-        Property for profile. Returns the profile of the column.
+        Return profile of the column.
+
         :return:
         """
         profile = dict(
@@ -314,14 +316,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def report(self, remove_disabled_flag=False):
         """
-        Method to call the profile and remove the disabled columns from
-            the profile's report. "Disabled column" is defined as a column
+        Call the profile and remove the disabled columns from profile's report.
+
+            "Disabled column" is defined as a column
             that is not present in `self.__calculations` but is present
             in the `self.profile`.
+
         :var remove_disabled_flag: true/false value to tell the code to remove
             values missing in __calculations
         :type remove_disabled_flag: boolean
-        :return: Profile object that is pop'd based on values missing from __calculations
+        :return: Profile object pop'd based on values missing from __calculations
         :rtype: Profile
         """
         calcs_dict_keys = self._NumericStatsMixin__calculations.keys()
@@ -345,7 +349,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for several numerical stats.
+        Find the differences for several numerical stats.
 
         :param other_profile: profile to find the difference with
         :type other_profile: NumericStatsMixin Profile
@@ -386,6 +390,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @property
     def mean(self):
+        """Return mean value."""
         if self.match_count == 0:
             return 0
         return float(self.sum) / self.match_count
@@ -393,7 +398,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @property
     def mode(self):
         """
-        Finds an estimate for the mode(s) of the data.
+        Find an estimate for the mode[s] of the data.
 
         :return: the mode(s) of the data
         :rtype: list(float)
@@ -405,7 +410,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @property
     def median(self):
         """
-        Estimates the median of the data.
+        Estimate the median of the data.
 
         :return: the median
         :rtype: float
@@ -416,6 +421,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @property
     def variance(self):
+        """Return variance."""
         return (
             self._biased_variance
             if not self.bias_correction
@@ -424,12 +430,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @property
     def stddev(self):
+        """Return stddev value."""
         if self.match_count == 0:
             return np.nan
         return np.sqrt(self.variance)
 
     @property
     def skewness(self):
+        """Return skewness value."""
         return (
             self._biased_skewness
             if not self.bias_correction
@@ -438,6 +446,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     @property
     def kurtosis(self):
+        """Return kurtosis value."""
         return (
             self._biased_kurtosis
             if not self.bias_correction
@@ -495,7 +504,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _update_variance(self, batch_mean, batch_var, batch_count):
         """
-        Calculate the combined biased variance of the current values and new dataset.
+        Calculate combined biased variance of the current values and new dataset.
 
         :param batch_mean: mean of new chunk
         :param batch_var: biased variance of new chunk
@@ -517,7 +526,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         match_count1, biased_variance1, mean1, match_count2, biased_variance2, mean2
     ):
         """
-        Calculate the combined biased variance of the current values and new dataset.
+        Calculate combined biased variance of the current values and new dataset.
 
         :param match_count1: number of samples in new chunk 1
         :param mean1: mean of chunk 1
@@ -573,7 +582,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         mean2,
     ):
         """
-        Calculate the combined skewness of two data chunks
+        Calculate the combined skewness of two data chunks.
 
         :param match_count1: # of samples in 1st chunk
         :param biased_skewness1: skewness of 1st chunk without bias correction
@@ -621,7 +630,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _correct_bias_skewness(match_count, biased_skewness):
         """
-        Apply bias correction to skewness
+        Apply bias correction to skewness.
 
         :param match_count: number of samples
         :param biased_skewness: skewness without bias correction
@@ -658,7 +667,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         mean2,
     ):
         """
-        Calculate the combined kurtosis of two sets of data
+        Calculate the combined kurtosis of two sets of data.
 
         :param match_count1: # of samples in 1st chunk
         :param biased_kurtosis1: kurtosis of 1st chunk without bias correction
@@ -718,7 +727,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _correct_bias_kurtosis(match_count, biased_kurtosis):
         """
-        Apply bias correction to kurtosis
+        Apply bias correction to kurtosis.
 
         :param match_count: number of samples
         :param biased_kurtosis: skewness without bias correction
@@ -743,8 +752,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _estimate_mode_from_histogram(self):
         """
-        Estimates the mode of the current data using the
-        histogram. If there are multiple modes, returns
+        Estimate the mode of the current data using the histogram.
+
+        If there are multiple modes, returns
         K of them (where K is defined in options given, but
         5 by default)
 
@@ -801,8 +811,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _histogram_bin_error(self, input_array):
         """
-        Calculate the error of each value from the bin of the histogram it
-        falls within.
+        Calculate error of each value from bin of the histogram it falls within.
 
         :param input_array: input data used to calculate the histogram
         :type input_array: Union[np.array, pd.Series]
@@ -915,8 +924,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _get_histogram(self, values):
         """
-        Calculates the stored histogram the suggested bin counts for each
-        histogram method, uses np.histogram
+        Calculate stored histogram the suggested bin counts for each histogram method.
+
+        Uses np.histogram.
 
         :param values: input data values
         :type values: Union[np.array, pd.Series]
@@ -975,8 +985,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _update_histogram(self, df_series):
         """
-        Update histogram for each method and the combined method. The algorithm
-        'Follow the best expert' is applied to select the combined method:
+        Update histogram for each method and the combined method.
+
+        The algorithm 'Follow the best expert' is applied to select the combined
+        method:
+
         N. Cesa-Bianchi and G. Lugosi, Prediction, learning, and games.
         Cambridge University Press, 2006.
         R. D. Kleinberg, A. Niculescu-Mizil, and Y. Sharma, "Regret bounds
@@ -991,7 +1004,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :type df_series: pandas.core.series.Series
         :return:
         """
-
         df_series = df_series.replace([np.inf, -np.inf], np.nan).dropna()
         if df_series.empty:
             return
@@ -1011,9 +1023,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _histogram_for_profile(self, histogram_method):
         """
-        Converts the stored histogram into the presentable state based on the
-        suggested histogram bin count from numpy.histograms. The bin count used
-        is stored in 'suggested_bin_count' for each method.
+        Convert the stored histogram into the presentable state.
+
+        Based on the suggested histogram bin count from numpy.histograms.
+        The bin count used is stored in 'suggested_bin_count' for each method.
 
         :param histogram_method: method to use for determining the histogram
             profile
@@ -1108,14 +1121,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _get_best_histogram_for_profile(self):
         """
-        Converts the stored histogram into the presentable state based on the
-        suggested histogram bin count from numpy.histograms. The bin count used
-        is stored in 'suggested_bin_count' for each method.
+        Convert the stored histogram into the presentable state.
+
+        Based on the suggested histogram bin count from numpy.histograms.
+        The bin count used is stored in 'suggested_bin_count' for each method.
 
         :return: histogram bin edges and bin counts
         :rtype: dict
         """
-
         if self.histogram_selection is None:
             best_hist_loss = None
             for method in self.histogram_methods:
@@ -1131,8 +1144,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _get_percentile(self, percentiles):
         """
-        Get value for the number where the given percentage of values fall below
-        it.
+        Get value for the number where the given percentage of values fall below it.
 
         :param percentiles: List of percentage of values to fall before the
             value
@@ -1169,8 +1181,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _fold_histogram(bin_counts, bin_edges, value):
         """
-        Offset the histogram by the given value,
-        then fold the histogram at the break point.
+        Offset histogram by given value, then fold the histogram at break point.
 
         :param bin_counts: bin counts of the histogram
         :type bin_counts: np.array
@@ -1226,7 +1237,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @property
     def median_abs_deviation(self):
         """
-        Get median absolute deviation estimated from the histogram of the data
+        Get median absolute deviation estimated from the histogram of the data.
+
             Subtract bin edges from the median value
             Fold the histogram to positive and negative parts around zero
             Impose the two bin edges from the two histogram
@@ -1292,8 +1304,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _get_quantiles(self):
         """
-        Retrieves the quantile set based on the specified number of quantiles
-        in self.quantiles.
+        Retrieve quantile set based on specified number of quantiles in self.quantiles.
 
         :return: list of quantiles
         """
@@ -1302,8 +1313,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
     def _update_helper(self, df_series_clean, profile):
         """
-        Method for updating the base numerical profile properties with a cleaned
-        dataset and the known null parameters of the dataset.
+        Update base numerical profile properties w/ clean dataset and known null params.
 
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
@@ -1389,8 +1399,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name="skewness")
     def _get_skewness(self, df_series, prev_dependent_properties, subset_properties):
         """
-        Computes and updates the skewness of the current dataset given
-        new chunk
+        Compute and update skewness of current dataset given new chunk.
 
         :param df_series: incoming data
         :type df_series: pandas series
@@ -1429,8 +1438,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name="kurtosis")
     def _get_kurtosis(self, df_series, prev_dependent_properties, subset_properties):
         """
-        Computes and updates the kurtosis of the current dataset given
-        new chunk
+        Compute and update kurtosis of current dataset given new chunk.
 
         :param df_series: incoming data
         :type df_series: pandas series
@@ -1487,7 +1495,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @BaseColumnProfiler._timeit(name="num_zeros")
     def _get_num_zeros(self, df_series, prev_dependent_properties, subset_properties):
         """
-        Method for getting the count of zeros in the numerical column.
+        Get the count of zeros in the numerical column.
 
         :param df_series: df series
         :type df_series: pandas.core.series.Series
@@ -1506,8 +1514,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self, df_series, prev_dependent_properties, subset_properties
     ):
         """
-        Method for getting the count of negative numbers
-        in the numerical column.
+        Get the count of negative numbers in the numerical column.
 
         :param df_series: df series
         :type df_series: pandas.core.series.Series
@@ -1524,8 +1531,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @abc.abstractmethod
     def update(self, df_series):
         """
-        Abstract Method for updating the numerical profile properties with an
-        uncleaned dataset.
+        Update the numerical profile properties with an uncleaned dataset.
 
         :param df_series: df series with nulls removed
         :type df_series: pandas.core.series.Series
@@ -1536,6 +1542,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def is_float(x):
         """
+        Return True if x is float.
+
         For "0.80" this function returns True
         For "1.00" this function returns True
         For "1" this function returns True
@@ -1555,6 +1563,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def is_int(x):
         """
+        Return True if x is integer.
+
         For "0.80" This function returns False
         For "1.00" This function returns True
         For "1" this function returns True
@@ -1575,7 +1585,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def np_type_to_type(val):
         """
-        Converts numpy variables to base python type variables
+        Convert numpy variables to base python type variables.
 
         :param val: value to check & change
         :type val: numpy type or base type

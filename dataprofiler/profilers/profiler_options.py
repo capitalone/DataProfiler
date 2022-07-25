@@ -14,7 +14,7 @@ class BaseOption(object):
     @property
     def properties(self):
         """
-        Retur a copy of the option properties.
+        Return a copy of the option properties.
 
         :return: dictionary of the option's properties attr: value
         :rtype: dict

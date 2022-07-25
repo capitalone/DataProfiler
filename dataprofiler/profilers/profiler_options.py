@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-"""
-coding=utf-8
-Specify the options when running the data profiler.
-"""
+"""Specify the options when running the data profiler."""
 import abc
 import copy
 import re
@@ -12,10 +9,12 @@ from ..labelers.base_data_labeler import BaseDataLabeler
 
 
 class BaseOption(object):
+    """For configuring options."""
+
     @property
     def properties(self):
         """
-        Returns a copy of the option properties.
+        Return a copy of the option properties.
 
         :return: dictionary of the option's properties attr: value
         :rtype: dict
@@ -24,7 +23,9 @@ class BaseOption(object):
 
     def _set_helper(self, options, variable_path):
         """
-        Set all the options. Send in a dict that contains all of or a subset of
+        Set all the options.
+
+        Send in a dict that contains all of or a subset of
         the appropriate options. Set the values of the options. Will raise error
         if the formatting is improper.
 
@@ -90,7 +91,9 @@ class BaseOption(object):
 
     def set(self, options):
         """
-        Set all the options. Send in a dict that contains all of or a subset of
+        Set all the options.
+
+        Send in a dict that contains all of or a subset of
         the appropriate options. Set the values of the options. Will raise error
         if the formatting is improper.
 
@@ -105,8 +108,7 @@ class BaseOption(object):
     @abc.abstractmethod
     def _validate_helper(self, variable_path=""):
         """
-        Validates the options do not conflict and cause errors and returns
-        possible errors
+        Validate the options don't cause errors and return possible errors.
 
         :param variable_path: Current path to variable set.
         :type variable_path: str
@@ -117,8 +119,9 @@ class BaseOption(object):
 
     def validate(self, raise_error=True):
         """
-        Validates the options do not conflict and cause errors. Raises
-        error/warning if so.
+        Validate the options do not conflict and cause errors.
+
+        Raises error/warning if so.
 
         :param raise_error: Flag that raises errors if true. Returns errors if
             false.
@@ -134,8 +137,9 @@ class BaseOption(object):
 
     def __eq__(self, other):
         """
-        Determines equality by ensuring equality of all attributes, some of
-        which may be Options objects themselves.
+        Determine equality by ensuring equality of all attributes.
+
+        Some of the attributes may be Options objects themselves.
         """
         if not isinstance(other, self.__class__):
             return False
@@ -144,9 +148,11 @@ class BaseOption(object):
 
 
 class BooleanOption(BaseOption):
+    """For setting Boolean options."""
+
     def __init__(self, is_enabled=True):
         """
-        Boolean option
+        Initialize Boolean option.
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
@@ -155,7 +161,7 @@ class BooleanOption(BaseOption):
 
     def _validate_helper(self, variable_path="BooleanOption"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -172,8 +178,11 @@ class BooleanOption(BaseOption):
 
 
 class HistogramOption(BooleanOption):
+    """For setting histogram options."""
+
     def __init__(self, is_enabled=True, bin_count_or_method="auto"):
-        """Options for histograms
+        """
+        Initialize Options for histograms.
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
@@ -186,7 +195,7 @@ class HistogramOption(BooleanOption):
 
     def _validate_helper(self, variable_path="HistogramOption"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -218,8 +227,10 @@ class HistogramOption(BooleanOption):
 
 
 class ModeOption(BooleanOption):
+    """For setting mode estimation options."""
+
     def __init__(self, is_enabled=True, max_k_modes=5):
-        """Options for mode estimation
+        """Initialize Options for mode estimation.
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
@@ -231,7 +242,7 @@ class ModeOption(BooleanOption):
 
     def _validate_helper(self, variable_path="ModeOption"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -251,9 +262,11 @@ class ModeOption(BooleanOption):
 
 
 class BaseInspectorOptions(BooleanOption):
+    """For setting Base options."""
+
     def __init__(self, is_enabled=True):
         """
-        Base options for all the columns.
+        Initialize Base options for all the columns.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -262,7 +275,7 @@ class BaseInspectorOptions(BooleanOption):
 
     def _validate_helper(self, variable_path="BaseInspectorOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -273,7 +286,7 @@ class BaseInspectorOptions(BooleanOption):
 
     def is_prop_enabled(self, prop):
         """
-        Checks to see if a property is enabled or not and returns boolean.
+        Check to see if a property is enabled or not and returns boolean.
 
         :param prop: The option to check if it is enabled
         :type prop: String
@@ -296,9 +309,11 @@ class BaseInspectorOptions(BooleanOption):
 
 
 class NumericalOptions(BaseInspectorOptions):
+    """For configuring options for Numerican Stats Mixin."""
+
     def __init__(self):
         """
-        Options for the Numerical Stats Mixin
+        Initialize Options for the Numerical Stats Mixin.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -350,9 +365,10 @@ class NumericalOptions(BaseInspectorOptions):
     @property
     def is_numeric_stats_enabled(self):
         """
-        Returns the state of numeric stats being enabled / disabled. If any
-        numeric stats property is enabled it will return True, otherwise it
-        will return False.
+        Return the state of numeric stats being enabled / disabled.
+
+        If any numeric stats property is enabled it will return True,
+        otherwise it will return False.
 
         :return: true if any numeric stats property is enabled, otherwise false
         :rtype bool:
@@ -377,7 +393,9 @@ class NumericalOptions(BaseInspectorOptions):
     @is_numeric_stats_enabled.setter
     def is_numeric_stats_enabled(self, value):
         """
-        This property will enable or disable all numeric stats properties:
+        Enable or disable all numeric stats properties.
+
+        The properties are:
         min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles,
         num_zeros, num_negatives
 
@@ -401,7 +419,8 @@ class NumericalOptions(BaseInspectorOptions):
     @property
     def properties(self):
         """
-        Includes at least:
+        Include is_enabled.
+
             is_enabled: Turns on or off the column.
         """
         props = super().properties
@@ -410,7 +429,7 @@ class NumericalOptions(BaseInspectorOptions):
 
     def _validate_helper(self, variable_path="NumericalOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -509,9 +528,11 @@ class NumericalOptions(BaseInspectorOptions):
 
 
 class IntOptions(NumericalOptions):
+    """For configuring options for Int Column."""
+
     def __init__(self):
         """
-        Options for the Int Column
+        Initialize Options for the Int Column.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -548,7 +569,7 @@ class IntOptions(NumericalOptions):
 
     def _validate_helper(self, variable_path="IntOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -559,9 +580,11 @@ class IntOptions(NumericalOptions):
 
 
 class PrecisionOptions(BooleanOption):
+    """For configuring options for precision."""
+
     def __init__(self, is_enabled=True, sample_ratio=None):
         """
-        Options for precision
+        Initialize Options for precision.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -575,7 +598,7 @@ class PrecisionOptions(BooleanOption):
 
     def _validate_helper(self, variable_path="PrecisionOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -602,9 +625,11 @@ class PrecisionOptions(BooleanOption):
 
 
 class FloatOptions(NumericalOptions):
+    """For configuring options for Float Column."""
+
     def __init__(self):
         """
-        Options for the Float Column.
+        Initialize Options for the Float Column.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -642,7 +667,7 @@ class FloatOptions(NumericalOptions):
 
     def _validate_helper(self, variable_path="FloatOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -659,9 +684,11 @@ class FloatOptions(NumericalOptions):
 
 
 class TextOptions(NumericalOptions):
+    """For configuring options for Text Column."""
+
     def __init__(self):
         """
-        Options for the Text Column:
+        Initialize Options for the Text Column.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -703,9 +730,10 @@ class TextOptions(NumericalOptions):
 
     def _validate_helper(self, variable_path="TextOptions"):
         """
-        Validates the options do not conflict and cause errors. Also validates
-        that some options (num_zeros and num_negatives) are set to be disabled
-        by default
+        Validate the options do not conflict and cause errors.
+
+        Also validate that some options (num_zeros and num_negatives)
+        are set to be disabled by default.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -733,9 +761,10 @@ class TextOptions(NumericalOptions):
     @property
     def is_numeric_stats_enabled(self):
         """
-        Returns the state of numeric stats being enabled / disabled. If any
-        numeric stats property is enabled it will return True, otherwise it
-        will return False. Although it seems redundant, this method is needed
+        Return the state of numeric stats being enabled / disabled.
+
+        If any numeric stats property is enabled it will return True, otherwise
+        it will return False. Although it seems redundant, this method is needed
         in order for the function below, the setter function
         also called is_numeric_stats_enabled, to properly work.
 
@@ -760,7 +789,9 @@ class TextOptions(NumericalOptions):
     @is_numeric_stats_enabled.setter
     def is_numeric_stats_enabled(self, value):
         """
-        This property will enable or disable all numeric stats properties:
+        Enable or disable all numeric stats properties.
+
+        Those properties are:
         min, max, sum, variance, skewness, kurtosis, histogram_and_quantiles,
 
         :param value: boolean to enable/disable all numeric stats properties
@@ -780,9 +811,11 @@ class TextOptions(NumericalOptions):
 
 
 class DateTimeOptions(BaseInspectorOptions):
+    """For configuring options for Datetime Column."""
+
     def __init__(self):
         """
-        Options for the Datetime Column
+        Initialize Options for the Datetime Column.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -791,7 +824,7 @@ class DateTimeOptions(BaseInspectorOptions):
 
     def _validate_helper(self, variable_path="DateTimeOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -802,9 +835,11 @@ class DateTimeOptions(BaseInspectorOptions):
 
 
 class OrderOptions(BaseInspectorOptions):
+    """For configuring options for Order Column."""
+
     def __init__(self):
         """
-        Options for the Order Column
+        Initialize options for the Order Column.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -813,7 +848,7 @@ class OrderOptions(BaseInspectorOptions):
 
     def _validate_helper(self, variable_path="OrderOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -824,9 +859,11 @@ class OrderOptions(BaseInspectorOptions):
 
 
 class CategoricalOptions(BaseInspectorOptions):
+    """For configuring options Categorical Column."""
+
     def __init__(self, is_enabled=True, top_k_categories=None):
         """
-        Options for the Categorical Column
+        Initialize options for the Categorical Column.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -838,7 +875,7 @@ class CategoricalOptions(BaseInspectorOptions):
 
     def _validate_helper(self, variable_path="CategoricalOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -857,9 +894,11 @@ class CategoricalOptions(BaseInspectorOptions):
 
 
 class CorrelationOptions(BaseInspectorOptions):
+    """For configuring options for Correlation between Columns."""
+
     def __init__(self, is_enabled=False, columns=None):
         """
-        Options for the Correlation between Columns
+        Initialize options for the Correlation between Columns.
 
         :ivar is_enabled: boolean option to enable/disable.
         :vartype is_enabled: bool
@@ -871,7 +910,7 @@ class CorrelationOptions(BaseInspectorOptions):
 
     def _validate_helper(self, variable_path="CorrelationOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -894,9 +933,11 @@ class CorrelationOptions(BaseInspectorOptions):
 
 
 class DataLabelerOptions(BaseInspectorOptions):
+    """For configuring options for Data Labeler Column."""
+
     def __init__(self):
         """
-        Options for the Data Labeler Column.
+        Initialize options for the Data Labeler Column.
 
         :ivar is_enabled: boolean option to enable/disable the column.
         :vartype is_enabled: bool
@@ -914,7 +955,8 @@ class DataLabelerOptions(BaseInspectorOptions):
 
     def __deepcopy__(self, memo):
         """
-        Override deepcopy for data labeler object
+        Override deepcopy for data labeler object.
+
         Adapted from https://stackoverflow.com/questions/1500718/
         how-to-override-the-copy-deepcopy-operations-for-a-python-object/40484215
         :param memo: data object needed to copy
@@ -933,7 +975,7 @@ class DataLabelerOptions(BaseInspectorOptions):
     @property
     def properties(self):
         """
-        Returns a copy of the option properties.
+        Return a copy of the option properties.
 
         :return: dictionary of the option's properties attr: value
         :rtype: dict
@@ -948,7 +990,7 @@ class DataLabelerOptions(BaseInspectorOptions):
 
     def _validate_helper(self, variable_path="DataLabelerOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -994,6 +1036,8 @@ class DataLabelerOptions(BaseInspectorOptions):
 
 
 class TextProfilerOptions(BaseInspectorOptions):
+    """For configuring options for text profiler."""
+
     def __init__(
         self,
         is_enabled=True,
@@ -1003,7 +1047,7 @@ class TextProfilerOptions(BaseInspectorOptions):
         top_k_words=None,
     ):
         """
-        Constructs the TextProfilerOption object with default values.
+        Construct the TextProfilerOption object with default values.
 
         :ivar is_enabled: boolean option to enable/disable the option.
         :vartype is_enabled: bool
@@ -1030,7 +1074,7 @@ class TextProfilerOptions(BaseInspectorOptions):
 
     def _validate_helper(self, variable_path="TextProfilerOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -1086,9 +1130,11 @@ class TextProfilerOptions(BaseInspectorOptions):
 
 
 class StructuredOptions(BaseOption):
+    """For configuring options for structured profiler."""
+
     def __init__(self, null_values=None):
         """
-        Constructs the StructuredOptions object with default values.
+        Construct the StructuredOptions object with default values.
 
         :param null_values: null values we input.
         :vartype null_values: Union[None, dict]
@@ -1129,7 +1175,7 @@ class StructuredOptions(BaseOption):
 
     @property
     def enabled_profiles(self):
-        """Returns a list of the enabled profilers for columns."""
+        """Return a list of the enabled profilers for columns."""
         enabled_profiles = list()
         # null_values does not have is_enabled
         properties = self.properties
@@ -1141,7 +1187,7 @@ class StructuredOptions(BaseOption):
 
     def _validate_helper(self, variable_path="StructuredOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -1205,16 +1251,18 @@ class StructuredOptions(BaseOption):
         ):
             errors.append(
                 "Categorical statistics must be enabled if "
-                "Chi-squared test in enabled.".format(variable_path)
+                "Chi-squared test in enabled."
             )
 
         return errors
 
 
 class UnstructuredOptions(BaseOption):
+    """For configuring options for unstructured profiler."""
+
     def __init__(self):
         """
-        Constructs the UnstructuredOptions object with default values.
+        Construct the UnstructuredOptions object with default values.
 
         :ivar text: option set for text profiling.
         :vartype text: TextProfilerOptions
@@ -1226,7 +1274,7 @@ class UnstructuredOptions(BaseOption):
 
     @property
     def enabled_profiles(self):
-        """Returns a list of the enabled profilers."""
+        """Return a list of the enabled profilers."""
         enabled_profiles = list()
         for key, value in self.properties.items():
             if value.is_enabled:
@@ -1235,7 +1283,8 @@ class UnstructuredOptions(BaseOption):
 
     def _validate_helper(self, variable_path="UnstructuredOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
+
         :param variable_path: current path to variable set.
         :type variable_path: str
         :return: list of errors (if raise_error is false)
@@ -1267,9 +1316,11 @@ class UnstructuredOptions(BaseOption):
 
 
 class ProfilerOptions(BaseOption):
+    """For configuring options for profiler."""
+
     def __init__(self):
         """
-        Initializes the ProfilerOptions object.
+        Initialize the ProfilerOptions object.
 
         :ivar structured_options: option set for structured dataset profiling.
         :vartype structured_options: StructuredOptions
@@ -1281,7 +1332,7 @@ class ProfilerOptions(BaseOption):
 
     def _validate_helper(self, variable_path="ProfilerOptions"):
         """
-        Validates the options do not conflict and cause errors.
+        Validate the options do not conflict and cause errors.
 
         :param variable_path: current path to variable set.
         :type variable_path: str
@@ -1318,7 +1369,9 @@ class ProfilerOptions(BaseOption):
 
     def set(self, options):
         """
-        Overwrites BaseOption.set since the type (unstructured/structured) may
+        Overwrite BaseOption.set.
+
+        We do this because the type (unstructured/structured) may
         need to be specified if the same options exist within both
         self.structured_options and self.unstructured_options
 

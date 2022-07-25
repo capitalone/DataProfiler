@@ -1,3 +1,4 @@
+"""For generating a report."""
 import abc
 from collections import OrderedDict
 
@@ -17,6 +18,7 @@ from .unstructured_text_profile import TextProfiler
 
 
 class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
+    """Abstract class for generating a report."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = list()
@@ -24,9 +26,11 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
     _option_class = None
 
     def __repr__(self):
+        """Represent object as a string."""
         return self.__class__.__name__
 
     def __init__(self, df_series=None, options=None, pool=None):
+        """Initialize BaseCompiler object."""
         if not self._profilers:
             raise NotImplementedError("Must add profilers.")
 
@@ -41,23 +45,22 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
     @abc.abstractmethod
     def report(self, remove_disabled_flag=False):
         """
-        Abstract method for returning report.
+        Return report.
 
-        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :param remove_disabled_flag:
+            flag to determine if disabled options should be excluded in report.
         :type remove_disabled_flag: boolean
         """
         raise NotImplementedError()
 
     @property
     def profile(self):
-        """
-        Property for profile. Returns the profile of the column.
-        """
+        """Return the profile of the column."""
         return self.report(remove_disabled_flag=False)
 
     def _create_profile(self, df_series, options=None, pool=None):
         """
-        Initializes and evaluates all profilers for the given dataframe.
+        Initialize and evaluate all profilers for the given dataframe.
 
         :param df_series: a given column
         :type df_series: pandas.core.series.Series
@@ -66,7 +69,6 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
         :return: None
         :rtype: None
         """
-
         if not self._profilers:
             return
 
@@ -96,7 +98,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
 
     def __add__(self, other):
         """
-        Merges two profile compilers together overriding the `+` operator.
+        Merge two profile compilers together overriding the `+` operator.
 
         :param other: profile compiler being add to this one.
         :type other: BaseCompiler
@@ -129,7 +131,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
 
     def diff(self, other, options=None):
         """
-        Finds the difference between 2 compilers and returns the report
+        Find the difference between 2 compilers and returns the report.
 
         :param other: profile compiler finding the difference with this one.
         :type other: BaseCompiler
@@ -145,7 +147,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
 
     def update_profile(self, df_series, pool=None):
         """
-        Updates the profiles from the data frames
+        Update the profiles from the data frames.
 
         :param df_series: a given column, assume df_series in str
         :type df_series: pandas.core.series.Series
@@ -154,7 +156,6 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
         :return: Self
         :rtype: BaseCompiler
         """
-
         if not self._profilers:
             return
 
@@ -177,7 +178,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
                     multi_process_dict[profile_type] = pool.apply_async(
                         self._profiles[profile_type].update, (df_series,)
                     )
-                except Exception as e:  # Attempt again as a single process
+                except Exception:  # Attempt again as a single process
                     self._profiles[profile_type].thread_safe = False
 
             if not self._profiles[profile_type].thread_safe:
@@ -194,7 +195,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
                 returned_profile = multi_process_dict[profile_type].get()
                 if returned_profile is not None:
                     self._profiles[profile_type] = returned_profile
-            except Exception as e:  # Attempt again as a single process
+            except Exception:  # Attempt again as a single process
                 self._profiles[profile_type].thread_safe = False
                 single_process_list.append(profile_type)
 
@@ -205,6 +206,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):
 
 
 class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
+    """For generating ordered column profile reports."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
@@ -217,9 +219,10 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
 
     def report(self, remove_disabled_flag=False):
         """
-        Method for returning report.
+        Return report.
 
-        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :param remove_disabled_flag:
+            flag to determine if disabled options should be excluded in report.
         :type remove_disabled_flag: boolean
         """
         profile = {
@@ -245,15 +248,13 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
 
     @property
     def profile(self):
-        """
-        Property for profile. Returns the profile of the column.
-        """
+        """Return the profile of the column."""
         return self.report(remove_disabled_flag=False)
 
     @property
     def selected_data_type(self):
         """
-        Finds the selected data_type in a primitive compiler
+        Find the selected data_type in a primitive compiler.
 
         :return: name of the selected data type
         :rtype: str
@@ -268,7 +269,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
 
     def diff(self, other, options=None):
         """
-        Finds the difference between 2 compilers and returns the report
+        Find the difference between 2 compilers and returns the report.
 
         :param other: profile compiler finding the difference with this one.
         :type other: ColumnPrimitiveTypeProfileCompiler
@@ -317,6 +318,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
 
 
 class ColumnStatsProfileCompiler(BaseCompiler):
+    """For generating OrderColumn and CategoricalColumn reports."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
@@ -327,9 +329,10 @@ class ColumnStatsProfileCompiler(BaseCompiler):
 
     def report(self, remove_disabled_flag=False):
         """
-        Method for returning report.
+        Return report.
 
-        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :param remove_disabled_flag:
+            flag to determine if disabled options should be excluded in report.
         :type remove_disabled_flag: boolean
         """
         report = dict()
@@ -339,7 +342,7 @@ class ColumnStatsProfileCompiler(BaseCompiler):
 
     def diff(self, other, options=None):
         """
-        Finds the difference between 2 compilers and returns the report
+        Find the difference between 2 compilers and returns the report.
 
         :param other: profile compiler finding the difference with this one.
         :type other: ColumnStatsProfileCompiler
@@ -360,6 +363,7 @@ class ColumnStatsProfileCompiler(BaseCompiler):
 
 
 class ColumnDataLabelerCompiler(BaseCompiler):
+    """For generating DataLabelerColumn report."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [DataLabelerColumn]
@@ -367,9 +371,10 @@ class ColumnDataLabelerCompiler(BaseCompiler):
 
     def report(self, remove_disabled_flag=False):
         """
-        Method for returning report.
+        Return report.
 
-        :param remove_disabled_flag: flag to determine if disabled options should be excluded in the report.
+        :param remove_disabled_flag:
+            flag to determine if disabled options should be excluded in report.
         :type remove_disabled_flag: boolean
         """
         report = {"data_label": None, "statistics": dict()}
@@ -382,7 +387,7 @@ class ColumnDataLabelerCompiler(BaseCompiler):
 
     def diff(self, other, options=None):
         """
-        Finds the difference between 2 compilers and returns the report
+        Find the difference between 2 compilers and return the report.
 
         :param other: profile compiler finding the difference with this one.
         :type other: ColumnDataLabelerCompiler
@@ -409,6 +414,7 @@ class ColumnDataLabelerCompiler(BaseCompiler):
 
 
 class UnstructuredCompiler(BaseCompiler):
+    """For generating TextProfiler and UnstructuredLabelerProfile reports."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
     _profilers = [
@@ -419,9 +425,7 @@ class UnstructuredCompiler(BaseCompiler):
     _option_class = UnstructuredOptions
 
     def report(self, remove_disabled_flag=False):
-        """Report on profile attribute of the class and pop value
-        from self.profile if key not in self.__calculations
-        """
+        """Report profile attrs of class and potentially pop val from self.profile."""
         profile = {"data_label": dict(), "statistics": dict()}
         if UnstructuredLabelerProfile.type in self._profiles:
             profile["data_label"] = self._profiles[
@@ -435,7 +439,7 @@ class UnstructuredCompiler(BaseCompiler):
 
     def diff(self, other, options=None):
         """
-        Finds the difference between 2 compilers and returns the report
+        Find the difference between 2 compilers and return the report.
 
         :param other: profile compiler finding the difference with this one.
         :type other: UnstructuredCompiler

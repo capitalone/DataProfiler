@@ -1433,6 +1433,7 @@ class StructuredProfiler(BaseProfiler):
         self._col_name_to_idx = defaultdict(list)
         self.correlation_matrix = None
         self.chi2_matrix = None
+        self.spearman_corr_matrix = None
 
         if data is not None:
             self.update_profile(data)
@@ -1719,6 +1720,7 @@ class StructuredProfiler(BaseProfiler):
                         "file_type": self.file_type,
                         "encoding": self.encoding,
                         "correlation_matrix": self.correlation_matrix,
+                        "spearman_correlation_matrix": self.spearman_corr_matrix,
                         "chi2_matrix": self.chi2_matrix,
                         "profile_schema": defaultdict(list),
                         "times": self.times,
@@ -2069,6 +2071,51 @@ class StructuredProfiler(BaseProfiler):
 
         return corr_mat
 
+    def _update_spearman_correlation(self, clean_samples):
+
+        columns = self.options.spearman_correlation.columns
+        column_ids = list(range(len(self._profile)))
+        if columns is not None:
+            # If spearman_correlation.options is set, get the column indices of the selected column names
+            column_ids = [
+                id for col_name in columns for id in self._col_name_to_idx[col_name]
+            ]
+
+        # Filter the column indices to only keep columns that are of type 'int' or 'float'
+        column_data_type = (
+            lambda id: self._profile[id]
+            .profiles["data_type_profile"]
+            .selected_data_type
+        )
+        column_ids = [
+            id for id in column_ids if column_data_type(id) in ["int", "float"]
+        ]
+
+        data = {id: clean_samples[id] for id in column_ids}
+        data: pd.DataFrame = pd.DataFrame(data).apply(pd.to_numeric, errors="coerce")
+
+        # spearman correlation is equivalent to calculating the pearson correlation of ranked data
+        data: pd.DataFrame = data.rank()
+
+        # calculate column mean, variance of ranked data (ignoring NaNs)
+        # needed for merging/updating correlation matrix
+        ranked_mean = data.mean()
+        ranked_var = data.var()
+
+        data.fillna(value=ranked_mean)
+
+        # fill correlation matrix with nan initially
+        n_cols = len(self._profile)
+        spearman_corr = np.full((n_cols, n_cols), np.nan)
+
+        rows = [[id] for id in column_ids]
+        spearman_corr[rows, column_ids] = data.corr()
+
+        self.spearman_corr_matrix = spearman_corr
+            
+
+    
+
     def _update_chi2(self):
         """
         Calculates the p-value from a chi-squared test
@@ -2321,6 +2368,9 @@ class StructuredProfiler(BaseProfiler):
 
         if self.options.correlation.is_enabled:
             self._update_correlation(clean_sampled_dict, corr_prev_dependent_properties)
+
+        if self.options.spearman_correlation.is_enabled:
+            self._update_spearman_correlation(clean_sampled_dict)
 
         if self.options.chi2_homogeneity.is_enabled:
             self.chi2_matrix = self._update_chi2()

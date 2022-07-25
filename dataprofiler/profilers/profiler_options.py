@@ -1123,6 +1123,7 @@ class StructuredOptions(BaseOption):
         self.category = CategoricalOptions()
         self.data_labeler = DataLabelerOptions()
         self.correlation = CorrelationOptions()
+        self.spearman_correlation = CorrelationOptions()
         self.chi2_homogeneity = BooleanOption(is_enabled=True)
         # Non-Option variables
         self.null_values = null_values
@@ -1164,6 +1165,7 @@ class StructuredOptions(BaseOption):
                 ("category", CategoricalOptions),
                 ("data_labeler", DataLabelerOptions),
                 ("correlation", CorrelationOptions),
+                ("spearman_correlation", CorrelationOptions),
                 ("chi2_homogeneity", BooleanOption),
             ]
         )

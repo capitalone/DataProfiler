@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-"""
-coding=utf-8
-
-Build model for a dataset by identifying type of column along with its
-respective parameters.
-"""
+"""Build model for dataset by identifying col type along with its respective params."""
 from __future__ import division, print_function
 
 import copy
@@ -36,6 +31,8 @@ logger = dp_logging.get_child_logger(__name__)
 
 
 class StructuredColProfiler(object):
+    """For profiling structured data columns."""
+
     def __init__(
         self,
         df_series=None,
@@ -119,14 +116,13 @@ class StructuredColProfiler(object):
 
     def update_column_profilers(self, clean_sampled_df, pool):
         """
-        Calculates type statistics and labels dataset
+        Calculate type statistics and label dataset.
 
         :param clean_sampled_df: sampled series with none types dropped
         :type clean_sampled_df: Pandas.Series
         :param pool: pool utilized for multiprocessing
         :type pool: multiprocessing.pool
         """
-
         if self.name is None:
             self.name = clean_sampled_df.name
         elif self.name != clean_sampled_df.name:
@@ -167,7 +163,7 @@ class StructuredColProfiler(object):
 
     def __add__(self, other):
         """
-        Merges two Structured profiles together overriding the `+` operator.
+        Merge two Structured profiles together overriding the `+` operator.
 
         :param other: structured profile being add to this one.
         :type other: StructuredColProfiler
@@ -230,7 +226,7 @@ class StructuredColProfiler(object):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the difference between 2 StructuredCols and returns the report
+        Find the difference between 2 StructuredCols and return the report.
 
         :param other_profile: Structured col finding the difference with this
             one.
@@ -301,12 +297,13 @@ class StructuredColProfiler(object):
         for key in dict_order:
             try:
                 profile[key] = unordered_profile[key]
-            except KeyError as e:
+            except KeyError:
                 profile[key] = None
 
         return profile
 
     def report(self, remove_disabled_flag=False):
+        """Return profile."""
         unordered_profile = dict()
         for profile in self.profiles.values():
             utils.dict_merge(unordered_profile, profile.report(remove_disabled_flag))
@@ -355,13 +352,14 @@ class StructuredColProfiler(object):
         for key in dict_order:
             try:
                 profile[key] = unordered_profile[key]
-            except KeyError as e:
+            except KeyError:
                 profile[key] = None
 
         return profile
 
     @property
     def profile(self):
+        """Return a report."""
         return self.report(remove_disabled_flag=False)
 
     def _update_base_stats(self, base_stats):
@@ -420,7 +418,7 @@ class StructuredColProfiler(object):
         pool=None,
     ):
         """
-        Update the column profiler
+        Update the column profiler.
 
         :param df_series: Data to be profiled
         :type df_series: pandas.core.series.Series
@@ -454,7 +452,7 @@ class StructuredColProfiler(object):
 
     def _get_sample_size(self, df_series):
         """
-        Determines the minimum sampling size for detecting column type.
+        Determine the minimum sampling size for detecting column type.
 
         :param df_series: a column of data
         :type df_series: pandas.core.series.Series
@@ -473,8 +471,9 @@ class StructuredColProfiler(object):
         df_series, sample_size, null_values=None, min_true_samples=None, sample_ids=None
     ):
         """
-        Identify null characters and return them in a dictionary as well as
-        remove any nulls in column.
+        Identify null characters and return them in a dictionary.
+
+        Remove any nulls in column.
 
         :param df_series: a given column
         :type df_series: pandas.core.series.Series
@@ -493,7 +492,6 @@ class StructuredColProfiler(object):
             parameters
         :rtype: pd.Series, dict
         """
-
         if min_true_samples is None:
             min_true_samples = 0
 
@@ -600,13 +598,15 @@ class StructuredColProfiler(object):
 
 
 class BaseProfiler(object):
+    """Abstract class for profiling data."""
+
     _default_labeler_type = None
     _option_class = None
     _allowed_external_data_types = None
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0, options=None):
         """
-        Instantiate the BaseProfiler class
+        Instantiate the BaseProfiler class.
 
         :param data: Data to be profiled
         :type data: Data class object
@@ -674,14 +674,15 @@ class BaseProfiler(object):
 
     def _add_error_checks(self, other):
         """
-        Profiler type specific checks to ensure two profiles can be added
-        together.
+        Run checks to ensure two profiles can be combined.
+
+        Checks are specific to Profiler type.
         """
         raise NotImplementedError()
 
     def __add__(self, other):
         """
-        Merges two profiles together overriding the `+` operator.
+        Merge two profiles together overriding the `+` operator.
 
         :param other: profile being added to this one.
         :type other: BaseProfiler
@@ -720,7 +721,8 @@ class BaseProfiler(object):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the difference of two profiles
+        Find the difference of two profiles.
+
         :param other_profile: profile being added to this one.
         :type other_profile: BaseProfiler
         :return: diff of the two profiles
@@ -753,7 +755,7 @@ class BaseProfiler(object):
 
     def _get_sample_size(self, data):
         """
-        Determines the minimum sampling size for profiling the dataset.
+        Determine the minimum sampling size for profiling the dataset.
 
         :param data: a dataset
         :type data: Union[pd.Series, pd.DataFrame, list]
@@ -771,7 +773,7 @@ class BaseProfiler(object):
     @property
     def profile(self):
         """
-        Returns the stored profiles for the given profiler.
+        Return the stored profiles for the given profiler.
 
         :return: None
         """
@@ -779,9 +781,9 @@ class BaseProfiler(object):
 
     def report(self, report_options=None):
         """
-        Returns the profile report based on all profiled data fed into the
-        profiler. User can specify the output_formats: (pretty, compact,
-        serializable, flat).
+        Return profile report based on all profiled data fed into the profiler.
+
+        User can specify the output_formats: (pretty, compact, serializable, flat).
             Pretty: floats are rounded to four decimal places, and lists are
                 shortened.
             Compact: Similar to pretty, but removes detailed statistics such as
@@ -815,8 +817,10 @@ class BaseProfiler(object):
 
     def update_profile(self, data, sample_size=None, min_true_samples=None):
         """
-        Update the profile for data provided. User can specify the sample
-        size to profile the data with. Additionally, the user can specify the
+        Update the profile for data provided.
+
+        User can specify the sample size to profile the data with.
+        Additionally, the user can specify the
         minimum number of non-null samples to profile.
 
         :param data: data to be profiled
@@ -868,7 +872,7 @@ class BaseProfiler(object):
 
     def _remove_data_labelers(self, replacement_type=BaseDataLabeler()):
         """
-        Helper method for removing all data labelers before saving to disk.
+        Help remove all data labelers before saving to disk.
 
         :return: data_labeler used for unstructured labelling
         :rtype: DataLabeler
@@ -919,8 +923,7 @@ class BaseProfiler(object):
 
     def _restore_data_labelers(self, data_labeler=None):
         """
-        Helper method for restoring all data labelers after saving to or
-        loading from disk.
+        Help restore all data labelers after saving to or loading from disk.
 
         :param data_labeler: unstructured data_labeler
         :type data_labeler: DataLabeler
@@ -977,7 +980,7 @@ class BaseProfiler(object):
 
     def _save_helper(self, filepath, data_dict):
         """
-        Save profiler to disk
+        Save profiler to disk.
 
         :param filepath: Path of file to save to
         :type filepath: String
@@ -1006,7 +1009,7 @@ class BaseProfiler(object):
 
     def save(self, filepath=None):
         """
-        Save profiler to disk
+        Save profiler to disk.
 
         :param filepath: Path of file to save to
         :type filepath: String
@@ -1017,7 +1020,7 @@ class BaseProfiler(object):
     @classmethod
     def load(cls, filepath):
         """
-        Load profiler from disk
+        Load profiler from disk.
 
         :param filepath: Path of file to load from
         :type filepath: String
@@ -1062,13 +1065,15 @@ class BaseProfiler(object):
 
 
 class UnstructuredProfiler(BaseProfiler):
+    """For profiling unstructured data."""
+
     _default_labeler_type = "unstructured"
     _option_class = UnstructuredOptions
     _allowed_external_data_types = (str, list, pd.Series, pd.DataFrame)
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0, options=None):
         """
-        Instantiate the UnstructuredProfiler class
+        Instantiate the UnstructuredProfiler class.
 
         :param data: Data to be profiled
         :type data: Data class object
@@ -1103,14 +1108,15 @@ class UnstructuredProfiler(BaseProfiler):
 
     def _add_error_checks(self, other):
         """
-        UnstructuredProfiler specific checks to ensure two profiles can be added
-        together.
+        Run checks to ensure two profiles can be combined.
+
+        Checks are specific to UnstructuredProfiler.
         """
         pass
 
     def __add__(self, other):
         """
-        Merges two Unstructured profiles together overriding the `+` operator.
+        Merge two Unstructured profiles together overriding the `+` operator.
 
         :param other: unstructured profile being added to this one.
         :type other: UnstructuredProfiler
@@ -1134,8 +1140,7 @@ class UnstructuredProfiler(BaseProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the difference between 2 unstuctured profiles and returns the
-        report.
+        Find difference between 2 unstuctured profiles and return the report.
 
         :param other_profile: profile finding the difference with this one.
         :type other_profile: UnstructuredProfiler
@@ -1167,8 +1172,7 @@ class UnstructuredProfiler(BaseProfiler):
 
     def _update_base_stats(self, base_stats):
         """
-        Updates the samples and line count of the class for the given dataset
-        batch.
+        Update samples and line count of the class for the given dataset batch.
 
         :param base_stats: dictionary of basic sampling / data stats
         :type base_stats: dict
@@ -1181,9 +1185,9 @@ class UnstructuredProfiler(BaseProfiler):
 
     def report(self, report_options=None):
         """
-        Returns the unstructured report based on all profiled data fed into the
-        profiler. User can specify the output_formats: (pretty, compact,
-        serializable, flat).
+        Return unstructured report based on all profiled data fed into profiler.
+
+        User can specify the output_formats: (pretty, compact, serializable, flat).
             Pretty: floats are rounded to four decimal places, and lists are
                 shortened.
             Compact: Similar to pretty, but removes detailed statistics such as
@@ -1231,8 +1235,7 @@ class UnstructuredProfiler(BaseProfiler):
     @utils.method_timeit(name="clean_and_base_stats")
     def _clean_data_and_get_base_stats(self, data, sample_size, min_true_samples=None):
         """
-        Identify empty rows and return a cleaned version of text data without
-        empty rows.
+        Identify empty rows and return clean version of text data without empty rows.
 
         :param data: a series of text data
         :type data: pandas.core.series.Series
@@ -1272,7 +1275,7 @@ class UnstructuredProfiler(BaseProfiler):
         true_sample_list = set()
         total_sample_size = 0
 
-        regex = f"^\s*$"
+        regex = r"^\s*$"
         for chunked_sample_ids in sample_ind_generator:
             total_sample_size += len(chunked_sample_ids)
 
@@ -1325,7 +1328,6 @@ class UnstructuredProfiler(BaseProfiler):
         :return: list of column profile base subclasses
         :rtype: list(BaseColumnProfiler)
         """
-
         if isinstance(data, pd.DataFrame):
             if len(data.columns) > 1:
                 raise ValueError(
@@ -1367,7 +1369,7 @@ class UnstructuredProfiler(BaseProfiler):
 
     def save(self, filepath=None):
         """
-        Save profiler to disk
+        Save profiler to disk.
 
         :param filepath: Path of file to save to
         :type filepath: String
@@ -1391,13 +1393,15 @@ class UnstructuredProfiler(BaseProfiler):
 
 
 class StructuredProfiler(BaseProfiler):
+    """For profiling structured data."""
+
     _default_labeler_type = "structured"
     _option_class = StructuredOptions
     _allowed_external_data_types = (list, pd.Series, pd.DataFrame)
 
     def __init__(self, data, samples_per_update=None, min_true_samples=0, options=None):
         """
-        Instantiate the StructuredProfiler class
+        Instantiate the StructuredProfiler class.
 
         :param data: Data to be profiled
         :type data: Data class object
@@ -1439,10 +1443,10 @@ class StructuredProfiler(BaseProfiler):
 
     def _add_error_checks(self, other):
         """
-        StructuredProfiler specific checks to ensure two profiles can be added
-        together.
-        """
+        Run checks to ensure two profiles can be combined.
 
+        Said checks are specific to StructuredProfiler.
+        """
         # Pass with strict = True to enforce both needing to be non-empty
         self_to_other_idx = self._get_and_validate_schema_mapping(
             self._col_name_to_idx, other._col_name_to_idx, True
@@ -1463,7 +1467,7 @@ class StructuredProfiler(BaseProfiler):
 
     def __add__(self, other):
         """
-        Merges two Structured profiles together overriding the `+` operator.
+        Merge two Structured profiles together overriding the `+` operator.
 
         :param other: profile being added to this one.
         :type other: StructuredProfiler
@@ -1523,7 +1527,7 @@ class StructuredProfiler(BaseProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the difference between 2 Profiles and returns the report
+        Find the difference between 2 Profiles and return the report.
 
         :param other_profile: profile finding the difference with this one
         :type other_profile: StructuredProfiler
@@ -1597,9 +1601,7 @@ class StructuredProfiler(BaseProfiler):
 
     @property
     def _max_col_samples_used(self):
-        """
-        Calculates and returns the maximum samples used in any of the columns.
-        """
+        """Calculate and return the maximum samples used in cols."""
         samples_used = 0
         for col in self._profile:
             samples_used = max(samples_used, col.sample_size)
@@ -1608,7 +1610,8 @@ class StructuredProfiler(BaseProfiler):
     @property
     def _min_col_samples_used(self):
         """
-        Calculates and returns the number of rows that were completely sampled
+        Calculate and return the number of rows that were completely sampled.
+
         i.e. every column in the Profile was read up to this row (possibly
         further in some cols)
         """
@@ -1616,17 +1619,16 @@ class StructuredProfiler(BaseProfiler):
 
     @property
     def _min_sampled_from_batch(self):
-        """
-        Calculates and returns the number of rows that were completely sampled
-        in the most previous batch
-        """
+        """Return number of rows that were completely sampled in most recent batch."""
         return min([col._last_batch_size for col in self._profile], default=0)
 
     @staticmethod
     def _get_and_validate_schema_mapping(schema1, schema2, strict=False):
         """
-        Validate compatibility between schema1 and schema2 and return a dict
-        mapping indices in schema1 to their corresponding indices in schema2.
+        Validate compatibility between schema1 and schema2.
+
+        Return a dict mapping indices in schema1 to their corresponding indices
+        in schema2.
         In __add__: want to map self _profile idx -> other _profile idx
         In _update_profile_from_chunk: want to map data idx -> _profile idx
 
@@ -1639,7 +1641,6 @@ class StructuredProfiler(BaseProfiler):
         :return: a mapping of indices in schema1 to indices in schema2
         :rtype: Dict[int, int]
         """
-
         len_schema1 = len(schema1)
         len_schema2 = len(schema2)
 
@@ -1692,6 +1693,7 @@ class StructuredProfiler(BaseProfiler):
         return schema_mapping
 
     def report(self, report_options=None):
+        """Return a report."""
         if not report_options:
             report_options = {
                 "output_format": None,
@@ -1740,28 +1742,33 @@ class StructuredProfiler(BaseProfiler):
         return _prepare_report(report, output_format, omit_keys)
 
     def _get_unique_row_ratio(self):
+        """Return unique row ratio."""
         if self.total_samples:
             return len(self.hashed_row_dict) / self.total_samples
         return 0
 
     def _get_row_is_null_ratio(self):
+        """Return whether row is null ratio."""
         if self._min_col_samples_used:
             return self.row_is_null_count / self._min_col_samples_used
         return 0
 
     def _get_row_has_null_ratio(self):
+        """Return whether row has null ratio."""
         if self._min_col_samples_used:
             return self.row_has_null_count / self._min_col_samples_used
         return 0
 
     def _get_duplicate_row_count(self):
+        """Retun dup row count."""
         return self.total_samples - len(self.hashed_row_dict)
 
     @utils.method_timeit(name="row_stats")
     def _update_row_statistics(self, data, sample_ids=None):
         """
-        Iterate over the provided dataset row by row and calculate
-        the row statistics. Specifically, number of unique rows,
+        Iterate over the provided dataset row by row and calculate row stats.
+
+        Specifically, number of unique rows,
         rows containing null values, and total rows reviewed. This
         function is safe to use in batches.
 
@@ -1770,7 +1777,6 @@ class StructuredProfiler(BaseProfiler):
         :param sample_ids: list of indices in order they were sampled in data
         :type sample_ids: list(int)
         """
-
         if not isinstance(data, pd.DataFrame):
             raise ValueError(
                 "Cannot calculate row statistics on data that is" "not a DataFrame"
@@ -1908,7 +1914,7 @@ class StructuredProfiler(BaseProfiler):
     @utils.method_timeit(name="correlation")
     def _merge_correlation(self, other):
         """
-        Merge correlation matrix from two profiles
+        Merge correlation matrix from two profiles.
 
         :param other: the other profile that needs to be merged
         :return:
@@ -1969,10 +1975,10 @@ class StructuredProfiler(BaseProfiler):
 
     def _get_correlation_dependent_properties(self, batch=None):
         """
-        Obtains the necessary dependent properties of the data
-        (mean/stddev) for calculating correlation. By default,
-        it will compute it on all columns in the profiler, but if
-        a batch is given, it will compute it only for the columns
+        Obtain mean/stddev for calculating correlation.
+
+        By default, it will compute it on all columns in the profiler,
+        but if a batch is given, it will compute it only for the columns
         in the batch.
 
         :param batch: Batch data
@@ -2020,7 +2026,7 @@ class StructuredProfiler(BaseProfiler):
         corr_mat1, mean1, std1, n1, corr_mat2, mean2, std2, n2
     ):
         """
-        Helper function to merge correlation matrix from two profiles
+        Help merge correlation matrix from two profiles.
 
         :param corr_mat1: correlation matrix of profile1
         :type corr_mat1: pd.DataFrame
@@ -2071,8 +2077,7 @@ class StructuredProfiler(BaseProfiler):
 
     def _update_chi2(self):
         """
-        Calculates the p-value from a chi-squared test
-        for homogeneity between all categorical columns.
+        Calculate p-val from chi-squared test for homogeneity between categorical cols.
 
         :return: A matrix of p-values corresponding to the results
         of the chi2 test between the columns
@@ -2148,11 +2153,11 @@ class StructuredProfiler(BaseProfiler):
         finally:
             if not has_tqdm or logger.getEffectiveLevel() > logging.INFO:
 
-                def tqdm(l):
-                    for i, e in enumerate(l):
+                def tqdm(level):
+                    for i, e in enumerate(level):
                         # These will automatically be ignored if user sets
                         # logger level as higher than INFO
-                        logger.info(f"Processing Column {i + 1}/{len(l)}")
+                        logger.info(f"Processing Column {i + 1}/{len(level)}")
                         yield e
 
         # Shuffle indices once and share with columns
@@ -2328,7 +2333,7 @@ class StructuredProfiler(BaseProfiler):
 
     def save(self, filepath=None):
         """
-        Save profiler to disk
+        Save profiler to disk.
 
         :param filepath: Path of file to save to
         :type filepath: String
@@ -2355,6 +2360,8 @@ class StructuredProfiler(BaseProfiler):
 
 
 class Profiler(object):
+    """For profiling data."""
+
     def __new__(
         cls,
         data,
@@ -2364,7 +2371,9 @@ class Profiler(object):
         profiler_type=None,
     ):
         """
-        Factory class for instantiating Structured and Unstructured Profilers
+        Instantiate Structured and Unstructured Profilers.
+
+        This is a factory class.
 
         :param data: Data to be profiled, type allowed depends on the
             profiler_type
@@ -2412,7 +2421,7 @@ class Profiler(object):
     @classmethod
     def load(cls, filepath):
         """
-        Load profiler from disk
+        Load profiler from disk.
 
         :param filepath: Path of file to load from
         :type filepath: String

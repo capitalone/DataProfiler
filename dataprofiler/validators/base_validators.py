@@ -1,16 +1,11 @@
 #!/usr/bin/env python
-"""
-coding=utf-8
-
-Build model for a dataset by identifying type of column along with its
-respective parameters.
-"""
+"""Build model for dataset by identifying col type along with its respective params."""
 from __future__ import division, print_function
 
 
 def is_in_range(x, config):
     """
-    Checks to see x is in the range of the config.
+    Check to see x is in the range of the config.
 
     :param x: number
     :type x: int/float
@@ -20,13 +15,13 @@ def is_in_range(x, config):
     """
     try:
         return config["start"] <= float(x) <= config["end"]
-    except:
+    except Exception:
         raise TypeError("Value is not a float")
 
 
 def is_in_list(x, config):
     """
-    Checks to see x is in the config list.
+    Check to see x is in the config list.
 
     :param x: item
     :type x: string
@@ -38,7 +33,10 @@ def is_in_list(x, config):
 
 
 class Validator:
+    """For validating a data set."""
+
     def __init__(self):
+        """Initialize Validator object."""
         self.config = None
         self.report = None
         self.validation_run = False
@@ -46,7 +44,9 @@ class Validator:
 
     def validate(self, data, config):
         """
-        Validate a data set. No option for validating a partial data set.
+        Validate a data set.
+
+        No option for validating a partial data set.
 
         Set configuration on run not on instantiation of the class such that
         you have the option to run multiple times with different configurations
@@ -124,9 +124,7 @@ class Validator:
         self.validation_run = True
 
     def get(self):
-        """
-        Get the results of the validation run.
-        """
+        """Get the results of the validation run."""
         if self.validation_run:
             return self.validation_report
 

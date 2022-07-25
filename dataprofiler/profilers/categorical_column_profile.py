@@ -1,9 +1,6 @@
-import warnings
+"""Contains class for categorical column profiler."""
 from collections import defaultdict
 from operator import itemgetter
-
-import numpy as np
-import scipy.stats
 
 from . import BaseColumnProfiler, utils
 from .profiler_options import CategoricalOptions
@@ -11,8 +8,9 @@ from .profiler_options import CategoricalOptions
 
 class CategoricalColumn(BaseColumnProfiler):
     """
-    Categorical column profile subclass of BaseColumnProfiler. Represents a
-    column int the dataset which is a categorical column.
+    Categorical column profile subclass of BaseColumnProfiler.
+
+    Represents a column int the dataset which is a categorical column.
     """
 
     type = "category"
@@ -26,7 +24,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
     def __init__(self, name, options=None):
         """
-        Initialization of column base properties and itself.
+        Initialize column base properties and itself.
 
         :param name: Name of data
         :type name: String
@@ -46,7 +44,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
     def __add__(self, other):
         """
-        Merges the properties of two CategoricalColumn profiles
+        Merge the properties of two CategoricalColumn profiles.
 
         :param self: first profile
         :param other: second profile
@@ -72,7 +70,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for CategoricalColumns.
+        Find the differences for CategoricalColumns.
 
         :param other_profile: profile to find the difference with
         :type other_profile: CategoricalColumn
@@ -136,7 +134,9 @@ class CategoricalColumn(BaseColumnProfiler):
 
     def report(self, remove_disabled_flag=False):
         """
-        Private abstract method for returning report.
+        Return report.
+
+        This is a private abstract method.
 
         :param remove_disabled_flag: flag to determine if disabled
             options should be excluded in the report.
@@ -147,11 +147,11 @@ class CategoricalColumn(BaseColumnProfiler):
     @property
     def profile(self):
         """
-        Property for profile. Returns the profile of the column.
+        Return the profile of the column.
+
         For categorical_count, it will display the top k categories most
         frequently occurred in descending order.
         """
-
         profile = dict(
             categorical=self.is_match,
             statistics=dict(
@@ -175,24 +175,17 @@ class CategoricalColumn(BaseColumnProfiler):
 
     @property
     def categories(self):
-        """
-        Property for categories.
-        """
+        """Return categories."""
         return list(self._categories.keys())
 
     @property
     def categorical_counts(self):
-        """
-        Property for the counts of each category.
-        """
+        """Return counts of each category."""
         return self._categories.copy()
 
     @property
     def unique_ratio(self):
-        """
-        Property for unique_ratio. Returns ratio of unique
-        categories to sample_size
-        """
+        """Return ratio of unique categories to sample_size."""
         unique_ratio = 1.0
         if self.sample_size:
             unique_ratio = len(self.categories) / self.sample_size
@@ -200,9 +193,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
     @property
     def is_match(self):
-        """
-        Property for is_match. Returns true if column is categorical.
-        """
+        """Return true if column is categorical."""
         is_match = False
         unique = len(self._categories)
         if unique <= self._MAXIMUM_UNIQUE_VALUES_TO_CLASSIFY_AS_CATEGORICAL:
@@ -219,8 +210,9 @@ class CategoricalColumn(BaseColumnProfiler):
         self, df_series, prev_dependent_properties=None, subset_properties=None
     ):
         """
-        Check whether column corresponds to category type and adds category
-        parameters if it is.
+        Check whether column corresponds to category type.
+
+        Adds category parameters if it is.
 
         :param prev_dependent_properties: Contains all the previous properties
         that the calculations depend on.
@@ -239,8 +231,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
     def _update_helper(self, df_series_clean, profile):
         """
-        Method for updating the column profile properties with a cleaned
-        dataset and the known profile of the dataset.
+        Update col profile properties with clean dataset and its known profile.
 
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
@@ -252,7 +243,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
     def update(self, df_series):
         """
-        Updates the column profile.
+        Update the column profile.
 
         :param df_series: Data to profile.
         :type df_series: pandas.core.series.Series
@@ -278,7 +269,9 @@ class CategoricalColumn(BaseColumnProfiler):
     @property
     def gini_impurity(self):
         """
-        Property for Gini Impurity. Gini Impurity is a way to calculate
+        Return Gini Impurity.
+
+        Gini Impurity is a way to calculate
         likelihood of an incorrect classification of a new instance of
         a random variable.
 
@@ -299,8 +292,9 @@ class CategoricalColumn(BaseColumnProfiler):
     @property
     def unalikeability(self):
         """
-        Property for Unlikeability. Unikeability checks for
-        "how often observations differ from one another"
+        Return Unlikeability.
+
+        Unikeability checks for "how often observations differ from one another"
         Reference: Perry, M. and Kader, G. Variation as Unalikeability.
         Teaching Statistics, Vol. 27, No. 2 (2005), pp. 58-60.
 
@@ -309,7 +303,6 @@ class CategoricalColumn(BaseColumnProfiler):
 
         :return: None or unlikeability probability
         """
-
         if self.sample_size == 0:
             return None
         elif self.sample_size == 1:

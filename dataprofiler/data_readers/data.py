@@ -1,3 +1,4 @@
+"""Contains factory class reading various kinds of data."""
 from __future__ import absolute_import, division
 
 from .. import dp_logging
@@ -12,6 +13,7 @@ logger = dp_logging.get_child_logger(__name__)
 
 
 class Data(object):
+    """Factory class for reading various kinds of data."""
 
     data_classes = [
         dict(data_class=JSONData, kwargs=dict()),
@@ -23,8 +25,10 @@ class Data(object):
 
     def __new__(cls, input_file_path=None, data=None, data_type=None, options=None):
         """
-        Factory Data class. Auto-detection of data type if not specified for
-        input files. Returns the proper data class or specified data class for
+        Create Factory Data object.
+
+        Auto-detection of data type if not specified for input files.
+        Returns the proper data class or specified data class for
         the given data or input file.
 
         :param input_file_path:
@@ -33,7 +37,6 @@ class Data(object):
         :param options:
         :return:
         """
-
         if not input_file_path and data is None:
             raise ValueError("At least need to pass data or point to a data file.")
 

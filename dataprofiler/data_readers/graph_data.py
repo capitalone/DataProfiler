@@ -1,7 +1,7 @@
+"""Contains class for identifying, reading, and loading graph data."""
 import csv
 
 import networkx as nx
-from numpy import source
 
 from . import data_utils
 from .base_data import BaseData
@@ -10,17 +10,17 @@ from .filepath_or_buffer import FileOrBufferHandler
 
 
 class GraphData(BaseData):
-    """
-    GraphData class to identify, read, and load graph data
-    """
+    """GraphData class to identify, read, and load graph data."""
 
     data_type = "graph"
 
     def __init__(self, input_file_path=None, options=None, data=None):
         """
-        Data class for identifying, reading, and loading graph data. Current
-        implementation only accepts file path as input. An options parameter is
-        also passed in to specify properties of the input file.
+        Initialize Data class for identifying, reading, and loading graph data.
+
+        Current implementation only accepts file path as input.
+        An options parameter is also passed in to specify properties of the
+        input file.
 
         Possible Options::
 
@@ -39,8 +39,8 @@ class GraphData(BaseData):
         column_names: list of column names of the csv
         source_node: index of the source node column, range of (0,n-1)
         target_node: index of the target node column, range of (0,n-1)
-        target_keywords: list of keywords to automatically identify target/destination node column
-        source_keywords: list of keywords to automatically identify source node column
+        target_keywords: list of keywords to identify target/destination node col
+        source_keywords: list of keywords to identify source node col
         header: location o the header in the file
         quotechar: quote character used in the delimited file
 
@@ -52,7 +52,6 @@ class GraphData(BaseData):
         :type options: dict
         :return: None
         """
-
         options = self._check_and_return_options(options)
         BaseData.__init__(self, input_file_path, data, options)
 
@@ -76,14 +75,13 @@ class GraphData(BaseData):
 
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):
-        """
-        Find whether one of the columns names contains a keyword that could refer to a target node column
-        """
+        """Find out if col name contains keyword that could refer to target node col."""
         column_name_symbols = ["_", ".", "-"]
         has_target = False
         target_index = -1
 
-        # iterate through columns, keywords, and delimiter name symbols to see if any permutation is contained in column names
+        # iterate through columns, keywords, and delimiter name symbols to see
+        # if any permutation is contained in column names
         for column in range(0, len(column_names)):
             for keyword in keyword_list:
                 for symbol in column_name_symbols:
@@ -104,9 +102,7 @@ class GraphData(BaseData):
 
     @classmethod
     def csv_column_names(cls, file_path, options):
-        """
-        fetches a list of column names from the csv file
-        """
+        """Fetch a list of column names from the csv file."""
         column_names = []
         if options.get("header") is None:
             return column_names
@@ -131,7 +127,8 @@ class GraphData(BaseData):
     @classmethod
     def is_match(cls, file_path, options=None):
         """
-        Determines whether the file is a graph
+        Determine whether the file is a graph.
+
         Current formats checked:
             - attributed edge list
 
@@ -161,9 +158,7 @@ class GraphData(BaseData):
         return False
 
     def _format_data_networkx(self):
-        """
-        Formats the input file into a networkX graph
-        """
+        """Format the input file into a networkX graph."""
         networkx_graph = nx.DiGraph()
 
         # read lines from csv

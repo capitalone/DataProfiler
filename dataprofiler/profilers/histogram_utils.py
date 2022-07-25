@@ -1,6 +1,7 @@
 """
+Histogram-related functions.
+
 https://github.com/numpy/numpy/blob/v1.19.0/numpy/lib/histograms.py
-Histogram-related functions
 """
 import operator
 
@@ -14,7 +15,8 @@ from numpy.lib.histograms import (
 
 def _get_bin_edges(a, bins, range, weights):
     """
-    Computes the bins used internally by `histogram`.
+    Compute the bins used internally by `histogram`.
+
     Parameters
     ==========
     a : ndarray

@@ -4,7 +4,7 @@ import re
 import urllib
 from builtins import next
 from collections import OrderedDict
-from io import BytesIO, TextIOWrapper
+from io import BytesIO, StringIO, TextIOWrapper, open  # NOQA
 
 import dateutil
 import pandas as pd
@@ -13,7 +13,7 @@ import requests
 from chardet.universaldetector import UniversalDetector
 
 from .. import dp_logging
-from .filepath_or_buffer import FileOrBufferHandler
+from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
 logger = dp_logging.get_child_logger(__name__)
 

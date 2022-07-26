@@ -1,13 +1,9 @@
 #!/usr/bin/env python
-"""
-Lowest level column profiler class to be used further up in the inheritance tree of the package.
-"""
+"""Contains parent column profiler class."""
 
 from __future__ import division, print_function
 
 import abc
-import functools
-import time
 import warnings
 from collections import defaultdict
 
@@ -18,9 +14,7 @@ from . import utils
 
 
 class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
-    """
-    Abstract class for profiling a column of data.
-    """
+    """Abstract class for profiling a column of data."""
 
     col_type = None
 
@@ -33,7 +27,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
 
     def __init__(self, name):
         """
-        Initialization of base class properties for the subclass.
+        Initialize base class properties for the subclass.
 
         :param name: Name of the dataset
         :type name: String
@@ -48,7 +42,8 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _combine_unique_sets(a, b):  # TODO: Not needed for data labeling
         """
-        Method to union two lists.
+        Unify two lists.
+
         :type a: list
         :type b: list
         :rtype: list
@@ -68,8 +63,9 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _timeit(method=None, name=None):
         """
-        Measure execution time of provided method
-        Records time into times dictionary
+        Measure execution time of provided method.
+
+        Records time into times dictionary.
 
         :param method: method to time
         :type method: Callable
@@ -81,8 +77,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _filter_properties_w_options(calculations, options):
         """
-        Cycles through the calculations and turns off the ones that are
-        disabled.
+        Cycle through the calculations and turns off the ones that are disabled.
 
         :param calculations: Contains all the column calculations.
         :type calculations: Dict
@@ -97,7 +92,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         self, calculations, df_series, prev_dependent_properties, subset_properties
     ):
         """
-        Cycles through the properties of the columns and calculate them.
+        Cycle through the properties of the columns and calculate them.
 
         :param calculations: Contains all the column calculations.
         :type calculations: dict
@@ -119,8 +114,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def _merge_calculations(merged_profile_calcs, profile1_calcs, profile2_calcs):
         """
-        Merges the calculations of two profiles to the lowest common
-        denominator.
+        Merge the calculations of two profiles to the lowest common denominator.
 
         :param merged_profile_calcs: default calculations of the merged profile
         :type merged_profile_calcs: dict
@@ -143,7 +137,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
 
     def _add_helper(self, other1, other2):
         """
-        Merges the properties of two BaseColumnProfile objects
+        Merge the properties of two BaseColumnProfile objects.
 
         :param other1: first BaseColumn profile
         :param other2: second BaseColumn profile
@@ -173,7 +167,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
 
     def diff(self, other_profile, options=None):
         """
-        Finds the differences for columns.
+        Find the differences for columns.
 
         :param other_profile: profile to find the difference with
         :type other_profile: BaseColumnProfiler
@@ -190,7 +184,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
 
     def _update_column_base_properties(self, profile):
         """
-        Updates the base properties with the base schema.
+        Update the base properties with the base schema.
 
         :param profile: profile dictionary of data type
         :type profile: dict
@@ -202,6 +196,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
     def __getitem__(self, item):
         """
         Override for the [] operator to allow access to class properties.
+
         NOTE: Will be removed when switched over, only used as a method to
         integrate with current setup.
         """
@@ -211,15 +206,13 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
 
     @abc.abstractmethod
     def _update_helper(self, df_series_clean, profile):
-        """
-        Private abstract method for updating the profile.
-        """
+        """Help update the profile."""
         raise NotImplementedError()
 
     @abc.abstractmethod
     def update(self, df_series):
         """
-        Private abstract method for updating the profile.
+        Update the profile.
 
         :param df_series: Data to profile.
         :type df_series: Pandas Dataframe
@@ -229,32 +222,27 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
     @property
     @abc.abstractmethod
     def profile(self):
-        """
-        Property for profile. Returns the profile of the column.
-        """
+        """Return the profile of the column."""
         raise NotImplementedError()
 
     @abc.abstractmethod
     def report(self, remove_disabled_flag=False):
         """
-        Private abstract method for returning report.
+        Return report.
 
         :param remove_disabled_flag: flag to determine if disabled
             options should be excluded in the report.
         :type remove_disabled_flag: boolean
         """
-
         raise NotImplementedError()
 
 
 class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta, BaseColumnProfiler)):
-    """
-    Abstract class for profiling the primative data type for a column of data.
-    """
+    """Abstract class for profiling primative data type for col of data."""
 
     def __init__(self, name):
         """
-        Initialization of base class properties for the subclass.
+        Initialize base class properties for the subclass.
 
         :param name: Name of the data
         :type name: String
@@ -266,7 +254,7 @@ class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta, BaseColumnProf
 
     def _update_column_base_properties(self, profile):
         """
-        Updates the base properties with the base schema.
+        Update the base properties with the base schema.
 
         :param profile: profile containg base properties
         :type profile: base data profile dict
@@ -277,7 +265,7 @@ class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta, BaseColumnProf
 
     def _add_helper(self, other1, other2):
         """
-        Merges the properties of two objects inputted
+        Merge the properties of two objects inputted.
 
         :param other1: first profile
         :param other2: second profile

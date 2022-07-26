@@ -1,8 +1,8 @@
+"""Contains class that saves and loads speradsheet data."""
 import csv
 import random
 import re
 from collections import Counter
-from io import BytesIO
 
 import numpy as np
 from six import StringIO
@@ -16,17 +16,16 @@ from .structured_mixins import SpreadSheetDataMixin
 
 
 class CSVData(SpreadSheetDataMixin, BaseData):
-    """
-    SpreadsheetData class to save and load spreadsheet data
-    """
+    """SpreadsheetData class to save and load spreadsheet data."""
 
     data_type = "csv"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
-        Data class for loading datasets of type CSV. Can be specified by passing
-        in memory data or via a file path. Options pertaining the CSV may also
-        be specified using the options dict parameter.
+        Initialize Data class for loading datasets of type CSV.
+
+        Can be specified by passing in memory data or via a file path.
+        Options pertaining to CSV may also be specified using options dict param.
         Possible Options::
 
             options = dict(
@@ -91,30 +90,32 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     @property
     def selected_columns(self):
+        """Return selected columns."""
         return self._selected_columns
 
     @property
     def delimiter(self):
+        """Return delimiter."""
         return self._delimiter
 
     @property
     def quotechar(self):
+        """Return quotechar."""
         return self._quotechar
 
     @property
     def header(self):
+        """Return header."""
         return self._header
 
     @property
     def is_structured(self):
-        """
-        Determines compatibility with StructuredProfiler
-        """
+        """Determine compatibility with StructuredProfiler."""
         return self.data_format == "dataframe"
 
     def _check_and_return_options(self, options):
         """
-        Ensures options are valid inputs to the data reader.
+        Ensure options are valid inputs to the data reader.
 
         :param options: dictionary of options for the csv reader to validate
         :type options: dict
@@ -165,8 +166,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     def _guess_delimiter_and_quotechar(
         data_as_str, quotechar=None, preferred=[",", "\t"], omitted=['"', "'"]
     ):
-        """
-        Automatically checks for what delimiter exists in a text document.
+        r"""
+        Automatically check for what delimiter exists in a text document.
 
         :param data_as_str: Single string containing rows (lines separated by "\n")
         :type data_as_str: str
@@ -181,7 +182,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :return: quotechar, if none can be found None is returned
         :rtype: str or None
         """
-
         # Detect vocabulary (and count)
         vocab = Counter(data_as_str)
         if "\n" in vocab:
@@ -206,7 +206,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 quotechar = sniffer._guess_quote_and_delimiter(
                     data_as_str, ordered_vocab[:20]
                 )[0]
-            except csv.Error as exc:
+            except csv.Error:
                 quotechar = None
             if not quotechar or len(quotechar) == 0:
                 quotechar = '"'
@@ -327,14 +327,14 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         none_thresh=0.5,
         str_thresh=0.9,
     ):
-        """
-        This function attempts to select the best row for which a header would be valid.
+        r"""
+        Attempt to select the best row for which a header would be valid.
 
         :param data_as_str: Single string containing rows (lines seperated by "\n")
         :type data_as_str: str
-        :param suggested_delimiter: Delimiter suggested to use when trying to find the header
+        :param suggested_delimiter: Delimiter use suggested when trying to find header
         :type suggested_delimiter: str
-        :param suggested_delimiter: quotechar suggested to use when trying to find the header
+        :param suggested_delimiter: quotechar use suggested when trying to find header
         :type suggested_delimiter: str
         :param diff_threshold: Max percent difference in cell types between rows allowed
         :type diff_threshold: float
@@ -346,12 +346,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :return: index for row estimated to be the last valid header
         :type: int
         """
-
         # Catch base cases
         if not data_as_str or len(data_as_str) == 0:
             return None
 
-        # Ensure no "None" delimiter, delimiter is required for evaluating single columns
+        # Ensure no "None" delimiter, delimiter is required for evaluating single cols
         delimiter = suggested_delimiter
         if not delimiter:
             delimiter = ","
@@ -423,7 +422,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 len(header_check_list[i])
             )
 
-            # Determine percent of differences between prior row, must be BELOW threshold
+            # Find percent of differences between prior row, must be BELOW threshold
             diff = float(differences[i].count(True)) / float(len(differences[i]))
 
             # Determine percent of string, uppercase string or none in row,
@@ -437,7 +436,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             )
             rstr /= float(len(header_check_list[i]))
 
-            # Determines if the number of elements in the row is increasing or decreasing
+            # Determines if number of elements in the row is increasing or decreasing
             len_increase = False
             len_not_none = len(header_check_list[i]) - header_check_list[i].count(
                 "none"
@@ -519,7 +518,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         return row_classic_header_ends
 
     def _load_data_from_str(self, data_as_str):
-        """Loads the data into memory from the str."""
+        """Load the data into memory from the str."""
         delimiter, quotechar = None, None
         if not self._delimiter or not self._quotechar:
             delimiter, quotechar = self._guess_delimiter_and_quotechar(data_as_str)
@@ -542,10 +541,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         )
 
     def _load_data_from_file(self, input_file_path):
-        """
-        Loads the data into memory from the file.
-        """
-
+        """Load the data into memory from the file."""
         data_as_str = data_utils.load_as_str_from_file(
             input_file_path, self.file_encoding
         )
@@ -592,6 +588,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         )
 
     def _get_data_as_records(self, data):
+        """Return data as records."""
         sep = self.delimiter if self.delimiter else self._default_delimiter
         quote = self.quotechar if self.quotechar else self._default_quotechar
         data = data.to_csv(sep=sep, quotechar=quote, index=False)
@@ -601,8 +598,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     @classmethod
     def is_match(cls, file_path, options=None):
         """
-        Test the first 1000 lines of a given file to check if the file has valid
-        delimited format or not.
+        Check if first 1000 lines of given file has valid delimited format.
 
         :param file_path: path to the file to be examined
         :type file_path: str
@@ -611,7 +607,6 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :return: is file a csv file or not
         :rtype: bool
         """
-
         if (
             JSONData.is_match(file_path)
             or ParquetData.is_match(file_path)
@@ -723,8 +718,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     def reload(self, input_file_path=None, data=None, options=None):
         """
-        Reload the data class with a new dataset. This erases all existing
-        data/options and replaces it with the input data/options.
+        Reload the data class with a new dataset.
+
+        This erases all existing data/options and replaces it with
+        the input data/options.
 
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str

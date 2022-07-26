@@ -1,3 +1,4 @@
+"""Contains mixin data class for loading datasets of tye SpreadSheet."""
 import pandas as pd
 
 from .. import dp_logging
@@ -7,7 +8,9 @@ logger = dp_logging.get_child_logger(__name__)
 
 class SpreadSheetDataMixin(object):
     """
-    Mixin data class for loading datasets of type SpreadSheet. Can be specified
+    Mixin data class for loading datasets of type SpreadSheet.
+
+    Can be specified.
     Adds specialized functions for loading data from a string or file.
 
     :param input_file_path: path to the file being loaded or None
@@ -20,6 +23,7 @@ class SpreadSheetDataMixin(object):
     """
 
     def __init__(self, input_file_path, data, options):
+        """Initialize spreadsheet mixin object."""
         self._data_formats["dataframe"] = self._get_data_as_df
         if data is not None and isinstance(data, pd.DataFrame):
             self._original_df_dtypes = data.dtypes
@@ -28,15 +32,15 @@ class SpreadSheetDataMixin(object):
         self.SAMPLES_PER_LINE_DEFAULT = int(5e9)
 
     def _load_data_from_str(self, data_as_str):
-        """Loads the data into memory from the str."""
+        """Load the data into memory from the str."""
         raise NotImplementedError()
 
     def _load_data_from_file(self, input_file_path):
-        """Loads the data into memory from the file."""
+        """Load the data into memory from the file."""
         raise NotImplementedError()
 
     def _load_data(self, data=None):
-        """Loads either the specified data or the input_file into memory."""
+        """Load either the specified data or the input_file into memory."""
         if data is not None:
             if isinstance(data, pd.DataFrame):
                 self._data = data
@@ -50,6 +54,7 @@ class SpreadSheetDataMixin(object):
             raise ValueError("No data to load.")
 
     def _get_data_as_df(self, data):
+        """Return data frame."""
         if not isinstance(data, pd.DataFrame):
             raise ValueError(
                 "Data is not in a dataframe state and cannot be converted."
@@ -57,6 +62,7 @@ class SpreadSheetDataMixin(object):
         return data
 
     def _get_data_as_records(self, data):
+        """Return data records."""
         records_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
         data = [
             str(

@@ -131,6 +131,10 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @classmethod
     def get_class(cls, class_name):
         """Get subclasses."""
+        # Import possible internal models
+        from .character_level_cnn_model import CharacterLevelCnnModel  # NOQA
+        from .regex_model import RegexModel  # NOQA
+
         return cls._BaseModel__subclasses.get(class_name.lower(), None)
 
     def get_parameters(self, param_list=None):

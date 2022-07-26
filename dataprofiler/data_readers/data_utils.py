@@ -4,7 +4,7 @@ import re
 import urllib
 from builtins import next
 from collections import OrderedDict
-from io import BytesIO, StringIO, TextIOWrapper, open  # NOQA
+from io import BytesIO, TextIOWrapper
 
 import dateutil
 import pandas as pd

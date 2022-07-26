@@ -1,9 +1,11 @@
+"""Contains helper functions for generating report."""
 import math
 
 import numpy as np
 
 
 def calculate_quantiles(num_quantile_groups, quantiles):
+    """Calculate and return quantiles."""
     len_quant = len(quantiles)
     if not (num_quantile_groups and 0 < num_quantile_groups <= (len_quant + 1)):
         num_quantile_groups = 4
@@ -24,7 +26,9 @@ def calculate_quantiles(num_quantile_groups, quantiles):
 
 def flat_dict(od, separator="_", key=""):
     """
-    Function to flatten nested dictionary. Each level is collapsed and
+    Flatten nested dictionary.
+
+    Each level is collapsed and
     joined with the specified seperator.
 
     :param od: dictionary or dictionary-like object
@@ -49,7 +53,7 @@ def flat_dict(od, separator="_", key=""):
 
 def _prepare_report(report, output_format=None, omit_keys=None):
     """
-    Prepares report dictionary for users upon request.
+    Prepare report dictionary for users upon request.
 
     output_format options:
 
@@ -73,7 +77,6 @@ def _prepare_report(report, output_format=None, omit_keys=None):
     :return report: handle to the updated report
     :type report: dict()
     """
-
     if output_format is not None:
         output_format = output_format.lower()
     if omit_keys is None:

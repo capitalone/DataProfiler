@@ -1,10 +1,11 @@
+"""Contains functions for checking for installations/dependencies."""
 import sys
 import warnings
 
 
 def warn_missing_module(graph_func, module_name):
     """
-    Returns a warning if a given graph module doesn't exist
+    Return a warning if a given graph module doesn't exist.
 
     :param graph_func: Name of the graphing function
     :type graph_func: str
@@ -22,8 +23,9 @@ def warn_missing_module(graph_func, module_name):
 
 def require_module(names):
     """
-    Decorator to check if a set of modules exist in sys.modules prior to running
-    the function. If they do not, give a user a warning and do not run the
+    Check if a set of modules exists in sys.modules prior to running function.
+
+    If they do not, give a user a warning and do not run the
     function.
 
     :param names: list of module names to check for in sys.modules

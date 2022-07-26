@@ -1,3 +1,4 @@
+"""Contains classes for char data labeling."""
 import copy
 import json
 import os
@@ -21,7 +22,7 @@ labeler_utils.hide_tf_logger_warnings()
 
 def build_embd_dictionary(filename):
     """
-    Returns a numpy embedding dictionary from embed file with GloVe-like format
+    Return a numpy embedding dictionary from embed file with GloVe-like format.
 
     :param filename: Path to the embed file for loading
     :type filename: str
@@ -37,8 +38,9 @@ def build_embd_dictionary(filename):
 
 def create_glove_char(n_dims, source_file=None):
     """
-    Embeds GloVe chars embeddings from source file to n_dims principal
-    components in a new file
+    Embed GloVe chars embeddings from source file to n_dims principal components.
+
+    Embed in a new file.
 
     :param n_dims: Final number of principal component dims of the embeddings
     :type n_dims: int
@@ -67,13 +69,16 @@ def create_glove_char(n_dims, source_file=None):
 
 
 class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
+    """Class for training char data labeler."""
 
     # boolean if the label mapping requires the mapping for index 0 reserved
     requires_zero_mapping = True
 
     def __init__(self, label_mapping=None, parameters=None):
         """
-        CNN Model Initializer. initialize epoch_id
+        Initialize CNN Model.
+
+        Initialize epoch_id.
 
         :param label_mapping: maps labels to their encoded integers
         :type label_mapping: dict
@@ -84,7 +89,6 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         :type parameters: dict
         :return: None
         """
-
         # parameter initialization
         if not parameters:
             parameters = {}
@@ -107,8 +111,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def __eq__(self, other):
         """
-        Checks if two models are equal with one another, may only check
-        important variables, i.e. may not check model itself.
+        Check if two models are equal with one another.
+
+        May only check important variables, i.e. may not check model itself.
 
         :param self: a model
         :param other: a model
@@ -126,8 +131,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def _validate_parameters(self, parameters):
         """
-        Validate the parameters sent in. Raise error if invalid parameters are
-        present.
+        Validate the parameters sent in.
+
+        Raise error if invalid parameters are present.
 
         :param parameters: parameter dict containing the following parameters:
             max_length: Maximum char length in a sample
@@ -205,7 +211,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def set_label_mapping(self, label_mapping):
         """
-        Sets the labels for the model
+        Set the labels for the model.
 
         :param label_mapping: label mapping of the model
         :type label_mapping: dict
@@ -236,7 +242,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def _need_to_reconstruct_model(self):
         """
-        Determines whether or not the model needs to be reconstructed.
+        Determine whether or not the model needs to be reconstructed.
 
         :return: bool of whether or not the model needs to reconstruct.
         """
@@ -250,7 +256,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def save_to_disk(self, dirpath):
         """
-        Saves whole model to disk with weights
+        Save whole model to disk with weights.
 
         :param dirpath: directory path where you want to save the model to
         :type dirpath: str
@@ -272,13 +278,12 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
     @classmethod
     def load_from_disk(cls, dirpath):
         """
-        Loads whole model from disk with weights
+        Load whole model from disk with weights.
 
         :param dirpath: directory path where you want to load the model from
         :type dirpath: str
         :return: None
         """
-
         # load parameters
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
         with open(model_param_dirpath, "r") as fp:
@@ -324,7 +329,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
     @staticmethod
     def _char_encoding_layer(input_str_tensor, max_char_encoding_id, max_len):
         """
-        Character encoding for the list of sentences
+        Encode characters for the list of sentences.
 
         :param input_str_tensor: input list of sentences converted to tensor
         :type input_str_tensor: tf.tensor
@@ -336,7 +341,6 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         :return : tensor containing encoded list of input sentences
         :rtype: tf.Tensor
         """
-
         # convert characters to indices
         input_str_flatten = tf.reshape(input_str_tensor, [-1])
         sentences_encode = tf.strings.unicode_decode(
@@ -352,8 +356,10 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
     @staticmethod
     def _argmax_threshold_layer(num_labels, threshold=0.0, default_ind=1):
         """
-        Adds an argmax threshold layer to the model. This layer's output will be
-        the argmax value if the confidence for that argmax meets the threshold
+        Add an argmax threshold layer to the model.
+
+        This layer's output will be the argmax value if the
+        confidence for that argmax meets the threshold
         for its label, otherwise it will be the default label index.
 
         :param num_labels: number of entities
@@ -408,8 +414,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def _construct_model(self):
         """
-        Model constructor for the data labeler. This also serves as a weight
-        reset.
+        Construct model for the data labeler.
+
+        This also serves as a weight reset.
 
         :return: None
         """
@@ -534,12 +541,10 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def _reconstruct_model(self):
         """
-        Reconstruct the appropriate layers if the number of number of labels is
-        altered
+        Reconstruct appropriate layers if number of labels is altered.
 
         :return: None
         """
-
         # Reset model
         tf.keras.backend.clear_session()
 
@@ -595,7 +600,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         verbose=True,
     ):
         """
-        Train the current model with the training data and validation data
+        Train the current model with the training data and validation data.
 
         :param train_data: Training data used to train model
         :type train_data: Union[list, np.ndarray]
@@ -612,7 +617,6 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         :type verbose: bool
         :return: None
         """
-
         if label_mapping is not None:
             self.set_label_mapping(label_mapping)
 
@@ -731,7 +735,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def predict(self, data, batch_size=32, show_confidences=False, verbose=True):
         """
-        Run model and get predictions
+        Run model and get predictions.
 
         :param data: text input
         :type data: Union[list, numpy.ndarray]
@@ -822,8 +826,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def details(self):
         """
-        Prints the relevant details of the model (summary, parameters, label
-        mapping)
+        Print the relevant details of the model.
+
+        Details include summary, parameters, and label mapping.
         """
         print("\n###### Model Details ######\n")
         self._model.summary()

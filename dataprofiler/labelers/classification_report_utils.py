@@ -1,3 +1,4 @@
+"""Contains functions for classification."""
 import warnings
 
 import numpy as np
@@ -6,8 +7,12 @@ import sklearn.metrics._classification
 
 def convert_confusion_matrix_to_MCM(conf_matrix):
     """
-    Converts a confusion matrix into the MCM format for precision/recall/fscore/
-    support computation by sklearn. The format is as specified by sklearn below:
+    Convert a confusion matrix into the MCM format.
+
+    Format for precision/recall/fscore/
+    support computation by sklearn.
+
+    The format is as specified by sklearn below:
     In multilabel confusion matrix :math:`MCM`, the count of true negatives
     is :math:`MCM_{:,0,0}`, false negatives is :math:`MCM_{:,1,0}`,
     true positives is :math:`MCM_{:,1,1}` and false positives is
@@ -56,6 +61,8 @@ def precision_recall_fscore_support(
     sample_weight=None,
 ):
     """
+    Perform same functionality as recision_recall_fscore_support function.
+
     Copy of the precision_recall_fscore_support function from sklearn.metrics
     with the update to receiving the MCM instead of calculating each time it is
     called.
@@ -222,11 +229,12 @@ def classification_report(
     digits=2,
     output_dict=False,
 ):
-    """Copy of the classification_report function from sklearn.metrics
+    """
+    Build a text report showing the main classification metrics.
+
+    Copy of the classification_report function from sklearn.metrics
     with the update to receiving the conf_matrix instead of calculating each
     time it is called.
-
-    Build a text report showing the main classification metrics
 
     Read more in the :ref:`User Guide <classification_report>`.
 
@@ -287,7 +295,6 @@ def classification_report(
     precision_recall_fscore_support, confusion_matrix,
     multilabel_confusion_matrix
     """
-
     # ALTERATION: replaced the _check_targets with this if statement since
     # no y_true, y_pred
     y_type = "multiclass" if conf_matrix.shape[0] > 2 else "binary"
@@ -322,7 +329,7 @@ def classification_report(
                 "parameter".format(len(labels), len(target_names))
             )
     if target_names is None:
-        target_names = ["%s" % l for l in labels]
+        target_names = ["%s" % label for label in labels]
 
     headers = ["precision", "recall", "f1-score", "support"]
 

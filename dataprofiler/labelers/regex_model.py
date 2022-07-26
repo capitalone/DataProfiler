@@ -1,3 +1,4 @@
+"""Contains class for regex data labeling model."""
 import copy
 import json
 import os
@@ -13,9 +14,11 @@ logger = dp_logging.get_child_logger(__name__)
 
 
 class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
+    """Class for regex data labeling model."""
+
     def __init__(self, label_mapping=None, parameters=None):
-        """
-        Regex Model Initializer.
+        r"""
+        Initialize Regex Model.
 
         Example regex_patterns:
             regex_patterns = {
@@ -46,7 +49,6 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         :type parameters: dict
         :return: None
         """
-
         # parameter initialization
         if not parameters:
             parameters = {}
@@ -62,9 +64,10 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         self._parameters = parameters
 
     def _validate_parameters(self, parameters):
-        """
-        Validate the parameters sent in. Raise error if invalid parameters are
-        present.
+        r"""
+        Validate the parameters sent in.
+
+        Raise error if invalid parameters are present.
 
         :param parameters: parameter dict containing the following parameters:
             regex_patterns: patterns associated with each label_mapping
@@ -166,12 +169,14 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         pass
 
     def reset_weights(self):
+        """Reset weights."""
         pass
 
     def predict(self, data, batch_size=None, show_confidences=False, verbose=True):
         """
-        Applies the regex patterns (within regex_model) to the input_string,
-        create predictions for all matching patterns. Each pattern has an
+        Apply the regex patterns (within regex_model) to the input_string.
+
+        Create predictions for all matching patterns. Each pattern has an
         associated entity and the predictions of each character within the
         string are given a True or False identification for each entity. All
         characters not identified by ANY of the regex patterns in the
@@ -256,7 +261,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     @classmethod
     def load_from_disk(cls, dirpath):
         """
-        Loads whole model from disk with weights
+        Load whole model from disk with weights.
 
         :param dirpath: directory path where you want to load the model from
         :type dirpath: str
@@ -277,7 +282,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def save_to_disk(self, dirpath):
         """
-        Saves whole model to disk with weights.
+        Save whole model to disk with weights.
 
         :param dirpath: directory path where you want to save the model to
         :type dirpath: str

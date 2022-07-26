@@ -1,9 +1,10 @@
+"""Contains functions for data readers."""
 import json
 import re
 import urllib
 from builtins import next
 from collections import OrderedDict
-from io import BytesIO, StringIO, TextIOWrapper, open
+from io import BytesIO, TextIOWrapper
 
 import dateutil
 import pandas as pd
@@ -12,14 +13,14 @@ import requests
 from chardet.universaldetector import UniversalDetector
 
 from .. import dp_logging
-from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer
+from .filepath_or_buffer import FileOrBufferHandler
 
 logger = dp_logging.get_child_logger(__name__)
 
 
 def data_generator(data_list):
     """
-    Takes a list and returns a generator on the list.
+    Take a list and return a generator on the list.
 
     :param data_list: list of strings
     :type data_list: list
@@ -32,7 +33,7 @@ def data_generator(data_list):
 
 def generator_on_file(file_object):
     """
-    Takes a file and returns a generator that returns lines
+    Take a file and return a generator that returns lines.
 
     :param file_path: path to the file
     :type file_path: path
@@ -50,8 +51,9 @@ def generator_on_file(file_object):
 
 def convert_int_to_string(x):
     """
-    Converts the given input to string. In particular, it is int,
-    it converts it ensuring there is no . or 00 in the converted string.
+    Convert the given input to string.
+
+    In particular, it is int, it converts it ensuring there is no . or 00.
     In addition, if the input is np.nan, the output will be 'nan' which is
     what we need to handle data properly.
 
@@ -63,7 +65,7 @@ def convert_int_to_string(x):
     try:
         # TODO: Check if float is necessary
         return str(int(float(x)))
-    except:
+    except Exception:
         return str(x)
 
 
@@ -99,8 +101,7 @@ def unicode_to_str(data, ignore_dicts=False):
 
 def json_to_dataframe(json_lines, selected_columns=None, read_in_string=False):
     """
-    This function takes a list of json objects and returns the dataframe
-    representing the json list.
+    Take list of json objects and return dataframe representing json list.
 
     :param json_lines: list of json objects
     :type json_lines: list(dict)
@@ -138,8 +139,9 @@ def json_to_dataframe(json_lines, selected_columns=None, read_in_string=False):
 
 def read_json_df(data_generator, selected_columns=None, read_in_string=False):
     """
-    This function returns an iterator that returns a chunk of data
-    as dataframe in each call. The source of input to this function is either a
+    Return an iterator that returns a chunk of data as dataframe in each call.
+
+    The source of input to this function is either a
     file or a list of JSON structured strings. If the file path is given as
     input, the file is expected to have one JSON structures in each line. The
     lines that are not valid json will be ignored. Therefore, a file with
@@ -161,7 +163,6 @@ def read_json_df(data_generator, selected_columns=None, read_in_string=False):
         each call as well as original dtypes of the dataframe columns.
     :rtype: typle(Iterator(pd.DataFrame), pd.Series(dtypes)
     """
-
     lines = list()
     k = 0
     while True:
@@ -191,9 +192,11 @@ def read_json_df(data_generator, selected_columns=None, read_in_string=False):
 
 def read_json(data_generator, selected_columns=None, read_in_string=False):
     """
-    This function returns the lines of a json. The source of input to this
-    function is either a file or a list of JSON structured strings. If the
-    file path is given as input, the file is expected to have one JSON
+    Return the lines of a json.
+
+    The source of input to this function is either a file or
+    a list of JSON structured strings.
+    If the file path is given as input, the file is expected to have one JSON
     structures in each line. The lines that are not valid json will be ignored.
     Therefore, a file with pretty printed JSON objects will not be considered
     valid JSON. If the input is a data list, it is expected to be a list of
@@ -212,7 +215,6 @@ def read_json(data_generator, selected_columns=None, read_in_string=False):
     :return: returns the lines of a json file
     :rtype: list(dict)
     """
-
     lines = list()
     k = 0
     while True:
@@ -249,7 +251,7 @@ def read_csv_df(
     encoding="utf-8",
 ):
     """
-    Reads a CSV file in chunks and returns a dataframe in the form of iterator.
+    Read a CSV file in chunks and return dataframe in form of iterator.
 
     :param file_path: path to the CSV file.
     :type file_path: str
@@ -305,14 +307,13 @@ def read_csv_df(
 
 def read_parquet_df(file_path, selected_columns=None, read_in_string=False):
     """
-    Returns an iterator that returns one row group each time.
+    Return an iterator that returns one row group each time.
 
     :param file_path: path to the Parquet file.
     :type file_path: str
     :return:
     :rtype: Iterator(pd.DataFrame)
     """
-
     parquet_file = pq.ParquetFile(file_path)
     data = pd.DataFrame()
     for i in range(parquet_file.num_row_groups):
@@ -350,7 +351,9 @@ def read_parquet_df(file_path, selected_columns=None, read_in_string=False):
 
 def read_text_as_list_of_strs(file_path, encoding=None):
     """
-    Returns a list of strings relative to the chunk size. Each line is 1 chunk.
+    Return list of strings relative to the chunk size.
+
+    Each line is 1 chunk.
 
     :param file_path: path to the file
     :type file_path: str
@@ -366,8 +369,7 @@ def read_text_as_list_of_strs(file_path, encoding=None):
 
 def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
     """
-    Determines the encoding of files within the initial `max_lines` of length
-    `buffer_size`.
+    Determine encoding of files within initial `max_lines` of length `buffer_size`.
 
     :param file_path: path to the file
     :type file_path: str
@@ -399,7 +401,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
             with FileOrBufferHandler(file_path, encoding=encoding) as input_file:
                 input_file.read(1024 * 1024)
                 return True
-        except:
+        except Exception:
             return False
 
     if not _decode_is_valid(encoding):
@@ -443,7 +445,7 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
                     if result.first():
                         encoding = result.first().encoding
 
-        except:
+        except Exception:
             logger.info(
                 "Install charset_normalizer for improved file " "encoding detection"
             )
@@ -456,12 +458,11 @@ def detect_file_encoding(file_path, buffer_size=1024, max_lines=20):
 
 def detect_cell_type(cell):
     """
-    Detects the cell type (int, float, etc)
+    Detect the cell type (int, float, etc).
 
     :param cell: String designated for data type detection
     :type cell: str
     """
-
     cell_type = "str"
     if len(cell) == 0:
         cell_type = "none"
@@ -489,14 +490,13 @@ def detect_cell_type(cell):
 
 def get_delimiter_regex(delimiter=",", quotechar=","):
     """
-    Builds regex for delimiter checks
+    Build regex for delimiter checks.
 
     :param delimiter: Delimiter to be added to regex
     :type delimiter: str
     :param quotechar: Quotechar to be added to regex
     :type delimiter: str
     """
-
     if delimiter is None:
         return ""
 
@@ -520,8 +520,8 @@ def get_delimiter_regex(delimiter=",", quotechar=","):
 
 def find_nth_loc(string=None, search_query=None, n=0, ignore_consecutive=True):
     """
-    Searches the string via the search_query and
-    returns the nth index in which the query occurs.
+    Search string via search_query and return nth index in which query occurs.
+
     If there are less than 'n' the last loc is returned
 
     :param string: Input string, to be searched
@@ -538,7 +538,6 @@ def find_nth_loc(string=None, search_query=None, n=0, ignore_consecutive=True):
     :return id_count: Number of identifications prior to idx
     :rtype id_count: int
     """
-
     # Return base case, if there's no string, query or n
     if not string or not search_query or 0 >= n:
         return -1, 0
@@ -569,7 +568,7 @@ def load_as_str_from_file(
     file_path, file_encoding=None, max_lines=10, max_bytes=65536, chunk_size_bytes=1024
 ):
     """
-    Loads data from a csv file up to a specific line OR byte_size.
+    Load data from a csv file up to a specific line OR byte_size.
 
     :param file_path: Path to file to load data from
     :type file_path: str
@@ -585,7 +584,6 @@ def load_as_str_from_file(
     :return: Data as string
     :rtype: str
     """
-
     data_as_str = ""
     total_occurrences = 0
     with FileOrBufferHandler(file_path, encoding=file_encoding) as csvfile:
@@ -633,7 +631,7 @@ def load_as_str_from_file(
 
 def is_valid_url(url_as_string):
     """
-    Determines whether a given string is a valid URL
+    Determine whether a given string is a valid URL.
 
     :param url_as_string: string to be tested if URL
     :type url_as_string: str
@@ -650,7 +648,7 @@ def is_valid_url(url_as_string):
 
 def url_to_bytes(url_as_string, options):
     """
-    Reads in URL and converts it to a byte stream
+    Read in URL and converts it to a byte stream.
 
     :param url_as_string: string to read as URL
     :type url_as_string: str

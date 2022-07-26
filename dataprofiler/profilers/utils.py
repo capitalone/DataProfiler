@@ -1,3 +1,4 @@
+"""Contains functions for profilers."""
 import collections
 import copy
 import datetime
@@ -32,10 +33,13 @@ def dict_merge(dct, merge_dct):
     #
     # You should have received a copy of the GNU General Public License
     # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-    """Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
-    updating only top-level keys, dict_merge recurses down into dicts nested
-    to an arbitrary depth, updating keys. The ``merge_dct`` is merged into
-    ``dct``.
+    """
+    Merge dict recursively.
+
+    Inspired by :meth:``dict.update()``, instead of updating only
+    top-level keys, dict_merge recurses down into dicts nested
+    to an arbitrary depth, updating keys. The ``merge_dct`` is
+    merged into ``dct``.
 
     :param dct: dict onto which the merge is executed
     :param merge_dct: dct merged into dct
@@ -54,19 +58,22 @@ def dict_merge(dct, merge_dct):
 
 class KeyDict(collections.defaultdict):
     """
-    Helper class for sample_in_chunks. Allows keys that are missing to become
-    the values for that key.
+    Helper class for sample_in_chunks.
+
+    Allows keys that are missing to become the values for that key.
     From:
     https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/
     """
 
     def __missing__(self, key):
+        """Return key if key nonexistent."""
         return key
 
 
 def _combine_unique_sets(a, b):
     """
-    Method to union two lists.
+    Unify two lists.
+
     :type a: list
     :type b: list
     :rtype: list
@@ -85,8 +92,10 @@ def _combine_unique_sets(a, b):
 
 def shuffle_in_chunks(data_length, chunk_size):
     """
-    A generator for creating shuffled indexes in chunks. This reduces the cost
-    of having to create all indexes, but only of that what is needed.
+    Create shuffled indexes in chunks.
+
+    This reduces the cost of having to create all indexes,
+    but only of that what is needed.
     Initial Code idea from:
     https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/
 
@@ -94,7 +103,6 @@ def shuffle_in_chunks(data_length, chunk_size):
     :param chunk_size: size of shuffled chunks
     :return: list of shuffled indices of chunk size
     """
-
     if not data_length or data_length == 0 or not chunk_size or chunk_size == 0:
         return []
 
@@ -104,7 +112,7 @@ def shuffle_in_chunks(data_length, chunk_size):
         try:
             seed_value = int(os.environ.get("DATAPROFILER_SEED"))
             rng = np.random.default_rng(seed_value)
-        except ValueError as e:
+        except ValueError:
             warnings.warn("Seed should be an integer", RuntimeWarning)
 
     indices = KeyDict()
@@ -139,7 +147,7 @@ def shuffle_in_chunks(data_length, chunk_size):
 
 def warn_on_profile(col_profile, e):
     """
-    Returns a warning if a given profile errors (tensorflow typically)
+    Return a warning if a given profile errors (tensorflow typically).
 
     :param col_profile: Name of the column profile
     :type col_profile: str
@@ -163,8 +171,7 @@ def warn_on_profile(col_profile, e):
 
 def partition(data, chunk_size):
     """
-    Creates a generator which returns the data
-    in the specified chunk size.
+    Create a generator which returns data in specified chunk size.
 
     :param data: list, dataframe, etc
     :type data: list, dataframe, etc
@@ -177,7 +184,7 @@ def partition(data, chunk_size):
 
 def suggest_pool_size(data_size=None, cols=None):
     """
-    Suggest the pool size based on resources
+    Suggest the pool size based on resources.
 
     :param data_size: size of the dataset
     :type data_size: int
@@ -186,7 +193,6 @@ def suggest_pool_size(data_size=None, cols=None):
     :return suggested_pool_size: suggeseted pool size
     :rtype suggested_pool_size: int
     """
-
     # Return if there's no data_size
     if data_size is None:
         return None
@@ -215,7 +221,7 @@ def suggest_pool_size(data_size=None, cols=None):
 
 def generate_pool(max_pool_size=None, data_size=None, cols=None):
     """
-    Generate a multiprocessing pool to allocate functions too
+    Generate a multiprocessing pool to allocate functions too.
 
     :param max_pool_size: Max number of processes assigned to the pool
     :type max_pool_size: Union[int, None]
@@ -228,7 +234,6 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
     :return cpu_count: Number of processes (cpu bound) to utilize
     :rtype cpu_count: int
     """
-
     suggested_pool_size = suggest_pool_size(data_size, cols)
     if max_pool_size is None or suggested_pool_size is None:
         max_pool_size = suggested_pool_size
@@ -238,7 +243,7 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
     if max_pool_size is not None and max_pool_size > 2:
         try:
             pool = mp.Pool(max_pool_size)
-        except Exception as e:
+        except Exception:
             pool = None
             warnings.warn(
                 "Multiprocessing disabled, please change the multiprocessing"
@@ -250,9 +255,7 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
 
 
 def overlap(x1, x2, y1, y2):
-    """
-    Return True iff [x1:x2] overlaps with [y1:y2]
-    """
+    """Return True iff [x1:x2] overlaps with [y1:y2]."""
     if not all([isinstance(i, int) for i in [x1, x2, y1, y2]]):
         return False
     return (y1 <= x1 <= y2) or (y1 <= x2 <= y2) or (x1 <= y1 <= x2) or (x1 <= y2 <= x2)
@@ -260,7 +263,7 @@ def overlap(x1, x2, y1, y2):
 
 def add_nested_dictionaries(first_dict, second_dict):
     """
-    Merges two dictionaries together and adds values together
+    Merge two dictionaries together and add values together.
 
     :param first_dict: dictionary to be merged
     :type first_dict: dict
@@ -292,7 +295,8 @@ def add_nested_dictionaries(first_dict, second_dict):
 
 def biased_skew(df_series):
     """
-    Calculates the biased estimator for skewness of the given data.
+    Calculate the biased estimator for skewness of the given data.
+
     The definition is formalized as g_1 here:
         https://en.wikipedia.org/wiki/Skewness#Sample_skewness
     :param df_series: data to get skewness of, assuming floats
@@ -329,7 +333,8 @@ def biased_skew(df_series):
 
 def biased_kurt(df_series):
     """
-    Calculates the biased estimator for kurtosis of the given data
+    Calculate the biased estimator for kurtosis of the given data.
+
     The definition is formalized as g_2 here:
         https://en.wikipedia.org/wiki/Kurtosis#A_natural_but_biased_estimator
     :param df_series: data to get kurtosis of, assuming floats
@@ -366,8 +371,10 @@ def biased_kurt(df_series):
 
 def find_diff_of_numbers(stat1, stat2):
     """
-    Finds the difference between two stats. If there is no difference, returns
-    "unchanged". For ints/floats, returns stat1 - stat2.
+    Find the difference between two stats.
+
+    If there is no difference, return "unchanged".
+    For ints/floats, returns stat1 - stat2.
 
     :param stat1: the first statistical input
     :type stat1: Union[int, float]
@@ -387,8 +394,10 @@ def find_diff_of_numbers(stat1, stat2):
 
 def find_diff_of_strings_and_bools(stat1, stat2):
     """
-    Finds the difference between two stats. If there is no difference, returns
-    "unchanged". For strings and bools, returns list containing [stat1, stat2].
+    Find the difference between two stats.
+
+    If there is no difference, return "unchanged".
+    For strings and bools, return list containing [stat1, stat2].
 
     :param stat1: the first statistical input
     :type stat1: Union[str, bool]
@@ -404,8 +413,10 @@ def find_diff_of_strings_and_bools(stat1, stat2):
 
 def find_diff_of_lists_and_sets(stat1, stat2):
     """
-    Finds the difference between two stats. If there is no difference, returns
-    "unchanged". Removes duplicates and returns [unique values of stat1,
+    Find the difference between two stats.
+
+    If there is no difference, return
+    "unchanged". Remove duplicates and returns [unique values of stat1,
     shared values, unique values of stat2].
 
     :param stat1: the first statistical input
@@ -429,8 +440,10 @@ def find_diff_of_lists_and_sets(stat1, stat2):
 
 def find_diff_of_dates(stat1, stat2):
     """
-    Finds the difference between two dates. If there is no difference, returns
-    "unchanged". For dates, returns the difference in time.
+    Find the difference between two dates.
+
+    If there is no difference, return
+    "unchanged". For dates, return the difference in time.
 
     Because only days can be stored as negative values internally
     for timedelta objects, the output for these negative values is
@@ -463,9 +476,11 @@ def find_diff_of_dates(stat1, stat2):
 
 def find_diff_of_dicts(dict1, dict2):
     """
-    Finds the difference between two dicts. For each key in each dict,
-    returns "unchanged" if there's no difference, otherwise returns
-    the difference. Assumes that if the two dictionaries share the
+    Find the difference between two dicts.
+
+    For each key in each dict,
+    return "unchanged" if there's no difference, otherwise return
+    the difference. Assume that if the two dictionaries share the
     same key, their values are the same type.
 
     :param dict1: the first dict
@@ -475,7 +490,6 @@ def find_diff_of_dicts(dict1, dict2):
     :return: Difference in the keys of each dict
     :rtype: dict
     """
-
     diff = {}
     for key, value1 in dict1.items():
         value2 = dict2.get(key, None)
@@ -502,7 +516,7 @@ def find_diff_of_dicts(dict1, dict2):
 
 def find_diff_of_matrices(matrix1, matrix2):
     """
-    Finds the difference between two matrices.
+    Find the difference between two matrices.
 
     :param matrix1: the first matrix
     :type matrix1: list(list(float))
@@ -511,7 +525,6 @@ def find_diff_of_matrices(matrix1, matrix2):
     :return: Difference in the matrix
     :rtype: list(list(float))
     """
-
     diff = None
 
     if matrix1 is not None and matrix2 is not None:
@@ -528,9 +541,11 @@ def find_diff_of_matrices(matrix1, matrix2):
 
 def find_diff_of_dicts_with_diff_keys(dict1, dict2):
     """
-    Finds the difference between two dicts. For each key in each dict,
-    returns "unchanged" if there's no difference, otherwise returns
-    the difference. Assumes that if the two dictionaries share the
+    Find the difference between two dicts.
+
+    For each key in each dict,
+    return "unchanged" if there's no difference, otherwise return
+    the difference. Assume that if the two dictionaries share the
     same key, their values are the same type.
 
     :param dict1: the first dict
@@ -540,7 +555,6 @@ def find_diff_of_dicts_with_diff_keys(dict1, dict2):
     :return: Difference in the keys of each dict
     :rtype: list
     """
-
     diff_1 = {}
     diff_shared = {}
     diff_2 = {}
@@ -574,7 +588,7 @@ def find_diff_of_dicts_with_diff_keys(dict1, dict2):
 
 def get_memory_size(data, unit="M"):
     """
-    Get memory size of the input data
+    Get memory size of the input data.
 
     :param data: list or array of data
     :type data: Union[list, numpy.array, pandas.DataFrame]
@@ -597,8 +611,9 @@ def get_memory_size(data, unit="M"):
 
 def method_timeit(method=None, name=None):
     """
-    Measure execution time of provided method
-    Records time into times dictionary
+    Measure execution time of provided method.
+
+    Record time into times dictionary.
 
     :param method: method to time
     :type method: Callable
@@ -630,7 +645,7 @@ def perform_chi_squared_test_for_homogeneity(
     categories1, sample_size1, categories2, sample_size2
 ):
     """
-    Performs a Chi Squared test for homogeneity between two groups.
+    Perform a Chi Squared test for homogeneity between two groups.
 
     :param categories1: Categories and respective counts of the first group
     :type categories1: dict
@@ -647,8 +662,8 @@ def perform_chi_squared_test_for_homogeneity(
 
     cat_counts = add_nested_dictionaries(categories1, categories2)
 
-    # If one or less categories, we have zero/negative degrees of freedom, which is not an
-    # appropriate value for this context
+    # If one or less categories, we have zero/negative degrees of freedom,
+    # which is not an appropriate value for this context
     num_cats = len(cat_counts)
     if len(cat_counts) <= 1:
         warnings.warn(
@@ -690,7 +705,8 @@ def perform_chi_squared_test_for_homogeneity(
 
 
 def chunk(it, size):
-    """Chunking things out
+    """
+    Chunk things out.
 
     :param top_profile: Categories and respective counts of the second group
     :type top_profile: list
@@ -704,7 +720,8 @@ def chunk(it, size):
 
 
 def merge(top_profile, other_profile=None):
-    """Merge two Profiles
+    """
+    Merge two Profiles.
 
     :param top_profile: Categories and respective counts of the second group
     :type top_profile: list

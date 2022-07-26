@@ -1,3 +1,4 @@
+"""Contains class for saving and loading spreadsheet data."""
 import fastavro
 
 from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
@@ -8,17 +9,16 @@ from .json_data import JSONData
 
 
 class AVROData(JSONData, BaseData):
-    """
-    AVROData class to save and load spreadsheet data
-    """
+    """AVROData class to save and load spreadsheet data."""
 
     data_type = "avro"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
-        Data class for loading datasets of type AVRO. Can be specified by
-        passing in memory data or via a file path. Options pertaining the AVRO
-        may also be specified using the options dict parameter.
+        Initialize Data class for loading datasets of type AVRO.
+
+        Can be specified by passing in memory data or via a file path.
+        Options pertaining to AVRO may also be specified using options dict param.
         Possible Options::
 
             options = dict(
@@ -26,7 +26,7 @@ class AVROData(JSONData, BaseData):
                 selected_keys= type: list(str)
             )
 
-        data_format: user selected format in which to return data can only be of specified types
+        data_format: user selected format can only be of specified types
         selected_keys: keys being selected from the entire dataset
 
         :param input_file_path: path to the file being loaded or None
@@ -45,6 +45,7 @@ class AVROData(JSONData, BaseData):
         return None
 
     def _load_data_from_file(self, input_file_path):
+        """Load data from file."""
         with FileOrBufferHandler(input_file_path, "rb") as input_file:
             # Currently, string reading with 'r' option has the unicode issue,
             # even when the option encoding='utf-8' is added. It may come from
@@ -59,8 +60,7 @@ class AVROData(JSONData, BaseData):
     @classmethod
     def is_match(cls, file_path, options=None):
         """
-        Test the given file to check if the file has valid
-        AVRO format or not.
+        Test the given file to check if the file has valid AVRO format or not.
 
         :param file_path: path to the file to be examined
         :type file_path: str
@@ -88,6 +88,7 @@ class AVROData(JSONData, BaseData):
     def _get_nested_key(cls, dict_line, nested_key):
         """
         Update nested keys from a dictionary and the current nested key.
+
         Example of output:
             {'name': 1, 'favorite_number': 1, 'favorite_color': 1,
             'address': {'streetaddress': 1, 'city': 1}}
@@ -114,7 +115,9 @@ class AVROData(JSONData, BaseData):
     @classmethod
     def _get_nested_keys_from_dicts(cls, dicts):
         """
-        Extract nested keys from a list of dictionaries. Example of output:
+        Extract nested keys from a list of dictionaries.
+
+        Example of output:
         {'name': 1, 'favorite_number': 1, 'favorite_color': 1,
         'address': {'streetaddress': 1, 'city': 1}}
 
@@ -130,7 +133,7 @@ class AVROData(JSONData, BaseData):
     @classmethod
     def _get_schema_avro(cls, nested_keys, schema_avro):
         """
-        Update avro schema from the nested keys and the current avro schema
+        Update avro schema from the nested keys and the current avro schema.
 
         :param nested_keys: a dictionary containing nested keys, from that
             avro schema is extracted. E.g.

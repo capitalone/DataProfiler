@@ -1,3 +1,4 @@
+"""Contains class to save and load parquet data."""
 import pyarrow.parquet as pq
 
 from . import data_utils
@@ -6,17 +7,16 @@ from .structured_mixins import SpreadSheetDataMixin
 
 
 class ParquetData(SpreadSheetDataMixin, BaseData):
-    """
-    SpreadsheetData class to save and load spreadsheet data
-    """
+    """SpreadsheetData class to save and load parquet data."""
 
     data_type = "parquet"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
-        Data class for loading datasets of type PARQUET. Can be specified by
-        passing in memory data or via a file path. Options pertaining the
-        PARQUET may also be specified using the options dict parameter.
+        Initialize Data class for loading datasets of type PARQUET.
+
+        Can be specified by passing in memory data or via a file path.
+        Options pertaining to PARQUET may also be specified using options dict param.
         Possible Options::
 
             options = dict(
@@ -63,16 +63,16 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
 
     @property
     def selected_columns(self):
+        """Return selected columns."""
         return self._selected_columns
 
     @property
     def is_structured(self):
-        """
-        Determines compatibility with StructuredProfiler
-        """
+        """Determine compatibility with StructuredProfiler."""
         return self.data_format == "dataframe"
 
     def _load_data_from_str(self, data_as_str):
+        """Return data from string."""
         data_generator = data_utils.data_generator(data_as_str.splitlines())
         data, original_df_dtypes = data_utils.read_json_df(
             data_generator=data_generator, read_in_string=True
@@ -81,6 +81,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         return data
 
     def _load_data_from_file(self, input_file_path):
+        """Return data from file."""
         data, original_df_dtypes = data_utils.read_parquet_df(
             input_file_path, self.selected_columns, read_in_string=True
         )
@@ -88,12 +89,14 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         return data
 
     def _get_data_as_records(self, data):
+        """Return data records."""
         # split into row samples separate by `\n`
         data = data.to_json(orient="records", lines=True)
         data = data.splitlines()
         return super(ParquetData, self)._get_data_as_records(data)
 
     def _get_data_as_json(self, data):
+        """Return json data."""
         data = data.to_json(orient="records")
         chars_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
         return list(map("".join, zip(*[iter(data)] * chars_per_line)))
@@ -101,8 +104,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
     @classmethod
     def is_match(cls, file_path, options=None):
         """
-        Test the given file to check if the file has valid
-        Parquet format or not.
+        Test the given file to check if the file has valid Parquet format.
 
         :param file_path: path to the file to be examined
         :type file_path: str
@@ -119,9 +121,9 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
             starting_location = file_path.tell()
 
         try:
-            pfile = pq.ParquetFile(file_path)
+            pfile = pq.ParquetFile(file_path)  # NOQA
             is_valid_parquet = True
-        except:
+        except Exception:
             is_valid_parquet = False
 
         # return to original position in stream
@@ -132,8 +134,10 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
 
     def reload(self, input_file_path=None, data=None, options=None):
         """
-        Reload the data class with a new dataset. This erases all existing
-        data/options and replaces it with the input data/options.
+        Reload the data class with a new dataset.
+
+        This erases all existing data/options and replaces it
+        with the input data/options.
 
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str

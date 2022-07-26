@@ -1,3 +1,4 @@
+"""Contains abstract classes for labeling data."""
 import abc
 import copy
 import inspect
@@ -5,7 +6,10 @@ import warnings
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
+    """For registering subclasses."""
+
     def __new__(cls, clsname, bases, attrs):
+        """Create auto registration object and return new class."""
         new_class = super(AutoSubRegistrationMeta, cls).__new__(
             cls, clsname, bases, attrs
         )
@@ -14,6 +18,7 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
 
 
 class BaseModel(object, metaclass=abc.ABCMeta):
+    """For labeling data."""
 
     _BaseModel__subclasses = {}
     __metaclass__ = abc.ABCMeta
@@ -23,7 +28,9 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     def __init__(self, label_mapping, parameters):
         """
-        Base Model Initializer. Only model and model parameters are stored here
+        Initialize Base Model.
+
+        Only model and model parameters are stored here.
         :param parameters: Contains all the appropriate parameters for the model.
                            Must contain num_labels.
         :type parameters: dict
@@ -38,13 +45,15 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         self.set_label_mapping(label_mapping)
 
     def __init_subclass__(cls, **kwargs):
+        """Initialize and register subclass."""
         super().__init_subclass__(**kwargs)
         cls._register_subclass()
 
     def __eq__(self, other):
         """
-        Checks if two models are equal with one another, may only check
-        important variables, i.e. may not check model itself.
+        Check if two models are equal with one another.
+
+        May only check important variables, i.e. may not check model itself.
 
         :param self: a model
         :param other: a model
@@ -63,31 +72,29 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     @classmethod
     def _register_subclass(cls):
-        """
-        Registers a subclass for the class factory.
-        """
+        """Register a subclass for the class factory."""
         if not inspect.isabstract(cls):
             cls._BaseModel__subclasses[cls.__name__.lower()] = cls
 
     @property
     def label_mapping(self):
-        """
-        :return: mapping of labels to their encoded values
-        """
+        """Return mapping of labels to their encoded values."""
         return copy.deepcopy(self._label_mapping)
 
     @property
     def reverse_label_mapping(self):
         """
-        :return: Reversed order of current labels, useful for when needed to
-                 extract Labels via indices
+        Return reversed order of current labels.
+
+        Useful for when needed to extract Labels via indices.
         """
         return {v: k for k, v in self.label_mapping.items()}
 
     @property
     def labels(self):
         """
-        Retrieves the label
+        Retrieve the label.
+
         :return: list of labels
         """
         return [
@@ -100,7 +107,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @staticmethod
     def _convert_labels_to_label_mapping(labels, requires_zero_mapping):
         """
-        Converts the new labels set to be in an encoding dict if not already.
+        Convert the new labels set to be in an encoding dict if not already.
 
         :param labels: Labels to convert to an encoding dict
         :type labels: Union[list, dict]
@@ -118,20 +125,22 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     @property
     def num_labels(self):
+        """Return max label mapping."""
         return max(self.label_mapping.values()) + 1
 
     @classmethod
     def get_class(cls, class_name):
-
+        """Get subclasses."""
         # Import possible internal models
-        from .character_level_cnn_model import CharacterLevelCnnModel
-        from .regex_model import RegexModel
+        from .character_level_cnn_model import CharacterLevelCnnModel  # NOQA
+        from .regex_model import RegexModel  # NOQA
 
         return cls._BaseModel__subclasses.get(class_name.lower(), None)
 
     def get_parameters(self, param_list=None):
         """
-        Returns a dict of parameters from the model given a list.
+        Return a dict of parameters from the model given a list.
+
         :param param_list: list of parameters to retrieve from the model.
         :type param_list: list
         :return: dict of parameters
@@ -156,8 +165,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         return copy.deepcopy(param_dict)
 
     def set_params(self, **kwargs):
-        """Given kwargs, set the parameters if they exist."""
-
+        """Set the parameters if they exist given kwargs."""
         # first check if any parameters are invalid
         self._validate_parameters(kwargs)
 
@@ -166,7 +174,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     def add_label(self, label, same_as=None):
         """
-        Adds a label to the data labeler.
+        Add a label to the data labeler.
 
         :param label: new label being added to the data labeler
         :type label: str
@@ -199,7 +207,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     def set_label_mapping(self, label_mapping):
         """
-        Sets the labels for the model
+        Set the labels for the model.
 
         :param label_mapping: label mapping of the model or list of labels to be
             converted into the label mapping
@@ -219,7 +227,8 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _need_to_reconstruct_model(self):
         """
-        Abstract method for determining whether or not to reconstruct the model.
+        Determinine whether or not to reconstruct the model.
+
         :return: bool of whether to reconstruct model
         """
         raise NotImplementedError()
@@ -227,9 +236,11 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _validate_parameters(self, parameters):
         """
-        Validate the parameters sent in. Raise error if parameters are bogus.
-        :param parameters: Contains all the appropriate parameters for the
-            model.
+        Validate the parameters sent in.
+
+        Raise error if parameters are bogus.
+        :param parameters:
+            Contains all the appropriate parameters for the model.
         :type parameters: dict
         :return: None
         """
@@ -238,7 +249,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @classmethod
     def help(cls):
         """
-        Help function describing alterable parameters.
+        Help describe alterable parameters.
 
         :return: None
         """
@@ -257,8 +268,9 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _construct_model(self):
         """
-        Model constructor for the data labeler. This also serves as a weight
-        reset.
+        Construct model for the data labeler.
+
+        This also serves as a weight reset.
 
         :return: None
         """
@@ -267,8 +279,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _reconstruct_model(self):
         """
-        Reconstruct the appropriate layers if the number of number of labels is
-        altered.
+        Reconstruct appropriate layers if number of number of labels is altered.
 
         :return: None
         """
@@ -286,7 +297,8 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def predict(self, data, batch_size, show_confidences, verbose):
         """
-        Predict the data with the current model
+        Predict the data with the current model.
+
         :param data: model input data to predict on
         :type data: iterator of data to process
         :param batch_size: number of samples in the batch of data
@@ -304,7 +316,8 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def load_from_disk(cls, dirpath):
         """
-        Loads whole model from disk with weights
+        Load whole model from disk with weights.
+
         :param dirpath: directory path where you want to load the model from
         :type dirpath: str
         :return: None
@@ -314,7 +327,8 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def save_to_disk(self, dirpath):
         """
-        Saves whole model to disk with weights
+        Save whole model to disk with weights.
+
         :param dirpath: directory path where you want to save the model to
         :type dirpath: str
         :return: None
@@ -323,6 +337,8 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
 
 class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
+    """Contains abstract method for training models."""
+
     @abc.abstractmethod
     def fit(
         self,
@@ -334,7 +350,8 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         reset_weights=False,
     ):
         """
-        Train the current model with the training data and validation data
+        Train the current model with the training data and validation data.
+
         :param train_data: Training data used to train model
         :type train_data: Union[pd.DataFrame, pd.Series, np.ndarray]
         :param val_data: Validation data used to validate the training

@@ -1,3 +1,4 @@
+"""Contains class for saving and loading text files."""
 from __future__ import unicode_literals  # at top of module
 from __future__ import print_function
 
@@ -10,15 +11,15 @@ from .base_data import BaseData
 
 
 class TextData(BaseData):
-    """
-    TextData class to save and load text files
-    """
+    """TextData class to save and load text files."""
 
     data_type = "text"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
-        Data class for loading datasets of type TEXT. Can be specified by
+        Initialize Data class for loading datasets of type TEXT.
+
+        Can be specified by
         passing in memory data or via a file path. Options pertaining the TEXT
         may also be specified using the options dict parameter.
         Possible Options::
@@ -63,16 +64,16 @@ class TextData(BaseData):
 
     @property
     def samples_per_line(self):
+        """Return samples per line."""
         return self._samples_per_line
 
     @property
     def is_structured(self):
-        """
-        Determines compatibility with StructuredProfiler
-        """
+        """Determine compatibility with StructuredProfiler."""
         return False
 
     def _load_data(self, data=None):
+        """Load data."""
         if data is not None:
             self._data = data
         else:
@@ -81,6 +82,7 @@ class TextData(BaseData):
             )
 
     def _get_data_as_text(self, data):
+        """Return data as text."""
         if (
             isinstance(data, list)
             and len(data)
@@ -100,12 +102,13 @@ class TextData(BaseData):
         return data
 
     def tokenize(self):
+        """Tokenize data."""
         raise NotImplementedError("Tokenizing does not currently exist for text data.")
 
     @classmethod
     def is_match(cls, file_path, options=None):
         """
-        All files can be considered text files, hence returns True
+        Return True if all are text files.
 
         :param file_path: path to the file to be examined
         :type file_path: str
@@ -124,7 +127,9 @@ class TextData(BaseData):
 
     def reload(self, input_file_path=None, data=None, options=None):
         """
-        Reload the data class with a new dataset. This erases all existing
+        Reload the data class with a new dataset.
+
+        This erases all existing
         data/options and replaces it with the input data/options.
 
         :param input_file_path: path to the file being loaded or None

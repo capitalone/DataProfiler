@@ -1,3 +1,4 @@
+"""Package for dataprofiler."""
 from . import settings
 from .data_readers.data import Data
 from .dp_logging import get_logger, set_verbosity

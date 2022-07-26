@@ -1,6 +1,4 @@
-"""
-A setuptools for the Data Profiler Application and Python Libraries
-"""
+"""A setuptools for the Data Profiler Application and Python Libraries."""
 
 import os
 

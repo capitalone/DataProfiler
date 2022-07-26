@@ -1,3 +1,4 @@
+"""Contains abstract class for data loading and saving."""
 import locale
 import sys
 from collections import OrderedDict
@@ -13,16 +14,16 @@ logger = dp_logging.get_child_logger(__name__)
 
 
 class BaseData(object):
-    """
-    Abstract class for data loading and saving
-    """
+    """Abstract class for data loading and saving."""
 
     data_type = None
     info = None
 
     def __init__(self, input_file_path, data, options):
         """
-        Base class for loading a dataset. Options can be specified and maybe
+        Initialize Base class for loading a dataset.
+
+        Options can be specified and maybe
         more specific to the subclasses.
 
         :param input_file_path: path to the file being loaded or None
@@ -61,6 +62,7 @@ class BaseData(object):
 
     @property
     def data(self):
+        """Return data."""
         if self._data is None:
             self._load_data()
 
@@ -78,13 +80,12 @@ class BaseData(object):
 
     @property
     def data_format(self):
+        """Return data format."""
         return self._selected_data_format
 
     @property
     def is_structured(self):
-        """
-        Determines compatibility with StructuredProfiler
-        """
+        """Determine compatibility with StructuredProfiler."""
         raise NotImplementedError
 
     @data_format.setter
@@ -100,12 +101,13 @@ class BaseData(object):
 
     @property
     def file_encoding(self):
+        """Return file encoding."""
         if not self._file_encoding:
             # get system default, but if set to ascii, just update to utf-8
             file_encoding = "utf-8"
             try:
                 file_encoding = locale.getpreferredencoding(False)
-            except:
+            except Exception:
                 file_encoding = sys.getfilesystemencoding()
             finally:
                 if file_encoding.lower() in ["ansi_x3.4-1968", "ascii"]:
@@ -121,6 +123,7 @@ class BaseData(object):
 
     @file_encoding.setter
     def file_encoding(self, value):
+        """Set file encoding."""
         valid_user_set_encodings = ["ascii", "utf-8", "utf-16", "utf-32"]
         if not value or value.lower() not in valid_user_set_encodings:
             raise ValueError(
@@ -132,6 +135,7 @@ class BaseData(object):
 
     @staticmethod
     def _check_and_return_options(options):
+        """Return options or raise error."""
         if not options:
             options = dict()
         elif not isinstance(options, dict):
@@ -139,9 +143,11 @@ class BaseData(object):
         return options
 
     def _load_data(self, data=None):
+        """Load data."""
         raise NotImplementedError()
 
     def get_batch_generator(self, batch_size):
+        """Get batch generator."""
         data_length = len(self.data)
         indices = np.random.permutation(data_length)
         for i in range(0, data_length, batch_size):
@@ -152,11 +158,14 @@ class BaseData(object):
 
     @classmethod
     def is_match(cls, input_file_path, options):
+        """Return true if match, false otherwise."""
         raise NotImplementedError()
 
     def reload(self, input_file_path, data, options):
         """
-        Reload the data class with a new dataset. This erases all existing
+        Reload the data class with a new dataset.
+
+        This erases all existing
         data/options and replaces it with the input data/options.
 
         :param input_file_path: path to the file being loaded or None
@@ -178,7 +187,7 @@ class BaseData(object):
 
     def __len__(self):
         """
-        Returns the length of the dataset which is loaded.
+        Return the length of the dataset which is loaded.
 
         :return: length of the dataset
         """
@@ -187,7 +196,7 @@ class BaseData(object):
     @property
     def length(self):
         """
-        Returns the length of the dataset which is loaded.
+        Return the length of the dataset which is loaded.
 
         :return: length of the dataset
         """
@@ -195,7 +204,9 @@ class BaseData(object):
 
     def __getattribute__(self, name):
         """
-        Overrides getattr for the class such that functions can be applied
+        Override getattr for the class.
+
+        Do this such that functions can be applied
         directly to the data class if the function is not part of the data
         class.
         e.g. if data is BaseData where self.data = [1, 2, 3, 1]

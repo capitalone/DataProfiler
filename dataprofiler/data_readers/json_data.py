@@ -1,3 +1,4 @@
+"""Contains class to save and load json data."""
 import json
 import warnings
 from collections import OrderedDict
@@ -13,17 +14,17 @@ from .structured_mixins import SpreadSheetDataMixin
 
 
 class JSONData(SpreadSheetDataMixin, BaseData):
-    """
-    SpreadsheetData class to save and load spreadsheet data
-    """
+    """SpreadsheetData class to save and load spreadsheet data."""
 
     data_type = "json"
 
     def __init__(self, input_file_path=None, data=None, options=None):
         """
-        Data class for loading datasets of type JSON. Can be specified by
-        passing in memory data or via a file path. Options pertaining the JSON
-        may also be specified using the options dict parameter.
+        Initialize Data class for loading datasets of type JSON.
+
+        Can be specified by passing in memory data or via a file path.
+        Options pertaining the JSON may also be specified using the
+        options dict parameter.
         Possible Options::
 
             options = dict(
@@ -77,22 +78,19 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     @property
     def selected_keys(self):
+        """Return selected keys."""
         return self._selected_keys
 
     @property
     def metadata(self):
-        """
-        Returns a data frame that contains the metadata
-        """
+        """Return a data frame that contains the metadata."""
         if self._metadata is None or self._metadata.empty:
             warnings.warn("No metadata was detected.")
         return self._metadata
 
     @property
     def data_and_metadata(self):
-        """
-        Returns a data frame that joins the data and the metadata.
-        """
+        """Return a data frame that joins the data and the metadata."""
         data = self.data
         if self._metadata is not None and not self._metadata.empty:
             data = [self._metadata, data]
@@ -101,15 +99,12 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     @property
     def is_structured(self):
-        """
-        Determines compatibility with StructuredProfiler
-        """
+        """Determine compatibility with StructuredProfiler."""
         return self.data_format in ["dataframe", "flattened_dataframe"]
 
     def _find_data(self, json_data, path=""):
         """
-        Finds all the column headers/data in a Json and returns them as a
-        list.
+        Find all the col headers/data in Json and return them as list.
 
         :param json_data: the json data or a subset of the json data
         :type json_data: Union[list, dict, str]
@@ -145,7 +140,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     def _coalesce_dicts(self, list_of_dicts):
         """
-        Merges all the dictionaries into as few dictionaries as possible.
+        Merge all the dictionaries into as few dictionaries as possible.
 
         :param list_of_dicts: the list of dictionaries with one item in each dict
         to be coalesced
@@ -166,8 +161,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     def _get_data_as_flattened_dataframe(self, json_lines):
         """
-        Loads the data when in a JSON format from a data stream (nested
-        lists of dictionaries and a key value for a payload).
+        Load the data when in a JSON format from a data stream.
+
+        (Nested lists of dictionaries and a key value for a payload.)
 
         :param json_lines: json format list of dicts or dict
         :type json_lines: Union[dict, list(dict)]
@@ -233,7 +229,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     def _load_data_from_str(self, data_as_str):
         """
-        Loads the data from a string.
+        Load the data from a string.
 
         :param data_as_str: data in string format.
         :type data_as_str: str
@@ -252,7 +248,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     def _load_data_from_file(self, input_file_path):
         """
-        Loads the data from a file.
+        Load the data from a file.
 
         :param input_file_path: file path to file being loaded.
         :type input_file_path: str
@@ -274,7 +270,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     def _get_data_as_records(self, data):
         """
-        Extracts the data as a record format.
+        Extract the data as a record format.
 
         :param data: raw data
         :type data: list
@@ -290,7 +286,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     def _get_data_as_json(self, data):
         """
-        Extracts the data as a json format.
+        Extract the data as a json format.
 
         :param data: raw data
         :type data: list
@@ -303,7 +299,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     def _get_data_as_df(self, data):
         """
-        Extracts the data as pandas formats it.
+        Extract the data as pandas formats it.
 
         :param data: raw data
         :type data: list
@@ -322,9 +318,11 @@ class JSONData(SpreadSheetDataMixin, BaseData):
     @classmethod
     def _convert_flat_to_nested_cols(cls, dic, separator="."):
         """
-        Converts a flat dict to nested dic. Example
+        Convert a flat dict to nested dict.
 
-        dic = {
+        Ex:
+
+        dict = {
             'a.b': 'ab',
             'a.c': 'ac',
             'a.d.f': 'adf'
@@ -354,8 +352,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
     @classmethod
     def is_match(cls, file_path, options=None):
         """
-        Test the first 1000 lines of a given file to check if the file has valid
-        JSON format or not. At least 60 percent of the lines in the first 1000
+        Test whether first 1000 lines of file has valid JSON format or not.
+
+        At least 60 percent of the lines in the first 1000
         lines have to be valid json.
 
         :param file_path: path to the file to be examined
@@ -405,8 +404,10 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
     def reload(self, input_file_path=None, data=None, options=None):
         """
-        Reload the data class with a new dataset. This erases all existing
-        data/options and replaces it with the input data/options.
+        Reload the data class with a new dataset.
+
+        This erases all existing data/options and replaces it
+        with the input data/options.
 
         :param input_file_path: path to the file being loaded or None
         :type input_file_path: str

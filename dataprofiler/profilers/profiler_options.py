@@ -932,6 +932,34 @@ class CorrelationOptions(BaseInspectorOptions):
         return errors
 
 
+class SyntheticDataOptions(BaseInspectorOptions):
+    """For configuring options for synthetic data generation"""
+
+    def __init__(self):
+        """
+        Initialize options for synthetic data generation
+        :ivar is_enabled: boolean option to enable/disable synthetic data generation options
+        :vartype is_enabled: BooleanOption
+        :ivar replicate_nan: boolean option to enable/disable calculating metrics needed for
+        replicating nan values in synthetic data generator
+        :vartype replicate_nan: BooleanOption
+        """
+
+        self.replicate_nan = BooleanOption(is_enabled=True)
+        super().__init__(is_enabled=False)
+
+    def _validate_helper(self, variable_path="SyntheticDataOptions"):
+        """
+        Validate the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path)
+
+
 class DataLabelerOptions(BaseInspectorOptions):
     """For configuring options for Data Labeler Column."""
 
@@ -1156,6 +1184,8 @@ class StructuredOptions(BaseOption):
         :vartype correlation: CorrelationOptions
         :ivar chi2_homogeneity: option set for chi2_homogeneity matrix
         :vartype chi2_homogeneity: BooleanOption()
+        :ivar synthetic_data_gen: option set for metrics calculation for synthetic data gen
+        :vartype synthetic_data_gen: SyntheticDataOptions
         :ivar null_values: option set for defined null values
         :vartype null_values: Union[None, dict]
         """
@@ -1170,6 +1200,7 @@ class StructuredOptions(BaseOption):
         self.data_labeler = DataLabelerOptions()
         self.correlation = CorrelationOptions()
         self.chi2_homogeneity = BooleanOption(is_enabled=True)
+        self.synthetic_data = SyntheticDataOptions()
         # Non-Option variables
         self.null_values = null_values
 
@@ -1211,6 +1242,7 @@ class StructuredOptions(BaseOption):
                 ("data_labeler", DataLabelerOptions),
                 ("correlation", CorrelationOptions),
                 ("chi2_homogeneity", BooleanOption),
+                ("synthetic_data", SyntheticDataOptions),
             ]
         )
         properties = self.properties

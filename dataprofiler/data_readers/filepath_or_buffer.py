@@ -1,16 +1,16 @@
+"""Contains functions and classes for handling filepaths and buffers."""
 from io import BytesIO, StringIO, TextIOWrapper, open
 
 
 def is_stream_buffer(filepath_or_buffer):
     """
-    Determines whether a given argument is a filepath or buffer.
+    Determine whether a given argument is a filepath or buffer.
 
     :param filepath_or_buffer: path to the file or buffer
     :type filepath_or_buffer: str
     :return: true if string is a buffer or false if string is a filepath
     :rtype: boolean
     """
-
     if isinstance(filepath_or_buffer, (StringIO, BytesIO)):
         return True
     return False
@@ -18,8 +18,9 @@ def is_stream_buffer(filepath_or_buffer):
 
 class FileOrBufferHandler:
     """
-    FileOrBufferHandler class to read a filepath or buffer in and always
-    return a readable buffer.
+    FileOrBufferHandler class to read a filepath or buffer in.
+
+    Always returns a readable buffer.
     """
 
     def __init__(
@@ -31,7 +32,9 @@ class FileOrBufferHandler:
         seek_whence=0,
     ):
         """
-        Context manager class used for inputting a file or buffer and returning
+        Initialize Context manager class.
+
+        Used for inputting a file or buffer and returning
         a structure that is always a buffer.
 
         :param filepath_or_buffer: path to the file being loaded or buffer
@@ -51,6 +54,7 @@ class FileOrBufferHandler:
         self._is_wrapped = False
 
     def __enter__(self):
+        """Open resources."""
         if isinstance(self._filepath_or_buffer, str):
             self._filepath_or_buffer = open(
                 self._filepath_or_buffer, self.open_method, encoding=self._encoding
@@ -76,6 +80,7 @@ class FileOrBufferHandler:
         return self._filepath_or_buffer
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
+        """Release resources."""
         # Need to detach buffer if wrapped (i.e. BytesIO opened with 'r')
         if self._is_wrapped:
             wrapper = self._filepath_or_buffer

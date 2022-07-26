@@ -1,3 +1,4 @@
+"""Contains class for training data labeler model."""
 import copy
 import json
 import os
@@ -19,13 +20,14 @@ labeler_utils.hide_tf_logger_warnings()
 
 
 class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
+    """For training data labeler model."""
 
     # boolean if the label mapping requires the mapping for index 0 reserved
     requires_zero_mapping = False
 
     def __init__(self, model_path, label_mapping=None, parameters=None):
         """
-        Loadable TF Model Initializer.
+        Initialize Loadable TF Model.
 
         :param model_path: path to model to load
         :type model_path: str
@@ -38,7 +40,6 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         :type parameters: dict
         :return: None
         """
-
         # parameter initialization
         if not parameters:
             parameters = {}
@@ -55,8 +56,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def __eq__(self, other):
         """
-        Checks if two models are equal with one another, may only check
-        important variables, i.e. may not check model itself.
+        Check if two models are equal with one another.
+
+        May only check important variables, i.e. may not check model itself.
 
         :param self: a model
         :param other: a model
@@ -74,8 +76,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def _validate_parameters(self, parameters):
         """
-        Validate the parameters sent in. Raise error if invalid parameters are
-        present.
+        Validate the parameters sent in.
+
+        Raise error if invalid parameters are present.
 
         :param parameters: parameter dict containing the following parameters:
             max_length: Maximum char length in a sample
@@ -109,7 +112,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def set_label_mapping(self, label_mapping):
         """
-        Sets the labels for the model
+        Set the labels for the model.
 
         :param label_mapping: label mapping of the model
         :type label_mapping: dict
@@ -138,7 +141,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def _need_to_reconstruct_model(self):
         """
-        Determines whether or not the model needs to be reconstructed.
+        Determine whether or not the model needs to be reconstructed.
 
         :return: bool of whether or not the model needs to reconstruct.
         """
@@ -152,7 +155,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def save_to_disk(self, dirpath):
         """
-        Saves whole model to disk with weights
+        Save whole model to disk with weights.
 
         :param dirpath: directory path where you want to save the model to
         :type dirpath: str
@@ -176,13 +179,12 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
     @classmethod
     def load_from_disk(cls, dirpath):
         """
-        Loads whole model from disk with weights
+        Load whole model from disk with weights.
 
         :param dirpath: directory path where you want to load the model from
         :type dirpath: str
         :return: None
         """
-
         # load parameters
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
         with open(model_param_dirpath, "r") as fp:
@@ -215,8 +217,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def _construct_model(self):
         """
-        Model constructor for the data labeler. This also serves as a weight
-        reset.
+        Model constructor for the data labeler.
+
+        This also serves as a weight reset.
 
         :return: None
         """
@@ -230,7 +233,6 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             self._model, softmax_output_layer_name
         )
         softmax_layer = self._model.get_layer(softmax_output_layer_name)
-        prev_softmax_layer = softmax_layer.input
 
         new_softmax_layer = softmax_layer.output
         if softmax_layer.weights[0].shape[-1] != num_labels:
@@ -270,12 +272,10 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def _reconstruct_model(self):
         """
-        Reconstruct the appropriate layers if the number of number of labels is
-        altered
+        Reconstruct appropriate layers if number of number of labels is altered.
 
         :return: None
         """
-
         # Reset model
         tf.keras.backend.clear_session()
 
@@ -323,7 +323,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         verbose=True,
     ):
         """
-        Train the current model with the training data and validation data
+        Train the current model with the training data and validation data.
 
         :param train_data: Training data used to train model
         :type train_data: Union[list, np.ndarray]
@@ -340,7 +340,6 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         :type verbose: bool
         :return: None
         """
-
         if label_mapping is not None:
             self.set_label_mapping(label_mapping)
 
@@ -459,7 +458,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def predict(self, data, batch_size=32, show_confidences=False, verbose=True):
         """
-        Run model and get predictions
+        Run model and get predictions.
 
         :param data: text input
         :type data: Union[list, numpy.ndarray]
@@ -511,7 +510,6 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         # Convert predictions, confidences to lists from numpy
         predictions = [predictions[i].tolist() for i in range(allocation_index)]
-        confidences_list = None
         if show_confidences:
             confidences = [confidences[i].tolist() for i in range(0, allocation_index)]
 
@@ -521,8 +519,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def details(self):
         """
-        Prints the relevant details of the model (summary, parameters, label
-        mapping)
+        Print the relevant details of the model.
+
+        Details include summary, parameters, label mapping.
         """
         if not self._model:
             self._construct_model()

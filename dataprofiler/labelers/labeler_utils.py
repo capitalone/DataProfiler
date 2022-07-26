@@ -1,3 +1,4 @@
+"""Contains functions for the data labeler."""
 import logging
 import os
 import warnings
@@ -17,7 +18,7 @@ logger = dp_logging.get_child_logger(__name__)
 
 def f1_report_dict_to_str(f1_report, label_names):
     """
-    Returns the report string from the f1_report dict.
+    Return the report string from the f1_report dict.
 
     Example Output:
                       precision    recall  f1-score   support
@@ -83,7 +84,7 @@ def evaluate_accuracy(
     confusion_matrix_file=None,
 ):
     """
-    Evaluate the accuracy from comparing the predicted labels with true labels
+    Evaluate accuracy from comparing predicted labels with true labels.
 
     :param predicted_entities_in_index: predicted encoded labels for input
         sentences
@@ -202,7 +203,7 @@ def evaluate_accuracy(
 
 def get_tf_layer_index_from_name(model, layer_name):
     """
-    Returns the index of the layer given the layer name within a tf model
+    Return the index of the layer given the layer name within a tf model.
 
     :param model: tf keras model to search
     :param layer_name: name of the layer to find
@@ -214,14 +215,13 @@ def get_tf_layer_index_from_name(model, layer_name):
 
 
 def hide_tf_logger_warnings():
-    """
-    Filters out a set of warnings from the tf logger.
-    """
+    """Filter out a set of warnings from the tf logger."""
 
     class NoV1ResourceMessageFilter(logging.Filter):
         """Removes TF2 warning for using TF1 model which has resources."""
 
         def filter(self, record):
+            """Remove warning."""
             msg = (
                 "is a problem, consider rebuilding the SavedModel after "
                 + "running tf.compat.v1.enable_resource_variables()"
@@ -234,13 +234,14 @@ def hide_tf_logger_warnings():
 
 def protected_register_keras_serializable(package="Custom", name=None):
     """
-    Protects against already registered keras serializable layers. This
-    ensures that if it was already registered, it will not try to register it
-    again.
+    Protect against already registered keras serializable layers.
+
+    Ensures that if it was already registered, it will not try to
+    register it again.
     """
 
     def decorator(arg):
-        """Protects against double registration of a keras layer."""
+        """Protect against double registration of a keras layer."""
         class_name = name if name is not None else arg.__name__
         registered_name = package + ">" + class_name
         if tf.keras.utils.get_registered_object(registered_name) is None:
@@ -253,6 +254,7 @@ def protected_register_keras_serializable(package="Custom", name=None):
 @protected_register_keras_serializable()
 class FBetaScore(tf.keras.metrics.Metric):
     r"""Computes F-Beta score.
+
     Adapted and slightly modified from https://github.com/tensorflow/addons/blob/v0.12.0/tensorflow_addons/metrics/f_scores.py#L211-L283
 
     # Copyright 2019 The TensorFlow Authors. All Rights Reserved.
@@ -275,7 +277,8 @@ class FBetaScore(tf.keras.metrics.Metric):
     and recall. Output range is `[0, 1]`. Works for
     both multi-class and multi-label classification.
     $$
-    F_{\beta} = (1 + \beta^2) * \frac{\textrm{precision} * \textrm{precision}}{(\beta^2 \cdot \textrm{precision}) + \textrm{recall}}
+    F_{\beta} = (1 + \beta^2) * \frac{\textrm{precision} *
+    \textrm{precision}}{(\beta^2 \cdot \textrm{precision}) + \textrm{recall}}
     $$
     Args:
         num_classes: Number of unique classes in the dataset.
@@ -292,7 +295,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         dtype: (Optional) Data type of the metric result.
     Returns:
         F-Beta Score: float.
-    """
+    """  # NOQA: E501
 
     # Modification: remove the run-time type checking for functions
     def __init__(
@@ -305,6 +308,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         dtype=None,
         **kwargs,
     ):
+        """Initialize FBetaScore class."""
         super().__init__(name=name, dtype=dtype)
 
         if average not in (None, "micro", "macro", "weighted"):
@@ -347,6 +351,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         self.weights_intermediate = _zero_wt_init("weights_intermediate")
 
     def update_state(self, y_true, y_pred, sample_weight=None):
+        """Update state."""
         if self.threshold is None:
             threshold = tf.reduce_max(y_pred, axis=-1, keepdims=True)
             # make sure [0, 0, 0] doesn't become [1, 1, 1]
@@ -373,6 +378,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         self.weights_intermediate.assign_add(_weighted_sum(y_true, sample_weight))
 
     def result(self):
+        """Return f1 score."""
         precision = tf.math.divide_no_nan(
             self.true_positives, self.true_positives + self.false_positives
         )
@@ -397,8 +403,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         return f1_score
 
     def get_config(self):
-        """Returns the serializable config of the metric."""
-
+        """Return the serializable config of the metric."""
         config = {
             "num_classes": self.num_classes,
             "average": self.average,
@@ -410,6 +415,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         return {**base_config, **config}
 
     def reset_states(self):
+        """Reset states."""
         reset_value = tf.zeros(self.init_shape, dtype=self.dtype)
         tf.keras.backend.batch_set_value([(v, reset_value) for v in self.variables])
 
@@ -438,7 +444,8 @@ class F1Score(FBetaScore):
     Output range is `[0, 1]`. Works for both multi-class
     and multi-label classification.
     $$
-    F_1 = 2 \cdot \frac{\textrm{precision} \cdot \textrm{recall}}{\textrm{precision} + \textrm{recall}}
+    F_1 = 2 \cdot \frac{\textrm{precision}
+    \cdot \textrm{recall}}{\textrm{precision} + \textrm{recall}}
     $$
     Args:
         num_classes: Number of unique classes in the dataset.
@@ -458,9 +465,11 @@ class F1Score(FBetaScore):
     def __init__(
         self, num_classes, average=None, threshold=None, name="f1_score", dtype=None
     ):
+        """Initialize F1Score object."""
         super().__init__(num_classes, average, 1.0, threshold, name=name, dtype=dtype)
 
     def get_config(self):
+        """Get configuration."""
         base_config = super().get_config()
         del base_config["beta"]
         return base_config

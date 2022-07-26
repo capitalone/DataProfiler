@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+"""Contains functions for generating graph data report."""
+# !/usr/bin/env python3
 import math
 import warnings
 
@@ -20,9 +21,7 @@ from . import utils
 @utils.require_module(["matplotlib", "seaborn"])
 def plot_histograms(profiler, column_names=None, column_inds=None):
     """
-    Take a input of StructuredProfiler class and a list of specified column
-    names and then plots the histograms of those that are int or float
-    columns.
+    Plot the histograms of column names that are int or float columns.
 
     :param profiler: StructuredProfiler variable
     :type profiler: StructuredProfiler
@@ -76,8 +75,10 @@ def plot_histograms(profiler, column_names=None, column_inds=None):
     # get all columns which are of type [int, float]
     def is_index_graphable_column(ind_to_graph):
         """
-        This function filters ind_to_graph by returning false if there is a
-        data type that is not a int or float, otherwise true
+        Filter ind_to_graph.
+
+        Return false if there is a data type that is not a int or float,
+        otherwise true.
         """
         col_profiler = profiler.profile[ind_to_graph]
         data_compiler = col_profiler.profiles["data_type_profile"]
@@ -133,7 +134,7 @@ def plot_histograms(profiler, column_names=None, column_inds=None):
 @utils.require_module(["matplotlib", "seaborn"])
 def plot_col_histogram(data_type_profiler, ax=None, title=None):
     """
-    Take a input of a Int or Float Column and plots the histogram
+    Take input of a Int or Float Column and plot the histogram.
 
     :param data_type_profiler: the Int or Float column we pass in
     :type data_type_profiler: Union[IntColumn, FloatColumn]
@@ -143,7 +144,6 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
     :type title: str
     :return: matplotlib axes of where the graph was plotted
     """
-
     histogram = data_type_profiler._get_best_histogram_for_profile()
     if histogram["bin_counts"] is None or histogram["bin_edges"] is None:
         raise ValueError(
@@ -168,9 +168,9 @@ def plot_col_histogram(data_type_profiler, ax=None, title=None):
 @utils.require_module(["matplotlib", "seaborn"])
 def plot_missing_values_matrix(profiler, ax=None, title=None):
     """
-    Generates a matrix of bar graphs for the missing value locations within
-    each column in a structured dataset. A color line indicates the value does
-    not exist.
+    Generate matrix of bar graphs for missing value locations in cols of struct dataset.
+
+    A colored line indicates the value does not exist.
 
     :param profiler: structured profiler to be plotted
     :type profiler: StructuredProfiler
@@ -188,8 +188,9 @@ def plot_missing_values_matrix(profiler, ax=None, title=None):
 @utils.require_module(["matplotlib", "seaborn"])
 def plot_col_missing_values(col_profiler_list, ax=None, title=None):
     """
-    Generates a bar graph of the missing value locations within a column where
-    a color line indicates the value does not exist.
+    Generate bar graph of missing value locations within a col.
+
+    A colored line indicates the value does not exist.
 
     :param col_profiler_list:
     :type col_profiler_list: list[StructuredColProfiler]

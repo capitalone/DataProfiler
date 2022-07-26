@@ -1,3 +1,4 @@
+"""Contains class for for profiling data labeler col."""
 import operator
 
 import numpy as np
@@ -8,12 +9,13 @@ from .profiler_options import DataLabelerOptions
 
 
 class DataLabelerColumn(BaseColumnProfiler):
+    """Sublass of BaseColumnProfiler for profiling data labeler col."""
 
     type = "data_labeler"
 
     def __init__(self, name, options=None):
         """
-        Initialization of Data Label profiling for structured datasets.
+        Initialize Data Label profiling for structured datasets.
 
         :param name: name of column being profiled
         :type name: String
@@ -68,7 +70,7 @@ class DataLabelerColumn(BaseColumnProfiler):
     @staticmethod
     def assert_equal_conditions(data_labeler, data_labeler2):
         """
-        Ensures data labelers have the same values. Raises error otherwise.
+        Ensure data labelers have the same values. Raise error otherwise.
 
         :param data_labeler: first data_labeler
         :param data_labeler2: second data_labeler
@@ -120,7 +122,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     def __add__(self, other):
         """
-        Merges the properties of two DataLabelerColumn profiles
+        Merge the properties of two DataLabelerColumn profiles.
 
         :param self: first profile
         :param other: second profile
@@ -182,6 +184,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     @property
     def reverse_label_mapping(self):
+        """Return reverse label mapping."""
         if self._reverse_label_mapping is None:
             self._reverse_label_mapping = self.data_labeler.reverse_label_mapping
             if self.data_labeler.model.requires_zero_mapping:
@@ -190,6 +193,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     @property
     def possible_data_labels(self):
+        """Return possible data labels."""
         if self._possible_data_labels is None:
             self._possible_data_labels = list(self.reverse_label_mapping.values())
             self._possible_data_labels = [  # sort the data_labels based on index
@@ -202,6 +206,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     @property
     def rank_distribution(self):
+        """Return rank distribution."""
         if self._rank_distribution is None:
             self._rank_distribution = dict(
                 [(key, 0) for key in self.possible_data_labels]
@@ -210,6 +215,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     @property
     def sum_predictions(self):
+        """Sum predictions."""
         if self._sum_predictions is None:
             num_labels = self.data_labeler.model.num_labels
             if self.data_labeler.model.requires_zero_mapping:
@@ -219,13 +225,15 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     @sum_predictions.setter
     def sum_predictions(self, value):
+        """Update sum predictions."""
         self._sum_predictions = value
 
     @property
     def data_label(self):
         """
-        Returns the data labels which best fit the data it has seen based on
-        the DataLabeler used. Data labels must be within the minimum probability
+        Return data labels which best fit data it has seen based on DataLabeler used.
+
+        Data labels must be within the minimum probability
         differential of the top predicted value. If nothing is more than
         minimum top label value, it says it could not determine the data label.
         """
@@ -253,9 +261,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     @property
     def avg_predictions(self):
-        """
-        Averages all sample predictions for each data label.
-        """
+        """Average all sample predictions for each data label."""
         if not self.sample_size:
             return None
 
@@ -265,7 +271,8 @@ class DataLabelerColumn(BaseColumnProfiler):
     @property
     def label_representation(self):
         """
-        Representation of label found within the dataset based on ranked voting.
+        Represent label found within the dataset based on ranked voting.
+
         When top_k=1, this is simply the distribution of data labels found
         within the dataset.
         """
@@ -280,9 +287,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     @property
     def profile(self):
-        """
-        Property for profile. Returns the profile of the column.
-        """
+        """Return the profile of the column."""
         profile = {
             "data_label": self.data_label,
             "avg_predictions": self.avg_predictions,
@@ -293,7 +298,9 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     def report(self, remove_disabled_flag=False):
         """
-        Private abstract method for returning report.
+        Return report.
+
+        Private abstract method.
 
         :param remove_disabled_flag: flag to determine if disabled
             options should be excluded in the report.
@@ -303,7 +310,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     def diff(self, other_profile, options=None):
         """
-        Generates the differences between the orders of two DataLabeler columns
+        Generate differences between the orders of two DataLabeler columns.
 
         :return: Dict containing the differences between orders in their
         appropriate output formats
@@ -332,8 +339,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         self, df_series, prev_dependent_properties=None, subset_properties=None
     ):
         """
-        Method for updating the column profile properties with a cleaned
-        dataset and the known profile of the dataset.
+        Update col profile properties with clean dataset and its known profile.
 
         :param prev_dependent_properties: Contains all the previous properties
         that the calculations depend on.
@@ -372,7 +378,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     def _update_helper(self, df_series_clean, profile):
         """
-        Updating the column profile properties
+        Update the column profile properties.
 
         :param df_series_clean: df series with nulls removed
         :type df_series_clean: pandas.core.series.Series
@@ -384,7 +390,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     def update(self, df_series):
         """
-        Updates the column profile.
+        Update the column profile.
 
         :param df_series: df series
         :type df_series: pandas.core.series.Series

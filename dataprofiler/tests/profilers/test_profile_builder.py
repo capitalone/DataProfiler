@@ -1927,7 +1927,7 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = StructuredProfiler(pd.DataFrame([]))
         self.assertEqual(0, profiler._get_unique_row_ratio())
 
-    def test_nan_replication_metrics_calculation(self):
+    def test_null_replication_metrics_calculation(self):
         data = pd.DataFrame(
             {
                 "a": [3, 2, np.nan, 7, np.nan],
@@ -1938,22 +1938,17 @@ class TestStructuredProfiler(unittest.TestCase):
         profile_options = dp.ProfilerOptions()
         profile_options.set(
             {
+                "data_labeler.is_enabled": False,
                 "structured_options.multiprocess.is_enabled": False,
-                "synthetic_data.is_enabled": True,
+                "null_replication_metrics.is_enabled": True,
             }
         )
         profiler = dp.StructuredProfiler(data, options=profile_options)
         report = profiler.report()
-        self.assertTrue("synthetic_data" in report)
-        self.assertTrue("nan_replication" in report["synthetic_data"])
 
-        nan_replication_metrics = report["synthetic_data"]["nan_replication"]
-
-        # Length of nan_replication_metrics should be equal to number of columns with NaN values present
-        self.assertTrue(len(nan_replication_metrics) == 1)
-
-        column = nan_replication_metrics[0]
-        self.assertTrue(column["column_name"] == "a")
+        self.assertTrue('null_replication_metrics' in report['data_stats'][0])
+        column = report['data_stats'][0]['null_replication_metrics']
+        
         self.assertTrue(len(column["class_prior"]) == 2)
         self.assertTrue(len(column["class_mean"]) == 2)
 
@@ -1961,11 +1956,11 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertAlmostEqual(column["class_prior"][1], 0.4)
 
         np.testing.assert_array_almost_equal(
-            np.asarray([8, 4]), column["class_mean"][0]
+            [8, 4], column["class_mean"][0]
         )
 
         np.testing.assert_array_almost_equal(
-            np.asarray([1.5, 5]), column["class_mean"][1]
+            [1.5, 5], column["class_mean"][1]
         )
 
         # Test Profile updates
@@ -1979,56 +1974,55 @@ class TestStructuredProfiler(unittest.TestCase):
 
         profiler.update_profile(data_2)
         report = profiler.report()
-        nan_replication_metrics = report["synthetic_data"]["nan_replication"]
-        column = nan_replication_metrics[0]
+        column = report['data_stats'][0]['null_replication_metrics']
 
         self.assertAlmostEqual(column["class_prior"][0], 0.7)
         self.assertAlmostEqual(column["class_prior"][1], 0.3)
         np.testing.assert_array_almost_equal(
-            np.asarray([7.14285714, 3.71428571]), column["class_mean"][0]
+            [7.14285714, 3.71428571], column["class_mean"][0]
         )
 
         np.testing.assert_array_almost_equal(
-            np.asarray([1.33333333, 4.33333333]), column["class_mean"][1]
+            [1.33333333, 4.33333333], column["class_mean"][1]
         )
 
-        column = nan_replication_metrics[2]
+        column = report['data_stats'][2]['null_replication_metrics']
         self.assertAlmostEqual(column["class_prior"][0], 0.8)
         self.assertAlmostEqual(column["class_prior"][1], 0.2)
         np.testing.assert_array_almost_equal(
-            np.asarray([2.5, 7.0]), column["class_mean"][0]
+            [2.5, 7.0], column["class_mean"][0]
         )
 
         np.testing.assert_array_almost_equal(
-            np.asarray([6.0, 3.0]), column["class_mean"][1]
+            [6.0, 3.0], column["class_mean"][1]
         )
 
         # Test Profile merges
         profiler2 = dp.StructuredProfiler(data, options=profile_options)
         merged_profiler = profiler + profiler2
         report = merged_profiler.report()
-        nan_replication_metrics = report["synthetic_data"]["nan_replication"]
-        column = nan_replication_metrics[0]
+        column = report['data_stats'][0]['null_replication_metrics']
 
         self.assertAlmostEqual(column["class_prior"][0], 0.67, delta=0.01)
         self.assertAlmostEqual(column["class_prior"][1], 0.34, delta=0.01)
         np.testing.assert_array_almost_equal(
-            np.asarray([7.4, 3.8]), column["class_mean"][0]
+            [7.4, 3.8], column["class_mean"][0]
         )
 
         np.testing.assert_array_almost_equal(
-            np.asarray([1.4, 4.6]), column["class_mean"][1]
+            [1.4, 4.6], column["class_mean"][1]
         )
 
-        column = nan_replication_metrics[2]
+        column = report['data_stats'][2]['null_replication_metrics']
+
         self.assertAlmostEqual(column["class_prior"][0], 0.87, delta=0.01)
         self.assertAlmostEqual(column["class_prior"][1], 0.13, delta=0.01)
         np.testing.assert_array_almost_equal(
-            np.asarray([2.5, 7.0]), column["class_mean"][0]
+            [2.5, 7.0], column["class_mean"][0]
         )
 
         np.testing.assert_array_almost_equal(
-            np.asarray([6.0, 3.0]), column["class_mean"][1]
+            [6.0, 3.0], column["class_mean"][1]
         )
 
 

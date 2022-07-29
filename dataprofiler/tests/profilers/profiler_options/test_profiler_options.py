@@ -27,7 +27,7 @@ class TestProfilerOptions(unittest.TestCase):
         self.assertTrue(profile.options.data_labeler.is_enabled)
         for column in profile.options.properties:
             # TODO: remove the check for correlation option once it's updated to True
-            if column == "correlation" or column == "synthetic_data":
+            if column == "correlation" or column == "null_replication_metrics":
                 self.assertFalse(profile.options.properties[column].is_enabled)
             elif column == "null_values":
                 self.assertIsNone(profile.options.properties[column])

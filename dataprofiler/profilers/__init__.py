@@ -10,3 +10,4 @@ from .order_column_profile import OrderColumn
 from .profile_builder import Profiler, StructuredProfiler, UnstructuredProfiler
 from .text_column_profile import TextColumn
 from .unstructured_labeler_profile import UnstructuredLabelerProfile
+from .historical_profiler import HistoricalProfiler

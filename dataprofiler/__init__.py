@@ -14,6 +14,7 @@ from .profilers.profile_builder import (
     UnstructuredProfiler,
 )
 from .profilers.profiler_options import ProfilerOptions
+from .profilers.historical_profiler import HistoricalProfiler
 from .reports import graphs
 from .validators.base_validators import Validator
 from .version import __version__

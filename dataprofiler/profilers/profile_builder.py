@@ -2139,8 +2139,9 @@ class StructuredProfiler(BaseProfiler):
         """
         counts = {}
         for col_id in range(len(self._profile)):
-            null_count = getattr(self._profile[col_id], "null_count", 0)
-            sample_size = getattr(self._profile[col_id], "sample_size", 0)
+            compiler = self._profile[col_id]
+            null_count = getattr(compiler, "null_count", 0)
+            sample_size = getattr(compiler, "sample_size", 0)
             counts[col_id] = [null_count, sample_size]
         return counts
 

@@ -1438,6 +1438,9 @@ class StructuredProfiler(BaseProfiler):
         self.correlation_matrix = None
         self.chi2_matrix = None
 
+        # capitalone/synthetic-data specific metrics
+        self._nan_replication_metrics = {}
+
         if data is not None:
             self.update_profile(data)
 
@@ -1522,6 +1525,14 @@ class StructuredProfiler(BaseProfiler):
                 merged_profile.chi2_matrix = None
             else:
                 merged_profile.chi2_matrix = merged_profile._update_chi2()
+
+        if (
+            self.options.synthetic_data.is_enabled
+            and other.options.synthetic_data.is_enabled
+        ):
+            merged_profile._nan_replication_metrics = (
+                self._merge_nan_replication_metrics(other)
+            )
 
         return merged_profile
 
@@ -1739,6 +1750,10 @@ class StructuredProfiler(BaseProfiler):
                 quantiles = calculate_quantiles(num_quantile_groups, quantiles)
                 report["data_stats"][i]["statistics"]["quantiles"] = quantiles
 
+        if self.options.synthetic_data.is_enabled:
+            report["synthetic_data"] = {
+                "nan_replication": self._nan_replication_metrics
+            }
         return _prepare_report(report, output_format, omit_keys)
 
     def _get_unique_row_ratio(self):
@@ -2112,6 +2127,166 @@ class StructuredProfiler(BaseProfiler):
 
         return chi2_mat
 
+    def _get_null_and_sample_count(self):
+        """
+        Gets the null_count and sample_size of each column.
+
+        :return: Dictionary where column id maps to a list of [null_count, sample_size]
+        :rtype: dict
+        """
+        counts = {}
+        for col_id in range(len(self._profile)):
+            null_count = getattr(self._profile[col_id], "null_count", 0)
+            sample_size = getattr(self._profile[col_id], "sample_size", 0)
+            counts[col_id] = [null_count, sample_size]
+        return counts
+
+    def _calc_nan_replication_metrics(self, clean_samples, prev_counts):
+        """
+        Calculate metrics needed for replicating NaN values in capitalone/synthetic-data.
+
+        Metrics include class priors and class specific means of each column.
+
+        Required for running LDA based binary classifier where predicted class label indicates whether
+        a value of a column should be NaN (1) or not (0).
+
+        :param clean_samples: input cleaned dataset
+        :type clean_samples: dict
+        :param prev_counts: null_count and sample_size of each column before update
+        :type prev_counts: dict
+        """
+        if not self.options.synthetic_data.replicate_nan.is_enabled:
+            return
+
+        data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors="coerce")
+
+        for col_id in range(len(self._profile)):
+            null_count = getattr(self._profile[col_id], "null_count")
+            if null_count == 0:
+                # No missing values to replicate
+                continue
+
+            # Calculate class priors
+            # i.e probability that a value in target col is or is not NaN
+            sample_size = getattr(self._profile[col_id], "sample_size")
+            true_count = sample_size - null_count
+
+            # null_count and sample_size get updated on profile_update
+            # Therefore the priors are calculated from the updated values
+            prior_nan = null_count / sample_size
+            prior_not_nan = true_count / sample_size
+
+            # Partition data based on whether target column value is NaN or not
+            col_is_nan = data.iloc[:, col_id].isnull()
+            partition_nan = data[col_is_nan]
+            partition_not_nan = data[~col_is_nan]
+
+            # Drop the target column from partitions
+            partition_nan = partition_nan.drop(columns=col_id)
+            partition_not_nan = partition_not_nan.drop(columns=col_id)
+
+            # Calculate mean vectors of each partition
+            # i.e mean vectors of rows where target col is or is not NaN
+            mean_not_nan, mean_nan = (
+                partition_not_nan.mean().to_numpy(),
+                partition_nan.mean().to_numpy(),
+            )
+
+            # Combine with old means
+            if col_id in self._nan_replication_metrics:
+                prev_null_count, prev_sample_size = prev_counts[col_id]
+                prev_true_count = prev_sample_size - prev_null_count
+
+                # null_count, sample_size and true_count of new data chunk
+                added_null_count, added_sample_size = (
+                    null_count - prev_null_count,
+                    sample_size - prev_sample_size,
+                )
+                added_true_count = added_sample_size - added_null_count
+
+                prev_class_means = self._nan_replication_metrics[col_id]["class_mean"]
+                prev_mean_not_nan, prev_mean_nan = prev_class_means
+
+                mean_not_nan = utils.combine_means(
+                    prev_mean_not_nan, mean_not_nan, prev_true_count, added_true_count
+                )
+                mean_nan = utils.combine_means(
+                    prev_mean_nan, mean_nan, prev_null_count, added_null_count
+                )
+
+            col_name = getattr(self._profile[col_id], "name")
+            self._nan_replication_metrics[col_id] = {
+                "column_name": col_name,
+                # Array index serves as class label
+                # 0 indicates not NaN, 1 indicates NaN
+                "class_prior": [prior_not_nan, prior_nan],
+                "class_mean": [mean_not_nan, mean_nan],
+            }
+
+    def _merge_nan_replication_metrics(self, other):
+        """
+        Merge NaN replication metrics between two data profiles
+
+        :param other: profile being added to this one.
+        :type other: StructuredProfiler
+        :return: merged nan replication metrics
+        :rtype: dict
+        """
+
+        if (
+            not self.options.synthetic_data.replicate_nan.is_enabled
+            or not other.options.synthetic_data.replicate_nan.is_enabled
+        ):
+            return {}
+
+        merged_properties = {}
+        for col_id in range(len(self._profile)):
+            self_null_count = getattr(self._profile[col_id], "null_count")
+            other_null_count = getattr(other._profile[col_id], "null_count")
+            null_count = self_null_count + other_null_count
+            if null_count == 0:
+                continue
+
+            merged_properties[col_id] = {}
+            self_sample_size = getattr(self._profile[col_id], "sample_size")
+            other_sample_size = getattr(other._profile[col_id], "sample_size")
+            sample_size = self_sample_size + other_sample_size
+            true_count = sample_size - null_count
+
+            prior_nan = null_count / sample_size
+            prior_not_nan = true_count / sample_size
+
+            merged_properties[col_id]["class_prior"] = [prior_not_nan, prior_nan]
+
+            col_name = getattr(self._profile[col_id], "name")
+            merged_properties[col_id]["column_name"] = col_name
+
+            # 'if null_count == 0' check guarantees that either self or other has _nan_replication_metrics for col_id
+            if col_id not in self._nan_replication_metrics:
+                other_mean = other._nan_replication_metrics[col_id]["class_mean"]
+                merged_properties[col_id]["class_mean"] = other_mean
+
+            elif col_id not in other._nan_replication_metrics:
+                self_mean = self._nan_replication_metrics[col_id]["class_mean"]
+                merged_properties[col_id]["class_mean"] = self_mean
+
+            else:
+                self_true_count = self_sample_size - self_null_count
+                other_true_count = other_sample_size - other_null_count
+
+                self_mean = self._nan_replication_metrics[col_id]["class_mean"]
+                other_mean = other._nan_replication_metrics[col_id]["class_mean"]
+
+                mean_not_nan = utils.combine_means(
+                    self_mean[0], other_mean[0], self_true_count, other_true_count
+                )
+                mean_nan = utils.combine_means(
+                    self_mean[1], other_mean[1], self_null_count, other_null_count
+                )
+                merged_properties[col_id]["class_mean"] = [mean_not_nan, mean_nan]
+
+        return merged_properties
+
     def _update_profile_from_chunk(self, data, sample_size, min_true_samples=None):
         """
         Iterate over the columns of a dataset and identify its parameters.
@@ -2178,6 +2353,10 @@ class StructuredProfiler(BaseProfiler):
         # Record the previous mean/std values of columns that need to
         # have correlation updated.
         corr_prev_dependent_properties = self._get_correlation_dependent_properties()
+
+        # Record previous null_count, sample_size of each column
+        # For updating self._nan_replication_metrics
+        prev_null_and_sample_count = self._get_null_and_sample_count()
 
         # Create StructuredColProfilers upon initialization
         # Record correlation between columns in data and index in _profile
@@ -2330,6 +2509,12 @@ class StructuredProfiler(BaseProfiler):
         if self.options.chi2_homogeneity.is_enabled:
             self.chi2_matrix = self._update_chi2()
         self._update_row_statistics(data, samples_for_row_stats)
+
+        # Calculate metrics specific to capitalone/synthetic-data
+        if self.options.synthetic_data.is_enabled:
+            self._calc_nan_replication_metrics(
+                clean_sampled_dict, prev_null_and_sample_count
+            )
 
     def save(self, filepath=None):
         """

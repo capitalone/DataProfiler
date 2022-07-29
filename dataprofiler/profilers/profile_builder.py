@@ -2139,9 +2139,9 @@ class StructuredProfiler(BaseProfiler):
         """
         counts = {}
         for col_id in range(len(self._profile)):
-            compiler = self._profile[col_id]
-            null_count = getattr(compiler, "null_count", 0)
-            sample_size = getattr(compiler, "sample_size", 0)
+            profile = self._profile[col_id]
+            null_count = getattr(profile, "null_count", 0)
+            sample_size = getattr(profile, "sample_size", 0)
             counts[col_id] = [null_count, sample_size]
         return counts
 
@@ -2162,15 +2162,15 @@ class StructuredProfiler(BaseProfiler):
         data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors="coerce")
 
         for col_id in range(len(self._profile)):
-            compiler = self._profile[col_id]
-            null_count = getattr(compiler, "null_count")
+            profile = self._profile[col_id]
+            null_count = getattr(profile, "null_count")
             if null_count == 0:
                 # No missing values to replicate
                 continue
 
             # Calculate class priors
             # i.e probability that a value in target col is or is not NaN
-            sample_size = getattr(compiler, "sample_size")
+            sample_size = getattr(profile, "sample_size")
             true_count = sample_size - null_count
 
             # null_count and sample_size get updated on profile_update
@@ -2234,18 +2234,18 @@ class StructuredProfiler(BaseProfiler):
         """
         merged_properties = {}
         for col_id in range(len(self._profile)):
-            self_compiler = self._profile[col_id]
-            other_compiler = other._profile[col_id]
+            self_profile = self._profile[col_id]
+            other_profile = other._profile[col_id]
 
-            self_null_count = getattr(self_compiler, "null_count")
-            other_null_count = getattr(other_compiler, "null_count")
+            self_null_count = getattr(self_profile, "null_count")
+            other_null_count = getattr(other_profile, "null_count")
             null_count = self_null_count + other_null_count
             if null_count == 0:
                 continue
 
             merged_properties[col_id] = {}
-            self_sample_size = getattr(self_compiler, "sample_size")
-            other_sample_size = getattr(other_compiler, "sample_size")
+            self_sample_size = getattr(self_profile, "sample_size")
+            other_sample_size = getattr(other_profile, "sample_size")
             sample_size = self_sample_size + other_sample_size
             true_count = sample_size - null_count
 

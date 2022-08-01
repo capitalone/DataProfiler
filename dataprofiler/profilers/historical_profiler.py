@@ -1,6 +1,7 @@
 """Build a collection of Profiles on same dataset over time."""
 import copy
 import datetime
+import warnings
 from queue import Queue
 from typing import List
 
@@ -109,7 +110,7 @@ class HistoricalProfiler:
             if key in self.options["exclude_keys"]:
                 continue
             if key not in values_dict:
-                print(
+                warnings.warn(
                     "'{}' key expected, but not contained in provided profile".format(
                         key
                     )
@@ -249,7 +250,7 @@ class HistoricalProfiler:
             if key in self.options["exclude_keys"]:
                 continue
             if key not in values_dict:
-                print(
+                warnings.warn(
                     "'{}' key expected but not contained in provided profile".format(
                         key
                     )

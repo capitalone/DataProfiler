@@ -8,13 +8,13 @@ from .labelers.data_labelers import (
     UnstructuredDataLabeler,
     train_structured_labeler,
 )
+from .profilers.historical_profiler import HistoricalProfiler
 from .profilers.profile_builder import (
     Profiler,
     StructuredProfiler,
     UnstructuredProfiler,
 )
 from .profilers.profiler_options import ProfilerOptions
-from .profilers.historical_profiler import HistoricalProfiler
 from .reports import graphs
 from .validators.base_validators import Validator
 from .version import __version__

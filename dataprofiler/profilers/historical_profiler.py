@@ -7,6 +7,8 @@ from typing import List
 
 import numpy as np
 
+import dataprofiler as dp
+
 from .profile_builder import Profiler
 from .utils import (
     find_diff_of_dates,
@@ -49,6 +51,12 @@ class HistoricalProfiler:
             raise ValueError(
                 "'profiles' is empty. At least one Profiler object is required"
             )
+        for profile in profiles:
+            # Only supports structured profiles for now
+            if not isinstance(profile, dp.StructuredProfiler):
+                raise ValueError(
+                    "`profiles` has profile not of type `StructuredProfiler`."
+                )
 
         profile_q = Queue(maxsize=0)
         for i in range(len(profiles) - 1, -1, -1):
@@ -165,6 +173,7 @@ class HistoricalProfiler:
         if not remove_oldest:
             self.length += 1
 
+    @classmethod
     def historical_profiler_options(self):
         """Return the default options for the HistoricalProfiler."""
         default_opts = {

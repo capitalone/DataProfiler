@@ -1439,7 +1439,7 @@ class StructuredProfiler(BaseProfiler):
         self.chi2_matrix = None
 
         # capitalone/synthetic-data specific metrics
-        self._null_replication_metrics = dict()
+        self._null_replication_metrics = None
 
         if data is not None:
             self.update_profile(data)
@@ -2153,6 +2153,9 @@ class StructuredProfiler(BaseProfiler):
             [get_data_type_profiler(profile).sum for profile in self._profile]
         )
 
+        if self._null_replication_metrics is None:
+            self._null_replication_metrics = dict()
+
         for col_id, profile in enumerate(self._profile):
             null_count = getattr(profile, "null_count")
             if null_count == 0:
@@ -2170,11 +2173,11 @@ class StructuredProfiler(BaseProfiler):
             # Gets list of null indices of the entire dataset
             null_type_dict = getattr(profile, "null_types_index")
             null_indices = set.union(*null_type_dict.values())
-            null_indices = np.asarray(list(null_indices))
+            null_indices = list(null_indices)
 
             # Keep only the null indices inside the chunk (reverse index shift)
             if profile._index_shift is not None:
-                null_indices -= profile._index_shift
+                null_indices = [index - profile._index_shift for index in null_indices]
                 null_indices = [index for index in null_indices if index >= 0]
 
             # Partition data based on whether target column value is null or not
@@ -2202,9 +2205,9 @@ class StructuredProfiler(BaseProfiler):
             mean_null = mean_null.tolist()
             mean_not_null = mean_not_null.tolist()
 
+            # Array index serves as class label
+            # 0 indicates not null, 1 indicates null
             self._null_replication_metrics[col_id] = {
-                # Array index serves as class label
-                # 0 indicates not null, 1 indicates null
                 "class_prior": [prior_not_null, prior_null],
                 "class_sum": [sum_not_null, sum_null],
                 "class_mean": [mean_not_null, mean_null],

@@ -2153,7 +2153,7 @@ class StructuredProfiler(BaseProfiler):
             [get_data_type_profiler(profile).sum for profile in self._profile]
         )
 
-        if self._null_replication_metrics is None:
+        if not isinstance(self._null_replication_metrics, dict):
             self._null_replication_metrics = dict()
 
         for col_id, profile in enumerate(self._profile):

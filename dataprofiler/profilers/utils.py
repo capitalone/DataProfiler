@@ -759,22 +759,3 @@ def merge_profile_list(list_of_profiles, pool_count=5):
 
     list_of_profiles[0]._restore_data_labelers(data_labeler)
     return list_of_profiles[0]
-
-
-def combine_means(mean1, mean2, n1, n2):
-    """Combine two mean vectors
-
-    :param mean1: First mean vector
-    :type mean1: list
-    :param mean2: Second mean vector
-    :type mean2: list
-    :param n1: Number of samples mean1 was calculated from
-    :type n1: int
-    :param n2: Number of samples mean2 was calculated from
-    :type n2: int
-    :return: Combined mean vector
-    :rtype: list
-    """
-    mean1, mean2 = np.asarray(mean1), np.asarray(mean2)
-    result = (mean1 * n1 + mean2 * n2) / (n1 + n2)
-    return result.tolist()

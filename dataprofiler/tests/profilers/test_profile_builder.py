@@ -1952,12 +1952,13 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertTrue(len(column["class_prior"]) == 2)
         self.assertTrue(len(column["class_mean"]) == 2)
 
-        self.assertAlmostEqual(column["class_prior"][0], 0.6)
-        self.assertAlmostEqual(column["class_prior"][1], 0.4)
+        np.testing.assert_array_almost_equal([3 / 5, 2 / 5], column["class_prior"])
 
-        np.testing.assert_array_almost_equal([8, 4], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([24, 12], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([3, 10], column["class_sum"][1])
 
-        np.testing.assert_array_almost_equal([1.5, 5], column["class_mean"][1])
+        np.testing.assert_array_almost_equal([24 / 3, 12 / 3], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([3 / 2, 10 / 2], column["class_mean"][1])
 
         # Test Profile updates
         data_2 = pd.DataFrame(
@@ -1972,22 +1973,22 @@ class TestStructuredProfiler(unittest.TestCase):
         report = profiler.report()
         column = report["data_stats"][0]["null_replication_metrics"]
 
-        self.assertAlmostEqual(column["class_prior"][0], 0.7)
-        self.assertAlmostEqual(column["class_prior"][1], 0.3)
-        np.testing.assert_array_almost_equal(
-            [7.14285714, 3.71428571], column["class_mean"][0]
-        )
+        np.testing.assert_array_almost_equal([7 / 10, 3 / 10], column["class_prior"])
 
-        np.testing.assert_array_almost_equal(
-            [1.33333333, 4.33333333], column["class_mean"][1]
-        )
+        np.testing.assert_array_almost_equal([50, 19], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([4, 13], column["class_sum"][1])
+
+        np.testing.assert_array_almost_equal([50 / 7, 19 / 7], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([4 / 3, 13 / 3], column["class_mean"][1])
 
         column = report["data_stats"][2]["null_replication_metrics"]
-        self.assertAlmostEqual(column["class_prior"][0], 0.8)
-        self.assertAlmostEqual(column["class_prior"][1], 0.2)
-        np.testing.assert_array_almost_equal([2.5, 7.0], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([8 / 10, 2 / 10], column["class_prior"])
 
-        np.testing.assert_array_almost_equal([6.0, 3.0], column["class_mean"][1])
+        np.testing.assert_array_almost_equal([17, 48], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([12, 6], column["class_sum"][1])
+
+        np.testing.assert_array_almost_equal([17 / 8, 48 / 8], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([12 / 2, 6 / 2], column["class_mean"][1])
 
         # Test Profile merges
         profiler2 = dp.StructuredProfiler(data, options=profile_options)
@@ -1995,19 +1996,27 @@ class TestStructuredProfiler(unittest.TestCase):
         report = merged_profiler.report()
         column = report["data_stats"][0]["null_replication_metrics"]
 
-        self.assertAlmostEqual(column["class_prior"][0], 0.67, delta=0.01)
-        self.assertAlmostEqual(column["class_prior"][1], 0.34, delta=0.01)
-        np.testing.assert_array_almost_equal([7.4, 3.8], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([10 / 15, 5 / 15], column["class_prior"])
 
-        np.testing.assert_array_almost_equal([1.4, 4.6], column["class_mean"][1])
+        np.testing.assert_array_almost_equal([74, 31], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([7, 23], column["class_sum"][1])
+
+        np.testing.assert_array_almost_equal(
+            [74 / 10, 31 / 10], column["class_mean"][0]
+        )
+        np.testing.assert_array_almost_equal([7 / 5, 23 / 5], column["class_mean"][1])
 
         column = report["data_stats"][2]["null_replication_metrics"]
 
-        self.assertAlmostEqual(column["class_prior"][0], 0.87, delta=0.01)
-        self.assertAlmostEqual(column["class_prior"][1], 0.13, delta=0.01)
-        np.testing.assert_array_almost_equal([2.5, 7.0], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([13 / 15, 2 / 15], column["class_prior"])
 
-        np.testing.assert_array_almost_equal([6.0, 3.0], column["class_mean"][1])
+        np.testing.assert_array_almost_equal([29, 75], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([12, 6], column["class_sum"][1])
+
+        np.testing.assert_array_almost_equal(
+            [29 / 13, 75 / 13], column["class_mean"][0]
+        )
+        np.testing.assert_array_almost_equal([12 / 2, 6 / 2], column["class_mean"][1])
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):

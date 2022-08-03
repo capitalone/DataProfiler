@@ -1156,6 +1156,8 @@ class StructuredOptions(BaseOption):
         :vartype correlation: CorrelationOptions
         :ivar chi2_homogeneity: option set for chi2_homogeneity matrix
         :vartype chi2_homogeneity: BooleanOption()
+        :ivar null_replication_metrics: option set for metrics calculation for replicating nan values in synthetic-data
+        :vartype null_replication_metrics: BooleanOptions
         :ivar null_values: option set for defined null values
         :vartype null_values: Union[None, dict]
         """
@@ -1170,6 +1172,7 @@ class StructuredOptions(BaseOption):
         self.data_labeler = DataLabelerOptions()
         self.correlation = CorrelationOptions()
         self.chi2_homogeneity = BooleanOption(is_enabled=True)
+        self.null_replication_metrics = BooleanOption(is_enabled=False)
         # Non-Option variables
         self.null_values = null_values
 
@@ -1211,6 +1214,7 @@ class StructuredOptions(BaseOption):
                 ("data_labeler", DataLabelerOptions),
                 ("correlation", CorrelationOptions),
                 ("chi2_homogeneity", BooleanOption),
+                ("null_replication_metrics", BooleanOption),
             ]
         )
         properties = self.properties

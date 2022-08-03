@@ -2132,9 +2132,12 @@ class StructuredProfiler(BaseProfiler):
 
     def _update_null_replication_metrics(self, clean_samples):
         """
-        Calculate metrics needed for replicating null values in capitalone/synthetic-data.
+        Calculate metrics needed for replicating null values.
 
-        Required for running LDA based binary classifier where predicted class label indicates whether
+        The replication of null values occurs in  in capitalone/synthetic-data.
+
+        Required for running LDA based binary classifier
+        where predicted class label indicates whether
         a value of a column should be NaN (1) or not (0).
 
         :param clean_samples: input cleaned dataset
@@ -2142,10 +2145,10 @@ class StructuredProfiler(BaseProfiler):
         """
         data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors="coerce")
 
-        get_data_type = lambda profile: profile.profiles[
+        get_data_type = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
         ].selected_data_type
-        get_data_type_profiler = lambda profile: profile.profiles[
+        get_data_type_profiler = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
         ]._profiles[get_data_type(profile)]
 
@@ -2181,7 +2184,8 @@ class StructuredProfiler(BaseProfiler):
                 null_indices = [index for index in null_indices if index >= 0]
 
             # Partition data based on whether target column value is null or not
-            # Calculate sum, mean of each partition without including current column in calculation
+            # Calculate sum, mean of each partition without including current column
+            # in calculation
             sum_null = data.iloc[null_indices, data.columns != col_id].sum().to_numpy()
 
             # Add old sum_null if exists
@@ -2215,17 +2219,17 @@ class StructuredProfiler(BaseProfiler):
 
     def _merge_null_replication_metrics(self, other):
         """
-        Merge null replication metrics between two data profiles
+        Merge null replication metrics between two data profiles.
 
         :param other: profile being added to this one.
         :type other: StructuredProfiler
         :return: merged null replication metrics
         :rtype: dict
         """
-        get_data_type = lambda profile: profile.profiles[
+        get_data_type = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
         ].selected_data_type
-        get_data_type_profiler = lambda profile: profile.profiles[
+        get_data_type_profiler = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
         ]._profiles[get_data_type(profile)]
 
@@ -2269,7 +2273,7 @@ class StructuredProfiler(BaseProfiler):
             sum_null = np.zeros(len(self._profile) - 1)
 
             # Add sum_nulls if they exist
-            # if null_count == 0 guarantees that at least one of self_sum_null, other_sum_null is not None
+            # Guarantees that at least one of self_sum_null, other_sum_null != None
             if self_sum_null is not None:
                 sum_null += np.asarray(self_sum_null)
 

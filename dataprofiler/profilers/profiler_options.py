@@ -1156,7 +1156,8 @@ class StructuredOptions(BaseOption):
         :vartype correlation: CorrelationOptions
         :ivar chi2_homogeneity: option set for chi2_homogeneity matrix
         :vartype chi2_homogeneity: BooleanOption()
-        :ivar null_replication_metrics: option set for metrics calculation for replicating nan values in synthetic-data
+        :ivar null_replication_metrics: option set for metrics
+            calculation for replicating nan vals
         :vartype null_replication_metrics: BooleanOptions
         :ivar null_values: option set for defined null values
         :vartype null_values: Union[None, dict]

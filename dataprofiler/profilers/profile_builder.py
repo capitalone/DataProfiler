@@ -1438,6 +1438,9 @@ class StructuredProfiler(BaseProfiler):
         self.correlation_matrix = None
         self.chi2_matrix = None
 
+        # capitalone/synthetic-data specific metrics
+        self._null_replication_metrics = None
+
         if data is not None:
             self.update_profile(data)
 
@@ -1522,6 +1525,14 @@ class StructuredProfiler(BaseProfiler):
                 merged_profile.chi2_matrix = None
             else:
                 merged_profile.chi2_matrix = merged_profile._update_chi2()
+
+        if (
+            self.options.null_replication_metrics.is_enabled
+            and other.options.null_replication_metrics.is_enabled
+        ):
+            merged_profile._null_replication_metrics = (
+                self._merge_null_replication_metrics(other)
+            )
 
         return merged_profile
 
@@ -1738,6 +1749,13 @@ class StructuredProfiler(BaseProfiler):
             if quantiles:
                 quantiles = calculate_quantiles(num_quantile_groups, quantiles)
                 report["data_stats"][i]["statistics"]["quantiles"] = quantiles
+            if (
+                self.options.null_replication_metrics.is_enabled
+                and i in self._null_replication_metrics
+            ):
+                report["data_stats"][i][
+                    "null_replication_metrics"
+                ] = self._null_replication_metrics[i]
 
         return _prepare_report(report, output_format, omit_keys)
 
@@ -2112,6 +2130,174 @@ class StructuredProfiler(BaseProfiler):
 
         return chi2_mat
 
+    def _update_null_replication_metrics(self, clean_samples):
+        """
+        Calculate metrics needed for replicating null values in capitalone/synthetic-data.
+
+        Required for running LDA based binary classifier where predicted class label indicates whether
+        a value of a column should be NaN (1) or not (0).
+
+        :param clean_samples: input cleaned dataset
+        :type clean_samples: dict
+        """
+        data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors="coerce")
+
+        get_data_type = lambda profile: profile.profiles[
+            "data_type_profile"
+        ].selected_data_type
+        get_data_type_profiler = lambda profile: profile.profiles[
+            "data_type_profile"
+        ]._profiles[get_data_type(profile)]
+
+        total_row_sum = np.asarray(
+            [get_data_type_profiler(profile).sum for profile in self._profile]
+        )
+
+        if not isinstance(self._null_replication_metrics, dict):
+            self._null_replication_metrics = dict()
+
+        for col_id, profile in enumerate(self._profile):
+            null_count = getattr(profile, "null_count")
+            if null_count == 0:
+                # No missing values to replicate
+                continue
+
+            sample_size = getattr(profile, "sample_size")
+            true_count = sample_size - null_count
+
+            # null_count and sample_size get updated on profile_update
+            # Therefore the priors are calculated from the updated values
+            prior_null = null_count / sample_size
+            prior_not_null = true_count / sample_size
+
+            # Gets list of null indices of the entire dataset
+            null_type_dict = getattr(profile, "null_types_index")
+            null_indices = set.union(*null_type_dict.values())
+            null_indices = list(null_indices)
+
+            # Keep only the null indices inside the chunk (reverse index shift)
+            if profile._index_shift is not None:
+                null_indices = [index - profile._index_shift for index in null_indices]
+                null_indices = [index for index in null_indices if index >= 0]
+
+            # Partition data based on whether target column value is null or not
+            # Calculate sum, mean of each partition without including current column in calculation
+            sum_null = data.iloc[null_indices, data.columns != col_id].sum().to_numpy()
+
+            # Add old sum_null if exists
+            if col_id in self._null_replication_metrics:
+                old_class_sum = self._null_replication_metrics[col_id]["class_sum"]
+                old_sum_null = old_class_sum[1]
+
+                # np.array for element wise addition
+                old_sum_null = np.asarray(old_sum_null)
+                sum_null += old_sum_null
+
+            sum_not_null = np.delete(total_row_sum, col_id) - sum_null
+
+            mean_null = sum_null / null_count
+            mean_not_null = sum_not_null / true_count
+
+            # Convert numpy arrays to lists (serializable)
+            sum_null = sum_null.tolist()
+            sum_not_null = sum_not_null.tolist()
+
+            mean_null = mean_null.tolist()
+            mean_not_null = mean_not_null.tolist()
+
+            # Array index serves as class label
+            # 0 indicates not null, 1 indicates null
+            self._null_replication_metrics[col_id] = {
+                "class_prior": [prior_not_null, prior_null],
+                "class_sum": [sum_not_null, sum_null],
+                "class_mean": [mean_not_null, mean_null],
+            }
+
+    def _merge_null_replication_metrics(self, other):
+        """
+        Merge null replication metrics between two data profiles
+
+        :param other: profile being added to this one.
+        :type other: StructuredProfiler
+        :return: merged null replication metrics
+        :rtype: dict
+        """
+        get_data_type = lambda profile: profile.profiles[
+            "data_type_profile"
+        ].selected_data_type
+        get_data_type_profiler = lambda profile: profile.profiles[
+            "data_type_profile"
+        ]._profiles[get_data_type(profile)]
+
+        self_row_sum = np.asarray(
+            [get_data_type_profiler(profile).sum for profile in self._profile]
+        )
+        other_row_sum = np.asarray(
+            [get_data_type_profiler(profile).sum for profile in other._profile]
+        )
+        total_row_sum = self_row_sum + other_row_sum
+        merged_properties = defaultdict(dict)
+        for col_id in range(len(self._profile)):
+            self_profile = self._profile[col_id]
+            other_profile = other._profile[col_id]
+
+            self_null_count = getattr(self_profile, "null_count")
+            other_null_count = getattr(other_profile, "null_count")
+            null_count = self_null_count + other_null_count
+            if null_count == 0:
+                continue
+
+            self_sample_size = getattr(self_profile, "sample_size")
+            other_sample_size = getattr(other_profile, "sample_size")
+            sample_size = self_sample_size + other_sample_size
+            true_count = sample_size - null_count
+
+            prior_null = null_count / sample_size
+            prior_not_null = true_count / sample_size
+
+            self_sum_null = (
+                self._null_replication_metrics[col_id]["class_sum"][1]
+                if col_id in self._null_replication_metrics
+                else None
+            )
+            other_sum_null = (
+                other._null_replication_metrics[col_id]["class_sum"][1]
+                if col_id in other._null_replication_metrics
+                else None
+            )
+            # Initialize zeros array of size (number of columns - 1)
+            sum_null = np.zeros(len(self._profile) - 1)
+
+            # Add sum_nulls if they exist
+            # if null_count == 0 guarantees that at least one of self_sum_null, other_sum_null is not None
+            if self_sum_null is not None:
+                sum_null += np.asarray(self_sum_null)
+
+            if other_sum_null is not None:
+                sum_null += np.asarray(other_sum_null)
+
+            sum_not_null = np.delete(total_row_sum, col_id) - sum_null
+
+            mean_null = sum_null / null_count
+            mean_not_null = sum_not_null / true_count
+
+            # Convert numpy arrays to lists (serializable)
+            sum_null = sum_null.tolist()
+            sum_not_null = sum_not_null.tolist()
+
+            mean_null = mean_null.tolist()
+            mean_not_null = mean_not_null.tolist()
+
+            merged_properties[col_id] = {
+                # Array index serves as class label
+                # 0 indicates not null, 1 indicates null
+                "class_prior": [prior_not_null, prior_null],
+                "class_sum": [sum_not_null, sum_null],
+                "class_mean": [mean_not_null, mean_null],
+            }
+
+        return merged_properties
+
     def _update_profile_from_chunk(self, data, sample_size, min_true_samples=None):
         """
         Iterate over the columns of a dataset and identify its parameters.
@@ -2330,6 +2516,10 @@ class StructuredProfiler(BaseProfiler):
         if self.options.chi2_homogeneity.is_enabled:
             self.chi2_matrix = self._update_chi2()
         self._update_row_statistics(data, samples_for_row_stats)
+
+        # Calculate metrics specific to capitalone/synthetic-data
+        if self.options.null_replication_metrics.is_enabled:
+            self._update_null_replication_metrics(clean_sampled_dict)
 
     def save(self, filepath=None):
         """

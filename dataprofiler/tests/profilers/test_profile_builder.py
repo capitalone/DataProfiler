@@ -1927,6 +1927,93 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = StructuredProfiler(pd.DataFrame([]))
         self.assertEqual(0, profiler._get_unique_row_ratio())
 
+    def test_null_replication_metrics_calculation(self):
+        data = pd.DataFrame(
+            {
+                "a": [3, 2, np.nan, 7, None],
+                "b": [10, 10, 1, 4, 2],
+                "c": [2, 5, 3, 5, 7],
+            }
+        )
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "data_labeler.is_enabled": False,
+                "structured_options.multiprocess.is_enabled": False,
+                "null_replication_metrics.is_enabled": True,
+            }
+        )
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        report = profiler.report()
+
+        self.assertTrue("null_replication_metrics" in report["data_stats"][0])
+        column = report["data_stats"][0]["null_replication_metrics"]
+
+        self.assertTrue(len(column["class_prior"]) == 2)
+        self.assertTrue(len(column["class_mean"]) == 2)
+
+        np.testing.assert_array_almost_equal([3 / 5, 2 / 5], column["class_prior"])
+
+        np.testing.assert_array_almost_equal([24, 12], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([3, 10], column["class_sum"][1])
+
+        np.testing.assert_array_almost_equal([24 / 3, 12 / 3], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([3 / 2, 10 / 2], column["class_mean"][1])
+
+        # Test Profile merges
+        data_2 = pd.DataFrame(
+            {
+                "a": [3, 2, "null", 7, 5],
+                "b": [10, 10, 1, 4, 2],
+                "c": [2, 5, 3, "", np.nan],
+            }
+        )
+
+        profiler_2 = dp.StructuredProfiler(data_2, options=profile_options)
+        merged_profiler = profiler + profiler_2
+        report = merged_profiler.report()
+
+        column = report["data_stats"][0]["null_replication_metrics"]
+
+        np.testing.assert_array_almost_equal([7 / 10, 3 / 10], column["class_prior"])
+
+        np.testing.assert_array_almost_equal([50, 19], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([4, 13], column["class_sum"][1])
+
+        np.testing.assert_array_almost_equal([50 / 7, 19 / 7], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([4 / 3, 13 / 3], column["class_mean"][1])
+
+        column = report["data_stats"][2]["null_replication_metrics"]
+        np.testing.assert_array_almost_equal([8 / 10, 2 / 10], column["class_prior"])
+
+        np.testing.assert_array_almost_equal([17, 48], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([12, 6], column["class_sum"][1])
+
+        np.testing.assert_array_almost_equal([17 / 8, 48 / 8], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([12 / 2, 6 / 2], column["class_mean"][1])
+
+        # Test Profile updates
+        profiler.update_profile(data_2)
+        report = profiler.report()
+        column = report["data_stats"][0]["null_replication_metrics"]
+
+        np.testing.assert_array_almost_equal([7 / 10, 3 / 10], column["class_prior"])
+
+        np.testing.assert_array_almost_equal([50, 19], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([4, 13], column["class_sum"][1])
+
+        np.testing.assert_array_almost_equal([50 / 7, 19 / 7], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([4 / 3, 13 / 3], column["class_mean"][1])
+
+        column = report["data_stats"][2]["null_replication_metrics"]
+        np.testing.assert_array_almost_equal([8 / 10, 2 / 10], column["class_prior"])
+
+        np.testing.assert_array_almost_equal([17, 48], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([12, 6], column["class_sum"][1])
+
+        np.testing.assert_array_almost_equal([17 / 8, 48 / 8], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([12 / 2, 6 / 2], column["class_mean"][1])
+
 
 class TestStructuredColProfilerClass(unittest.TestCase):
     def setUp(self):

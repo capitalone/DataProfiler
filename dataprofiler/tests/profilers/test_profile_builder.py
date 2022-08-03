@@ -1930,7 +1930,7 @@ class TestStructuredProfiler(unittest.TestCase):
     def test_null_replication_metrics_calculation(self):
         data = pd.DataFrame(
             {
-                "a": [3, 2, np.nan, 7, np.nan],
+                "a": [3, 2, np.nan, 7, None],
                 "b": [10, 10, 1, 4, 2],
                 "c": [2, 5, 3, 5, 7],
             }
@@ -1960,17 +1960,19 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal([24 / 3, 12 / 3], column["class_mean"][0])
         np.testing.assert_array_almost_equal([3 / 2, 10 / 2], column["class_mean"][1])
 
-        # Test Profile updates
+        # Test Profile merges
         data_2 = pd.DataFrame(
             {
-                "a": [3, 2, np.nan, 7, 5],
+                "a": [3, 2, "null", 7, 5],
                 "b": [10, 10, 1, 4, 2],
-                "c": [2, 5, 3, np.nan, np.nan],
+                "c": [2, 5, 3, "", np.nan],
             }
         )
 
-        profiler.update_profile(data_2)
-        report = profiler.report()
+        profiler_2 = dp.StructuredProfiler(data_2, options=profile_options)
+        merged_profiler = profiler + profiler_2
+        report = merged_profiler.report()
+
         column = report["data_stats"][0]["null_replication_metrics"]
 
         np.testing.assert_array_almost_equal([7 / 10, 3 / 10], column["class_prior"])
@@ -1990,32 +1992,26 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal([17 / 8, 48 / 8], column["class_mean"][0])
         np.testing.assert_array_almost_equal([12 / 2, 6 / 2], column["class_mean"][1])
 
-        # Test Profile merges
-        profiler2 = dp.StructuredProfiler(data, options=profile_options)
-        merged_profiler = profiler + profiler2
-        report = merged_profiler.report()
+        # Test Profile updates
+        profiler.update_profile(data_2)
+        report = profiler.report()
         column = report["data_stats"][0]["null_replication_metrics"]
 
-        np.testing.assert_array_almost_equal([10 / 15, 5 / 15], column["class_prior"])
+        np.testing.assert_array_almost_equal([7 / 10, 3 / 10], column["class_prior"])
 
-        np.testing.assert_array_almost_equal([74, 31], column["class_sum"][0])
-        np.testing.assert_array_almost_equal([7, 23], column["class_sum"][1])
+        np.testing.assert_array_almost_equal([50, 19], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([4, 13], column["class_sum"][1])
 
-        np.testing.assert_array_almost_equal(
-            [74 / 10, 31 / 10], column["class_mean"][0]
-        )
-        np.testing.assert_array_almost_equal([7 / 5, 23 / 5], column["class_mean"][1])
+        np.testing.assert_array_almost_equal([50 / 7, 19 / 7], column["class_mean"][0])
+        np.testing.assert_array_almost_equal([4 / 3, 13 / 3], column["class_mean"][1])
 
         column = report["data_stats"][2]["null_replication_metrics"]
+        np.testing.assert_array_almost_equal([8 / 10, 2 / 10], column["class_prior"])
 
-        np.testing.assert_array_almost_equal([13 / 15, 2 / 15], column["class_prior"])
-
-        np.testing.assert_array_almost_equal([29, 75], column["class_sum"][0])
+        np.testing.assert_array_almost_equal([17, 48], column["class_sum"][0])
         np.testing.assert_array_almost_equal([12, 6], column["class_sum"][1])
 
-        np.testing.assert_array_almost_equal(
-            [29 / 13, 75 / 13], column["class_mean"][0]
-        )
+        np.testing.assert_array_almost_equal([17 / 8, 48 / 8], column["class_mean"][0])
         np.testing.assert_array_almost_equal([12 / 2, 6 / 2], column["class_mean"][1])
 
 

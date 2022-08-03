@@ -2134,6 +2134,8 @@ class StructuredProfiler(BaseProfiler):
         """
         Calculate metrics needed for replicating null values.
 
+        The replication of null values occurs in  in capitalone/synthetic-data.
+
         Required for running LDA based binary classifier
         where predicted class label indicates whether
         a value of a column should be NaN (1) or not (0).
@@ -2183,6 +2185,7 @@ class StructuredProfiler(BaseProfiler):
 
             # Partition data based on whether target column value is null or not
             # Calculate sum, mean of each partition without including current column
+            # in calculation
             sum_null = data.iloc[null_indices, data.columns != col_id].sum().to_numpy()
 
             # Add old sum_null if exists

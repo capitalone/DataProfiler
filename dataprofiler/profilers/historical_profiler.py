@@ -507,8 +507,37 @@ class HistoricalProfiler:
         """Return the number of profiles stored in this Object."""
         return self.length
 
+    def get_numeric_statistic_keys(self):
+        """Return default numeric statistic keys."""
+        keys = [
+            "min",
+            "max",
+            "sum",
+            "mean",
+            "median",
+            "median_absolute_deviation",
+            "variance",
+            "stddev",
+            "unique_count",
+            "unique_ratio",
+            "gini_impurity",
+            "unalikeability",
+            "sample_size",
+            "null_count",
+        ]
+        return keys
+
+    def get_numeric_column_names(self):
+        """Return names of numeric columns."""
+        data_stats = self.historical_profile["data_stats"]
+        numeric_columns = []
+        for col in data_stats:
+            if col["data_type"][0] == "int" or col["data_type"][0] == "float":
+                numeric_columns.append(col["column_name"][0])
+        return numeric_columns
+
     def get_statistics_limit_check_report_keys(
-        self, report_dict: dict, keys: list, exclude_columns: list = []
+        self, report_dict: dict, include_keys: list = None, include_columns: list = None
     ):
         """
         Convert the report_dict into a limit_check_report_keys format.
@@ -524,20 +553,25 @@ class HistoricalProfiler:
         if "data_stats" not in report_dict:
             raise KeyError("'data_stats' missing from report dict")
 
+        if include_keys is None:
+            include_keys = self.get_numeric_statistic_keys()
+
+        if include_columns is None:
+            include_columns = self.get_numeric_column_names()
+
         data_stats = report_dict["data_stats"]
 
         limit_check_report_keys = {}
 
         for col in data_stats:
             col_name = col["column_name"]
-            if col_name in exclude_columns:
-                continue
-            limit_check_report_keys[col_name] = {}
-            stats = col["statistics"]
-            for stat, val in stats.items():
-                if stat in keys:
-                    limit_check_report_keys[col_name][stat] = {
-                        "lower": val[0],
-                        "upper": val[1],
-                    }
+            if col_name in include_columns:
+                limit_check_report_keys[col_name] = {}
+                stats = col["statistics"]
+                for stat, val in stats.items():
+                    if stat in include_keys:
+                        limit_check_report_keys[col_name][stat] = {
+                            "lower": val[0],
+                            "upper": val[1],
+                        }
         return limit_check_report_keys

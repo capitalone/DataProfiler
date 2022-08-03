@@ -373,6 +373,9 @@ class HistoricalProfiler:
     def _get_dict_list_consecutive_deltas(self, d: dict):
         delta_dict = {}
         for key, val in d.items():
+            if key == "column_name":
+                delta_dict[key] = val
+                continue
             if isinstance(val, dict):
                 delta_dict[key] = self._get_dict_list_consecutive_deltas(val)
             else:
@@ -503,3 +506,38 @@ class HistoricalProfiler:
     def __len__(self):
         """Return the number of profiles stored in this Object."""
         return self.length
+
+    def get_statistics_limit_check_report_keys(
+        self, report_dict: dict, keys: list, exclude_columns: list = []
+    ):
+        """
+        Convert the report_dict into a limit_check_report_keys format.
+
+        Args:
+            - report_dict (dict): previously generated consecutive difference report
+            - keys (list): the list of statistic keys to include in the output dict
+            - exclude_columns (list): a list of columns to exclude from the output dict
+        """
+        if report_dict is None:
+            raise ValueError("`report_dict` is None. Expected type `dict`")
+
+        if "data_stats" not in report_dict:
+            raise KeyError("'data_stats' missing from report dict")
+
+        data_stats = report_dict["data_stats"]
+
+        limit_check_report_keys = {}
+
+        for col in data_stats:
+            col_name = col["column_name"]
+            if col_name in exclude_columns:
+                continue
+            limit_check_report_keys[col_name] = {}
+            stats = col["statistics"]
+            for stat, val in stats.items():
+                if stat in keys:
+                    limit_check_report_keys[col_name][stat] = {
+                        "lower": val[0],
+                        "upper": val[1],
+                    }
+        return limit_check_report_keys

@@ -2143,10 +2143,10 @@ class StructuredProfiler(BaseProfiler):
         """
         data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors="coerce")
 
-        get_data_type = lambda profile: profile.profiles[
+        get_data_type = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
         ].selected_data_type
-        get_data_type_profiler = lambda profile: profile.profiles[
+        get_data_type_profiler = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
         ]._profiles[get_data_type(profile)]
 
@@ -2223,10 +2223,10 @@ class StructuredProfiler(BaseProfiler):
         :return: merged null replication metrics
         :rtype: dict
         """
-        get_data_type = lambda profile: profile.profiles[
+        get_data_type = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
         ].selected_data_type
-        get_data_type_profiler = lambda profile: profile.profiles[
+        get_data_type_profiler = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
         ]._profiles[get_data_type(profile)]
 

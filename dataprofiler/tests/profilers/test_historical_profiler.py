@@ -188,7 +188,10 @@ class TestHistoricalProfiler(unittest.TestCase):
             diff_min_max_report = hp.get_diff_min_and_max_report()
 
         self.assertEqual((-7, 2), diff_min_max_report["global_stats"]["samples_used"])
-        self.assertEqual((0, 0), diff_min_max_report["data_stats"][0]["column_name"])
+        self.assertEqual(
+            hp.historical_profile["data_stats"][0]["column_name"][0],
+            diff_min_max_report["data_stats"][0]["column_name"],
+        )
 
     def test_appending_beyond_max_length(self, *mocks):
         with test_utils.mock_timeit():

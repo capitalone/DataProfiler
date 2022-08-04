@@ -277,8 +277,12 @@ class GraphProfile(object):
         Compute the continuous distribution of graph edge continuous attributes.
 
         Returns properties array in the profile:
+        [optional: shape, loc, scale, mean, variance, skew, kurtosis]
+
         - 6-property length: norm, uniform, expon, logistic
         - 7-property length: gamma, lognorm
+            - gamma: shape=a
+            - lognorm: shape=s
         """
         attributes = self._find_all_attributes(graph)
         continuous_distributions = dict()

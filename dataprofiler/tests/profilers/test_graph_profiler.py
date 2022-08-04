@@ -74,9 +74,9 @@ class TestGraphProfiler(unittest.TestCase):
             np.array([6.40046067, 3.52941176, 12.24828996]),
         ]
 
-    def check_properties(self, properties):
+    def check_continuous_properties(self, continuous_distribution_props):
         """Tests the properties array for continuous distribution"""
-        for index, property in enumerate(properties):
+        for index, property in enumerate(continuous_distribution_props):
             if isinstance(property, np.ndarray):
                 np.testing.assert_array_almost_equal(
                     self.expected_props[index], property
@@ -89,11 +89,11 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
-        properties = profile.profile["continuous_distribution"]["weight"].pop(
-            "properties"
-        )
+        continuous_distribution_props = profile.profile["continuous_distribution"][
+            "weight"
+        ].pop("properties")
         self.assertAlmostEqual(scale, -15.250985118262854)
-        self.check_properties(properties)
+        self.check_continuous_properties(continuous_distribution_props)
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
@@ -101,11 +101,11 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
-        properties = profile.profile["continuous_distribution"]["weight"].pop(
-            "properties"
-        )
+        continuous_distribution_props = profile.profile["continuous_distribution"][
+            "weight"
+        ].pop("properties")
         self.assertAlmostEqual(scale, -15.250985118262854)
-        self.check_properties(properties)
+        self.check_continuous_properties(continuous_distribution_props)
         self.assertDictEqual(self.expected_profile, graph_profile.report())
 
     def test_graph_data_object(self):
@@ -114,11 +114,11 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile = graph_profile.update(data)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
-        properties = profile.profile["continuous_distribution"]["weight"].pop(
-            "properties"
-        )
+        continuous_distribution_props = profile.profile["continuous_distribution"][
+            "weight"
+        ].pop("properties")
         self.assertAlmostEqual(scale, -15.250985118262854)
-        self.check_properties(properties)
+        self.check_continuous_properties(continuous_distribution_props)
         self.assertDictEqual(self.expected_profile, profile.profile)
 
 

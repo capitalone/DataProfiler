@@ -6,6 +6,7 @@ from cgi import test
 from collections import defaultdict
 
 import networkx as nx
+import numpy as np
 
 from dataprofiler.data_readers.graph_data import GraphData
 from dataprofiler.profilers.graph_profiler import GraphProfile
@@ -63,12 +64,40 @@ class TestGraphProfiler(unittest.TestCase):
             ),
         )
 
+        cls.expected_props = [
+            0.9374325237312068,
+            1.6999999999999997,
+            0.4898643008759932,
+            np.array([0.93743252, 1.7, 0.4898643]),
+            np.array([0.93743252, 1.7, 0.4898643]),
+            np.array([2.06566546, 1.53392998, 2.85753856]),
+            np.array([6.40046067, 3.52941176, 12.24828996]),
+        ]
+
     def test_profile(self):
         graph_profile = GraphProfile("test_update")
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
+        properties = profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+
         self.assertAlmostEqual(scale, -15.250985118262854)
+        index = 0
+        for item in properties:
+            if isinstance(item, np.ndarray):
+                item = list(item)
+                np_index = 0
+                for np_item in item:
+                    self.assertAlmostEqual(
+                        np_item, self.expected_props[index][np_index]
+                    )
+                    np_index += 1
+            else:
+                self.assertAlmostEqual(self.expected_props[index], item)
+            index += 1
+
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
@@ -76,7 +105,25 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
+        properties = profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
         self.assertAlmostEqual(scale, -15.250985118262854)
+
+        index = 0
+        for item in properties:
+            if isinstance(item, np.ndarray):
+                item = list(item)
+                np_index = 0
+                for np_item in item:
+                    self.assertAlmostEqual(
+                        np_item, self.expected_props[index][np_index]
+                    )
+                    np_index += 1
+            else:
+                self.assertAlmostEqual(self.expected_props[index], item)
+            index += 1
+
         self.assertDictEqual(self.expected_profile, graph_profile.report())
 
     def test_graph_data_object(self):
@@ -85,7 +132,25 @@ class TestGraphProfiler(unittest.TestCase):
         with utils.mock_timeit():
             profile = graph_profile.update(data)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
+        properties = profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
         self.assertAlmostEqual(scale, -15.250985118262854)
+
+        index = 0
+        for item in properties:
+            if isinstance(item, np.ndarray):
+                item = list(item)
+                np_index = 0
+                for np_item in item:
+                    self.assertAlmostEqual(
+                        np_item, self.expected_props[index][np_index]
+                    )
+                    np_index += 1
+            else:
+                self.assertAlmostEqual(self.expected_props[index], item)
+            index += 1
+
         self.assertDictEqual(self.expected_profile, profile.profile)
 
 

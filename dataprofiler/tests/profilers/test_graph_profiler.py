@@ -74,6 +74,16 @@ class TestGraphProfiler(unittest.TestCase):
             np.array([6.40046067, 3.52941176, 12.24828996]),
         ]
 
+    def check_properties(self, properties):
+        """Tests the properties array for continuous distribution"""
+        for index, property in enumerate(properties):
+            if isinstance(property, np.ndarray):
+                np.testing.assert_array_almost_equal(
+                    self.expected_props[index], property
+                )
+            else:
+                self.assertAlmostEqual(self.expected_props[index], property)
+
     def test_profile(self):
         graph_profile = GraphProfile("test_update")
         with utils.mock_timeit():
@@ -82,22 +92,8 @@ class TestGraphProfiler(unittest.TestCase):
         properties = profile.profile["continuous_distribution"]["weight"].pop(
             "properties"
         )
-
         self.assertAlmostEqual(scale, -15.250985118262854)
-        index = 0
-        for item in properties:
-            if isinstance(item, np.ndarray):
-                item = list(item)
-                np_index = 0
-                for np_item in item:
-                    self.assertAlmostEqual(
-                        np_item, self.expected_props[index][np_index]
-                    )
-                    np_index += 1
-            else:
-                self.assertAlmostEqual(self.expected_props[index], item)
-            index += 1
-
+        self.check_properties(properties)
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
@@ -109,21 +105,7 @@ class TestGraphProfiler(unittest.TestCase):
             "properties"
         )
         self.assertAlmostEqual(scale, -15.250985118262854)
-
-        index = 0
-        for item in properties:
-            if isinstance(item, np.ndarray):
-                item = list(item)
-                np_index = 0
-                for np_item in item:
-                    self.assertAlmostEqual(
-                        np_item, self.expected_props[index][np_index]
-                    )
-                    np_index += 1
-            else:
-                self.assertAlmostEqual(self.expected_props[index], item)
-            index += 1
-
+        self.check_properties(properties)
         self.assertDictEqual(self.expected_profile, graph_profile.report())
 
     def test_graph_data_object(self):
@@ -136,21 +118,7 @@ class TestGraphProfiler(unittest.TestCase):
             "properties"
         )
         self.assertAlmostEqual(scale, -15.250985118262854)
-
-        index = 0
-        for item in properties:
-            if isinstance(item, np.ndarray):
-                item = list(item)
-                np_index = 0
-                for np_item in item:
-                    self.assertAlmostEqual(
-                        np_item, self.expected_props[index][np_index]
-                    )
-                    np_index += 1
-            else:
-                self.assertAlmostEqual(self.expected_props[index], item)
-            index += 1
-
+        self.check_properties(properties)
         self.assertDictEqual(self.expected_profile, profile.profile)
 
 

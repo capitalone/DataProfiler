@@ -310,19 +310,8 @@ class GraphProfile(object):
                         best_fit = distribution.name
                         best_mle = mle
 
-                properties = []
-
                 mean, variance, skew, kurtosis = distribution.stats(fit, moments="mvsk")
-
-                if best_fit == "lognorm":
-                    shape, loc, scale = fit
-                    properties = [shape, loc, scale, mean, variance, skew, kurtosis]
-                elif best_fit == "gamma":
-                    a, loc, scale = fit
-                    properties = [a, loc, scale, mean, variance, skew, kurtosis]
-                else:
-                    loc, scale = fit
-                    properties = [loc, scale, mean, variance, skew, kurtosis]
+                properties = list(fit) + [mean, variance, skew, kurtosis]
 
                 continuous_distributions[attribute] = {
                     "name": best_fit,

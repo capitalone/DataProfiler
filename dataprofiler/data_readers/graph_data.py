@@ -159,7 +159,7 @@ class GraphData(BaseData):
 
     def _format_data_networkx(self):
         """Format the input file into a networkX graph."""
-        networkx_graph = nx.DiGraph()
+        networkx_graph = nx.Graph()
 
         # read lines from csv
         csv_as_list = []
@@ -189,10 +189,12 @@ class GraphData(BaseData):
                         csv_as_list[line][column]
                     )
                 elif column is self._source_node or column is self._destination_node:
-                    networkx_graph.add_node(csv_as_list[line][column])
+                    networkx_graph.add_node(
+                        self.check_integer(csv_as_list[line][column])
+                    )
             networkx_graph.add_edge(
-                csv_as_list[line][self._source_node],
-                csv_as_list[line][self._destination_node],
+                self.check_integer(csv_as_list[line][self._source_node]),
+                self.check_integer(csv_as_list[line][self._destination_node]),
                 **attributes
             )
 
@@ -206,3 +208,13 @@ class GraphData(BaseData):
             self._data = data
         else:
             self._data = self._format_data_networkx()
+
+    def check_integer(self, string):
+        """Check whether string is integer and output integer."""
+        stringVal = string
+        if string[0] == ("-", "+"):
+            stringVal = string[1:]
+        if stringVal.isdigit():
+            return int(string)
+        else:
+            return string

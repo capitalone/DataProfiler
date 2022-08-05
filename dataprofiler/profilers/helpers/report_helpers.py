@@ -106,6 +106,10 @@ def _prepare_report(report, output_format=None, omit_keys=None):
 
         value = report[key]
 
+        # Convert key to be json serializable (some are np.int64)
+        if not isinstance(key, (str, int, float, bool, type(None))):
+            key = str(key)
+
         # Convert set to list, for report generation
         if isinstance(value, set):
             value = sorted(list(value))

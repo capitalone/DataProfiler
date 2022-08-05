@@ -273,7 +273,17 @@ class GraphProfile(object):
 
     @BaseColumnProfiler._timeit(name="continuous_distribution")
     def _get_continuous_distribution(self, graph, continuous_attributes):
-        """Compute the continuous distribution of graph edge continuous attributes."""
+        """
+        Compute the continuous distribution of graph edge continuous attributes.
+
+        Returns properties array in the profile:
+        [optional: shape, loc, scale, mean, variance, skew, kurtosis]
+
+        - 6-property length: norm, uniform, expon, logistic
+        - 7-property length: gamma, lognorm
+            - gamma: shape=a
+            - lognorm: shape=s
+        """
         attributes = self._find_all_attributes(graph)
         continuous_distributions = dict()
 
@@ -291,6 +301,8 @@ class GraphProfile(object):
                 df = pd.Series(data_as_list)
                 best_fit = None
                 best_mle = 1000
+                best_fit_properties = None
+
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
                     fit = distribution.fit(df)
@@ -299,10 +311,24 @@ class GraphProfile(object):
                     if mle <= best_mle:
                         best_fit = distribution.name
                         best_mle = mle
+                        best_fit_properties = fit
+
+                mean, variance, skew, kurtosis = distribution.stats(
+                    best_fit_properties, moments="mvsk"
+                )
+                properties = list(best_fit_properties) + [
+                    mean,
+                    variance,
+                    skew,
+                    kurtosis,
+                ]
+
                 continuous_distributions[attribute] = {
                     "name": best_fit,
                     "scale": best_mle,
+                    "properties": properties,
                 }
+
             else:
                 continuous_distributions[attribute] = None
 

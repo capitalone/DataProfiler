@@ -20,16 +20,16 @@ class TestGraphDataClass(unittest.TestCase):
                 path=os.path.join(
                     test_dir, "csv/graph-differentiator-input-positive.csv"
                 ),
-                list_nodes=["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+                list_nodes=[1, 2, 3, 4, 5, 6, 7, 8, 9],
                 list_edges=[
-                    ("2", "1"),
-                    ("3", "2"),
-                    ("4", "2"),
-                    ("5", "2"),
-                    ("6", "2"),
-                    ("7", "2"),
-                    ("8", "2"),
-                    ("9", "2"),
+                    (2, 1),
+                    (3, 2),
+                    (4, 2),
+                    (5, 2),
+                    (6, 2),
+                    (7, 2),
+                    (8, 2),
+                    (9, 2),
                 ],
                 options={"header": 0, "delimiter": ","},
                 encoding="utf-8",
@@ -38,23 +38,23 @@ class TestGraphDataClass(unittest.TestCase):
                 path=os.path.join(
                     test_dir, "csv/graph-differentiator-input-standard-positive.csv"
                 ),
-                list_nodes=["1", "2", "3", "4"],
-                list_edges=[("2", "1"), ("1", "3"), ("2", "4")],
+                list_nodes=[1, 2, 3, 4],
+                list_edges=[(2, 1), (1, 3), (2, 4)],
                 options={"header": 0, "delimiter": ","},
                 encoding="utf-8",
             ),
             dict(
                 path=os.path.join(test_dir, "csv/graph-data-input-positive-header.csv"),
-                list_nodes=["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+                list_nodes=[1, 2, 3, 4, 5, 6, 7, 8, 9],
                 list_edges=[
-                    ("2", "1"),
-                    ("3", "2"),
-                    ("4", "2"),
-                    ("5", "2"),
-                    ("6", "2"),
-                    ("7", "2"),
-                    ("8", "2"),
-                    ("9", "2"),
+                    (2, 1),
+                    (3, 2),
+                    (4, 2),
+                    (5, 2),
+                    (6, 2),
+                    (7, 2),
+                    (8, 2),
+                    (9, 2),
                 ],
                 options={"header": 2, "delimiter": ","},
                 encoding="utf-8",
@@ -188,7 +188,7 @@ class TestGraphDataClass(unittest.TestCase):
             data_edges = list(data.edges)
 
             for edge in input_file["list_edges"]:
-                if edge not in data_edges:
+                if edge not in data_edges and (edge[1], edge[0]) not in data_edges:
                     all_edges_present = False
             self.assertTrue(all_edges_present)
 

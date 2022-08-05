@@ -4,6 +4,7 @@ from .categorical_column_profile import CategoricalColumn
 from .data_labeler_column_profile import DataLabelerColumn
 from .datetime_column_profile import DateTimeColumn
 from .float_column_profile import FloatColumn
+from .historical_profiler import HistoricalProfiler
 from .int_column_profile import IntColumn
 from .numerical_column_stats import NumericStatsMixin
 from .order_column_profile import OrderColumn

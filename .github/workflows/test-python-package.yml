@@ -5,7 +5,7 @@ name: Test Python Package
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, feature/historical_profiler ]
 
 jobs:
   build:

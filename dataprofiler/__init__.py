@@ -8,6 +8,7 @@ from .labelers.data_labelers import (
     UnstructuredDataLabeler,
     train_structured_labeler,
 )
+from .profilers.historical_profiler import HistoricalProfiler
 from .profilers.profile_builder import (
     Profiler,
     StructuredProfiler,

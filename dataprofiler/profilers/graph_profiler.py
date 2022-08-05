@@ -301,6 +301,8 @@ class GraphProfile(object):
                 df = pd.Series(data_as_list)
                 best_fit = None
                 best_mle = 1000
+                best_fit_properties = None
+
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
                     fit = distribution.fit(df)
@@ -309,9 +311,17 @@ class GraphProfile(object):
                     if mle <= best_mle:
                         best_fit = distribution.name
                         best_mle = mle
+                        best_fit_properties = fit
 
-                mean, variance, skew, kurtosis = distribution.stats(fit, moments="mvsk")
-                properties = list(fit) + [mean, variance, skew, kurtosis]
+                mean, variance, skew, kurtosis = distribution.stats(
+                    best_fit_properties, moments="mvsk"
+                )
+                properties = list(best_fit_properties) + [
+                    mean,
+                    variance,
+                    skew,
+                    kurtosis,
+                ]
 
                 continuous_distributions[attribute] = {
                     "name": best_fit,

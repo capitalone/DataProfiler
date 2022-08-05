@@ -65,13 +65,13 @@ class TestGraphProfiler(unittest.TestCase):
         )
 
         cls.expected_props = [
-            0.9374325237312068,
+            8.646041719759628,
             1.6999999999999997,
-            0.4898643008759932,
-            np.array([0.93743252, 1.7, 0.4898643]),
-            np.array([0.93743252, 1.7, 0.4898643]),
-            np.array([2.06566546, 1.53392998, 2.85753856]),
-            np.array([6.40046067, 3.52941176, 12.24828996]),
+            0.19403886939727638,
+            np.array([8.64604172, 1.7, 0.19403887]),
+            np.array([8.64604172, 1.7, 0.19403887]),
+            np.array([0.68017604, 1.53392998, 4.54031127]),
+            np.array([0.69395918, 3.52941176, 30.92163966]),
         ]
 
     def check_continuous_properties(self, continuous_distribution_props):
@@ -93,6 +93,7 @@ class TestGraphProfiler(unittest.TestCase):
             "weight"
         ].pop("properties")
         self.assertAlmostEqual(scale, -15.250985118262854)
+        print(continuous_distribution_props)
         self.check_continuous_properties(continuous_distribution_props)
         self.assertDictEqual(self.expected_profile, profile.profile)
 

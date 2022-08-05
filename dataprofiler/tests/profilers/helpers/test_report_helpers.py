@@ -8,7 +8,10 @@ from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 
 class TestReportHelperClass(unittest.TestCase):
     def test_serializable_report(self):
-        test_dict = {"key_1": {"nested_key_1": {"nested_key_1_2": np.ndarray(1)}}}
+        test_dict = {
+            "key_1": {"nested_key_1": {"nested_key_1_2": np.ndarray(1)}},
+            np.int64(1): 0,
+        }
         with self.assertRaises(TypeError):
             json.dumps(test_dict)
         with self.assertRaises(TypeError):

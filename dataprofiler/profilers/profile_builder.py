@@ -15,8 +15,6 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
-from dataprofiler.profilers.graph_profiler import GraphProfiler
-
 from .. import data_readers, dp_logging
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
@@ -27,6 +25,7 @@ from .column_profile_compilers import (
     ColumnStatsProfileCompiler,
     UnstructuredCompiler,
 )
+from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
 from .profiler_options import ProfilerOptions, StructuredOptions, UnstructuredOptions
 

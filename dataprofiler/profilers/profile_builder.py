@@ -15,7 +15,11 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
+<<<<<<< HEAD
 from dataprofiler.profilers.graph_profiler import GraphProfiler
+=======
+from dataprofiler.profilers.graph_profiler import GraphProfile
+>>>>>>> 348c14f (implement graph into dataprofiler pipeline)
 
 from .. import data_readers, dp_logging
 from ..labelers.base_data_labeler import BaseDataLabeler

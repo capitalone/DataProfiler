@@ -20,7 +20,11 @@ from dataprofiler.profilers.column_profile_compilers import (
     ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler,
 )
+<<<<<<< HEAD
 from dataprofiler.profilers.graph_profiler import GraphProfiler
+=======
+from dataprofiler.profilers.graph_profiler import GraphProfile
+>>>>>>> 348c14f (implement graph into dataprofiler pipeline)
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 from dataprofiler.profilers.profile_builder import (
     Profiler,

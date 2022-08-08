@@ -4,6 +4,7 @@ from io import BytesIO, StringIO, TextIOWrapper
 
 import networkx as nx
 
+from dataprofiler.data_readers.data import Data
 from dataprofiler.data_readers.graph_data import GraphData
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -57,6 +58,13 @@ class TestGraphDataClass(unittest.TestCase):
                     (9, 2),
                 ],
                 options={"header": 2, "delimiter": ","},
+                encoding="utf-8",
+            ),
+            dict(
+                path=os.path.join(test_dir, "csv/graph_data_csv_identify.csv"),
+                list_nodes=None,  # too long to fit
+                list_edges=None,  # too long to fit
+                options={"header": 0, "delimiter": ","},
                 encoding="utf-8",
             ),
         ]
@@ -140,6 +148,8 @@ class TestGraphDataClass(unittest.TestCase):
             "open_date_dst",
         ]
         for input_file in self.input_file_names_pos:
+            if input_file["list_nodes"] is None or input_file["list_edges"] is None:
+                continue
             self.assertEqual(
                 GraphData.csv_column_names(input_file["path"], input_file["options"]),
                 column_names,
@@ -171,7 +181,11 @@ class TestGraphDataClass(unittest.TestCase):
             options = dict()
             if not GraphData.is_match(input_file["path"], options):
                 return
-            data = GraphData(input_file["path"], options)
+            if input_file["list_nodes"] is None:
+                continue
+            data = GraphData(
+                input_file_path=input_file["path"], data=None, options=options
+            )
             self.assertEqual(input_file["list_nodes"], sorted(data.nodes))
 
     def test_data_loader_edges(self):
@@ -184,13 +198,25 @@ class TestGraphDataClass(unittest.TestCase):
             all_edges_present = True
             if not GraphData.is_match(input_file["path"], options):
                 return
-            data = GraphData(input_file["path"], options)
+            if input_file["list_edges"] is None:
+                continue
+            data = GraphData(
+                input_file_path=input_file["path"], data=None, options=options
+            )
             data_edges = list(data.edges)
 
             for edge in input_file["list_edges"]:
                 if edge not in data_edges and (edge[1], edge[0]) not in data_edges:
                     all_edges_present = False
             self.assertTrue(all_edges_present)
+
+    def test_factory_load(self):
+        """
+        Determine whether factory class Data identifies file correctly
+        """
+        for input_file in self.input_file_names_pos:
+            data = Data(input_file["path"])
+            self.assertEqual(type(data), GraphData)
 
 
 if __name__ == "__main__":

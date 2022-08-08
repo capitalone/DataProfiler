@@ -6,8 +6,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as st
 
-from dataprofiler.data_readers.graph_data import GraphData
-
+from ..data_readers.graph_data import GraphData
 from . import BaseColumnProfiler
 
 

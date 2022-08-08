@@ -142,6 +142,11 @@ The format for a structured profile is below:
             },
             "times": dict[string, float],
             "format": string
+        },
+        "null_replication_metrics": {
+            "class_prior": list[int],
+            "class_sum": list[list[int]],
+            "class_mean": list[list[int]]
         }
     }
 ]
@@ -244,6 +249,10 @@ The format for an unstructured profile is below:
     * `precision` - a dict of statistics with respect to the number of digits in a number for each sample
     * `times` - the duration of time it took to generate this sample's statistics in milliseconds
     * `format` - list of possible datetime formats
+* `null_replication_metrics` - statistics of data partitioned based on whether column value is null (index 1 of lists referenced by dict keys) or not (index 0)
+    * `class_prior` - a list containing probability of a column value being null and not null
+    * `class_sum`- a list containing sum of all other rows based on whether column value is null or not
+    * `class_mean`- a list containing mean of all other rows based on whether column value is null or not
 
 ### Unstructured Profile
 

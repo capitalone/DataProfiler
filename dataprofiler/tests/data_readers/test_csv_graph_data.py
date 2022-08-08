@@ -4,6 +4,7 @@ from io import BytesIO, StringIO, TextIOWrapper
 
 import networkx as nx
 
+from dataprofiler.data_readers.data import Data
 from dataprofiler.data_readers.graph_data import GraphData
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -90,6 +91,14 @@ class TestGraphDataClass(unittest.TestCase):
 
         cls.file_or_buf_list = cls.input_file_names_pos + cls.buffer_list
 
+        cls.identify_file = [
+            dict(
+                path=os.path.join(test_dir, "csv/graph_data_csv_identify.csv"),
+                options={"header": 0, "delimiter": ","},
+                encoding="utf-8",
+            )
+        ]
+
     def test_finding_string_in_column_positive(self):
         """
         Determine whether keywords can be detected with underscore before and after
@@ -171,7 +180,7 @@ class TestGraphDataClass(unittest.TestCase):
             options = dict()
             if not GraphData.is_match(input_file["path"], options):
                 return
-            data = GraphData(input_file["path"], options)
+            data = GraphData(input_file["path"], None, options)
             self.assertEqual(input_file["list_nodes"], sorted(data.nodes))
 
     def test_data_loader_edges(self):
@@ -184,13 +193,21 @@ class TestGraphDataClass(unittest.TestCase):
             all_edges_present = True
             if not GraphData.is_match(input_file["path"], options):
                 return
-            data = GraphData(input_file["path"], options)
+            data = GraphData(input_file["path"], None, options)
             data_edges = list(data.edges)
 
             for edge in input_file["list_edges"]:
                 if edge not in data_edges and (edge[1], edge[0]) not in data_edges:
                     all_edges_present = False
             self.assertTrue(all_edges_present)
+
+    def test_factory_load(self):
+        """
+        Determine whether factory class Data identifies file correctly
+        """
+        for input_file in self.identify_file:
+            data = Data(input_file["path"])
+            self.assertEqual(type(data), GraphData)
 
 
 if __name__ == "__main__":

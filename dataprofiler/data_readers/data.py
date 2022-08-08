@@ -5,6 +5,7 @@ from .. import dp_logging
 from .avro_data import AVROData
 from .csv_data import CSVData
 from .data_utils import is_valid_url, url_to_bytes
+from .graph_data import GraphData
 from .json_data import JSONData
 from .parquet_data import ParquetData
 from .text_data import TextData
@@ -17,6 +18,7 @@ class Data(object):
 
     data_classes = [
         dict(data_class=JSONData, kwargs=dict()),
+        dict(data_class=GraphData, kwargs=dict()),
         dict(data_class=CSVData, kwargs=dict()),
         dict(data_class=ParquetData, kwargs=dict()),
         dict(data_class=AVROData, kwargs=dict()),

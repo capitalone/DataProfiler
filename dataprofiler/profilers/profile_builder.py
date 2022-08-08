@@ -15,7 +15,7 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
-from dataprofiler.profilers.graph_profiler import GraphProfile
+from dataprofiler.profilers.graph_profiler import GraphProfiler
 
 from .. import data_readers, dp_logging
 from ..labelers.base_data_labeler import BaseDataLabeler
@@ -2610,7 +2610,7 @@ class Profiler(object):
 
         # Construct based off of initial kwarg input or inference
         if profiler_type == "graph":
-            return GraphProfile(data, options=options)
+            return GraphProfiler(data, options=options)
         elif profiler_type == "structured":
             return StructuredProfiler(
                 data, samples_per_update, min_true_samples, options

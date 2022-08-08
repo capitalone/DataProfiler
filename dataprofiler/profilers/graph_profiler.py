@@ -11,7 +11,7 @@ from dataprofiler.data_readers.graph_data import GraphData
 from . import BaseColumnProfiler
 
 
-class GraphProfile(object):
+class GraphProfiler(object):
     """
     GraphProfiler class.
 
@@ -47,14 +47,14 @@ class GraphProfile(object):
         self.metadata = dict()
 
         self.__calculations = {
-            "num_nodes": GraphProfile._update_num_nodes,
-            "num_edges": GraphProfile._update_num_edges,
-            "categorical_attributes": GraphProfile._update_categorical_attributes,
-            "continuous_attributes": GraphProfile._update_continuous_attributes,
-            "avg_node_degree": GraphProfile._update_avg_node_degree,
-            "global_max_component_size": GraphProfile._update_global_max_component_size,
-            "continuous_distribution": GraphProfile._update_continuous_distribution,
-            "categorical_distribution": GraphProfile._update_categorical_distribution,
+            "num_nodes": GraphProfiler._update_num_nodes,
+            "num_edges": GraphProfiler._update_num_edges,
+            "categorical_attributes": GraphProfiler._update_categorical_attributes,
+            "continuous_attributes": GraphProfiler._update_continuous_attributes,
+            "avg_node_degree": GraphProfiler._update_avg_node_degree,
+            "global_max_component_size": GraphProfiler._update_global_max_comp_size,
+            "continuous_distribution": GraphProfiler._update_continuous_distribution,
+            "categorical_distribution": GraphProfiler._update_categorical_distribution,
         }
 
     @property
@@ -194,7 +194,7 @@ class GraphProfile(object):
             graph, subset_properties["num_nodes"]
         )
 
-    def _update_global_max_component_size(
+    def _update_global_max_comp_size(
         self, graph, prev_dependent_properties=None, subset_properties=None
     ):
         """Update global_max_component_size for profile."""
@@ -337,7 +337,7 @@ class GraphProfile(object):
     @BaseColumnProfiler._timeit(name="categorical_distribution")
     def _get_categorical_distribution(self, graph, categorical_attributes):
         """Compute histogram of graph edge categorical attributes."""
-        attributes = GraphProfile._find_all_attributes(graph)
+        attributes = GraphProfiler._find_all_attributes(graph)
 
         categorical_distributions = dict()
 
@@ -359,7 +359,7 @@ class GraphProfile(object):
         """Find and list categorical and continuous attributes."""
         categorical_attributes = []
         continuous_attributes = []
-        attributes = GraphProfile._find_all_attributes(graph)
+        attributes = GraphProfiler._find_all_attributes(graph)
         for attribute in attributes:
             is_categorical = False
             for u, v in graph.edges():

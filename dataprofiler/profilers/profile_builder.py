@@ -11,8 +11,11 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 
+import networkx as nx
 import numpy as np
 import pandas as pd
+
+from dataprofiler.profilers.graph_profiler import GraphProfile
 
 from .. import data_readers, dp_logging
 from ..labelers.base_data_labeler import BaseDataLabeler
@@ -2578,28 +2581,37 @@ class Profiler(object):
         :type min_true_samples: int
         :param options: Options for the profiler.
         :type options: ProfilerOptions Object
-        :param profiler_type: Type of Profiler ("structured"/"unstructured")
+        :param profiler_type: Type of Profiler ("graph"/"structured"/"unstructured")
         :type profiler_type: str
         :return: BaseProfiler
         """
         if profiler_type is None:
             # defaults as structured
             profiler_type = "structured"
-            # Unstructured if data is Data object and is_structured is False
-            if isinstance(data, data_readers.base_data.BaseData):
+            """
+            Graph if instance of GraphData
+            Unstructured if data is Data object and is_structured is False
+            """
+            if isinstance(data, data_readers.graph_data.GraphData) or isinstance(
+                data, nx.Graph
+            ):
+                profiler_type = "graph"
+            elif isinstance(data, data_readers.base_data.BaseData):
                 if not data.is_structured:
                     profiler_type = "unstructured"
             elif isinstance(data, str):
                 profiler_type = "unstructured"
             # the below checks the viable structured formats, on failure raises
-            elif not isinstance(data, (list, pd.DataFrame, pd.Series)):
+            elif not isinstance(data, (list, nx.Graph, pd.DataFrame, pd.Series)):
                 raise ValueError(
                     "Data must either be imported using the "
-                    "data_readers, pd.Series, or pd.DataFrame."
+                    "data_readers, nx.Graph, pd.Series, or pd.DataFrame."
                 )
 
         # Construct based off of initial kwarg input or inference
-        if profiler_type == "structured":
+        if profiler_type == "graph":
+            return GraphProfile(data, options=options)
+        elif profiler_type == "structured":
             return StructuredProfiler(
                 data, samples_per_update, min_true_samples, options
             )
@@ -2609,7 +2621,8 @@ class Profiler(object):
             )
         else:
             raise ValueError(
-                "Must specify 'profiler_type' to be 'structured' " "or 'unstructured'."
+                "Must specify 'profiler_type' to be 'graph', 'structured' or "
+                + "'unstructured'."
             )
 
     @classmethod

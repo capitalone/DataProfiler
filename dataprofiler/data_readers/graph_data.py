@@ -14,7 +14,7 @@ class GraphData(BaseData):
 
     data_type = "graph"
 
-    def __init__(self, input_file_path=None, options=None, data=None):
+    def __init__(self, input_file_path=None, data=None, options=None):
         """
         Initialize Data class for identifying, reading, and loading graph data.
 

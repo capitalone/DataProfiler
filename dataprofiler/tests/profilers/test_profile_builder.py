@@ -8,6 +8,7 @@ import unittest
 from io import BytesIO, StringIO
 from unittest import mock
 
+import networkx as nx
 import numpy as np
 import pandas as pd
 import six
@@ -19,6 +20,7 @@ from dataprofiler.profilers.column_profile_compilers import (
     ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler,
 )
+from dataprofiler.profilers.graph_profiler import GraphProfile
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 from dataprofiler.profilers.profile_builder import (
     Profiler,
@@ -3601,15 +3603,14 @@ class TestProfilerFactoryClass(unittest.TestCase):
     def test_profiler_factory_class_bad_input(self):
         with self.assertRaisesRegex(
             ValueError,
-            "Must specify 'profiler_type' " "to be 'structured' or " "'unstructured'.",
+            "Must specify 'profiler_type' to be 'graph', 'structured' or 'unstructured'.",
         ):
             Profiler(pd.DataFrame([]), profiler_type="whoops")
 
         with self.assertRaisesRegex(
             ValueError,
-            "Data must either be imported "
-            "using the data_readers, "
-            "pd.Series, or pd.DataFrame.",
+            "Data must either be imported using the "
+            "data_readers, nx.Graph, pd.Series, or pd.DataFrame.",
         ):
             Profiler({"test": 1})
 
@@ -3621,6 +3622,10 @@ class TestProfilerFactoryClass(unittest.TestCase):
         "dataprofiler.profilers.profile_builder.UnstructuredProfiler",
         spec=UnstructuredProfiler,
     )
+    @mock.patch(
+        "dataprofiler.profilers.graph_profiler.GraphProfile",
+        spec=GraphProfile,
+    )
     def test_profiler_factory_class_creates_correct_profiler(self, *mocks):
         """
         Ensure Profiler factory class either respects user input or makes
@@ -3628,12 +3633,15 @@ class TestProfilerFactoryClass(unittest.TestCase):
         """
         # User specifies via profiler_type
         data_df = pd.DataFrame(["test"])
+        data_graph = nx.Graph()
+
         self.assertIsInstance(
             Profiler(data_df, profiler_type="structured"), StructuredProfiler
         )
         self.assertIsInstance(
             Profiler(data_df, profiler_type="unstructured"), UnstructuredProfiler
         )
+        self.assertIsInstance(Profiler(data_graph, profiler_type="graph"), GraphProfile)
 
         # User gives data that has .is_structured == True
         data_csv_df = dp.Data(data=data_df, data_type="csv")
@@ -3651,6 +3659,10 @@ class TestProfilerFactoryClass(unittest.TestCase):
         self.assertIsInstance(Profiler(data_list), StructuredProfiler)
         self.assertIsInstance(Profiler(data_series), StructuredProfiler)
         self.assertIsInstance(Profiler(data_df), StructuredProfiler)
+
+        # user gives graph: nx.Graph
+        data_graph = nx.Graph()
+        self.assertIsInstance(Profiler(data_graph), GraphProfile)
 
         # user gives unstructured: str
         data_str = "test"

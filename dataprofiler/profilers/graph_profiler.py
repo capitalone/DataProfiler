@@ -6,8 +6,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as st
 
-from dataprofiler.data_readers.graph_data import GraphData
-
+from ..data_readers.graph_data import GraphData
 from . import BaseColumnProfiler
 
 
@@ -19,16 +18,15 @@ class GraphProfiler(object):
     Statistical properties of graph
     """
 
-    def __init__(self, name, options=None):
+    def __init__(self, data, options=None):
         """
         Initialize Graph Profiler.
 
-        :param name: Name of the data
+        :param data: data
         :type name: String
         :param options: Options for the Graph Profiler
         :type options: GraphOptions
         """
-        self.name = name
         self.sample_size = 0
         self.times = defaultdict(float)
 
@@ -153,7 +151,7 @@ class GraphProfiler(object):
         if isinstance(graph, GraphData):
             graph = graph.data
         graph_size = graph.size()
-        if graph_size == 0:
+        if graph_size == 0 and graph.number_of_nodes() == 0:
             return self
         profile = dict(sample_size=graph_size)
 

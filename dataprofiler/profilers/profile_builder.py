@@ -2609,7 +2609,9 @@ class Profiler(object):
 
         # Construct based off of initial kwarg input or inference
         if profiler_type == "graph":
-            return GraphProfiler(data, options=options)
+            profile = GraphProfiler(data, options=options)
+            profile.update(data)
+            return profile
         elif profiler_type == "structured":
             return StructuredProfiler(
                 data, samples_per_update, min_true_samples, options

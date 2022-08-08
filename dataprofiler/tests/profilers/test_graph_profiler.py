@@ -111,6 +111,7 @@ class TestGraphProfiler(unittest.TestCase):
     def test_graph_data_object(self):
         data = GraphData(input_file_path=None, data=self.graph)
         graph_profile = GraphProfiler("test_graph_data_object_update")
+       
         with utils.mock_timeit():
             profile = graph_profile.update(data)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")

@@ -109,7 +109,7 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(self.expected_profile, graph_profile.report())
 
     def test_graph_data_object(self):
-        data = GraphData(input_file_path=None, data=self.graph, options=None)
+        data = GraphData(input_file_path=None, data=self.graph)
         graph_profile = GraphProfiler("test_graph_data_object_update")
         with utils.mock_timeit():
             profile = graph_profile.update(data)

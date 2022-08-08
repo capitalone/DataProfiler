@@ -20,7 +20,7 @@ from dataprofiler.profilers.column_profile_compilers import (
     ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler,
 )
-from dataprofiler.profilers.graph_profiler import GraphProfile
+from dataprofiler.profilers.graph_profiler import GraphProfiler
 from dataprofiler.profilers.helpers.report_helpers import _prepare_report
 from dataprofiler.profilers.profile_builder import (
     Profiler,
@@ -3623,8 +3623,8 @@ class TestProfilerFactoryClass(unittest.TestCase):
         spec=UnstructuredProfiler,
     )
     @mock.patch(
-        "dataprofiler.profilers.graph_profiler.GraphProfile",
-        spec=GraphProfile,
+        "dataprofiler.profilers.graph_profiler.GraphProfiler",
+        spec=GraphProfiler,
     )
     def test_profiler_factory_class_creates_correct_profiler(self, *mocks):
         """
@@ -3641,7 +3641,9 @@ class TestProfilerFactoryClass(unittest.TestCase):
         self.assertIsInstance(
             Profiler(data_df, profiler_type="unstructured"), UnstructuredProfiler
         )
-        self.assertIsInstance(Profiler(data_graph, profiler_type="graph"), GraphProfile)
+        self.assertIsInstance(
+            Profiler(data_graph, profiler_type="graph"), GraphProfiler
+        )
 
         # User gives data that has .is_structured == True
         data_csv_df = dp.Data(data=data_df, data_type="csv")
@@ -3662,7 +3664,7 @@ class TestProfilerFactoryClass(unittest.TestCase):
 
         # user gives graph: nx.Graph
         data_graph = nx.Graph()
-        self.assertIsInstance(Profiler(data_graph), GraphProfile)
+        self.assertIsInstance(Profiler(data_graph), GraphProfiler)
 
         # user gives unstructured: str
         data_str = "test"

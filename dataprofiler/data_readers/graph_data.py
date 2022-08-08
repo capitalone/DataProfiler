@@ -106,8 +106,14 @@ class GraphData(BaseData):
         if options.get("header") is None:
             return column_names
 
-        with FileOrBufferHandler(file_path) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=options.get("delimiter", ","))
+        delimiter = options.get("delimiter", None)
+        if delimiter is None:
+            delimiter = ","
+
+        with FileOrBufferHandler(
+            file_path, encoding=options.get("encoding", "utf-8")
+        ) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=delimiter)
 
             # fetch only column names
             row_count = 0
@@ -140,14 +146,18 @@ class GraphData(BaseData):
         column_names = cls.csv_column_names(file_path, options)
         source_keywords = ["source", "src", "origin"]
         target_keywords = ["target", "destination", "dst"]
+        node_keyword = ["node"]
         source_index = cls._find_target_string_in_column(column_names, source_keywords)
         destination_index = cls._find_target_string_in_column(
             column_names, target_keywords
         )
+        node_index = cls._find_target_string_in_column(column_names, node_keyword)
+
         has_source = True if source_index >= 0 else False
         has_target = True if destination_index >= 0 else False
+        has_node = True if node_index >= 0 else False
 
-        if has_target and has_source:
+        if has_target and has_source and has_node:
             options.update(source_node=source_index)
             options.update(destination_node=destination_index)
             options.update(destination_list=target_keywords)

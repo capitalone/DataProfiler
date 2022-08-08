@@ -60,6 +60,13 @@ class TestGraphDataClass(unittest.TestCase):
                 options={"header": 2, "delimiter": ","},
                 encoding="utf-8",
             ),
+            dict(
+                path=os.path.join(test_dir, "csv/graph_data_csv_identify.csv"),
+                list_nodes=None,  # too long to fit
+                list_edges=None,  # too long to fit
+                options={"header": 0, "delimiter": ","},
+                encoding="utf-8",
+            ),
         ]
 
         cls.input_file_names_neg = [
@@ -90,14 +97,6 @@ class TestGraphDataClass(unittest.TestCase):
             cls.buffer_list.append(buffer_info)
 
         cls.file_or_buf_list = cls.input_file_names_pos + cls.buffer_list
-
-        cls.identify_file = [
-            dict(
-                path=os.path.join(test_dir, "csv/graph_data_csv_identify.csv"),
-                options={"header": 0, "delimiter": ","},
-                encoding="utf-8",
-            )
-        ]
 
     def test_finding_string_in_column_positive(self):
         """
@@ -149,6 +148,8 @@ class TestGraphDataClass(unittest.TestCase):
             "open_date_dst",
         ]
         for input_file in self.input_file_names_pos:
+            if input_file["list_nodes"] is None or input_file["list_edges"] is None:
+                continue
             self.assertEqual(
                 GraphData.csv_column_names(input_file["path"], input_file["options"]),
                 column_names,
@@ -180,6 +181,8 @@ class TestGraphDataClass(unittest.TestCase):
             options = dict()
             if not GraphData.is_match(input_file["path"], options):
                 return
+            if input_file["list_nodes"] is None:
+                continue
             data = GraphData(
                 input_file_path=input_file["path"], data=None, options=options
             )
@@ -195,6 +198,8 @@ class TestGraphDataClass(unittest.TestCase):
             all_edges_present = True
             if not GraphData.is_match(input_file["path"], options):
                 return
+            if input_file["list_edges"] is None:
+                continue
             data = GraphData(
                 input_file_path=input_file["path"], data=None, options=options
             )
@@ -209,7 +214,7 @@ class TestGraphDataClass(unittest.TestCase):
         """
         Determine whether factory class Data identifies file correctly
         """
-        for input_file in self.identify_file:
+        for input_file in self.input_file_names_pos:
             data = Data(input_file["path"])
             self.assertEqual(type(data), GraphData)
 

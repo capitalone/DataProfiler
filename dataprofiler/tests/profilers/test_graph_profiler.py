@@ -109,8 +109,13 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(self.expected_profile, graph_profile.report())
 
     def test_graph_data_object(self):
+<<<<<<< HEAD
         data = GraphData(input_file_path=None, data=self.graph)
         graph_profile = GraphProfiler("test_graph_data_object_update")
+=======
+        data = GraphData(input_file_path=None, data=self.graph, options=None)
+        graph_profile = GraphProfile("test_graph_data_object_update")
+>>>>>>> f0a0012 (implement graph into dataprofiler pipeline)
         with utils.mock_timeit():
             profile = graph_profile.update(data)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")

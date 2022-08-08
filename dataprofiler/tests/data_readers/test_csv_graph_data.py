@@ -98,6 +98,14 @@ class TestGraphDataClass(unittest.TestCase):
 
         cls.file_or_buf_list = cls.input_file_names_pos + cls.buffer_list
 
+        cls.identify_file = [
+            dict(
+                path=os.path.join(test_dir, "csv/graph_data_csv_identify.csv"),
+                options={"header": 0, "delimiter": ","},
+                encoding="utf-8",
+            )
+        ]
+
     def test_finding_string_in_column_positive(self):
         """
         Determine whether keywords can be detected with underscore before and after
@@ -181,11 +189,15 @@ class TestGraphDataClass(unittest.TestCase):
             options = dict()
             if not GraphData.is_match(input_file["path"], options):
                 return
+<<<<<<< HEAD
             if input_file["list_nodes"] is None:
                 continue
             data = GraphData(
                 input_file_path=input_file["path"], data=None, options=options
             )
+=======
+            data = GraphData(input_file["path"], None, options)
+>>>>>>> f0a0012 (implement graph into dataprofiler pipeline)
             self.assertEqual(input_file["list_nodes"], sorted(data.nodes))
 
     def test_data_loader_edges(self):
@@ -198,11 +210,15 @@ class TestGraphDataClass(unittest.TestCase):
             all_edges_present = True
             if not GraphData.is_match(input_file["path"], options):
                 return
+<<<<<<< HEAD
             if input_file["list_edges"] is None:
                 continue
             data = GraphData(
                 input_file_path=input_file["path"], data=None, options=options
             )
+=======
+            data = GraphData(input_file["path"], None, options)
+>>>>>>> f0a0012 (implement graph into dataprofiler pipeline)
             data_edges = list(data.edges)
 
             for edge in input_file["list_edges"]:
@@ -214,7 +230,11 @@ class TestGraphDataClass(unittest.TestCase):
         """
         Determine whether factory class Data identifies file correctly
         """
+<<<<<<< HEAD
         for input_file in self.input_file_names_pos:
+=======
+        for input_file in self.identify_file:
+>>>>>>> f0a0012 (implement graph into dataprofiler pipeline)
             data = Data(input_file["path"])
             self.assertEqual(type(data), GraphData)
 

@@ -126,6 +126,11 @@ The format for a structured profile is below:
                 "times": dict[string, float],
                 "format": string
             }
+            "null_replication_metrics": {
+                "class_prior": list[int],
+                "class_sum": list[list[int]],
+                "class_mean": list[list[int]]
+            }
         }
     ]
 

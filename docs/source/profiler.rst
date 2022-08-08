@@ -468,6 +468,10 @@ Structured Profile
     * precision - a dict of statistics with respect to the number of digits in a number for each sample
     * times - the duration of time it took to generate this sample's statistics in milliseconds
     * format - list of possible datetime formats
+* null_replication_metrics - statistics of data partitioned based on whether column value is null (index 1 of lists referenced by dict keys) or not (index 0)
+    * class_prior - a list containing probability of a column value being null and not null
+    * class_sum - a list containing sum of all other rows based on whether column value is null or not
+    * class_mean - a list containing mean of all other rows based on whether column value is null or not
 
 Unstructured Profile
 ~~~~~~~~~~~~~~~~~~~~
@@ -718,6 +722,9 @@ Below is an breakdown of all the options.
     * **chi2_homogeneity** - Options for the chi-squared test matrix
 
       * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.
+    * **null_replication_metrics** - Options for calculating null replication metrics
+
+      * is_enabled - (Boolean) Enables or disables calculation of null replication metrics
   * **unstructured_options** - Options responsible for all unstructured data
 
     * **text** - Options for the text profile

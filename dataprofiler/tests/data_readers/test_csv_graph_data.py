@@ -180,7 +180,9 @@ class TestGraphDataClass(unittest.TestCase):
             options = dict()
             if not GraphData.is_match(input_file["path"], options):
                 return
-            data = GraphData(input_file["path"], None, options)
+            data = GraphData(
+                input_file_path=input_file["path"], data=None, options=options
+            )
             self.assertEqual(input_file["list_nodes"], sorted(data.nodes))
 
     def test_data_loader_edges(self):
@@ -193,7 +195,9 @@ class TestGraphDataClass(unittest.TestCase):
             all_edges_present = True
             if not GraphData.is_match(input_file["path"], options):
                 return
-            data = GraphData(input_file["path"], None, options)
+            data = GraphData(
+                input_file_path=input_file["path"], data=None, options=options
+            )
             data_edges = list(data.edges)
 
             for edge in input_file["list_edges"]:

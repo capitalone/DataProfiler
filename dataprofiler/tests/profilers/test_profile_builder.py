@@ -3622,10 +3622,6 @@ class TestProfilerFactoryClass(unittest.TestCase):
         "dataprofiler.profilers.profile_builder.UnstructuredProfiler",
         spec=UnstructuredProfiler,
     )
-    @mock.patch(
-        "dataprofiler.profilers.graph_profiler.GraphProfiler",
-        spec=GraphProfiler,
-    )
     def test_profiler_factory_class_creates_correct_profiler(self, *mocks):
         """
         Ensure Profiler factory class either respects user input or makes
@@ -3669,6 +3665,12 @@ class TestProfilerFactoryClass(unittest.TestCase):
         # user gives unstructured: str
         data_str = "test"
         self.assertIsInstance(Profiler(data_str), UnstructuredProfiler)
+
+        data_graph.add_node(1)
+        data_graph = dp.Data(data=data_graph, data_type="graph")
+        graph_profile = Profiler(data_graph)
+        profile = graph_profile.profile
+        self.assertIsNotNone(profile.get("num_nodes"))
 
     def test_save_and_load_structured(self):
         datapth = "dataprofiler/tests/data/"

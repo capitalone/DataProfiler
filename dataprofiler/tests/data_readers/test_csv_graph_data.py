@@ -98,14 +98,6 @@ class TestGraphDataClass(unittest.TestCase):
 
         cls.file_or_buf_list = cls.input_file_names_pos + cls.buffer_list
 
-        cls.identify_file = [
-            dict(
-                path=os.path.join(test_dir, "csv/graph_data_csv_identify.csv"),
-                options={"header": 0, "delimiter": ","},
-                encoding="utf-8",
-            )
-        ]
-
     def test_finding_string_in_column_positive(self):
         """
         Determine whether keywords can be detected with underscore before and after
@@ -189,7 +181,6 @@ class TestGraphDataClass(unittest.TestCase):
             options = dict()
             if not GraphData.is_match(input_file["path"], options):
                 return
-
             if input_file["list_nodes"] is None:
                 continue
             data = GraphData(

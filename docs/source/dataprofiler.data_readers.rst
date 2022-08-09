@@ -18,7 +18,6 @@ Modules
    dataprofiler.data_readers.data
    dataprofiler.data_readers.data_utils
    dataprofiler.data_readers.filepath_or_buffer
-   dataprofiler.data_readers.graph_data
    dataprofiler.data_readers.json_data
    dataprofiler.data_readers.parquet_data
    dataprofiler.data_readers.structured_mixins

@@ -14,7 +14,6 @@ Modules
 
    dataprofiler.labelers.base_data_labeler
    dataprofiler.labelers.base_model
-   dataprofiler.labelers.char_load_tf_model
    dataprofiler.labelers.character_level_cnn_model
    dataprofiler.labelers.classification_report_utils
    dataprofiler.labelers.data_labelers

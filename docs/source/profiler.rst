@@ -226,6 +226,11 @@ Below is the structured difference report:
                 'null_types': [list[str], list[str], list[str]],
                 'null_types_index': [dict[str, int], dict[str, int], dict[str, int]],
                 'data_type_representation': [dict[str, float]]
+            },
+            "null_replication_metrics": {
+                "class_prior": list[int],
+                "class_sum": list[list[int]],
+                "class_mean": list[list[int]]
             }
         }
         

@@ -657,6 +657,15 @@ In addition, it utilizes only the first 10,000 rows.</p>
 </dd>
 </dl>
 </li>
+<li><dl class="simple">
+<dt>null_replication_metrics - statistics of data partitioned based on whether column value is null (index 1 of lists referenced by dict keys) or not (index 0)</dt><dd><ul>
+<li><p>class_prior - a list containing probability of a column value being null and not null</p></li>
+<li><p>class_sum - a list containing sum of all other rows based on whether column value is null or not</p></li>
+<li><p>class_mean - a list containing mean of all other rows based on whether column value is null or not</p></li>
+</ul>
+</dd>
+</dl>
+</li>
 </ul>
 </section>
 <section id="unstructured-profile">
@@ -1010,6 +1019,11 @@ labeler</p></li>
 <li><p><strong>chi2_homogeneity</strong> - Options for the chi-squared test matrix</p>
 <ul>
 <li><p>is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.</p></li>
+</ul>
+</li>
+<li><p><strong>null_replication_metrics</strong> - Options for calculating null replication metrics</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables calculation of null replication metrics</p></li>
 </ul>
 </li>
 </ul>

@@ -19,7 +19,6 @@ Modules
    dataprofiler.profilers.data_labeler_column_profile
    dataprofiler.profilers.datetime_column_profile
    dataprofiler.profilers.float_column_profile
-   dataprofiler.profilers.graph_profiler
    dataprofiler.profilers.histogram_utils
    dataprofiler.profilers.int_column_profile
    dataprofiler.profilers.numerical_column_stats

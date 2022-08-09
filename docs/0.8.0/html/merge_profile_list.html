@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="API" href="API.html" /><link rel="prev" title="Building a Regex Data Labeler w/ your own Regex" href="regex_labeler_from_scratch.html" />
 
     <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
-        <title>Overview - Data Profiler v0.8.0</title>
+        <title>Merge List of Profiles - Data Profiler v0.8.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
@@ -134,8 +134,7 @@
 <li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Imports">Imports</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Merge Profile List</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -465,12 +464,11 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <p><a class="reference external" href="https://github.com/capitalone/rubicon/tree/main/notebooks/merge_profile_list.nblink">View this notebook on GitHub</a></p>
-<section id="Overview">
-<h1>Overview<a class="headerlink" href="#Overview" title="Permalink to this headline">¶</a></h1>
+<section id="Merge-List-of-Profiles">
+<h1>Merge List of Profiles<a class="headerlink" href="#Merge-List-of-Profiles" title="Permalink to this headline">¶</a></h1>
 <p>This is an example of a new utils in the dataprofiler for distributed merging of profile objects. This assumes the user is providing a list of profile objects to the utils function for merging all the profiles together.</p>
-</section>
 <section id="Imports">
-<h1>Imports<a class="headerlink" href="#Imports" title="Permalink to this headline">¶</a></h1>
+<h2>Imports<a class="headerlink" href="#Imports" title="Permalink to this headline">¶</a></h2>
 <p>Let’s start by importing the necessary packages…</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
@@ -497,6 +495,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
+</section>
 <section id="Setup-the-Data-and-Profiler">
 <h2>Setup the Data and Profiler<a class="headerlink" href="#Setup-the-Data-and-Profiler" title="Permalink to this headline">¶</a></h2>
 <p>This section shows the basic example of the Data Profiler.</p>
@@ -606,8 +605,8 @@ div.rendered_html tbody tr:hover {
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Overview</a></li>
-<li><a class="reference internal" href="#Imports">Imports</a><ul>
+<li><a class="reference internal" href="#">Merge List of Profiles</a><ul>
+<li><a class="reference internal" href="#Imports">Imports</a></li>
 <li><a class="reference internal" href="#Setup-the-Data-and-Profiler">Setup the Data and Profiler</a></li>
 <li><a class="reference internal" href="#Run-Merge-on-List-of-Profiles">Run Merge on List of Profiles</a></li>
 </ul>

@@ -134,8 +134,7 @@
 <li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
-<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html#Imports">Imports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="API.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -221,7 +220,7 @@
 <p>Class and functions to calculate and profile properties of graph data.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="dataprofiler.profilers.graph_profiler.GraphProfiler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.graph_profiler.</span></span><span class="sig-name descname"><span class="pre">GraphProfiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.graph_profiler.GraphProfiler" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.graph_profiler.</span></span><span class="sig-name descname"><span class="pre">GraphProfiler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.graph_profiler.GraphProfiler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>GraphProfiler class.</p>
 <p>Creates a profile describing a graph dataset
@@ -230,7 +229,7 @@ Statistical properties of graph</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>String</em>) – Name of the data</p></li>
+<li><p><strong>data</strong> – data</p></li>
 <li><p><strong>options</strong> (<em>GraphOptions</em>) – Options for the Graph Profiler</p></li>
 </ul>
 </dd>

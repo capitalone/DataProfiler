@@ -49,7 +49,7 @@ Install requirements:
     # install the requirements from the feature branch
     pip install -r feature_branch/requirements.txt
     pip install -r feature_branch/requirements-ml.txt
-    pip install -r feature_branch/requirements-reports.txt
+    pip install -r feature_branch/requirements-ml.txt
 
 In /docs run:
 

@@ -15,6 +15,7 @@ Basics
    Data Reader<data_reader>
    Structured Profiler<profiler_example>
    Unstructured Profiler<unstructured_profiler_example>
+   Graph Profiler<graph_data_demo>
    Labeler<labeler>
    Adding Models to a Labeler Pipeline<add_new_model_to_data_labeler>
    Creating a Regex Labeler <regex_labeler_from_scratch>

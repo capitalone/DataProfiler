@@ -401,7 +401,9 @@ Graph Profiler
 ~~~~~~~~~~~~~~
 
 DataProfiler also provides the ability to profile graph data from a csv file. Below is an example of the graph profiler with a graph data csv file:
+
 .. code-block:: python
+
     import dataprofiler as dp
     import pprint
 

@@ -31,7 +31,7 @@ author = 'Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wal
 from dataprofiler import __version__ as version  # noqa F401
 
 
-version_clip = re.search(r'\s*([\d.]+)', s).group(1)
+version_clip = re.search(r'\s*([\d.]+)', version).group(1)
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be

@@ -77,7 +77,7 @@ exclude_patterns = ['_build']
 # a list of builtin themes.
 #
 html_theme = "furo"
-html_title = f"<div class='hidden'>Data Profiler</div> <div class='version'> v{version[:5]}</div>"
+html_title = f"<div class='hidden'>Data Profiler</div> <div class='version'> v{version[:6]}</div>"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_favicon = "_static/images/DataProfilerLogoLightTheme.png"

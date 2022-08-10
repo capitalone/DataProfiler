@@ -214,6 +214,8 @@ The format for a graph profile is below:
 }, 
 "times": dict[string, float]
 
+```
+
 # Profile Statistic Descriptions
 
 ### Structured Profile

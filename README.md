@@ -196,17 +196,17 @@ The format for a graph profile is below:
 "avg_node_degree": float,
 "global_max_component_size": int,
 "continuous_distribution": {
-    "attribute1_name": {
+    "<attribute1>": {
         "name": string,
         "scale": float,
         "properties": list[float, np.array]
     },
-    "attribute2_name": None,
+    "<attribute2>": None,
     ...
 },
 "categorical_distribution": {
-    "attribute1_name": None,
-    "attribute2_name": {
+    "<attribute1>": None,
+    "<attribute2_name>": {
         "bin_counts": list[int],
         "bin_edges": list[float]
     },
@@ -323,7 +323,7 @@ The format for a graph profile is below:
 * `global_max_component_size`: size of the global max component
 
 #### continuous_distribution:
-* `attribute_N`: name of N-th edge attribute in list of attributes
+* `<attribute_N>`: name of N-th edge attribute in list of attributes
     * `name` - name of distribution for attribute
     * `scale` - negative log likelihood used to scale and compare distributions
     * `properties` - list of statistical properties describing the distribution
@@ -331,7 +331,7 @@ The format for a graph profile is below:
 
 
 #### categorical_distribution:
-* `attribute_N`: name of N-th edge attribute in list of attributes
+* `<attribute_N>`: name of N-th edge attribute in list of attributes
     * `bin_counts`: counts in each bin of the distribution histogram
     * `bin_edges`: edges of each bin of the distribution histogram
 

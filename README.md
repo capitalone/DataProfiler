@@ -196,17 +196,17 @@ The format for a graph profile is below:
 "avg_node_degree": float,
 "global_max_component_size": int,
 "continuous_distribution": {
-    "<attribute1>": {
+    "<attribute_1>": {
         "name": string,
         "scale": float,
         "properties": list[float, np.array]
     },
-    "<attribute2>": None,
+    "<attribute_2>": None,
     ...
 },
 "categorical_distribution": {
-    "<attribute1>": None,
-    "<attribute2>": {
+    "<attribute_1>": None,
+    "<attribute_2>": {
         "bin_counts": list[int],
         "bin_edges": list[float]
     },

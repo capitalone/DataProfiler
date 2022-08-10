@@ -186,6 +186,34 @@ The format for an unstructured profile is below:
     }
 }
 ```
+
+The format for a graph profile is below:
+```
+"num_nodes": int,
+"num_edges": int,
+"categorical_attributes": list[string],
+"continuous_attributes": list[string],
+"avg_node_degree": float,
+"global_max_component_size": int,
+"continuous_distribution": {
+    "attribute1_name": {
+        "name": string,
+        "scale": float,
+        "properties": list[float, np.array]
+    },
+    "attribute2_name": None,
+    ...
+},
+"categorical_distribution": {
+    "attribute1_name": None,
+    "attribute2_name": {
+        "bin_counts": list[int],
+        "bin_edges": list[float]
+    },
+    ...
+}, 
+"times": dict[string, float]
+
 # Profile Statistic Descriptions
 
 ### Structured Profile

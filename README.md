@@ -206,7 +206,7 @@ The format for a graph profile is below:
 },
 "categorical_distribution": {
     "<attribute1>": None,
-    "<attribute2_name>": {
+    "<attribute2>": {
         "bin_counts": list[int],
         "bin_edges": list[float]
     },

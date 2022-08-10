@@ -327,7 +327,7 @@ The format for a graph profile is below:
     * `name` - name of distribution for attribute
     * `scale` - negative log likelihood used to scale and compare distributions
     * `properties` - list of statistical properties describing the distribution
-        * [optional: shape, loc, scale, mean, variance, skew, kurtosis]
+        * [shape (optional), loc, scale, mean, variance, skew, kurtosis]
 
 
 #### categorical_distribution:
@@ -429,7 +429,7 @@ specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-fil
 
 ### Profile a File
 
-Example uses a CSV file for example, but CSV, JSON, Avro, Parquet or Text should also work.
+Example uses a CSV file for example, but CSV, JSON, Avro, Parquet or Text also work.
 
 ```python
 import json
@@ -567,8 +567,23 @@ profile = dp.Profiler(text_data, profiler_type='unstructured')
 report = profile.report(report_options={"output_format": "pretty"})
 print(json.dumps(report, indent=4))
 ```
-**Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**
 
+### Graph Profiler
+DataProfiler also provides the ability to profile graph data from a csv file. Below is an example of the graph profiler with a graph data csv file:
+```python
+import dataprofiler as dp
+import pprint
+
+my_graph = dp.Data('graph_file.csv')
+profile = dp.Profiler(my_graph)
+
+# print the report using pretty print (json dump does not work on numpy array values inside dict)
+report = profile.report()
+printer = pprint.PrettyPrinter(sort_dicts=False, compact=True)
+printer.pprint(report)
+```
+
+**Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**
 
 # References
 ```

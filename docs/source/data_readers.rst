@@ -125,6 +125,28 @@ Possible `options`:
 * data_format: user selected format in which to return data. Currently only supports "text".
 * samples_per_line - chunks by which to read in the specified dataset
 
+GraphData
+=========
+
+Data Class for loading datasets of graph data. Currently takes CSV format,
+further type formats will be supported. Can be specified by passing
+in memory data or via a file path. Options pertaining the CSV file may also
+be specified using the options dict parameter. Loads data from CSV into memory
+as a NetworkX Graph.
+
+`GraphData(input_file_path=None, data=None, options=None)`
+
+Possible `options`:
+
+* delimiter - must be a string, for example `"delimiter": ","`
+* data_format - must be a string, possible choices: "graph", "dataframe", "records"
+* header - Define the header, for example
+
+  * `"header": 'auto'` for auto detection
+  * `"header": None` for no header
+  * `"header": <INT>` to specify the header row (0 based index)
+
+
 Data Using a URL
 ================
 

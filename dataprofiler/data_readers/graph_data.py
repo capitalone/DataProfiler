@@ -69,8 +69,10 @@ class GraphData(BaseData):
         self._delimiter = options.get("delimiter", None)
         self._quotechar = options.get("quotechar", None)
         self._header = options.get("header", "auto")
+        self._checked_header = "header" in options and self._header != "auto"
 
-        self._load_data(data)
+        if data is not None:
+            self._load_data(data)
 
     @classmethod
     def _find_target_string_in_column(self, column_names, keyword_list):
@@ -172,6 +174,15 @@ class GraphData(BaseData):
 
         # read lines from csv
         csv_as_list = []
+        if not self._checked_header or self._header == "auto":
+            data_as_str = data_utils.load_as_str_from_file(
+                self.input_file_path, self.file_encoding
+            )
+            self._header = CSVData._guess_header_row(
+                data_as_str, self._delimiter, self._quotechar
+            )
+            self._checked_header = True
+        
         data_as_pd = data_utils.read_csv_df(
             self.input_file_path,
             self._delimiter,

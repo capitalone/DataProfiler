@@ -13,6 +13,7 @@
 import furo
 import os
 import sys
+import re
 
 branch_name = "feature_branch"
 sys.path.insert(0, os.path.abspath(f'../../{branch_name}'))
@@ -30,16 +31,17 @@ author = 'Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wal
 from dataprofiler import __version__ as version  # noqa F401
 
 
+version_clip = re.search(r'\s*([\d.]+)', version).group(1)
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc', 
-    'furo', 
+    'sphinx.ext.autodoc',
+    'furo',
     'sphinx.ext.napoleon',
-    'sphinx.ext.intersphinx',     
+    'sphinx.ext.intersphinx',
     'nbsphinx',
     'nbsphinx_link',
 ]
@@ -77,7 +79,7 @@ exclude_patterns = ['_build']
 # a list of builtin themes.
 #
 html_theme = "furo"
-html_title = f"<div class='hidden'>Data Profiler</div> <div class='version'> v{version[:5]}</div>"
+html_title = f"<div class='hidden'>Data Profiler</div> <div class='version'> v{version_clip}</div>"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
 html_favicon = "_static/images/DataProfilerLogoLightTheme.png"
@@ -85,7 +87,3 @@ html_theme_options = {
     "light_logo": "images/DataProfilerLogoLightThemeLong.png",
     "dark_logo": "images/DataProfilerDarkLogoLong.png",
 }
-
-
-
-

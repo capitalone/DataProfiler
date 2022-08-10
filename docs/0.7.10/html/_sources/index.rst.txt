@@ -483,4 +483,3 @@ Versions
 .. _0.7.9: ../../0.7.9/html/index.html
 
 .. _0.7.10: ../../0.7.10/html/index.html
-

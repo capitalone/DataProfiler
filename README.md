@@ -327,6 +327,7 @@ The format for a graph profile is below:
     * `name` - name of distribution for attribute
     * `scale` - negative log likelihood used to scale and compare distributions
     * `properties` - list of statistical properties describing the distribution
+        * [optional: shape, loc, scale, mean, variance, skew, kurtosis]
 
 
 #### categorical_distribution:

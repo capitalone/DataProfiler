@@ -724,6 +724,47 @@ In addition, it utilizes only the first 10,000 rows.</p>
 </li>
 </ul>
 </section>
+<section id="graph-profile">
+<h3>Graph Profile<a class="headerlink" href="#graph-profile" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>num_nodes - number of nodes in the graph</p></li>
+<li><p>num_edges - number of edges in the graph</p></li>
+<li><p>categorical_attributes - list of categorical edge attributes</p></li>
+<li><p>continuous_attributes - list of continuous edge attributes</p></li>
+<li><p>avg_node_degree - average degree of nodes in the graph</p></li>
+<li><p>global_max_component_size: size of the global max component</p></li>
+</ul>
+<p><strong>continuous_distribution</strong>:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>&lt;attribute_N&gt;: name of N-th edge attribute in list of attributes</dt><dd><ul>
+<li><p>name - name of distribution for attribute</p></li>
+<li><p>scale - negative log likelihood used to scale and compare distributions</p></li>
+<li><dl class="simple">
+<dt>properties - list of statistical properties describing the distribution</dt><dd><ul>
+<li><p>[shape (optional), loc, scale, mean, variance, skew, kurtosis]</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>categorical_distribution</strong>:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>&lt;attribute_N&gt;: name of N-th edge attribute in list of attributes</dt><dd><ul>
+<li><p>bin_counts: counts in each bin of the distribution histogram</p></li>
+<li><p>bin_edges: edges of each bin of the distribution histogram</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>times - duration of time it took to generate this profile in milliseconds</p></li>
+</ul>
+</section>
 </section>
 <section id="profile-options">
 <h2>Profile Options<a class="headerlink" href="#profile-options" title="Permalink to this headline">¶</a></h2>
@@ -1200,6 +1241,7 @@ previous batch of data.</p>
 <li><a class="reference internal" href="#profile-statistic-descriptions">Profile Statistic Descriptions</a><ul>
 <li><a class="reference internal" href="#structured-profile">Structured Profile</a></li>
 <li><a class="reference internal" href="#unstructured-profile">Unstructured Profile</a></li>
+<li><a class="reference internal" href="#graph-profile">Graph Profile</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#profile-options">Profile Options</a></li>

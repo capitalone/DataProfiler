@@ -509,6 +509,31 @@ Unstructured Profile
     * word_count - the number of occurrences of each distinct word in the input data
     * times - the duration of time it took to generate the vocab and words statistics in milliseconds
 
+Graph Profile
+~~~~~~~~~~~~~~~~~~
+
+* num_nodes - number of nodes in the graph
+* num_edges - number of edges in the graph
+* categorical_attributes - list of categorical edge attributes
+* continuous_attributes - list of continuous edge attributes
+* avg_node_degree - average degree of nodes in the graph
+* global_max_component_size: size of the global max component
+
+**continuous_distribution**:
+
+* <attribute_N>: name of N-th edge attribute in list of attributes
+    * name - name of distribution for attribute
+    * scale - negative log likelihood used to scale and compare distributions
+    * properties - list of statistical properties describing the distribution
+        * [shape (optional), loc, scale, mean, variance, skew, kurtosis]
+
+**categorical_distribution**:
+
+* <attribute_N>: name of N-th edge attribute in list of attributes
+    * bin_counts: counts in each bin of the distribution histogram
+    * bin_edges: edges of each bin of the distribution histogram
+
+* times - duration of time it took to generate this profile in milliseconds
 
 Profile Options
 ===============
@@ -519,6 +544,7 @@ text options, order options, category options, data labeler options) can be
 enabled or disabled. By default, all options are toggled on. Below is an example
 of how to alter these options. Options shared by structured and unstructured options
 must be specified as structured or unstructured when setting (ie. datalabeler options).
+
 
 .. code-block:: python
 

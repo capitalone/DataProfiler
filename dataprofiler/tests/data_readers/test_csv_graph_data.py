@@ -206,6 +206,11 @@ class TestGraphDataClass(unittest.TestCase):
                     all_edges_present = False
             self.assertTrue(all_edges_present)
 
+    def test_class_load(self):
+        for input_file in self.input_file_names_pos:
+            data = GraphData(input_file["path"])
+            self.assertEqual(type(data), GraphData)
+
     def test_factory_load(self):
         """
         Determine whether factory class Data identifies file correctly

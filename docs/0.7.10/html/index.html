@@ -11,20 +11,20 @@
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css" />
-    
+
 
 
 <style>
   :root {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
-  
+
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  
+
     }
   }
 
@@ -32,16 +32,16 @@
   .override-light {
     --color-code-background: #f8f8f8;
   --color-code-foreground: black;
-  
+
   }
   .override-dark {
     --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
-  
+
   }
 </style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
   <body dir="">
-    
+
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
   <symbol id="svg-toc" viewBox="0 0 24 24">
     <title>Contents</title>
@@ -98,16 +98,16 @@
   </header>
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
-      
+
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
-  
+
   <div class="sidebar-logo-container">
     <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
     <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
   </div>
-  
+
   <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.7.10</div></span>
-  
+
 </a><form class="sidebar-search-container" method="get" action="search.html">
   <input class="sidebar-search" placeholder=Search name="q">
   <input type="hidden" name="check_keywords" value="yes">
@@ -206,7 +206,7 @@
 </div>
 </div>
       </div>
-      
+
     </div>
   </aside>
   <main class="main">
@@ -319,7 +319,7 @@
             <span class="p">},</span>
             <span class="s2">"times"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">string</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
             <span class="s2">"format"</span><span class="p">:</span> <span class="n">string</span>
-        <span class="p">},</span>
+        <span class="p">}</span>
         <span class="s2">"null_replication_metrics"</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">"class_prior"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
             <span class="s2">"class_sum"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
@@ -360,31 +360,6 @@
         <span class="s2">"times"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">string</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
     <span class="p">}</span>
 <span class="p">}</span>
-</pre></div>
-</div>
-<p>The format for a graph profile is below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="s2">"num_nodes"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<span class="s2">"num_edges"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<span class="s2">"categorical_attributes"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">string</span><span class="p">],</span>
-<span class="s2">"continuous_attributes"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">string</span><span class="p">],</span>
-<span class="s2">"avg_node_degree"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<span class="s2">"global_max_component_size"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<span class="s2">"continuous_distribution"</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">"&lt;attribute_1&gt;"</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">"name"</span><span class="p">:</span> <span class="n">string</span><span class="p">,</span>
-        <span class="s2">"scale"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="s2">"properties"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]</span>
-    <span class="p">},</span>
-    <span class="s2">"&lt;attribute_2&gt;"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">},</span>
-<span class="s2">"categorical_distribution"</span><span class="p">:</span> <span class="p">{</span>
-    <span class="s2">"&lt;attribute_1&gt;"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="s2">"&lt;attribute_2&gt;"</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">"bin_counts"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
-        <span class="s2">"bin_edges"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
-    <span class="p">},</span>
-<span class="p">},</span>
-<span class="s2">"times"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">string</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
 </pre></div>
 </div>
 <section id="supported-data-formats">
@@ -566,21 +541,6 @@ with a text file.</p>
 </pre></div>
 </div>
 </section>
-<section id="graph-profiler">
-<h3>Graph Profiler<a class="headerlink" href="#graph-profiler" title="Permalink to this headline">¶</a></h3>
-<p>DataProfiler also provides the ability to profile graph data from a csv file. Below is an example of the graph profiler with a graph data csv file:
-.. code-block:: python</p>
-<blockquote>
-<div><p>import dataprofiler as dp
-import pprint</p>
-<p>my_graph = dp.Data(‘graph_file.csv’)
-profile = dp.Profiler(my_graph)</p>
-<p># print the report using pretty print (json dump does not work on numpy array values inside dict)
-report = profile.report()
-printer = pprint.PrettyPrinter(sort_dicts=False, compact=True)
-printer.pprint(report)</p>
-</div></blockquote>
-</section>
 <section id="specifying-a-filetype-or-delimiter">
 <h3>Specifying a Filetype or Delimiter<a class="headerlink" href="#specifying-a-filetype-or-delimiter" title="Permalink to this headline">¶</a></h3>
 <p>Example of specifying a CSV data type, with a <cite>,</cite> delimiter.
@@ -637,7 +597,7 @@ In addition, it utilizes only the first 10,000 rows.</p>
 
       </article>
       <footer>
-        
+
         <div class="related-pages">
           <a class="next-page" href="install.html">
               <div class="page-info">
@@ -648,7 +608,7 @@ In addition, it utilizes only the first 10,000 rows.</p>
               </div>
               <svg><use href="#svg-arrow-right"></use></svg>
             </a>
-          
+
         </div>
 
         <div class="related-information">
@@ -664,12 +624,12 @@ In addition, it utilizes only the first 10,000 rows.</p>
               Show Source
             </a>
         </div>
-        
+
       </footer>
     </div>
     <aside class="toc-drawer">
-      
-      
+
+
       <div class="toc-sticky toc-scroll">
         <div class="toc-title-container">
           <span class="toc-title">
@@ -693,7 +653,6 @@ In addition, it utilizes only the first 10,000 rows.</p>
 <li><a class="reference internal" href="#merging-profiles">Merging Profiles</a></li>
 <li><a class="reference internal" href="#profile-a-pandas-dataframe">Profile a Pandas DataFrame</a></li>
 <li><a class="reference internal" href="#unstructured-profiler">Unstructured Profiler</a></li>
-<li><a class="reference internal" href="#graph-profiler">Graph Profiler</a></li>
 <li><a class="reference internal" href="#specifying-a-filetype-or-delimiter">Specifying a Filetype or Delimiter</a><ul>
 </ul>
 </li>
@@ -707,8 +666,8 @@ In addition, it utilizes only the first 10,000 rows.</p>
           </div>
         </div>
       </div>
-      
-      
+
+
     </aside>
   </main>
 </div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>

@@ -170,32 +170,6 @@ The format for an unstructured profile is below:
         }
     }
 
-The format for a graph profile is below:
-
-.. code-block:: python
-    
-    "num_nodes": int,
-    "num_edges": int,
-    "categorical_attributes": list[string],
-    "continuous_attributes": list[string],
-    "avg_node_degree": float,
-    "global_max_component_size": int,
-    "continuous_distribution": {
-        "<attribute_1>": {
-            "name": string,
-            "scale": float,
-            "properties": list[float, np.array]
-        },
-        "<attribute_2>": None,
-    },
-    "categorical_distribution": {
-        "<attribute_1>": None,
-        "<attribute_2>": {
-            "bin_counts": list[int],
-            "bin_edges": list[float]
-        },
-    }, 
-    "times": dict[string, float]
 
 Supported Data Formats
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -395,24 +369,6 @@ Another example of unstructured profile with pd.Series of string is given as bel
     # print the report using json to prettify.
     report = profile.report(report_options={"output_format":"pretty"})
     print(json.dumps(report, indent=4))
-
-
-Graph Profiler
-~~~~~~~~~~~~~~
-
-DataProfiler also provides the ability to profile graph data from a csv file. Below is an example of the graph profiler with a graph data csv file:
-.. code-block:: python
-    import dataprofiler as dp
-    import pprint
-
-    my_graph = dp.Data('graph_file.csv')
-    profile = dp.Profiler(my_graph)
-
-    # print the report using pretty print (json dump does not work on numpy array values inside dict)
-    report = profile.report()
-    printer = pprint.PrettyPrinter(sort_dicts=False, compact=True)
-    printer.pprint(report)
-
 
 Specifying a Filetype or Delimiter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

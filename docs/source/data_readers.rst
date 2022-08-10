@@ -17,6 +17,7 @@ The supported file types are:
 * JSON object
 * Avro file
 * Parquet file
+* Graph data file
 * Text file
 * Pandas DataFrame
 * A URL that points to one of the supported file types above
@@ -111,26 +112,12 @@ Possible `options`:
 * data_format - must be a string, choices: "dataframe", "records", "json"
 * selected_keys - columns being selected from the entire dataset, must be a list `["column 1", "ssn"]`
 
-TextData
-========
-
-Data class for loading datasets of type TEXT. Can be specified by
-passing in memory data or via a file path. Options pertaining the TEXT
-may also be specified using the options dict parameter.
-
-`TextData(input_file_path=None, data=None, options=None)`
-
-Possible `options`:
-
-* data_format: user selected format in which to return data. Currently only supports "text".
-* samples_per_line - chunks by which to read in the specified dataset
-
 GraphData
 =========
 
 Data Class for loading datasets of graph data. Currently takes CSV format,
 further type formats will be supported. Can be specified by passing
-in memory data or via a file path. Options pertaining the CSV file may also
+in memory data (NetworkX Graph) or via a file path. Options pertaining the CSV file may also
 be specified using the options dict parameter. Loads data from CSV into memory
 as a NetworkX Graph.
 
@@ -145,6 +132,20 @@ Possible `options`:
   * `"header": 'auto'` for auto detection
   * `"header": None` for no header
   * `"header": <INT>` to specify the header row (0 based index)
+
+TextData
+========
+
+Data class for loading datasets of type TEXT. Can be specified by
+passing in memory data or via a file path. Options pertaining the TEXT
+may also be specified using the options dict parameter.
+
+`TextData(input_file_path=None, data=None, options=None)`
+
+Possible `options`:
+
+* data_format: user selected format in which to return data. Currently only supports "text".
+* samples_per_line - chunks by which to read in the specified dataset
 
 
 Data Using a URL

@@ -211,7 +211,7 @@ The format for a graph profile is below:
         "bin_edges": list[float]
     },
     ...
-}, 
+},
 "times": dict[string, float]
 
 ```

@@ -128,21 +128,6 @@ class GraphData(BaseData):
         return column_names
 
     @classmethod
-    def _get_graph_columns(cls, column_names, source_keywords, target_keywords, graph_keywords):
-        """Get column names for source, target, and node graph parameters."""
-        source_index = cls._find_target_string_in_column(
-            column_names, source_keywords
-        )
-        destination_index = cls._find_target_string_in_column(
-            column_names, target_keywords
-        )
-        node_index = cls._find_target_string_in_column(
-            column_names, graph_keywords
-        )
-        return source_index, destination_index, node_index
-
-
-    @classmethod
     def is_match(cls, file_path, options=None):
         """
         Determine whether the file is a graph.
@@ -165,13 +150,15 @@ class GraphData(BaseData):
         source_keywords = options.get("source_keywords", ["source", "src", "origin"])
         target_keywords = options.get("target_keywords", ["target", "destination", "dst"])
         graph_keywords = options.get("graph_keywords", ["node"])
-        source_index, destination_index, node_index = cls._get_graph_columns(
-            column_names, source_keywords, target_keywords, graph_keywords
-        )
+        source_index = cls._find_target_string_in_column(column_names, source_keywords)
+        destination_index = cls._find_target_string_in_column(
+            column_names, target_keywords)
+        graph_index = cls._find_target_string_in_column(
+            column_names, graph_keywords)
 
         has_source = True if source_index >= 0 else False
         has_target = True if destination_index >= 0 else False
-        has_graph_data = True if node_index >= 0 else False
+        has_graph_data = True if graph_index >= 0 else False
 
         if has_target and has_source and has_graph_data:
             options.update(source_node=source_index)

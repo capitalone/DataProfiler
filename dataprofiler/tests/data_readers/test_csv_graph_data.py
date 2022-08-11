@@ -161,7 +161,7 @@ class TestGraphDataClass(unittest.TestCase):
                     input_file["path"],
                     options.get("header", 0),
                     options.get("delimiter", ","),
-                    options.get("encoding", "utf-8")
+                    options.get("encoding", "utf-8"),
                 ),
                 column_names,
             )

@@ -64,9 +64,7 @@ class GraphData(BaseData):
         self._source_keywords = options.get(
             "source_keywords", ["source", "src", "origin"]
         )
-        self._graph_keywords = options.get(
-            "graph_keywords", ["node"]
-        )
+        self._graph_keywords = options.get("graph_keywords", ["node"])
         self._column_names = options.get("column_names", None)
         self._delimiter = options.get("delimiter", None)
         self._quotechar = options.get("quotechar", None)
@@ -146,17 +144,17 @@ class GraphData(BaseData):
         header = options.get("header", 0)
         delimiter = options.get("delimiter", ",")
         encoding = options.get("encoding", "utf-8")
-        column_names = cls.csv_column_names(
-            file_path, header, delimiter, encoding
-        )
+        column_names = cls.csv_column_names(file_path, header, delimiter, encoding)
         source_keywords = options.get("source_keywords", ["source", "src", "origin"])
-        target_keywords = options.get("target_keywords", ["target", "destination", "dst"])
+        target_keywords = options.get(
+            "target_keywords", ["target", "destination", "dst"]
+        )
         graph_keywords = options.get("graph_keywords", ["node"])
         source_index = cls._find_target_string_in_column(column_names, source_keywords)
         destination_index = cls._find_target_string_in_column(
-            column_names, target_keywords)
-        graph_index = cls._find_target_string_in_column(
-            column_names, graph_keywords)
+            column_names, target_keywords
+        )
+        graph_index = cls._find_target_string_in_column(column_names, graph_keywords)
 
         has_source = True if source_index >= 0 else False
         has_target = True if destination_index >= 0 else False
@@ -184,7 +182,8 @@ class GraphData(BaseData):
 
             if not self._delimiter or not self._quotechar:
                 delimiter, quotechar = CSVData._guess_delimiter_and_quotechar(
-                    data_as_str)
+                    data_as_str
+                )
             if not self._delimiter:
                 self._delimiter = delimiter
             if not self._quotechar:
@@ -205,8 +204,8 @@ class GraphData(BaseData):
                     for line in data_as_str.split("\n"):
                         if len(line) > 0:
                             if (
-                                    line.count(self._delimiter) == 1
-                                    and line.strip()[-1] == self._delimiter
+                                line.count(self._delimiter) == 1
+                                and line.strip()[-1] == self._delimiter
                             ):
                                 count_delimiter_last += 1
                             num_lines_read += 1
@@ -215,10 +214,7 @@ class GraphData(BaseData):
 
         if self._column_names is None:
             self._column_names = self.csv_column_names(
-                self.input_file_path,
-                self._header,
-                self._delimiter,
-                self.file_encoding
+                self.input_file_path, self._header, self._delimiter, self.file_encoding
             )
         if self._source_node is None:
             self._source_node = self._find_target_string_in_column(
@@ -228,7 +224,7 @@ class GraphData(BaseData):
             self._destination_node = self._find_target_string_in_column(
                 self._column_names, self._target_keywords
             )
-        
+
         data_as_pd = data_utils.read_csv_df(
             self.input_file_path,
             self._delimiter,

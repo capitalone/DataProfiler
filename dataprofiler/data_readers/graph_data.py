@@ -41,6 +41,7 @@ class GraphData(BaseData):
         target_node: index of the target node column, range of (0,n-1)
         target_keywords: list of keywords to identify target/destination node col
         source_keywords: list of keywords to identify source node col
+        graph_keywords: list of keywords to identify if data has graph data
         header: location o the header in the file
         quotechar: quote character used in the delimited file
 
@@ -63,9 +64,10 @@ class GraphData(BaseData):
         self._source_keywords = options.get(
             "source_keywords", ["source", "src", "origin"]
         )
-        self._column_names = options.get(
-            "column_names", self.csv_column_names(self.input_file_path, self.options)
+        self._graph_keywords = options.get(
+            "graph_keywords", ["node"]
         )
+        self._column_names = options.get("column_names", None)
         self._delimiter = options.get("delimiter", None)
         self._quotechar = options.get("quotechar", None)
         self._header = options.get("header", "auto")
@@ -102,25 +104,19 @@ class GraphData(BaseData):
         return target_index
 
     @classmethod
-    def csv_column_names(cls, file_path, options):
+    def csv_column_names(cls, file_path, header, delimiter, encoding="utf-8"):
         """Fetch a list of column names from the csv file."""
         column_names = []
-        if options.get("header") is None:
-            return column_names
-
-        delimiter = options.get("delimiter", None)
         if delimiter is None:
             delimiter = ","
 
-        with FileOrBufferHandler(
-            file_path, encoding=options.get("encoding", "utf-8")
-        ) as csv_file:
+        with FileOrBufferHandler(file_path, encoding=encoding) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=delimiter)
 
             # fetch only column names
             row_count = 0
             for row in csv_reader:
-                if row_count is options.get("header"):
+                if row_count is header:
                     column_names.append(row)
                     break
                 row_count += 1
@@ -130,6 +126,21 @@ class GraphData(BaseData):
         for index in range(0, len(column_names)):
             column_names[index] = column_names[index].replace(" ", "")
         return column_names
+
+    @classmethod
+    def _get_graph_columns(cls, column_names, source_keywords, target_keywords, graph_keywords):
+        """Get column names for source, target, and node graph parameters."""
+        source_index = cls._find_target_string_in_column(
+            column_names, source_keywords
+        )
+        destination_index = cls._find_target_string_in_column(
+            column_names, target_keywords
+        )
+        node_index = cls._find_target_string_in_column(
+            column_names, graph_keywords
+        )
+        return source_index, destination_index, node_index
+
 
     @classmethod
     def is_match(cls, file_path, options=None):
@@ -145,21 +156,24 @@ class GraphData(BaseData):
             options = dict()
         if not CSVData.is_match(file_path, options):
             return False
-        column_names = cls.csv_column_names(file_path, options)
-        source_keywords = ["source", "src", "origin"]
-        target_keywords = ["target", "destination", "dst"]
-        node_keyword = ["node"]
-        source_index = cls._find_target_string_in_column(column_names, source_keywords)
-        destination_index = cls._find_target_string_in_column(
-            column_names, target_keywords
+        header = options.get("header", 0)
+        delimiter = options.get("delimiter", ",")
+        encoding = options.get("encoding", "utf-8")
+        column_names = cls.csv_column_names(
+            file_path, header, delimiter, encoding
         )
-        node_index = cls._find_target_string_in_column(column_names, node_keyword)
+        source_keywords = options.get("source_keywords", ["source", "src", "origin"])
+        target_keywords = options.get("target_keywords", ["target", "destination", "dst"])
+        graph_keywords = options.get("graph_keywords", ["node"])
+        source_index, destination_index, node_index = cls._get_graph_columns(
+            column_names, source_keywords, target_keywords, graph_keywords
+        )
 
         has_source = True if source_index >= 0 else False
         has_target = True if destination_index >= 0 else False
-        has_node = True if node_index >= 0 else False
+        has_graph_data = True if node_index >= 0 else False
 
-        if has_target and has_source and has_node:
+        if has_target and has_source and has_graph_data:
             options.update(source_node=source_index)
             options.update(destination_node=destination_index)
             options.update(destination_list=target_keywords)
@@ -173,15 +187,58 @@ class GraphData(BaseData):
         networkx_graph = nx.Graph()
 
         # read lines from csv
-        csv_as_list = []
-        if not self._checked_header or self._header == "auto":
+        if not self._checked_header or not self._delimiter:
+            delimiter, quotechar = None, None
             data_as_str = data_utils.load_as_str_from_file(
                 self.input_file_path, self.file_encoding
             )
-            self._header = CSVData._guess_header_row(
-                data_as_str, self._delimiter, self._quotechar
+
+            if not self._delimiter or not self._quotechar:
+                delimiter, quotechar = CSVData._guess_delimiter_and_quotechar(
+                    data_as_str)
+            if not self._delimiter:
+                self._delimiter = delimiter
+            if not self._quotechar:
+                self._quotechar = quotechar
+
+            if self._header == "auto":
+                self._header = CSVData._guess_header_row(
+                    data_as_str, self._delimiter, self._quotechar
+                )
+                self._checked_header = True
+
+            # if there is only one delimiter at the end of each row,
+            # set delimiter to None
+            if self._delimiter:
+                if len(data_as_str) > 0:
+                    num_lines_read = 0
+                    count_delimiter_last = 0
+                    for line in data_as_str.split("\n"):
+                        if len(line) > 0:
+                            if (
+                                    line.count(self._delimiter) == 1
+                                    and line.strip()[-1] == self._delimiter
+                            ):
+                                count_delimiter_last += 1
+                            num_lines_read += 1
+                    if count_delimiter_last == num_lines_read:
+                        self._delimiter = None
+
+        if self._column_names is None:
+            self._column_names = self.csv_column_names(
+                self.input_file_path,
+                self._header,
+                self._delimiter,
+                self.file_encoding
             )
-            self._checked_header = True
+        if self._source_node is None:
+            self._source_node = self._find_target_string_in_column(
+                self._column_names, self._source_keywords
+            )
+        if self._destination_node is None:
+            self._destination_node = self._find_target_string_in_column(
+                self._column_names, self._target_keywords
+            )
         
         data_as_pd = data_utils.read_csv_df(
             self.input_file_path,

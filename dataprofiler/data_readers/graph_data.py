@@ -109,6 +109,8 @@ class GraphData(BaseData):
         column_names = []
         if delimiter is None:
             delimiter = ","
+        if header is None:
+            return column_names
 
         with FileOrBufferHandler(file_path, encoding=encoding) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=delimiter)

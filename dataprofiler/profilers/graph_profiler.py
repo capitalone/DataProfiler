@@ -77,7 +77,7 @@ class GraphProfiler(object):
 
     def diff(self, other_profile, options=None):
         """
-        Find the differences for two unstructured text profiles.
+        Find the differences for two graph profiles.
 
         :param other_profile: profile to find the difference with
         :type other_profile: GraphProfiler

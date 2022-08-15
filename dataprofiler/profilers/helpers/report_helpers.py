@@ -166,6 +166,14 @@ def _prepare_report(report, output_format=None, omit_keys=None):
 
         # Do not recurse or modify profile_schema
         elif key == "profile_schema" and "profile_schema" not in omit_keys:
+            if output_format in ["serializable", "pretty"]:
+                profile_schema_keys = list(value.keys())
+                for i, col_name in enumerate(profile_schema_keys):
+                    if isinstance(col_name, np.int64):
+                        profile_schema_keys[i] = int(col_name)
+                    elif not isinstance(col_name, (str, int, float, bool, type(None))):
+                        profile_schema_keys[i] = str(col_name)
+                value = dict(zip(profile_schema_keys, value.values()))
             fmt_report[key] = value
 
         elif isinstance(value, dict):

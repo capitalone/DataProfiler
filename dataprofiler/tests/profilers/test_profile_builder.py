@@ -1087,6 +1087,38 @@ class TestStructuredProfiler(unittest.TestCase):
         }
         self.assertDictEqual(expected_schema, report["global_stats"]["profile_schema"])
 
+    def test_report_casts_non_seriazable_schemas(self, *mocks):
+        file_path = os.path.join(test_root_path, "data", "csv/iris_no_header.csv")
+        data = dp.Data(file_path)
+
+        profiler_options = ProfilerOptions()
+        profiler_options.set(
+            {
+                "data_labeler.is_enabled": False,
+                "multiprocess.is_enabled": False,
+                "chi2_homogeneity.is_enabled": False,
+            }
+        )
+        profiler = dp.StructuredProfiler(data=data, options=profiler_options)
+
+        # validate no options creates original
+        report = profiler.report()
+        self.assertIsInstance(
+            list(report["global_stats"]["profile_schema"].keys())[0], np.int64
+        )
+
+        # validate np.int64 updates profile_schema to int for serialzable
+        report = profiler.report(report_options={"output_format": "serializable"})
+        self.assertIsInstance(
+            list(report["global_stats"]["profile_schema"].keys())[0], int
+        )
+
+        # validate np.int64 updates profile_schema to int for pretty
+        report = profiler.report(report_options={"output_format": "pretty"})
+        self.assertIsInstance(
+            list(report["global_stats"]["profile_schema"].keys())[0], int
+        )
+
     def test_omit_keys_with_duplicate_cols(self):
         data = pd.DataFrame(
             [[1, 2, 3, 4, 5, 6], [10, 20, 30, 40, 50, 60]],

@@ -166,7 +166,7 @@ def _prepare_report(report, output_format=None, omit_keys=None):
 
         # Do not recurse or modify profile_schema
         elif key == "profile_schema" and "profile_schema" not in omit_keys:
-            if output_format in ["serializable", "pretty"]:
+            if output_format in ["serializable", "pretty", "compact"]:
                 profile_schema_keys = list(value.keys())
                 for i, col_name in enumerate(profile_schema_keys):
                     if isinstance(col_name, np.int64):

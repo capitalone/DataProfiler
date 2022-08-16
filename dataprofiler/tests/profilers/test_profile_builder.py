@@ -1108,16 +1108,11 @@ class TestStructuredProfiler(unittest.TestCase):
         )
 
         # validate np.int64 updates profile_schema to int for serialzable
-        report = profiler.report(report_options={"output_format": "serializable"})
-        self.assertIsInstance(
-            list(report["global_stats"]["profile_schema"].keys())[0], int
-        )
-
-        # validate np.int64 updates profile_schema to int for pretty
-        report = profiler.report(report_options={"output_format": "pretty"})
-        self.assertIsInstance(
-            list(report["global_stats"]["profile_schema"].keys())[0], int
-        )
+        for output_format in ["serializable", "pretty", "compact"]:
+            report = profiler.report(report_options={"output_format": output_format})
+            self.assertIsInstance(
+                list(report["global_stats"]["profile_schema"].keys())[0], int
+            )
 
     def test_omit_keys_with_duplicate_cols(self):
         data = pd.DataFrame(

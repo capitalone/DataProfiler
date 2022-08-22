@@ -131,9 +131,7 @@
 <li class="toctree-l2"><a class="reference internal" href="profiler_example.html#Profiler-Type">Profiler Type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="profiler_example.html#Differences-in-Data">Differences in Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Graph Pipeline Demo</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Profile">Profile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Conclusion">Conclusion</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Graph Profiler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
@@ -506,9 +504,8 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>We notice that the <code class="docutils literal notranslate"><span class="pre">Data</span></code> class automatically detected the input file as graph data. The <code class="docutils literal notranslate"><span class="pre">GraphData</span></code> class is able to differentiate between tabular and graph csv data. After <code class="docutils literal notranslate"><span class="pre">Data</span></code> matches the input file as graph data, <code class="docutils literal notranslate"><span class="pre">GraphData</span></code> does the necessary work to load the csv data into a NetworkX Graph.</p>
 <p><code class="docutils literal notranslate"><span class="pre">Profiler</span></code> runs <code class="docutils literal notranslate"><span class="pre">GraphProfiler</span></code> when graph data is input (or when <code class="docutils literal notranslate"><span class="pre">data_type="graph"</span></code> is specified). The <code class="docutils literal notranslate"><span class="pre">report()</span></code> function outputs the profile for the user.</p>
-</section>
 <section id="Profile">
-<h1>Profile<a class="headerlink" href="#Profile" title="Permalink to this headline">¶</a></h1>
+<h2>Profile<a class="headerlink" href="#Profile" title="Permalink to this headline">¶</a></h2>
 <p>The profile skeleton looks like this:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>profile = {
     "num_nodes": ...,
@@ -544,8 +541,9 @@ div.rendered_html tbody tr:hover {
 <p>For more information on shape parameters <code class="docutils literal notranslate"><span class="pre">a</span></code> and <code class="docutils literal notranslate"><span class="pre">s</span></code>: <a class="reference external" href="https://docs.scipy.org/doc/scipy/tutorial/stats.html#shape-parameters">https://docs.scipy.org/doc/scipy/tutorial/stats.html#shape-parameters</a></p>
 </section>
 <section id="Conclusion">
-<h1>Conclusion<a class="headerlink" href="#Conclusion" title="Permalink to this headline">¶</a></h1>
+<h2>Conclusion<a class="headerlink" href="#Conclusion" title="Permalink to this headline">¶</a></h2>
 <p>We have shown the graph pipeline in the DataProfiler. It works similarly to the current DataProfiler implementation.</p>
+</section>
 </section>
 
       </article>
@@ -602,9 +600,11 @@ div.rendered_html tbody tr:hover {
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Graph Pipeline Demo</a></li>
+<li><a class="reference internal" href="#">Graph Pipeline Demo</a><ul>
 <li><a class="reference internal" href="#Profile">Profile</a></li>
 <li><a class="reference internal" href="#Conclusion">Conclusion</a></li>
+</ul>
+</li>
 </ul>
 
           </div>

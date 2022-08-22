@@ -33,28 +33,42 @@ reStructuredText Docstring Format is the standard. Here is an example:
 
 ### How to update the documentation:
 
-To update the docs branch, checkout the gh-pages branch. Make sure it is up to
-date, then clone the dataprofiler from the feature branch you want in order to
-update the documentation (probably main).
+1. Either with an existing clone of `capitalone/dataprofiler` or clone the `capitalone/dataprofiler` reposotory to your local computer with the following command: 
+```bash
+git clone https://github.com/capitalone/DataProfiler dataprofiler
+```
 
-    # clone the feature branch into the base of this repository
-    git clone https://github.com/capitalone/DataProfiler feature_branch
+2. Next ensure that `gh-pages` branch is checked out in `dataprofiler`: 
+```bash
+cd dataprofiler 
+git checkout gh-pages
+```
 
-Install requirements:
+3. Next inside `dataprofiler` repo that we just cloned down to your local machine, clone the repository under the alias `feature_branch` inside the root of `dataprofiler` from step one: 
+```bash
+git clone https://github.com/capitalone/DataProfiler feature_branch
+```
 
-    # install sphinx requirements
-    brew install pandoc
-    pip install -r requirements.txt
-    
-    # install the requirements from the feature branch
-    pip install -r feature_branch/requirements.txt
-    pip install -r feature_branch/requirements-ml.txt
-    pip install -r feature_branch/requirements-reports.txt
+4. Still in the root of `dataprofiler`, install the requirements needed for generating the documentation: 
+```bash
+# install sphinx requirements
+brew install pandoc
+pip install -r requirements.txt
+```
+and 
 
-In /docs run:
+```bash
+# install the requirements from the feature branch
+pip install -r feature_branch/requirements.txt
+pip install -r feature_branch/requirements-ml.txt
+pip install -r feature_branch/requirements-reports.txt
+```
 
-    cd docs
-    python update_documentation.py
+5. And finally, from the root of `dataprofiler`, run the following commands to generate the sphinx documentation: 
+```bash
+cd feature_branch/docs/
+python update_documentation.py
+```
 
 If you make adjustments to the code comments, you may rerun the command again to
  overwrite the specified version. 
@@ -72,10 +86,3 @@ and run:
 cd docs
 python update_documentation.py
 ```
-
-
-
-
-
-
-

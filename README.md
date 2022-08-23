@@ -40,7 +40,7 @@ git clone https://github.com/capitalone/DataProfiler dataprofiler
 
 2. Next ensure that `gh-pages` branch is checked out in `dataprofiler`: 
 ```bash
-cd dataprofiler 
+cd dataprofiler
 git checkout gh-pages
 ```
 
@@ -55,7 +55,8 @@ git clone https://github.com/capitalone/DataProfiler feature_branch
 brew install pandoc
 pip install -r requirements.txt
 ```
-and 
+
+and
 
 ```bash
 # install the requirements from the feature branch
@@ -66,12 +67,11 @@ pip install -r feature_branch/requirements-reports.txt
 
 5. And finally, from the root of `dataprofiler`, run the following commands to generate the sphinx documentation: 
 ```bash
-cd feature_branch/docs/
+cd docs/
 python update_documentation.py
 ```
 
-If you make adjustments to the code comments, you may rerun the command again to
- overwrite the specified version. 
+If you make adjustments to the code comments, you may rerun the command again to overwrite the specified version.
 
 Once the documentation is updated, commit and push the whole 
 /docs folder as well as the index.html file. API documentation 

@@ -33,23 +33,23 @@ reStructuredText Docstring Format is the standard. Here is an example:
 
 ### How to update the documentation:
 
-1. Either with an existing clone of `capitalone/dataprofiler` or clone the `capitalone/dataprofiler` reposotory to your local computer with the following command: 
+1. Either with an existing clone of `capitalone/DataProfiler` or clone the `capitalone/DataProfiler` reposotory to your local computer with the following command: 
 ```bash
-git clone https://github.com/capitalone/DataProfiler dataprofiler
+git clone https://github.com/capitalone/DataProfiler
 ```
 
-2. Next ensure that `gh-pages` branch is checked out in `dataprofiler`: 
+2. Next ensure that `gh-pages` branch is checked out in `DataProfiler` repository folder: 
 ```bash
-cd dataprofiler
+cd DataProfiler
 git checkout gh-pages
 ```
 
-3. Next inside `dataprofiler` repo that we just cloned down to your local machine, clone the repository under the alias `feature_branch` inside the root of `dataprofiler` from step one: 
+3. Next inside `DataProfiler` repo that we just cloned down to your local machine, clone the repository under the alias `feature_branch` inside the root of `DataProfiler` from step one: 
 ```bash
 git clone https://github.com/capitalone/DataProfiler feature_branch
 ```
 
-4. Still in the root of `dataprofiler`, install the requirements needed for generating the documentation: 
+4. Still in the root of `DataProfiler`, install the requirements needed for generating the documentation: 
 ```bash
 # install sphinx requirements
 brew install pandoc
@@ -65,7 +65,7 @@ pip install -r feature_branch/requirements-ml.txt
 pip install -r feature_branch/requirements-reports.txt
 ```
 
-5. And finally, from the root of `dataprofiler`, run the following commands to generate the sphinx documentation: 
+5. And finally, from the root of `DataProfiler`, run the following commands to generate the sphinx documentation: 
 ```bash
 cd docs/
 python update_documentation.py

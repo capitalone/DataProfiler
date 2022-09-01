@@ -1,0 +1,2 @@
+great-expectations==0.15.20
+-e git+https://github.com/capitalone/DataProfiler.git@6cb99241ef36bb7087343c625a792745b19c0054#egg=DataProfiler

@@ -7,7 +7,6 @@ Expectations are implemented as classes that provide a rich interface to the res
 Some Expectations are implemented in the core library. 
 Many others are contributed by the community of data practitioners that bring their domain knowledge and share it as Expectations.
 
-
 See a full list of Data Profiler Expectations available through Great Expectations on the [package page](https://greatexpectations.io/packages/capitalone_dataprofiler_expectations). 
 If you are interested in learning more about expectations, here is a link to the [docs](https://greatexpectations.io/expectations).
 

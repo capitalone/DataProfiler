@@ -186,6 +186,36 @@ The format for an unstructured profile is below:
     }
 }
 ```
+
+The format for a graph profile is below:
+```
+"num_nodes": int,
+"num_edges": int,
+"categorical_attributes": list[string],
+"continuous_attributes": list[string],
+"avg_node_degree": float,
+"global_max_component_size": int,
+"continuous_distribution": {
+    "<attribute_1>": {
+        "name": string,
+        "scale": float,
+        "properties": list[float, np.array]
+    },
+    "<attribute_2>": None,
+    ...
+},
+"categorical_distribution": {
+    "<attribute_1>": None,
+    "<attribute_2>": {
+        "bin_counts": list[int],
+        "bin_edges": list[float]
+    },
+    ...
+},
+"times": dict[string, float]
+
+```
+
 # Profile Statistic Descriptions
 
 ### Structured Profile
@@ -284,6 +314,29 @@ The format for an unstructured profile is below:
     * `word_count` - the number of occurrences of each distinct word in the input data
     * `times` - the duration of time it took to generate the vocab and words statistics in milliseconds
 
+### Graph Profile
+* `num_nodes` - number of nodes in the graph
+* `num_edges` - number of edges in the graph
+* `categorical_attributes` - list of categorical edge attributes
+* `continuous_attributes` - list of continuous edge attributes
+* `avg_node_degree` - average degree of nodes in the graph
+* `global_max_component_size`: size of the global max component
+
+#### continuous_distribution:
+* `<attribute_N>`: name of N-th edge attribute in list of attributes
+    * `name` - name of distribution for attribute
+    * `scale` - negative log likelihood used to scale and compare distributions
+    * `properties` - list of statistical properties describing the distribution
+        * [shape (optional), loc, scale, mean, variance, skew, kurtosis]
+
+
+#### categorical_distribution:
+* `<attribute_N>`: name of N-th edge attribute in list of attributes
+    * `bin_counts`: counts in each bin of the distribution histogram
+    * `bin_edges`: edges of each bin of the distribution histogram
+
+* times - duration of time it took to generate this profile in milliseconds
+
 # Support
 
 ### Supported Data Formats
@@ -376,7 +429,7 @@ specifically, see section [Specifying a Filetype or Delimiter](#specifying-a-fil
 
 ### Profile a File
 
-Example uses a CSV file for example, but CSV, JSON, Avro, Parquet or Text should also work.
+Example uses a CSV file for example, but CSV, JSON, Avro, Parquet or Text also work.
 
 ```python
 import json
@@ -487,7 +540,7 @@ print(json.dumps(report, indent=4))
 print(json.dumps(report["data_stats"][0], indent=4))
 ```
 
-### Unstructured profiler
+### Unstructured Profiler
 In addition to the structured profiler, DataProfiler provides unstructured profiling for the TextData object or string. The unstructured profiler also works with list[string], pd.Series(string) or pd.DataFrame(string) given profiler_type option specified as `unstructured`. Below is an example of the unstructured profiler with a text file.
 ```python
 import dataprofiler as dp
@@ -514,8 +567,23 @@ profile = dp.Profiler(text_data, profiler_type='unstructured')
 report = profile.report(report_options={"output_format": "pretty"})
 print(json.dumps(report, indent=4))
 ```
-**Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**
 
+### Graph Profiler
+DataProfiler also provides the ability to profile graph data from a csv file. Below is an example of the graph profiler with a graph data csv file:
+```python
+import dataprofiler as dp
+import pprint
+
+my_graph = dp.Data('graph_file.csv')
+profile = dp.Profiler(my_graph)
+
+# print the report using pretty print (json dump does not work on numpy array values inside dict)
+report = profile.report()
+printer = pprint.PrettyPrinter(sort_dicts=False, compact=True)
+printer.pprint(report)
+```
+
+**Visit the [documentation page](https://capitalone.github.io/DataProfiler/) for additional Examples and API details**
 
 # References
 ```

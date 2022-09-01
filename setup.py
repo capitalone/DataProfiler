@@ -43,14 +43,14 @@ DESCRIPTION = (
 setup(
     name="DataProfiler",
     version=__version__,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     # The project's main homepage.
     url="https://github.com/capitalone/data-profiler",
     # Author details
-    author="Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden",
+    author="Jeremy Goodsitt, Taylor Turner, Michael Davis, Kenny Bean, Tyler Farnan",
     # Choose your license
     license="Apache License, Version 2.0",
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers

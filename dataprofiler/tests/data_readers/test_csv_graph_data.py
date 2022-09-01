@@ -98,6 +98,11 @@ class TestGraphDataClass(unittest.TestCase):
 
         cls.file_or_buf_list = cls.input_file_names_pos + cls.buffer_list
 
+    @classmethod
+    def setUp(cls):
+        for buffer in cls.buffer_list:
+            buffer["path"].seek(0)
+
     def test_finding_string_in_column_positive(self):
         """
         Determine whether keywords can be detected with underscore before and after
@@ -147,11 +152,17 @@ class TestGraphDataClass(unittest.TestCase):
             "open_date_src",
             "open_date_dst",
         ]
-        for input_file in self.input_file_names_pos:
+        for input_file in self.file_or_buf_list:
             if input_file["list_nodes"] is None or input_file["list_edges"] is None:
                 continue
+            options = input_file["options"]
             self.assertEqual(
-                GraphData.csv_column_names(input_file["path"], input_file["options"]),
+                GraphData.csv_column_names(
+                    input_file["path"],
+                    options.get("header", 0),
+                    options.get("delimiter", ","),
+                    options.get("encoding", "utf-8"),
+                ),
                 column_names,
             )
 
@@ -177,7 +188,7 @@ class TestGraphDataClass(unittest.TestCase):
         Determine whether the data loader works as expected for nodes
         """
 
-        for input_file in self.input_file_names_pos:
+        for input_file in self.file_or_buf_list:
             options = dict()
             if not GraphData.is_match(input_file["path"], options):
                 return
@@ -191,7 +202,7 @@ class TestGraphDataClass(unittest.TestCase):
         Determine whether the data loader works as expected for edges
         """
 
-        for input_file in self.input_file_names_pos:
+        for input_file in self.file_or_buf_list:
             options = dict()
             all_edges_present = True
             if not GraphData.is_match(input_file["path"], options):
@@ -206,13 +217,18 @@ class TestGraphDataClass(unittest.TestCase):
                     all_edges_present = False
             self.assertTrue(all_edges_present)
 
+    def test_class_load(self):
+        for input_file in self.file_or_buf_list:
+            data = GraphData(input_file["path"])
+            self.assertIsNotNone(data.data)
+
     def test_factory_load(self):
         """
         Determine whether factory class Data identifies file correctly
         """
-        for input_file in self.input_file_names_pos:
+        for input_file in self.file_or_buf_list:
             data = Data(input_file["path"])
-            self.assertEqual(type(data), GraphData)
+            self.assertIsInstance(data, GraphData)
 
 
 if __name__ == "__main__":

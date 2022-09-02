@@ -11,8 +11,10 @@ See a full list of Data Profiler Expectations available through Great Expectatio
 If you are interested in learning more about expectations, here is a link to the [docs](https://greatexpectations.io/expectations).
 
 ### Local Setup
-1. Navigate to the GE examples directory: `cd examples/dataprofiler_expectations/`
-2. Initialize your virtual environment: `python3 -m venv venv`
-3. Activate the virtual environment: `source venv/bin/activate`
-4. Install Capital One's DataProfiler Expectations: `pip install git+https://github.com/great-expectations/great_expectations.git@develop#subdirectory=contrib/capitalone_dataprofiler_expectations/`
-5. Run `great_expectations init`
+```shell
+cd examples/great_expectations/ # cd to great expectations examples
+python3 -m venv venv # create venv
+source venv/bin/activate # activate venv
+pip install git+https://github.com/great-expectations/great_expectations.git@develop#subdirectory=contrib/capitalone_dataprofiler_expectations/ # install data profiler expectation package
+great_expectations init # init great expectations
+```

@@ -7,6 +7,7 @@ import re
 import sys
 
 import numpy as np
+import pandas as pd
 from rapidfuzz import process, fuzz
 
 from .. import dp_logging
@@ -31,8 +32,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         # parameter initialization
         if not parameters:
             parameters = {}
-        parameters.setdefault('negative_dataframe', )
-        parameters.setdefault('positive_dataframe', )
+        parameters.setdefault('false_positive_df', None)
+        parameters.setdefault('true_positive_df', None)
 
         # initialize class
         self.set_label_mapping(label_mapping)
@@ -46,34 +47,38 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         Raise error if invalid parameters are present.
 
         :param parameters: parameter dict containing the following parameters:
-            regex_patterns: patterns associated with each label_mapping
-                Example regex_patterns:
-                    regex_patterns = {
-                        "LABEL_1": [
-                            "LABEL_1_pattern_1",
-                            "LABEL_1_pattern_2",
-                            ...
-                        ],
-                        "LABEL_2": [
-                            "LABEL_2_pattern_1",
-                            "LABEL_2_pattern_2",
-                            ...
-                        ],
-                        ...
-                    }
-            encapsulators: regex to add to start and end of each regex
-                (used to capture entities inside of text).
-                Example encapsulators:
-                    encapsulators = {
-                        'start': r'(?<![\w.\$\%\-])',
-                        'end': r'(?:(?=(\b|[ ]))|(?=[^\w\%\$]([^\w]|$))|$)',
-                    }
-            ignore_case: whether or not to set the regex ignore case flag
-            default_label: default label to assign when no regex found
+            true_positive_df
+            false_positive_df
         :type parameters: dict
         :return: None
         """
-        raise NotImplementedError()
+        errors = []
+
+        list_of_necessary_params = [
+            "true_positive_df"
+        ]
+
+        for param in parameters:
+            value = parameters[param]
+            if param == "false_positive_df" and ( 
+                not isinstance(value, pd.DataFrame)
+                or 'attribute' != value.columns[0]
+            ):
+                errors.append(
+                    "`{}` must be a pandas DataFrame with columns names 'attribute'".format(param)
+                )
+            elif param == "true_positive_df" and (
+                not isinstance(value, pd.DataFrame)
+                or 'attribute' != value.columns[0]
+                or 'label' != value.columns[1]
+            ):
+                errors.append(
+                    "`{}` must be a pandas DataFrame with columns names 'attribute' and 'label'".format(param)
+                )
+            elif param not in list_of_necessary_params:
+                errors.append("`{}` is not an accepted parameter.".format(param))
+        if errors:
+            raise ValueError("\n".join(errors))
 
     def _compare_negative(self, list_of_column_names, check_dataframe, negative_threshold):
         """Filter out column name examples that are false positives"""
@@ -117,7 +122,14 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def _reconstruct_model(self):
         pass
-    
+
+    def _need_to_reconstruct_model(self):
+        pass
+
+    def reset_weights(self):
+        """Reset weights."""
+        pass
+
     def _make_lower_case(str, **kwargs):
         return str.lower()
 
@@ -134,14 +146,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 index_max_result = ngram_match_results.argmax(axis=0)
                 column_result.append(index_max_result)
             scores.append(column_result)
+        
         return scores
-
-    def _need_to_reconstruct_model(self):
-        pass
-
-    def reset_weights(self):
-        """Reset weights."""
-        pass
 
     def predict(self, data, batch_size=None, show_confidences=False, verbose=True, include_label=True):
         """
@@ -166,12 +172,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         :return: char level predictions and confidences
         :rtype: dict
         """
-        negative_df = self._parameters['negative_dataframe']
+        negative_df = self._parameters['false_positive_df']
         if negative_df:
             data = self._compare_negative(data, negative_df, negative_threshold=50, include_label=False)
         output = self._compare_positive(
                                         data,
-                                        self._parameters['positive_dataframe'],
+                                        self._parameters['true_positive_df'],
                                         positive_threshold=85,
                                         include_label=True)
 

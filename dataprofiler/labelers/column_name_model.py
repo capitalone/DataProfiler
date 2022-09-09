@@ -32,8 +32,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         # parameter initialization
         if not parameters:
             parameters = {}
-        parameters.setdefault('false_positive_df', None)
-        parameters.setdefault('true_positive_df', None)
+        parameters.setdefault('false_positive_dict', None)
+        parameters.setdefault('true_positive_dict', None)
 
         # initialize class
         self.set_label_mapping(label_mapping)
@@ -47,47 +47,50 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         Raise error if invalid parameters are present.
 
         :param parameters: parameter dict containing the following parameters:
-            true_positive_df
-            false_positive_df
+            true_positive_dict
+            false_positive_dict
         :type parameters: dict
         :return: None
         """
         errors = []
 
-        list_of_necessary_params = [
-            "true_positive_df"
+        list_of_accepted_parameters = [
+            "true_positive_dict",
+            "false_positive_dict",
         ]
 
         for param in parameters:
             value = parameters[param]
-            if param == "false_positive_df" and ( 
-                not isinstance(value, pd.DataFrame)
-                or 'attribute' != value.columns[0]
+            if param == "false_positive_dict" and ( 
+                not isinstance(value, list)
+                or 'attribute' not in value[0].keys()
             ):
                 errors.append(
-                    "`{}` must be a pandas DataFrame with columns names 'attribute'".format(param)
+                    "`{}` must be a list of dictionaries with at least 'attribute' as the key".format(param)
                 )
-            elif param == "true_positive_df" and (
-                not isinstance(value, pd.DataFrame)
-                or 'attribute' != value.columns[0]
-                or 'label' != value.columns[1]
+            elif param == "true_positive_dict" and (
+                not isinstance(value, list)
+                or not isinstance(value[0], dict)
+                or not isinstance(value[1]['attribute'], str)
+                or not isinstance(value[1]['label'], str)
             ):
                 errors.append(
-                    "`{}` must be a pandas DataFrame with columns names 'attribute' and 'label'".format(param)
+                    """`{}` must be a list of dictionaries each with the following
+                    two keys: 'attribute' and 'label'""".format(param)
                 )
-            elif param not in list_of_necessary_params:
+            elif param not in list_of_accepted_parameters:
                 errors.append("`{}` is not an accepted parameter.".format(param))
         if errors:
             raise ValueError("\n".join(errors))
 
-    def _compare_negative(self, list_of_column_names, check_dataframe, negative_threshold):
+    def _compare_negative(self, list_of_column_names, check_values_dict, negative_threshold):
         """Filter out column name examples that are false positives"""
         scores = self._model(
                 list_of_column_names,
-                check_dataframe,
+                check_values_dict,
                 self._make_lower_case(),
                 fuzz.token_sort_ratio,
-                include_label=True)
+                include_label=False)
 
         list_of_column_names_filtered = []
         for i in range(len(list_of_column_names)):
@@ -96,12 +99,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         return list_of_column_names_filtered
 
-    def _compare_positive(self, list_of_column_names, check_dataframe, positive_threshold, include_label):
-        """Run the model on examples that are true positives"""
+    def _compare_positive(self, list_of_column_names, check_values_dict, positive_threshold, include_label):
+        """Calculate similarity scores between list of column names and true positive examples"""
         
         scores = self._model(
             list_of_column_names,
-            check_dataframe,
+            check_values_dict,
             self._make_lower_case(),
             fuzz.token_sort_ratio,
             include_label=include_label,
@@ -112,7 +115,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             if scores[i][0] > positive_threshold:
                 output_dictionary[list_of_column_names[i]] = {}
                 output_dictionary[list_of_column_names[i]]['prediction'] = \
-                    check_dataframe['label'].iloc[scores[i][1]]
+                    check_values_dict[scores[i]]['label']
                 output_dictionary[list_of_column_names[i]]['Similarity Score'] = scores[i][0]
 
         return output_dictionary
@@ -133,10 +136,13 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     def _make_lower_case(str, **kwargs):
         return str.lower()
 
-    def _model(list_of_column_names, sensitive_terms_df, processor, scorer, include_label=True):
+    def _model(list_of_column_names, check_values_dict, processor, scorer, include_label=True):
         scores = []
+
+        check_values_list = [dict['attribute'] for dict in check_values_dict]
+
         model_outputs = process.cdist(list_of_column_names,
-                            sensitive_terms_df['attribute'],
+                            check_values_list,
                             processor=processor,
                             scorer=scorer)
 
@@ -172,18 +178,17 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         :return: char level predictions and confidences
         :rtype: dict
         """
-        negative_df = self._parameters['false_positive_df']
-        if negative_df:
-            data = self._compare_negative(data, negative_df, negative_threshold=50, include_label=False)
+        false_positive_dict = self._parameters['false_positive_dict']
+        if false_positive_dict:
+            data = self._compare_negative(data, false_positive_dict, negative_threshold=50, include_label=False)
+
         output = self._compare_positive(
                                         data,
-                                        self._parameters['true_positive_df'],
+                                        self._parameters['true_positive_dict'],
                                         positive_threshold=85,
                                         include_label=True)
 
-        if show_confidences:
-            return {"pred": predictions, "conf": conf}
-        return {"pred": predictions}
+        return output
 
     @classmethod
     def load_from_disk(cls, dirpath):

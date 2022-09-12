@@ -12,8 +12,8 @@ If you are interested in learning more about expectations, here is a link to the
 
 ### About these Notebooks
 These notebook examples will utilize a dataset containing individual salary information across the world from the year 2020 until 2022.
-Each example will run through a different scenario that using the data and a custom expectation. 
-These scenarios should give a practical understanding of how expectations can be used in real world contexts as data quality checks.
+Each example will run through a different scenario that uses the data and a custom Data Profiler expectation. 
+These scenarios provide a practical example of how expectations can be used in real world contexts for data quality checks.
 
 ### Local Setup
 ```shell

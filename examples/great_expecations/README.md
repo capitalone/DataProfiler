@@ -10,6 +10,11 @@ Many others are contributed by the community of data practitioners that bring th
 See a full list of Data Profiler Expectations available through Great Expectations on the [package page](https://greatexpectations.io/packages/capitalone_dataprofiler_expectations). 
 If you are interested in learning more about expectations, here is a link to the [docs](https://greatexpectations.io/expectations).
 
+### About these Notebooks
+These notebook examples will utilize a dataset containing individual salary information across the world from the year 2020 until 2022.
+Each example will run through a different scenario that uses the data and a custom Data Profiler expectation. 
+These scenarios provide a practical example of how expectations can be used in real world contexts for data quality checks.
+
 ### Local Setup
 ```shell
 cd examples/great_expectations/ # cd to great expectations examples

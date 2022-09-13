@@ -146,8 +146,7 @@ class TestColumnNameModel(unittest.TestCase):
             model_output = model.predict(data=["ssn", "role_name", "wallet_address"])
 
         self.assertIn("pred", model_output["ssn"])
-        for expected, output in zip(expected_output["ssn"], model_output["ssn"]):
-            self.assertTrue(np.array_equal(expected, output))
+        self.assertTrue(np.array_equal(expected_output, model_output))
 
         self.assertTrue(len(logs.output))
 
@@ -156,14 +155,7 @@ class TestColumnNameModel(unittest.TestCase):
         model_output = model.predict(
             data=["ssn", "role_name", "wallet_address"], show_confidences=True
         )
-        self.assertIn("pred", model_output["ssn"])
-        self.assertIn("conf", model_output["ssn"])
-        self.assertTrue(
-            np.array_equal(expected_output["ssn"]["pred"], model_output["ssn"]["pred"])
-        )
-        self.assertTrue(
-            np.array_equal(expected_output["ssn"]["conf"], model_output["ssn"]["conf"])
-        )
+        self.assertTrue(np.array_equal(expected_output, model_output))
 
         # clear stdout
         mock_stdout.seek(0)

@@ -19,7 +19,7 @@ logger = dp_logging.get_child_logger(__name__)
 class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     """Class for column name data labeling model."""
 
-    def __init__(self, label_mapping=None, parameters=None):
+    def __init__(self, parameters=None):
         r"""
         :param label_mapping: maps labels to their encoded integers
         :type label_mapping: dict
@@ -36,7 +36,6 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         parameters.setdefault('true_positive_dict', None)
 
         # initialize class
-        self.set_label_mapping(label_mapping)
         self._validate_parameters(parameters)
         self._parameters = parameters
 
@@ -61,7 +60,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         for param in parameters:
             value = parameters[param]
-            if param == "false_positive_dict" and ( 
+            if param == "false_positive_dict" and value != None and ( 
                 not isinstance(value, list)
                 or 'attribute' not in value[0].keys()
             ):
@@ -71,8 +70,6 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             elif param == "true_positive_dict" and (
                 not isinstance(value, list)
                 or not isinstance(value[0], dict)
-                or not isinstance(value[1]['attribute'], str)
-                or not isinstance(value[1]['label'], str)
             ):
                 errors.append(
                     """`{}` must be a list of dictionaries each with the following
@@ -83,14 +80,17 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         if errors:
             raise ValueError("\n".join(errors))
 
+    @staticmethod
+    def _make_lower_case(str, **kwargs):
+        return str.lower()
+
     def _compare_negative(self, list_of_column_names, check_values_dict, negative_threshold):
         """Filter out column name examples that are false positives"""
         scores = self._model(
                 list_of_column_names,
                 check_values_dict,
-                self._make_lower_case(),
-                fuzz.token_sort_ratio,
-                include_label=False)
+                self._make_lower_case,
+                fuzz.token_sort_ratio)
 
         list_of_column_names_filtered = []
         for i in range(len(list_of_column_names)):
@@ -99,13 +99,13 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         return list_of_column_names_filtered
 
-    def _compare_positive(self, list_of_column_names, check_values_dict, positive_threshold, include_label):
+    def _compare_positive(self, list_of_column_names, check_values_dict, positive_threshold, include_label, show_confidences):
         """Calculate similarity scores between list of column names and true positive examples"""
-        
+
         scores = self._model(
             list_of_column_names,
             check_values_dict,
-            self._make_lower_case(),
+            self._make_lower_case,
             fuzz.token_sort_ratio,
             include_label=include_label,
         )
@@ -114,9 +114,10 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         for i in range(len(list_of_column_names)):
             if scores[i][0] > positive_threshold:
                 output_dictionary[list_of_column_names[i]] = {}
-                output_dictionary[list_of_column_names[i]]['prediction'] = \
-                    check_values_dict[scores[i]]['label']
-                output_dictionary[list_of_column_names[i]]['Similarity Score'] = scores[i][0]
+                output_dictionary[list_of_column_names[i]]['pred'] = \
+                    check_values_dict[scores[i][1]]['label']
+                if show_confidences:
+                    output_dictionary[list_of_column_names[i]]['conf'] = scores[i][0]
 
         return output_dictionary
 
@@ -130,13 +131,9 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         pass
 
     def reset_weights(self):
-        """Reset weights."""
         pass
 
-    def _make_lower_case(str, **kwargs):
-        return str.lower()
-
-    def _model(list_of_column_names, check_values_dict, processor, scorer, include_label=True):
+    def _model(self, list_of_column_names, check_values_dict, processor, scorer, include_label=False):
         scores = []
 
         check_values_list = [dict['attribute'] for dict in check_values_dict]
@@ -180,13 +177,18 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         """
         false_positive_dict = self._parameters['false_positive_dict']
         if false_positive_dict:
-            data = self._compare_negative(data, false_positive_dict, negative_threshold=50, include_label=False)
-
+            data = self._compare_negative(data, false_positive_dict, negative_threshold=50)
+            if verbose:
+                logger.info("compare_negative process complete")
+        
         output = self._compare_positive(
                                         data,
                                         self._parameters['true_positive_dict'],
                                         positive_threshold=85,
-                                        include_label=True)
+                                        include_label=True,
+                                        show_confidences=show_confidences)
+        if verbose:
+            logger.info("compare_positive process complete")
 
         return output
 
@@ -204,12 +206,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         with open(model_param_dirpath, "r") as fp:
             parameters = json.load(fp)
 
-        # load label_mapping
-        labels_dirpath = os.path.join(dirpath, "label_mapping.json")
-        with open(labels_dirpath, "r") as fp:
-            label_mapping = json.load(fp)
-
-        loaded_model = cls(label_mapping, parameters)
+        loaded_model = cls(parameters)
         return loaded_model
 
     def save_to_disk(self, dirpath):
@@ -226,7 +223,3 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
         with open(model_param_dirpath, "w") as fp:
             json.dump(self._parameters, fp)
-
-        labels_dirpath = os.path.join(dirpath, "label_mapping.json")
-        with open(labels_dirpath, "w") as fp:
-            json.dump(self.label_mapping, fp)

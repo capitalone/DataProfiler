@@ -3,7 +3,11 @@ import json
 import os
 
 import numpy as np
-from rapidfuzz import fuzz, process
+
+try:
+    from rapidfuzz import fuzz, process
+except ImportError:
+    raise ImportError("Please ensure you run `pip install requirements-ml.txt`")
 
 from .. import dp_logging
 from .base_model import AutoSubRegistrationMeta, BaseModel

@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import unittest
 from io import StringIO
@@ -150,7 +149,6 @@ class TestColumnNameModel(unittest.TestCase):
         for expected, output in zip(expected_output["ssn"], model_output["ssn"]):
             self.assertTrue(np.array_equal(expected, output))
 
-        # check verbose logging
         self.assertTrue(len(logs.output))
 
         # test show confidences

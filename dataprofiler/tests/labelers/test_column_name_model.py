@@ -15,39 +15,32 @@ _resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 mock_model_parameters = {
-            'true_positive_dict': [
-                {
-                    'attribute': 'ssn',
-                    'label': 'ssn'
-                },
-                {
-                	'attribute': 'suffix',
-                	'label': 'name'
-                },
-                {
-                	'attribute': 'my_home_address',
-                	'label': 'address'
-                },
-            ],
-            'false_positive_dict': [
-                {
-                    'attribute': 'contract_number',
-                    'label': 'ssn',
-                },
-                { 
-                    'attribute': 'role',
-                    'label': 'name',
-                },
-                {
-                    'attribute': 'send_address',
-                    'label': 'address',
-                },
-            ]
-        }
+    "true_positive_dict": [
+        {"attribute": "ssn", "label": "ssn"},
+        {"attribute": "suffix", "label": "name"},
+        {"attribute": "my_home_address", "label": "address"},
+    ],
+    "false_positive_dict": [
+        {
+            "attribute": "contract_number",
+            "label": "ssn",
+        },
+        {
+            "attribute": "role",
+            "label": "name",
+        },
+        {
+            "attribute": "send_address",
+            "label": "address",
+        },
+    ],
+}
+
 
 def mock_open(filename, *args):
     if filename.find("model_parameters") >= 0:
         return StringIO(json.dumps(mock_model_parameters))
+
 
 def setup_save_mock_open(mock_open):
     mock_file = StringIO()
@@ -72,7 +65,7 @@ class TestColumnNameModel(unittest.TestCase):
                     "attribute": "contract_number",
                     "label": "ssn",
                 },
-                { 
+                {
                     "attribute": "role",
                     "label": "name",
                 },
@@ -82,18 +75,9 @@ class TestColumnNameModel(unittest.TestCase):
                 },
             ],
             "true_positive_dict": [
-                {
-					"attribute": "ssn",
-					"label": "ssn"                
-                },
-                {
-                	"attribute": "suffix",
-                	"label": "name"
-                },
-                {
-                	"attribute": "my_home_address",
-                	"label": "address"
-                },
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
             ],
         }
         invalid_parameters = [
@@ -107,13 +91,10 @@ class TestColumnNameModel(unittest.TestCase):
                 # fails, requires `true_positive_dict`
             },
             {
-                "false_positive_dict": {}, # fails, required type list
+                "false_positive_dict": {},  # fails, required type list
                 "true_positive_dict": [
-                    {
-                        "attribute": "test_attribute",
-                        "label": "test_label"
-                    }
-                ]
+                    {"attribute": "test_attribute", "label": "test_label"}
+                ],
             },
         ]
 
@@ -122,9 +103,7 @@ class TestColumnNameModel(unittest.TestCase):
 
         for invalid_param_set in invalid_parameters:
             with self.assertRaises(ValueError):
-                ColumnNameModel(
-                    parameters=invalid_param_set
-                )
+                ColumnNameModel(parameters=invalid_param_set)
 
     @mock.patch("sys.stdout", new_callable=StringIO)
     def test_help(self, mock_stdout):
@@ -136,25 +115,16 @@ class TestColumnNameModel(unittest.TestCase):
     def test_predict(self, mock_stdout):
         parameters = {
             "true_positive_dict": [
-                {
-					"attribute": "ssn",
-					"label": "ssn"                
-                },
-                {
-                	"attribute": "suffix",
-                	"label": "name"
-                },
-                {
-                	"attribute": "my_home_address",
-                	"label": "address"
-                },
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
             ],
             "false_positive_dict": [
                 {
                     "attribute": "contract_number",
                     "label": "ssn",
                 },
-                { 
+                {
                     "attribute": "role",
                     "label": "name",
                 },
@@ -162,21 +132,22 @@ class TestColumnNameModel(unittest.TestCase):
                     "attribute": "send_address",
                     "label": "address",
                 },
-            ]
+            ],
         }
         model = ColumnNameModel(parameters=parameters)
 
         expected_output = {
-            'ssn': 
-                {
-                    'pred': 'ssn',
-                }
+            "ssn": {
+                "pred": "ssn",
             }
+        }
 
-        with self.assertLogs("DataProfiler.labelers.column_name_model", level="INFO") as logs:
-            model_output = model.predict(data=['ssn', 'role_name', 'wallet_address'])
+        with self.assertLogs(
+            "DataProfiler.labelers.column_name_model", level="INFO"
+        ) as logs:
+            model_output = model.predict(data=["ssn", "role_name", "wallet_address"])
 
-        self.assertIn("pred", model_output['ssn'])
+        self.assertIn("pred", model_output["ssn"])
         for expected, output in zip(expected_output["ssn"], model_output["ssn"]):
             self.assertTrue(np.array_equal(expected, output))
 
@@ -184,26 +155,18 @@ class TestColumnNameModel(unittest.TestCase):
         self.assertTrue(len(logs.output))
 
         # test show confidences
-        expected_output = {
-            "ssn": 
-                {
-                    "pred": "ssn",
-                    "conf": 100.0
-                }
-            }
-        model_output = model.predict(data=["ssn", "role_name", "wallet_address"], show_confidences=True)
+        expected_output = {"ssn": {"pred": "ssn", "conf": 100.0}}
+        model_output = model.predict(
+            data=["ssn", "role_name", "wallet_address"], show_confidences=True
+        )
         self.assertIn("pred", model_output["ssn"])
         self.assertIn("conf", model_output["ssn"])
-        self.assertTrue(np.array_equal(
-                            expected_output["ssn"]["pred"],
-                            model_output["ssn"]["pred"]
-                            )
-                        )
-        self.assertTrue(np.array_equal(
-                            expected_output["ssn"]["conf"],
-                            model_output["ssn"]["conf"]
-                            )
-                        )
+        self.assertTrue(
+            np.array_equal(expected_output["ssn"]["pred"], model_output["ssn"]["pred"])
+        )
+        self.assertTrue(
+            np.array_equal(expected_output["ssn"]["conf"], model_output["ssn"]["conf"])
+        )
 
         # clear stdout
         mock_stdout.seek(0)
@@ -216,7 +179,9 @@ class TestColumnNameModel(unittest.TestCase):
             "no logs of level INFO or higher triggered "
             "on DataProfiler.labelers.column_name_model",
         ):
-            with self.assertLogs("DataProfiler.labelers.column_name_model", level="INFO"):
+            with self.assertLogs(
+                "DataProfiler.labelers.column_name_model", level="INFO"
+            ):
                 model.predict(["test_verbose_param"], verbose=False)
 
         # Not in stdout
@@ -230,34 +195,25 @@ class TestColumnNameModel(unittest.TestCase):
 
         # Save and load a Model with custom parameters
         parameters = {
-            'true_positive_dict': [
+            "true_positive_dict": [
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
+            ],
+            "false_positive_dict": [
                 {
-					'attribute': 'ssn',
-					'label': 'ssn'                
+                    "attribute": "contract_number",
+                    "label": "ssn",
                 },
                 {
-                	'attribute': 'suffix',
-                	'label': 'name'
+                    "attribute": "role",
+                    "label": "name",
                 },
                 {
-                	'attribute': 'my_home_address',
-                	'label': 'address'
+                    "attribute": "send_address",
+                    "label": "address",
                 },
             ],
-            'false_positive_dict': [
-                {
-                    'attribute': 'contract_number',
-                    'label': 'ssn',
-                },
-                { 
-                    'attribute': 'role',
-                    'label': 'name',
-                },
-                {
-                    'attribute': 'send_address',
-                    'label': 'address',
-                },
-            ]
         }
 
         model = ColumnNameModel(parameters)
@@ -285,6 +241,7 @@ class TestColumnNameModel(unittest.TestCase):
             mock_model_parameters["false_positive_dict"],
             loaded_model._parameters["false_positive_dict"],
         )
+
 
 if __name__ == "__main__":
     unittest.main()

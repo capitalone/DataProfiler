@@ -1,14 +1,9 @@
 """Contains class for column name data labeling model."""
-import copy
 import json
-from operator import neg
 import os
-import re
-import sys
 
 import numpy as np
-import pandas as pd
-from rapidfuzz import process, fuzz
+from rapidfuzz import fuzz, process
 
 from .. import dp_logging
 from .base_model import AutoSubRegistrationMeta, BaseModel
@@ -20,7 +15,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     """Class for column name data labeling model."""
 
     def __init__(self, parameters=None):
-        r"""
+        """Initialize function for ColumnNameModel.
+
         :param parameters: Contains all the appropriate parameters for the model.
             Possible parameters are:
                 max_length, max_num_chars, dim_embed
@@ -30,8 +26,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         # parameter initialization
         if not parameters:
             parameters = {}
-        parameters.setdefault('false_positive_dict', None)
-        parameters.setdefault('true_positive_dict', None)
+        parameters.setdefault("false_positive_dict", None)
+        parameters.setdefault("true_positive_dict", None)
 
         # initialize class
         self._validate_parameters(parameters)
@@ -58,20 +54,25 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         for param in parameters:
             value = parameters[param]
-            if param == "false_positive_dict" and value != None and ( 
-                not isinstance(value, list)
-                or 'attribute' not in value[0].keys()
+            if (
+                param == "false_positive_dict"
+                and value is not None
+                and (not isinstance(value, list) or "attribute" not in value[0].keys())
             ):
                 errors.append(
-                    "`{}` must be a list of dictionaries with at least 'attribute' as the key".format(param)
+                    """`{}` must be a list of dictionaries with at
+                    least 'attribute' as the key""".format(
+                        param
+                    )
                 )
             elif param == "true_positive_dict" and (
-                not isinstance(value, list)
-                or not isinstance(value[0], dict)
+                not isinstance(value, list) or not isinstance(value[0], dict)
             ):
                 errors.append(
                     """`{}` must be a list of dictionaries each with the following
-                    two keys: 'attribute' and 'label'""".format(param)
+                    two keys: 'attribute' and 'label'""".format(
+                        param
+                    )
                 )
             elif param not in list_of_accepted_parameters:
                 errors.append("`{}` is not an accepted parameter.".format(param))
@@ -82,13 +83,16 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     def _make_lower_case(str, **kwargs):
         return str.lower()
 
-    def _compare_negative(self, list_of_column_names, check_values_dict, negative_threshold):
-        """Filter out column name examples that are false positives"""
+    def _compare_negative(
+        self, list_of_column_names, check_values_dict, negative_threshold
+    ):
+        """Filter out column name examples that are false positives."""
         scores = self._model(
-                list_of_column_names,
-                check_values_dict,
-                self._make_lower_case,
-                fuzz.token_sort_ratio)
+            list_of_column_names,
+            check_values_dict,
+            self._make_lower_case,
+            fuzz.token_sort_ratio,
+        )
 
         list_of_column_names_filtered = []
         for i in range(len(list_of_column_names)):
@@ -97,9 +101,15 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         return list_of_column_names_filtered
 
-    def _compare_positive(self, list_of_column_names, check_values_dict, positive_threshold, include_label, show_confidences):
-        """Calculate similarity scores between list of column names and true positive examples"""
-
+    def _compare_positive(
+        self,
+        list_of_column_names,
+        check_values_dict,
+        positive_threshold,
+        include_label,
+        show_confidences,
+    ):
+        """Calculate similarity scores for positive examples."""
         scores = self._model(
             list_of_column_names,
             check_values_dict,
@@ -112,10 +122,11 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         for i in range(len(list_of_column_names)):
             if scores[i][0] > positive_threshold:
                 output_dictionary[list_of_column_names[i]] = {}
-                output_dictionary[list_of_column_names[i]]['pred'] = \
-                    check_values_dict[scores[i][1]]['label']
+                output_dictionary[list_of_column_names[i]]["pred"] = check_values_dict[
+                    scores[i][1]
+                ]["label"]
                 if show_confidences:
-                    output_dictionary[list_of_column_names[i]]['conf'] = scores[i][0]
+                    output_dictionary[list_of_column_names[i]]["conf"] = scores[i][0]
 
         return output_dictionary
 
@@ -129,17 +140,24 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         pass
 
     def reset_weights(self):
+        """Reset weights function."""
         pass
 
-    def _model(self, list_of_column_names, check_values_dict, processor, scorer, include_label=False):
+    def _model(
+        self,
+        list_of_column_names,
+        check_values_dict,
+        processor,
+        scorer,
+        include_label=False,
+    ):
         scores = []
 
-        check_values_list = [dict['attribute'] for dict in check_values_dict]
+        check_values_list = [dict["attribute"] for dict in check_values_dict]
 
-        model_outputs = process.cdist(list_of_column_names,
-                            check_values_list,
-                            processor=processor,
-                            scorer=scorer)
+        model_outputs = process.cdist(
+            list_of_column_names, check_values_list, processor=processor, scorer=scorer
+        )
 
         for iter_value, ngram_match_results in enumerate(model_outputs):
             column_result = [np.max(ngram_match_results)]
@@ -147,10 +165,17 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 index_max_result = ngram_match_results.argmax(axis=0)
                 column_result.append(index_max_result)
             scores.append(column_result)
-        
+
         return scores
 
-    def predict(self, data, batch_size=None, show_confidences=False, verbose=True, include_label=True):
+    def predict(
+        self,
+        data,
+        batch_size=None,
+        show_confidences=False,
+        verbose=True,
+        include_label=True,
+    ):
         """
         Apply the `process.cdist` for similarity score on input list of strings.
 
@@ -166,18 +191,21 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         :return: char level predictions and confidences
         :rtype: dict
         """
-        false_positive_dict = self._parameters['false_positive_dict']
+        false_positive_dict = self._parameters["false_positive_dict"]
         if false_positive_dict:
-            data = self._compare_negative(data, false_positive_dict, negative_threshold=50)
+            data = self._compare_negative(
+                data, false_positive_dict, negative_threshold=50
+            )
             if verbose:
                 logger.info("compare_negative process complete")
-        
+
         output = self._compare_positive(
-                                        data,
-                                        self._parameters['true_positive_dict'],
-                                        positive_threshold=85,
-                                        include_label=True,
-                                        show_confidences=show_confidences)
+            data,
+            self._parameters["true_positive_dict"],
+            positive_threshold=85,
+            include_label=True,
+            show_confidences=show_confidences,
+        )
         if verbose:
             logger.info("compare_positive process complete")
 

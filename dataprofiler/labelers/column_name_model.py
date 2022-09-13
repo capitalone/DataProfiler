@@ -1,4 +1,4 @@
-"""Contains class for regex data labeling model."""
+"""Contains class for column name data labeling model."""
 import copy
 import json
 from operator import neg
@@ -21,8 +21,6 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def __init__(self, parameters=None):
         r"""
-        :param label_mapping: maps labels to their encoded integers
-        :type label_mapping: dict
         :param parameters: Contains all the appropriate parameters for the model.
             Possible parameters are:
                 max_length, max_num_chars, dim_embed
@@ -154,14 +152,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def predict(self, data, batch_size=None, show_confidences=False, verbose=True, include_label=True):
         """
-        Apply the regex patterns (within regex_model) to the input_string.
-
-        Create predictions for all matching patterns. Each pattern has an
-        associated entity and the predictions of each character within the
-        string are given a True or False identification for each entity. All
-        characters not identified by ANY of the regex patterns in the
-        pattern_dict are considered background characters, and are replaced with
-        the default_label value.
+        Apply the `process.cdist` for similarity score on input list of strings.
 
         :param data: list of strings to predict upon
         :type data: iterator

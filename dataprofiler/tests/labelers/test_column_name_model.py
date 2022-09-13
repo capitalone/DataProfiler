@@ -17,8 +17,8 @@ _resource_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 mock_model_parameters = {
             'true_positive_dict': [
                 {
-					'attribute': 'ssn',
-					'label': 'ssn'                
+                    'attribute': 'ssn',
+                    'label': 'ssn'
                 },
                 {
                 	'attribute': 'suffix',
@@ -48,7 +48,6 @@ mock_model_parameters = {
 def mock_open(filename, *args):
     if filename.find("model_parameters") >= 0:
         return StringIO(json.dumps(mock_model_parameters))
-
 
 def setup_save_mock_open(mock_open):
     mock_file = StringIO()
@@ -286,7 +285,6 @@ class TestColumnNameModel(unittest.TestCase):
             mock_model_parameters["false_positive_dict"],
             loaded_model._parameters["false_positive_dict"],
         )
-
 
 if __name__ == "__main__":
     unittest.main()

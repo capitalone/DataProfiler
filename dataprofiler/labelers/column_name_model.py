@@ -5,11 +5,12 @@ import os
 import numpy as np
 
 try:
-    from rapidfuzz import fuzz, process
+    import rapidfuzz
 except ImportError:
-    raise ImportError("Please ensure you run `pip install requirements-ml.txt`")
+    pass
 
 from .. import dp_logging
+from ..reports.utils import require_module
 from .base_model import AutoSubRegistrationMeta, BaseModel
 
 logger = dp_logging.get_child_logger(__name__)
@@ -95,7 +96,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             list_of_column_names,
             check_values_dict,
             self._make_lower_case,
-            fuzz.token_sort_ratio,
+            rapidfuzz.fuzz.token_sort_ratio,
         )
 
         list_of_column_names_filtered = []
@@ -118,7 +119,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             list_of_column_names,
             check_values_dict,
             self._make_lower_case,
-            fuzz.token_sort_ratio,
+            rapidfuzz.fuzz.token_sort_ratio,
             include_label=include_label,
         )
 
@@ -147,6 +148,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         """Reset weights function."""
         pass
 
+    @require_module(["rapidfuzz"])
     def _model(
         self,
         list_of_column_names,
@@ -159,7 +161,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         check_values_list = [dict["attribute"] for dict in check_values_dict]
 
-        model_outputs = process.cdist(
+        model_outputs = rapidfuzz.process.cdist(
             list_of_column_names, check_values_list, processor=processor, scorer=scorer
         )
 

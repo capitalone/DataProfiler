@@ -2,19 +2,32 @@ from __future__ import print_function
 
 import os
 import unittest
+from io import BytesIO
+from unittest import mock
 from cgi import test
 from collections import defaultdict
 
 import networkx as nx
 import numpy as np
+import pandas as pd
 
+import dataprofiler as dp
 from dataprofiler.data_readers.graph_data import GraphData
 from dataprofiler.profilers.graph_profiler import GraphProfiler
+
+from dataprofiler.profilers.profiler_options import (
+    ProfilerOptions,
+)
 
 from . import utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
+def setup_save_mock_open(mock_open):
+    mock_file = BytesIO()
+    mock_file.close = lambda: None
+    mock_open.side_effect = lambda *args: mock_file
+    return mock_file
 
 class TestGraphProfiler(unittest.TestCase):
     @classmethod
@@ -121,6 +134,29 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertAlmostEqual(scale, -15.250985118262854)
         self.check_continuous_properties(continuous_distribution_props)
         self.assertDictEqual(self.expected_profile, profile.profile)
+
+    def test_save_and_load(self):
+        # Create Data and UnstructuredProfiler objects
+        data = pd.DataFrame([1, 2, 3], columns=["a"])
+
+        profile_options = dp.ProfilerOptions()
+        profile_options.set({"data_labeler.is_enabled": False})
+
+        save_profile = dp.GraphProfiler(data, options=profile_options)
+
+        # Save and Load profile with Mock IO
+        with mock.patch("builtins.open") as m:
+            mock_file = setup_save_mock_open(m)
+            save_profile.save()
+
+            mock_file.seek(0)
+            with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
+                load_profile = dp.GraphProfiler.load("mock.pkl")
+
+        # Check that reports are equivalent
+        save_report = save_profile.report()
+        load_report = load_profile.report()
+        self.assertDictEqual(save_report, load_report)
 
 
 if __name__ == "__main__":

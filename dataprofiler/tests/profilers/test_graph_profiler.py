@@ -136,13 +136,9 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_save_and_load(self):
-        # Create Data and UnstructuredProfiler objects
-        data = pd.DataFrame([1, 2, 3], columns=["a"])
-
-        profile_options = dp.ProfilerOptions()
-        profile_options.set({"data_labeler.is_enabled": False})
-
-        save_profile = dp.GraphProfiler(data, options=profile_options)
+        data = GraphData(input_file_path=None, data=self.graph)
+        save_profile = dp.GraphProfiler("test_save_and_load")
+        save_profile = save_profile.update(data)
 
         # Save and Load profile with Mock IO
         with mock.patch("builtins.open") as m:
@@ -150,13 +146,28 @@ class TestGraphProfiler(unittest.TestCase):
             save_profile.save()
 
             mock_file.seek(0)
-            with mock.patch("dataprofiler.profilers.profile_builder." "DataLabeler"):
-                load_profile = dp.GraphProfiler.load("mock.pkl")
+            load_profile = dp.GraphProfiler.load("mock.pkl")
+
+        # Removed to avoid dict equality ambiguity
+        save_profile.profile["continuous_distribution"]["weight"].pop("properties")
+        load_profile.profile["continuous_distribution"]["weight"].pop("properties")
 
         # Check that reports are equivalent
         save_report = save_profile.report()
         load_report = load_profile.report()
         self.assertDictEqual(save_report, load_report)
+
+        # adding new data and updating profiles
+        self.graph.add_edges_from(
+            [
+                (2, 4, {"id": 6, "weight": 1.2}),
+            ]
+        )
+        data = GraphData(input_file_path=None, data=self.graph)
+
+        # validate both are still usable after
+        save_profile.update(data)
+        load_profile.update(data)
 
 
 if __name__ == "__main__":

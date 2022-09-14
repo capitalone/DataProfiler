@@ -450,9 +450,8 @@ class GraphProfiler(object):
 
         :param filepath: Path of file to load from
         :type filepath: String
-        :return: Profiler being loaded, StructuredProfiler or
-            UnstructuredProfiler
-        :rtype: BaseProfiler
+        :return: GraphProfiler being loaded
+        :rtype: GraphProfiler
         """
         # Load profile from disk
         with open(filepath, "rb") as infile:

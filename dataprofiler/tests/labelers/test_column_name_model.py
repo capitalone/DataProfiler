@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import unittest
 from io import StringIO
 from unittest import mock
@@ -7,6 +8,7 @@ from unittest import mock
 import numpy as np
 import pkg_resources
 
+import dataprofiler as dp
 from dataprofiler.labelers.column_name_model import ColumnNameModel
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -229,6 +231,61 @@ class TestColumnNameModel(unittest.TestCase):
         self.assertEqual(
             mock_model_parameters["false_positive_dict"],
             loaded_model._parameters["false_positive_dict"],
+        )
+
+    def missing_module_test(self, class_name, module_name):
+        orig_import = __import__
+
+        # necessary for any wrapper around the library to test if
+        # the code catches the needed import in the predict method
+
+        def import_mock(name, *args, **kwargs):
+            if name.startswith(module_name):
+                raise ImportError("test")
+            return orig_import(name, *args, **kwargs)
+
+        with mock.patch("builtins.__import__", side_effect=import_mock):
+            with self.assertRaises(TypeError):
+                modules_to_remove = [
+                    "dataprofiler.labelers.column_name_model",
+                    module_name,
+                ]
+
+                for module in modules_to_remove:
+                    if module in sys.modules:
+                        del sys.modules[module]
+
+                # re-add module for testing
+                for module in modules_to_remove[:-1]:
+                    import importlib
+
+                    importlib.import_module(module)
+                parameters = {
+                    "true_positive_dict": [
+                        {"attribute": "ssn", "label": "ssn"},
+                        {"attribute": "suffix", "label": "name"},
+                        {"attribute": "my_home_address", "label": "address"},
+                    ],
+                    "false_positive_dict": [
+                        {
+                            "attribute": "contract_number",
+                            "label": "ssn",
+                        },
+                        {
+                            "attribute": "role",
+                            "label": "name",
+                        },
+                        {
+                            "attribute": "send_address",
+                            "label": "address",
+                        },
+                    ],
+                }
+                class_name(parameters=parameters).predict(data=["ssn"])
+
+    def test_no_rapidfuzz(self):
+        self.missing_module_test(
+            dp.labelers.column_name_model.ColumnNameModel, "rapidfuzz"
         )
 
 

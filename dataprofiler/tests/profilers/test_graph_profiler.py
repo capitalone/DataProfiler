@@ -97,7 +97,8 @@ class TestGraphProfiler(unittest.TestCase):
                 self.assertAlmostEqual(self.expected_props[index], property)
 
     def test_profile(self):
-        graph_profile = GraphProfiler("test_update")
+        # test_update
+        graph_profile = GraphProfiler(self.graph)
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
@@ -109,7 +110,8 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
-        graph_profile = GraphProfiler("test_report")
+        # test_report
+        graph_profile = GraphProfiler(self.graph)
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
@@ -136,7 +138,8 @@ class TestGraphProfiler(unittest.TestCase):
 
     def test_save_and_load(self):
         data = GraphData(input_file_path=None, data=self.graph)
-        save_profile = dp.GraphProfiler("test_save_and_load")
+        # test_save_and_load
+        save_profile = dp.GraphProfiler(self.graph)
         save_profile = save_profile.update(data)
 
         # Save and Load profile with Mock IO

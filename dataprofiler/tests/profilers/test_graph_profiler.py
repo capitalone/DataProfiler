@@ -4,16 +4,28 @@ import os
 import unittest
 from cgi import test
 from collections import defaultdict
+from io import BytesIO
+from unittest import mock
 
 import networkx as nx
 import numpy as np
+import pandas as pd
 
+import dataprofiler as dp
 from dataprofiler.data_readers.graph_data import GraphData
 from dataprofiler.profilers.graph_profiler import GraphProfiler
+from dataprofiler.profilers.profiler_options import ProfilerOptions
 
 from . import utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+
+def setup_save_mock_open(mock_open):
+    mock_file = BytesIO()
+    mock_file.close = lambda: None
+    mock_open.side_effect = lambda *args: mock_file
+    return mock_file
 
 
 class TestGraphProfiler(unittest.TestCase):
@@ -85,7 +97,8 @@ class TestGraphProfiler(unittest.TestCase):
                 self.assertAlmostEqual(self.expected_props[index], property)
 
     def test_profile(self):
-        graph_profile = GraphProfiler("test_update")
+        # test_update
+        graph_profile = GraphProfiler(self.graph)
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
@@ -97,7 +110,8 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
-        graph_profile = GraphProfiler("test_report")
+        # test_report
+        graph_profile = GraphProfiler(self.graph)
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph)
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
@@ -121,6 +135,49 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertAlmostEqual(scale, -15.250985118262854)
         self.check_continuous_properties(continuous_distribution_props)
         self.assertDictEqual(self.expected_profile, profile.profile)
+
+    def test_save_and_load(self):
+        data = GraphData(input_file_path=None, data=self.graph)
+        # test_save_and_load
+        save_profile = dp.GraphProfiler(self.graph)
+        save_profile = save_profile.update(data)
+
+        # Save and Load profile with Mock IO
+        with mock.patch("builtins.open") as m:
+            mock_file = setup_save_mock_open(m)
+            save_profile.save()
+
+            mock_file.seek(0)
+            load_profile = dp.GraphProfiler.load("mock.pkl")
+
+        # Removed to avoid dict equality ambiguity
+
+        save_properties = save_profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        load_properties = load_profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        self.assertTrue(
+            np.array_equal(np.hstack(save_properties), np.hstack(load_properties))
+        )
+
+        # Check that reports are equivalent
+        save_report = save_profile.report()
+        load_report = load_profile.report()
+        self.assertDictEqual(save_report, load_report)
+
+        # adding new data and updating profiles
+        self.graph.add_edges_from(
+            [
+                (2, 4, {"id": 6, "weight": 1.2}),
+            ]
+        )
+        data = GraphData(input_file_path=None, data=self.graph)
+
+        # validate both are still usable after
+        save_profile.update(data)
+        load_profile.update(data)
 
 
 if __name__ == "__main__":

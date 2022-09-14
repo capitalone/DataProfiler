@@ -1,5 +1,7 @@
 """Class and functions to calculate and profile properties of graph data."""
+import pickle
 from collections import defaultdict
+from datetime import datetime
 
 import networkx as nx
 import numpy as np
@@ -23,7 +25,7 @@ class GraphProfiler(object):
         Initialize Graph Profiler.
 
         :param data: data
-        :type name: String
+        :type data: Union[networkx.Graph, data_readers.graph_data.GraphData]
         :param options: Options for the Graph Profiler
         :type options: GraphOptions
         """
@@ -390,3 +392,73 @@ class GraphProfiler(object):
             value = graph[u][v][attribute]
             data_as_list.append(value)
         return data_as_list
+
+    def _save_helper(self, filepath, data_dict):
+        """
+        Save profiler to disk.
+
+        :param filepath: Path of file to save to
+        :type filepath: String
+        :param data_dict: profile data to be saved
+        :type data_dict: dict
+        :return: None
+        """
+        # Set Default filepath
+        if filepath is None:
+            filepath = "profile-{}.pkl".format(
+                datetime.now().strftime("%d-%b-%Y-%H:%M:%S.%f")
+            )
+
+        # add profiler class to data_dict
+        data_dict["profiler_class"] = self.__class__.__name__
+
+        # Pickle and save profile to disk
+        with open(filepath, "wb") as outfile:
+            pickle.dump(data_dict, outfile)
+
+    def save(self, filepath=None):
+        """
+        Save profiler to disk.
+
+        :param filepath: Path of file to save to
+        :type filepath: String
+        :return: None
+        """
+        # Create dictionary for all metadata, options, and profile
+        data_dict = {
+            "sample_size": self.sample_size,
+            "times": self.times,
+            "_attributes": self._attributes,
+            "_num_nodes": self._num_nodes,
+            "_num_edges": self._num_edges,
+            "_categorical_attributes": self._categorical_attributes,
+            "_continuous_attributes": self._continuous_attributes,
+            "_avg_node_degree": self._avg_node_degree,
+            "_global_max_component_size": self._global_max_component_size,
+            "_continuous_distribution": self._continuous_distribution,
+            "_categorical_distribution": self._categorical_distribution,
+            "metadata": self.metadata,
+        }
+
+        self._save_helper(filepath, data_dict)
+
+    @classmethod
+    def load(cls, filepath):
+        """
+        Load profiler from disk.
+
+        :param filepath: Path of file to load from
+        :type filepath: String
+        :return: GraphProfiler being loaded
+        :rtype: GraphProfiler
+        """
+        # Load profile from disk
+        with open(filepath, "rb") as infile:
+            data = pickle.load(infile)
+
+        profiler = cls(data=None, options=None)
+
+        for key in data:
+            setattr(profiler, key, data[key])
+
+        return profiler

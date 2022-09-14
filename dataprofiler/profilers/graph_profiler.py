@@ -1,11 +1,11 @@
 """Class and functions to calculate and profile properties of graph data."""
+import pickle
 from collections import defaultdict
 from datetime import datetime
 
 import networkx as nx
 import numpy as np
 import pandas as pd
-import pickle
 import scipy.stats as st
 
 from ..data_readers.graph_data import GraphData
@@ -25,7 +25,6 @@ class GraphProfiler(object):
         Initialize Graph Profiler.
 
         :param data: data
-        :type name: String
         :param options: Options for the Graph Profiler
         :type options: GraphOptions
         """
@@ -438,7 +437,6 @@ class GraphProfiler(object):
             "_continuous_distribution": self._continuous_distribution,
             "_categorical_distribution": self._categorical_distribution,
             "metadata": self.metadata,
-            "__calculations": self.__calculations,
         }
 
         self._save_helper(filepath, data_dict)
@@ -457,7 +455,7 @@ class GraphProfiler(object):
         with open(filepath, "rb") as infile:
             data = pickle.load(infile)
 
-        profiler = cls(None, options=None)
+        profiler = cls(data=None, options=None)
 
         for key in data:
             setattr(profiler, key, data[key])

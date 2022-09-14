@@ -2,10 +2,10 @@ from __future__ import print_function
 
 import os
 import unittest
-from io import BytesIO
-from unittest import mock
 from cgi import test
 from collections import defaultdict
+from io import BytesIO
+from unittest import mock
 
 import networkx as nx
 import numpy as np
@@ -14,20 +14,19 @@ import pandas as pd
 import dataprofiler as dp
 from dataprofiler.data_readers.graph_data import GraphData
 from dataprofiler.profilers.graph_profiler import GraphProfiler
-
-from dataprofiler.profilers.profiler_options import (
-    ProfilerOptions,
-)
+from dataprofiler.profilers.profiler_options import ProfilerOptions
 
 from . import utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
 
 def setup_save_mock_open(mock_open):
     mock_file = BytesIO()
     mock_file.close = lambda: None
     mock_open.side_effect = lambda *args: mock_file
     return mock_file
+
 
 class TestGraphProfiler(unittest.TestCase):
     @classmethod
@@ -149,8 +148,16 @@ class TestGraphProfiler(unittest.TestCase):
             load_profile = dp.GraphProfiler.load("mock.pkl")
 
         # Removed to avoid dict equality ambiguity
-        save_profile.profile["continuous_distribution"]["weight"].pop("properties")
-        load_profile.profile["continuous_distribution"]["weight"].pop("properties")
+
+        save_properties = save_profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        load_properties = load_profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        self.assertTrue(
+            np.array_equal(np.hstack(save_properties), np.hstack(load_properties))
+        )
 
         # Check that reports are equivalent
         save_report = save_profile.report()

@@ -74,7 +74,10 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                     )
                 )
             elif param == "true_positive_dict" and (
-                not isinstance(value, list) or not isinstance(value[0], dict)
+                not isinstance(value, list)
+                or not isinstance(value[0], dict)
+                and "attribute" not in value[0].keys()
+                and "list" not in value[0].keys()
             ):
                 errors.append(
                     """`{}` must be a list of dictionaries each with the following
@@ -184,6 +187,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         show_confidences=False,
         verbose=True,
         include_label=True,
+        negative_threshold_config=50,
+        positive_threshold_config=85,
     ):
         """
         Apply the `process.cdist` for similarity score on input list of strings.
@@ -203,7 +208,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         false_positive_dict = self._parameters["false_positive_dict"]
         if false_positive_dict:
             data = self._compare_negative(
-                data, false_positive_dict, negative_threshold=50
+                data, false_positive_dict, negative_threshold=negative_threshold_config
             )
             if verbose:
                 logger.info("compare_negative process complete")
@@ -211,7 +216,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         output = self._compare_positive(
             data,
             self._parameters["true_positive_dict"],
-            positive_threshold=85,
+            positive_threshold=positive_threshold_config,
             include_label=True,
             show_confidences=show_confidences,
         )

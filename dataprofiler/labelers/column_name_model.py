@@ -13,8 +13,8 @@ except ImportError:
     pass
 
 from .. import dp_logging
-from ..reports.utils import require_module
 from .base_model import AutoSubRegistrationMeta, BaseModel
+from .utils import require_module
 
 logger = dp_logging.get_child_logger(__name__)
 

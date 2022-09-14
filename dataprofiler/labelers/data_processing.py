@@ -2079,3 +2079,205 @@ class StructRegexPostProcessor(
         # predictions is the argmax of the average of the cell's label votes
         results["pred"] = np.argmax(results["pred"], axis=1)
         return results
+
+
+class ColumnNameModelPostProcessor(
+    BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
+):
+    """Subclass of BaseDataPostprocessor for postprocessing regex data."""
+
+    def __init__(
+        self, aggregation_func="split", priority_order=None, random_state=None
+    ):
+        """
+        Initialize the ColumnNameModelPostProcessor class.
+
+        :param aggregation_func: aggregation function to apply to regex model
+                output (split, random, priority)
+        :type aggregation_func: str
+        :param priority_order: if priority is set as the aggregation function,
+            the order in which entities are given priority must be set
+        :type priority_order: Union[list, numpy.ndarray]
+        :param random_state: random state setting to be used for randomly
+            selecting a prediction when two labels have equal opportunity for
+            a given sample.
+        :type random_state: random.Random
+        """
+        if random_state is None:
+            random_state = random.Random()
+        elif isinstance(random_state, int):
+            random_state = random.Random(random_state)
+        elif isinstance(random_state, (list, tuple)) and len(random_state) == 3:
+            # tuple required for random state to be set, lists do not work
+            if isinstance(random_state[1], list):
+                random_state[1] = tuple(random_state[1])
+            if isinstance(random_state, list):
+                random_state = tuple(random_state)
+            temp_random_state = random.Random()
+            try:
+                temp_random_state.setstate(random_state)
+                random_state = temp_random_state
+            except (TypeError, ValueError):
+                pass  # error will raise in validate parameters
+
+        parameters = {
+            "aggregation_func": aggregation_func,
+            "priority_order": priority_order,
+            "random_state": random_state,
+        }
+
+        super().__init__(**parameters)
+
+    def _validate_parameters(self, parameters):
+        """
+        Validate params set in the processor and raise error if issues exist.
+
+        :param parameters: parameter dict containing the following parameters:
+            aggregation_func: aggregation function to apply to regex model
+                output (split, random, priority)
+            priority_order: if priority is set as the aggregation function,
+                the order in which entities are given priority must be set
+            random_state: Random state setting to be used for randomly
+                selecting a prediction when two labels have equal opportunity
+                for a given sample.
+        :type parameters: dict
+        :return: None
+        """
+        errors = []
+        allowed_parameters = self.__class__.__init__.__code__.co_varnames[
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
+        for param in parameters:
+            value = parameters[param]
+            if param == "aggregation_func":
+                if not isinstance(value, str):
+                    errors.append("`{}` must be a string.".format(param))
+                elif value.lower() not in ["split", "priority", "random"]:
+                    errors.append(
+                        "`{}` must be a one of ['split', 'priority', "
+                        "'random'].".format(param)
+                    )
+            elif param == "priority_order":
+                # if aggregation function is being set to priority, or is not
+                # being changed and is already set
+                aggregation_func = parameters.get(
+                    "aggregation_func",
+                    self._parameters.get("aggregation_func")
+                    if hasattr(self, "_parameters")
+                    else None,
+                )
+                if value is None and aggregation_func == "priority":
+                    errors.append(
+                        "`{}` cannot be None if `aggregation_func` == "
+                        "priority.".format(param)
+                    )
+                elif value is not None and not isinstance(value, (list, np.ndarray)):
+                    errors.append("`{}` must be a list or numpy.ndarray.".format(param))
+            elif param == "random_state" and not isinstance(value, random.Random):
+                errors.append("`{}` must be a random.Random.".format(param))
+            elif param not in allowed_parameters:
+                errors.append("{} is not an accepted parameter.".format(param))
+
+        if errors:
+            raise ValueError("\n".join(errors))
+
+    @classmethod
+    def help(cls):
+        """
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for postprocessors.
+
+        :return: None
+        """
+        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_start_ind = param_docs.find("parameters:\n") + 12
+        param_end_ind = param_docs.find(":type parameters:")
+
+        help_str = (
+            cls.__name__
+            + "\n\n"
+            + "Parameters:\n"
+            + param_docs[param_start_ind:param_end_ind]
+            + "\nProcess Output Format:\n"
+            "    Each sample receives a label.\n"
+            "    Original data - ['My', 'String', ...]\n"
+            "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
+            "..(num samples)]"
+        )
+        print(help_str)
+
+    @staticmethod
+    def priority_prediction(results, entity_priority_order):
+        """
+        Use priority of regex to give entity determination.
+
+        :param results: regex from model in format: dict(pred=..., conf=...)
+        :type results: dict
+        :param entity_priority_order: list of entity priorities (lowest has
+            higher priority)
+        :type entity_priority_order: np.ndarray
+        :return: aggregated predictions
+        """
+        # default aggregation function which selects the first predicted label
+        # with the lowest priority of integer.
+        for i, pred in enumerate(results["pred"]):
+            results["pred"][i] = entity_priority_order[
+                np.argmax(pred[:, entity_priority_order], axis=1)
+            ]
+
+    @staticmethod
+    def split_prediction(results):
+        """
+        Split the prediction across votes.
+
+        :param results: regex from model in format: dict(pred=..., conf=...)
+        :type results: dict
+        :return: aggregated predictions
+        """
+        for i, pred in enumerate(results["pred"]):
+            results["pred"][i] = pred / np.linalg.norm(
+                pred, axis=1, ord=1, keepdims=True
+            )
+
+    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+        """Preprocess data."""
+        aggregation_func = self._parameters["aggregation_func"]
+        aggregation_func = aggregation_func.lower()
+
+        results = copy.deepcopy(labels)
+
+        if aggregation_func == "split":
+            self.split_prediction(results)
+        elif aggregation_func == "priority":
+            self.priority_prediction(
+                results, np.array(self._parameters["priority_order"])
+            )
+        elif aggregation_func == "random":
+            num_labels = max(label_mapping.values()) + 1
+            random_state = self._parameters["random_state"]
+            priority_order = np.array(list(range(num_labels)))
+            random_state.shuffle(priority_order)
+            self.priority_prediction(results, priority_order)
+        else:
+            raise ValueError(
+                "`{}` is not a valid aggregation function".format(aggregation_func)
+            )
+
+        return results
+
+    def _save_processor(self, dirpath):
+        """
+        Save the data processor.
+
+        :param dirpath: directory to save the processor
+        :type dirpath: str
+        :return:
+        """
+        params = copy.deepcopy(self._parameters)
+        params["random_state"] = params["random_state"].getstate()
+        with open(
+            os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
+        ) as fp:
+            json.dump(params, fp)

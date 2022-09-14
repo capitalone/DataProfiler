@@ -7,6 +7,9 @@ import numpy as np
 try:
     import rapidfuzz
 except ImportError:
+    # not required when using `ColumnNameModel`, but
+    # will below recommend to install if not installed'
+    # when running `predict()`
     pass
 
 from .. import dp_logging

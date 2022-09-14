@@ -25,6 +25,7 @@ class GraphProfiler(object):
         Initialize Graph Profiler.
 
         :param data: data
+        :type data: string
         :param options: Options for the Graph Profiler
         :type options: GraphOptions
         """

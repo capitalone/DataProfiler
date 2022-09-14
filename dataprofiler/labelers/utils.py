@@ -17,7 +17,7 @@ def warn_missing_module(labeler_function, module_name):
     warning_msg += "\nMissing Module: {}".format(module_name)
     warning_msg += "\n\nFor labeler errors, try installing "
     warning_msg += "the extra labeler requirements via:\n\n"
-    warning_msg += "$ pip install dataprofiler[ml] --user\n\n"
+    warning_msg += "$ pip install -r requirements-ml.txt\n\n"
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=3)
 
 

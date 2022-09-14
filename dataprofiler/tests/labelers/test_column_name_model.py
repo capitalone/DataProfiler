@@ -245,7 +245,7 @@ class TestColumnNameModel(unittest.TestCase):
             return orig_import(name, *args, **kwargs)
 
         with mock.patch("builtins.__import__", side_effect=import_mock):
-            with self.assertRaises(NameError):
+            with self.assertRaises(TypeError):
                 modules_to_remove = [
                     "dataprofiler.labelers.column_name_model",
                     module_name,
@@ -265,9 +265,23 @@ class TestColumnNameModel(unittest.TestCase):
                         {"attribute": "ssn", "label": "ssn"},
                         {"attribute": "suffix", "label": "name"},
                         {"attribute": "my_home_address", "label": "address"},
-                    ]
+                    ],
+                    "false_positive_dict": [
+                        {
+                            "attribute": "contract_number",
+                            "label": "ssn",
+                        },
+                        {
+                            "attribute": "role",
+                            "label": "name",
+                        },
+                        {
+                            "attribute": "send_address",
+                            "label": "address",
+                        },
+                    ],
                 }
-                class_name(parameters=parameters).predict(data=["home_address"])
+                class_name(parameters=parameters).predict(data=["ssn"])
 
     def test_no_rapidfuzz(self):
         self.missing_module_test(

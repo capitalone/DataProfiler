@@ -25,7 +25,7 @@ class GraphProfiler(object):
         Initialize Graph Profiler.
 
         :param data: data
-        :type data: networkx.Graph || data_readers.graph_data.GraphData
+        :type data: Union[networkx.Graph, data_readers.graph_data.GraphData]
         :param options: Options for the Graph Profiler
         :type options: GraphOptions
         """

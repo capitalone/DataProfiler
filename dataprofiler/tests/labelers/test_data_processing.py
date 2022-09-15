@@ -2964,12 +2964,9 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
 
     def test_process(self):
         """Test post-processing data from the ColumnNameModel class."""
-        data = None
-        results = [[100.0, 0]]
-        expected_output = dict(
-            pred=np.array([2, 1]),
-            conf=np.array([[5 / 24, 5 / 24, 14 / 24], [5 / 18, 8 / 18, 5 / 18]]),
-        )
+        data = [[100.0, 0]]
+        expected_output = {0: {"pred": "ssn", "conf": 100.0}}
+
         params = {
             "true_positive_dict": [
                 {"attribute": "ssn", "label": "ssn"},
@@ -2978,36 +2975,34 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
             ],
             "positive_threshold_config": 85,
         }
+
         processor = ColumnNameModelPostprocessor(parameters=params)
         process_output = processor.process(data)
 
-        self.assertIn("pred", process_output)
-        np.testing.assert_almost_equal(expected_output["pred"], process_output["pred"])
-        self.assertIn("conf", process_output)
-        np.testing.assert_almost_equal(expected_output["conf"], process_output["conf"])
+        self.assertEqual(process_output, expected_output)
 
-    # @mock.patch("builtins.open")
-    # def test_save_processor(self, mock_open, *mocks):
-    #     # setup mocks
-    #     mock_file = setup_save_mock_open(mock_open)
+    @mock.patch("builtins.open")
+    def test_save_processor(self, mock_open, *mocks):
+        # setup mocks
+        mock_file = setup_save_mock_open(mock_open)
 
-    #     # setup mocked class
-    #     mocked_processor = mock.create_autospec(BaseDataProcessor)
-    #     mocked_processor.processor_type = "test"
-    #     regex_processor_mock = mock.Mock(spec=RegexPostProcessor)()
-    #     random_mock = mock.Mock()
-    #     random_mock.getstate.return_value = ["test"]
-    #     regex_processor_mock.get_parameters.return_value = dict(
-    #         random_state=random_mock
-    #     )
-    #     mocked_processor._parameters = dict(regex_processor=regex_processor_mock)
+        # setup mocked class
+        mocked_processor = mock.create_autospec(BaseDataProcessor)
+        mocked_processor.processor_type = "test"
+        regex_processor_mock = mock.Mock(spec=RegexPostProcessor)()
+        random_mock = mock.Mock()
+        random_mock.getstate.return_value = ["test"]
+        regex_processor_mock.get_parameters.return_value = dict(
+            random_state=random_mock
+        )
+        mocked_processor._parameters = dict(regex_processor=regex_processor_mock)
 
-    #     # call save processor func
-    #     ColumnNameModelPostprocessor._save_processor(mocked_processor, "test")
+        # call save processor func
+        ColumnNameModelPostprocessor._save_processor(mocked_processor, "test")
 
-    #     # assert parameters saved
-    #     mock_open.assert_called_with("test/test_parameters.json", "w")
-    #     self.assertEqual('{"random_state": ["test"]}', mock_file.getvalue())
+        # assert parameters saved
+        mock_open.assert_called_with("test/test_parameters.json", "w")
+        self.assertEqual('{"random_state": ["test"]}', mock_file.getvalue())
 
-    #     # close mocks
-    #     StringIO.close(mock_file)
+        # close mocks
+        StringIO.close(mock_file)

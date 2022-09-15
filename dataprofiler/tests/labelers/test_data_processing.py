@@ -2955,6 +2955,7 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
         ColumnNameModelPostprocessor(parameters=params)
 
         # test invalid params
+        # TODO: add regex to look through errros list on each validation test
         with self.assertRaises(ValueError):
             params = {
                 "true_positive_dict": [{"fail": "attribute", "fail": "label"}],
@@ -2963,29 +2964,29 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
             }
             ColumnNameModelPostprocessor(parameters=params)
 
-    # def test_process(self):
+    def test_process(self):
 
-    #     label_mapping = label_mapping = {"PAD": 0, "UNKNOWN": 1, "TEST1": 2}
-    #     data = None
-    #     results = dict(
-    #         pred=[
-    #             np.array([[1, 1, 0], [0, 0, 1], [0, 0, 1], [1, 1, 1]]),
-    #             np.array([[0, 1, 0], [1, 1, 1], [1, 0, 1]]),
-    #         ],
-    #         conf=None,  # this isn't used internally so can set to none
-    #     )
+        label_mapping = label_mapping = {"PAD": 0, "UNKNOWN": 1, "TEST1": 2}
+        data = None
+        results = dict(
+            pred=[
+                np.array([[1, 1, 0], [0, 0, 1], [0, 0, 1], [1, 1, 1]]),
+                np.array([[0, 1, 0], [1, 1, 1], [1, 0, 1]]),
+            ],
+            conf=None,  # this isn't used internally so can set to none
+        )
 
-    #     expected_output = dict(
-    #         pred=np.array([2, 1]),
-    #         conf=np.array([[5 / 24, 5 / 24, 14 / 24], [5 / 18, 8 / 18, 5 / 18]]),
-    #     )
-    #     processor = ColumnNameModelPostprocessor()
-    #     process_output = processor.process(data, results, label_mapping)
+        expected_output = dict(
+            pred=np.array([2, 1]),
+            conf=np.array([[5 / 24, 5 / 24, 14 / 24], [5 / 18, 8 / 18, 5 / 18]]),
+        )
+        processor = ColumnNameModelPostprocessor()
+        process_output = processor.process(data, results, label_mapping)
 
-    #     self.assertIn("pred", process_output)
-    #     np.testing.assert_almost_equal(expected_output["pred"], process_output["pred"])
-    #     self.assertIn("conf", process_output)
-    #     np.testing.assert_almost_equal(expected_output["conf"], process_output["conf"])
+        self.assertIn("pred", process_output)
+        np.testing.assert_almost_equal(expected_output["pred"], process_output["pred"])
+        self.assertIn("conf", process_output)
+        np.testing.assert_almost_equal(expected_output["conf"], process_output["conf"])
 
     # @mock.patch("builtins.open")
     # def test_save_processor(self, mock_open, *mocks):

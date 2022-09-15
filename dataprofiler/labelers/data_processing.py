@@ -2086,14 +2086,8 @@ class ColumnNameModelPostProcessor(
 ):
     """Subclass of BaseDataPostprocessor for postprocessing regex data."""
 
-    def __init__(self, parameters, priority_order=None):
-        """
-        Initialize the ColumnNameModelPostProcessor class.
-
-        :param priority_order: if priority is set as the aggregation function,
-            the order in which entities are given priority must be set
-        :type priority_order: Union[list, numpy.ndarray]
-        """
+    def __init__(self, parameters):
+        """Initialize the ColumnNameModelPostProcessor class."""
         # set parameters
         if not parameters:
             parameters = {}
@@ -2186,27 +2180,18 @@ class ColumnNameModelPostProcessor(
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
         """Preprocess data."""
-        aggregation_func = self._parameters["aggregation_func"]
-        aggregation_func = aggregation_func.lower()
-
-        results = copy.deepcopy(labels)
-
-        if aggregation_func == "split":
-            self.split_prediction(results)
-        elif aggregation_func == "priority":
-            self.priority_prediction(
-                results, np.array(self._parameters["priority_order"])
-            )
-        elif aggregation_func == "random":
-            num_labels = max(label_mapping.values()) + 1
-            random_state = self._parameters["random_state"]
-            priority_order = np.array(list(range(num_labels)))
-            random_state.shuffle(priority_order)
-            self.priority_prediction(results, priority_order)
-        else:
-            raise ValueError(
-                "`{}` is not a valid aggregation function".format(aggregation_func)
-            )
+        results = {}
+        for iter_value, value in enumerate(data):
+            if data[iter_value][0] > self._parameters["positive_threshold_config"]:
+                results[iter_value] = {}
+                if self._parameters["include_label"]:
+                    results[iter_value]["pred"] = self._parameters[
+                        "true_positive_dict"
+                    ][data[iter_value][1]]["label"]
+                try:
+                    results[iter_value]["conf"] = data[iter_value][0]
+                except Exception:
+                    pass
 
         return results
 

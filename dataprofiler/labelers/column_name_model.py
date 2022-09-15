@@ -36,6 +36,9 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             parameters = {}
         parameters.setdefault("false_positive_dict", None)
         parameters.setdefault("true_positive_dict", None)
+        parameters.setdefault("include_label", True)
+        parameters.setdefault("negative_threshold_config", None)
+        parameters.setdefault("positive_threshold_config", None)
 
         # initialize class
         self._validate_parameters(parameters)
@@ -55,10 +58,18 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         """
         errors = []
 
-        list_of_accepted_parameters = [
+        required_parameters = [
             "true_positive_dict",
-            "false_positive_dict",
+            "positive_threshold_config",
         ]
+
+        optional_parameters = [
+            "false_positive_dict",
+            "include_label",
+            "negative_threshold_config",
+        ]
+
+        list_of_accepted_parameters = optional_parameters + required_parameters
 
         for param in parameters:
             value = parameters[param]
@@ -80,10 +91,25 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 and "list" not in value[0].keys()
             ):
                 errors.append(
-                    """`{}` must be a list of dictionaries each with the following
+                    """`{}` is a required parameters that must  be a list
+                    of dictionaries each with the following
                     two keys: 'attribute' and 'label'""".format(
                         param
                     )
+                )
+            elif param == "include_label" and not isinstance(param, bool):
+                errors.append(
+                    """ `{}` is a required parameter that must be a boolean."""
+                )
+            elif param == "negative_threshold_config" and not isinstance(value, int):
+                errors.append(
+                    """ `{}` is an optional parameter that must be a boolean."""
+                )
+            elif param == "positive_threshold_config" and (
+                isinstance(value, int) or value is None
+            ):
+                errors.append(
+                    """ `{}` is an required parameter that must be an integer."""
                 )
             elif param not in list_of_accepted_parameters:
                 errors.append("`{}` is not an accepted parameter.".format(param))
@@ -129,13 +155,15 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             include_label=include_label,
         )
 
+        # move to post processor
         output_dictionary = {}
         for i in range(len(list_of_column_names)):
             if scores[i][0] > positive_threshold:
                 output_dictionary[list_of_column_names[i]] = {}
-                output_dictionary[list_of_column_names[i]]["pred"] = check_values_dict[
-                    scores[i][1]
-                ]["label"]
+                if include_label:
+                    output_dictionary[list_of_column_names[i]][
+                        "pred"
+                    ] = check_values_dict[scores[i][1]]["label"]
                 if show_confidences:
                     output_dictionary[list_of_column_names[i]]["conf"] = scores[i][0]
 
@@ -186,9 +214,6 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         batch_size=None,
         show_confidences=False,
         verbose=True,
-        include_label=True,
-        negative_threshold_config=50,
-        positive_threshold_config=85,
     ):
         """
         Apply the `process.cdist` for similarity score on input list of strings.
@@ -208,7 +233,9 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         false_positive_dict = self._parameters["false_positive_dict"]
         if false_positive_dict:
             data = self._compare_negative(
-                data, false_positive_dict, negative_threshold=negative_threshold_config
+                data,
+                false_positive_dict,
+                negative_threshold=self._parameters["negative_threshold_config"],
             )
             if verbose:
                 logger.info("compare_negative process complete")
@@ -216,8 +243,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         output = self._compare_positive(
             data,
             self._parameters["true_positive_dict"],
-            positive_threshold=positive_threshold_config,
-            include_label=True,
+            positive_threshold=self._parameters["positive_threshold_config"],
+            include_label=self._parameters["include_label"],
             show_confidences=show_confidences,
         )
         if verbose:

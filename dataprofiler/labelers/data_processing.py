@@ -2121,9 +2121,11 @@ class ColumnNameModelPostProcessor(
                 pass  # error will raise in validate parameters
 
         parameters = {
-            "aggregation_func": aggregation_func,
-            "priority_order": priority_order,
-            "random_state": random_state,
+            "true_positive_dict": None,
+            "false_positive_dict": None,
+            "positive_threshold_config": None,
+            "negative_threshold_config": None,
+            "include_label": None,
         }
 
         super().__init__(**parameters)
@@ -2207,39 +2209,6 @@ class ColumnNameModelPostProcessor(
             "..(num samples)]"
         )
         print(help_str)
-
-    @staticmethod
-    def priority_prediction(results, entity_priority_order):
-        """
-        Use priority of regex to give entity determination.
-
-        :param results: regex from model in format: dict(pred=..., conf=...)
-        :type results: dict
-        :param entity_priority_order: list of entity priorities (lowest has
-            higher priority)
-        :type entity_priority_order: np.ndarray
-        :return: aggregated predictions
-        """
-        # default aggregation function which selects the first predicted label
-        # with the lowest priority of integer.
-        for i, pred in enumerate(results["pred"]):
-            results["pred"][i] = entity_priority_order[
-                np.argmax(pred[:, entity_priority_order], axis=1)
-            ]
-
-    @staticmethod
-    def split_prediction(results):
-        """
-        Split the prediction across votes.
-
-        :param results: regex from model in format: dict(pred=..., conf=...)
-        :type results: dict
-        :return: aggregated predictions
-        """
-        for i, pred in enumerate(results["pred"]):
-            results["pred"][i] = pred / np.linalg.norm(
-                pred, axis=1, ord=1, keepdims=True
-            )
 
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
         """Preprocess data."""

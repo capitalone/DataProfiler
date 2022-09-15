@@ -358,7 +358,8 @@ class GraphProfiler(object):
                     "scale": best_mle,
                     "properties": properties,
                 }
-
+            else:
+                continuous_distributions[attribute] = None
         return continuous_distributions
 
     @BaseColumnProfiler._timeit(name="categorical_distribution")
@@ -376,7 +377,8 @@ class GraphProfiler(object):
                     "bin_counts": list(hist),
                     "bin_edges": list(edges),
                 }
-
+            else:
+                categorical_distributions[attribute] = None
         return categorical_distributions
 
     @staticmethod

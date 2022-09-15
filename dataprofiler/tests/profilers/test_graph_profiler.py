@@ -73,6 +73,7 @@ class TestGraphProfiler(unittest.TestCase):
             avg_node_degree=2.5,
             global_max_component_size=5,
             continuous_distribution={
+                "id": None,
                 "weight": {
                     "name": "lognorm",
                     "scale": -15.250985118262854,
@@ -110,6 +111,7 @@ class TestGraphProfiler(unittest.TestCase):
                     "bin_counts": [1, 1, 1, 2],
                     "bin_edges": [1.0, 2.0, 3.0, 4.0, 5.0],
                 },
+                "weight": None,
             },
             times=defaultdict(
                 float,
@@ -126,8 +128,6 @@ class TestGraphProfiler(unittest.TestCase):
             ),
         )
 
-        cls.expected_props = dict()
-
         cls.expected_diff_1 = {
             "num_nodes": "unchanged",
             "num_edges": 1,
@@ -138,6 +138,7 @@ class TestGraphProfiler(unittest.TestCase):
             "continuous_distribution": [
                 {},
                 {
+                    "id": "unchanged",
                     "weight": [
                         {},
                         {
@@ -192,9 +193,9 @@ class TestGraphProfiler(unittest.TestCase):
                             ],
                         },
                         {},
-                    ]
+                    ],
                 },
-                {},
+                {"value": None},
             ],
             "categorical_distribution": [
                 {},
@@ -206,7 +207,8 @@ class TestGraphProfiler(unittest.TestCase):
                             "bin_edges": [[5.0], [1.0, 2.0, 3.0, 4.0], []],
                         },
                         {},
-                    ]
+                    ],
+                    "weight": "unchanged",
                 },
                 {
                     "value": {
@@ -236,6 +238,21 @@ class TestGraphProfiler(unittest.TestCase):
             "continuous_distribution": [
                 {},
                 {
+                    "id": "unchanged",
+                    "value": [
+                        None,
+                        {
+                            "name": "uniform",
+                            "scale": 8.047189562170502,
+                            "properties": {
+                                "best_fit_properties": [2.3, 5.0],
+                                "mean": [2.3, 5.0],
+                                "variance": [2.3, 5.0],
+                                "skew": [1.3187609467915742, 0.8944271909999159],
+                                "kurtosis": [2.608695652173913, 1.2],
+                            },
+                        },
+                    ],
                     "weight": [
                         {},
                         {
@@ -294,29 +311,12 @@ class TestGraphProfiler(unittest.TestCase):
                             ],
                         },
                         {},
-                    ]
+                    ],
                 },
-                {
-                    "value": {
-                        "name": "uniform",
-                        "scale": 8.047189562170502,
-                        "properties": {
-                            "best_fit_properties": [2.3, 5.0],
-                            "mean": [2.3, 5.0],
-                            "variance": [2.3, 5.0],
-                            "skew": [1.3187609467915742, 0.8944271909999159],
-                            "kurtosis": [2.608695652173913, 1.2],
-                        },
-                    }
-                },
+                {},
             ],
             "categorical_distribution": [
-                {
-                    "value": {
-                        "bin_counts": [1, 1, 2],
-                        "bin_edges": [4.0, 6.0, 8.0, 10.0],
-                    }
-                },
+                {},
                 {
                     "id": [
                         {},
@@ -325,7 +325,12 @@ class TestGraphProfiler(unittest.TestCase):
                             "bin_edges": [[], [1.0, 2.0, 3.0, 4.0], [5.0]],
                         },
                         {},
-                    ]
+                    ],
+                    "value": [
+                        {"bin_counts": [1, 1, 2], "bin_edges": [4.0, 6.0, 8.0, 10.0]},
+                        None,
+                    ],
+                    "weight": "unchanged",
                 },
                 {},
             ],
@@ -352,11 +357,11 @@ class TestGraphProfiler(unittest.TestCase):
         # test_report
         graph_profile = GraphProfiler(self.graph_1)
         with utils.mock_timeit():
-            profile = graph_profile.update(self.graph_1)
+            graph_profile.update(self.graph_1)
         self.assertDictEqual(self.expected_profile, graph_profile.report())
 
     def test_graph_data_object(self):
-        data = GraphData(input_file_path=None, data=self.graph_1)
+        data = GraphData(data=self.graph_1)
         graph_profile = GraphProfiler("test_graph_data_object_update")
 
         with utils.mock_timeit():
@@ -364,9 +369,6 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_diff(self):
-        data_1 = GraphData(input_file_path=None, data=self.graph_1)
-        data_2 = GraphData(input_file_path=None, data=self.graph_2)
-
         profile_1 = dp.GraphProfiler(self.graph_1)
         profile_2 = dp.GraphProfiler(self.graph_2)
         profile_3 = dp.GraphProfiler(self.graph_3)
@@ -384,7 +386,7 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertEqual(diff_2, self.expected_diff_2)
 
     def test_save_and_load(self):
-        data = GraphData(input_file_path=None, data=self.graph_1)
+        data = GraphData(data=self.graph_1)
         # test_save_and_load
         save_profile = dp.GraphProfiler(self.graph_1)
         save_profile = save_profile.update(data)
@@ -403,12 +405,7 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(save_report, load_report)
 
         # adding new data and updating profiles
-        self.graph_1.add_edges_from(
-            [
-                (2, 4, {"id": 6, "weight": 1.2}),
-            ]
-        )
-        data = GraphData(input_file_path=None, data=self.graph_1)
+        data = GraphData(data=self.graph_1)
 
         # validate both are still usable after
         save_profile.update(data)

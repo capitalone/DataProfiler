@@ -62,30 +62,6 @@ class TestColumnNameModel(unittest.TestCase):
         ]
 
     def test_param_validation(self):
-        parameters = {
-            "false_positive_dict": [
-                {
-                    "attribute": "contract_number",
-                    "label": "ssn",
-                },
-                {
-                    "attribute": "role",
-                    "label": "name",
-                },
-                {
-                    "attribute": "send_address",
-                    "label": "address",
-                },
-            ],
-            "true_positive_dict": [
-                {"attribute": "ssn", "label": "ssn"},
-                {"attribute": "suffix", "label": "name"},
-                {"attribute": "my_home_address", "label": "address"},
-            ],
-            "positive_threshold_config": 85,
-            "negative_threshold_config": 50,
-            "include_label": True,
-        }
         invalid_parameters = [
             {
                 "false_positive_dict": [
@@ -104,8 +80,8 @@ class TestColumnNameModel(unittest.TestCase):
             },
         ]
 
-        model = ColumnNameModel(parameters=parameters)
-        self.assertDictEqual(parameters, model._parameters)
+        model = ColumnNameModel(parameters=mock_model_parameters)
+        self.assertDictEqual(mock_model_parameters, model._parameters)
 
         for invalid_param_set in invalid_parameters:
             with self.assertRaises(ValueError):
@@ -119,31 +95,7 @@ class TestColumnNameModel(unittest.TestCase):
 
     @mock.patch("sys.stdout", new_callable=StringIO)
     def test_predict(self, mock_stdout):
-        parameters = {
-            "true_positive_dict": [
-                {"attribute": "ssn", "label": "ssn"},
-                {"attribute": "suffix", "label": "name"},
-                {"attribute": "my_home_address", "label": "address"},
-            ],
-            "false_positive_dict": [
-                {
-                    "attribute": "contract_number",
-                    "label": "ssn",
-                },
-                {
-                    "attribute": "role",
-                    "label": "name",
-                },
-                {
-                    "attribute": "send_address",
-                    "label": "address",
-                },
-            ],
-            "positive_threshold_config": 85,
-            "negative_threshold_config": 50,
-            "include_label": True,
-        }
-        model = ColumnNameModel(parameters=parameters)
+        model = ColumnNameModel(parameters=mock_model_parameters)
 
         expected_output = [[0]]
 
@@ -277,31 +229,8 @@ class TestColumnNameModel(unittest.TestCase):
                     import importlib
 
                     importlib.import_module(module)
-                parameters = {
-                    "true_positive_dict": [
-                        {"attribute": "ssn", "label": "ssn"},
-                        {"attribute": "suffix", "label": "name"},
-                        {"attribute": "my_home_address", "label": "address"},
-                    ],
-                    "false_positive_dict": [
-                        {
-                            "attribute": "contract_number",
-                            "label": "ssn",
-                        },
-                        {
-                            "attribute": "role",
-                            "label": "name",
-                        },
-                        {
-                            "attribute": "send_address",
-                            "label": "address",
-                        },
-                    ],
-                    "positive_threshold_config": 85,
-                    "negative_threshold_config": 50,
-                    "include_label": True,
-                }
-                class_name(parameters=parameters).predict(data=["ssn"])
+
+                class_name(parameters=mock_model_parameters).predict(data=["ssn"])
 
     def test_no_rapidfuzz(self):
         self.missing_module_test(

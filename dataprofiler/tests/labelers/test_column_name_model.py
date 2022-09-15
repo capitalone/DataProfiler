@@ -34,7 +34,6 @@ mock_model_parameters = {
             "label": "address",
         },
     ],
-    "positive_threshold_config": 85,
     "negative_threshold_config": 50,
     "include_label": True,
 }
@@ -159,7 +158,6 @@ class TestColumnNameModel(unittest.TestCase):
                     "label": "address",
                 },
             ],
-            "positive_threshold_config": 85,
             "negative_threshold_config": 50,
             "include_label": True,
         }
@@ -192,10 +190,6 @@ class TestColumnNameModel(unittest.TestCase):
         self.assertEqual(
             mock_model_parameters["include_label"],
             loaded_model._parameters["include_label"],
-        )
-        self.assertEqual(
-            mock_model_parameters["positive_threshold_config"],
-            loaded_model._parameters["positive_threshold_config"],
         )
         self.assertEqual(
             mock_model_parameters["negative_threshold_config"],

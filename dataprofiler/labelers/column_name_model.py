@@ -38,7 +38,6 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         parameters.setdefault("true_positive_dict", None)
         parameters.setdefault("include_label", True)
         parameters.setdefault("negative_threshold_config", None)
-        parameters.setdefault("positive_threshold_config", None)
 
         # initialize class
         self._validate_parameters(parameters)
@@ -60,7 +59,6 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         required_parameters = [
             "true_positive_dict",
-            "positive_threshold_config",
         ]
 
         optional_parameters = [
@@ -77,6 +75,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 param == "false_positive_dict"
                 and value is not None
                 and (not isinstance(value, list) or "attribute" not in value[0].keys())
+                and parameters["negative_threshold_config"] is not None
             ):
                 errors.append(
                     """`{}` must be a list of dictionaries with at
@@ -101,17 +100,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 errors.append(
                     "`{}` is a required parameter that must be a boolean.".format(param)
                 )
-            elif param == "negative_threshold_config" and not isinstance(value, int):
-                errors.append(
-                    "`{}` is an optional parameter that must be a boolean.".format(
-                        param
-                    )
-                )
-            elif param == "positive_threshold_config" and (
-                not isinstance(value, int) or value is None
+            elif param == "negative_threshold_config" and (
+                not isinstance(value, int)
+                and parameters["false_positive_dict"] is not None
             ):
                 errors.append(
-                    "`{}` is an required parameter that must be an integer.".format(
+                    "`{}` is an optional parameter that must be a boolean.".format(
                         param
                     )
                 )

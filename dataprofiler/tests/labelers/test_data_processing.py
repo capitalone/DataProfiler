@@ -2965,23 +2965,24 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
             ColumnNameModelPostprocessor(parameters=params)
 
     def test_process(self):
-
-        label_mapping = label_mapping = {"PAD": 0, "UNKNOWN": 1, "TEST1": 2}
+        """Test post-processing data from the ColumnNameModel class."""
         data = None
-        results = dict(
-            pred=[
-                np.array([[1, 1, 0], [0, 0, 1], [0, 0, 1], [1, 1, 1]]),
-                np.array([[0, 1, 0], [1, 1, 1], [1, 0, 1]]),
-            ],
-            conf=None,  # this isn't used internally so can set to none
-        )
-
+        results = [[100.0, 0]]
         expected_output = dict(
             pred=np.array([2, 1]),
             conf=np.array([[5 / 24, 5 / 24, 14 / 24], [5 / 18, 8 / 18, 5 / 18]]),
         )
-        processor = ColumnNameModelPostprocessor()
-        process_output = processor.process(data, results, label_mapping)
+        params = {
+            "true_positive_dict": [
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
+            ],
+            "positive_threshold_config": 85,
+            "include_label": True,
+        }
+        processor = ColumnNameModelPostprocessor(parameters=params)
+        process_output = processor.process(data)
 
         self.assertIn("pred", process_output)
         np.testing.assert_almost_equal(expected_output["pred"], process_output["pred"])

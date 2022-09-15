@@ -134,6 +134,39 @@ class TestShuffleInChunks(unittest.TestCase):
         }
         self.assertDictEqual(expected_diff, utils.find_diff_of_dicts(dict1, dict2))
 
+        dict1 = {
+            "nested_key_one": {"fruit": ["apple", "banana", "orange"], "yes_no": False},
+            "key_one": True,
+            "last_nested_key": {"color": "blue", "weight": 35},
+        }
+
+        dict2 = {
+            "nested_key_two": {"fruit": ["apple", "banana", "orange"], "yes_no": True},
+            "key_one": True,
+            "last_nested_key": {"weight": 35, "height": "500"},
+            "additional_key": "random_string",
+        }
+
+        expected_diff = {
+            "nested_key_one": [
+                {"fruit": ["apple", "banana", "orange"], "yes_no": False},
+                None,
+            ],
+            "key_one": "unchanged",
+            "last_nested_key": {
+                "color": ["blue", None],
+                "weight": "unchanged",
+                "height": [None, "500"],
+            },
+            "nested_key_two": [
+                None,
+                {"fruit": ["apple", "banana", "orange"], "yes_no": True},
+            ],
+            "additional_key": [None, "random_string"],
+        }
+
+        self.assertDictEqual(expected_diff, utils.find_diff_of_dicts(dict1, dict2))
+
     def test_diff_of_dicts_with_diff_keys(self):
         dict1 = {"unique1": 1, "shared1": 2, "shared2": 3}
         dict2 = {"unique2": 5, "shared1": 2, "shared2": 6}
@@ -179,6 +212,47 @@ class TestShuffleInChunks(unittest.TestCase):
             },
             {"unique2": 5},
         ]
+        self.assertListEqual(
+            expected, utils.find_diff_of_dicts_with_diff_keys(dict1, dict2)
+        )
+
+        dict1 = {
+            "nested_key_one": {"fruit": ["apple", "banana", "orange"], "yes_no": False},
+            "key_one": True,
+            "last_nested_key": {"color": "blue", "weight": 35},
+        }
+
+        dict2 = {
+            "nested_key_two": {"fruit": ["apple", "banana", "orange"], "yes_no": True},
+            "key_one": True,
+            "last_nested_key": {"weight": 35, "height": "500"},
+            "additional_key": "random_string",
+        }
+
+        expected = [
+            {
+                "nested_key_one": {
+                    "fruit": ["apple", "banana", "orange"],
+                    "yes_no": False,
+                }
+            },
+            {
+                "key_one": "unchanged",
+                "last_nested_key": [
+                    {"color": "blue"},
+                    {"weight": "unchanged"},
+                    {"height": "500"},
+                ],
+            },
+            {
+                "nested_key_two": {
+                    "fruit": ["apple", "banana", "orange"],
+                    "yes_no": True,
+                },
+                "additional_key": "random_string",
+            },
+        ]
+
         self.assertListEqual(
             expected, utils.find_diff_of_dicts_with_diff_keys(dict1, dict2)
         )

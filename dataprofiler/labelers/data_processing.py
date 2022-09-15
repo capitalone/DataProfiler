@@ -2081,7 +2081,7 @@ class StructRegexPostProcessor(
         return results
 
 
-class ColumnNameModelPostProcessor(
+class ColumnNameModelPostprocessor(
     BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 ):
     """Subclass of BaseDataPostprocessor for postprocessing regex data."""

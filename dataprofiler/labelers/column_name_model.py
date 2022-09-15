@@ -228,8 +228,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                     output[iter_value] = np.delete(
                         output[iter_value], [iter_value], axis=0
                     )
-                except IndexError:
-                    pass
+                except Exception as e:
+                    raise Warning("Failure when removing confidences: `{}`".format(e))
             pass
 
         if verbose:

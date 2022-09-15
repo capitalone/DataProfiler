@@ -2182,13 +2182,13 @@ class ColumnNameModelPostprocessor(
         for iter_value, value in enumerate(data):
             if data[iter_value][0] > self._parameters["positive_threshold_config"]:
                 results[iter_value] = {}
-                results[iter_value]["pred"] = self._parameters["true_positive_dict"][
-                    data[iter_value][1]
-                ]["label"]
                 try:
-                    results[iter_value]["conf"] = data[iter_value][0]
-                except Exception:
+                    results[iter_value]["pred"] = self._parameters[
+                        "true_positive_dict"
+                    ][data[iter_value][1]]["label"]
+                except IndexError:
                     pass
+                results[iter_value]["conf"] = data[iter_value][0]
 
         return results
 

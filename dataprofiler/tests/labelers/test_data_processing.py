@@ -14,7 +14,7 @@ from dataprofiler.labelers.data_processing import (
     CharEncodedPreprocessor,
     CharPostprocessor,
     CharPreprocessor,
-    ColumnNameModelPostProcessor,
+    ColumnNameModelPostprocessor,
     DirectPassPreprocessor,
     RegexPostProcessor,
     StructCharPostprocessor,

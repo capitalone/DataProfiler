@@ -34,6 +34,9 @@ mock_model_parameters = {
             "label": "address",
         },
     ],
+    "positive_threshold_config": 50,
+    "negative_threshold_config": 85,
+    "include_label": True,
 }
 
 
@@ -79,6 +82,9 @@ class TestColumnNameModel(unittest.TestCase):
                 {"attribute": "suffix", "label": "name"},
                 {"attribute": "my_home_address", "label": "address"},
             ],
+            "positive_threshold_config": 50,
+            "negative_threshold_config": 85,
+            "include_label": True,
         }
         invalid_parameters = [
             {
@@ -133,6 +139,9 @@ class TestColumnNameModel(unittest.TestCase):
                     "label": "address",
                 },
             ],
+            "positive_threshold_config": 50,
+            "negative_threshold_config": 85,
+            "include_label": True,
         }
         model = ColumnNameModel(parameters=parameters)
 
@@ -205,6 +214,9 @@ class TestColumnNameModel(unittest.TestCase):
                     "label": "address",
                 },
             ],
+            "positive_threshold_config": 50,
+            "negative_threshold_config": 85,
+            "include_label": True,
         }
 
         model = ColumnNameModel(parameters)
@@ -231,6 +243,18 @@ class TestColumnNameModel(unittest.TestCase):
         self.assertEqual(
             mock_model_parameters["false_positive_dict"],
             loaded_model._parameters["false_positive_dict"],
+        )
+        self.assertEqual(
+            mock_model_parameters["includue_label"],
+            loaded_model._parameters["includue_label"],
+        )
+        self.assertEqual(
+            mock_model_parameters["positive_threshold_config"],
+            loaded_model._parameters["positive_threshold_config"],
+        )
+        self.assertEqual(
+            mock_model_parameters["negative_threshold_config"],
+            loaded_model._parameters["negative_threshold_config"],
         )
 
     def missing_module_test(self, class_name, module_name):
@@ -280,6 +304,9 @@ class TestColumnNameModel(unittest.TestCase):
                             "label": "address",
                         },
                     ],
+                    "positive_threshold_config": 50,
+                    "negative_threshold_config": 85,
+                    "include_label": True,
                 }
                 class_name(parameters=parameters).predict(data=["ssn"])
 

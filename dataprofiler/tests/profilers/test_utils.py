@@ -137,12 +137,14 @@ class TestShuffleInChunks(unittest.TestCase):
         dict1 = {
             "nested_key_one": {"fruit": ["apple", "banana", "orange"], "yes_no": False},
             "key_one": True,
+            "attributes": {"value": 5, "id": 10},
             "last_nested_key": {"color": "blue", "weight": 35},
         }
 
         dict2 = {
             "nested_key_two": {"fruit": ["apple", "banana", "orange"], "yes_no": True},
             "key_one": True,
+            "attributes": {"value": None, "id": 10},
             "last_nested_key": {"weight": 35, "height": "500"},
             "additional_key": "random_string",
         }
@@ -153,6 +155,7 @@ class TestShuffleInChunks(unittest.TestCase):
                 None,
             ],
             "key_one": "unchanged",
+            "attributes": {"value": [5, None], "id": "unchanged"},
             "last_nested_key": {
                 "color": ["blue", None],
                 "weight": "unchanged",
@@ -219,12 +222,14 @@ class TestShuffleInChunks(unittest.TestCase):
         dict1 = {
             "nested_key_one": {"fruit": ["apple", "banana", "orange"], "yes_no": False},
             "key_one": True,
+            "attributes": {"value": 5, "id": 10},
             "last_nested_key": {"color": "blue", "weight": 35},
         }
 
         dict2 = {
             "nested_key_two": {"fruit": ["apple", "banana", "orange"], "yes_no": True},
             "key_one": True,
+            "attributes": {"value": None, "id": 10},
             "last_nested_key": {"weight": 35, "height": "500"},
             "additional_key": "random_string",
         }
@@ -238,6 +243,7 @@ class TestShuffleInChunks(unittest.TestCase):
             },
             {
                 "key_one": "unchanged",
+                "attributes": [{}, {"value": [5, None], "id": "unchanged"}, {}],
                 "last_nested_key": [
                     {"color": "blue"},
                     {"weight": "unchanged"},

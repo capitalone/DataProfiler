@@ -9,7 +9,7 @@ import pandas as pd
 import scipy.stats as st
 
 from ..data_readers.graph_data import GraphData
-from . import BaseColumnProfiler
+from . import BaseColumnProfiler, utils
 
 
 class GraphProfiler(object):
@@ -94,7 +94,37 @@ class GraphProfiler(object):
                 "Unsupported operand type(s) for diff: '{}' "
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
-        raise NotImplementedError("Function not yet implemented.")
+
+        diff_profile = {
+            "num_nodes": utils.find_diff_of_numbers(
+                self._num_nodes, other_profile._num_nodes
+            ),
+            "num_edges": utils.find_diff_of_numbers(
+                self._num_edges, other_profile._num_edges
+            ),
+            "categorical_attributes": utils.find_diff_of_lists_and_sets(
+                self._categorical_attributes, other_profile._categorical_attributes
+            ),
+            "continuous_attributes": utils.find_diff_of_lists_and_sets(
+                self._continuous_attributes, other_profile._continuous_attributes
+            ),
+            "avg_node_degree": utils.find_diff_of_numbers(
+                self._avg_node_degree, other_profile._avg_node_degree
+            ),
+            "global_max_component_size": utils.find_diff_of_numbers(
+                self._global_max_component_size,
+                other_profile._global_max_component_size,
+            ),
+            "continuous_distribution": utils.find_diff_of_dicts_with_diff_keys(
+                self._continuous_distribution, other_profile._continuous_distribution
+            ),
+            "categorical_distribution": utils.find_diff_of_dicts_with_diff_keys(
+                self._categorical_distribution, other_profile._categorical_distribution
+            ),
+            "times": utils.find_diff_of_dicts(self.times, other_profile.times),
+        }
+
+        return diff_profile
 
     def report(self, remove_disabled_flag=False):
         """
@@ -316,21 +346,18 @@ class GraphProfiler(object):
                 mean, variance, skew, kurtosis = distribution.stats(
                     best_fit_properties, moments="mvsk"
                 )
-                properties = list(best_fit_properties) + [
-                    mean,
-                    variance,
-                    skew,
-                    kurtosis,
-                ]
-
+                properties = {
+                    "best_fit_properties": list(best_fit_properties),
+                    "mean": list(mean),
+                    "variance": list(variance),
+                    "skew": list(skew),
+                    "kurtosis": list(kurtosis),
+                }
                 continuous_distributions[attribute] = {
                     "name": best_fit,
                     "scale": best_mle,
                     "properties": properties,
                 }
-
-            else:
-                continuous_distributions[attribute] = None
 
         return continuous_distributions
 
@@ -349,8 +376,6 @@ class GraphProfiler(object):
                     "bin_counts": list(hist),
                     "bin_edges": list(edges),
                 }
-            else:
-                categorical_distributions[attribute] = None
 
         return categorical_distributions
 

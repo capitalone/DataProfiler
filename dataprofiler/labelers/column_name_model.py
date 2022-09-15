@@ -97,19 +97,23 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                         param
                     )
                 )
-            elif param == "include_label" and not isinstance(param, bool):
+            elif param == "include_label" and not isinstance(value, bool):
                 errors.append(
-                    """ `{}` is a required parameter that must be a boolean."""
+                    "`{}` is a required parameter that must be a boolean.".format(param)
                 )
             elif param == "negative_threshold_config" and not isinstance(value, int):
                 errors.append(
-                    """ `{}` is an optional parameter that must be a boolean."""
+                    "`{}` is an optional parameter that must be a boolean.".format(
+                        param
+                    )
                 )
             elif param == "positive_threshold_config" and (
-                isinstance(value, int) or value is None
+                not isinstance(value, int) or value is None
             ):
                 errors.append(
-                    """ `{}` is an required parameter that must be an integer."""
+                    "`{}` is an required parameter that must be an integer.".format(
+                        param
+                    )
                 )
             elif param not in list_of_accepted_parameters:
                 errors.append("`{}` is not an accepted parameter.".format(param))

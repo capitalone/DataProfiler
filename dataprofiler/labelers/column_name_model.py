@@ -190,7 +190,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         :param batch_size: does not impact this model and should be fixed to not
             be required.
         :type batch_size: N/A
-        :param show_confidences: whether user wants prediction confidences
+        :param show_confidences: Parameter disabled. Confidence values returned
+            by default.
         :type show_confidences:
         :param verbose: Flag to determine whether to print status or not
         :type verbose: bool
@@ -216,15 +217,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             include_label=self._parameters["include_label"],
         )
 
-        if not show_confidences:
-            for iter_value in range(len(output)):
-                try:
-                    output[iter_value] = np.delete(
-                        output[iter_value], [iter_value], axis=0
-                    )
-                except Exception as e:
-                    raise Warning("Failure when removing confidences: `{}`".format(e))
-            pass
+        if show_confidences:
+            raise NotImplementedError(
+                """`show_confidences` parameter is disabled
+                for Proof of Concept implementation. Confidence
+                values are enabled by default."""
+            )
 
         if verbose:
             logger.info("compare_positive process complete")

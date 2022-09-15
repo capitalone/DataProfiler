@@ -2093,7 +2093,6 @@ class ColumnNameModelPostprocessor(
             parameters = {}
         parameters.setdefault("true_positive_dict", None)
         parameters.setdefault("positive_threshold_config", None)
-        parameters.setdefault("include_label", None)
 
         super().__init__(**parameters)
 
@@ -2119,7 +2118,6 @@ class ColumnNameModelPostprocessor(
         allowed_parameters = [
             "true_positive_dict",
             "positive_threshold_config",
-            "include_label",
         ]
 
         for param in parameters:
@@ -2144,10 +2142,6 @@ class ColumnNameModelPostprocessor(
                     "`{}` is an required parameter that must be an integer.".format(
                         param
                     )
-                )
-            elif param == "include_label" and not isinstance(value, bool):
-                errors.append(
-                    "`{}` is a required parameter that must be a boolean.".format(param)
                 )
             elif param not in allowed_parameters:
                 errors.append("{} is not an accepted parameter.".format(param))
@@ -2188,10 +2182,9 @@ class ColumnNameModelPostprocessor(
         for iter_value, value in enumerate(data):
             if data[iter_value][0] > self._parameters["positive_threshold_config"]:
                 results[iter_value] = {}
-                if self._parameters["include_label"]:
-                    results[iter_value]["pred"] = self._parameters[
-                        "true_positive_dict"
-                    ][data[iter_value][1]]["label"]
+                results[iter_value]["pred"] = self._parameters["true_positive_dict"][
+                    data[iter_value][1]
+                ]["label"]
                 try:
                     results[iter_value]["conf"] = data[iter_value][0]
                 except Exception:

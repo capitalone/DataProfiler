@@ -94,10 +94,9 @@ class TestColumnNameModel(unittest.TestCase):
 
     @mock.patch("sys.stdout", new_callable=StringIO)
     def test_predict(self, mock_stdout):
+        # test show confidences
         model = ColumnNameModel(parameters=mock_model_parameters)
-
-        expected_output = [[0]]
-
+        expected_output = [[100.0, 0]]
         with self.assertLogs(
             "DataProfiler.labelers.column_name_model", level="INFO"
         ) as logs:
@@ -105,12 +104,12 @@ class TestColumnNameModel(unittest.TestCase):
         self.assertTrue(np.array_equal(expected_output, model_output))
         self.assertTrue(len(logs.output))
 
-        # test show confidences
-        expected_output = [[100.0, 0]]
-        model_output = model.predict(
-            data=["ssn", "role_name", "wallet_address"], show_confidences=True
-        )
-        self.assertTrue(np.array_equal(expected_output, model_output))
+        # `show_confidences` is disabled currently
+        # should raise error if set to `True`
+        with self.assertRaises(NotImplementedError):
+            model.predict(
+                data=["ssn", "role_name", "wallet_address"], show_confidences=True
+            )
 
         # clear stdout
         mock_stdout.seek(0)

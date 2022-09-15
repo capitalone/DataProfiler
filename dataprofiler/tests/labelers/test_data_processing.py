@@ -2950,7 +2950,6 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
         params = {
             "true_positive_dict": [{"attribute": "test", "label": "test"}],
             "positive_threshold_config": 85,
-            "include_label": True,
         }
         ColumnNameModelPostprocessor(parameters=params)
 
@@ -2959,7 +2958,6 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
         with self.assertRaises(ValueError):
             params = {
                 "true_positive_dict": [{"fail": "attribute", "fail": "label"}],
-                "include_label": "test_fail",
                 "positive_threshold_config": "not_an_integer",
             }
             ColumnNameModelPostprocessor(parameters=params)
@@ -2979,7 +2977,6 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
                 {"attribute": "my_home_address", "label": "address"},
             ],
             "positive_threshold_config": 85,
-            "include_label": True,
         }
         processor = ColumnNameModelPostprocessor(parameters=params)
         process_output = processor.process(data)

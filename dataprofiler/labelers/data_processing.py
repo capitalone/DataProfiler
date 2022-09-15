@@ -2091,7 +2091,6 @@ class ColumnNameModelPostprocessor(
         # set parameters
         if not parameters:
             parameters = {}
-
         parameters.setdfault("true_positive_dict", None)
         parameters.setdfault("positive_threshold_config", None)
         parameters.setdfault("include_label", None)

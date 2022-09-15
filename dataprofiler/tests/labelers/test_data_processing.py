@@ -2934,28 +2934,30 @@ class TestStructRegexPostProcessor(unittest.TestCase):
 class ColumnNameModelPostProcessor(unittest.TestCase):
     def test_registered_subclass(self):
         self.assertEqual(
-            StructRegexPostProcessor,
-            BaseDataProcessor.get_class(StructRegexPostProcessor.__name__),
+            ColumnNameModelPostprocessor,
+            BaseDataProcessor.get_class(ColumnNameModelPostprocessor.__name__),
         )
 
     @mock.patch("sys.stdout", new_callable=StringIO)
     def test_help(self, mock_stdout):
-        RegexPostProcessor.help()
+        ColumnNameModelPostprocessor.help()
         self.assertIn("Parameters", mock_stdout.getvalue())
         self.assertIn("Output Format", mock_stdout.getvalue())
 
     def test_set_parameters(self, *mocks):
 
         # validate params set successfully
-        params = {"random_state": random.Random()}
-        processor = StructRegexPostProcessor()
+        params = {
+            "true_positive_dict": {"attribute": "test", "label": "test"},
+            "positive_threshold_config": 85,
+            "include_label": True,
+        }
+        processor = ColumnNameModelPostprocessor(parameters=params)
         processor.set_params(**params)
 
         # test invalid params
-        with self.assertRaisesRegex(
-            ValueError, "`random_state` must be a random.Random."
-        ):
-            processor.set_params(random_state="bad")
+        with self.assertRaises():
+            processor.set_params(true_positive_dict={"failure": "bad"})
 
         with self.assertRaisesRegex(
             ValueError,
@@ -2981,7 +2983,7 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
             pred=np.array([2, 1]),
             conf=np.array([[5 / 24, 5 / 24, 14 / 24], [5 / 18, 8 / 18, 5 / 18]]),
         )
-        processor = StructRegexPostProcessor()
+        processor = ColumnNameModelPostprocessor()
         process_output = processor.process(data, results, label_mapping)
 
         self.assertIn("pred", process_output)
@@ -3006,7 +3008,7 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
         mocked_processor._parameters = dict(regex_processor=regex_processor_mock)
 
         # call save processor func
-        StructRegexPostProcessor._save_processor(mocked_processor, "test")
+        ColumnNameModelPostprocessor._save_processor(mocked_processor, "test")
 
         # assert parameters saved
         mock_open.assert_called_with("test/test_parameters.json", "w")
@@ -3014,16 +3016,3 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
 
         # close mocks
         StringIO.close(mock_file)
-
-    def test_random_state_constructor(self):
-
-        try:
-            processor = StructRegexPostProcessor(random_state=0)
-            processor = StructRegexPostProcessor(random_state=random.getstate())
-        except Exception as e:
-            self.fail(str(e))
-
-        with self.assertRaisesRegex(
-            ValueError, "`random_state` must be a random.Random."
-        ):
-            processor = StructRegexPostProcessor(random_state=[None, None, None])

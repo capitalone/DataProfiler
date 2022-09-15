@@ -142,37 +142,6 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         return list_of_column_names_filtered
 
-    def _compare_positive(
-        self,
-        list_of_column_names,
-        check_values_dict,
-        positive_threshold,
-        include_label,
-        show_confidences,
-    ):
-        """Calculate similarity scores for positive examples."""
-        scores = self._model(
-            list_of_column_names,
-            check_values_dict,
-            self._make_lower_case,
-            rapidfuzz.fuzz.token_sort_ratio,
-            include_label=include_label,
-        )
-
-        # move to post processor
-        output_dictionary = {}
-        for i in range(len(list_of_column_names)):
-            if scores[i][0] > positive_threshold:
-                output_dictionary[list_of_column_names[i]] = {}
-                if include_label:
-                    output_dictionary[list_of_column_names[i]][
-                        "pred"
-                    ] = check_values_dict[scores[i][1]]["label"]
-                if show_confidences:
-                    output_dictionary[list_of_column_names[i]]["conf"] = scores[i][0]
-
-        return output_dictionary
-
     def _construct_model(self):
         pass
 
@@ -244,13 +213,25 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             if verbose:
                 logger.info("compare_negative process complete")
 
-        output = self._compare_positive(
+        # old compare_positive
+        output = self._model(
             data,
             self._parameters["true_positive_dict"],
-            positive_threshold=self._parameters["positive_threshold_config"],
+            processor=self._make_lower_case,
+            scorer=rapidfuzz.fuzz.token_sort_ratio,
             include_label=self._parameters["include_label"],
-            show_confidences=show_confidences,
         )
+
+        if not show_confidences:
+            for iter_value in range(len(output)):
+                try:
+                    output[iter_value] = np.delete(
+                        output[iter_value], [iter_value], axis=0
+                    )
+                except IndexError:
+                    pass
+            pass
+
         if verbose:
             logger.info("compare_positive process complete")
 

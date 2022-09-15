@@ -145,24 +145,17 @@ class TestColumnNameModel(unittest.TestCase):
         }
         model = ColumnNameModel(parameters=parameters)
 
-        expected_output = {
-            "ssn": {
-                "pred": "ssn",
-            }
-        }
+        expected_output = [[0]]
 
         with self.assertLogs(
             "DataProfiler.labelers.column_name_model", level="INFO"
         ) as logs:
             model_output = model.predict(data=["ssn", "role_name", "wallet_address"])
-
-        self.assertIn("pred", model_output["ssn"])
         self.assertTrue(np.array_equal(expected_output, model_output))
-
         self.assertTrue(len(logs.output))
 
         # test show confidences
-        expected_output = {"ssn": {"pred": "ssn", "conf": 100.0}}
+        expected_output = [[100.0, 0]]
         model_output = model.predict(
             data=["ssn", "role_name", "wallet_address"], show_confidences=True
         )

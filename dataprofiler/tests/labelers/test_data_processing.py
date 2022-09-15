@@ -2948,24 +2948,20 @@ class ColumnNameModelPostProcessor(unittest.TestCase):
 
         # validate params set successfully
         params = {
-            "true_positive_dict": {"attribute": "test", "label": "test"},
+            "true_positive_dict": [{"attribute": "test", "label": "test"}],
             "positive_threshold_config": 85,
             "include_label": True,
         }
-        processor = ColumnNameModelPostprocessor(parameters=params)
-        processor.set_params(**params)
+        ColumnNameModelPostprocessor(parameters=params)
 
         # test invalid params
-        with self.assertRaises():
-            processor.set_params(true_positive_dict={"failure": "bad"})
-
-        with self.assertRaisesRegex(
-            ValueError,
-            "aggregation_func is not an accepted "
-            "parameter.\npriority_order is not an "
-            "accepted parameter.",
-        ):
-            processor.set_params(aggregation_func="bad", priority_order="bad")
+        with self.assertRaises(ValueError):
+            params = {
+                "true_positive_dict": [{"fail": "attribute", "fail": "label"}],
+                "include_label": "test_fail",
+                "positive_threshold_config": "not_an_integer",
+            }
+            ColumnNameModelPostprocessor(parameters=params)
 
     def test_process(self):
 

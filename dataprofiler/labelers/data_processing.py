@@ -2091,9 +2091,9 @@ class ColumnNameModelPostprocessor(
         # set parameters
         if not parameters:
             parameters = {}
-        parameters.setdfault("true_positive_dict", None)
-        parameters.setdfault("positive_threshold_config", None)
-        parameters.setdfault("include_label", None)
+        parameters.setdefault("true_positive_dict", None)
+        parameters.setdefault("positive_threshold_config", None)
+        parameters.setdefault("include_label", None)
 
         super().__init__(**parameters)
 

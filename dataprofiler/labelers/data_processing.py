@@ -2086,47 +2086,21 @@ class ColumnNameModelPostProcessor(
 ):
     """Subclass of BaseDataPostprocessor for postprocessing regex data."""
 
-    def __init__(
-        self, aggregation_func="split", priority_order=None, random_state=None
-    ):
+    def __init__(self, parameters, priority_order=None):
         """
         Initialize the ColumnNameModelPostProcessor class.
 
-        :param aggregation_func: aggregation function to apply to regex model
-                output (split, random, priority)
-        :type aggregation_func: str
         :param priority_order: if priority is set as the aggregation function,
             the order in which entities are given priority must be set
         :type priority_order: Union[list, numpy.ndarray]
-        :param random_state: random state setting to be used for randomly
-            selecting a prediction when two labels have equal opportunity for
-            a given sample.
-        :type random_state: random.Random
         """
-        if random_state is None:
-            random_state = random.Random()
-        elif isinstance(random_state, int):
-            random_state = random.Random(random_state)
-        elif isinstance(random_state, (list, tuple)) and len(random_state) == 3:
-            # tuple required for random state to be set, lists do not work
-            if isinstance(random_state[1], list):
-                random_state[1] = tuple(random_state[1])
-            if isinstance(random_state, list):
-                random_state = tuple(random_state)
-            temp_random_state = random.Random()
-            try:
-                temp_random_state.setstate(random_state)
-                random_state = temp_random_state
-            except (TypeError, ValueError):
-                pass  # error will raise in validate parameters
+        # set parameters
+        if not parameters:
+            parameters = {}
 
-        parameters = {
-            "true_positive_dict": None,
-            "false_positive_dict": None,
-            "positive_threshold_config": None,
-            "negative_threshold_config": None,
-            "include_label": None,
-        }
+        parameters.setdfault("true_positive_dict", None)
+        parameters.setdfault("positive_threshold_config", None)
+        parameters.setdfault("include_label", None)
 
         super().__init__(**parameters)
 
@@ -2149,34 +2123,34 @@ class ColumnNameModelPostProcessor(
         allowed_parameters = self.__class__.__init__.__code__.co_varnames[
             1 : self.__class__.__init__.__code__.co_argcount
         ]
+
         for param in parameters:
             value = parameters[param]
-            if param == "aggregation_func":
-                if not isinstance(value, str):
-                    errors.append("`{}` must be a string.".format(param))
-                elif value.lower() not in ["split", "priority", "random"]:
-                    errors.append(
-                        "`{}` must be a one of ['split', 'priority', "
-                        "'random'].".format(param)
+            if param == "true_positive_dict" and (
+                not isinstance(value, list)
+                or not isinstance(value[0], dict)
+                and "attribute" not in value[0].keys()
+                and "label" not in value[0].keys()
+            ):
+                errors.append(
+                    """`{}` is a required parameters that must  be a list
+                    of dictionaries each with the following
+                    two keys: 'attribute' and 'label'""".format(
+                        param
                     )
-            elif param == "priority_order":
-                # if aggregation function is being set to priority, or is not
-                # being changed and is already set
-                aggregation_func = parameters.get(
-                    "aggregation_func",
-                    self._parameters.get("aggregation_func")
-                    if hasattr(self, "_parameters")
-                    else None,
                 )
-                if value is None and aggregation_func == "priority":
-                    errors.append(
-                        "`{}` cannot be None if `aggregation_func` == "
-                        "priority.".format(param)
+            elif param == "positive_threshold_config" and (
+                not isinstance(value, int) or value is None
+            ):
+                errors.append(
+                    "`{}` is an required parameter that must be an integer.".format(
+                        param
                     )
-                elif value is not None and not isinstance(value, (list, np.ndarray)):
-                    errors.append("`{}` must be a list or numpy.ndarray.".format(param))
-            elif param == "random_state" and not isinstance(value, random.Random):
-                errors.append("`{}` must be a random.Random.".format(param))
+                )
+            elif param == "include_label" and not isinstance(value, bool):
+                errors.append(
+                    "`{}` is a required parameter that must be a boolean.".format(param)
+                )
             elif param not in allowed_parameters:
                 errors.append("{} is not an accepted parameter.".format(param))
 
@@ -2245,7 +2219,6 @@ class ColumnNameModelPostProcessor(
         :return:
         """
         params = copy.deepcopy(self._parameters)
-        params["random_state"] = params["random_state"].getstate()
         with open(
             os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
         ) as fp:

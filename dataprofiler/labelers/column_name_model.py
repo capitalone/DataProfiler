@@ -88,7 +88,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 not isinstance(value, list)
                 or not isinstance(value[0], dict)
                 and "attribute" not in value[0].keys()
-                and "list" not in value[0].keys()
+                and "label" not in value[0].keys()
             ):
                 errors.append(
                     """`{}` is a required parameters that must  be a list

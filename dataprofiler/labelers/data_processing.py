@@ -2112,9 +2112,14 @@ class ColumnNameModelPostprocessor(
         :type parameters: dict
         :return: None
         """
+        # allowed_parameters = self.__class__.__init__.__code__.co_varnames[
+        #     1 : self.__class__.__init__.__code__.co_argcount
+        # ]
         errors = []
-        allowed_parameters = self.__class__.__init__.__code__.co_varnames[
-            1 : self.__class__.__init__.__code__.co_argcount
+        allowed_parameters = [
+            "true_positive_dict",
+            "positive_threshold_config",
+            "include_label",
         ]
 
         for param in parameters:

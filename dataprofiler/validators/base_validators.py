@@ -4,9 +4,6 @@ from __future__ import division, print_function
 
 from typing import Union
 
-import dask as dd
-import pandas as pd
-
 
 def is_in_range(x: Union[float, int], config: dict) -> bool:
     """
@@ -47,7 +44,9 @@ class Validator:
         self.validation_run = False
         self.validation_report = dict()
 
-    def validate(self, data: Union[pd.DataFrame, dd.DataFrame], config: dict):
+    def validate(
+        self, data: Union["pd.DataFrame", "dd.DataFrame"], config: dict  # NOQA
+    ):
         """
         Validate a data set.
 

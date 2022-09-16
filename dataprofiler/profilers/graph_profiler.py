@@ -66,7 +66,9 @@ class GraphProfiler(object):
         :return: merger of the two profiles
         :rtype: GraphProfiler
         """
-        raise NotImplementedError
+        raise NotImplementedError(
+            "profile adding is not currently supported for the GraphProfiler"
+        )
 
     @property
     def profile(self):

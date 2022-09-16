@@ -346,6 +346,16 @@ class TestGraphProfiler(unittest.TestCase):
             },
         }
 
+    def test_add(self):
+        profile_1 = GraphProfiler(self.graph_1)
+        profile_2 = GraphProfiler(self.graph_2)
+
+        with self.assertRaises(
+            NotImplementedError,
+            msg="profile adding is not currently supported for the GraphProfiler",
+        ):
+            profile_1 + profile_2
+
     def test_profile(self):
         # test_update
         graph_profile = GraphProfiler(self.graph_1)

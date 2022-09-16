@@ -499,6 +499,8 @@ def find_diff_of_dicts(dict1, dict2):
             diff[key] = find_diff_of_dates(value1, value2)
         elif isinstance(value1, str):
             diff[key] = find_diff_of_strings_and_bools(value1, value2)
+        elif isinstance(value1, dict) and isinstance(value2, dict):
+            diff[key] = find_diff_of_dicts(value1, value2)
         else:
             diff[key] = find_diff_of_numbers(value1, value2)
 
@@ -567,6 +569,8 @@ def find_diff_of_dicts_with_diff_keys(dict1, dict2):
                 diff_shared[key] = find_diff_of_dates(value1, value2)
             elif isinstance(value1, str) or isinstance(value1, bool):
                 diff_shared[key] = find_diff_of_strings_and_bools(value1, value2)
+            elif isinstance(value1, dict) and isinstance(value2, dict):
+                diff_shared[key] = find_diff_of_dicts_with_diff_keys(value1, value2)
             else:
                 diff_shared[key] = find_diff_of_numbers(value1, value2)
         else:

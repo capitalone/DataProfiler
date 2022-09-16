@@ -2982,17 +2982,31 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
 
         self.assertEqual(process_output, expected_output)
 
-    def test_save_processor(self):
-        params = {
-            "true_positive_dict": [
-                {
-                    "attirbute": "test",
-                    "label": "test",
-                }
-            ],
+    @mock.patch("builtins.open")
+    def test_save_processor(self, mock_open, *mocks):
+        # setup mocks
+        mock_file = setup_save_mock_open(mock_open)
+
+        # setup mocked class
+        column_name_processor_mock = mock.Mock(spec=ColumnNameModelPostprocessor)()
+        column_name_processor_mock.processor_type = "test"
+
+        test_parameters = {
             "positive_threshold_config": 85,
+            "true_positive_dict": [
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
+            ],
         }
-        post_processor = ColumnNameModelPostprocessor(parameters=params)
+        column_name_processor_mock.get_parameters.return_value = test_parameters
 
         # call save processor func
-        post_processor._save_processor(".")
+        ColumnNameModelPostprocessor._save_processor(column_name_processor_mock, "test")
+
+        # assert parameters saved
+        mock_open.assert_called_with("test/test_parameters.json", "w")
+        self.assertEquals(json.dumps(test_parameters), mock_file.getvalue())
+
+        # close mocks
+        StringIO.close(mock_file)

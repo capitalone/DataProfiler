@@ -2191,17 +2191,3 @@ class ColumnNameModelPostprocessor(
                 results[iter_value]["conf"] = data[iter_value][0]
 
         return results
-
-    def _save_processor(self, dirpath):
-        """
-        Save the data processor.
-
-        :param dirpath: directory to save the processor
-        :type dirpath: str
-        :return:
-        """
-        params = copy.deepcopy(self._parameters)
-        with open(
-            os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
-        ) as fp:
-            json.dump(params, fp)

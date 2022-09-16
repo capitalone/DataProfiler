@@ -383,7 +383,7 @@ class TestGraphProfiler(unittest.TestCase):
 
         # Tests diffs between profiles with different # nodes and different continuous/categorical attributes
         diff_2 = profile_2.diff(profile_3)
-        self.assertEqual(diff_2, self.expected_diff_2)
+        self.assertDictEqual(diff_2, self.expected_diff_2)
 
     def test_save_and_load(self):
         data = GraphData(data=self.graph_1)

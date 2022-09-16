@@ -142,57 +142,6 @@ class TestGraphProfiler(unittest.TestCase):
                         {},
                         {
                             "name": ["lognorm", "uniform"],
-                            "properties": [
-                                {},
-                                {
-                                    "best_fit_properties": [
-                                        [
-                                            8.646041719759628,
-                                            1.6999999999999997,
-                                            0.19403886939727638,
-                                        ],
-                                        [],
-                                        [1.7, 2.0999999999999996],
-                                    ],
-                                    "mean": [
-                                        [
-                                            1.7085707836543698e16,
-                                            4.241852142820433,
-                                            1.0190038591415866,
-                                        ],
-                                        [],
-                                        [2.2, 2.5999999999999996],
-                                    ],
-                                    "variance": [
-                                        [
-                                            8.521811094505713e64,
-                                            305.76588081569196,
-                                            0.03984103474264823,
-                                        ],
-                                        [],
-                                        [0.08333333333333333, 0.08333333333333333],
-                                    ],
-                                    "skew": [
-                                        [
-                                            4.987683961374356e48,
-                                            82.41830452500491,
-                                            0.5951548443693909,
-                                        ],
-                                        [],
-                                        [0.0, 0.0],
-                                    ],
-                                    "kurtosis": [
-                                        [
-                                            7.262126433044066e129,
-                                            117436.2896499293,
-                                            0.6363254662738349,
-                                        ],
-                                        [],
-                                        [-1.2, -1.2],
-                                    ],
-                                },
-                                {},
-                            ],
                         },
                         {},
                     ],
@@ -244,57 +193,6 @@ class TestGraphProfiler(unittest.TestCase):
                         {},
                         {
                             "name": ["uniform", "gamma"],
-                            "properties": [
-                                {},
-                                {
-                                    "best_fit_properties": [
-                                        [1.7, 2.0999999999999996],
-                                        [],
-                                        [
-                                            0.24894970623537693,
-                                            1.1999999999999997,
-                                            11.973583222228775,
-                                        ],
-                                    ],
-                                    "mean": [
-                                        [2.2, 2.5999999999999996],
-                                        [],
-                                        [
-                                            0.24894970623537693,
-                                            1.1999999999999997,
-                                            11.973583222228775,
-                                        ],
-                                    ],
-                                    "variance": [
-                                        [0.08333333333333333, 0.08333333333333333],
-                                        [],
-                                        [
-                                            0.24894970623537693,
-                                            1.1999999999999997,
-                                            11.973583222228775,
-                                        ],
-                                    ],
-                                    "skew": [
-                                        [0.0, 0.0],
-                                        [],
-                                        [
-                                            4.008428917954561,
-                                            1.8257418583505538,
-                                            0.5779868092477709,
-                                        ],
-                                    ],
-                                    "kurtosis": [
-                                        [-1.2, -1.2],
-                                        [],
-                                        [
-                                            24.101253585441555,
-                                            5.000000000000001,
-                                            0.5011031274966287,
-                                        ],
-                                    ],
-                                },
-                                {},
-                            ],
                         },
                         {},
                     ],
@@ -303,13 +201,6 @@ class TestGraphProfiler(unittest.TestCase):
                         None,
                         {
                             "name": "uniform",
-                            "properties": {
-                                "best_fit_properties": [2.3, 5.0],
-                                "mean": [2.8, 5.5],
-                                "variance": [0.08333333333333333, 0.08333333333333333],
-                                "skew": [0.0, 0.0],
-                                "kurtosis": [-1.2, -1.2],
-                            },
                         },
                     ],
                 },
@@ -402,9 +293,13 @@ class TestGraphProfiler(unittest.TestCase):
 
         # Remove scale because it causes rounding issues during the test
         profile_1.profile["continuous_distribution"]["weight"].pop("scale")
+        profile_1.profile["continuous_distribution"]["weight"].pop("properties")
         profile_2.profile["continuous_distribution"]["weight"].pop("scale")
+        profile_2.profile["continuous_distribution"]["weight"].pop("properties")
         profile_3.profile["continuous_distribution"]["weight"].pop("scale")
+        profile_3.profile["continuous_distribution"]["weight"].pop("properties")
         profile_3.profile["continuous_distribution"]["value"].pop("scale")
+        profile_3.profile["continuous_distribution"]["value"].pop("properties")
 
         diff_1 = profile_1.diff(profile_2)
         self.assertDictEqual(diff_1, self.expected_diff_1)

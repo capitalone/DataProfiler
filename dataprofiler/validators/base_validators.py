@@ -2,8 +2,10 @@
 """Build model for dataset by identifying col type along with its respective params."""
 from __future__ import division, print_function
 
+from typing import Union
 
-def is_in_range(x, config):
+
+def is_in_range(x: Union[float, int], config: dict) -> bool:
     """
     Check to see x is in the range of the config.
 
@@ -19,7 +21,7 @@ def is_in_range(x, config):
         raise TypeError("Value is not a float")
 
 
-def is_in_list(x, config):
+def is_in_list(x: str, config: dict) -> bool:
     """
     Check to see x is in the config list.
 
@@ -42,7 +44,9 @@ class Validator:
         self.validation_run = False
         self.validation_report = dict()
 
-    def validate(self, data, config):
+    def validate(
+        self, data: Union["pd.DataFrame", "dd.DataFrame"], config: dict  # NOQA
+    ):
         """
         Validate a data set.
 
@@ -123,7 +127,7 @@ class Validator:
                 del temp_results
         self.validation_run = True
 
-    def get(self):
+    def get(self) -> dict:
         """Get the results of the validation run."""
         if self.validation_run:
             return self.validation_report

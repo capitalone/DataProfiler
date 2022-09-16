@@ -9,7 +9,7 @@ from dataprofiler.labelers.data_labelers import BaseDataLabeler
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
-class TestRegexDataLabeler(unittest.TestCase):
+class TestColumnNameDataLabeler(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.data = np.array(

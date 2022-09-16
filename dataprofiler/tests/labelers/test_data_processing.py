@@ -2981,28 +2981,39 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
 
         self.assertEqual(process_output, expected_output)
 
-    # @mock.patch("builtins.open")
-    # def test_save_processor(self, mock_open, *mocks):
-    #     # setup mocks
-    #     mock_file = setup_save_mock_open(mock_open)
+    @mock.patch("builtins.open")
+    def test_save_processor(self, mock_open, *mocks):
+        # setup mocks
+        mock_file = setup_save_mock_open(mock_open)
 
-    #     # setup mocked class
-    #     mocked_processor = mock.create_autospec(BaseDataProcessor)
-    #     mocked_processor.processor_type = "test"
-    #     threshold_config_mock = mock.Mock(spec=ColumnNameModelPostprocessor)()
-    #     threshold_mock = mock.Mock()
-    #     threshold_mock.getstate.return_value = 0
-    #     threshold_config_mock.get_parameters.return_value = dict(
-    #         positive_threshold_config=threshold_mock
-    #     )
-    #     mocked_processor._parameters = dict(positive_threshold_config=threshold_config_mock)
+        # setup mocked class
+        mocked_processor = mock.create_autospec(BaseDataProcessor)
+        mocked_processor.processor_type = "test"
 
-    #     # call save processor func
-    #     ColumnNameModelPostprocessor._save_processor(mocked_processor, "test")
+        parameters_mock = mock.Mock(spec=ColumnNameModelPostprocessor)()
 
-    #     # assert parameters saved
-    #     mock_open.assert_called_with("test/test_parameters.json", "w")
-    #     self.assertEqual('{"positive_threshold_config": [0]}', mock_file.getvalue())
+        threshold_mock = mock.Mock()
+        threshold_mock.getstate.return_value = 0
 
-    #     # close mocks
-    #     StringIO.close(mock_file)
+        true_positive_dict_mock = mock.Mock()
+        true_positive_dict_mock.getstate.return_value = [
+            {"attribute": "ssn", "label": "ssn"},
+            {"attribute": "suffix", "label": "name"},
+            {"attribute": "my_home_address", "label": "address"},
+        ]
+
+        parameters_mock.get_parameters.return_value = {
+            "true_positive_dict": true_positive_dict_mock,
+            "positive_threshold_config": threshold_mock,
+        }
+        mocked_processor._parameters = dict(parameters=parameters_mock)
+
+        # call save processor func
+        ColumnNameModelPostprocessor._save_processor(mocked_processor, "test")
+
+        # assert parameters saved
+        mock_open.assert_called_with("test/test_parameters.json", "w")
+        self.assertEqual('{"positive_threshold_config": 0}', mock_file.getvalue())
+
+        # close mocks
+        StringIO.close(mock_file)

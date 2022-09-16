@@ -9,15 +9,32 @@ import os
 import time
 import warnings
 from itertools import islice
+from multiprocessing.pool import Pool
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Dict,
+    Generator,
+    Iterator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 import numpy as np
 import psutil
 import scipy
+from pandas import DataFrame, Series
 
 from dataprofiler import settings
 
+if TYPE_CHECKING:
+    from .profile_builder import BaseProfiler as Profile
 
-def dict_merge(dct, merge_dct):
+
+def dict_merge(dct: Dict, merge_dct: Dict) -> None:
     # Recursive dictionary merge
     # Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
     #
@@ -45,7 +62,7 @@ def dict_merge(dct, merge_dct):
     :param merge_dct: dct merged into dct
     :return: None
     """
-    for k, v in merge_dct.items():
+    for k in merge_dct.keys():
         if (
             k in dct
             and isinstance(dct[k], dict)
@@ -70,7 +87,7 @@ class KeyDict(collections.defaultdict):
         return key
 
 
-def _combine_unique_sets(a, b):
+def _combine_unique_sets(a: List, b: List) -> List:
     """
     Unify two lists.
 
@@ -78,9 +95,9 @@ def _combine_unique_sets(a, b):
     :type b: list
     :rtype: list
     """
-    combined_list = None
+    combined_list: Set = set()
     if not a and not b:
-        combined_list = list()
+        combined_list = set()
     elif not a:
         combined_list = set(b)
     elif not b:
@@ -90,7 +107,9 @@ def _combine_unique_sets(a, b):
     return list(combined_list)
 
 
-def shuffle_in_chunks(data_length, chunk_size):
+def shuffle_in_chunks(
+    data_length: int, chunk_size: int
+) -> Generator[List[int], None, List]:
     """
     Create shuffled indexes in chunks.
 
@@ -109,10 +128,10 @@ def shuffle_in_chunks(data_length, chunk_size):
     rng = np.random.default_rng(settings._seed)
 
     if "DATAPROFILER_SEED" in os.environ and settings._seed is None:
-        try:
-            seed_value = int(os.environ.get("DATAPROFILER_SEED"))
-            rng = np.random.default_rng(seed_value)
-        except ValueError:
+        seed = os.environ.get("DATAPROFILER_SEED")
+        if isinstance(seed, int):
+            rng = np.random.default_rng(int(seed))
+        else:
             warnings.warn("Seed should be an integer", RuntimeWarning)
 
     indices = KeyDict()
@@ -144,8 +163,10 @@ def shuffle_in_chunks(data_length, chunk_size):
 
         yield values
 
+    return []
 
-def warn_on_profile(col_profile, e):
+
+def warn_on_profile(col_profile: str, e: Exception) -> None:
     """
     Return a warning if a given profile errors (tensorflow typically).
 
@@ -169,7 +190,7 @@ def warn_on_profile(col_profile, e):
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
 
 
-def partition(data, chunk_size):
+def partition(data: List, chunk_size: int) -> Generator[List, None, None]:
     """
     Create a generator which returns data in specified chunk size.
 
@@ -182,7 +203,7 @@ def partition(data, chunk_size):
         yield data[idx : idx + chunk_size]
 
 
-def suggest_pool_size(data_size=None, cols=None):
+def suggest_pool_size(data_size: int = None, cols: int = None) -> Optional[int]:
     """
     Suggest the pool size based on resources.
 
@@ -190,7 +211,7 @@ def suggest_pool_size(data_size=None, cols=None):
     :type data_size: int
     :param cols: columns of the dataset
     :type cols: int
-    :return suggested_pool_size: suggeseted pool size
+    :return suggested_pool_size: suggested pool size
     :rtype suggested_pool_size: int
     """
     # Return if there's no data_size
@@ -219,7 +240,11 @@ def suggest_pool_size(data_size=None, cols=None):
     return suggested_pool_size
 
 
-def generate_pool(max_pool_size=None, data_size=None, cols=None):
+def generate_pool(
+    max_pool_size: int = None,
+    data_size: int = None,
+    cols: int = None,
+) -> Tuple[Optional[Pool], Optional[int]]:
     """
     Generate a multiprocessing pool to allocate functions too.
 
@@ -254,14 +279,14 @@ def generate_pool(max_pool_size=None, data_size=None, cols=None):
     return pool, max_pool_size
 
 
-def overlap(x1, x2, y1, y2):
+def overlap(x1: int, x2: int, y1: int, y2: int) -> bool:
     """Return True iff [x1:x2] overlaps with [y1:y2]."""
-    if not all([isinstance(i, int) for i in [x1, x2, y1, y2]]):
+    if not all(isinstance(i, int) for i in [x1, x2, y1, y2]):
         return False
     return (y1 <= x1 <= y2) or (y1 <= x2 <= y2) or (x1 <= y1 <= x2) or (x1 <= y2 <= x2)
 
 
-def add_nested_dictionaries(first_dict, second_dict):
+def add_nested_dictionaries(first_dict: Dict, second_dict: Dict) -> Dict:
     """
     Merge two dictionaries together and add values together.
 
@@ -271,7 +296,7 @@ def add_nested_dictionaries(first_dict, second_dict):
     :type second_dict: dict
     :return: merged dictionary
     """
-    merged_dict = {}
+    merged_dict: Dict = {}
     if isinstance(first_dict, collections.defaultdict):
         merged_dict = collections.defaultdict(first_dict.default_factory)
 
@@ -293,7 +318,7 @@ def add_nested_dictionaries(first_dict, second_dict):
     return merged_dict
 
 
-def biased_skew(df_series):
+def biased_skew(df_series: Series) -> float:
     """
     Calculate the biased estimator for skewness of the given data.
 
@@ -327,11 +352,11 @@ def biased_skew(df_series):
         return 0.0
 
     with np.errstate(all="ignore"):
-        skew = np.sqrt(n) * M3 / np.power(M2, 1.5)
+        skew: float = np.sqrt(n) * M3 / np.power(M2, 1.5)
     return skew
 
 
-def biased_kurt(df_series):
+def biased_kurt(df_series: Series) -> float:
     """
     Calculate the biased estimator for kurtosis of the given data.
 
@@ -365,11 +390,13 @@ def biased_kurt(df_series):
         return -3.0
 
     with np.errstate(all="ignore"):
-        kurt = n * M4 / np.power(M2, 2) - 3
+        kurt: float = n * M4 / np.power(M2, 2) - 3
     return kurt
 
 
-def find_diff_of_numbers(stat1, stat2):
+def find_diff_of_numbers(
+    stat1: Union[int, float], stat2: Union[int, float]
+) -> Union[List[Union[int, float]], int, float, str]:
     """
     Find the difference between two stats.
 
@@ -382,17 +409,18 @@ def find_diff_of_numbers(stat1, stat2):
     :type stat2: Union[int, float]
     :return: the difference of the stats
     """
-    diff = "unchanged"
     if stat1 is None and stat2 is None:
         pass
     elif stat1 is None or stat2 is None:
-        diff = [stat1, stat2]
+        return [stat1, stat2]
     elif stat1 != stat2:
-        diff = stat1 - stat2
-    return diff
+        return stat1 - stat2
+    return "unchanged"
 
 
-def find_diff_of_strings_and_bools(stat1, stat2):
+def find_diff_of_strings_and_bools(
+    stat1: Union[str, bool], stat2: Union[str, bool]
+) -> Union[List[Union[str, bool]], str]:
     """
     Find the difference between two stats.
 
@@ -405,13 +433,14 @@ def find_diff_of_strings_and_bools(stat1, stat2):
     :type stat2: Union[str, bool]
     :return: the difference of the stats
     """
-    diff = "unchanged"
     if stat1 != stat2:
-        diff = [stat1, stat2]
-    return diff
+        return [stat1, stat2]
+    return "unchanged"
 
 
-def find_diff_of_lists_and_sets(stat1, stat2):
+def find_diff_of_lists_and_sets(
+    stat1: Union[List, Set], stat2: Union[List, Set]
+) -> Union[List[Union[List, Set]], str]:
     """
     Find the difference between two stats.
 
@@ -425,20 +454,21 @@ def find_diff_of_lists_and_sets(stat1, stat2):
     :type stat2: Union[list, set]
     :return: the difference of the stats
     """
-    diff = "unchanged"
     if stat1 is None and stat2 is None:
         pass
     elif stat1 is None or stat2 is None:
-        diff = [stat1, stat2]
+        return [stat1, stat2]
     elif set(stat1) != set(stat2):
         unique1 = [element for element in stat1 if element not in stat2]
         shared = [element for element in stat1 if element in stat2]
         unique2 = [element for element in stat2 if element not in stat1]
-        diff = [unique1, shared, unique2]
-    return diff
+        return [unique1, shared, unique2]
+    return "unchanged"
 
 
-def find_diff_of_dates(stat1, stat2):
+def find_diff_of_dates(
+    stat1: datetime.datetime, stat2: datetime.datetime
+) -> Union[List, str]:
     """
     Find the difference between two dates.
 
@@ -455,26 +485,18 @@ def find_diff_of_dates(stat1, stat2):
     :type stat1: datetime.datetime object
     :param stat2: the second statistical input
     :type stat2: datetime.datetime object
-    :return: Difference in stats
-    :rtype: str
+    :return: difference in stats
+    :rtype: Union[List, str]
     """
-    # We can use find_diff_of_numbers since datetime objects
-    # can be compared and subtracted naturally
-    diff = find_diff_of_numbers(stat1, stat2)
-    if isinstance(diff, str):
-        return diff
-    if isinstance(diff, list):
-        # Deal with the case where one stat is None
-        return [None if i is None else i.strftime("%x %X") for i in diff]
-
-    # Must be timedelta object
-    if diff.days >= 0:
-        return "+" + str(diff)
-
-    return "-" + str(abs(diff))
+    if stat1 is None or stat2 is None:
+        return [i if i is None else i.strftime("%x %X") for i in [stat1, stat2]]
+    elif stat1 != stat2:
+        diff = stat1 - stat2
+        return ("+" if diff.days >= 0 else "-") + str(abs(diff))
+    return "unchanged"
 
 
-def find_diff_of_dicts(dict1, dict2):
+def find_diff_of_dicts(dict1: Dict, dict2: Dict) -> Union[Dict, str]:
     """
     Find the difference between two dicts.
 
@@ -490,7 +512,7 @@ def find_diff_of_dicts(dict1, dict2):
     :return: Difference in the keys of each dict
     :rtype: dict
     """
-    diff = {}
+    diff: Dict = {}
     for key, value1 in dict1.items():
         value2 = dict2.get(key, None)
         if isinstance(value1, list):
@@ -509,12 +531,14 @@ def find_diff_of_dicts(dict1, dict2):
 
     # If both dicts have no keys, it is unchanged
     if diff == {}:
-        diff = "unchanged"
+        return "unchanged"
 
     return diff
 
 
-def find_diff_of_matrices(matrix1, matrix2):
+def find_diff_of_matrices(
+    matrix1: List[List[float]], matrix2: List[List[float]]
+) -> Optional[Union[List[List[float]], str]]:
     """
     Find the difference between two matrices.
 
@@ -525,21 +549,22 @@ def find_diff_of_matrices(matrix1, matrix2):
     :return: Difference in the matrix
     :rtype: list(list(float))
     """
-    diff = None
-
     if matrix1 is not None and matrix2 is not None:
-        mat1 = np.array(matrix1, dtype=np.float)
-        mat2 = np.array(matrix2, dtype=np.float)
+        mat1 = np.array(matrix1, dtype=np.float32)
+        mat2 = np.array(matrix2, dtype=np.float32)
 
         if mat1.shape == mat2.shape:
-            diff = mat1 - mat2
+            diff: List[List[float]] = mat1 - mat2
             if ((diff == 0) | np.isnan(diff)).all():
-                diff = "unchanged"
+                return "unchanged"
+            return diff
 
-    return diff
+    return None
 
 
-def find_diff_of_dicts_with_diff_keys(dict1, dict2):
+def find_diff_of_dicts_with_diff_keys(
+    dict1: Dict, dict2: Dict
+) -> Union[List[Dict], str]:
     """
     Find the difference between two dicts.
 
@@ -555,9 +580,9 @@ def find_diff_of_dicts_with_diff_keys(dict1, dict2):
     :return: Difference in the keys of each dict
     :rtype: list
     """
-    diff_1 = {}
-    diff_shared = {}
-    diff_2 = {}
+    diff_1: Dict = {}
+    diff_shared: Dict = {}
+    diff_2: Dict = {}
     for key, value1 in dict1.items():
         if key in dict2:
             value2 = dict2[key]
@@ -581,12 +606,12 @@ def find_diff_of_dicts_with_diff_keys(dict1, dict2):
 
     # If both dicts have no keys, it is unchanged
     if diff == [{}, {}, {}]:
-        diff = "unchanged"
+        return "unchanged"
 
     return diff
 
 
-def get_memory_size(data, unit="M"):
+def get_memory_size(data: Union[list, np.ndarray, DataFrame], unit: str = "M") -> float:
     """
     Get memory size of the input data.
 
@@ -602,14 +627,14 @@ def get_memory_size(data, unit="M"):
             "Currently only supports the "
             "memory size unit in {}".format(list(unit_map.keys()))
         )
-    memory_size = 0
+    memory_size: float = 0
     for sentence in data:
         memory_size += len(sentence.encode("utf-8"))
     memory_size /= 1024.0 ** unit_map[unit]  # Conversion based on unit_map
     return memory_size
 
 
-def method_timeit(method=None, name=None):
+def method_timeit(method: Callable = None, name: str = None) -> Callable:
     """
     Measure execution time of provided method.
 
@@ -642,8 +667,8 @@ def method_timeit(method=None, name=None):
 
 
 def perform_chi_squared_test_for_homogeneity(
-    categories1, sample_size1, categories2, sample_size2
-):
+    categories1: Dict, sample_size1: int, categories2: dict, sample_size2: int
+) -> Dict[str, Optional[Union[int, float]]]:
     """
     Perform a Chi Squared test for homogeneity between two groups.
 
@@ -658,7 +683,11 @@ def perform_chi_squared_test_for_homogeneity(
     :return: Results of the chi squared test
     :rtype: dict
     """
-    results = {"chi2-statistic": None, "df": None, "p-value": None}
+    results: Dict[str, Optional[Union[int, float]]] = {
+        "chi2-statistic": None,
+        "df": None,
+        "p-value": None,
+    }
 
     cat_counts = add_nested_dictionaries(categories1, categories2)
 
@@ -698,35 +727,34 @@ def perform_chi_squared_test_for_homogeneity(
     results["chi2-statistic"] = chi2_statistic
 
     # Calculate p-value, i.e. P(X > chi2_statistic)
-    p_value = 1 - scipy.stats.chi2(df).cdf(chi2_statistic)
+    p_value: float = 1 - scipy.stats.chi2(df).cdf(chi2_statistic)
     results["p-value"] = p_value
 
     return results
 
 
-def chunk(it, size):
+def chunk(it: List, size: int) -> Iterator[Tuple]:
     """
     Chunk things out.
 
-    :param top_profile: Categories and respective counts of the second group
-    :type top_profile: list
-    :param other_profile: Number of samples in second group
-    :type other_profile: int
-    :return: Merge of two profile objects
-    :rtype: Profile
+    :param it: List to chunk
+    :type it: list
+    :param size: Size of each chunk
+    :type size: int
+    :return: Iterator that produces tuples of each chunk
+    :rtype: Iterator[Tuple]
     """
-    it = iter(it)
-    return iter(lambda: tuple(islice(it, size)), ())
+    return iter(lambda: tuple(islice(iter(it), size)), ())
 
 
-def merge(top_profile, other_profile=None):
+def merge(top_profile: "Profile", other_profile: "Profile" = None) -> "Profile":
     """
     Merge two Profiles.
 
-    :param top_profile: Categories and respective counts of the second group
-    :type top_profile: list
-    :param other_profile: Number of samples in second group
-    :type other_profile: int
+    :param top_profile: First profile
+    :type top_profile: Profile
+    :param other_profile: Second profile
+    :type other_profile: Profile
     :return: Merge of two profile objects
     :rtype: Profile
     """
@@ -735,7 +763,9 @@ def merge(top_profile, other_profile=None):
     return top_profile + other_profile
 
 
-def merge_profile_list(list_of_profiles, pool_count=5):
+def merge_profile_list(
+    list_of_profiles: List["Profile"], pool_count: int = 5
+) -> "Profile":
     """Merge list of profiles into a single profile.
 
     :param list_of_profiles: Categories and respective counts of the second group
@@ -753,9 +783,9 @@ def merge_profile_list(list_of_profiles, pool_count=5):
         data_labeler = list_of_profiles[profile_idx]._remove_data_labelers()
 
     while len(list_of_profiles) > 1:
-        list_of_profiles = chunk(list_of_profiles, 2)
+        list_of_profiles_iterator = chunk(list_of_profiles, 2)
         with mp.Pool(pool_count) as p:
-            list_of_profiles = p.starmap(merge, list_of_profiles)
+            list_of_profiles = p.starmap(merge, list_of_profiles_iterator)
 
     list_of_profiles[0]._restore_data_labelers(data_labeler)
     return list_of_profiles[0]

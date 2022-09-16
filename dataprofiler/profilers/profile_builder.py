@@ -1103,7 +1103,13 @@ class UnstructuredProfiler(BaseProfiler):
     _option_class = UnstructuredOptions
     _allowed_external_data_types = (str, list, pd.Series, pd.DataFrame)
 
-    def __init__(self, data, samples_per_update=None, min_true_samples=0, options=None):
+    def __init__(
+        self,
+        data: dp.Data,
+        samples_per_update: int = None,
+        min_true_samples: int = 0,
+        options: ProfilerOptions = None,
+    ) -> None:
         """
         Instantiate the UnstructuredProfiler class.
 
@@ -1138,7 +1144,7 @@ class UnstructuredProfiler(BaseProfiler):
         if data is not None:
             self.update_profile(data)
 
-    def _add_error_checks(self, other):
+    def _add_error_checks(self, other: "UnstructuredProfiler") -> None:
         """
         Run checks to ensure two profiles can be combined.
 
@@ -1146,7 +1152,7 @@ class UnstructuredProfiler(BaseProfiler):
         """
         pass
 
-    def __add__(self, other):
+    def __add__(self, other: "UnstructuredProfiler") -> "UnstructuredProfiler":
         """
         Merge two Unstructured profiles together overriding the `+` operator.
 
@@ -1170,7 +1176,7 @@ class UnstructuredProfiler(BaseProfiler):
 
         return merged_profile
 
-    def diff(self, other_profile, options=None):
+    def diff(self, other_profile: "UnstructuredProfiler", options: Dict = None) -> Dict:
         """
         Find difference between 2 unstuctured profiles and return the report.
 
@@ -1202,7 +1208,7 @@ class UnstructuredProfiler(BaseProfiler):
         )
         return _prepare_report(report)
 
-    def _update_base_stats(self, base_stats):
+    def _update_base_stats(self, base_stats: Dict) -> None:
         """
         Update samples and line count of the class for the given dataset batch.
 
@@ -1215,7 +1221,7 @@ class UnstructuredProfiler(BaseProfiler):
         self._empty_line_count += base_stats["empty_line_count"]
         self.memory_size += base_stats["memory_size"]
 
-    def report(self, report_options=None):
+    def report(self, report_options: Dict = None) -> Dict:
         """
         Return unstructured report based on all profiled data fed into profiler.
 
@@ -1265,7 +1271,9 @@ class UnstructuredProfiler(BaseProfiler):
         return _prepare_report(report, output_format, omit_keys)
 
     @utils.method_timeit(name="clean_and_base_stats")
-    def _clean_data_and_get_base_stats(self, data, sample_size, min_true_samples=None):
+    def _clean_data_and_get_base_stats(
+        self, data: pd.Series, sample_size: int, min_true_samples: int = None
+    ) -> Tuple[pd.Series, Dict]:
         """
         Identify empty rows and return clean version of text data without empty rows.
 
@@ -1347,7 +1355,12 @@ class UnstructuredProfiler(BaseProfiler):
 
         return data, base_stats
 
-    def _update_profile_from_chunk(self, data, sample_size, min_true_samples=None):
+    def _update_profile_from_chunk(
+        self,
+        data: Union[pd.Series, pd.DataFrame, List],
+        sample_size: int,
+        min_true_samples: int = None,
+    ) -> List[dp.BaseColumnProfiler]:
         """
         Iterate over the dataset and identify its parameters via profiles.
 
@@ -1399,7 +1412,7 @@ class UnstructuredProfiler(BaseProfiler):
         else:
             self._profile.update_profile(data, pool=pool)
 
-    def save(self, filepath=None):
+    def save(self, filepath: str = None) -> None:
         """
         Save profiler to disk.
 
@@ -1431,7 +1444,13 @@ class StructuredProfiler(BaseProfiler):
     _option_class = StructuredOptions
     _allowed_external_data_types = (list, pd.Series, pd.DataFrame)
 
-    def __init__(self, data, samples_per_update=None, min_true_samples=0, options=None):
+    def __init__(
+        self,
+        data: dp.Data,
+        samples_per_update: int = None,
+        min_true_samples: int = 0,
+        options: ProfilerOptions = None,
+    ) -> None:
         """
         Instantiate the StructuredProfiler class.
 
@@ -1476,7 +1495,7 @@ class StructuredProfiler(BaseProfiler):
         if data is not None:
             self.update_profile(data)
 
-    def _add_error_checks(self, other):
+    def _add_error_checks(self, other: "StructuredProfiler") -> None:
         """
         Run checks to ensure two profiles can be combined.
 
@@ -1500,7 +1519,7 @@ class StructuredProfiler(BaseProfiler):
                 "profiles and cannot be added together."
             )
 
-    def __add__(self, other):
+    def __add__(self, other: "StructuredProfiler") -> "StructuredProfiler":
         """
         Merge two Structured profiles together overriding the `+` operator.
 
@@ -1568,7 +1587,7 @@ class StructuredProfiler(BaseProfiler):
 
         return merged_profile
 
-    def diff(self, other_profile, options=None):
+    def diff(self, other_profile: "StructuredProfiler", options: Dict = None) -> Dict:
         """
         Find the difference between 2 Profiles and return the report.
 
@@ -1643,7 +1662,7 @@ class StructuredProfiler(BaseProfiler):
         return _prepare_report(report)
 
     @property
-    def _max_col_samples_used(self):
+    def _max_col_samples_used(self) -> int:
         """Calculate and return the maximum samples used in cols."""
         samples_used = 0
         for col in self._profile:
@@ -1651,7 +1670,7 @@ class StructuredProfiler(BaseProfiler):
         return samples_used
 
     @property
-    def _min_col_samples_used(self):
+    def _min_col_samples_used(self) -> int:
         """
         Calculate and return the number of rows that were completely sampled.
 
@@ -1661,12 +1680,16 @@ class StructuredProfiler(BaseProfiler):
         return min([col.sample_size for col in self._profile], default=0)
 
     @property
-    def _min_sampled_from_batch(self):
+    def _min_sampled_from_batch(self) -> int:
         """Return number of rows that were completely sampled in most recent batch."""
         return min([col._last_batch_size for col in self._profile], default=0)
 
     @staticmethod
-    def _get_and_validate_schema_mapping(schema1, schema2, strict=False):
+    def _get_and_validate_schema_mapping(
+        schema1: Dict[str, List[int]],
+        schema2: Dict[str, List[int]],
+        strict: bool = False,
+    ) -> Dict[int, int]:
         """
         Validate compatibility between schema1 and schema2.
 
@@ -1735,7 +1758,7 @@ class StructuredProfiler(BaseProfiler):
 
         return schema_mapping
 
-    def report(self, report_options=None):
+    def report(self, report_options: Dict = None) -> Dict:
         """Return a report."""
         if not report_options:
             report_options = {
@@ -1791,30 +1814,32 @@ class StructuredProfiler(BaseProfiler):
 
         return _prepare_report(report, output_format, omit_keys)
 
-    def _get_unique_row_ratio(self):
+    def _get_unique_row_ratio(self) -> int:
         """Return unique row ratio."""
         if self.total_samples:
             return len(self.hashed_row_dict) / self.total_samples
         return 0
 
-    def _get_row_is_null_ratio(self):
+    def _get_row_is_null_ratio(self) -> int:
         """Return whether row is null ratio."""
         if self._min_col_samples_used:
             return self.row_is_null_count / self._min_col_samples_used
         return 0
 
-    def _get_row_has_null_ratio(self):
+    def _get_row_has_null_ratio(self) -> int:
         """Return whether row has null ratio."""
         if self._min_col_samples_used:
             return self.row_has_null_count / self._min_col_samples_used
         return 0
 
-    def _get_duplicate_row_count(self):
+    def _get_duplicate_row_count(self) -> int:
         """Retun dup row count."""
         return self.total_samples - len(self.hashed_row_dict)
 
     @utils.method_timeit(name="row_stats")
-    def _update_row_statistics(self, data, sample_ids=None):
+    def _update_row_statistics(
+        self, data: pd.DataFrame, sample_ids: List[int] = None
+    ) -> None:
         """
         Iterate over the provided dataset row by row and calculate row stats.
 
@@ -1888,7 +1913,9 @@ class StructuredProfiler(BaseProfiler):
             self.row_has_null_count = len(null_in_row_count)
             self.row_is_null_count = len(null_rows)
 
-    def _get_correlation(self, clean_samples, batch_properties):
+    def _get_correlation(
+        self, clean_samples: Dict, batch_properties: Dict
+    ) -> pd.DataFrame:
         """
         Calculate correlation matrix on the cleaned data.
 
@@ -1897,6 +1924,8 @@ class StructuredProfiler(BaseProfiler):
         :param batch_properties: mean/std/counts of each batch column necessary
         for correlation computation
         :type batch_properties: dict()
+        :return: correlation matrix
+        :rtype: pd.DataFrame
         """
         columns = self.options.correlation.columns
         column_ids = list(range(len(self._profile)))
@@ -1940,7 +1969,9 @@ class StructuredProfiler(BaseProfiler):
         return corr_mat
 
     @utils.method_timeit(name="correlation")
-    def _update_correlation(self, clean_samples, prev_dependent_properties):
+    def _update_correlation(
+        self, clean_samples: Dict, prev_dependent_properties: Dict
+    ) -> None:
         """
         Update correlation matrix for cleaned data.
 
@@ -1962,7 +1993,7 @@ class StructuredProfiler(BaseProfiler):
         )
 
     @utils.method_timeit(name="correlation")
-    def _merge_correlation(self, other):
+    def _merge_correlation(self, other: "StructuredProfiler") -> pd.DataFrame:
         """
         Merge correlation matrix from two profiles.
 
@@ -2023,7 +2054,7 @@ class StructuredProfiler(BaseProfiler):
             corr_mat1, mean1, std1, n1, corr_mat2, mean2, std2, n2
         )
 
-    def _get_correlation_dependent_properties(self, batch=None):
+    def _get_correlation_dependent_properties(self, batch: Dict = None) -> Dict:
         """
         Obtain mean/stddev for calculating correlation.
 
@@ -2073,8 +2104,15 @@ class StructuredProfiler(BaseProfiler):
 
     @staticmethod
     def _merge_correlation_helper(
-        corr_mat1, mean1, std1, n1, corr_mat2, mean2, std2, n2
-    ):
+        corr_mat1: pd.DataFrame,
+        mean1: np.ndarray,
+        std1: np.ndarray,
+        n1: int,
+        corr_mat2: pd.DataFrame,
+        mean2: np.ndarray,
+        std2: np.ndarray,
+        n2: int,
+    ) -> pd.DataFrame:
         """
         Help merge correlation matrix from two profiles.
 
@@ -2125,7 +2163,7 @@ class StructuredProfiler(BaseProfiler):
 
         return corr_mat
 
-    def _update_chi2(self):
+    def _update_chi2(self) -> np.ndarray[np.ndarray[float]]:
         """
         Calculate p-val from chi-squared test for homogeneity between categorical cols.
 
@@ -2162,7 +2200,7 @@ class StructuredProfiler(BaseProfiler):
 
         return chi2_mat
 
-    def _update_null_replication_metrics(self, clean_samples):
+    def _update_null_replication_metrics(self, clean_samples: Dict) -> None:
         """
         Calculate metrics needed for replicating null values.
 
@@ -2249,7 +2287,7 @@ class StructuredProfiler(BaseProfiler):
                 "class_mean": [mean_not_null, mean_null],
             }
 
-    def _merge_null_replication_metrics(self, other):
+    def _merge_null_replication_metrics(self, other: "StructuredProfiler") -> Dict:
         """
         Merge null replication metrics between two data profiles.
 
@@ -2334,7 +2372,9 @@ class StructuredProfiler(BaseProfiler):
 
         return merged_properties
 
-    def _update_profile_from_chunk(self, data, sample_size, min_true_samples=None):
+    def _update_profile_from_chunk(
+        self, data: pd.DataFrame, sample_size: int, min_true_samples: int = None
+    ) -> List[dp.BaseColumnProfiler]:
         """
         Iterate over the columns of a dataset and identify its parameters.
 
@@ -2557,7 +2597,7 @@ class StructuredProfiler(BaseProfiler):
         if self.options.null_replication_metrics.is_enabled:
             self._update_null_replication_metrics(clean_sampled_dict)
 
-    def save(self, filepath=None):
+    def save(self, filepath: str = None) -> None:
         """
         Save profiler to disk.
 
@@ -2590,12 +2630,12 @@ class Profiler(object):
 
     def __new__(
         cls,
-        data,
-        samples_per_update=None,
-        min_true_samples=0,
-        options=None,
-        profiler_type=None,
-    ):
+        data: dp.Data,
+        samples_per_update: int = None,
+        min_true_samples: int = 0,
+        options: ProfilerOptions = None,
+        profiler_type: str = None,
+    ) -> BaseProfiler:
         """
         Instantiate Structured and Unstructured Profilers.
 
@@ -2657,7 +2697,7 @@ class Profiler(object):
             )
 
     @classmethod
-    def load(cls, filepath):
+    def load(cls, filepath: str) -> BaseProfiler:
         """
         Load profiler from disk.
 

@@ -2122,11 +2122,13 @@ class ColumnNameModelPostprocessor(
 
         for param in parameters:
             value = parameters[param]
+            if param == "true_positive_dict":
+                print("true_positive_dict param value[0] keys", list(value[0].keys()))
             if param == "true_positive_dict" and (
                 not isinstance(value, list)
                 or not isinstance(value[0], dict)
-                and "attribute" not in value[0].keys()
-                and "label" not in value[0].keys()
+                and "attribute" not in value[0]
+                and "label" not in value[0]
             ):
                 errors.append(
                     """`{}` is a required parameters that must  be a list

@@ -2945,8 +2945,50 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
         self.assertIn("Parameters", mock_stdout.getvalue())
         self.assertIn("Output Format", mock_stdout.getvalue())
 
-    def test_set_parameters(self, *mocks):
+    def test_validate_parameters(self):
+        params = {
+            "true_positive_dict": [{"attribute": "test", "label": "test"}],
+            "positive_threshold_config": 85,
+        }
+        ColumnNameModelPostprocessor(parameters=params)
 
+        # failing parameters on `attribute` on `true_positive_dict`
+        params = {
+            "true_positive_dict": [{"failing": "test", "label": "test"}],
+            "positive_threshold_config": 85,
+        }
+        with self.assertRaisesRegex(
+            ValueError,
+            """`true_positive_dict` is a required parameters that must  be a list
+                    of dictionaries each with the following
+                    two keys: 'attribute' and 'label'""",
+        ):
+            ColumnNameModelPostprocessor(parameters=params)
+
+        # failing parameters on `positive_threshold_config`
+        params = {
+            "true_positive_dict": [{"attribute": "test", "label": "test"}],
+            "positive_threshold_config": "failing",
+        }
+        with self.assertRaisesRegex(
+            ValueError,
+            "`positive_threshold_config` is an required parameter that must be an integer.",
+        ):
+            ColumnNameModelPostprocessor(parameters=params)
+
+        # failing parameters on unaccepted parameters
+        params = {
+            "true_positive_dict": [{"attribute": "test", "label": "test"}],
+            "positive_threshold_config": "failing",
+            "one_of_these_things_is_not_like_the_other": "one_of_these_doesn't belong",
+        }
+        with self.assertRaisesRegex(
+            ValueError,
+            "one_of_these_things_is_not_like_the_other is not an accepted parameter",
+        ):
+            ColumnNameModelPostprocessor(parameters=params)
+
+    def test_set_parameters(self):
         # validate params set successfully
         params = {
             "true_positive_dict": [{"attribute": "test", "label": "test"}],

@@ -2171,8 +2171,6 @@ class ColumnNameModelPostprocessor(
             + "\nProcess Output Format:\n"
             "    Each sample receives a label.\n"
             "    Original data - ['My', 'String', ...]\n"
-            "    Output labels - ['<LABEL_1>', '<LABEL_2>', "
-            "..(num samples)]"
         )
         print(help_str)
 

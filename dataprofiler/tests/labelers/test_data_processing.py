@@ -2931,7 +2931,7 @@ class TestStructRegexPostProcessor(unittest.TestCase):
             processor = StructRegexPostProcessor(random_state=[None, None, None])
 
 
-class ColumnNameModelPostprocessor(unittest.TestCase):
+class TestColumnNameModelPostprocessor(unittest.TestCase):
     def test_registered_subclass(self):
         self.assertEqual(
             ColumnNameModelPostprocessor,

@@ -2,8 +2,10 @@
 """Build model for dataset by identifying col type along with its respective params."""
 from __future__ import division, print_function
 
+from typing import Union
 
-def is_in_range(x, config):
+
+def is_in_range(x: Union[float, int], config: dict) -> bool:
     """
     Check to see x is in the range of the config.
 
@@ -19,7 +21,7 @@ def is_in_range(x, config):
         raise TypeError("Value is not a float")
 
 
-def is_in_list(x, config):
+def is_in_list(x: str, config: dict) -> bool:
     """
     Check to see x is in the config list.
 

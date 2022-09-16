@@ -733,18 +733,19 @@ def perform_chi_squared_test_for_homogeneity(
     return results
 
 
-def chunk(it: List, size: int) -> Iterator[Tuple]:
+def chunk(lst: List, size: int) -> Iterator[Tuple]:
     """
     Chunk things out.
 
-    :param it: List to chunk
-    :type it: list
+    :param lst: List to chunk
+    :type lst: list
     :param size: Size of each chunk
     :type size: int
     :return: Iterator that produces tuples of each chunk
     :rtype: Iterator[Tuple]
     """
-    return iter(lambda: tuple(islice(iter(it), size)), ())
+    iterator = iter(lst)
+    return iter(lambda: tuple(islice(iterator, size)), ())
 
 
 def merge(top_profile: "Profile", other_profile: "Profile" = None) -> "Profile":
@@ -779,8 +780,8 @@ def merge_profile_list(
     # remove the labeler model from the first profile object
     # assuming that the labeler models are all the same across each profile
     # in the list
-    for profile_idx, profile in enumerate(list_of_profiles):
-        data_labeler = list_of_profiles[profile_idx]._remove_data_labelers()
+    for profile in list_of_profiles:
+        data_labeler = profile._remove_data_labelers()
 
     while len(list_of_profiles) > 1:
         list_of_profiles_iterator = chunk(list_of_profiles, 2)

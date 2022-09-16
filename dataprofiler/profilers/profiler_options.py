@@ -1323,7 +1323,7 @@ class UnstructuredOptions(BaseOption):
 class ProfilerOptions(BaseOption):
     """For configuring options for profiler."""
 
-    def __init__(self):
+    def __init__(self, presets=None):
         """
         Initialize the ProfilerOptions object.
 
@@ -1334,6 +1334,26 @@ class ProfilerOptions(BaseOption):
         """
         self.structured_options = StructuredOptions()
         self.unstructured_options = UnstructuredOptions()
+        self.presets = presets
+        if self.presets:
+            if self.presets == "complete":
+                self._complete_presets()
+            elif self.presets == "data_types":
+                self._data_types_presets()
+            elif self.presets == "numeric_stats_disabled":
+                self._numeric_stats_disabled_presets()
+
+    def _complete_presets(self):
+        self.set({"*.is_enabled": True})
+
+    def _data_types_presets(self):
+        self.set({"*.is_enabled": False})
+        self.set({"*.data_labeler.is_enabled": True})
+
+    def _numeric_stats_disabled_presets(self):
+        self.set({"*.int.is_numeric_stats_enabled": False})
+        self.set({"*.float.is_numeric_stats_enabled": False})
+        self.set({"structured_options.text.is_numeric_stats_enabled": False})
 
     def _validate_helper(self, variable_path="ProfilerOptions"):
         """

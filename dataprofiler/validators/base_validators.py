@@ -4,7 +4,7 @@ from __future__ import division, print_function
 
 from typing import Union
 
-import dask.dataframe as dd
+import dask as dd
 import pandas as pd
 
 
@@ -47,7 +47,7 @@ class Validator:
         self.validation_run = False
         self.validation_report = dict()
 
-    def validate(self, data: Union[pd.DataFrame, dd], config: dict):
+    def validate(self, data: Union[pd.DataFrame, dd.DataFrame], config: dict):
         """
         Validate a data set.
 

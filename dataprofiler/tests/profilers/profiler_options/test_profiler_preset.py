@@ -2,12 +2,10 @@ import os
 import unittest
 from unittest import mock
 
-import numpy as np
 import pandas as pd
 
 from dataprofiler import Data, Profiler, ProfilerOptions
 from dataprofiler.labelers.base_data_labeler import BaseDataLabeler
-from dataprofiler.profilers.profiler_options import FloatOptions, IntOptions
 
 
 @mock.patch(
@@ -16,9 +14,6 @@ from dataprofiler.profilers.profiler_options import FloatOptions, IntOptions
 )
 @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler", spec=BaseDataLabeler)
 class TestProfilerPreset(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.data = Data(data=pd.DataFrame([1, 2]), data_type="csv")
 
     def test_profiler_preset_complete(self, *mocks):
         options = ProfilerOptions(presets="complete")
@@ -27,6 +22,7 @@ class TestProfilerPreset(unittest.TestCase):
 
     def test_profiler_preset_data_types(self, *mocks):
         options = ProfilerOptions(presets="data_types")
+        self.assertTrue(options.unstructured_options.data_labeler.is_enabled)
         self.assertTrue(options.structured_options.data_labeler.is_enabled)
         self.assertFalse(options.structured_options.correlation.is_enabled)
         self.assertFalse(options.structured_options.null_replication_metrics.is_enabled)

@@ -76,7 +76,6 @@ class TestGraphProfiler(unittest.TestCase):
                 "id": None,
                 "weight": {
                     "name": "lognorm",
-                    "scale": -15.250985118262854,
                     "properties": {
                         "best_fit_properties": [
                             8.646041719759628,
@@ -143,7 +142,6 @@ class TestGraphProfiler(unittest.TestCase):
                         {},
                         {
                             "name": ["lognorm", "uniform"],
-                            "scale": -18.218734497180364,
                             "properties": [
                                 {},
                                 {
@@ -243,7 +241,6 @@ class TestGraphProfiler(unittest.TestCase):
                         None,
                         {
                             "name": "uniform",
-                            "scale": 8.047189562170502,
                             "properties": {
                                 "best_fit_properties": [2.3, 5.0],
                                 "mean": [2.3, 5.0],
@@ -257,7 +254,6 @@ class TestGraphProfiler(unittest.TestCase):
                         {},
                         {
                             "name": ["uniform", "gamma"],
-                            "scale": 17.316888337101123,
                             "properties": [
                                 {},
                                 {
@@ -351,14 +347,22 @@ class TestGraphProfiler(unittest.TestCase):
         graph_profile = GraphProfiler(self.graph_1)
         with utils.mock_timeit():
             profile = graph_profile.update(self.graph_1)
+
+        # check that scale is almost equal
+        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
+        self.assertAlmostEqual(scale, -15.250985118262854)
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
         # test_report
-        graph_profile = GraphProfiler(self.graph_1)
+        profile = GraphProfiler(self.graph_1)
         with utils.mock_timeit():
-            graph_profile.update(self.graph_1)
-        self.assertDictEqual(self.expected_profile, graph_profile.report())
+            profile.update(self.graph_1)
+
+        # check that scale is almost equal
+        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
+        self.assertAlmostEqual(scale, -15.250985118262854)
+        self.assertDictEqual(self.expected_profile, profile.report())
 
     def test_graph_data_object(self):
         data = GraphData(data=self.graph_1)
@@ -366,6 +370,10 @@ class TestGraphProfiler(unittest.TestCase):
 
         with utils.mock_timeit():
             profile = graph_profile.update(data)
+
+        # check that scale is almost equal
+        scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
+        self.assertAlmostEqual(scale, -15.250985118262854)
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_diff(self):
@@ -378,6 +386,12 @@ class TestGraphProfiler(unittest.TestCase):
             profile_1 = profile_1.update(self.graph_1)
             profile_2 = profile_2.update(self.graph_2)
             profile_3 = profile_3.update(self.graph_3)
+
+        # Remove scale because it causes rounding issues during the test
+        profile_1.profile["continuous_distribution"]["weight"].pop("scale")
+        profile_2.profile["continuous_distribution"]["weight"].pop("scale")
+        profile_3.profile["continuous_distribution"]["weight"].pop("scale")
+        profile_3.profile["continuous_distribution"]["value"].pop("scale")
 
         diff_1 = profile_1.diff(profile_2)
         self.assertDictEqual(diff_1, self.expected_diff_1)

@@ -369,6 +369,7 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_diff(self):
+        self.maxDiff = None
         profile_1 = dp.GraphProfiler(self.graph_1)
         profile_2 = dp.GraphProfiler(self.graph_2)
         profile_3 = dp.GraphProfiler(self.graph_3)

@@ -10,10 +10,14 @@ import re
 import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
+from multiprocessing.pool import Pool
+from typing import Dict, List, Tuple, Union
 
 import networkx as nx
 import numpy as np
 import pandas as pd
+
+import dataprofiler as dp
 
 from .. import data_readers, dp_logging
 from ..labelers.base_data_labeler import BaseDataLabeler
@@ -37,15 +41,15 @@ class StructuredColProfiler(object):
 
     def __init__(
         self,
-        df_series=None,
-        sample_size=None,
-        min_sample_size=5000,
-        sampling_ratio=0.2,
-        min_true_samples=None,
-        sample_ids=None,
-        pool=None,
-        options=None,
-    ):
+        df_series: pd.Series = None,
+        sample_size: int = None,
+        min_sample_size: int = 5000,
+        sampling_ratio: float = 0.2,
+        min_true_samples: int = None,
+        sample_ids: List[List] = None,
+        pool: Pool = None,
+        options: StructuredOptions = None,
+    ) -> None:
         """
         Instantiate the StructuredColProfiler class for a given column.
 
@@ -116,7 +120,7 @@ class StructuredColProfiler(object):
             self.update_column_profilers(clean_sampled_df, pool)
             self._update_base_stats(base_stats)
 
-    def update_column_profilers(self, clean_sampled_df, pool):
+    def update_column_profilers(self, clean_sampled_df: pd.Series, pool: Pool) -> None:
         """
         Calculate type statistics and label dataset.
 
@@ -163,7 +167,7 @@ class StructuredColProfiler(object):
             for profile in self.profiles.values():
                 profile.update_profile(clean_sampled_df, pool)
 
-    def __add__(self, other):
+    def __add__(self, other: "StructuredColProfiler"):
         """
         Merge two Structured profiles together overriding the `+` operator.
 
@@ -226,7 +230,9 @@ class StructuredColProfiler(object):
             )
         return merged_profile
 
-    def diff(self, other_profile, options=None):
+    def diff(
+        self, other_profile: "StructuredColProfiler", options: Dict = None
+    ) -> Dict:
         """
         Find the difference between 2 StructuredCols and return the report.
 
@@ -304,7 +310,7 @@ class StructuredColProfiler(object):
 
         return profile
 
-    def report(self, remove_disabled_flag=False):
+    def report(self, remove_disabled_flag: bool = False) -> OrderedDict:
         """Return profile."""
         unordered_profile = dict()
         for profile in self.profiles.values():
@@ -364,7 +370,7 @@ class StructuredColProfiler(object):
         """Return a report."""
         return self.report(remove_disabled_flag=False)
 
-    def _update_base_stats(self, base_stats):
+    def _update_base_stats(self, base_stats: Dict) -> None:
         self.sample_size += base_stats["sample_size"]
         self._last_batch_size = base_stats["sample_size"]
         self.sample = base_stats["sample"]
@@ -413,12 +419,12 @@ class StructuredColProfiler(object):
 
     def update_profile(
         self,
-        df_series,
-        sample_size=None,
-        min_true_samples=None,
-        sample_ids=None,
-        pool=None,
-    ):
+        df_series: pd.Series,
+        sample_size: int = None,
+        min_true_samples: int = None,
+        sample_ids: List[List] = None,
+        pool: Pool = None,
+    ) -> None:
         """
         Update the column profiler.
 
@@ -452,7 +458,7 @@ class StructuredColProfiler(object):
         self._update_base_stats(base_stats)
         self.update_column_profilers(clean_sampled_df, pool)
 
-    def _get_sample_size(self, df_series):
+    def _get_sample_size(self, df_series: pd.Series) -> int:
         """
         Determine the minimum sampling size for detecting column type.
 
@@ -470,8 +476,12 @@ class StructuredColProfiler(object):
     #  index number in the error as well
     @staticmethod
     def clean_data_and_get_base_stats(
-        df_series, sample_size, null_values=None, min_true_samples=None, sample_ids=None
-    ):
+        df_series: pd.Series,
+        sample_size: int,
+        null_values: Dict[str, re.RegexFlag] = None,
+        min_true_samples: int = None,
+        sample_ids: List[List] = None,
+    ) -> Tuple[pd.Series, Dict]:
         """
         Identify null characters and return them in a dictionary.
 
@@ -606,7 +616,13 @@ class BaseProfiler(object):
     _option_class = None
     _allowed_external_data_types = None
 
-    def __init__(self, data, samples_per_update=None, min_true_samples=0, options=None):
+    def __init__(
+        self,
+        data: dp.Data,
+        samples_per_update: int = None,
+        min_true_samples: int = 0,
+        options: ProfilerOptions = None,
+    ) -> None:
         """
         Instantiate the BaseProfiler class.
 
@@ -674,7 +690,7 @@ class BaseProfiler(object):
                 utils.warn_on_profile("data_labeler", e)
                 self.options.set({"data_labeler.is_enabled": False})
 
-    def _add_error_checks(self, other):
+    def _add_error_checks(self, other: "BaseProfiler") -> None:
         """
         Run checks to ensure two profiles can be combined.
 
@@ -682,7 +698,7 @@ class BaseProfiler(object):
         """
         raise NotImplementedError()
 
-    def __add__(self, other):
+    def __add__(self, other: "BaseProfiler") -> "BaseProfiler":
         """
         Merge two profiles together overriding the `+` operator.
 
@@ -721,7 +737,9 @@ class BaseProfiler(object):
 
         return merged_profile
 
-    def diff(self, other_profile, options=None):
+    def diff(
+        self, other_profile: "BaseProfiler", options: Dict = None
+    ) -> "BaseProfiler":
         """
         Find the difference of two profiles.
 
@@ -755,7 +773,7 @@ class BaseProfiler(object):
 
         return diff_profile
 
-    def _get_sample_size(self, data):
+    def _get_sample_size(self, data: Union[pd.Series, pd.DataFrame, List]) -> int:
         """
         Determine the minimum sampling size for profiling the dataset.
 
@@ -773,7 +791,7 @@ class BaseProfiler(object):
         return max(int(self._sampling_ratio * len_data), self._min_sample_size)
 
     @property
-    def profile(self):
+    def profile(self) -> None:
         """
         Return the stored profiles for the given profiler.
 
@@ -781,7 +799,7 @@ class BaseProfiler(object):
         """
         return self._profile
 
-    def report(self, report_options=None):
+    def report(self, report_options: Dict = None) -> Dict:
         """
         Return profile report based on all profiled data fed into the profiler.
 
@@ -802,7 +820,12 @@ class BaseProfiler(object):
         """
         raise NotImplementedError()
 
-    def _update_profile_from_chunk(self, data, sample_size, min_true_samples=None):
+    def _update_profile_from_chunk(
+        self,
+        data: Union[pd.Series, pd.DataFrame, List],
+        sample_size: int,
+        min_true_samples: int = None,
+    ) -> List[dp.BaseColumnProfiler]:
         """
         Iterate over the dataset and identify its parameters via profiles.
 
@@ -817,7 +840,12 @@ class BaseProfiler(object):
         """
         raise NotImplementedError()
 
-    def update_profile(self, data, sample_size=None, min_true_samples=None):
+    def update_profile(
+        self,
+        data: Union[data_readers.base_data.BaseData, pd.DataFrame, pd.Series],
+        sample_size: int = None,
+        min_true_samples: int = None,
+    ) -> None:
         """
         Update the profile for data provided.
 
@@ -831,7 +859,7 @@ class BaseProfiler(object):
         :param sample_size: number of samples to profile from the data
         :type sample_size: int
         :param min_true_samples: minimum number of non-null samples to profile
-        :type min_true_samples
+        :type min_true_samples: int
         :return: None
         """
         encoding = None
@@ -872,7 +900,9 @@ class BaseProfiler(object):
         if file_type is not None:
             self.file_type = file_type
 
-    def _remove_data_labelers(self, replacement_type=BaseDataLabeler()):
+    def _remove_data_labelers(
+        self, replacement_type: BaseDataLabeler = BaseDataLabeler()
+    ) -> DataLabeler:
         """
         Help remove all data labelers before saving to disk.
 
@@ -923,7 +953,7 @@ class BaseProfiler(object):
 
         return data_labeler
 
-    def _restore_data_labelers(self, data_labeler=None):
+    def _restore_data_labelers(self, data_labeler: DataLabeler = None) -> DataLabeler:
         """
         Help restore all data labelers after saving to or loading from disk.
 
@@ -980,7 +1010,7 @@ class BaseProfiler(object):
                 data_labeler_profile = profiler._profiles["data_labeler"]
                 data_labeler_profile.data_labeler = data_labeler
 
-    def _save_helper(self, filepath, data_dict):
+    def _save_helper(self, filepath: str, data_dict: Dict) -> None:
         """
         Save profiler to disk.
 
@@ -1009,7 +1039,7 @@ class BaseProfiler(object):
         # Restore all data labelers
         self._restore_data_labelers(data_labelers)
 
-    def save(self, filepath=None):
+    def save(self, filepath: str = None) -> None:
         """
         Save profiler to disk.
 
@@ -1020,7 +1050,7 @@ class BaseProfiler(object):
         raise NotImplementedError()
 
     @classmethod
-    def load(cls, filepath):
+    def load(cls, filepath: str) -> "BaseProfiler":
         """
         Load profiler from disk.
 

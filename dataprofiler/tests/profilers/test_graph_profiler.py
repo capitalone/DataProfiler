@@ -65,6 +65,7 @@ class TestGraphProfiler(unittest.TestCase):
                 (2, 5, {"id": 5, "weight": 3.9, "value": 4.5}),
             ]
         )
+
         cls.expected_profile = dict(
             num_nodes=4,
             num_edges=5,
@@ -76,33 +77,6 @@ class TestGraphProfiler(unittest.TestCase):
                 "id": None,
                 "weight": {
                     "name": "lognorm",
-                    "properties": {
-                        "best_fit_properties": [
-                            8.646041719759628,
-                            1.6999999999999997,
-                            0.19403886939727638,
-                        ],
-                        "mean": [
-                            1.7085707836543698e16,
-                            4.241852142820433,
-                            1.0190038591415866,
-                        ],
-                        "variance": [
-                            8.521811094505713e64,
-                            305.76588081569196,
-                            0.03984103474264823,
-                        ],
-                        "skew": [
-                            4.987683961374356e48,
-                            82.41830452500491,
-                            0.5951548443693909,
-                        ],
-                        "kurtosis": [
-                            7.262126433044066e129,
-                            117436.2896499293,
-                            0.6363254662738349,
-                        ],
-                    },
                 },
             },
             categorical_distribution={
@@ -126,6 +100,18 @@ class TestGraphProfiler(unittest.TestCase):
                 ),
             ),
         )
+
+        cls.expected_properties = {
+            "best_fit_properties": [
+                8.646041719759628,
+                1.6999999999999997,
+                0.19403886939727638,
+            ],
+            "mean": [1.7085707836543698e16, 4.241852142820433, 1.0190038591415866],
+            "variance": [8.521811094505713e64, 305.76588081569196, 0.03984103474264823],
+            "skew": [4.987683961374356e48, 82.41830452500491, 0.5951548443693909],
+            "kurtosis": [7.262126433044066e129, 117436.2896499293, 0.6363254662738349],
+        }
 
         cls.expected_diff_1 = {
             "num_nodes": "unchanged",
@@ -237,6 +223,18 @@ class TestGraphProfiler(unittest.TestCase):
             },
         }
 
+    def check_continuous_properties(self, continuous_distribution_props):
+        """
+        NOTE: this function is needed because github tests often lead result in
+        slightly different property values. Hence why assertAlmostEqual is used.
+
+        """
+        for key in continuous_distribution_props:
+            for x, y in zip(
+                self.expected_properties[key], continuous_distribution_props[key]
+            ):
+                self.assertAlmostEqual(x, y)
+
     def test_add(self):
         profile_1 = GraphProfiler(self.graph_1)
         profile_2 = GraphProfiler(self.graph_2)
@@ -256,6 +254,13 @@ class TestGraphProfiler(unittest.TestCase):
         # check that scale is almost equal
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
         self.assertAlmostEqual(scale, -15.250985118262854)
+
+        # check that properties are almost equal
+        properties = profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        self.check_continuous_properties(properties)
+
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
@@ -267,6 +272,13 @@ class TestGraphProfiler(unittest.TestCase):
         # check that scale is almost equal
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
         self.assertAlmostEqual(scale, -15.250985118262854)
+
+        # check that properties are almost equal
+        properties = profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        self.check_continuous_properties(properties)
+
         self.assertDictEqual(self.expected_profile, profile.report())
 
     def test_graph_data_object(self):
@@ -279,6 +291,13 @@ class TestGraphProfiler(unittest.TestCase):
         # check that scale is almost equal
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
         self.assertAlmostEqual(scale, -15.250985118262854)
+
+        # check that properties are almost equal
+        properties = profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        self.check_continuous_properties(properties)
+
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_diff(self):

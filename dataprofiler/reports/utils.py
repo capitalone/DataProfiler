@@ -1,9 +1,14 @@
 """Contains functions for checking for installations/dependencies."""
 import sys
 import warnings
+from typing import List, Callable, TypeVar, cast, Any
+from typing import NoReturn
+
+#Generic type for the return of the function "require_module()"
+F = TypeVar('F', bound=Callable[..., Any])
 
 
-def warn_missing_module(graph_func, module_name):
+def warn_missing_module(graph_func: str, module_name: str) -> NoReturn:
     """
     Return a warning if a given graph module doesn't exist.
 
@@ -21,7 +26,8 @@ def warn_missing_module(graph_func, module_name):
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=3)
 
 
-def require_module(names):
+
+def require_module(names: List[str]) -> F:
     """
     Check if a set of modules exists in sys.modules prior to running function.
 
@@ -32,7 +38,7 @@ def require_module(names):
     :type names: list[str]
     """
 
-    def check_module(f):
+    def check_module(f: F) -> F:
         def new_f(*args, **kwds):
             for module_name in names:
                 if module_name not in sys.modules.keys():
@@ -46,6 +52,6 @@ def require_module(names):
             return f(*args, **kwds)
 
         new_f.__name__ = f.__name__
-        return new_f
+        return cast(F, new_f)
 
-    return check_module
+    return cast(F, check_module)

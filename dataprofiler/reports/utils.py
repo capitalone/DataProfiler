@@ -27,7 +27,7 @@ def warn_missing_module(graph_func: str, module_name: str) -> NoReturn:
 
 
 
-def require_module(names: list[str]) -> F:
+def require_module(names: List[str]) -> F:
     """
     Check if a set of modules exists in sys.modules prior to running function.
 

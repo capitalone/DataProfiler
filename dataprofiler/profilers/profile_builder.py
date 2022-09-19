@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Build model for dataset by identifying col type along with its respective params."""
-from __future__ import division, print_function
+from __future__ import annotations, division, print_function
 
 import copy
 import logging
@@ -11,19 +11,19 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 from multiprocessing.pool import Pool
-from typing import Dict, List, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 
-import dataprofiler as dp
-
 from .. import data_readers, dp_logging
+from ..data_readers.data import Data
 from ..labelers.base_data_labeler import BaseDataLabeler
 from ..labelers.data_labelers import DataLabeler
 from . import utils
 from .column_profile_compilers import (
+    BaseCompiler,
     ColumnDataLabelerCompiler,
     ColumnPrimitiveTypeProfileCompiler,
     ColumnStatsProfileCompiler,
@@ -31,7 +31,12 @@ from .column_profile_compilers import (
 )
 from .graph_profiler import GraphProfiler
 from .helpers.report_helpers import _prepare_report, calculate_quantiles
-from .profiler_options import ProfilerOptions, StructuredOptions, UnstructuredOptions
+from .profiler_options import (
+    BaseOption,
+    ProfilerOptions,
+    StructuredOptions,
+    UnstructuredOptions,
+)
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -45,8 +50,8 @@ class StructuredColProfiler(object):
         sample_size: int = None,
         min_sample_size: int = 5000,
         sampling_ratio: float = 0.2,
-        min_true_samples: int = None,
-        sample_ids: List[List] = None,
+        min_true_samples: int = 0,
+        sample_ids: np.ndarray = None,
         pool: Pool = None,
         options: StructuredOptions = None,
     ) -> None:
@@ -67,26 +72,24 @@ class StructuredColProfiler(object):
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
-        self.name = None
+        self.name: Optional[str] = None
         self.options = options
-        self._min_sample_size = min_sample_size
-        self._sampling_ratio = sampling_ratio
-        self._min_true_samples = min_true_samples
-        if self._min_true_samples is None:
-            self._min_true_samples = 0
-        self.sample_size = 0
-        self.sample = list()
-        self.null_count = 0
-        self.null_types = list()
-        self.null_types_index = {}
-        self._min_id = None
-        self._max_id = None
-        self._index_shift = None
-        self._last_batch_size = None
-        self.profiles = {}
+        self._min_sample_size: int = min_sample_size
+        self._sampling_ratio: float = sampling_ratio
+        self._min_true_samples: int = min_true_samples
+        self.sample_size: int = 0
+        self.sample: List[str] = list()
+        self.null_count: int = 0
+        self.null_types: List[str] = list()
+        self.null_types_index: Dict = {}
+        self._min_id: Optional[int] = None
+        self._max_id: Optional[int] = None
+        self._index_shift: Optional[int] = None
+        self._last_batch_size: Optional[int] = None
+        self.profiles: Dict[str, BaseCompiler] = {}
 
         NO_FLAG = 0
-        self._null_values = {
+        self._null_values: Dict[str, Union[re.RegexFlag, int]] = {
             "": NO_FLAG,
             "nan": re.IGNORECASE,
             "none": re.IGNORECASE,
@@ -120,7 +123,9 @@ class StructuredColProfiler(object):
             self.update_column_profilers(clean_sampled_df, pool)
             self._update_base_stats(base_stats)
 
-    def update_column_profilers(self, clean_sampled_df: pd.Series, pool: Pool) -> None:
+    def update_column_profilers(
+        self, clean_sampled_df: pd.Series, pool: Pool = None
+    ) -> None:
         """
         Calculate type statistics and label dataset.
 
@@ -167,7 +172,7 @@ class StructuredColProfiler(object):
             for profile in self.profiles.values():
                 profile.update_profile(clean_sampled_df, pool)
 
-    def __add__(self, other: "StructuredColProfiler"):
+    def __add__(self, other: StructuredColProfiler):
         """
         Merge two Structured profiles together overriding the `+` operator.
 
@@ -230,9 +235,7 @@ class StructuredColProfiler(object):
             )
         return merged_profile
 
-    def diff(
-        self, other_profile: "StructuredColProfiler", options: Dict = None
-    ) -> Dict:
+    def diff(self, other_profile: StructuredColProfiler, options: Dict = None) -> Dict:
         """
         Find the difference between 2 StructuredCols and return the report.
 
@@ -244,8 +247,8 @@ class StructuredColProfiler(object):
         :return: difference of the structured column
         :rtype: dict
         """
-        unordered_profile = dict()
-        for key, profile in self.profiles.items():
+        unordered_profile: Dict = dict()
+        for key in self.profiles:
             if key in other_profile.profiles:
                 comp_diff = self.profiles[key].diff(
                     other_profile.profiles[key], options=options
@@ -312,7 +315,7 @@ class StructuredColProfiler(object):
 
     def report(self, remove_disabled_flag: bool = False) -> OrderedDict:
         """Return profile."""
-        unordered_profile = dict()
+        unordered_profile: Dict = dict()
         for profile in self.profiles.values():
             utils.dict_merge(unordered_profile, profile.report(remove_disabled_flag))
 
@@ -379,8 +382,8 @@ class StructuredColProfiler(object):
             self.null_types, list(base_stats["null_types"].keys())
         )
 
-        base_min = base_stats["min_id"]
-        base_max = base_stats["max_id"]
+        base_min: int = base_stats["min_id"]
+        base_max: int = base_stats["max_id"]
         base_nti = base_stats["null_types"]
 
         # Check if indices overlap, if they do, adjust attributes accordingly
@@ -392,7 +395,7 @@ class StructuredColProfiler(object):
             )
 
             # Shift indices (min, max, and all indices in null types index
-            self._index_shift = self._max_id + 1
+            self._index_shift = cast(int, self._max_id) + 1
             base_min = base_min + self._index_shift
             base_max = base_max + self._index_shift
 
@@ -422,7 +425,7 @@ class StructuredColProfiler(object):
         df_series: pd.Series,
         sample_size: int = None,
         min_true_samples: int = None,
-        sample_ids: List[List] = None,
+        sample_ids: np.ndarray = None,
         pool: Pool = None,
     ) -> None:
         """
@@ -478,9 +481,9 @@ class StructuredColProfiler(object):
     def clean_data_and_get_base_stats(
         df_series: pd.Series,
         sample_size: int,
-        null_values: Dict[str, re.RegexFlag] = None,
+        null_values: Dict[str, Union[re.RegexFlag, int]] = None,
         min_true_samples: int = None,
-        sample_ids: List[List] = None,
+        sample_ids: np.ndarray = None,
     ) -> Tuple[pd.Series, Dict]:
         """
         Identify null characters and return them in a dictionary.
@@ -556,7 +559,7 @@ class StructuredColProfiler(object):
                 sample_ids[0], chunk_size=sample_size
             )
 
-        na_columns = dict()
+        na_columns: Dict = dict()
         true_sample_list = set()
         total_sample_size = 0
         query = "|".join(null_values.keys())
@@ -591,7 +594,7 @@ class StructuredColProfiler(object):
 
         # If min_true_samples exists, sort
         if min_true_samples > 0 or sample_ids is None:
-            true_sample_list = sorted(true_sample_list)
+            true_sample_list = sorted(true_sample_list)  # type: ignore[assignment]
 
         # Split out true values for later utilization
         df_series = df_series.loc[true_sample_list]
@@ -612,16 +615,16 @@ class StructuredColProfiler(object):
 class BaseProfiler(object):
     """Abstract class for profiling data."""
 
-    _default_labeler_type = None
-    _option_class = None
-    _allowed_external_data_types = None
+    _default_labeler_type: Optional[str] = None
+    _option_class: Optional[Type[BaseOption]] = None
+    _allowed_external_data_types: Union[Tuple, type] = ()
 
     def __init__(
         self,
-        data: dp.Data,
+        data: Optional[Data],
         samples_per_update: int = None,
         min_true_samples: int = 0,
-        options: ProfilerOptions = None,
+        options: BaseOption = None,
     ) -> None:
         """
         Instantiate the BaseProfiler class.
@@ -649,26 +652,26 @@ class BaseProfiler(object):
             raise ValueError(
                 "`_option_class` must be set when overriding " "`BaseProfiler`."
             )
-        elif self._allowed_external_data_types is None:
+        elif self._allowed_external_data_types == ():
             raise ValueError(
                 "`_allowed_external_data_types` must be set when "
                 "overriding `BaseProfiler`."
             )
 
-        options.validate()
+        cast(BaseOption, options).validate()
 
-        self._profile = None
-        self.options = options
-        self.encoding = None
-        self.file_type = None
-        self._samples_per_update = samples_per_update
-        self._min_true_samples = min_true_samples
-        self.total_samples = 0
-        self.times = defaultdict(float)
+        self._profile: BaseCompiler = None  # type: ignore
+        self.options: Any = options
+        self.encoding: Optional[str] = None
+        self.file_type: Optional[str] = None
+        self._samples_per_update: Optional[int] = samples_per_update
+        self._min_true_samples: int = min_true_samples
+        self.total_samples: int = 0
+        self.times: Dict[str, float] = defaultdict(float)
 
         # TODO: allow set via options
-        self._sampling_ratio = 0.2
-        self._min_sample_size = 5000
+        self._sampling_ratio: float = 0.2
+        self._min_sample_size: int = 5000
 
         # assign data labeler
         data_labeler_options = self.options.data_labeler
@@ -690,7 +693,7 @@ class BaseProfiler(object):
                 utils.warn_on_profile("data_labeler", e)
                 self.options.set({"data_labeler.is_enabled": False})
 
-    def _add_error_checks(self, other: "BaseProfiler") -> None:
+    def _add_error_checks(self, other: BaseProfiler) -> None:
         """
         Run checks to ensure two profiles can be combined.
 
@@ -698,7 +701,7 @@ class BaseProfiler(object):
         """
         raise NotImplementedError()
 
-    def __add__(self, other: "BaseProfiler") -> "BaseProfiler":
+    def __add__(self, other: BaseProfiler) -> BaseProfiler:
         """
         Merge two profiles together overriding the `+` operator.
 
@@ -737,9 +740,7 @@ class BaseProfiler(object):
 
         return merged_profile
 
-    def diff(
-        self, other_profile: "BaseProfiler", options: Dict = None
-    ) -> "BaseProfiler":
+    def diff(self, other_profile: BaseProfiler, options: Dict = None) -> Dict:
         """
         Find the difference of two profiles.
 
@@ -791,11 +792,11 @@ class BaseProfiler(object):
         return max(int(self._sampling_ratio * len_data), self._min_sample_size)
 
     @property
-    def profile(self) -> None:
+    def profile(self) -> BaseCompiler:
         """
         Return the stored profiles for the given profiler.
 
-        :return: None
+        :return: BaseCompiler
         """
         return self._profile
 
@@ -825,7 +826,7 @@ class BaseProfiler(object):
         data: Union[pd.Series, pd.DataFrame, List],
         sample_size: int,
         min_true_samples: int = None,
-    ) -> List[dp.BaseColumnProfiler]:
+    ):
         """
         Iterate over the dataset and identify its parameters via profiles.
 
@@ -902,14 +903,14 @@ class BaseProfiler(object):
 
     def _remove_data_labelers(
         self, replacement_type: BaseDataLabeler = BaseDataLabeler()
-    ) -> DataLabeler:
+    ) -> Optional[DataLabeler]:
         """
         Help remove all data labelers before saving to disk.
 
         :return: data_labeler used for unstructured labelling
         :rtype: DataLabeler
         """
-        data_labeler = None
+        data_labeler: Optional[DataLabeler] = None
         data_labeler_options = None
 
         # determine if the data labeler is enabled
@@ -953,7 +954,7 @@ class BaseProfiler(object):
 
         return data_labeler
 
-    def _restore_data_labelers(self, data_labeler: DataLabeler = None) -> DataLabeler:
+    def _restore_data_labelers(self, data_labeler: DataLabeler = None) -> None:
         """
         Help restore all data labelers after saving to or loading from disk.
 
@@ -985,10 +986,6 @@ class BaseProfiler(object):
                 self.options.set({"data_labeler.is_enabled": False})
                 self.options.set({"data_labeler.data_labeler_object": data_labeler})
 
-            except Exception as e:
-                utils.warn_on_profile("data_labeler", e)
-                self.options.set({"data_labeler.is_enabled": False})
-
         # get all profiles, unstructured is a single profile and hence needs to
         # be in a list, whereas structured is already a list
         profilers = [self._profile]
@@ -1010,7 +1007,7 @@ class BaseProfiler(object):
                 data_labeler_profile = profiler._profiles["data_labeler"]
                 data_labeler_profile.data_labeler = data_labeler
 
-    def _save_helper(self, filepath: str, data_dict: Dict) -> None:
+    def _save_helper(self, filepath: Optional[str], data_dict: Dict) -> None:
         """
         Save profiler to disk.
 
@@ -1050,7 +1047,7 @@ class BaseProfiler(object):
         raise NotImplementedError()
 
     @classmethod
-    def load(cls, filepath: str) -> "BaseProfiler":
+    def load(cls, filepath: str) -> BaseProfiler:
         """
         Load profiler from disk.
 
@@ -1062,14 +1059,14 @@ class BaseProfiler(object):
         """
         # Load profile from disk
         with open(filepath, "rb") as infile:
-            data = pickle.load(infile)
+            data: Dict = pickle.load(infile)
 
         # remove profiler class if it exists
-        profiler_class = data.pop("profiler_class", None)
+        profiler_class: Optional[str] = data.pop("profiler_class", None)
 
         # if the user didn't load from the a given profiler class, we need
         # to determine which profiler is being loaded.
-        profiler_cls = cls
+        profiler_cls: Any = cls
         if cls is BaseProfiler:
             if profiler_class == "StructuredProfiler":
                 profiler_cls = StructuredProfiler
@@ -1086,7 +1083,7 @@ class BaseProfiler(object):
 
         profile_options = profiler_cls._option_class()
         profile_options.data_labeler.is_enabled = False
-        profiler = profiler_cls(None, options=profile_options)
+        profiler: BaseProfiler = profiler_cls(None, options=profile_options)
 
         for key in data:
             setattr(profiler, key, data[key])
@@ -1105,10 +1102,10 @@ class UnstructuredProfiler(BaseProfiler):
 
     def __init__(
         self,
-        data: dp.Data,
+        data: Data,
         samples_per_update: int = None,
         min_true_samples: int = 0,
-        options: ProfilerOptions = None,
+        options: BaseOption = None,
     ) -> None:
         """
         Instantiate the UnstructuredProfiler class.
@@ -1137,14 +1134,16 @@ class UnstructuredProfiler(BaseProfiler):
         super().__init__(data, samples_per_update, min_true_samples, options)
 
         # Unstructured specific properties
-        self._empty_line_count = 0
-        self.memory_size = 0
-        self.sample = []
+        self._empty_line_count: int = 0
+        self.memory_size: float = 0
+        self.sample: List[str] = []
 
         if data is not None:
             self.update_profile(data)
 
-    def _add_error_checks(self, other: "UnstructuredProfiler") -> None:
+    def _add_error_checks(  # type: ignore[override]
+        self, other: UnstructuredProfiler
+    ) -> None:
         """
         Run checks to ensure two profiles can be combined.
 
@@ -1152,7 +1151,9 @@ class UnstructuredProfiler(BaseProfiler):
         """
         pass
 
-    def __add__(self, other: "UnstructuredProfiler") -> "UnstructuredProfiler":
+    def __add__(  # type: ignore[override]
+        self, other: UnstructuredProfiler
+    ) -> UnstructuredProfiler:
         """
         Merge two Unstructured profiles together overriding the `+` operator.
 
@@ -1161,7 +1162,7 @@ class UnstructuredProfiler(BaseProfiler):
         :return: merger of the two profiles
         :rtype: UnstructuredProfiler
         """
-        merged_profile = super().__add__(other)
+        merged_profile = cast(UnstructuredProfiler, super().__add__(other))
 
         # unstruct specific property merging
         merged_profile._empty_line_count = (
@@ -1176,7 +1177,9 @@ class UnstructuredProfiler(BaseProfiler):
 
         return merged_profile
 
-    def diff(self, other_profile: "UnstructuredProfiler", options: Dict = None) -> Dict:
+    def diff(  # type: ignore[override]
+        self, other_profile: UnstructuredProfiler, options: Dict = None
+    ) -> Dict:
         """
         Find difference between 2 unstuctured profiles and return the report.
 
@@ -1360,7 +1363,7 @@ class UnstructuredProfiler(BaseProfiler):
         data: Union[pd.Series, pd.DataFrame, List],
         sample_size: int,
         min_true_samples: int = None,
-    ) -> List[dp.BaseColumnProfiler]:
+    ):
         """
         Iterate over the dataset and identify its parameters via profiles.
 
@@ -1446,10 +1449,10 @@ class StructuredProfiler(BaseProfiler):
 
     def __init__(
         self,
-        data: dp.Data,
+        data: Data,
         samples_per_update: int = None,
         min_true_samples: int = 0,
-        options: ProfilerOptions = None,
+        options: BaseOption = None,
     ) -> None:
         """
         Instantiate the StructuredProfiler class.
@@ -1483,19 +1486,21 @@ class StructuredProfiler(BaseProfiler):
         # Structured specific properties
         self.row_has_null_count = 0
         self.row_is_null_count = 0
-        self.hashed_row_dict = dict()
-        self._profile = []
-        self._col_name_to_idx = defaultdict(list)
-        self.correlation_matrix = None
-        self.chi2_matrix = None
+        self.hashed_row_dict: Dict = dict()
+        self._profile: List[BaseCompiler] = []  # type: ignore[assignment]
+        self._col_name_to_idx: Dict[str, list] = defaultdict(list)
+        self.correlation_matrix: np.ndarray = None  # type: ignore[assignment]
+        self.chi2_matrix: np.ndarray = None  # type: ignore[assignment]
 
         # capitalone/synthetic-data specific metrics
-        self._null_replication_metrics = None
+        self._null_replication_metrics: Dict = None  # type: ignore[assignment]
 
         if data is not None:
             self.update_profile(data)
 
-    def _add_error_checks(self, other: "StructuredProfiler") -> None:
+    def _add_error_checks(  # type: ignore[override]
+        self, other: StructuredProfiler
+    ) -> None:
         """
         Run checks to ensure two profiles can be combined.
 
@@ -1519,7 +1524,9 @@ class StructuredProfiler(BaseProfiler):
                 "profiles and cannot be added together."
             )
 
-    def __add__(self, other: "StructuredProfiler") -> "StructuredProfiler":
+    def __add__(  # type: ignore[override]
+        self, other: StructuredProfiler
+    ) -> StructuredProfiler:
         """
         Merge two Structured profiles together overriding the `+` operator.
 
@@ -1528,7 +1535,7 @@ class StructuredProfiler(BaseProfiler):
         :return: merger of the two profiles
         :rtype: StructuredProfiler
         """
-        merged_profile = super().__add__(other)
+        merged_profile = cast(StructuredProfiler, super().__add__(other))
 
         # struct specific property merging
         merged_profile.row_has_null_count = (
@@ -1587,7 +1594,9 @@ class StructuredProfiler(BaseProfiler):
 
         return merged_profile
 
-    def diff(self, other_profile: "StructuredProfiler", options: Dict = None) -> Dict:
+    def diff(  # type: ignore[override]
+        self, other_profile: StructuredProfiler, options: Dict = None
+    ) -> Dict:
         """
         Find the difference between 2 Profiles and return the report.
 
@@ -1772,7 +1781,7 @@ class StructuredProfiler(BaseProfiler):
         num_quantile_groups = report_options.get("num_quantile_groups", 4)
         remove_disabled_flag = report_options.get("remove_disabled_flag", False)
 
-        report = OrderedDict(
+        report: Dict = OrderedDict(
             [
                 (
                     "global_stats",
@@ -1788,7 +1797,7 @@ class StructuredProfiler(BaseProfiler):
                         "encoding": self.encoding,
                         "correlation_matrix": self.correlation_matrix,
                         "chi2_matrix": self.chi2_matrix,
-                        "profile_schema": defaultdict(list),
+                        "profile_schema": defaultdict(list),  # type: ignore
                         "times": self.times,
                     },
                 ),
@@ -1814,19 +1823,19 @@ class StructuredProfiler(BaseProfiler):
 
         return _prepare_report(report, output_format, omit_keys)
 
-    def _get_unique_row_ratio(self) -> int:
+    def _get_unique_row_ratio(self) -> float:
         """Return unique row ratio."""
         if self.total_samples:
             return len(self.hashed_row_dict) / self.total_samples
         return 0
 
-    def _get_row_is_null_ratio(self) -> int:
+    def _get_row_is_null_ratio(self) -> float:
         """Return whether row is null ratio."""
         if self._min_col_samples_used:
             return self.row_is_null_count / self._min_col_samples_used
         return 0
 
-    def _get_row_has_null_ratio(self) -> int:
+    def _get_row_has_null_ratio(self) -> float:
         """Return whether row has null ratio."""
         if self._min_col_samples_used:
             return self.row_has_null_count / self._min_col_samples_used
@@ -1993,7 +2002,7 @@ class StructuredProfiler(BaseProfiler):
         )
 
     @utils.method_timeit(name="correlation")
-    def _merge_correlation(self, other: "StructuredProfiler") -> pd.DataFrame:
+    def _merge_correlation(self, other: StructuredProfiler) -> pd.DataFrame:
         """
         Merge correlation matrix from two profiles.
 
@@ -2163,7 +2172,7 @@ class StructuredProfiler(BaseProfiler):
 
         return corr_mat
 
-    def _update_chi2(self) -> np.ndarray[np.ndarray[float]]:
+    def _update_chi2(self) -> np.ndarray:
         """
         Calculate p-val from chi-squared test for homogeneity between categorical cols.
 
@@ -2287,7 +2296,7 @@ class StructuredProfiler(BaseProfiler):
                 "class_mean": [mean_not_null, mean_null],
             }
 
-    def _merge_null_replication_metrics(self, other: "StructuredProfiler") -> Dict:
+    def _merge_null_replication_metrics(self, other: StructuredProfiler) -> Dict:
         """
         Merge null replication metrics between two data profiles.
 
@@ -2310,7 +2319,7 @@ class StructuredProfiler(BaseProfiler):
             [get_data_type_profiler(profile).sum for profile in other._profile]
         )
         total_row_sum = self_row_sum + other_row_sum
-        merged_properties = defaultdict(dict)
+        merged_properties: Dict = defaultdict(dict)
         for col_id in range(len(self._profile)):
             self_profile = self._profile[col_id]
             other_profile = other._profile[col_id]
@@ -2374,7 +2383,7 @@ class StructuredProfiler(BaseProfiler):
 
     def _update_profile_from_chunk(
         self, data: pd.DataFrame, sample_size: int, min_true_samples: int = None
-    ) -> List[dp.BaseColumnProfiler]:
+    ):
         """
         Iterate over the columns of a dataset and identify its parameters.
 
@@ -2449,9 +2458,9 @@ class StructuredProfiler(BaseProfiler):
             for col_idx in range(data.shape[1]):
                 # Add blank StructuredColProfiler to _profile
                 self._profile.append(
-                    StructuredColProfiler(
+                    StructuredColProfiler(  # type: ignore
                         sample_size=sample_size,
-                        min_true_samples=min_true_samples,
+                        min_true_samples=min_true_samples,  # type: ignore
                         sample_ids=sample_ids,
                         options=self.options,
                     )
@@ -2628,14 +2637,14 @@ class StructuredProfiler(BaseProfiler):
 class Profiler(object):
     """For profiling data."""
 
-    def __new__(
+    def __new__(  # type: ignore
         cls,
-        data: dp.Data,
+        data: Data,
         samples_per_update: int = None,
         min_true_samples: int = 0,
         options: ProfilerOptions = None,
         profiler_type: str = None,
-    ) -> BaseProfiler:
+    ) -> Union[GraphProfiler, StructuredProfiler, UnstructuredProfiler]:
         """
         Instantiate Structured and Unstructured Profilers.
 
@@ -2652,7 +2661,7 @@ class Profiler(object):
         :type options: ProfilerOptions Object
         :param profiler_type: Type of Profiler ("graph"/"structured"/"unstructured")
         :type profiler_type: str
-        :return: BaseProfiler
+        :return: Union[GraphProfiler, StructuredProfiler, UnstructuredProfiler]
         """
         if profiler_type is None:
             # defaults as structured

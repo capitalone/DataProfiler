@@ -41,6 +41,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         label_mapping = {"not": "implemented"}
         self.set_label_mapping(label_mapping)
+        logger.info(
+            "For the `ColumnNameModel` class we do not"
+            "implement the `label_mapping` utility currently."
+            "label-prediction mapping is handled in the"
+            "post-processor using the data index / row value."
+        )
 
         # validate and set parameters
         self._validate_parameters(parameters)

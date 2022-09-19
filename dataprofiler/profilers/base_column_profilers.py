@@ -29,7 +29,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
     _SAMPLING_RATIO = 0.20
     _MIN_SAMPLING_COUNT = 500
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: Optional[str]) -> None:
         """
         Initialize base class properties for the subclass.
 

@@ -2175,14 +2175,16 @@ class ColumnNameModelPostprocessor(
         """Preprocess data."""
         results = {}
         for iter_value, value in enumerate(data):
-            if labels[iter_value][0] > self._parameters["positive_threshold_config"]:
-                results[iter_value] = {}
-                try:
+            try:
+                if (
+                    labels[iter_value][0]
+                    > self._parameters["positive_threshold_config"]
+                ):
+                    results[iter_value] = {}
                     results[iter_value]["pred"] = self._parameters[
                         "true_positive_dict"
                     ][labels[iter_value][1]]["label"]
-                except IndexError:
-                    pass
-                results[iter_value]["conf"] = data[iter_value][0]
-
+                    results[iter_value]["conf"] = data[iter_value][0]
+            except IndexError:
+                pass
         return results

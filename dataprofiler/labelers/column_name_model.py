@@ -22,7 +22,7 @@ logger = dp_logging.get_child_logger(__name__)
 class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     """Class for column name data labeling model."""
 
-    def __init__(self, parameters=None):
+    def __init__(self, label_mapping=None, parameters=None):
         """Initialize function for ColumnNameModel.
 
         :param parameters: Contains all the appropriate parameters for the model.
@@ -39,16 +39,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         parameters.setdefault("include_label", True)
         parameters.setdefault("negative_threshold_config", None)
 
-        label_mapping = {"not": "implemented"}
-        self.set_label_mapping(label_mapping)
-        logger.info(
-            "For MVP implementation, the `ColumnNameModel`"
-            "does not implement the `label_mapping` utility."
-            "'prediction -> label' mapping is handled in the"
-            "post-processor using the data index / row value."
-        )
-
         # validate and set parameters
+        self.set_label_mapping(label_mapping)
         self._validate_parameters(parameters)
         self._parameters = parameters
 
@@ -269,3 +261,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
         with open(model_param_dirpath, "w") as fp:
             json.dump(self._parameters, fp)
+
+        labels_dirpath = os.path.join(dirpath, "label_mapping.json")
+        with open(labels_dirpath, "w") as fp:
+            json.dump(self.label_mapping, fp)

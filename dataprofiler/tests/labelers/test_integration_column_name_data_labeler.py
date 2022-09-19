@@ -17,9 +17,10 @@ default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 class TestColumnNameDataLabeler(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.data = ["ssn"]
+        cls.one_data = ["ssn"]
+        cls.two_data = ["ssn", "failing_fail_fail"]
 
-        parameters = {
+        cls.parameters = {
             "true_positive_dict": [
                 {"attribute": "ssn", "label": "ssn"},
                 {"attribute": "suffix", "label": "name"},
@@ -43,10 +44,16 @@ class TestColumnNameDataLabeler(unittest.TestCase):
             "include_label": True,
         }
 
+        cls.label_mapping = [
+            label["label"] for label in cls.parameters["true_positive_dict"]
+        ]
+
         preprocessor = DirectPassPreprocessor()
-        model = ColumnNameModel(parameters=parameters)
+        model = ColumnNameModel(
+            label_mapping=cls.label_mapping, parameters=cls.parameters
+        )
         postprocessor = ColumnNameModelPostprocessor(
-            true_positive_dict=parameters["true_positive_dict"],
+            true_positive_dict=cls.parameters["true_positive_dict"],
             positive_threshold_config=85,
         )
 
@@ -58,13 +65,28 @@ class TestColumnNameDataLabeler(unittest.TestCase):
         """simple test of the DataLabeler's predict"""
 
         # get prediction from labeler
-        labeler_predictions = self.data_labeler.predict(self.data)
+        labeler_predictions = self.data_labeler.predict(self.one_data)
 
         # for now just checking that it's not empty
         # and that let of output is the same as len of
         # input values for the model to predict
         self.assertIsNotNone(labeler_predictions)
-        self.assertEqual(len(self.data), len(labeler_predictions))
+        self.assertEqual(len(self.one_data), len(labeler_predictions))
+
+    def test_results_filtering(self):
+        """test where false negative doesn't exist
+        and true positive is filtered
+        """
+
+        self.parameters.pop("false_positive_dict")
+        model = ColumnNameModel(
+            label_mapping=self.label_mapping, parameters=self.parameters
+        )
+
+        labeler_predictions = self.data_labeler.predict(self.two_data)
+
+        self.assertIsNotNone(labeler_predictions)
+        self.assertEqual(1, len(labeler_predictions))
 
 
 if __name__ == "__main__":

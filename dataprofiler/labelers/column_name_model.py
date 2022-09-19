@@ -42,9 +42,9 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         label_mapping = {"not": "implemented"}
         self.set_label_mapping(label_mapping)
         logger.info(
-            "For the `ColumnNameModel` class we do not"
-            "implement the `label_mapping` utility currently."
-            "label-prediction mapping is handled in the"
+            "For MVP implementation, the `ColumnNameModel`"
+            "does not implement the `label_mapping` utility."
+            "'prediction -> label' mapping is handled in the"
             "post-processor using the data index / row value."
         )
 
@@ -229,8 +229,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         if show_confidences:
             raise NotImplementedError(
                 """`show_confidences` parameter is disabled
-                for Proof of Concept implementation. Confidence
-                values are enabled by default."""
+                for MVP implementation. Note: Confidence
+                values are returned by default."""
             )
 
         if verbose:

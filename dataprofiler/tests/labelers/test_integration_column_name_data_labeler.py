@@ -4,7 +4,12 @@ import unittest
 import numpy as np
 import pkg_resources
 
+from dataprofiler.labelers.column_name_model import ColumnNameModel
 from dataprofiler.labelers.data_labelers import BaseDataLabeler
+from dataprofiler.labelers.data_processing import (
+    ColumnNameModelPostprocessor,
+    DirectPassPreprocessor,
+)
 
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
@@ -13,8 +18,37 @@ class TestColumnNameDataLabeler(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.data = ["test_social_security_number"]
+
+        parameters = {
+            "true_positive_dict": [
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
+            ],
+            "false_positive_dict": [
+                {
+                    "attribute": "contract_number",
+                    "label": "ssn",
+                },
+                {
+                    "attribute": "role",
+                    "label": "name",
+                },
+                {
+                    "attribute": "send_address",
+                    "label": "address",
+                },
+            ],
+            "negative_threshold_config": 50,
+            "include_label": True,
+        }
+
+        model = ColumnNameModel(parameters=parameters)
+
         cls.data_labeler = BaseDataLabeler.load_with_components(
-            os.path.join(default_labeler_dir, "column_name_labeler")
+            preprocessor=DirectPassPreprocessor(),
+            model=model,
+            postprocessor=ColumnNameModelPostprocessor(),
         )
 
     def test_default_model(self):

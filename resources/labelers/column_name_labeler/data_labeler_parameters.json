@@ -1,1 +1,1 @@
-{"model": {"class": "DirectPassPreprocessor"}, "preprocessor": {"class": "ColumnNameModel"}, "postprocessor": {"class": "ColumnNamePostprocessor"}}
+{"model": {"class": "ColumnNameModel"}, "preprocessor": {"class": "DirectPassPreprocessor"}, "postprocessor": {"class": "ColumnNamePostprocessor"}}

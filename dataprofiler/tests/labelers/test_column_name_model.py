@@ -38,10 +38,14 @@ mock_model_parameters = {
     "include_label": True,
 }
 
+mock_label_mapping = {"ssn": 1, "name": 2, "address": 3}
+
 
 def mock_open(filename, *args):
     if filename.find("model_parameters") >= 0:
         return StringIO(json.dumps(mock_model_parameters))
+    elif filename.find("label_mapping") >= 0:
+        return StringIO(json.dumps(mock_label_mapping))
 
 
 def setup_save_mock_open(mock_open):
@@ -165,7 +169,7 @@ class TestColumnNameModel(unittest.TestCase):
         mock_file = setup_save_mock_open(mock_open)
 
         model = ColumnNameModel(
-            label_mapping=self.test_label_mapping, parameters=self.parameters
+            label_mapping=mock_model_parameters, parameters=self.parameters
         )
 
         model.save_to_disk(".")
@@ -173,10 +177,15 @@ class TestColumnNameModel(unittest.TestCase):
             '{"true_positive_dict": [{"attribute": "ssn", "label": "ssn"}, '
             '{"attribute": "suffix", "label": "name"}, {"attribute": "my_home_address", '
             '"label": "address"}], "false_positive_dict": [{"attribute": '
-            '"contract_number", "label": "ssn"}, {"attribute": "role", "label": "name"}, '
-            '{"attribute": "send_address", "label": "address"}], "negative_threshold_config": '
-            '50, "include_label": true}{"ssn": 1, "name": 2, "address": 3}',
-            json.loads(mock_file.getvalue()),
+            '"contract_number", "label": "ssn"}, {"attribute": "role", '
+            '"label": "name"}, {"attribute": "send_address", "label": "address"}], '
+            '"negative_threshold_config": 50, "include_label": true}{"true_positive_dict": '
+            '[{"attribute": "ssn", "label": "ssn"}, {"attribute": "suffix", '
+            '"label": "name"}, {"attribute": "my_home_address", "label": "address"}], '
+            '"false_positive_dict": [{"attribute": "contract_number", "label": "ssn"}, '
+            '{"attribute": "role", "label": "name"}, {"attribute": "send_address", "label": '
+            '"address"}], "negative_threshold_config": 50, "include_label": true}',
+            mock_file.getvalue(),
         )
 
         # close mock

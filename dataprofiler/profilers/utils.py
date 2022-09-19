@@ -1,4 +1,6 @@
 """Contains functions for profilers."""
+from __future__ import annotations
+
 import collections
 import copy
 import datetime
@@ -31,7 +33,7 @@ from pandas import DataFrame, Series
 from dataprofiler import settings
 
 if TYPE_CHECKING:
-    from .profile_builder import BaseProfiler as Profile
+    from .profile_builder import BaseProfiler
 
 
 def dict_merge(dct: Dict, merge_dct: Dict) -> None:
@@ -748,7 +750,9 @@ def chunk(lst: List, size: int) -> Iterator[Tuple]:
     return iter(lambda: tuple(islice(iterator, size)), ())
 
 
-def merge(top_profile: "Profile", other_profile: "Profile" = None) -> "Profile":
+def merge(
+    top_profile: BaseProfiler, other_profile: BaseProfiler = None
+) -> BaseProfiler:
     """
     Merge two Profiles.
 
@@ -765,8 +769,8 @@ def merge(top_profile: "Profile", other_profile: "Profile" = None) -> "Profile":
 
 
 def merge_profile_list(
-    list_of_profiles: List["Profile"], pool_count: int = 5
-) -> "Profile":
+    list_of_profiles: List[BaseProfiler], pool_count: int = 5
+) -> BaseProfiler:
     """Merge list of profiles into a single profile.
 
     :param list_of_profiles: Categories and respective counts of the second group

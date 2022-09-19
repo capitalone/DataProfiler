@@ -2086,15 +2086,15 @@ class ColumnNameModelPostprocessor(
 ):
     """Subclass of BaseDataPostprocessor for postprocessing regex data."""
 
-    def __init__(self, parameters):
+    def __init__(self, true_positive_dict=None, positive_threshold_config=None):
         """Initialize the ColumnNameModelPostProcessor class."""
-        # set parameters
-        if not parameters:
-            parameters = {}
-        parameters.setdefault("true_positive_dict", None)
-        parameters.setdefault("positive_threshold_config", None)
+        if true_positive_dict is None:
+            true_positive_dict = {}
 
-        super().__init__(**parameters)
+        super().__init__(
+            true_positive_dict=true_positive_dict,
+            positive_threshold_config=positive_threshold_config,
+        )
 
     def _validate_parameters(self, parameters):
         """
@@ -2111,14 +2111,7 @@ class ColumnNameModelPostprocessor(
         :type parameters: dict
         :return: None
         """
-        # allowed_parameters = self.__class__.__init__.__code__.co_varnames[
-        #     1 : self.__class__.__init__.__code__.co_argcount
-        # ]
         errors = []
-        allowed_parameters = [
-            "true_positive_dict",
-            "positive_threshold_config",
-        ]
 
         for param in parameters:
             value = parameters[param]
@@ -2144,9 +2137,6 @@ class ColumnNameModelPostprocessor(
                         param
                     )
                 )
-            elif param not in allowed_parameters:
-                errors.append("{} is not an accepted parameter.".format(param))
-
         if errors:
             raise ValueError("\n".join(errors))
 

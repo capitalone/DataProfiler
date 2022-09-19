@@ -3001,7 +3001,7 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
 
     def test_process(self):
         """Test post-processing data from the ColumnNameModel class."""
-        data = [[100.0, 0]]
+        model_output = [[100.0, 0]]
         expected_output = {0: {"pred": "ssn", "conf": 100.0}}
 
         params = {
@@ -3017,8 +3017,8 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
             true_positive_dict=params["true_positive_dict"],
             positive_threshold_config=params["positive_threshold_config"],
         )
-        with self.assertRaises(TypeError):
-            process_output = processor.process(data)
+        process_output = processor.process(data, labels=model_output)
+        self.assertDictEqual(expected_output, process_output)
 
     def test_set_params(self):
         params = {

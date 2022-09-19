@@ -55,12 +55,14 @@ class TestColumnNameDataLabeler(unittest.TestCase):
         )
 
     def test_default_model(self):
-        """simple test of predict"""
+        """simple test of the DataLabeler's predict"""
 
         # get prediction from labeler
         labeler_predictions = self.data_labeler.predict(self.data)
 
         # for now just checking that it's not empty
+        # and that let of output is the same as len of
+        # input values for the model to predict
         self.assertIsNotNone(labeler_predictions)
         self.assertEqual(len(self.data), len(labeler_predictions))
 

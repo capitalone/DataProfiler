@@ -6,7 +6,7 @@ from __future__ import annotations, division, print_function
 import abc
 import warnings
 from collections import defaultdict
-from typing import Any, Callable, Dict, List, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
 import numpy as np
 import pandas as pd
@@ -254,7 +254,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
 class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta, BaseColumnProfiler)):
     """Abstract class for profiling primative data type for col of data."""
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: Optional[str]) -> None:
         """
         Initialize base class properties for the subclass.
 

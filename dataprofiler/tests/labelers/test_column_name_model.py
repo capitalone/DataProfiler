@@ -140,7 +140,13 @@ class TestColumnNameModel(unittest.TestCase):
 
         # `show_confidences` is disabled currently
         # should raise error if set to `True`
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaisesRegex(
+            Warning,
+            """`show_confidences` parameter is disabled
+                for MVP implementation. Due to the requirement
+                of having the data point in the post processor.
+                Note: Confidence values are returned by default.""",
+        ):
             model.predict(data=self.data, show_confidences=True)
 
         # clear stdout

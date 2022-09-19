@@ -65,6 +65,7 @@ class TestGraphProfiler(unittest.TestCase):
                 (2, 5, {"id": 5, "weight": 3.9, "value": 4.5}),
             ]
         )
+
         cls.expected_profile = dict(
             num_nodes=4,
             num_edges=5,
@@ -76,33 +77,6 @@ class TestGraphProfiler(unittest.TestCase):
                 "id": None,
                 "weight": {
                     "name": "lognorm",
-                    "properties": {
-                        "best_fit_properties": [
-                            8.646041719759628,
-                            1.6999999999999997,
-                            0.19403886939727638,
-                        ],
-                        "mean": [
-                            8.646041719759628,
-                            1.6999999999999997,
-                            0.19403886939727638,
-                        ],
-                        "variance": [
-                            8.646041719759628,
-                            1.6999999999999997,
-                            0.19403886939727638,
-                        ],
-                        "skew": [
-                            0.6801760445870136,
-                            1.5339299776947408,
-                            4.540311271443057,
-                        ],
-                        "kurtosis": [
-                            0.6939591774450526,
-                            3.5294117647058827,
-                            30.921639662389307,
-                        ],
-                    },
                 },
             },
             categorical_distribution={
@@ -127,6 +101,18 @@ class TestGraphProfiler(unittest.TestCase):
             ),
         )
 
+        cls.expected_properties = {
+            "best_fit_properties": [
+                8.646041719759628,
+                1.6999999999999997,
+                0.19403886939727638,
+            ],
+            "mean": [1.7085707836543698e16, 4.241852142820433, 1.0190038591415866],
+            "variance": [8.521811094505713e64, 305.76588081569196, 0.03984103474264823],
+            "skew": [4.987683961374356e48, 82.41830452500491, 0.5951548443693909],
+            "kurtosis": [7.262126433044066e129, 117436.2896499293, 0.6363254662738349],
+        }
+
         cls.expected_diff_1 = {
             "num_nodes": "unchanged",
             "num_edges": 1,
@@ -142,53 +128,6 @@ class TestGraphProfiler(unittest.TestCase):
                         {},
                         {
                             "name": ["lognorm", "uniform"],
-                            "properties": [
-                                {},
-                                {
-                                    "best_fit_properties": [
-                                        [
-                                            8.646041719759628,
-                                            1.6999999999999997,
-                                            0.19403886939727638,
-                                        ],
-                                        [],
-                                        [1.7, 2.0999999999999996],
-                                    ],
-                                    "mean": [
-                                        [
-                                            8.646041719759628,
-                                            1.6999999999999997,
-                                            0.19403886939727638,
-                                        ],
-                                        [],
-                                        [1.7, 2.0999999999999996],
-                                    ],
-                                    "variance": [
-                                        [
-                                            8.646041719759628,
-                                            1.6999999999999997,
-                                            0.19403886939727638,
-                                        ],
-                                        [],
-                                        [1.7, 2.0999999999999996],
-                                    ],
-                                    "skew": [
-                                        [0.6801760445870136, 4.540311271443057],
-                                        [1.5339299776947408],
-                                        [1.3801311186847085],
-                                    ],
-                                    "kurtosis": [
-                                        [
-                                            0.6939591774450526,
-                                            3.5294117647058827,
-                                            30.921639662389307,
-                                        ],
-                                        [],
-                                        [3.5294117647058822, 2.8571428571428577],
-                                    ],
-                                },
-                                {},
-                            ],
                         },
                         {},
                     ],
@@ -236,77 +175,19 @@ class TestGraphProfiler(unittest.TestCase):
             "continuous_distribution": [
                 {},
                 {
+                    "weight": [
+                        {},
+                        {
+                            "name": ["uniform", "gamma"],
+                        },
+                        {},
+                    ],
                     "id": "unchanged",
                     "value": [
                         None,
                         {
                             "name": "uniform",
-                            "properties": {
-                                "best_fit_properties": [2.3, 5.0],
-                                "mean": [2.3, 5.0],
-                                "variance": [2.3, 5.0],
-                                "skew": [1.3187609467915742, 0.8944271909999159],
-                                "kurtosis": [2.608695652173913, 1.2],
-                            },
                         },
-                    ],
-                    "weight": [
-                        {},
-                        {
-                            "name": ["uniform", "gamma"],
-                            "properties": [
-                                {},
-                                {
-                                    "best_fit_properties": [
-                                        [1.7, 2.0999999999999996],
-                                        [],
-                                        [
-                                            0.24894970623537693,
-                                            1.1999999999999997,
-                                            11.973583222228775,
-                                        ],
-                                    ],
-                                    "mean": [
-                                        [1.7, 2.0999999999999996],
-                                        [],
-                                        [
-                                            0.24894970623537693,
-                                            1.1999999999999997,
-                                            11.973583222228775,
-                                        ],
-                                    ],
-                                    "variance": [
-                                        [1.7, 2.0999999999999996],
-                                        [],
-                                        [
-                                            0.24894970623537693,
-                                            1.1999999999999997,
-                                            11.973583222228775,
-                                        ],
-                                    ],
-                                    "skew": [
-                                        [1.5339299776947408, 1.3801311186847085],
-                                        [],
-                                        [
-                                            4.008428917954561,
-                                            1.8257418583505538,
-                                            0.5779868092477709,
-                                        ],
-                                    ],
-                                    "kurtosis": [
-                                        [3.5294117647058822, 2.8571428571428577],
-                                        [],
-                                        [
-                                            24.101253585441555,
-                                            5.000000000000001,
-                                            0.5011031274966287,
-                                        ],
-                                    ],
-                                },
-                                {},
-                            ],
-                        },
-                        {},
                     ],
                 },
                 {},
@@ -314,6 +195,7 @@ class TestGraphProfiler(unittest.TestCase):
             "categorical_distribution": [
                 {},
                 {
+                    "weight": "unchanged",
                     "id": [
                         {},
                         {
@@ -326,7 +208,6 @@ class TestGraphProfiler(unittest.TestCase):
                         {"bin_counts": [1, 1, 2], "bin_edges": [4.0, 6.0, 8.0, 10.0]},
                         None,
                     ],
-                    "weight": "unchanged",
                 },
                 {},
             ],
@@ -342,6 +223,28 @@ class TestGraphProfiler(unittest.TestCase):
             },
         }
 
+    def check_continuous_properties(self, continuous_distribution_props):
+        """
+        NOTE: this function is needed because github tests often lead result in
+        slightly different property values. Hence why assertAlmostEqual is used.
+
+        """
+        for key in continuous_distribution_props:
+            for x, y in zip(
+                self.expected_properties[key], continuous_distribution_props[key]
+            ):
+                self.assertAlmostEqual(x, y)
+
+    def test_add(self):
+        profile_1 = GraphProfiler(self.graph_1)
+        profile_2 = GraphProfiler(self.graph_2)
+
+        with self.assertRaises(
+            NotImplementedError,
+            msg="profile adding is not currently supported for the GraphProfiler",
+        ):
+            profile_1 + profile_2
+
     def test_profile(self):
         # test_update
         graph_profile = GraphProfiler(self.graph_1)
@@ -351,6 +254,13 @@ class TestGraphProfiler(unittest.TestCase):
         # check that scale is almost equal
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
         self.assertAlmostEqual(scale, -15.250985118262854)
+
+        # check that properties are almost equal
+        properties = profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        self.check_continuous_properties(properties)
+
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_report(self):
@@ -362,6 +272,13 @@ class TestGraphProfiler(unittest.TestCase):
         # check that scale is almost equal
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
         self.assertAlmostEqual(scale, -15.250985118262854)
+
+        # check that properties are almost equal
+        properties = profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        self.check_continuous_properties(properties)
+
         self.assertDictEqual(self.expected_profile, profile.report())
 
     def test_graph_data_object(self):
@@ -374,6 +291,13 @@ class TestGraphProfiler(unittest.TestCase):
         # check that scale is almost equal
         scale = profile.profile["continuous_distribution"]["weight"].pop("scale")
         self.assertAlmostEqual(scale, -15.250985118262854)
+
+        # check that properties are almost equal
+        properties = profile.profile["continuous_distribution"]["weight"].pop(
+            "properties"
+        )
+        self.check_continuous_properties(properties)
+
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_diff(self):
@@ -388,9 +312,13 @@ class TestGraphProfiler(unittest.TestCase):
 
         # Remove scale because it causes rounding issues during the test
         profile_1.profile["continuous_distribution"]["weight"].pop("scale")
+        profile_1.profile["continuous_distribution"]["weight"].pop("properties")
         profile_2.profile["continuous_distribution"]["weight"].pop("scale")
+        profile_2.profile["continuous_distribution"]["weight"].pop("properties")
         profile_3.profile["continuous_distribution"]["weight"].pop("scale")
+        profile_3.profile["continuous_distribution"]["weight"].pop("properties")
         profile_3.profile["continuous_distribution"]["value"].pop("scale")
+        profile_3.profile["continuous_distribution"]["value"].pop("properties")
 
         diff_1 = profile_1.diff(profile_2)
         self.assertDictEqual(diff_1, self.expected_diff_1)

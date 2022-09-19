@@ -2079,3 +2079,110 @@ class StructRegexPostProcessor(
         # predictions is the argmax of the average of the cell's label votes
         results["pred"] = np.argmax(results["pred"], axis=1)
         return results
+
+
+class ColumnNameModelPostprocessor(
+    BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
+):
+    """Subclass of BaseDataPostprocessor for postprocessing regex data."""
+
+    def __init__(self, true_positive_dict=None, positive_threshold_config=None):
+        """Initialize the ColumnNameModelPostProcessor class."""
+        if true_positive_dict is None:
+            true_positive_dict = {}
+
+        super().__init__(
+            true_positive_dict=true_positive_dict,
+            positive_threshold_config=positive_threshold_config,
+        )
+
+    def _validate_parameters(self, parameters):
+        """
+        Validate params set in the processor and raise error if issues exist.
+
+        :param parameters: parameter dict containing the following parameters:
+            aggregation_func: aggregation function to apply to regex model
+                output (split, random, priority)
+            priority_order: if priority is set as the aggregation function,
+                the order in which entities are given priority must be set
+            random_state: Random state setting to be used for randomly
+                selecting a prediction when two labels have equal opportunity
+                for a given sample.
+        :type parameters: dict
+        :return: None
+        """
+        allowed_parameters = self.__class__.__init__.__code__.co_varnames[
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
+
+        errors = []
+
+        for param in parameters:
+            value = parameters[param]
+
+            if param == "true_positive_dict" and (
+                not isinstance(value, list)
+                or not isinstance(value[0], dict)
+                or "attribute" not in value[0].keys()
+                or "label" not in value[0].keys()
+            ):
+                errors.append(
+                    """`{}` is a required parameter that must be a list
+                    of dictionaries each with the following
+                    two keys: 'attribute' and 'label'""".format(
+                        param
+                    )
+                )
+            elif param == "positive_threshold_config" and (
+                not isinstance(value, int) or value is None
+            ):
+                errors.append(
+                    "`{}` is an required parameter that must be an integer.".format(
+                        param
+                    )
+                )
+            elif param not in allowed_parameters:
+                errors.append("`{}` is not a permited parameter.".format(param))
+        if errors:
+            raise ValueError("\n".join(errors))
+
+    @classmethod
+    def help(cls):
+        """
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for postprocessors.
+
+        :return: None
+        """
+        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_start_ind = param_docs.find("parameters:\n") + 12
+        param_end_ind = param_docs.find(":type parameters:")
+
+        help_str = (
+            cls.__name__
+            + "\n\n"
+            + "Parameters:\n"
+            + param_docs[param_start_ind:param_end_ind]
+            + "\nProcess Output Format:\n"
+            "    Each sample receives a label.\n"
+            "    Original data - ['My', 'String', ...]\n"
+        )
+        print(help_str)
+
+    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+        """Preprocess data."""
+        results = {}
+        for iter_value, value in enumerate(data):
+            if data[iter_value][0] > self._parameters["positive_threshold_config"]:
+                results[iter_value] = {}
+                try:
+                    results[iter_value]["pred"] = self._parameters[
+                        "true_positive_dict"
+                    ][data[iter_value][1]]["label"]
+                except IndexError:
+                    pass
+                results[iter_value]["conf"] = data[iter_value][0]
+
+        return results

@@ -4,6 +4,7 @@ import random
 import re
 import unittest
 from io import StringIO
+from typing import OrderedDict
 from unittest import mock
 
 import numpy as np
@@ -14,6 +15,7 @@ from dataprofiler.labelers.data_processing import (
     CharEncodedPreprocessor,
     CharPostprocessor,
     CharPreprocessor,
+    ColumnNameModelPostprocessor,
     DirectPassPreprocessor,
     RegexPostProcessor,
     StructCharPostprocessor,
@@ -2928,3 +2930,136 @@ class TestStructRegexPostProcessor(unittest.TestCase):
             ValueError, "`random_state` must be a random.Random."
         ):
             processor = StructRegexPostProcessor(random_state=[None, None, None])
+
+
+class TestColumnNameModelPostprocessor(unittest.TestCase):
+    def test_registered_subclass(self):
+        self.assertEqual(
+            ColumnNameModelPostprocessor,
+            BaseDataProcessor.get_class(ColumnNameModelPostprocessor.__name__),
+        )
+
+    @mock.patch("sys.stdout", new_callable=StringIO)
+    def test_help(self, mock_stdout):
+        ColumnNameModelPostprocessor.help()
+        self.assertIn("Parameters", mock_stdout.getvalue())
+        self.assertIn("Output Format", mock_stdout.getvalue())
+
+    def test_validate_parameters(self):
+        # passing validate on params provided
+        params = {
+            "true_positive_dict": [{"attribute": "test", "label": "test"}],
+            "positive_threshold_config": 85,
+        }
+        ColumnNameModelPostprocessor(
+            true_positive_dict=params["true_positive_dict"],
+            positive_threshold_config=params["positive_threshold_config"],
+        )
+
+        # failing validate on `attribute` on `true_positive_dict`
+        params = {
+            "true_positive_dict": [{"failing": "test", "label": "test"}],
+            "positive_threshold_config": 85,
+        }
+        with self.assertRaisesRegex(
+            ValueError,
+            """`true_positive_dict` is a required parameter that must be a list
+                    of dictionaries each with the following
+                    two keys: 'attribute' and 'label'""",
+        ):
+            ColumnNameModelPostprocessor(
+                true_positive_dict=params["true_positive_dict"],
+                positive_threshold_config=params["positive_threshold_config"],
+            )
+
+        # failing validate on `positive_threshold_config`
+        params = {
+            "true_positive_dict": [{"attribute": "test", "label": "test"}],
+            "positive_threshold_config": "failing",
+        }
+        with self.assertRaisesRegex(
+            ValueError,
+            "`positive_threshold_config` is an required parameter that must be an integer.",
+        ):
+            ColumnNameModelPostprocessor(
+                true_positive_dict=params["true_positive_dict"],
+                positive_threshold_config=params["positive_threshold_config"],
+            )
+
+        # failing __init__ on unaccepted parameters
+        params = {
+            "true_positive_dict": [{"attribute": "test", "label": "test"}],
+            "positive_threshold_config": 30,
+            "one_of_these_things": "one_of_these_doesn't belong",
+        }
+        with self.assertRaises(TypeError):
+            ColumnNameModelPostprocessor(
+                true_positive_dict=params["true_positive_dict"],
+                positive_threshold_config=params["positive_threshold_config"],
+                one_of_these_things=params["one_of_these_things"],
+            )
+
+    def test_process(self):
+        """Test post-processing data from the ColumnNameModel class."""
+        data = [[100.0, 0]]
+        expected_output = {0: {"pred": "ssn", "conf": 100.0}}
+
+        params = {
+            "true_positive_dict": [
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
+            ],
+            "positive_threshold_config": 85,
+        }
+
+        processor = ColumnNameModelPostprocessor(
+            true_positive_dict=params["true_positive_dict"],
+            positive_threshold_config=params["positive_threshold_config"],
+        )
+        process_output = processor.process(data)
+
+        self.assertEqual(process_output, expected_output)
+
+    def test_set_params(self):
+        params = {
+            "true_positive_dict": [{"attribute": "test", "label": "test"}],
+            "positive_threshold_config": 85,
+        }
+        processor = ColumnNameModelPostprocessor(
+            true_positive_dict=params["true_positive_dict"],
+            positive_threshold_config=params["positive_threshold_config"],
+        )
+        with self.assertRaisesRegex(
+            ValueError, "`failing` is not a permited parameter."
+        ):
+            processor.set_params(failing="failure")
+
+    @mock.patch("builtins.open")
+    def test_save_processor(self, mock_open, *mocks):
+        # setup mocks
+        mock_file = setup_save_mock_open(mock_open)
+
+        # setup mocked class
+        column_name_processor_mock = mock.Mock(spec=ColumnNameModelPostprocessor)()
+        column_name_processor_mock.processor_type = "test"
+
+        test_parameters = {
+            "positive_threshold_config": 85,
+            "true_positive_dict": [
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
+            ],
+        }
+        column_name_processor_mock.get_parameters.return_value = test_parameters
+
+        # call save processor func
+        ColumnNameModelPostprocessor._save_processor(column_name_processor_mock, "test")
+
+        # assert parameters saved
+        mock_open.assert_called_with("test/test_parameters.json", "w")
+        self.assertEquals(json.dumps(test_parameters), mock_file.getvalue())
+
+        # close mocks
+        StringIO.close(mock_file)

@@ -17,7 +17,7 @@ default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 class TestColumnNameDataLabeler(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.data = ["test_social_security_number"]
+        cls.data = ["ssn"]
 
         parameters = {
             "true_positive_dict": [
@@ -43,43 +43,26 @@ class TestColumnNameDataLabeler(unittest.TestCase):
             "include_label": True,
         }
 
+        preprocessor = DirectPassPreprocessor()
         model = ColumnNameModel(parameters=parameters)
+        postprocessor = ColumnNameModelPostprocessor(
+            true_positive_dict=parameters["true_positive_dict"],
+            positive_threshold_config=85,
+        )
 
         cls.data_labeler = BaseDataLabeler.load_with_components(
-            preprocessor=DirectPassPreprocessor(),
-            model=model,
-            postprocessor=ColumnNameModelPostprocessor(),
+            preprocessor=preprocessor, model=model, postprocessor=postprocessor
         )
 
     def test_default_model(self):
         """simple test of predict"""
 
-        data_labeler = self.data_labeler
-
-        # get char-level predictions on default model
-        model_predictions = data_labeler.predict(self.data)
-        final_results = model_predictions["pred"]
+        # get prediction from labeler
+        labeler_predictions = self.data_labeler.predict(self.data)
 
         # for now just checking that it's not empty
-        self.assertIsNotNone(final_results)
-        self.assertEqual(len(self.data), len(final_results))
-
-    def test_default_confidences(self):
-        """tests confidence scores output"""
-
-        data_labeler = self.data_labeler
-
-        # get char-level predictions/confidence scores on default model
-        results = data_labeler.predict(
-            self.data, predict_options=dict(show_confidences=True)
-        )
-        model_predictions_char_level, model_confidences_char_level = (
-            results["pred"],
-            results["conf"],
-        )
-
-        # for now just checking that it's not empty
-        self.assertIsNotNone(model_confidences_char_level)
+        self.assertIsNotNone(labeler_predictions)
+        self.assertEqual(len(self.data), len(labeler_predictions))
 
 
 if __name__ == "__main__":

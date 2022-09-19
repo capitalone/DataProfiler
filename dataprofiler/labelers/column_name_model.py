@@ -39,7 +39,10 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         parameters.setdefault("include_label", True)
         parameters.setdefault("negative_threshold_config", None)
 
-        # initialize class
+        label_mapping = {"not": "implemented"}
+        self.set_label_mapping(label_mapping)
+
+        # validate and set parameters
         self._validate_parameters(parameters)
         self._parameters = parameters
 

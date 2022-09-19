@@ -2174,7 +2174,10 @@ class ColumnNameModelPostprocessor(
     def process(self, data, labels=None, label_mapping=None, batch_size=None):
         """Preprocess data."""
         results = {}
+
         for iter_value, value in enumerate(data):
+            if labels is None:
+                continue
             try:
                 if (
                     labels[iter_value][0]

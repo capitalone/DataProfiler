@@ -3001,6 +3001,7 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
 
     def test_process(self):
         """Test post-processing data from the ColumnNameModel class."""
+        data = ["ssn", "role_name", "wallet_address"]
         model_output = [[100.0, 0]]
         expected_output = {0: {"pred": "ssn", "conf": 100.0}}
 

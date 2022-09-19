@@ -2185,7 +2185,7 @@ class ColumnNameModelPostprocessor(
                     results[iter_value]["pred"] = self._parameters[
                         "true_positive_dict"
                     ][labels[iter_value][1]]["label"]
-                    results[iter_value]["conf"] = data[iter_value][0]
+                    results[iter_value]["conf"] = labels[iter_value][0]
             except IndexError:
                 pass
         return results

@@ -244,7 +244,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         with open(model_param_dirpath, "r") as fp:
             parameters = json.load(fp)
 
-        loaded_model = cls(parameters)
+        # load label_mapping
+        labels_dirpath = os.path.join(dirpath, "label_mapping.json")
+        with open(labels_dirpath, "r") as fp:
+            label_mapping = json.load(fp)
+
+        loaded_model = cls(label_mapping, parameters)
         return loaded_model
 
     def save_to_disk(self, dirpath):

@@ -52,16 +52,12 @@ def setup_save_mock_open(mock_open):
 
 
 class TestColumnNameModel(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUp(cls):
         # data
-        data = [
-            "ssn",
-            "role_name",
-            "wallet_address",
-        ]
+        cls.data = ["ssn", "role_name", "wallet_address"]
 
-    def test_param_validation(self):
-        invalid_parameters = [
+        cls.invalid_parameters = [
             {
                 "false_positive_dict": [
                     {
@@ -79,12 +75,44 @@ class TestColumnNameModel(unittest.TestCase):
             },
         ]
 
-        model = ColumnNameModel(parameters=mock_model_parameters)
+        cls.parameters = {
+            "true_positive_dict": [
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
+            ],
+            "false_positive_dict": [
+                {
+                    "attribute": "contract_number",
+                    "label": "ssn",
+                },
+                {
+                    "attribute": "role",
+                    "label": "name",
+                },
+                {
+                    "attribute": "send_address",
+                    "label": "address",
+                },
+            ],
+            "negative_threshold_config": 50,
+            "include_label": True,
+        }
+
+        cls.test_label_mapping = {"ssn": 1, "name": 2, "address": 3}
+
+    def test_param_validation(self):
+
+        model = ColumnNameModel(
+            label_mapping=self.test_label_mapping, parameters=mock_model_parameters
+        )
         self.assertDictEqual(mock_model_parameters, model._parameters)
 
-        for invalid_param_set in invalid_parameters:
+        for invalid_param_set in self.invalid_parameters:
             with self.assertRaises(ValueError):
-                ColumnNameModel(parameters=invalid_param_set)
+                ColumnNameModel(
+                    label_mapping=self.test_label_mapping, parameters=invalid_param_set
+                )
 
     @mock.patch("sys.stdout", new_callable=StringIO)
     def test_help(self, mock_stdout):
@@ -95,21 +123,21 @@ class TestColumnNameModel(unittest.TestCase):
     @mock.patch("sys.stdout", new_callable=StringIO)
     def test_predict(self, mock_stdout):
         # test show confidences
-        model = ColumnNameModel(parameters=mock_model_parameters)
+        model = ColumnNameModel(
+            label_mapping=self.test_label_mapping, parameters=mock_model_parameters
+        )
         expected_output = [[100.0, 0]]
         with self.assertLogs(
             "DataProfiler.labelers.column_name_model", level="INFO"
         ) as logs:
-            model_output = model.predict(data=["ssn", "role_name", "wallet_address"])
+            model_output = model.predict(data=self.data)
         self.assertTrue(np.array_equal(expected_output, model_output))
         self.assertTrue(len(logs.output))
 
         # `show_confidences` is disabled currently
         # should raise error if set to `True`
         with self.assertRaises(NotImplementedError):
-            model.predict(
-                data=["ssn", "role_name", "wallet_address"], show_confidences=True
-            )
+            model.predict(data=self.data, show_confidences=True)
 
         # clear stdout
         mock_stdout.seek(0)
@@ -136,36 +164,18 @@ class TestColumnNameModel(unittest.TestCase):
         # setup mock
         mock_file = setup_save_mock_open(mock_open)
 
-        # Save and load a Model with custom parameters
-        parameters = {
-            "true_positive_dict": [
-                {"attribute": "ssn", "label": "ssn"},
-                {"attribute": "suffix", "label": "name"},
-                {"attribute": "my_home_address", "label": "address"},
-            ],
-            "false_positive_dict": [
-                {
-                    "attribute": "contract_number",
-                    "label": "ssn",
-                },
-                {
-                    "attribute": "role",
-                    "label": "name",
-                },
-                {
-                    "attribute": "send_address",
-                    "label": "address",
-                },
-            ],
-            "negative_threshold_config": 50,
-            "include_label": True,
-        }
-
-        model = ColumnNameModel(parameters)
+        model = ColumnNameModel(
+            label_mapping=self.test_label_mapping, parameters=self.parameters
+        )
 
         model.save_to_disk(".")
-        self.assertDictEqual(
-            parameters,
+        self.assertEqual(
+            '{"true_positive_dict": [{"attribute": "ssn", "label": "ssn"}, '
+            '{"attribute": "suffix", "label": "name"}, {"attribute": "my_home_address", '
+            '"label": "address"}], "false_positive_dict": [{"attribute": '
+            '"contract_number", "label": "ssn"}, {"attribute": "role", "label": "name"}, '
+            '{"attribute": "send_address", "label": "address"}], "negative_threshold_config": '
+            '50, "include_label": true}{"ssn": 1, "name": 2, "address": 3}',
             json.loads(mock_file.getvalue()),
         )
 
@@ -194,6 +204,15 @@ class TestColumnNameModel(unittest.TestCase):
             mock_model_parameters["negative_threshold_config"],
             loaded_model._parameters["negative_threshold_config"],
         )
+
+    def test_reverse_label_mapping(self):
+        """test reverse label mapping is propograting
+        through the classes correctly"""
+        reverse_label_mapping = {v: k for k, v in self.test_label_mapping.items()}
+        model = ColumnNameModel(
+            label_mapping=self.test_label_mapping, parameters=self.parameters
+        )
+        self.assertEqual(model.reverse_label_mapping, reverse_label_mapping)
 
     def missing_module_test(self, class_name, module_name):
         orig_import = __import__

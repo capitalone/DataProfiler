@@ -14,6 +14,7 @@ from itertools import islice
 from multiprocessing.pool import Pool
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
     Dict,
     Generator,
@@ -111,7 +112,7 @@ def _combine_unique_sets(a: List, b: List) -> List:
 
 def shuffle_in_chunks(
     data_length: int, chunk_size: int
-) -> Generator[List[int], None, List]:
+) -> Generator[List[int], None, List[int]]:
     """
     Create shuffled indexes in chunks.
 
@@ -192,7 +193,7 @@ def warn_on_profile(col_profile: str, e: Exception) -> None:
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
 
 
-def partition(data: List, chunk_size: int) -> Generator[List, None, None]:
+def partition(data: List, chunk_size: int) -> Generator[List, None, List]:
     """
     Create a generator which returns data in specified chunk size.
 
@@ -281,7 +282,9 @@ def generate_pool(
     return pool, max_pool_size
 
 
-def overlap(x1: int, x2: int, y1: int, y2: int) -> bool:
+def overlap(
+    x1: Union[int, Any], x2: Union[int, Any], y1: Union[int, Any], y2: Union[int, Any]
+) -> bool:
     """Return True iff [x1:x2] overlaps with [y1:y2]."""
     if not all(isinstance(i, int) for i in [x1, x2, y1, y2]):
         return False
@@ -421,8 +424,8 @@ def find_diff_of_numbers(
 
 
 def find_diff_of_strings_and_bools(
-    stat1: Union[str, bool], stat2: Union[str, bool]
-) -> Union[List[Union[str, bool]], str]:
+    stat1: Union[str, bool, None], stat2: Union[str, bool, None]
+) -> Union[List[Union[str, bool, None]], str]:
     """
     Find the difference between two stats.
 
@@ -539,8 +542,8 @@ def find_diff_of_dicts(dict1: Dict, dict2: Dict) -> Union[Dict, str]:
 
 
 def find_diff_of_matrices(
-    matrix1: List[List[float]], matrix2: List[List[float]]
-) -> Optional[Union[List[List[float]], str]]:
+    matrix1: np.ndarray, matrix2: np.ndarray
+) -> Optional[Union[np.ndarray, str]]:
     """
     Find the difference between two matrices.
 

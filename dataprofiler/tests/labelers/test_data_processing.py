@@ -3021,6 +3021,20 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
 
         self.assertEqual(process_output, expected_output)
 
+    def test_set_params(self):
+        params = {
+            "true_positive_dict": [{"attribute": "test", "label": "test"}],
+            "positive_threshold_config": 85,
+        }
+        processor = ColumnNameModelPostprocessor(
+            true_positive_dict=params["true_positive_dict"],
+            positive_threshold_config=params["positive_threshold_config"],
+        )
+        with self.assertRaisesRegex(
+            ValueError, "`failing` is not a permited parameter."
+        ):
+            processor.set_params(failing="failure")
+
     @mock.patch("builtins.open")
     def test_save_processor(self, mock_open, *mocks):
         # setup mocks

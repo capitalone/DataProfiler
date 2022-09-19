@@ -2111,6 +2111,10 @@ class ColumnNameModelPostprocessor(
         :type parameters: dict
         :return: None
         """
+        allowed_parameters = self.__class__.__init__.__code__.co_varnames[
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
+
         errors = []
 
         for param in parameters:
@@ -2137,6 +2141,8 @@ class ColumnNameModelPostprocessor(
                         param
                     )
                 )
+            elif param not in allowed_parameters:
+                errors.append("`{}` is not a permited parameter.".format(param))
         if errors:
             raise ValueError("\n".join(errors))
 

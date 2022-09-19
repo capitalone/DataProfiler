@@ -112,7 +112,7 @@ def _combine_unique_sets(a: List, b: List) -> List:
 
 def shuffle_in_chunks(
     data_length: int, chunk_size: int
-) -> Generator[List[int], None, List[int]]:
+) -> Generator[List[int], None, Any]:
     """
     Create shuffled indexes in chunks.
 
@@ -166,8 +166,6 @@ def shuffle_in_chunks(
 
         yield values
 
-    return []
-
 
 def warn_on_profile(col_profile: str, e: Exception) -> None:
     """
@@ -193,7 +191,7 @@ def warn_on_profile(col_profile: str, e: Exception) -> None:
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
 
 
-def partition(data: List, chunk_size: int) -> Generator[List, None, List]:
+def partition(data: List, chunk_size: int) -> Generator[List, None, Any]:
     """
     Create a generator which returns data in specified chunk size.
 
@@ -559,7 +557,7 @@ def find_diff_of_matrices(
         mat2 = np.array(matrix2, dtype=np.float32)
 
         if mat1.shape == mat2.shape:
-            diff: List[List[float]] = mat1 - mat2
+            diff: np.ndarray = mat1 - mat2
             if ((diff == 0) | np.isnan(diff)).all():
                 return "unchanged"
             return diff

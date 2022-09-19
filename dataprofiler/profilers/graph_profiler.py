@@ -57,6 +57,19 @@ class GraphProfiler(object):
             "categorical_distribution": GraphProfiler._update_categorical_distribution,
         }
 
+    def __add__(self, other):
+        """
+        Merge two Graph profiles together overriding the `+` operator.
+
+        :param other: graph profile being added to this one.
+        :type other: GraphProfiler
+        :return: merger of the two profiles
+        :rtype: GraphProfiler
+        """
+        raise NotImplementedError(
+            "profile adding is not currently supported for the GraphProfiler"
+        )
+
     @property
     def profile(self):
         """
@@ -339,11 +352,12 @@ class GraphProfiler(object):
                     mle = distribution.nnlf(fit, df)
 
                     if mle <= best_mle:
+                        best_distrib = distribution
                         best_fit = distribution.name
                         best_mle = mle
                         best_fit_properties = fit
 
-                mean, variance, skew, kurtosis = distribution.stats(
+                mean, variance, skew, kurtosis = best_distrib.stats(
                     best_fit_properties, moments="mvsk"
                 )
                 properties = {

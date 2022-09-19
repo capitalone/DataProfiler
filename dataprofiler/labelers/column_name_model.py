@@ -36,6 +36,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             parameters = {}
         parameters.setdefault("false_positive_dict", None)
         parameters.setdefault("true_positive_dict", None)
+        parameters.setdefault("include_label", True)
+        parameters.setdefault("negative_threshold_config", None)
 
         # initialize class
         self._validate_parameters(parameters)
@@ -55,10 +57,17 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         """
         errors = []
 
-        list_of_accepted_parameters = [
+        required_parameters = [
             "true_positive_dict",
-            "false_positive_dict",
         ]
+
+        optional_parameters = [
+            "false_positive_dict",
+            "include_label",
+            "negative_threshold_config",
+        ]
+
+        list_of_accepted_parameters = optional_parameters + required_parameters
 
         for param in parameters:
             value = parameters[param]
@@ -66,6 +75,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 param == "false_positive_dict"
                 and value is not None
                 and (not isinstance(value, list) or "attribute" not in value[0].keys())
+                and parameters["negative_threshold_config"] is not None
             ):
                 errors.append(
                     """`{}` must be a list of dictionaries with at
@@ -77,11 +87,25 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 not isinstance(value, list)
                 or not isinstance(value[0], dict)
                 and "attribute" not in value[0].keys()
-                and "list" not in value[0].keys()
+                and "label" not in value[0].keys()
             ):
                 errors.append(
-                    """`{}` must be a list of dictionaries each with the following
+                    """`{}` is a required parameters that must  be a list
+                    of dictionaries each with the following
                     two keys: 'attribute' and 'label'""".format(
+                        param
+                    )
+                )
+            elif param == "include_label" and not isinstance(value, bool):
+                errors.append(
+                    "`{}` is a required parameter that must be a boolean.".format(param)
+                )
+            elif param == "negative_threshold_config" and (
+                not isinstance(value, int)
+                and parameters["false_positive_dict"] is not None
+            ):
+                errors.append(
+                    "`{}` is an optional parameter that must be a boolean.".format(
                         param
                     )
                 )
@@ -111,35 +135,6 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 list_of_column_names_filtered.append(list_of_column_names[i])
 
         return list_of_column_names_filtered
-
-    def _compare_positive(
-        self,
-        list_of_column_names,
-        check_values_dict,
-        positive_threshold,
-        include_label,
-        show_confidences,
-    ):
-        """Calculate similarity scores for positive examples."""
-        scores = self._model(
-            list_of_column_names,
-            check_values_dict,
-            self._make_lower_case,
-            rapidfuzz.fuzz.token_sort_ratio,
-            include_label=include_label,
-        )
-
-        output_dictionary = {}
-        for i in range(len(list_of_column_names)):
-            if scores[i][0] > positive_threshold:
-                output_dictionary[list_of_column_names[i]] = {}
-                output_dictionary[list_of_column_names[i]]["pred"] = check_values_dict[
-                    scores[i][1]
-                ]["label"]
-                if show_confidences:
-                    output_dictionary[list_of_column_names[i]]["conf"] = scores[i][0]
-
-        return output_dictionary
 
     def _construct_model(self):
         pass
@@ -186,9 +181,6 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         batch_size=None,
         show_confidences=False,
         verbose=True,
-        include_label=True,
-        negative_threshold_config=50,
-        positive_threshold_config=85,
     ):
         """
         Apply the `process.cdist` for similarity score on input list of strings.
@@ -198,7 +190,8 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         :param batch_size: does not impact this model and should be fixed to not
             be required.
         :type batch_size: N/A
-        :param show_confidences: whether user wants prediction confidences
+        :param show_confidences: Parameter disabled. Confidence values returned
+            by default.
         :type show_confidences:
         :param verbose: Flag to determine whether to print status or not
         :type verbose: bool
@@ -208,18 +201,29 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         false_positive_dict = self._parameters["false_positive_dict"]
         if false_positive_dict:
             data = self._compare_negative(
-                data, false_positive_dict, negative_threshold=negative_threshold_config
+                data,
+                false_positive_dict,
+                negative_threshold=self._parameters["negative_threshold_config"],
             )
             if verbose:
                 logger.info("compare_negative process complete")
 
-        output = self._compare_positive(
+        # old compare_positive
+        output = self._model(
             data,
             self._parameters["true_positive_dict"],
-            positive_threshold=positive_threshold_config,
-            include_label=True,
-            show_confidences=show_confidences,
+            processor=self._make_lower_case,
+            scorer=rapidfuzz.fuzz.token_sort_ratio,
+            include_label=self._parameters["include_label"],
         )
+
+        if show_confidences:
+            raise NotImplementedError(
+                """`show_confidences` parameter is disabled
+                for Proof of Concept implementation. Confidence
+                values are enabled by default."""
+            )
+
         if verbose:
             logger.info("compare_positive process complete")
 

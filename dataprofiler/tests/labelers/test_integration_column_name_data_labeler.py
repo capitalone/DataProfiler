@@ -12,11 +12,9 @@ default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 class TestColumnNameDataLabeler(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.data = np.array(
-            ["123 Fake St.", "1/2/2020", "nice.", "4/3/22", "abc", "333-44-2341"]
-        ).reshape((-1,))
-        cls.data_labeler = BaseDataLabeler.load_from_disk(
-            os.path.join(default_labeler_dir, "regex_model")
+        cls.data = ["test_social_security_number"]
+        cls.data_labeler = BaseDataLabeler.load_with_components(
+            os.path.join(default_labeler_dir, "column_name_labeler")
         )
 
     def test_default_model(self):

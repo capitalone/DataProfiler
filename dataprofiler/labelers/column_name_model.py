@@ -218,11 +218,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             include_label=self._parameters["include_label"],
         )
 
-        if show_confidences:
+        if show_confidences is False:
             raise NotImplementedError(
                 """`show_confidences` parameter is disabled
-                for MVP implementation. Note: Confidence
-                values are returned by default."""
+                for MVP implementation. Due to the requirement
+                of having the data point in the post processor.
+                Note: Confidence values are returned by default."""
             )
 
         if verbose:

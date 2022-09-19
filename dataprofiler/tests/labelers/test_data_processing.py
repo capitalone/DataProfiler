@@ -3017,9 +3017,8 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
             true_positive_dict=params["true_positive_dict"],
             positive_threshold_config=params["positive_threshold_config"],
         )
-        process_output = processor.process(data)
-
-        self.assertEqual(process_output, expected_output)
+        with self.assertRaises(TypeError):
+            process_output = processor.process(data)
 
     def test_set_params(self):
         params = {

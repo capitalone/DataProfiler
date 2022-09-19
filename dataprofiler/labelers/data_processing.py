@@ -2176,8 +2176,6 @@ class ColumnNameModelPostprocessor(
         results = {}
 
         for iter_value, value in enumerate(data):
-            if labels is None:
-                continue
             try:
                 if (
                     labels[iter_value][0]

@@ -2959,7 +2959,7 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
         }
         with self.assertRaisesRegex(
             ValueError,
-            """`true_positive_dict` is a required parameters that must  be a list
+            """`true_positive_dict` is a required parameter that must be a list
                     of dictionaries each with the following
                     two keys: 'attribute' and 'label'""",
         ):

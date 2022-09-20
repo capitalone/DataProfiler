@@ -386,16 +386,6 @@ def find_diff_of_numbers(stat1, stat2):
         pass
     elif stat1 is None or stat2 is None:
         diff = [stat1, stat2]
-    elif (
-        (isinstance(stat1, int) or isinstance(stat1, float))
-        and np.isnan(stat1)
-        and np.isnan(stat2)
-    ):
-        pass
-    elif (isinstance(stat1, int) or isinstance(stat1, float)) and (
-        np.isnan(stat1) or np.isnan(stat2)
-    ):
-        diff = [stat1, stat2]
     elif stat1 != stat2:
         diff = stat1 - stat2
     return diff

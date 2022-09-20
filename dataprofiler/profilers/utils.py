@@ -13,7 +13,6 @@ import warnings
 from itertools import islice
 from multiprocessing.pool import Pool
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -31,10 +30,7 @@ import psutil
 import scipy
 from pandas import DataFrame, Series
 
-from dataprofiler import settings
-
-if TYPE_CHECKING:
-    from .profile_builder import BaseProfiler
+from dataprofiler import profilers, settings
 
 
 def dict_merge(dct: Dict, merge_dct: Dict) -> None:
@@ -398,8 +394,8 @@ def biased_kurt(df_series: Series) -> float:
 
 
 def find_diff_of_numbers(
-    stat1: Union[int, float], stat2: Union[int, float]
-) -> Union[List[Union[int, float]], int, float, str]:
+    stat1: Union[int, float, None], stat2: Union[int, float, None]
+) -> Union[List[Union[int, float, None]], int, float, str]:
     """
     Find the difference between two stats.
 
@@ -442,8 +438,8 @@ def find_diff_of_strings_and_bools(
 
 
 def find_diff_of_lists_and_sets(
-    stat1: Union[List, Set], stat2: Union[List, Set]
-) -> Union[List[Union[List, Set]], str]:
+    stat1: Union[List, Set, None], stat2: Union[List, Set, None]
+) -> Union[List[Union[List, Set, None]], str]:
     """
     Find the difference between two stats.
 
@@ -470,8 +466,8 @@ def find_diff_of_lists_and_sets(
 
 
 def find_diff_of_dates(
-    stat1: datetime.datetime, stat2: datetime.datetime
-) -> Union[List, str]:
+    stat1: Optional[datetime.datetime], stat2: Optional[datetime.datetime]
+) -> Union[List, str, None]:
     """
     Find the difference between two dates.
 
@@ -542,7 +538,7 @@ def find_diff_of_dicts(dict1: Dict, dict2: Dict) -> Union[Dict, str]:
 
 
 def find_diff_of_matrices(
-    matrix1: np.ndarray, matrix2: np.ndarray
+    matrix1: Optional[np.ndarray], matrix2: Optional[np.ndarray]
 ) -> Optional[Union[np.ndarray, str]]:
     """
     Find the difference between two matrices.
@@ -555,8 +551,8 @@ def find_diff_of_matrices(
     :rtype: list(list(float))
     """
     if matrix1 is not None and matrix2 is not None:
-        mat1 = np.array(matrix1, dtype=np.float32)
-        mat2 = np.array(matrix2, dtype=np.float32)
+        mat1 = np.array(matrix1, dtype=np.float64)
+        mat2 = np.array(matrix2, dtype=np.float64)
 
         if mat1.shape == mat2.shape:
             diff: np.ndarray = mat1 - mat2
@@ -756,8 +752,9 @@ def chunk(lst: List, size: int) -> Iterator[Tuple]:
 
 
 def merge(
-    top_profile: BaseProfiler, other_profile: BaseProfiler = None
-) -> BaseProfiler:
+    top_profile: profilers.profile_builder.BaseProfiler,
+    other_profile: profilers.profile_builder.BaseProfiler = None,
+) -> profilers.profile_builder.BaseProfiler:
     """
     Merge two Profiles.
 
@@ -774,8 +771,9 @@ def merge(
 
 
 def merge_profile_list(
-    list_of_profiles: List[BaseProfiler], pool_count: int = 5
-) -> BaseProfiler:
+    list_of_profiles: List[profilers.profile_builder.BaseProfiler],
+    pool_count: int = 5,
+) -> profilers.profile_builder.BaseProfiler:
     """Merge list of profiles into a single profile.
 
     :param list_of_profiles: Categories and respective counts of the second group

@@ -140,7 +140,7 @@ class TestGraphProfiler(unittest.TestCase):
                     "id": [
                         {},
                         {
-                            "bin_counts": "unchanged",
+                            "bin_counts": [[1], [1, 1, 2], []],
                             "bin_edges": [[5.0], [1.0, 2.0, 3.0, 4.0], []],
                         },
                         {},
@@ -199,7 +199,7 @@ class TestGraphProfiler(unittest.TestCase):
                     "id": [
                         {},
                         {
-                            "bin_counts": "unchanged",
+                            "bin_counts": [[], [1, 1, 2], [1]],
                             "bin_edges": [[], [1.0, 2.0, 3.0, 4.0], [5.0]],
                         },
                         {},
@@ -301,6 +301,7 @@ class TestGraphProfiler(unittest.TestCase):
         self.assertDictEqual(self.expected_profile, profile.profile)
 
     def test_diff(self):
+        self.maxDiff = None
         profile_1 = dp.GraphProfiler(self.graph_1)
         profile_2 = dp.GraphProfiler(self.graph_2)
         profile_3 = dp.GraphProfiler(self.graph_3)

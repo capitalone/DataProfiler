@@ -1,11 +1,10 @@
 """Contains functions for checking for installations/dependencies."""
 import sys
 import warnings
-from typing import List, Callable, TypeVar, cast, Any
-from typing import NoReturn
+from typing import Any, Callable, List, NoReturn, TypeVar, cast
 
-#Generic type for the return of the function "require_module()"
-F = TypeVar('F', bound=Callable[..., Any])
+# Generic type for the return of the function "require_module()"
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 def warn_missing_module(graph_func: str, module_name: str) -> NoReturn:
@@ -24,7 +23,6 @@ def warn_missing_module(graph_func: str, module_name: str) -> NoReturn:
     warning_msg += "the extra reports requirements via:\n\n"
     warning_msg += "$ pip install dataprofiler[reports] --user\n\n"
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=3)
-
 
 
 def require_module(names: List[str]) -> F:

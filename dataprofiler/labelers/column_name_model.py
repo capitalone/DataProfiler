@@ -22,7 +22,7 @@ logger = dp_logging.get_child_logger(__name__)
 class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     """Class for column name data labeling model."""
 
-    def __init__(self, parameters=None):
+    def __init__(self, label_mapping=None, parameters=None):
         """Initialize function for ColumnNameModel.
 
         :param parameters: Contains all the appropriate parameters for the model.
@@ -38,8 +38,10 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         parameters.setdefault("true_positive_dict", None)
         parameters.setdefault("include_label", True)
         parameters.setdefault("negative_threshold_config", None)
+        parameters.setdefault("positive_threshold_config", None)
 
-        # initialize class
+        # validate and set parameters
+        self.set_label_mapping(label_mapping)
         self._validate_parameters(parameters)
         self._parameters = parameters
 
@@ -65,9 +67,24 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             "false_positive_dict",
             "include_label",
             "negative_threshold_config",
+            "positive_threshold_config",
         ]
 
         list_of_accepted_parameters = optional_parameters + required_parameters
+
+        if parameters["true_positive_dict"]:
+            label_map_dict_keys = set(self.label_mapping.keys())
+            true_positive_unique_labels = set(
+                parameters["true_positive_dict"][0].values()
+            )
+
+            # if not a subset that is less than or equal to
+            # label mapping dict
+            if true_positive_unique_labels > label_map_dict_keys:
+                errors.append(
+                    """`true_positive_dict` must be a subset
+                        of the `label_mapping` values()"""
+                )
 
         for param in parameters:
             value = parameters[param]
@@ -109,8 +126,15 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                         param
                     )
                 )
+            elif param == "positive_threshold_config" and (
+                value is None or not isinstance(value, int)
+            ):
+                errors.append(
+                    "`{}` is a required parameter that must be a boolean.".format(param)
+                )
             elif param not in list_of_accepted_parameters:
                 errors.append("`{}` is not an accepted parameter.".format(param))
+
         if errors:
             raise ValueError("\n".join(errors))
 
@@ -217,17 +241,30 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             include_label=self._parameters["include_label"],
         )
 
-        if show_confidences:
-            raise NotImplementedError(
-                """`show_confidences` parameter is disabled
-                for Proof of Concept implementation. Confidence
-                values are enabled by default."""
-            )
+        predictions = np.array([])
+        confidences = np.array([])
+
+        # `data` at this point is either filtered or not filtered
+        # list of column names on which we are predicting
+        for iter_value, value in enumerate(data):
+
+            if output[iter_value][0] > self._parameters["positive_threshold_config"]:
+                predictions = np.append(
+                    predictions,
+                    self._parameters["true_positive_dict"][output[iter_value][1]][
+                        "label"
+                    ],
+                )
+
+                if show_confidences:
+                    confidences = np.append(confidences, output[iter_value][0])
 
         if verbose:
             logger.info("compare_positive process complete")
 
-        return output
+        if show_confidences:
+            return {"pred": predictions, "conf": confidences}
+        return {"pred": predictions}
 
     @classmethod
     def load_from_disk(cls, dirpath):
@@ -243,7 +280,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         with open(model_param_dirpath, "r") as fp:
             parameters = json.load(fp)
 
-        loaded_model = cls(parameters)
+        # load label_mapping
+        labels_dirpath = os.path.join(dirpath, "label_mapping.json")
+        with open(labels_dirpath, "r") as fp:
+            label_mapping = json.load(fp)
+
+        loaded_model = cls(label_mapping, parameters)
         return loaded_model
 
     def save_to_disk(self, dirpath):
@@ -260,3 +302,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
         with open(model_param_dirpath, "w") as fp:
             json.dump(self._parameters, fp)
+
+        labels_dirpath = os.path.join(dirpath, "label_mapping.json")
+        with open(labels_dirpath, "w") as fp:
+            json.dump(self.label_mapping, fp)

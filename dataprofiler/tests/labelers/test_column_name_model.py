@@ -180,6 +180,21 @@ class TestColumnNameModel(unittest.TestCase):
         mock_stdout.seek(0)
         mock_stdout.truncate(0)
 
+        # run with `show_confidences=False`, which is default
+        expected_output = {
+            "pred": np.array(["ssn"], dtype="<U32"),
+        }
+        with self.assertLogs(
+            "DataProfiler.labelers.column_name_model", level="INFO"
+        ) as logs:
+            model_output = model.predict(data=self.data, show_confidences=False)
+        self.assertTrue(np.array_equal(expected_output, model_output))
+        self.assertTrue(len(logs.output))
+
+        # clear stdout
+        mock_stdout.seek(0)
+        mock_stdout.truncate(0)
+
         # test verbose = False
         # Want to ensure no INFO logged
         with self.assertRaisesRegex(

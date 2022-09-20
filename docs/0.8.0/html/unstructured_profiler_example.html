@@ -1,0 +1,808 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Graph Pipeline Demo" href="graph_data_demo.html" /><link rel="prev" title="Structured Profilers" href="profiler_example.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Unstructured Profilers - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<p><a class="reference external" href="https://github.com/capitalone/rubicon/tree/main/notebooks/unstructured_profiler_example.nblink">View this notebook on GitHub</a></p>
+<section id="Unstructured-Profilers">
+<h1>Unstructured Profilers<a class="headerlink" href="#Unstructured-Profilers" title="Permalink to this headline">¶</a></h1>
+<p><strong>Data profiling</strong> - <em>is the process of examining a dataset and collecting statistical or informational summaries about said dataset.</em></p>
+<p>The Profiler class inside the DataProfiler is designed to generate <em>data profiles</em> via the Profiler class, which ingests either a Data class or a Pandas DataFrame.</p>
+<p>Currently, the Data class supports loading the following file formats:</p>
+<ul class="simple">
+<li><p>Any delimited (CSV, TSV, etc.)</p></li>
+<li><p>JSON object</p></li>
+<li><p>Avro</p></li>
+<li><p>Parquet</p></li>
+<li><p>Text files</p></li>
+<li><p>Pandas Series/Dataframe</p></li>
+</ul>
+<p>Once the data is loaded, the Profiler can calculate statistics and predict the entities (via the Labeler) of every column (csv) or key-value (JSON) store as well as dataset wide information, such as the number of nulls, duplicates, etc.</p>
+<p>This example will look at specifically the unstructured data types for unstructured profiling. This means that only text files, lists of strings, single column pandas dataframes/series, or DataProfile Data objects in string format will work with the unstructured profiler.</p>
+<section id="Reporting">
+<h2>Reporting<a class="headerlink" href="#Reporting" title="Permalink to this headline">¶</a></h2>
+<p>One of the primary purposes of the Profiler are to quickly identify what is in the dataset. This can be useful for analyzing a dataset prior to use or determining which columns could be useful for a given purpose.</p>
+<p>In terms of reporting, there are multiple reporting options:</p>
+<ul class="simple">
+<li><p><strong>Pretty</strong>: Floats are rounded to four decimal places, and lists are shortened.</p></li>
+<li><p><strong>Compact</strong>: Similar to pretty, but removes detailed statistics</p></li>
+<li><p><strong>Serializable</strong>: Output is json serializable and not prettified</p></li>
+<li><p><strong>Flat</strong>: Nested Output is returned as a flattened dictionary</p></li>
+</ul>
+<p>The <strong>Pretty</strong> and <strong>Compact</strong> reports are the two most commonly used reports and includes <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> and <code class="docutils literal notranslate"><span class="pre">data_stats</span></code> for the given dataset. <code class="docutils literal notranslate"><span class="pre">global_stats</span></code> contains overall properties of the data such as samples used and file encoding. <code class="docutils literal notranslate"><span class="pre">data_stats</span></code> contains specific properties and statistics for each text sample.</p>
+<p>For unstructured profiles, the report looks like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>"global_stats": {
+    "samples_used": int,
+    "empty_line_count": int,
+    "file_type": string,
+    "encoding": string
+},
+"data_stats": {
+    "data_label": {
+        "entity_counts": {
+            "word_level": dict(int),
+            "true_char_level": dict(int),
+            "postprocess_char_level": dict(int)
+        },
+        "times": dict(float)
+    },
+    "statistics": {
+        "vocab": list(char),
+        "words": list(string),
+        "word_count": dict(int),
+        "times": dict(float)
+    }
+}
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="n">data_path</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
+
+<span class="c1"># remove extra tf loggin</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"txt/discussion_reddit.txt"</span><span class="p">))</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Profiler-Type">
+<h2>Profiler Type<a class="headerlink" href="#Profiler-Type" title="Permalink to this headline">¶</a></h2>
+<p>It should be noted, in addition to reading the input data from text files, DataProfiler allows the input data as a pandas dataframe, a pandas series, a list, and Data objects (when an unstructured format is selected) if the Profiler is explicitly chosen as unstructured.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># run data profiler and get the report</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/SchoolDataSmall.csv"</span><span class="p">),</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">"data_format"</span><span class="p">:</span> <span class="s2">"records"</span><span class="p">})</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">profiler_type</span><span class="o">=</span><span class="s1">'unstructured'</span><span class="p">)</span>
+
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Profiler-options">
+<h2>Profiler options<a class="headerlink" href="#Profiler-options" title="Permalink to this headline">¶</a></h2>
+<p>The DataProfiler has the ability to turn on and off components as needed. This is accomplished via the <code class="docutils literal notranslate"><span class="pre">ProfilerOptions</span></code> class.</p>
+<p>For example, if a user doesn’t require vocab count information they may desire to turn off the word count functionality.</p>
+<p>Below, let’s remove the vocab count and set the stop words.</p>
+<p>Full list of options in the Profiler section of the <a class="reference external" href="https://capitalone.github.io/DataProfiler">DataProfiler documentation</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"txt/discussion_reddit.txt"</span><span class="p">))</span>
+
+<span class="n">profile_options</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">ProfilerOptions</span><span class="p">()</span>
+
+<span class="c1"># Setting multiple options via set</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span> <span class="s2">"*.vocab.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"*.is_case_sensitive"</span><span class="p">:</span> <span class="kc">True</span> <span class="p">})</span>
+
+<span class="c1"># Set options via directly setting them</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">unstructured_options</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">stop_words</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"These"</span><span class="p">,</span> <span class="s2">"are"</span><span class="p">,</span> <span class="s2">"stop"</span><span class="p">,</span> <span class="s2">"words"</span><span class="p">]</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profile_options</span><span class="p">)</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"compact"</span><span class="p">})</span>
+
+<span class="c1"># Print the report</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Updating-Profiles">
+<h2>Updating Profiles<a class="headerlink" href="#Updating-Profiles" title="Permalink to this headline">¶</a></h2>
+<p>Beyond just profiling, one of the unique aspects of the DataProfiler is the ability to update the profiles. To update appropriately, the schema (columns / keys) must match appropriately.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Load and profile a CSV file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"txt/sentence-3x.txt"</span><span class="p">))</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Update the profile with new data:</span>
+<span class="n">new_data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"txt/sentence-3x.txt"</span><span class="p">))</span>
+<span class="n">profile</span><span class="o">.</span><span class="n">update_profile</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+
+<span class="c1"># Take a peek at the data</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Report the compact version of the profile</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"compact"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Merging-Profiles">
+<h2>Merging Profiles<a class="headerlink" href="#Merging-Profiles" title="Permalink to this headline">¶</a></h2>
+<p>Merging profiles are an alternative method for updating profiles. Particularly, multiple profiles can be generated seperately, then added together with a simple <code class="docutils literal notranslate"><span class="pre">+</span></code> command: <code class="docutils literal notranslate"><span class="pre">profile3</span> <span class="pre">=</span> <span class="pre">profile1</span> <span class="pre">+</span> <span class="pre">profile2</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Load a CSV file with a schema</span>
+<span class="n">data1</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"txt/sentence-3x.txt"</span><span class="p">))</span>
+<span class="n">profile1</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span>
+
+<span class="c1"># Load another CSV file with the same schema</span>
+<span class="n">data2</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"txt/sentence-3x.txt"</span><span class="p">))</span>
+<span class="n">profile2</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data2</span><span class="p">)</span>
+
+<span class="c1"># Merge the profiles</span>
+<span class="n">profile3</span> <span class="o">=</span> <span class="n">profile1</span> <span class="o">+</span> <span class="n">profile2</span>
+
+<span class="c1"># Report the compact version of the profile</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile3</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>As you can see, the <code class="docutils literal notranslate"><span class="pre">update_profile</span></code> function and the <code class="docutils literal notranslate"><span class="pre">+</span></code> operator function similarly. The reason the <code class="docutils literal notranslate"><span class="pre">+</span></code> operator is important is that it’s possible to <em>save and load profiles</em>, which we cover next.</p>
+</section>
+<section id="Saving-and-Loading-a-Profile">
+<h2>Saving and Loading a Profile<a class="headerlink" href="#Saving-and-Loading-a-Profile" title="Permalink to this headline">¶</a></h2>
+<p>Not only can the Profiler create and update profiles, it’s also possible to save, load then manipulate profiles.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Load data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"txt/sentence-3x.txt"</span><span class="p">))</span>
+
+<span class="c1"># Generate a profile</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Save a profile to disk for later (saves as pickle file)</span>
+<span class="n">profile</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">"my_profile.pkl"</span><span class="p">)</span>
+
+<span class="c1"># Load a profile from disk</span>
+<span class="n">loaded_profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"my_profile.pkl"</span><span class="p">)</span>
+
+<span class="c1"># Report the compact version of the profile</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>With the ability to save and load profiles, profiles can be generated via multiple machines then merged. Further, profiles can be stored and later used in applications such as change point detection, synthetic data generation, and more.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Load a multiple files via the Data class</span>
+<span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"txt/sentence-3x.txt"</span><span class="p">,</span>
+             <span class="s2">"txt/sentence.txt"</span><span class="p">]</span>
+<span class="n">data_objects</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+    <span class="n">data_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">data_objects</span><span class="p">)</span>
+<span class="c1"># Generate and save profiles</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_objects</span><span class="p">)):</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data_objects</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+    <span class="n">profile</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">"data-"</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="s2">".pkl"</span><span class="p">)</span>
+
+
+<span class="c1"># Load profiles and add them together</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_objects</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"data-"</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="s2">".pkl"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">profile</span> <span class="o">+=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"data-"</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="s2">".pkl"</span><span class="p">)</span>
+
+
+<span class="c1"># Report the compact version of the profile</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span><span class="s2">"compact"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="graph_data_demo.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Graph Pipeline Demo</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="profiler_example.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Structured Profilers</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/unstructured_profiler_example.nblink.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Unstructured Profilers</a><ul>
+<li><a class="reference internal" href="#Reporting">Reporting</a></li>
+<li><a class="reference internal" href="#Profiler-Type">Profiler Type</a></li>
+<li><a class="reference internal" href="#Profiler-options">Profiler options</a></li>
+<li><a class="reference internal" href="#Updating-Profiles">Updating Profiles</a></li>
+<li><a class="reference internal" href="#Merging-Profiles">Merging Profiles</a></li>
+<li><a class="reference internal" href="#Saving-and-Loading-a-Profile">Saving and Loading a Profile</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    </body>
+</html>

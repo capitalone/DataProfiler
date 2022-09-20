@@ -1,0 +1,855 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="ColumnName Labeler Tutorial" href="column_name_labeler_example.html" /><link rel="prev" title="Adding new model to the existing DataLabeler pipeline" href="add_new_model_to_data_labeler.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Building a Regex Data Labeler w/ your own Regex - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<p><a class="reference external" href="https://github.com/capitalone/rubicon/tree/main/notebooks/regex_labeler_from_scratch.nblink">View this notebook on GitHub</a></p>
+<section id="Building-a-Regex-Data-Labeler-w/-your-own-Regex">
+<h1>Building a Regex Data Labeler w/ your own Regex<a class="headerlink" href="#Building-a-Regex-Data-Labeler-w/-your-own-Regex" title="Permalink to this headline">¶</a></h1>
+<p>This notebook teaches how to use the existing / create your own regex labeler as well as utilize it for structured data profiling.</p>
+<ol class="arabic simple">
+<li><p>Loading and utilizing the pre-existing regex data labeler</p></li>
+<li><p>Replacing the existing regex rules with your own.</p></li>
+<li><p>Utilizng a regex data labeler inside of the structured profiler</p></li>
+</ol>
+<p>First, let’s import the libraries needed for this example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'../..'</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+</pre></div>
+</div>
+</div>
+<section id="Loading-and-using-the-pre-existing-regex-data-labeler">
+<h2>Loading and using the pre-existing regex data labeler<a class="headerlink" href="#Loading-and-using-the-pre-existing-regex-data-labeler" title="Permalink to this headline">¶</a></h2>
+<p>We can easily import the exsting regex labeler via the <code class="docutils literal notranslate"><span class="pre">load_from_library</span></code> command from the <code class="docutils literal notranslate"><span class="pre">dp.DataLabeler</span></code>. This allows us to import models other than the default structured / unstructured labelers which exist in the library.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="o">.</span><span class="n">load_from_library</span><span class="p">(</span><span class="s1">'regex_model'</span><span class="p">)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">pprint</span><span class="p">(</span><span class="n">data_labeler</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">pprint</span><span class="p">(</span><span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'regex_patterns'</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<section id="Predicting-with-the-regex-labeler">
+<h3>Predicting with the regex labeler<a class="headerlink" href="#Predicting-with-the-regex-labeler" title="Permalink to this headline">¶</a></h3>
+<p>In the prediction below, the default settings will <code class="docutils literal notranslate"><span class="pre">split</span></code> the predictions by default as it’s aggregation function. In other words, if a string ‘123 Fake St.’ The first character would receive a vote for integer and for address giving both a 50% probability. This is because these regex functions are defined individually and a post prediction aggregation function must be used to get the results.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># evaluate a prediction using the default parameters</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 Fake St.'</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Replacing-the-regex-rules-in-the-existing-labeler">
+<h2>Replacing the regex rules in the existing labeler<a class="headerlink" href="#Replacing-the-regex-rules-in-the-existing-labeler" title="Permalink to this headline">¶</a></h2>
+<p>We can achieve this by: 1. Setting the label mapping to the new labels 2. Setting the model parameters which include: <code class="docutils literal notranslate"><span class="pre">regex_patterns</span></code>, <code class="docutils literal notranslate"><span class="pre">default_label</span></code>, <code class="docutils literal notranslate"><span class="pre">ignore_case</span></code>, and <code class="docutils literal notranslate"><span class="pre">encapsulators</span></code></p>
+<p>where <code class="docutils literal notranslate"><span class="pre">regex_patterns</span></code> is a <code class="docutils literal notranslate"><span class="pre">dict</span></code> of lists or regex for each label, <code class="docutils literal notranslate"><span class="pre">default_label</span></code> is the expected default label for the regex, <code class="docutils literal notranslate"><span class="pre">ignore_case</span></code> tells the model to ignore case during its detection, and <code class="docutils literal notranslate"><span class="pre">encapsulators</span></code> are generic regex statements placed before (start) and after (end) each regex. Currently, this is used by the default model to capture labels that are within a cell rather than matching the entire cell. (e.g. ’ 123 ’ will still capture 123 as digits).</p>
+<p>Below, we created 4 labels where <code class="docutils literal notranslate"><span class="pre">other</span></code> is the <code class="docutils literal notranslate"><span class="pre">default_label</span></code>. Additionally, we set enabled case sensitivity such that upper and lower case letters would be detected separately.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">set_labels</span><span class="p">({</span><span class="s1">'other'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'digits'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'lowercase_char'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'uppercase_chars'</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span>
+    <span class="n">regex_patterns</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">'digits'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[+-]?[0-9]+'</span><span class="p">],</span>
+        <span class="s1">'lowercase_char'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[a-z]+'</span><span class="p">],</span>
+        <span class="s1">'uppercase_chars'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[A-Z]+'</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="n">default_label</span><span class="o">=</span><span class="s1">'other'</span><span class="p">,</span>
+    <span class="n">ignore_case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">label_mapping</span>
+</pre></div>
+</div>
+</div>
+<section id="Predicting-with-the-new-regex-labels">
+<h3>Predicting with the new regex labels<a class="headerlink" href="#Predicting-with-the-new-regex-labels" title="Permalink to this headline">¶</a></h3>
+<p>Here we notice the otuput of the predictions gives us a prediction per character for each regex. Note how by default it is matching subtext due to the encapsulators. Where <code class="docutils literal notranslate"><span class="pre">123</span></code> were found to be digits, <code class="docutils literal notranslate"><span class="pre">FAKE</span></code> was foudn to be upper case, and the whitespaces and <code class="docutils literal notranslate"><span class="pre">St.</span></code> were other due no single regex being correct.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>Below we turn off case-sensitivity and we see how the aggregation funciton splits the votes for characters between the <code class="docutils literal notranslate"><span class="pre">lowercase</span></code> and <code class="docutils literal notranslate"><span class="pre">uppercase</span></code> chars.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">ignore_case</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>For the rest of this notebook, we will just use a single regex serach which will capture both upper and lower case chars.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">set_labels</span><span class="p">({</span><span class="s1">'other'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'digits'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'chars'</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span>
+    <span class="n">regex_patterns</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">'digits'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[=-]?[0-9]+'</span><span class="p">],</span>
+        <span class="s1">'chars'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[a-zA-Z]+'</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="n">default_label</span><span class="o">=</span><span class="s1">'other'</span><span class="p">,</span>
+    <span class="n">ignore_case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">label_mapping</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Adjusting-postprocessor-properties">
+<h3>Adjusting postprocessor properties<a class="headerlink" href="#Adjusting-postprocessor-properties" title="Permalink to this headline">¶</a></h3>
+<p>Below we can look at the possible postprocessor parameters to adjust the aggregation function to the desired output. The previous outputs by default used the <code class="docutils literal notranslate"><span class="pre">split</span></code> aggregation function, however, below we will show the <code class="docutils literal notranslate"><span class="pre">random</span></code> aggregation function which will randomly choose a label if multiple labels have a vote for a given character.</p>
+<p>data_labeler.postprocessor.help()</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">postprocessor</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">aggregation_func</span><span class="o">=</span><span class="s1">'random'</span><span class="p">)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">],</span> <span class="n">predict_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">show_confidences</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Integrating-the-new-Regex-labeler-into-Structured-Profiling">
+<h2>Integrating the new Regex labeler into Structured Profiling<a class="headerlink" href="#Integrating-the-new-Regex-labeler-into-Structured-Profiling" title="Permalink to this headline">¶</a></h2>
+<p>While the labeler can be used alone, it is also possible to integrate the labeler into the StructuredProfiler with a slight change to its postprocessor. The StructuredProfiler requires a labeler which outputs othe confidence of each label for a given cell being processed. To convert the output of the <code class="docutils literal notranslate"><span class="pre">RegexPostProcessor</span></code> into said format, we will use the <code class="docutils literal notranslate"><span class="pre">StructRegexPostProcessor</span></code>. We can create the postprocessor and set the <code class="docutils literal notranslate"><span class="pre">data_labeler</span></code>’s postprocessor to this value.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataprofiler.labelers.data_processing</span> <span class="kn">import</span> <span class="n">StructRegexPostProcessor</span>
+
+<span class="n">postprocesor</span> <span class="o">=</span> <span class="n">StructRegexPostProcessor</span><span class="p">()</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">set_postprocessor</span><span class="p">(</span><span class="n">postprocesor</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Below we will see the output is now one vote per sample.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">,</span> <span class="s1">'123'</span><span class="p">,</span> <span class="s1">'FAKE'</span><span class="p">],</span> <span class="n">predict_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">show_confidences</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<section id="Setting-the-Structuredprofiler’s-DataLabeler">
+<h3>Setting the Structuredprofiler’s DataLabeler<a class="headerlink" href="#Setting-the-Structuredprofiler’s-DataLabeler" title="Permalink to this headline">¶</a></h3>
+<p>We can create a <code class="docutils literal notranslate"><span class="pre">ProfilerOption</span></code> and set the structured options to have the new data_labeler as its value. We then run the StructuredProfiler with the specified options.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># create and set the option for the regex data labeler to be used at profile time</span>
+<span class="n">profile_options</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">ProfilerOptions</span><span class="p">()</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s1">'structured_options.data_labeler.data_labeler_object'</span><span class="p">:</span> <span class="n">data_labeler</span><span class="p">})</span>
+
+<span class="c1"># profile the dataset using the suggested regex data labeler</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">[[</span><span class="s1">'123 FAKE St.'</span><span class="p">,</span> <span class="mi">123</span><span class="p">,</span> <span class="s1">'this'</span><span class="p">],</span>
+     <span class="p">[</span><span class="mi">123</span>           <span class="p">,</span>  <span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="s1">'IS'</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">'...'</span>         <span class="p">,</span> <span class="o">+</span><span class="mi">80</span><span class="p">,</span> <span class="s1">'A'</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">'123'</span>         <span class="p">,</span> <span class="mi">202</span><span class="p">,</span> <span class="s1">'raNDom'</span><span class="p">],</span>
+     <span class="p">[</span><span class="s1">'test'</span>        <span class="p">,</span>  <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'TEST'</span><span class="p">]],</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+<span class="n">profiler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profile_options</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Below we see the first column is given 3 labels as it received multiple votes for said column. However, it was confident on the second and third column which is why it only specified <code class="docutils literal notranslate"><span class="pre">digits</span></code> and <code class="docutils literal notranslate"><span class="pre">chars</span></code> respectively.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">pprint</span><span class="p">(</span><span class="n">profiler</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="n">output_format</span><span class="o">=</span><span class="s1">'compact'</span><span class="p">,</span>
+         <span class="n">omit_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">'data_stats.*.statistics'</span><span class="p">,</span>
+                    <span class="s1">'data_stats.*.categorical'</span><span class="p">,</span>
+                    <span class="s1">'data_stats.*.order'</span><span class="p">,</span>
+                    <span class="s1">'global_stats'</span><span class="p">])))</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Saving-the-Data-Labeler-for-future-use">
+<h2>Saving the Data Labeler for future use<a class="headerlink" href="#Saving-the-Data-Labeler-for-future-use" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">'my_new_regex_labeler'</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">'my_new_regex_labeler'</span><span class="p">)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span><span class="s1">'my_new_regex_labeler'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Loading-the-saved-Data-Labeler">
+<h2>Loading the saved Data Labeler<a class="headerlink" href="#Loading-the-saved-Data-Labeler" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">saved_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="o">.</span><span class="n">load_from_disk</span><span class="p">(</span><span class="s1">'my_new_regex_labeler'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># ensuring the parametesr are what we saved.</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"label_mapping:"</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">saved_labeler</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">model parameters:"</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">saved_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_parameters</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"postprocessor: "</span> <span class="o">+</span> <span class="n">saved_labeler</span><span class="o">.</span><span class="n">postprocessor</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># predicting with the loaded labeler.</span>
+<span class="n">saved_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'test'</span><span class="p">,</span> <span class="s1">'123'</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="column_name_labeler_example.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">ColumnName Labeler Tutorial</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="add_new_model_to_data_labeler.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Adding new model to the existing DataLabeler pipeline</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/regex_labeler_from_scratch.nblink.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Building a Regex Data Labeler w/ your own Regex</a><ul>
+<li><a class="reference internal" href="#Loading-and-using-the-pre-existing-regex-data-labeler">Loading and using the pre-existing regex data labeler</a><ul>
+<li><a class="reference internal" href="#Predicting-with-the-regex-labeler">Predicting with the regex labeler</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Replacing-the-regex-rules-in-the-existing-labeler">Replacing the regex rules in the existing labeler</a><ul>
+<li><a class="reference internal" href="#Predicting-with-the-new-regex-labels">Predicting with the new regex labels</a></li>
+<li><a class="reference internal" href="#Adjusting-postprocessor-properties">Adjusting postprocessor properties</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Integrating-the-new-Regex-labeler-into-Structured-Profiling">Integrating the new Regex labeler into Structured Profiling</a><ul>
+<li><a class="reference internal" href="#Setting-the-Structuredprofiler’s-DataLabeler">Setting the Structuredprofiler’s DataLabeler</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Saving-the-Data-Labeler-for-future-use">Saving the Data Labeler for future use</a></li>
+<li><a class="reference internal" href="#Loading-the-saved-Data-Labeler">Loading the saved Data Labeler</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    </body>
+</html>

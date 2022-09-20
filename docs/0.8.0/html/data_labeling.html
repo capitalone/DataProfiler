@@ -1,0 +1,613 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Graphs" href="graphs.html" /><link rel="prev" title="Profiler" href="profiler.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Labeler (Sensitive Data) - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <section id="labeler-sensitive-data">
+<span id="data-labeling"></span><h1>Labeler (Sensitive Data)<a class="headerlink" href="#labeler-sensitive-data" title="Permalink to this headline">¶</a></h1>
+<p>In this library, the term <em>data labeling</em> refers to entity recognition.</p>
+<p>Builtin to the data profiler is a classifier which evaluates the complex data types of the dataset.
+For structured data, it determines the complex data type of each column. When
+running the data profile, it uses the default data labeling model builtin to the
+library. However, the data labeler allows users to train their own data labeler
+as well.</p>
+<p><em>Data Labels</em> are determined per cell for structured data (column/row when
+the <em>profiler</em> is used) or at the character level for unstructured data. This
+is a list of the default labels.</p>
+<ul class="simple">
+<li><p>UNKNOWN</p></li>
+<li><p>ADDRESS</p></li>
+<li><p>BAN (bank account number, 10-18 digits)</p></li>
+<li><p>CREDIT_CARD</p></li>
+<li><p>EMAIL_ADDRESS</p></li>
+<li><p>UUID</p></li>
+<li><p>HASH_OR_KEY (md5, sha1, sha256, random hash, etc.)</p></li>
+<li><p>IPV4</p></li>
+<li><p>IPV6</p></li>
+<li><p>MAC_ADDRESS</p></li>
+<li><p>PERSON</p></li>
+<li><p>PHONE_NUMBER</p></li>
+<li><p>SSN</p></li>
+<li><p>URL</p></li>
+<li><p>US_STATE</p></li>
+<li><p>DRIVERS_LICENSE</p></li>
+<li><p>DATE</p></li>
+<li><p>TIME</p></li>
+<li><p>DATETIME</p></li>
+<li><p>INTEGER</p></li>
+<li><p>FLOAT</p></li>
+<li><p>QUANTITY</p></li>
+<li><p>ORDINAL</p></li>
+</ul>
+<section id="identify-entities-in-structured-data">
+<h2>Identify Entities in Structured Data<a class="headerlink" href="#identify-entities-in-structured-data" title="Permalink to this headline">¶</a></h2>
+<p>Makes predictions and identifying labels:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="c1"># load data and data labeler</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s2">"your_data.csv"</span><span class="p">)</span>
+<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">)</span>
+
+<span class="c1"># make predictions and get labels per cell</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="identify-entities-in-unstructured-data">
+<h2>Identify Entities in Unstructured Data<a class="headerlink" href="#identify-entities-in-unstructured-data" title="Permalink to this headline">¶</a></h2>
+<p>Predict which class characters belong to in unstructured text:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'unstructured'</span><span class="p">)</span>
+
+<span class="c1"># Example sample string, must be in an array (multiple arrays can be passed)</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Help</span><span class="se">\t</span><span class="s2">John Macklemore</span><span class="se">\t</span><span class="s2">needs</span><span class="se">\t</span><span class="s2">food.</span><span class="se">\t</span><span class="s2">Please</span><span class="se">\t</span><span class="s2">Call</span><span class="se">\t</span><span class="s2">555-301-1234."</span>
+          <span class="s2">"</span><span class="se">\t</span><span class="s2">His</span><span class="se">\t</span><span class="s2">ssn</span><span class="se">\t</span><span class="s2">is</span><span class="se">\t</span><span class="s2">not</span><span class="se">\t</span><span class="s2">334-97-1234. I'm a BAN: 000043219499392912.</span><span class="se">\n</span><span class="s2">"</span><span class="p">]</span>
+
+<span class="c1"># Prediction what class each character belongs to</span>
+<span class="n">model_predictions</span> <span class="o">=</span> <span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+    <span class="n">sample</span><span class="p">,</span> <span class="n">predict_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">show_confidences</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+<span class="c1"># Predictions / confidences are at the character level</span>
+<span class="n">final_results</span> <span class="o">=</span> <span class="n">model_predictions</span><span class="p">[</span><span class="s2">"pred"</span><span class="p">]</span>
+<span class="n">final_confidences</span> <span class="o">=</span> <span class="n">model_predictions</span><span class="p">[</span><span class="s2">"conf"</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>It’s also possible to change output formats, output similar to a <strong>SpaCy</strong> format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'unstructured'</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Example sample string, must be in an array (multiple arrays can be passed)</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"Help</span><span class="se">\t</span><span class="s2">John Macklemore</span><span class="se">\t</span><span class="s2">needs</span><span class="se">\t</span><span class="s2">food.</span><span class="se">\t</span><span class="s2">Please</span><span class="se">\t</span><span class="s2">Call</span><span class="se">\t</span><span class="s2">555-301-1234."</span>
+          <span class="s2">"</span><span class="se">\t</span><span class="s2">His</span><span class="se">\t</span><span class="s2">ssn</span><span class="se">\t</span><span class="s2">is</span><span class="se">\t</span><span class="s2">not</span><span class="se">\t</span><span class="s2">334-97-1234. I'm a BAN: 000043219499392912.</span><span class="se">\n</span><span class="s2">"</span><span class="p">]</span>
+
+<span class="c1"># Set the output to the NER format (start position, end position, label)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span>
+    <span class="p">{</span> <span class="s1">'postprocessor'</span><span class="p">:</span> <span class="p">{</span> <span class="s1">'output_format'</span><span class="p">:</span><span class="s1">'ner'</span><span class="p">,</span> <span class="s1">'use_word_level_argmax'</span><span class="p">:</span><span class="kc">True</span> <span class="p">}</span> <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="train-a-new-data-labeler">
+<h2>Train a New Data Labeler<a class="headerlink" href="#train-a-new-data-labeler" title="Permalink to this headline">¶</a></h2>
+<p>Mechanism for training your own data labeler on their own set of structured data
+(tabular):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="c1"># Will need one column with a default label of UNKNOWN</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span>
+
+<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">train_structured_labeler</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+    <span class="n">save_dirpath</span><span class="o">=</span><span class="s2">"/path/to/save/labeler"</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
+
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span><span class="s2">"my/save/path"</span><span class="p">)</span> <span class="c1"># Saves the data labeler for reuse</span>
+</pre></div>
+</div>
+</section>
+<section id="load-an-existing-data-labeler">
+<h2>Load an Existing Data Labeler<a class="headerlink" href="#load-an-existing-data-labeler" title="Permalink to this headline">¶</a></h2>
+<p>Mechanism for loading an existing data_labeler:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span>
+    <span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">,</span> <span class="n">dirpath</span><span class="o">=</span><span class="s2">"/path/to/my/labeler"</span><span class="p">)</span>
+
+<span class="c1"># get information about the parameters/inputs/output formats for the DataLabeler</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="extending-a-data-labeler-with-transfer-learning">
+<h2>Extending a Data Labeler with Transfer Learning<a class="headerlink" href="#extending-a-data-labeler-with-transfer-learning" title="Permalink to this headline">¶</a></h2>
+<p>Extending or changing labels of a data labeler w/ transfer learning:
+Note: By default, <strong>a labeler loaded will not be trainable</strong>. In order to load a
+trainable DataLabeler, the user must set <cite>trainable=True</cite> or load a labeler
+using the <cite>TrainableDataLabeler</cite> class.</p>
+<p>The following illustrates how to change the labels:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'label1'</span><span class="p">,</span> <span class="s1">'label2'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>  <span class="c1"># new label set can also be an encoding dict</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span>  <span class="c1"># contains data with new labels</span>
+
+<span class="c1"># load default structured Data Labeler w/ trainable set to True</span>
+<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># this will use transfer learning to retrain the data labeler on your new</span>
+<span class="c1"># dataset and labels.</span>
+<span class="c1"># NOTE: data must be in an acceptable format for the preprocessor to interpret.</span>
+<span class="c1">#       please refer to the preprocessor/model for the expected data format.</span>
+<span class="c1">#       Currently, the DataLabeler cannot take in Tabular data, but requires</span>
+<span class="c1">#       data to be ingested with two columns [X, y] where X is the samples and</span>
+<span class="c1">#       y is the labels.</span>
+<span class="n">model_results</span> <span class="o">=</span> <span class="n">data_labeler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">'samples'</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">'labels'</span><span class="p">],</span>
+                                 <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+
+<span class="c1"># final_results, final_confidences are a list of results for each epoch</span>
+<span class="n">epoch_id</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">final_results</span> <span class="o">=</span> <span class="n">model_results</span><span class="p">[</span><span class="n">epoch_id</span><span class="p">][</span><span class="s2">"pred"</span><span class="p">]</span>
+<span class="n">final_confidences</span> <span class="o">=</span> <span class="n">model_results</span><span class="p">[</span><span class="n">epoch_id</span><span class="p">][</span><span class="s2">"conf"</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The following illustrates how to extend the labels:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="n">new_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'label1'</span><span class="p">,</span> <span class="s1">'label2'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span>  <span class="c1"># contains data with new labels</span>
+
+<span class="c1"># load default structured Data Labeler w/ trainable set to True</span>
+<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># this will maintain current labels and model weights, but extend the model's</span>
+<span class="c1"># labels</span>
+<span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">new_labels</span><span class="p">:</span>
+    <span class="n">data_labeler</span><span class="o">.</span><span class="n">add_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+<span class="c1"># NOTE: a user can also add a label which maps to the same index as an existing</span>
+<span class="c1"># label</span>
+<span class="c1"># data_labeler.add_label(label, same_as='&lt;label_name&gt;')</span>
+
+<span class="c1"># For a trainable model, the user must then train the model to be able to</span>
+<span class="c1"># continue using the labeler since the model's graph has likely changed</span>
+<span class="c1"># NOTE: data must be in an acceptable format for the preprocessor to interpret.</span>
+<span class="c1">#       please refer to the preprocessor/model for the expected data format.</span>
+<span class="c1">#       Currently, the DataLabeler cannot take in Tabular data, but requires</span>
+<span class="c1">#       data to be ingested with two columns [X, y] where X is the samples and</span>
+<span class="c1">#       y is the labels.</span>
+<span class="n">model_results</span> <span class="o">=</span> <span class="n">data_labeler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">'samples'</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">'labels'</span><span class="p">],</span>
+                                 <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># final_results, final_confidences are a list of results for each epoch</span>
+<span class="n">epoch_id</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">final_results</span> <span class="o">=</span> <span class="n">model_results</span><span class="p">[</span><span class="n">epoch_id</span><span class="p">][</span><span class="s2">"pred"</span><span class="p">]</span>
+<span class="n">final_confidences</span> <span class="o">=</span> <span class="n">model_results</span><span class="p">[</span><span class="n">epoch_id</span><span class="p">][</span><span class="s2">"conf"</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Changing pipeline parameters:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="c1"># load default Data Labeler</span>
+<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">)</span>
+
+<span class="c1"># change parameters of specific component</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">set_params</span><span class="p">({</span><span class="s1">'param1'</span><span class="p">:</span> <span class="s1">'value1'</span><span class="p">})</span>
+
+<span class="c1"># change multiple simultaneously.</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">set_params</span><span class="p">({</span>
+    <span class="s1">'preprocessor'</span><span class="p">:</span>  <span class="p">{</span><span class="s1">'param1'</span><span class="p">:</span> <span class="s1">'value1'</span><span class="p">},</span>
+    <span class="s1">'model'</span><span class="p">:</span>         <span class="p">{</span><span class="s1">'param2'</span><span class="p">:</span> <span class="s1">'value2'</span><span class="p">},</span>
+    <span class="s1">'postprocessor'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'param3'</span><span class="p">:</span> <span class="s1">'value3'</span><span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<section id="build-your-own-data-labeler">
+<h3>Build Your Own Data Labeler<a class="headerlink" href="#build-your-own-data-labeler" title="Permalink to this headline">¶</a></h3>
+<p>The DataLabeler has 3 main components: preprocessor, model, and postprocessor.
+To create your own DataLabeler, each one would have to be created or an
+existing component can be reused.</p>
+<p>Given a set of the 3 components, you can construct your own DataLabeler:</p>
+<p>Option for swapping out specific components of an existing labeler.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="kn">from</span> <span class="nn">dataprofiler.labelers.character_level_cnn_model</span> <span class="kn">import</span> \
+    <span class="n">CharacterLevelCnnModel</span>
+<span class="kn">from</span> <span class="nn">dataprofiler.labelers.data_processing</span> <span class="kn">import</span> \
+    <span class="n">StructCharPreprocessor</span><span class="p">,</span> <span class="n">StructCharPostprocessor</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">CharacterLevelCnnModel</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">StructCharPreprocessor</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">postprocessor</span> <span class="o">=</span> <span class="n">StructCharPostprocessor</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">set_preprocessor</span><span class="p">(</span><span class="n">preprocessor</span><span class="p">)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">set_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">set_postprocessor</span><span class="p">(</span><span class="n">postprocessor</span><span class="p">)</span>
+
+<span class="c1"># check for basic compatibility between the processors and the model</span>
+<span class="n">data_labeler</span><span class="o">.</span><span class="n">check_pipeline</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="model-component">
+<h2>Model Component<a class="headerlink" href="#model-component" title="Permalink to this headline">¶</a></h2>
+<p>In order to create your own model component for data labeling, you can utilize
+the <cite>BaseModel</cite> class from <cite>dataprofiler.labelers.base_model</cite> and
+overriding the abstract class methods.</p>
+<p>Reviewing <cite>CharacterLevelCnnModel</cite> from
+<cite>dataprofiler.labelers.character_level_cnn_model</cite> illustrates the functions
+which need an override.</p>
+<ol class="arabic simple">
+<li><p><cite>__init__</cite>: specifying default parameters and calling base <cite>__init__</cite></p></li>
+<li><p><cite>_validate_parameters</cite>: validating parameters given by user during setting</p></li>
+<li><p><cite>_need_to_reconstruct_model</cite>: flag for when to reconstruct a model (i.e.
+parameters change or labels change require a model reconstruction)</p></li>
+<li><p><cite>_construct_model</cite>: initial construction of the model given the parameters</p></li>
+<li><p><cite>_reconstruct_model</cite>: updates model architecture for new label set while
+maintaining current model weights</p></li>
+<li><p><cite>fit</cite>: mechanism for the model to learn given training data</p></li>
+<li><p><cite>predict</cite>: mechanism for model to make predictions on data</p></li>
+<li><p><cite>details</cite>: prints a summary of the model construction</p></li>
+<li><p><cite>save_to_disk</cite>: saves model and model parameters to disk</p></li>
+<li><p><cite>load_from_disk</cite>: loads model given a path on disk</p></li>
+</ol>
+</section>
+<section id="preprocessor-component">
+<h2>Preprocessor Component<a class="headerlink" href="#preprocessor-component" title="Permalink to this headline">¶</a></h2>
+<p>In order to create your own preprocessor component for data labeling, you can
+utilize the <cite>BaseDataPreprocessor</cite> class
+from <cite>dataprofiler.labelers.data_processing</cite> and override the abstract class
+methods.</p>
+<p>Reviewing <cite>StructCharPreprocessor</cite> from
+<cite>dataprofiler.labelers.data_processing</cite> illustrates the functions which
+need an override.</p>
+<ol class="arabic simple">
+<li><p><cite>__init__</cite>: passing parameters to the base class and executing any
+extraneous calculations to be saved as parameters</p></li>
+<li><p><cite>_validate_parameters</cite>: validating parameters given by user during
+setting</p></li>
+<li><p><cite>process</cite>: takes in the user data and converts it into an digestible,
+iterable format for the model</p></li>
+<li><p><cite>set_params</cite> (optional): if a parameter requires processing before setting,
+a user can override this function to assist with setting the parameter</p></li>
+<li><p><cite>_save_processor</cite> (optional): if a parameter is not JSON serializable, a
+user can override this function to assist in saving the processor and its
+parameters</p></li>
+<li><p><cite>load_from_disk</cite> (optional): if a parameter(s) is not JSON serializable, a
+user can override this function to assist in loading the processor</p></li>
+</ol>
+</section>
+<section id="postprocessor-component">
+<h2>Postprocessor Component<a class="headerlink" href="#postprocessor-component" title="Permalink to this headline">¶</a></h2>
+<p>The postprocessor is nearly identical to the preprocessor except it handles
+the output of the model for processing. In order to create your own
+postprocessor component for data  labeling, you can utilize the
+<cite>BaseDataPostprocessor</cite> class from  <cite>dataprofiler.labelers.data_processing</cite>
+and override the abstract class methods.</p>
+<p>Reviewing <cite>StructCharPostprocessor</cite> from
+<cite>dataprofiler.labelers.data_processing</cite> illustrates the functions which
+need an override.</p>
+<ol class="arabic simple">
+<li><p><cite>__init__</cite>: passing parameters to the base class and executing any
+extraneous calculations to be saved as parameters</p></li>
+<li><p><cite>_validate_parameters</cite>: validating parameters given by user during
+setting</p></li>
+<li><p><cite>process</cite>: takes in the output of the model and processes for output to
+the user</p></li>
+<li><p><cite>set_params</cite> (optional): if a parameter requires processing before setting,
+a user can override this function to assist with setting the parameter</p></li>
+<li><p><cite>_save_processor</cite> (optional): if a parameter is not JSON serializable, a
+user can override this function to assist in saving the processor and its
+parameters</p></li>
+<li><p><cite>load_from_disk</cite> (optional): if a parameter(s) is not JSON serializable, a
+user can override this function to assist in loading the processor</p></li>
+</ol>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="graphs.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Graphs</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="profiler.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Profiler</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/data_labeling.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Labeler (Sensitive Data)</a><ul>
+<li><a class="reference internal" href="#identify-entities-in-structured-data">Identify Entities in Structured Data</a></li>
+<li><a class="reference internal" href="#identify-entities-in-unstructured-data">Identify Entities in Unstructured Data</a></li>
+<li><a class="reference internal" href="#train-a-new-data-labeler">Train a New Data Labeler</a></li>
+<li><a class="reference internal" href="#load-an-existing-data-labeler">Load an Existing Data Labeler</a></li>
+<li><a class="reference internal" href="#extending-a-data-labeler-with-transfer-learning">Extending a Data Labeler with Transfer Learning</a><ul>
+<li><a class="reference internal" href="#build-your-own-data-labeler">Build Your Own Data Labeler</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#model-component">Model Component</a></li>
+<li><a class="reference internal" href="#preprocessor-component">Preprocessor Component</a></li>
+<li><a class="reference internal" href="#postprocessor-component">Postprocessor Component</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

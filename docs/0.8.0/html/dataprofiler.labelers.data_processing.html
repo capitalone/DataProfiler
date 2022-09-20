@@ -1,0 +1,1402 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Labeler Utils" href="dataprofiler.labelers.labeler_utils.html" /><link rel="prev" title="Data Labelers" href="dataprofiler.labelers.data_labelers.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Data Processing - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="API.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <section id="module-dataprofiler.labelers.data_processing">
+<span id="data-processing"></span><h1>Data Processing<a class="headerlink" href="#module-dataprofiler.labelers.data_processing" title="Permalink to this headline">¶</a></h1>
+<p>Contains pre-built processors for data labeling/processing.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.AutoSubRegistrationMeta">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">AutoSubRegistrationMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clsname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.AutoSubRegistrationMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABCMeta</span></code></p>
+<p>For registering subclasses.</p>
+<p>Create AutoSubRegistration object.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.AutoSubRegistrationMeta.mro">
+<span class="sig-name descname"><span class="pre">mro</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.AutoSubRegistrationMeta.mro" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a type’s method resolution order.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.AutoSubRegistrationMeta.register">
+<span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subclass</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.AutoSubRegistrationMeta.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a virtual subclass of an ABC.</p>
+<p>Returns the subclass, to allow usage as a class decorator.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">BaseDataProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract Data processing class.</p>
+<p>Initialize BaseDataProcessor object.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor.help">
+<em class="property"><span class="pre">abstract</span> <span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor.process">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process data.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataProcessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataProcessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">BaseDataPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.BaseDataProcessor" title="dataprofiler.labelers.data_processing.BaseDataProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.BaseDataProcessor</span></code></a></p>
+<p>Abstract Data preprocessing class.</p>
+<p>Initialize BaseDataPreprocessor object.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'preprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor.process">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess data.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor.help">
+<em class="property"><span class="pre">abstract</span> <span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPreprocessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">BaseDataPostprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.BaseDataProcessor" title="dataprofiler.labelers.data_processing.BaseDataProcessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.BaseDataProcessor</span></code></a></p>
+<p>Abstract Data postprocessing class.</p>
+<p>Initialize BaseDataPostprocessor object.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'postprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor.process">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Postprocess data.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor.help">
+<em class="property"><span class="pre">abstract</span> <span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.BaseDataPostprocessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">DirectPassPreprocessor</span></span><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor" title="dataprofiler.labelers.data_processing.BaseDataPreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.BaseDataPreprocessor</span></code></a></p>
+<p>Subclass of BaseDataPreprocessor for preprocessing data.</p>
+<p>Initialize the DirectPassPreprocessor class.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess data.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'preprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.DirectPassPreprocessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.DirectPassPreprocessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">CharPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UNKNOWN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_separate_at_max_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.BaseDataPreprocessor" title="dataprofiler.labelers.data_processing.BaseDataPreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.BaseDataPreprocessor</span></code></a></p>
+<p>Subclass of BaseDataPreprocessor for preprocessing char data.</p>
+<p>Initialize the CharPreprocessor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_length</strong> (<em>int</em>) – Maximum char length in a sample.</p></li>
+<li><p><strong>default_label</strong> (<em>string</em><em> (</em><em>could be int</em><em>, </em><em>char</em><em>, </em><em>etc.</em><em>)</em>) – Key for label_mapping that is the default label</p></li>
+<li><p><strong>pad_label</strong> (<em>string</em><em> (</em><em>could be int</em><em>, </em><em>char</em><em>, </em><em>etc.</em><em>)</em>) – Key for label_mapping that is the pad label</p></li>
+<li><p><strong>flatten_split</strong> (<em>float</em>) – approximate output of split between flattened and
+non-flattened characters, value between [0, 1]. When the current
+flattened split becomes more than the <cite>flatten_split</cite> value, any
+leftover sample or subsequent samples will be non-flattened until
+the current flattened split is below the <cite>flatten_split</cite> value</p></li>
+<li><p><strong>flatten_separator</strong> (<em>str</em>) – separator used to put between flattened
+samples.</p></li>
+<li><p><strong>is_separate_at_max_len</strong> (<em>bool</em>) – if true, separates at max_length,
+otherwise at nearest separator</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flatten batches of data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy.ndarray</em>) – List of strings to create embeddings for</p></li>
+<li><p><strong>labels</strong> (<em>numpy.ndarray</em>) – labels for each input character</p></li>
+<li><p><strong>label_mapping</strong> (<em>Union</em><em>[</em><em>None</em><em>, </em><em>dict</em><em>]</em>) – maps labels to their encoded integers</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – Number of samples in the batch of data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return batch_data</dt>
+<dd class="field-even"><p>A dict containing  samples of size batch_size</p>
+</dd>
+<dt class="field-odd">Rtype batch_data</dt>
+<dd class="field-odd"><p>dicts</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'preprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPreprocessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPreprocessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">CharEncodedPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoding_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UNKNOWN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_separate_at_max_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.CharPreprocessor" title="dataprofiler.labelers.data_processing.CharPreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.CharPreprocessor</span></code></a></p>
+<p>Subclass of CharPreprocessor for preprocessing char encoded data.</p>
+<p>Initialize the CharEncodedPreprocessor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>encoding_map</strong> (<em>dict</em>) – char to int encoding map</p></li>
+<li><p><strong>max_length</strong> (<em>int</em>) – Maximum char length in a sample.</p></li>
+<li><p><strong>default_label</strong> (<em>string</em><em> (</em><em>could be int</em><em>, </em><em>char</em><em>, </em><em>etc.</em><em>)</em>) – Key for label_mapping that is the default label</p></li>
+<li><p><strong>pad_label</strong> (<em>string</em><em> (</em><em>could be int</em><em>, </em><em>char</em><em>, </em><em>etc.</em><em>)</em>) – Key for label_mapping that is the pad label</p></li>
+<li><p><strong>flatten_separator</strong> (<em>str</em>) – separator used to put between flattened
+samples.</p></li>
+<li><p><strong>is_separate_at_max_len</strong> (<em>bool</em>) – if true, separates at max_length,
+otherwise at nearest separator</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process structured data for being processed by CharacterLevelCnnModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy.ndarray</em>) – List of strings to create embeddings for</p></li>
+<li><p><strong>labels</strong> (<em>numpy.ndarray</em>) – labels for each input character</p></li>
+<li><p><strong>label_mapping</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><em>None</em><em>]</em>) – maps labels to their encoded integers</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – Number of samples in the batch of data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return batch_data</dt>
+<dd class="field-even"><p>A dict containing  samples of size batch_size</p>
+</dd>
+<dt class="field-odd">Rtype batch_data</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'preprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharEncodedPreprocessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharEncodedPreprocessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">CharPostprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UNKNOWN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_word_level_argmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'character_argmax'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('</span> <span class="pre">',</span> <span class="pre">',',</span> <span class="pre">';',</span> <span class="pre">"'",</span> <span class="pre">'"',</span> <span class="pre">':',</span> <span class="pre">'\n',</span> <span class="pre">'\t',</span> <span class="pre">'.')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">word_level_min_percent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="dataprofiler.labelers.data_processing.BaseDataPostprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.BaseDataPostprocessor</span></code></a></p>
+<p>Subclass of BaseDataPostprocessor for postprocessing char data.</p>
+<p>Initialize the CharPostprocessor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>default_label</strong> (<em>string</em><em> (</em><em>could be int</em><em>, </em><em>char</em><em>, </em><em>etc.</em><em>)</em>) – Key for label_mapping that is the default label</p></li>
+<li><p><strong>pad_label</strong> (<em>string</em><em> (</em><em>could be int</em><em>, </em><em>char</em><em>, </em><em>etc.</em><em>)</em>) – Key for label_mapping that is the pad label</p></li>
+<li><p><strong>flatten_separator</strong> (<em>str</em>) – separator used to put between flattened
+samples.</p></li>
+<li><p><strong>use_word_level_argmax</strong> (<em>bool</em>) – whether to require the argmax value of
+each character in a word to determine the word’s entity</p></li>
+<li><p><strong>output_format</strong> (<em>str</em>) – (character_argmax vs NER) where character_argmax
+is a list of encodings for each character in the input text and NER
+is in the dict format which specifies start,end,label for each
+entity in a sentence</p></li>
+<li><p><strong>separators</strong> (<em>tuple</em><em>(</em><em>str</em><em>)</em>) – list of characters to use for separating words within
+the character predictions</p></li>
+<li><p><strong>word_level_min_percent</strong> (<em>float</em>) – threshold on generating dominant
+word_level labeling</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.convert_to_NER_format">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">convert_to_NER_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.convert_to_NER_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert word level predictions to specified format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predictions</strong> (<em>list</em>) – predictions</p></li>
+<li><p><strong>label_mapping</strong> (<em>dict</em>) – labels and corresponding integers</p></li>
+<li><p><strong>default_label</strong> (<em>str</em>) – default label in label_mapping</p></li>
+<li><p><strong>pad_label</strong> (<em>str</em>) – pad label in label_mapping</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>formatted predictions</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.match_sentence_lengths">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">match_sentence_lengths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_separator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.match_sentence_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert results from model into same ragged data shapes as original data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy.ndarray</em>) – original input data to the data labeler</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – dict of model character level predictions and confs</p></li>
+<li><p><strong>flatten_separator</strong> (<em>str</em>) – string which joins to samples together when
+flattening</p></li>
+<li><p><strong>inplace</strong> (<em>bool</em>) – flag to modify results in place</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict(pred=…) or dict(pred=…, conf=…)</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conduct processing on data given predictions, label_mapping, and default_label.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – original input data to the data labeler</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – dict of model character level predictions and confs</p></li>
+<li><p><strong>label_mapping</strong> (<em>dict</em>) – labels and corresponding integers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of predictions and if they exist, confidences</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'postprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.CharPostprocessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.CharPostprocessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">StructCharPreprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3400</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UNKNOWN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\x01\x01\x01\x01\x01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_separate_at_max_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.CharPreprocessor" title="dataprofiler.labelers.data_processing.CharPreprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.CharPreprocessor</span></code></a></p>
+<p>Subclass of CharPreprocessor for preprocessing struct char data.</p>
+<p>Initialize the StructCharPreprocessor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_length</strong> (<em>int</em>) – Maximum char length in a sample.</p></li>
+<li><p><strong>default_label</strong> (<em>string</em><em> (</em><em>could be int</em><em>, </em><em>char</em><em>, </em><em>etc.</em><em>)</em>) – Key for label_mapping that is the default label</p></li>
+<li><p><strong>pad_label</strong> (<em>string</em><em> (</em><em>could be int</em><em>, </em><em>char</em><em>, </em><em>etc.</em><em>)</em>) – Key for label_mapping that is the pad label</p></li>
+<li><p><strong>flatten_separator</strong> (<em>str</em>) – separator used to put between flattened
+samples.</p></li>
+<li><p><strong>is_separate_at_max_len</strong> (<em>bool</em>) – if true, separates at max_length,
+otherwise at nearest separator</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors.
+Output data formats for preprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.convert_to_unstructured_format">
+<span class="sig-name descname"><span class="pre">convert_to_unstructured_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.convert_to_unstructured_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert data samples list to StructCharPreprocessor required input data format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy.ndarray</em>) – list of strings</p></li>
+<li><p><strong>labels</strong> (<em>list</em>) – labels for each input character</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>data in the following format
+text=”&lt;SAMPLE&gt;&lt;SEPARATOR&gt;&lt;SAMPLE&gt;…”,
+entities=[(start=&lt;INT&gt;, end=&lt;INT&gt;, label=”&lt;LABEL&gt;”),</p>
+<blockquote>
+<div><p>…(num_samples in data)])</p>
+</div></blockquote>
+</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process structured data for being processed by CharacterLevelCnnModel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>numpy.ndarray</em>) – List of strings to create embeddings for</p></li>
+<li><p><strong>labels</strong> (<em>numpy.ndarray</em>) – labels for each input character</p></li>
+<li><p><strong>label_mapping</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><em>None</em><em>]</em>) – maps labels to their encoded integers</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – Number of samples in the batch of data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return batch_data</dt>
+<dd class="field-even"><p>A dict containing  samples of size batch_size</p>
+</dd>
+<dt class="field-odd">Rtype batch_data</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'preprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPreprocessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPreprocessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">StructCharPostprocessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'UNKNOWN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'PAD'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_separator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\x01\x01\x01\x01\x01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_pred_labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="dataprofiler.labelers.data_processing.BaseDataPostprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.BaseDataPostprocessor</span></code></a></p>
+<p>Subclass of BaseDataPostprocessor for postprocessing struct char data.</p>
+<p>Initialize the StructCharPostprocessor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>default_label</strong> (<em>str</em>) – Key for label_mapping that is the default label</p></li>
+<li><p><strong>pad_label</strong> (<em>str</em>) – Key for label_mapping that is the pad label</p></li>
+<li><p><strong>flatten_separator</strong> (<em>str</em>) – separator used to put between flattened
+samples.</p></li>
+<li><p><strong>is_pred_labels</strong> (<em>bool</em>) – (default: true) if true, will convert the model
+indexes to the label strings given the label_mapping</p></li>
+<li><p><strong>random_state</strong> (<em>random.Random</em>) – random state setting to be used for randomly
+selecting a prediction when two labels have equal opportunity for
+a given sample.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.match_sentence_lengths">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">match_sentence_lengths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flatten_separator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.match_sentence_lengths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert results from model into same ragged data shapes as original data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>np.ndarray</em>) – original input data to the data labeler</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – dict of model character level predictions and confs</p></li>
+<li><p><strong>flatten_separator</strong> (<em>str</em>) – string which joins to samples together when
+flattening</p></li>
+<li><p><strong>inplace</strong> (<em>bool</em>) – flag to modify results in place</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict(pred=…) or dict(pred=…, conf=…)</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.convert_to_structured_analysis">
+<span class="sig-name descname"><span class="pre">convert_to_structured_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sentences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_label</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.convert_to_structured_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert unstructured results to a structured column analysis.</p>
+<p>This assumes the column was flattened into a single sample, and takes mode of
+all character predictions except for the separator labels. In cases of
+tie, chose anything but background, otherwise randomly choose between
+the remaining labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sentences</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – samples which were predicted upon</p></li>
+<li><p><strong>results</strong> (<em>dict</em>) – character predictions for each sample return from model</p></li>
+<li><p><strong>label_mapping</strong> (<em>dict</em>) – maps labels to their encoded integers</p></li>
+<li><p><strong>default_label</strong> (<em>str</em>) – Key for label_mapping that is the default label</p></li>
+<li><p><strong>pad_label</strong> (<em>str</em>) – Key for label_mapping that is the pad label</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>prediction value for a single column</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Postprocess CharacterLevelCnnModel results when given structured data.</p>
+<p>Said structured data is processed by StructCharPreprocessor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Union</em><em>[</em><em>numpy.ndarray</em><em>, </em><em>pandas.DataFrame</em><em>]</em>) – original input data to the data labeler</p></li>
+<li><p><strong>results</strong> – dict of model character level predictions and confs</p></li>
+<li><p><strong>results</strong> – dict</p></li>
+<li><p><strong>label_mapping</strong> (<em>dict</em>) – maps labels to their encoded integers</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of predictions and if they exist, confidences</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'postprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructCharPostprocessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructCharPostprocessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">RegexPostProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aggregation_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'split'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="dataprofiler.labelers.data_processing.BaseDataPostprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.BaseDataPostprocessor</span></code></a></p>
+<p>Subclass of BaseDataPostprocessor for postprocessing regex data.</p>
+<p>Initialize the RegexPostProcessor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>aggregation_func</strong> (<em>str</em>) – aggregation function to apply to regex model
+output (split, random, priority)</p></li>
+<li><p><strong>priority_order</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>numpy.ndarray</em><em>]</em>) – if priority is set as the aggregation function,
+the order in which entities are given priority must be set</p></li>
+<li><p><strong>random_state</strong> (<em>random.Random</em>) – random state setting to be used for randomly
+selecting a prediction when two labels have equal opportunity for
+a given sample.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.priority_prediction">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">priority_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_priority_order</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.priority_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use priority of regex to give entity determination.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>dict</em>) – regex from model in format: dict(pred=…, conf=…)</p></li>
+<li><p><strong>entity_priority_order</strong> (<em>np.ndarray</em>) – list of entity priorities (lowest has
+higher priority)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>aggregated predictions</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.split_prediction">
+<em class="property"><span class="pre">static</span> </em><span class="sig-name descname"><span class="pre">split_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.split_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the prediction across votes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>results</strong> (<em>dict</em>) – regex from model in format: dict(pred=…, conf=…)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>aggregated predictions</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess data.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'postprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.RegexPostProcessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.RegexPostProcessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">StructRegexPostProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="dataprofiler.labelers.data_processing.BaseDataPostprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.BaseDataPostprocessor</span></code></a></p>
+<p>Subclass of BaseDataPostprocessor for postprocessing struct regex data.</p>
+<p>Initialize the RegexPostProcessor class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>random_state</strong> (<em>random.Random</em>) – random state setting to be used for randomly
+selecting a prediction when two labels have equal opportunity for
+a given sample.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given kwargs, set the parameters if they exist.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess data.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'postprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.StructRegexPostProcessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.StructRegexPostProcessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.data_processing.</span></span><span class="sig-name descname"><span class="pre">ColumnNameModelPostprocessor</span></span><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.labelers.data_processing.BaseDataPostprocessor" title="dataprofiler.labelers.data_processing.BaseDataPostprocessor"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.labelers.data_processing.BaseDataPostprocessor</span></code></a></p>
+<p>Subclass of BaseDataPostprocessor for postprocessing regex data.</p>
+<p>Initialize the ColumnNameModelPostProcessor class.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.help">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">help</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Describe alterable parameters.</p>
+<p>Input data formats for preprocessors.
+Output data formats for postprocessors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.process">
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocess data.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.get_class">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get class of BaseDataProcessor object.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.get_parameters">
+<span class="sig-name descname"><span class="pre">get_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.get_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a dict of parameters from the model given a list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_list</strong> (<em>list</em>) – list of parameters to retrieve from the model.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>dict of parameters</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.load_from_disk">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.load_from_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from a given path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.load_from_library">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load_from_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.load_from_library" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data processor from within the library.</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.processor_type">
+<span class="sig-name descname"><span class="pre">processor_type</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'postprocessor'</span></em><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.processor_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.save_to_disk">
+<span class="sig-name descname"><span class="pre">save_to_disk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.save_to_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save data processor to a path on disk.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.data_processing.ColumnNameModelPostprocessor.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the parameters if they exist given kwargs.</p>
+</dd></dl>
+</dd></dl>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="dataprofiler.labelers.labeler_utils.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Labeler Utils</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="dataprofiler.labelers.data_labelers.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Data Labelers</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/dataprofiler.labelers.data_processing.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

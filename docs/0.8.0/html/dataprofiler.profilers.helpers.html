@@ -1,0 +1,317 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Report Helpers" href="dataprofiler.profilers.helpers.report_helpers.html" /><link rel="prev" title="Profilers" href="dataprofiler.profilers.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Helpers - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="API.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 current has-children current-page"><a class="current reference internal" href="#">Helpers</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <section id="helpers">
+<h1>Helpers<a class="headerlink" href="#helpers" title="Permalink to this headline">¶</a></h1>
+<section id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</div>
+<span class="target" id="module-dataprofiler.profilers.helpers"></span><p>This package provides helper functions for generating reports.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.helpers.calculate_quantiles">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.helpers.</span></span><span class="sig-name descname"><span class="pre">calculate_quantiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_quantile_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.helpers.calculate_quantiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate and return quantiles.</p>
+</dd></dl>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="dataprofiler.profilers.helpers.report_helpers.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Report Helpers</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="dataprofiler.profilers.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Profilers</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/dataprofiler.profilers.helpers.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Helpers</a><ul>
+<li><a class="reference internal" href="#modules">Modules</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

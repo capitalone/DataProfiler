@@ -1,0 +1,1274 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Labeler (Sensitive Data)" href="data_labeling.html" /><link rel="prev" title="Data Readers" href="data_readers.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Profiler - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <section id="profiler">
+<span id="id1"></span><h1>Profiler<a class="headerlink" href="#profiler" title="Permalink to this headline">¶</a></h1>
+<section id="profile-your-data">
+<h2>Profile Your Data<a class="headerlink" href="#profile-your-data" title="Permalink to this headline">¶</a></h2>
+<p>Profiling your data is easy. Just use the data reader, send the data to the
+profiler, and print out the report.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span> <span class="c1"># Auto-Detect &amp; Load: CSV, AVRO, Parquet, JSON, Text</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="c1"># Calculate Statistics, Entity Recognition, etc</span>
+
+<span class="n">readable_report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">readable_report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>If the data is structured, the profile will return global statistics as well as
+column by column statistics. The vast amount of statistics are listed on the
+intro page.</p>
+<section id="load-a-file">
+<h3>Load a File<a class="headerlink" href="#load-a-file" title="Permalink to this headline">¶</a></h3>
+<p>The profiler should automatically identify the file type and load the data into a <cite>Data Class</cite>.</p>
+<p>Along with other attributtes the <cite>Data class</cite> enables structured data to be accessed via a valid Pandas DataFrame.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load a csv file, return a CSVData object</span>
+<span class="n">csv_data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s1">'your_file.csv'</span><span class="p">)</span>
+
+<span class="c1"># Print the first 10 rows of the csv file</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">csv_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="c1"># Load a parquet file, return a ParquetData object</span>
+<span class="n">parquet_data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s1">'your_file.parquet'</span><span class="p">)</span>
+
+<span class="c1"># Sort the data by the name column</span>
+<span class="n">parquet_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">'name'</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Print the sorted first 10 rows of the parquet data</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">parquet_data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>If the file type is not automatically identified (rare), you can specify them
+specifically, see section Data Readers.</p>
+</section>
+<section id="profile-a-file">
+<h3>Profile a File<a class="headerlink" href="#profile-a-file" title="Permalink to this headline">¶</a></h3>
+<p>Example uses a CSV file for example, but CSV, JSON, Avro or Parquet should also work.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="c1"># Load file (CSV should be automatically identified)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span>
+
+<span class="c1"># Profile the dataset</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Generate a report and use json to prettify.</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+
+<span class="c1"># Print the report</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="updating-profiles">
+<h3>Updating Profiles<a class="headerlink" href="#updating-profiles" title="Permalink to this headline">¶</a></h3>
+<p>Currently, the data profiler is equipped to update its profile in batches.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="c1"># Load and profile a CSV file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Update the profile with new data:</span>
+<span class="n">new_data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"new_data.csv"</span><span class="p">)</span>
+<span class="n">profile</span><span class="o">.</span><span class="n">update_profile</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+
+<span class="c1"># Print the report using json to prettify.</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="merging-profiles">
+<h3>Merging Profiles<a class="headerlink" href="#merging-profiles" title="Permalink to this headline">¶</a></h3>
+<p>If you have two files with the same schema (but different data), it is possible to merge the two profiles together via an addition operator.</p>
+<p>This also enables profiles to be determined in a distributed manner.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="c1"># Load a CSV file with a schema</span>
+<span class="n">data1</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"file_a.csv"</span><span class="p">)</span>
+<span class="n">profile1</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Load another CSV file with the same schema</span>
+<span class="n">data2</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"file_b.csv"</span><span class="p">)</span>
+<span class="n">profile2</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">profile3</span> <span class="o">=</span> <span class="n">profile1</span> <span class="o">+</span> <span class="n">profile2</span>
+
+<span class="c1"># Print the report using json to prettify.</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile3</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="profile-differences">
+<h3>Profile Differences<a class="headerlink" href="#profile-differences" title="Permalink to this headline">¶</a></h3>
+<p>Profile differences take two profiles and find the differences
+between them. Create the difference report like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="c1"># Load a CSV file</span>
+<span class="n">data1</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"file_a.csv"</span><span class="p">)</span>
+<span class="n">profile1</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="c1"># Load another CSV file</span>
+<span class="n">data2</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"file_b.csv"</span><span class="p">)</span>
+<span class="n">profile2</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">diff_report</span> <span class="o">=</span> <span class="n">profile1</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">profile2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">diff_report</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The difference report contains a dictionary that mirrors the profile report.
+Each data type has its own difference:</p>
+<ul class="simple">
+<li><p><strong>Int/Float</strong> - One profile subtracts the value from the other.</p></li>
+<li><p><strong>String</strong> - The strings will be shown in a list:</p>
+<ul>
+<li><p>[profile1 str, profile2 str]</p></li>
+</ul>
+</li>
+<li><p><strong>List</strong> - A list of 3 will be returned showing the unique values of
+each profile and the shared values:</p>
+<ul>
+<li><p>[profile 1 unique values, shared values, profile 2 unique values]</p></li>
+</ul>
+</li>
+<li><p><strong>Dict</strong> - Some dictionaries with varied keys will also return a list
+of three in the format:</p>
+<ul>
+<li><p>[profile 1 unique key-values, shared key differences, profile 2 unique key-values]</p></li>
+</ul>
+</li>
+</ul>
+<p>Otherwise, when no differences occur:</p>
+<ul class="simple">
+<li><p><strong>Any Type No Differences</strong> - A string will report: “unchanged”.</p></li>
+</ul>
+<p>Below is the structured difference report:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">'global_stats'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'file_type'</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="s1">'encoding'</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="s1">'samples_used'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s1">'column_count'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s1">'row_count'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s1">'row_has_null_ratio'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="s1">'row_is_null_ratio'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="s1">'unique_row_ratio'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="s1">'duplicate_row_count'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s1">'correlation_matrix'</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+        <span class="s1">'chi2_matrix'</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+        <span class="s1">'profile_schema'</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+    <span class="p">},</span>
+    <span class="s1">'data_stats'</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s1">'column_name'</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="s1">'data_type'</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="s1">'data_label'</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+        <span class="s1">'categorical'</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="s1">'order'</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="s1">'statistics'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">'min'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'max'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'sum'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'mean'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'median'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'mode'</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+            <span class="s1">'median_absolute_deviation'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'variance'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'stddev'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'t-test'</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">'t-statistic'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="s1">'conservative'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'df'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                                 <span class="s1">'p-value'</span><span class="p">:</span> <span class="nb">float</span><span class="p">},</span>
+                <span class="s1">'welch'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'df'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                          <span class="s1">'p-value'</span><span class="p">:</span> <span class="nb">float</span><span class="p">}},</span>
+            <span class="s2">"chi2-test"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"chi2-statistic"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                <span class="s2">"df"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                <span class="s2">"p-value"</span><span class="p">:</span> <span class="nb">float</span>
+            <span class="p">},</span>
+            <span class="s1">'unique_count'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s1">'unique_ratio'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'categories'</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="s1">'gini_impurity'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'unalikeability'</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+            <span class="s1">'categorical_count'</span><span class="p">:</span> <span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+            <span class="s1">'avg_predictions'</span><span class="p">:</span> <span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+            <span class="s1">'label_representation'</span><span class="p">:</span> <span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+            <span class="s1">'sample_size'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s1">'null_count'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+            <span class="s1">'null_types'</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="s1">'null_types_index'</span><span class="p">:</span> <span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+            <span class="s1">'data_type_representation'</span><span class="p">:</span> <span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span>
+        <span class="p">},</span>
+        <span class="s2">"null_replication_metrics"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"class_prior"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+            <span class="s2">"class_sum"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+            <span class="s2">"class_mean"</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>Below is the unstructured difference report:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">'global_stats'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'file_type'</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="s1">'encoding'</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="s1">'samples_used'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s1">'empty_line_count'</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s1">'memory_size'</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">},</span>
+    <span class="s1">'data_stats'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'data_label'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">'entity_counts'</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">'word_level'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+                <span class="s1">'true_char_level'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+                <span class="s1">'postprocess_char_level'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s1">'entity_percentages'</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">'word_level'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+                <span class="s1">'true_char_level'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+                <span class="s1">'postprocess_char_level'</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s1">'statistics'</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">'vocab'</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="s1">'vocab_count'</span><span class="p">:</span> <span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+            <span class="s1">'words'</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="s1">'word_count'</span><span class="p">:</span> <span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="saving-and-loading-a-profile">
+<h3>Saving and Loading a Profile<a class="headerlink" href="#saving-and-loading-a-profile" title="Permalink to this headline">¶</a></h3>
+<p>The profiles can easily be saved and loaded as shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="c1"># Load a CSV file, with "," as the delimiter</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span>
+
+<span class="c1"># Read in profile and print results</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">profile</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">"my_profile.pkl"</span><span class="p">)</span>
+
+<span class="n">loaded_profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"my_profile.pkl"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">loaded_profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"compact"</span><span class="p">}),</span>
+                                       <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="structured-vs-unstructured-profiles">
+<h3>Structured vs Unstructured Profiles<a class="headerlink" href="#structured-vs-unstructured-profiles" title="Permalink to this headline">¶</a></h3>
+<p>When using the profiler, the data profiler will automatically infer whether to
+create the structured profile or the unstructured profile. However, you can be
+explicit as shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+
+<span class="c1"># Creating a structured profile</span>
+<span class="n">data1</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"normal_csv_file.csv"</span><span class="p">)</span>
+<span class="n">structured_profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data1</span><span class="p">,</span> <span class="n">profiler_type</span><span class="o">=</span><span class="s2">"structured"</span><span class="p">)</span>
+
+<span class="n">structured_report</span> <span class="o">=</span> <span class="n">structured_profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">structured_report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="c1"># Creating an unstructured profile</span>
+<span class="n">data2</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"normal_text_file.txt"</span><span class="p">)</span>
+<span class="n">unstructured_profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data2</span><span class="p">,</span> <span class="n">profiler_type</span><span class="o">=</span><span class="s2">"unstructured"</span><span class="p">)</span>
+
+<span class="n">unstructured_report</span> <span class="o">=</span> <span class="n">unstructured_profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">unstructured_report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="setting-the-sample-size">
+<h3>Setting the Sample Size<a class="headerlink" href="#setting-the-sample-size" title="Permalink to this headline">¶</a></h3>
+<p>There are two ways to set sample size in a profile: samples_per_update and
+min_true_samples. Samples_per_update takes an integer as the exact amount that
+will be sampled. Min_true_samples will set the minimum amount of samples that
+are not null. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Profiler</span>
+
+<span class="n">sample_array</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">NULL</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">sample_array</span><span class="p">,</span> <span class="n">samples_per_update</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The first two samples (1.0 and NULL) are used for the statistical analysis.</p>
+<p>In contrast, if we also set min_true_samples to 2 then the Data Reader will
+continue to read until the minimum true samples were found for the given column.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Profiler</span>
+
+<span class="n">sample_array</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">NULL</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">]</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">sample_array</span><span class="p">,</span> <span class="n">samples_per_update</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">min_true_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will use all samples in the statistical analysis until the number of “true”
+(non-NULL) values are reached. Both min_true_samples and
+samples_per_update conditions must be met. In this case, the profile will grab
+the first two samples (1.0 and NULL) to satisfy the samples_per_update, and then
+it will grab the first two VALID samples (1.0 and 2.0) to satisfy the
+min_true_samples.</p>
+</section>
+<section id="profile-a-pandas-dataframe">
+<h3>Profile a Pandas DataFrame<a class="headerlink" href="#profile-a-pandas-dataframe" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">my_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">my_dataframe</span><span class="p">)</span>
+
+<span class="c1"># print the report using json to prettify.</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+
+<span class="c1"># read a specified column, in this case it is labeled 0:</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">[</span><span class="s2">"data stats"</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="specifying-a-filetype-or-delimiter">
+<h3>Specifying a Filetype or Delimiter<a class="headerlink" href="#specifying-a-filetype-or-delimiter" title="Permalink to this headline">¶</a></h3>
+<p>Example of specifying a CSV data type, with a <cite>,</cite> delimiter.
+In addition, it utilizes only the first 10,000 rows.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span>
+<span class="kn">from</span> <span class="nn">dataprofiler.data_readers.csv_data</span> <span class="kn">import</span> <span class="n">CSVData</span>
+
+<span class="c1"># Load a CSV file, with "," as the delimiter</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">CSVData</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">"delimiter"</span><span class="p">:</span> <span class="s2">","</span><span class="p">})</span>
+
+<span class="c1"># Split the data, such that only the first 10,000 rows are used</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10000</span><span class="p">]</span>
+
+<span class="c1"># Read in profile and print results</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">}),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="setting-profiler-seed">
+<h3>Setting Profiler Seed<a class="headerlink" href="#setting-profiler-seed" title="Permalink to this headline">¶</a></h3>
+<p>Example of specifying a seed for reproducibility.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="c1"># Set seed to non-negative integer value or None</span>
+<span class="n">dp</span><span class="o">.</span><span class="n">set_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="profile-statistic-descriptions">
+<h2>Profile Statistic Descriptions<a class="headerlink" href="#profile-statistic-descriptions" title="Permalink to this headline">¶</a></h2>
+<section id="structured-profile">
+<h3>Structured Profile<a class="headerlink" href="#structured-profile" title="Permalink to this headline">¶</a></h3>
+<p><strong>global_stats</strong>:</p>
+<ul class="simple">
+<li><p>samples_used - number of input data samples used to generate this profile</p></li>
+<li><p>column_count - the number of columns contained in the input dataset</p></li>
+<li><p>row_count - the number of rows contained in the input dataset</p></li>
+<li><p>row_has_null_ratio - the proportion of rows that contain at least one null value to the total number of rows</p></li>
+<li><p>row_is_null_ratio - the proportion of rows that are fully comprised of null values (null rows) to the total number of rows</p></li>
+<li><p>unique_row_ratio - the proportion of distinct rows in the input dataset to the total number of rows</p></li>
+<li><p>duplicate_row_count - the number of rows that occur more than once in the input dataset</p></li>
+<li><p>file_type - the format of the file containing the input dataset (ex: .csv)</p></li>
+<li><p>encoding - the encoding of the file containing the input dataset (ex: UTF-8)</p></li>
+<li><p>correlation_matrix - matrix of shape <cite>column_count</cite> x <cite>column_count</cite> containing the correlation coefficients between each column in the dataset</p></li>
+<li><p>chi2_matrix - matrix of shape <cite>column_count</cite> x <cite>column_count</cite> containing the chi-square statistics between each column in the dataset</p></li>
+<li><dl class="simple">
+<dt>profile_schema - a description of the format of the input dataset labeling each column and its index in the dataset</dt><dd><ul>
+<li><p>string - the label of the column in question and its index in the profile schema</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>times - the duration of time it took to generate the global statistics for this dataset in milliseconds</p></li>
+</ul>
+<p><strong>data_stats</strong>:</p>
+<ul class="simple">
+<li><p>column_name - the label/title of this column in the input dataset</p></li>
+<li><p>data_type - the primitive python data type that is contained within this column</p></li>
+<li><p>data_label - the label/entity of the data in this column as determined by the Labeler component</p></li>
+<li><p>categorical - ‘true’ if this column contains categorical data</p></li>
+<li><p>order - the way in which the data in this column is ordered, if any, otherwise “random”</p></li>
+<li><p>samples - a small subset of data entries from this column</p></li>
+<li><dl class="simple">
+<dt>statistics - statistical information on the column</dt><dd><ul>
+<li><p>sample_size - number of input data samples used to generate this profile</p></li>
+<li><p>null_count - the number of null entries in the sample</p></li>
+<li><p>null_types - a list of the different null types present within this sample</p></li>
+<li><p>null_types_index - a dict containing each null type and a respective list of the indicies that it is present within this sample</p></li>
+<li><p>data_type_representation - the percentage of samples used identifying as each data_type</p></li>
+<li><p>min - minimum value in the sample</p></li>
+<li><p>max - maximum value in the sample</p></li>
+<li><p>mode - mode of the entries in the sample</p></li>
+<li><p>median - median of the entries in the sample</p></li>
+<li><p>median_absolute_deviation - the median absolute deviation of the entries in the sample</p></li>
+<li><p>sum - the total of all sampled values from the column</p></li>
+<li><p>mean - the average of all entries in the sample</p></li>
+<li><p>variance - the variance of all entries in the sample</p></li>
+<li><p>stddev - the standard deviation of all entries in the sample</p></li>
+<li><p>skewness - the statistical skewness of all entries in the sample</p></li>
+<li><p>kurtosis - the statistical kurtosis of all entries in the sample</p></li>
+<li><p>num_zeros - the number of entries in this sample that have the value 0</p></li>
+<li><p>num_negatives - the number of entries in this sample that have a value less than 0</p></li>
+<li><dl class="simple">
+<dt>histogram - contains histogram relevant information</dt><dd><ul>
+<li><p>bin_counts - the number of entries within each bin</p></li>
+<li><p>bin_edges - the thresholds of each bin</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>quantiles - the value at each percentile in the order they are listed based on the entries in the sample</p></li>
+<li><p>vocab - a list of the characters used within the entries in this sample</p></li>
+<li><p>avg_predictions - average of the data label prediction confidences across all data points sampled</p></li>
+<li><p>categories - a list of each distinct category within the sample if <cite>categorial</cite> = ‘true’</p></li>
+<li><p>unique_count - the number of distinct entries in the sample</p></li>
+<li><p>unique_ratio - the proportion of the number of distinct entries in the sample to the total number of entries in the sample</p></li>
+<li><p>categorical_count - number of entries sampled for each category if <cite>categorical</cite> = ‘true’</p></li>
+<li><p>gini_impurity - measure of how often a randomly chosen element from the set would be incorrectly labeled if it was randomly labeled according to the distribution of labels in the subset</p></li>
+<li><p>unalikeability - a value denoting how frequently entries differ from one another within the sample</p></li>
+<li><p>precision - a dict of statistics with respect to the number of digits in a number for each sample</p></li>
+<li><p>times - the duration of time it took to generate this sample’s statistics in milliseconds</p></li>
+<li><p>format - list of possible datetime formats</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>null_replication_metrics - statistics of data partitioned based on whether column value is null (index 1 of lists referenced by dict keys) or not (index 0)</dt><dd><ul>
+<li><p>class_prior - a list containing probability of a column value being null and not null</p></li>
+<li><p>class_sum - a list containing sum of all other rows based on whether column value is null or not</p></li>
+<li><p>class_mean - a list containing mean of all other rows based on whether column value is null or not</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="unstructured-profile">
+<h3>Unstructured Profile<a class="headerlink" href="#unstructured-profile" title="Permalink to this headline">¶</a></h3>
+<p><strong>global_stats</strong>:</p>
+<ul class="simple">
+<li><p>samples_used - number of input data samples used to generate this profile</p></li>
+<li><p>empty_line_count - the number of empty lines in the input data</p></li>
+<li><p>file_type - the file type of the input data (ex: .txt)</p></li>
+<li><p>encoding - file encoding of the input data file (ex: UTF-8)</p></li>
+<li><p>memory_size - size of the input data in MB</p></li>
+<li><p>times - duration of time it took to generate this profile in milliseconds</p></li>
+</ul>
+<p><strong>data_stats</strong>:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>data_label - labels and statistics on the labels of the input data</dt><dd><ul>
+<li><dl class="simple">
+<dt>entity_counts - the number of times a specific label or entity appears inside the input data</dt><dd><ul>
+<li><p>word_level - the number of words counted within each label or entity</p></li>
+<li><p>true_char_level - the number of characters counted within each label or entity as determined by the model</p></li>
+<li><p>postprocess_char_level - the number of characters counted within each label or entity as determined by the postprocessor</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>entity_percentages - the percentages of each label or entity within the input data</dt><dd><ul>
+<li><p>word_level - the percentage of words in the input data that are contained within each label or entity</p></li>
+<li><p>true_char_level - the percentage of characters in the input data that are contained within each label or entity as determined by the model</p></li>
+<li><p>postprocess_char_level - the percentage of characters in the input data that are contained within each label or entity as determined by the postprocessor</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>times - the duration of time it took for the data labeler to predict on the data</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>statistics - statistics of the input data</dt><dd><ul>
+<li><p>vocab - a list of each character in the input data</p></li>
+<li><p>vocab_count - the number of occurrences of each distinct character in the input data</p></li>
+<li><p>words - a list of each word in the input data</p></li>
+<li><p>word_count - the number of occurrences of each distinct word in the input data</p></li>
+<li><p>times - the duration of time it took to generate the vocab and words statistics in milliseconds</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="graph-profile">
+<h3>Graph Profile<a class="headerlink" href="#graph-profile" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>num_nodes - number of nodes in the graph</p></li>
+<li><p>num_edges - number of edges in the graph</p></li>
+<li><p>categorical_attributes - list of categorical edge attributes</p></li>
+<li><p>continuous_attributes - list of continuous edge attributes</p></li>
+<li><p>avg_node_degree - average degree of nodes in the graph</p></li>
+<li><p>global_max_component_size: size of the global max component</p></li>
+</ul>
+<p><strong>continuous_distribution</strong>:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>&lt;attribute_N&gt;: name of N-th edge attribute in list of attributes</dt><dd><ul>
+<li><p>name - name of distribution for attribute</p></li>
+<li><p>scale - negative log likelihood used to scale and compare distributions</p></li>
+<li><dl class="simple">
+<dt>properties - list of statistical properties describing the distribution</dt><dd><ul>
+<li><p>[shape (optional), loc, scale, mean, variance, skew, kurtosis]</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><strong>categorical_distribution</strong>:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>&lt;attribute_N&gt;: name of N-th edge attribute in list of attributes</dt><dd><ul>
+<li><p>bin_counts: counts in each bin of the distribution histogram</p></li>
+<li><p>bin_edges: edges of each bin of the distribution histogram</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>times - duration of time it took to generate this profile in milliseconds</p></li>
+</ul>
+</section>
+</section>
+<section id="profile-options">
+<h2>Profile Options<a class="headerlink" href="#profile-options" title="Permalink to this headline">¶</a></h2>
+<p>The data profiler accepts several options to toggle on and off
+features. The 8 columns (int options, float options, datetime options,
+text options, order options, category options, data labeler options) can be
+enabled or disabled. By default, all options are toggled on. Below is an example
+of how to alter these options. Options shared by structured and unstructured options
+must be specified as structured or unstructured when setting (ie. datalabeler options).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataprofiler</span> <span class="kn">import</span> <span class="n">Data</span><span class="p">,</span> <span class="n">Profiler</span><span class="p">,</span> <span class="n">ProfilerOptions</span>
+
+<span class="c1"># Load and profile a CSV file</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">Data</span><span class="p">(</span><span class="s2">"your_file.csv"</span><span class="p">)</span>
+<span class="n">profile_options</span> <span class="o">=</span> <span class="n">ProfilerOptions</span><span class="p">()</span>
+
+<span class="c1">#All of these are different examples of adjusting the profile options</span>
+
+<span class="c1"># Options can be toggled directly like this:</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">structured_options</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">is_enabled</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">structured_options</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">is_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">structured_options</span><span class="o">.</span><span class="n">int</span><span class="o">.</span><span class="n">variance</span><span class="o">.</span><span class="n">is_enabled</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">structured_options</span><span class="o">.</span><span class="n">data_labeler</span><span class="o">.</span><span class="n">data_labeler_dirpath</span> <span class="o">=</span> \
+    <span class="s2">"Wheres/My/Datalabeler"</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">structured_options</span><span class="o">.</span><span class="n">data_labeler</span><span class="o">.</span><span class="n">is_enabled</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># A dictionary can be sent in to set the properties for all the options</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">"structured_options.data_labeler.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"min.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+
+<span class="c1"># Specific columns can be set/disabled/enabled in the same way</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">structured_options</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">"max.is_enabled"</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="s2">"variance.is_enabled"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+
+<span class="c1"># numeric stats can be turned off/on entirely</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">"is_numeric_stats_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">"int.is_numeric_stats_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">})</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profile_options</span><span class="p">)</span>
+
+<span class="c1"># Print the report using json to prettify.</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Below is an breakdown of all the options.</p>
+<ul class="simple">
+<li><p><strong>ProfilerOptions</strong> - The top-level options class that contains options for the Profiler class</p>
+<ul>
+<li><p><strong>structured_options</strong> - Options responsible for all structured data</p>
+<ul>
+<li><p><strong>multiprocess</strong> - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables multiprocessing</p></li>
+</ul>
+</li>
+<li><p><strong>int</strong> - Options for the integer columns</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables the integer operations</p></li>
+<li><p>min - Finds minimum value in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables min</p></li>
+</ul>
+</li>
+<li><p>max - Finds maximum value in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables max</p></li>
+</ul>
+</li>
+<li><p>mode - Finds mode(s) in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables mode</p></li>
+<li><p>top_k_modes - (Int) Sets the number of modes to return if multiple exist. Default returns max 5 modes.</p></li>
+</ul>
+</li>
+<li><p>median - Finds median value in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables median</p></li>
+</ul>
+</li>
+<li><p>sum - Finds sum of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables sum</p></li>
+</ul>
+</li>
+<li><p>variance - Finds variance of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables variance</p></li>
+</ul>
+</li>
+<li><p>skewness - Finds skewness of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables skewness</p></li>
+</ul>
+</li>
+<li><p>kurtosis - Finds kurtosis of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables kurtosis</p></li>
+</ul>
+</li>
+<li><p>num_zeros - Finds the count of zeros in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables num_zeros</p></li>
+</ul>
+</li>
+<li><p>num_negatives - Finds the count of negative numbers in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables num_negatives</p></li>
+</ul>
+</li>
+<li><p>bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables bias correction</p></li>
+</ul>
+</li>
+<li><p>histogram_and_quantiles - Generates a histogram and quantiles
+from the column values</p>
+<ul>
+<li><p>bin_count_or_method - (String/List[String]) Designates preferred method for calculating histogram bins or the number of bins to use.
+If left unspecified (None) the optimal method will be chosen by attempting all methods.
+If multiple specified (list) the optimal method will be chosen by attempting the provided ones.
+methods: ‘auto’, ‘fd’, ‘doane’, ‘scott’, ‘rice’, ‘sturges’, ‘sqrt’
+Note: ‘auto’ is used to choose optimally between ‘fd’ and ‘sturges’</p></li>
+<li><p>is_enabled - (Boolean) Enables or disables histogram and quantiles</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>float</strong> - Options for the float columns</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables the float operations</p></li>
+<li><p>precision - Finds the precision (significant figures) within the column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables precision</p></li>
+</ul>
+</li>
+<li><p>sample_ratio - (Float) The ratio of 0 to 1 how much data (identified as floats) to utilize as samples in determining precision</p></li>
+<li><p>min - Finds minimum value in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables min</p></li>
+</ul>
+</li>
+<li><p>max - Finds maximum value in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables max</p></li>
+</ul>
+</li>
+<li><p>mode - Finds mode(s) in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables mode</p></li>
+<li><p>top_k_modes - (Int) Sets the number of modes to return if multiple exist. Default returns max 5 modes.</p></li>
+</ul>
+</li>
+<li><p>median - Finds median value in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables median</p></li>
+</ul>
+</li>
+<li><p>sum - Finds sum of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables sum</p></li>
+</ul>
+</li>
+<li><p>variance - Finds variance of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables variance</p></li>
+</ul>
+</li>
+<li><p>skewness - Finds skewness of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables skewness</p></li>
+</ul>
+</li>
+<li><p>kurtosis - Finds kurtosis of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables kurtosis</p></li>
+</ul>
+</li>
+<li><p>num_zeros - Finds the count of zeros in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables num_zeros</p></li>
+</ul>
+</li>
+<li><p>num_negatives - Finds the count of negative numbers in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables num_negatives</p></li>
+</ul>
+</li>
+<li><p>bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables bias correction</p></li>
+</ul>
+</li>
+<li><p>histogram_and_quantiles - Generates a histogram and quantiles
+from the column values</p>
+<ul>
+<li><p>bin_count_or_method - (String/List[String]) Designates preferred method for calculating histogram bins or the number of bins to use.
+If left unspecified (None) the optimal method will be chosen by attempting all methods.
+If multiple specified (list) the optimal method will be chosen by attempting the provided ones.
+methods: ‘auto’, ‘fd’, ‘doane’, ‘scott’, ‘rice’, ‘sturges’, ‘sqrt’
+Note: ‘auto’ is used to choose optimally between ‘fd’ and ‘sturges’</p></li>
+<li><p>is_enabled - (Boolean) Enables or disables histogram and quantiles</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>text</strong> - Options for the text columns</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables the text operations</p></li>
+<li><p>vocab - Finds all the unique characters used in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables vocab</p></li>
+</ul>
+</li>
+<li><p>min - Finds minimum value in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables min</p></li>
+</ul>
+</li>
+<li><p>max - Finds maximum value in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables max</p></li>
+</ul>
+</li>
+<li><p>mode - Finds mode(s) in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables mode</p></li>
+<li><p>top_k_modes - (Int) Sets the number of modes to return if multiple exist. Default returns max 5 modes.</p></li>
+</ul>
+</li>
+<li><p>median - Finds median value in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables median</p></li>
+</ul>
+</li>
+<li><p>sum - Finds sum of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables sum</p></li>
+</ul>
+</li>
+<li><p>variance - Finds variance of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables variance</p></li>
+</ul>
+</li>
+<li><p>skewness - Finds skewness of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables skewness</p></li>
+</ul>
+</li>
+<li><p>kurtosis - Finds kurtosis of all values in a column</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables kurtosis</p></li>
+</ul>
+</li>
+<li><p>bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables bias correction</p></li>
+</ul>
+</li>
+<li><p>histogram_and_quantiles - Generates a histogram and quantiles
+from the column values</p>
+<ul>
+<li><p>bin_count_or_method - (String/List[String]) Designates preferred method for calculating histogram bins or the number of bins to use.
+If left unspecified (None) the optimal method will be chosen by attempting all methods.
+If multiple specified (list) the optimal method will be chosen by attempting the provided ones.
+methods: ‘auto’, ‘fd’, ‘doane’, ‘scott’, ‘rice’, ‘sturges’, ‘sqrt’
+Note: ‘auto’ is used to choose optimally between ‘fd’ and ‘sturges’</p></li>
+<li><p>is_enabled - (Boolean) Enables or disables histogram and quantiles</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>datetime</strong> - Options for the datetime columns</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables the datetime operations</p></li>
+</ul>
+</li>
+<li><p><strong>order</strong> - Options for the order columns</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables the order operations</p></li>
+</ul>
+</li>
+<li><p><strong>category</strong> - Options for the category columns</p>
+<ul>
+<li><p>is_enabled  - (Boolean) Enables or disables the category operations</p></li>
+</ul>
+</li>
+<li><p><strong>data_labeler</strong> - Options for the data labeler columns</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables the data labeler operations</p></li>
+<li><p>data_labeler_dirpath - (String) Directory path to data labeler</p></li>
+<li><p>data_labeler_object - (BaseDataLabeler) Datalabeler to replace
+the default labeler</p></li>
+<li><p>max_sample_size - (Int) The max number of samples for the data
+labeler</p></li>
+</ul>
+</li>
+<li><p><strong>chi2_homogeneity</strong> - Options for the chi-squared test matrix</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.</p></li>
+</ul>
+</li>
+<li><p><strong>null_replication_metrics</strong> - Options for calculating null replication metrics</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables calculation of null replication metrics</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>unstructured_options</strong> - Options responsible for all unstructured data</p>
+<ul>
+<li><p><strong>text</strong> - Options for the text profile</p>
+<ul>
+<li><p>is_case_sensitive - (Boolean) Specify whether the profile is case sensitive</p></li>
+<li><p>stop_words - (List of Strings) List of stop words to be removed when profiling</p></li>
+<li><p>top_k_chars - (Int) Number of top characters to be retrieved when profiling</p></li>
+<li><p>top_k_words - (Int) Number of top words to be retrieved when profiling</p></li>
+<li><p>vocab - Options for vocab count</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables the vocab stats</p></li>
+</ul>
+</li>
+<li><p>words - Options for word count</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables the word stats</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>data_labeler</strong> - Options for the data labeler</p>
+<ul>
+<li><p>is_enabled - (Boolean) Enables or disables the data labeler operations</p></li>
+<li><p>data_labeler_dirpath - (String) Directory path to data labeler</p></li>
+<li><p>data_labeler_object - (BaseDataLabeler) Datalabeler to replace
+the default labeler</p></li>
+<li><p>max_sample_size - (Int) The max number of samples for the data
+labeler</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="statistical-dependency-on-order-of-updates">
+<h2>Statistical Dependency on Order of Updates<a class="headerlink" href="#statistical-dependency-on-order-of-updates" title="Permalink to this headline">¶</a></h2>
+<p>Some profile features/statistics are dependent on the order in which the profiler
+is updated with new data.</p>
+<section id="order-profile">
+<h3>Order Profile<a class="headerlink" href="#order-profile" title="Permalink to this headline">¶</a></h3>
+<p>The order profiler utilizes the last value in the previous data batch to ensure
+the subsequent dataset is above/below/equal to that value when predicting
+non-random order.</p>
+<p>For instance, a dataset to be predicted as ascending would require the following
+batch data update to be ascending and its first value <cite>&gt;=</cite> than that of the
+previous batch of data.</p>
+<p>Ex. of ascending:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">batch_1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">batch_2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Ex. of random:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">batch_1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">batch_2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="c1"># notice how the first value is less than the last value in the previous batch</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="reporting-structure">
+<h2>Reporting Structure<a class="headerlink" href="#reporting-structure" title="Permalink to this headline">¶</a></h2>
+<p>For every profile, we can provide a report and customize it with a couple optional parameters:</p>
+<ul class="simple">
+<li><p>output_format (string)</p>
+<ul>
+<li><p>This will allow the user to decide the output format for report.</p>
+<ul>
+<li><p>Options are one of [pretty, compact, serializable, flat]:</p>
+<ul>
+<li><p>Pretty: floats are rounded to four decimal places, and lists are shortened.</p></li>
+<li><p>Compact: Similar to pretty, but removes detailed statistics such as runtimes, label probabilities, index locations of null types, etc.</p></li>
+<li><p>Serializable: Output is json serializable and not prettified</p></li>
+<li><p>Flat: Nested output is returned as a flattened dictionary</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>num_quantile_groups (int)</p>
+<ul>
+<li><p>You can sample your data as you like! With a minimum of one and a maximum of 1000, you can decide the number of quantile groups!</p></li>
+</ul>
+</li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"pretty"</span><span class="p">})</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"compact"</span><span class="p">})</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"serializable"</span><span class="p">})</span>
+<span class="n">report</span>  <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">report_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"output_format"</span><span class="p">:</span> <span class="s2">"flat"</span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="data_labeling.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Labeler (Sensitive Data)</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="data_readers.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Data Readers</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/profiler.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Profiler</a><ul>
+<li><a class="reference internal" href="#profile-your-data">Profile Your Data</a><ul>
+<li><a class="reference internal" href="#load-a-file">Load a File</a></li>
+<li><a class="reference internal" href="#profile-a-file">Profile a File</a></li>
+<li><a class="reference internal" href="#updating-profiles">Updating Profiles</a></li>
+<li><a class="reference internal" href="#merging-profiles">Merging Profiles</a></li>
+<li><a class="reference internal" href="#profile-differences">Profile Differences</a></li>
+<li><a class="reference internal" href="#saving-and-loading-a-profile">Saving and Loading a Profile</a></li>
+<li><a class="reference internal" href="#structured-vs-unstructured-profiles">Structured vs Unstructured Profiles</a></li>
+<li><a class="reference internal" href="#setting-the-sample-size">Setting the Sample Size</a></li>
+<li><a class="reference internal" href="#profile-a-pandas-dataframe">Profile a Pandas DataFrame</a></li>
+<li><a class="reference internal" href="#specifying-a-filetype-or-delimiter">Specifying a Filetype or Delimiter</a></li>
+<li><a class="reference internal" href="#setting-profiler-seed">Setting Profiler Seed</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#profile-statistic-descriptions">Profile Statistic Descriptions</a><ul>
+<li><a class="reference internal" href="#structured-profile">Structured Profile</a></li>
+<li><a class="reference internal" href="#unstructured-profile">Unstructured Profile</a></li>
+<li><a class="reference internal" href="#graph-profile">Graph Profile</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#profile-options">Profile Options</a></li>
+<li><a class="reference internal" href="#statistical-dependency-on-order-of-updates">Statistical Dependency on Order of Updates</a><ul>
+<li><a class="reference internal" href="#order-profile">Order Profile</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reporting-structure">Reporting Structure</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

@@ -70,6 +70,20 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         list_of_accepted_parameters = optional_parameters + required_parameters
 
+        if parameters["true_positive_dict"]:
+            label_map_dict_keys = set(self.label_mapping.keys())
+            true_positive_unique_labels = set(
+                parameters["true_positive_dict"][0].values()
+            )
+
+            # if not a subset that is less than or equal to
+            # label mapping dict
+            if true_positive_unique_labels > label_map_dict_keys:
+                errors.append(
+                    """`true_positive_dict` must be a subset
+                        of the `label_mapping` values()"""
+                )
+
         for param in parameters:
             value = parameters[param]
             if (
@@ -112,6 +126,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 )
             elif param not in list_of_accepted_parameters:
                 errors.append("`{}` is not an accepted parameter.".format(param))
+
         if errors:
             raise ValueError("\n".join(errors))
 

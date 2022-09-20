@@ -77,6 +77,21 @@ class TestColumnNameModel(unittest.TestCase):
                     {"attribute": "test_attribute", "label": "test_label"}
                 ],
             },
+            {
+                "false_positive_dict": [
+                    {
+                        "attribute": "test_attribute",
+                        "label": "test_label",
+                    }
+                ],
+                # fails, true_positive not subset of label_mapping
+                "true_positive_dict": [
+                    {"attribute": "ssn", "label": "ssn"},
+                    {"attribute": "suffix", "label": "name"},
+                    {"attribute": "my_home_address", "label": "address"},
+                    {"attribute": "test_attribute", "label": "test_label"},
+                ],
+            },
         ]
 
         cls.parameters = {
@@ -199,7 +214,7 @@ class TestColumnNameModel(unittest.TestCase):
 
     @mock.patch("builtins.open", side_effect=mock_open)
     def test_load(self, *mocks):
-        dir = os.path.join(_resource_labeler_dir, "column_name_model")
+        dir = os.path.join(_resource_labeler_dir, "column_name_labeler")
         loaded_model = ColumnNameModel.load_from_disk(dir)
         self.assertIsInstance(loaded_model, ColumnNameModel)
 

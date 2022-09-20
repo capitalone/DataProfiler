@@ -233,18 +233,28 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             include_label=self._parameters["include_label"],
         )
 
-        if show_confidences:
-            logger.warning(
-                """`show_confidences` parameter is disabled
-                for MVP implementation. Due to the requirement
-                of having the data point in the post processor.
-                Note: Confidence values are returned by default."""
-            )
+        predictions = np.array([])
+        confidences = None
+
+        # `data` at this point is either filtered or not filtered
+        # list of column names on which we are predicting
+        for iter_value, value in enumerate(data):
+
+            if output[iter_value][0] > self._parameters["positive_threshold_config"]:
+                predictions[iter_value] = self._parameters["true_positive_dict"][
+                    output[iter_value][1]
+                ]["label"]
+
+                if show_confidences:
+                    confidences = np.array([])
+                    confidences[iter_value] = output[iter_value][0]
 
         if verbose:
             logger.info("compare_positive process complete")
 
-        return output
+        if confidences:
+            return {"pred": predictions, "conf": confidences}
+        return {"pred": predictions}
 
     @classmethod
     def load_from_disk(cls, dirpath):

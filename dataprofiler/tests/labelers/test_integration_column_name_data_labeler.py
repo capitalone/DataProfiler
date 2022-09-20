@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 import pkg_resources
 
+import dataprofiler as dp
 from dataprofiler.labelers.column_name_model import ColumnNameModel
 from dataprofiler.labelers.data_labelers import BaseDataLabeler
 from dataprofiler.labelers.data_processing import (
@@ -87,6 +88,10 @@ class TestColumnNameDataLabeler(unittest.TestCase):
 
         self.assertIsNotNone(labeler_predictions)
         self.assertEqual(1, len(labeler_predictions))
+
+    def test_load_from_library(self):
+        """test successful load from model library"""
+        dp.DataLabeler.load_from_library("column_name_labeler")
 
 
 if __name__ == "__main__":

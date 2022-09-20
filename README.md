@@ -59,6 +59,16 @@ If you want to run the `pre-commit` fresh over over all the files, run the follo
 pre-commit run --all-files
 ```
 
+## Testing
+Before running unit tests, make sure you install the testing dependencies with `pip3 install -r requirements-test.txt`.
+
+To execute unit tests, run the following
+```cli
+DATAPROFILER_SEED=0 python3 -m unittest discover -p "test*.py"
+```
+
+For more nuanced testing runs, check out more detailed documentation [here](https://capitalone.github.io/DataProfiler/docs/0.7.11/html/install.html#testing).
+
 ------------------
 
 # What is a Data Profile?

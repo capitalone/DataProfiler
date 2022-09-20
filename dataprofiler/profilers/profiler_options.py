@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 """Specify the options when running the data profiler."""
+from __future__ import annotations
+
 import abc
 import copy
 import re
 import warnings
+from typing import Dict, List, Optional, Union
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 
@@ -12,7 +15,7 @@ class BaseOption(object):
     """For configuring options."""
 
     @property
-    def properties(self):
+    def properties(self) -> Dict[str, BooleanOption]:
         """
         Return a copy of the option properties.
 
@@ -21,7 +24,7 @@ class BaseOption(object):
         """
         return copy.deepcopy(self.__dict__)
 
-    def _set_helper(self, options, variable_path):
+    def _set_helper(self, options: Dict[str, bool], variable_path: str) -> None:
         """
         Set all the options.
 
@@ -89,7 +92,7 @@ class BaseOption(object):
                     "type object '{}' has no attribute '{}'".format(error_path, option)
                 )
 
-    def set(self, options):
+    def set(self, options: Dict[str, bool]) -> None:
         """
         Set all the options.
 
@@ -106,7 +109,7 @@ class BaseOption(object):
         self._set_helper(options, variable_path="")
 
     @abc.abstractmethod
-    def _validate_helper(self, variable_path=""):
+    def _validate_helper(self, variable_path: str = "") -> List[str]:
         """
         Validate the options don't cause errors and return possible errors.
 
@@ -117,7 +120,7 @@ class BaseOption(object):
         """
         raise NotImplementedError()
 
-    def validate(self, raise_error=True):
+    def validate(self, raise_error: bool = True) -> Optional[List[str]]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -134,8 +137,9 @@ class BaseOption(object):
             raise ValueError("\n".join(errors))
         elif errors:
             return errors
+        return None
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Determine equality by ensuring equality of all attributes.
 
@@ -150,7 +154,7 @@ class BaseOption(object):
 class BooleanOption(BaseOption):
     """For setting Boolean options."""
 
-    def __init__(self, is_enabled=True):
+    def __init__(self, is_enabled: bool = True) -> None:
         """
         Initialize Boolean option.
 
@@ -159,7 +163,7 @@ class BooleanOption(BaseOption):
         """
         self.is_enabled = is_enabled
 
-    def _validate_helper(self, variable_path="BooleanOption"):
+    def _validate_helper(self, variable_path: str = "BooleanOption") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -171,7 +175,7 @@ class BooleanOption(BaseOption):
         if not isinstance(variable_path, str):
             raise ValueError("The variable path must be a string.")
 
-        errors = []
+        errors: List[str] = []
         if not isinstance(self.is_enabled, bool):
             errors = ["{}.is_enabled must be a Boolean.".format(variable_path)]
         return errors
@@ -180,7 +184,9 @@ class BooleanOption(BaseOption):
 class HistogramOption(BooleanOption):
     """For setting histogram options."""
 
-    def __init__(self, is_enabled=True, bin_count_or_method="auto"):
+    def __init__(
+        self, is_enabled=True, bin_count_or_method: Union[str, int, List[str]] = "auto"
+    ) -> None:
         """
         Initialize Options for histograms.
 
@@ -193,7 +199,7 @@ class HistogramOption(BooleanOption):
         self.bin_count_or_method = bin_count_or_method
         super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path="HistogramOption"):
+    def _validate_helper(self, variable_path: str = "HistogramOption") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -229,7 +235,7 @@ class HistogramOption(BooleanOption):
 class ModeOption(BooleanOption):
     """For setting mode estimation options."""
 
-    def __init__(self, is_enabled=True, max_k_modes=5):
+    def __init__(self, is_enabled: bool = True, max_k_modes: int = 5) -> None:
         """Initialize Options for mode estimation.
 
         :ivar is_enabled: boolean option to enable/disable the option.
@@ -240,7 +246,7 @@ class ModeOption(BooleanOption):
         self.top_k_modes = max_k_modes
         super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path="ModeOption"):
+    def _validate_helper(self, variable_path: str = "ModeOption") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -264,7 +270,7 @@ class ModeOption(BooleanOption):
 class BaseInspectorOptions(BooleanOption):
     """For setting Base options."""
 
-    def __init__(self, is_enabled=True):
+    def __init__(self, is_enabled: bool = True) -> None:
         """
         Initialize Base options for all the columns.
 
@@ -273,7 +279,9 @@ class BaseInspectorOptions(BooleanOption):
         """
         super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path="BaseInspectorOptions"):
+    def _validate_helper(
+        self, variable_path: str = "BaseInspectorOptions"
+    ) -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -284,7 +292,7 @@ class BaseInspectorOptions(BooleanOption):
         """
         return super()._validate_helper(variable_path)
 
-    def is_prop_enabled(self, prop):
+    def is_prop_enabled(self, prop: str) -> bool:
         """
         Check to see if a property is enabled or not and returns boolean.
 
@@ -311,7 +319,7 @@ class BaseInspectorOptions(BooleanOption):
 class NumericalOptions(BaseInspectorOptions):
     """For configuring options for Numerican Stats Mixin."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize Options for the Numerical Stats Mixin.
 
@@ -363,7 +371,7 @@ class NumericalOptions(BaseInspectorOptions):
         BaseInspectorOptions.__init__(self)
 
     @property
-    def is_numeric_stats_enabled(self):
+    def is_numeric_stats_enabled(self) -> bool:
         """
         Return the state of numeric stats being enabled / disabled.
 
@@ -391,7 +399,7 @@ class NumericalOptions(BaseInspectorOptions):
         return False
 
     @is_numeric_stats_enabled.setter
-    def is_numeric_stats_enabled(self, value):
+    def is_numeric_stats_enabled(self, value: bool) -> None:
         """
         Enable or disable all numeric stats properties.
 
@@ -417,17 +425,17 @@ class NumericalOptions(BaseInspectorOptions):
         self.histogram_and_quantiles.is_enabled = value
 
     @property
-    def properties(self):
+    def properties(self) -> Dict[str, BooleanOption]:
         """
         Include is_enabled.
 
             is_enabled: Turns on or off the column.
         """
-        props = super().properties
+        props: Dict = super().properties
         props["is_numeric_stats_enabled"] = self.is_numeric_stats_enabled
         return props
 
-    def _validate_helper(self, variable_path="NumericalOptions"):
+    def _validate_helper(self, variable_path: str = "NumericalOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -530,7 +538,7 @@ class NumericalOptions(BaseInspectorOptions):
 class IntOptions(NumericalOptions):
     """For configuring options for Int Column."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize Options for the Int Column.
 
@@ -567,7 +575,7 @@ class IntOptions(NumericalOptions):
         """
         NumericalOptions.__init__(self)
 
-    def _validate_helper(self, variable_path="IntOptions"):
+    def _validate_helper(self, variable_path: str = "IntOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -582,7 +590,7 @@ class IntOptions(NumericalOptions):
 class PrecisionOptions(BooleanOption):
     """For configuring options for precision."""
 
-    def __init__(self, is_enabled=True, sample_ratio=None):
+    def __init__(self, is_enabled: bool = True, sample_ratio: float = None) -> None:
         """
         Initialize Options for precision.
 
@@ -596,7 +604,7 @@ class PrecisionOptions(BooleanOption):
         self.sample_ratio = sample_ratio
         super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path="PrecisionOptions"):
+    def _validate_helper(self, variable_path: str = "PrecisionOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -627,7 +635,7 @@ class PrecisionOptions(BooleanOption):
 class FloatOptions(NumericalOptions):
     """For configuring options for Float Column."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize Options for the Float Column.
 
@@ -665,7 +673,7 @@ class FloatOptions(NumericalOptions):
         NumericalOptions.__init__(self)
         self.precision = PrecisionOptions(is_enabled=True)
 
-    def _validate_helper(self, variable_path="FloatOptions"):
+    def _validate_helper(self, variable_path: str = "FloatOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -686,7 +694,7 @@ class FloatOptions(NumericalOptions):
 class TextOptions(NumericalOptions):
     """For configuring options for Text Column."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize Options for the Text Column.
 
@@ -728,7 +736,7 @@ class TextOptions(NumericalOptions):
         self.num_zeros = BooleanOption(is_enabled=False)
         self.num_negatives = BooleanOption(is_enabled=False)
 
-    def _validate_helper(self, variable_path="TextOptions"):
+    def _validate_helper(self, variable_path: str = "TextOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -759,7 +767,7 @@ class TextOptions(NumericalOptions):
         return errors
 
     @property
-    def is_numeric_stats_enabled(self):
+    def is_numeric_stats_enabled(self) -> bool:
         """
         Return the state of numeric stats being enabled / disabled.
 
@@ -787,7 +795,7 @@ class TextOptions(NumericalOptions):
         return False
 
     @is_numeric_stats_enabled.setter
-    def is_numeric_stats_enabled(self, value):
+    def is_numeric_stats_enabled(self, value: bool) -> None:
         """
         Enable or disable all numeric stats properties.
 
@@ -813,7 +821,7 @@ class TextOptions(NumericalOptions):
 class DateTimeOptions(BaseInspectorOptions):
     """For configuring options for Datetime Column."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize Options for the Datetime Column.
 
@@ -822,7 +830,7 @@ class DateTimeOptions(BaseInspectorOptions):
         """
         BaseInspectorOptions.__init__(self)
 
-    def _validate_helper(self, variable_path="DateTimeOptions"):
+    def _validate_helper(self, variable_path: str = "DateTimeOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -837,7 +845,7 @@ class DateTimeOptions(BaseInspectorOptions):
 class OrderOptions(BaseInspectorOptions):
     """For configuring options for Order Column."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize options for the Order Column.
 
@@ -846,7 +854,7 @@ class OrderOptions(BaseInspectorOptions):
         """
         BaseInspectorOptions.__init__(self)
 
-    def _validate_helper(self, variable_path="OrderOptions"):
+    def _validate_helper(self, variable_path: str = "OrderOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -861,7 +869,7 @@ class OrderOptions(BaseInspectorOptions):
 class CategoricalOptions(BaseInspectorOptions):
     """For configuring options Categorical Column."""
 
-    def __init__(self, is_enabled=True, top_k_categories=None):
+    def __init__(self, is_enabled: bool = True, top_k_categories: int = None) -> None:
         """
         Initialize options for the Categorical Column.
 
@@ -873,7 +881,7 @@ class CategoricalOptions(BaseInspectorOptions):
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
 
-    def _validate_helper(self, variable_path="CategoricalOptions"):
+    def _validate_helper(self, variable_path: str = "CategoricalOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -896,7 +904,7 @@ class CategoricalOptions(BaseInspectorOptions):
 class CorrelationOptions(BaseInspectorOptions):
     """For configuring options for Correlation between Columns."""
 
-    def __init__(self, is_enabled=False, columns=None):
+    def __init__(self, is_enabled: bool = False, columns: List[str] = None) -> None:
         """
         Initialize options for the Correlation between Columns.
 
@@ -908,7 +916,7 @@ class CorrelationOptions(BaseInspectorOptions):
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.columns = columns
 
-    def _validate_helper(self, variable_path="CorrelationOptions"):
+    def _validate_helper(self, variable_path: str = "CorrelationOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -935,7 +943,7 @@ class CorrelationOptions(BaseInspectorOptions):
 class DataLabelerOptions(BaseInspectorOptions):
     """For configuring options for Data Labeler Column."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize options for the Data Labeler Column.
 
@@ -953,7 +961,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         self.max_sample_size = None
         self.data_labeler_object = None
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo: Dict) -> DataLabelerOptions:
         """
         Override deepcopy for data labeler object.
 
@@ -973,7 +981,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         return result
 
     @property
-    def properties(self):
+    def properties(self) -> Dict:
         """
         Return a copy of the option properties.
 
@@ -988,7 +996,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         props["data_labeler_object"] = self.data_labeler_object
         return props
 
-    def _validate_helper(self, variable_path="DataLabelerOptions"):
+    def _validate_helper(self, variable_path: str = "DataLabelerOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1040,12 +1048,12 @@ class TextProfilerOptions(BaseInspectorOptions):
 
     def __init__(
         self,
-        is_enabled=True,
-        is_case_sensitive=True,
-        stop_words=None,
-        top_k_chars=None,
-        top_k_words=None,
-    ):
+        is_enabled: bool = True,
+        is_case_sensitive: bool = True,
+        stop_words: List[str] = None,
+        top_k_chars: int = None,
+        top_k_words: int = None,
+    ) -> None:
         """
         Construct the TextProfilerOption object with default values.
 
@@ -1072,7 +1080,7 @@ class TextProfilerOptions(BaseInspectorOptions):
         self.vocab = BooleanOption(is_enabled=True)
         self.words = BooleanOption(is_enabled=True)
 
-    def _validate_helper(self, variable_path="TextProfilerOptions"):
+    def _validate_helper(self, variable_path: str = "TextProfilerOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1132,7 +1140,7 @@ class TextProfilerOptions(BaseInspectorOptions):
 class StructuredOptions(BaseOption):
     """For configuring options for structured profiler."""
 
-    def __init__(self, null_values=None):
+    def __init__(self, null_values: Dict = None) -> None:
         """
         Construct the StructuredOptions object with default values.
 
@@ -1178,7 +1186,7 @@ class StructuredOptions(BaseOption):
         self.null_values = null_values
 
     @property
-    def enabled_profiles(self):
+    def enabled_profiles(self) -> List[str]:
         """Return a list of the enabled profilers for columns."""
         enabled_profiles = list()
         # null_values does not have is_enabled
@@ -1189,7 +1197,7 @@ class StructuredOptions(BaseOption):
                 enabled_profiles.append(key)
         return enabled_profiles
 
-    def _validate_helper(self, variable_path="StructuredOptions"):
+    def _validate_helper(self, variable_path: str = "StructuredOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1265,7 +1273,7 @@ class StructuredOptions(BaseOption):
 class UnstructuredOptions(BaseOption):
     """For configuring options for unstructured profiler."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Construct the UnstructuredOptions object with default values.
 
@@ -1278,7 +1286,7 @@ class UnstructuredOptions(BaseOption):
         self.data_labeler = DataLabelerOptions()
 
     @property
-    def enabled_profiles(self):
+    def enabled_profiles(self) -> List[str]:
         """Return a list of the enabled profilers."""
         enabled_profiles = list()
         for key, value in self.properties.items():
@@ -1286,7 +1294,7 @@ class UnstructuredOptions(BaseOption):
                 enabled_profiles.append(key)
         return enabled_profiles
 
-    def _validate_helper(self, variable_path="UnstructuredOptions"):
+    def _validate_helper(self, variable_path: str = "UnstructuredOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1323,7 +1331,7 @@ class UnstructuredOptions(BaseOption):
 class ProfilerOptions(BaseOption):
     """For configuring options for profiler."""
 
-    def __init__(self):
+    def __init__(self, presets: str = None) -> None:
         """
         Initialize the ProfilerOptions object.
 
@@ -1334,8 +1342,28 @@ class ProfilerOptions(BaseOption):
         """
         self.structured_options = StructuredOptions()
         self.unstructured_options = UnstructuredOptions()
+        self.presets = presets
+        if self.presets:
+            if self.presets == "complete":
+                self._complete_presets()
+            elif self.presets == "data_types":
+                self._data_types_presets()
+            elif self.presets == "numeric_stats_disabled":
+                self._numeric_stats_disabled_presets()
 
-    def _validate_helper(self, variable_path="ProfilerOptions"):
+    def _complete_presets(self) -> None:
+        self.set({"*.is_enabled": True})
+
+    def _data_types_presets(self) -> None:
+        self.set({"*.is_enabled": False})
+        self.set({"*.data_labeler.is_enabled": True})
+
+    def _numeric_stats_disabled_presets(self) -> None:
+        self.set({"*.int.is_numeric_stats_enabled": False})
+        self.set({"*.float.is_numeric_stats_enabled": False})
+        self.set({"structured_options.text.is_numeric_stats_enabled": False})
+
+    def _validate_helper(self, variable_path: str = "ProfilerOptions") -> List[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1372,7 +1400,7 @@ class ProfilerOptions(BaseOption):
 
         return errors
 
-    def set(self, options):
+    def set(self, options: Dict[str, bool]) -> None:
         """
         Overwrite BaseOption.set.
 
@@ -1399,7 +1427,7 @@ class ProfilerOptions(BaseOption):
         option_specifications = {"*", "structured_options", "unstructured_options"}
 
         # Function to see if any overlap options present in option being set
-        def overlap_opt_set(opt):
+        def overlap_opt_set(opt: str) -> bool:
             for overlap_opt in overlap_options:
                 if overlap_opt in opt:
                     return True

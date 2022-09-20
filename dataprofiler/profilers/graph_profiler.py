@@ -9,7 +9,7 @@ import pandas as pd
 import scipy.stats as st
 
 from ..data_readers.graph_data import GraphData
-from . import BaseColumnProfiler
+from . import BaseColumnProfiler, utils
 
 
 class GraphProfiler(object):
@@ -57,6 +57,19 @@ class GraphProfiler(object):
             "categorical_distribution": GraphProfiler._update_categorical_distribution,
         }
 
+    def __add__(self, other):
+        """
+        Merge two Graph profiles together overriding the `+` operator.
+
+        :param other: graph profile being added to this one.
+        :type other: GraphProfiler
+        :return: merger of the two profiles
+        :rtype: GraphProfiler
+        """
+        raise NotImplementedError(
+            "profile adding is not currently supported for the GraphProfiler"
+        )
+
     @property
     def profile(self):
         """
@@ -94,7 +107,37 @@ class GraphProfiler(object):
                 "Unsupported operand type(s) for diff: '{}' "
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
-        raise NotImplementedError("Function not yet implemented.")
+
+        diff_profile = {
+            "num_nodes": utils.find_diff_of_numbers(
+                self._num_nodes, other_profile._num_nodes
+            ),
+            "num_edges": utils.find_diff_of_numbers(
+                self._num_edges, other_profile._num_edges
+            ),
+            "categorical_attributes": utils.find_diff_of_lists_and_sets(
+                self._categorical_attributes, other_profile._categorical_attributes
+            ),
+            "continuous_attributes": utils.find_diff_of_lists_and_sets(
+                self._continuous_attributes, other_profile._continuous_attributes
+            ),
+            "avg_node_degree": utils.find_diff_of_numbers(
+                self._avg_node_degree, other_profile._avg_node_degree
+            ),
+            "global_max_component_size": utils.find_diff_of_numbers(
+                self._global_max_component_size,
+                other_profile._global_max_component_size,
+            ),
+            "continuous_distribution": utils.find_diff_of_dicts_with_diff_keys(
+                self._continuous_distribution, other_profile._continuous_distribution
+            ),
+            "categorical_distribution": utils.find_diff_of_dicts_with_diff_keys(
+                self._categorical_distribution, other_profile._categorical_distribution
+            ),
+            "times": utils.find_diff_of_dicts(self.times, other_profile.times),
+        }
+
+        return diff_profile
 
     def report(self, remove_disabled_flag=False):
         """
@@ -309,29 +352,28 @@ class GraphProfiler(object):
                     mle = distribution.nnlf(fit, df)
 
                     if mle <= best_mle:
+                        best_distrib = distribution
                         best_fit = distribution.name
                         best_mle = mle
                         best_fit_properties = fit
 
-                mean, variance, skew, kurtosis = distribution.stats(
+                mean, variance, skew, kurtosis = best_distrib.stats(
                     best_fit_properties, moments="mvsk"
                 )
-                properties = list(best_fit_properties) + [
-                    mean,
-                    variance,
-                    skew,
-                    kurtosis,
-                ]
-
+                properties = {
+                    "best_fit_properties": list(best_fit_properties),
+                    "mean": list(mean),
+                    "variance": list(variance),
+                    "skew": list(skew),
+                    "kurtosis": list(kurtosis),
+                }
                 continuous_distributions[attribute] = {
                     "name": best_fit,
                     "scale": best_mle,
                     "properties": properties,
                 }
-
             else:
                 continuous_distributions[attribute] = None
-
         return continuous_distributions
 
     @BaseColumnProfiler._timeit(name="categorical_distribution")
@@ -351,7 +393,6 @@ class GraphProfiler(object):
                 }
             else:
                 categorical_distributions[attribute] = None
-
         return categorical_distributions
 
     @staticmethod

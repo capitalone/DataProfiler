@@ -2079,3 +2079,70 @@ class StructRegexPostProcessor(
         # predictions is the argmax of the average of the cell's label votes
         results["pred"] = np.argmax(results["pred"], axis=1)
         return results
+
+
+class ColumnNameModelPostprocessor(
+    BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
+):
+    """Subclass of BaseDataPostprocessor for postprocessing regex data."""
+
+    def __init__(self):
+        """Initialize the ColumnNameModelPostProcessor class."""
+        super().__init__()
+
+    def _validate_parameters(self, parameters):
+        """
+        Validate params set in the processor and raise error if issues exist.
+
+        :param parameters: parameter dict containing the following parameters:
+            aggregation_func: aggregation function to apply to regex model
+                output (split, random, priority)
+            priority_order: if priority is set as the aggregation function,
+                the order in which entities are given priority must be set
+            random_state: Random state setting to be used for randomly
+                selecting a prediction when two labels have equal opportunity
+                for a given sample.
+        :type parameters: dict
+        :return: None
+        """
+        allowed_parameters = self.__class__.__init__.__code__.co_varnames[
+            1 : self.__class__.__init__.__code__.co_argcount
+        ]
+
+        errors = []
+
+        for param in parameters:
+            if param not in allowed_parameters:
+                errors.append("`{}` is not a permited parameter.".format(param))
+
+        if errors:
+            raise ValueError("\n".join(errors))
+
+    @classmethod
+    def help(cls):
+        """
+        Describe alterable parameters.
+
+        Input data formats for preprocessors.
+        Output data formats for postprocessors.
+
+        :return: None
+        """
+        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_start_ind = param_docs.find("parameters:\n") + 12
+        param_end_ind = param_docs.find(":type parameters:")
+
+        help_str = (
+            cls.__name__
+            + "\n\n"
+            + "Parameters:\n"
+            + param_docs[param_start_ind:param_end_ind]
+            + "\nProcess Output Format:\n"
+            "    Each sample receives a label.\n"
+            "    Original data - ['My', 'String', ...]\n"
+        )
+        print(help_str)
+
+    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+        """Preprocess data."""
+        return labels

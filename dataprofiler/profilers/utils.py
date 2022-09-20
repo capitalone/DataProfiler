@@ -131,7 +131,6 @@ def shuffle_in_chunks(data_length, chunk_size):
 
         # shuffle the indexes
         for count in range(true_chunk_size):
-
             # get a random index to swap and swap it with j
             k = random_list[count]
             indices[j], indices[k] = indices[k], indices[j]
@@ -430,11 +429,19 @@ def find_diff_of_lists_and_sets(stat1, stat2):
         pass
     elif stat1 is None or stat2 is None:
         diff = [stat1, stat2]
-    elif set(stat1) != set(stat2):
-        unique1 = [element for element in stat1 if element not in stat2]
-        shared = [element for element in stat1 if element in stat2]
-        unique2 = [element for element in stat2 if element not in stat1]
-        diff = [unique1, shared, unique2]
+    elif set(stat1) != set(stat2) or len(stat1) != len(stat2):
+        temp_stat1 = list(copy.deepcopy(stat1))
+        temp_stat2 = list(copy.deepcopy(stat2))
+        shared = []
+        for element in temp_stat1:
+            if element in temp_stat2:
+                shared.append(element)
+                temp_stat2.remove(element)
+        for element in shared:
+            temp_stat1.remove(element)
+
+        diff = [temp_stat1, shared, temp_stat2]
+
     return diff
 
 
@@ -499,6 +506,8 @@ def find_diff_of_dicts(dict1, dict2):
             diff[key] = find_diff_of_dates(value1, value2)
         elif isinstance(value1, str):
             diff[key] = find_diff_of_strings_and_bools(value1, value2)
+        elif isinstance(value1, dict) and isinstance(value2, dict):
+            diff[key] = find_diff_of_dicts(value1, value2)
         else:
             diff[key] = find_diff_of_numbers(value1, value2)
 
@@ -567,6 +576,8 @@ def find_diff_of_dicts_with_diff_keys(dict1, dict2):
                 diff_shared[key] = find_diff_of_dates(value1, value2)
             elif isinstance(value1, str) or isinstance(value1, bool):
                 diff_shared[key] = find_diff_of_strings_and_bools(value1, value2)
+            elif isinstance(value1, dict) and isinstance(value2, dict):
+                diff_shared[key] = find_diff_of_dicts_with_diff_keys(value1, value2)
             else:
                 diff_shared[key] = find_diff_of_numbers(value1, value2)
         else:

@@ -1,6 +1,5 @@
 """Contains class for saving and loading spreadsheet data."""
 from io import BytesIO, StringIO
-from optparse import Option
 from typing import Any, Dict, List, Optional, Union 
 import fastavro
 

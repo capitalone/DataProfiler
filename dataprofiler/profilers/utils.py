@@ -149,7 +149,6 @@ def shuffle_in_chunks(
 
         # shuffle the indexes
         for count in range(true_chunk_size):
-
             # get a random index to swap and swap it with j
             k = random_list[count]
             indices[j], indices[k] = indices[k], indices[j]
@@ -457,11 +456,19 @@ def find_diff_of_lists_and_sets(
         pass
     elif stat1 is None or stat2 is None:
         return [stat1, stat2]
-    elif set(stat1) != set(stat2):
-        unique1 = [element for element in stat1 if element not in stat2]
-        shared = [element for element in stat1 if element in stat2]
-        unique2 = [element for element in stat2 if element not in stat1]
-        return [unique1, shared, unique2]
+    elif set(stat1) != set(stat2) or len(stat1) != len(stat2):
+        temp_stat1 = list(copy.deepcopy(stat1))
+        temp_stat2 = list(copy.deepcopy(stat2))
+        shared = []
+        for element in temp_stat1:
+            if element in temp_stat2:
+                shared.append(element)
+                temp_stat2.remove(element)
+        for element in shared:
+            temp_stat1.remove(element)
+
+        return [temp_stat1, shared, temp_stat2]
+
     return "unchanged"
 
 

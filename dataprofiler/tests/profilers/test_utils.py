@@ -61,7 +61,7 @@ class TestShuffleInChunks(unittest.TestCase):
 
         # Ensure lists and sets are handled appropriately
         self.assertEqual(
-            "unchanged", utils.find_diff_of_lists_and_sets([3, 2], [2, 3, 2])
+            [[], [3, 2], [2]], utils.find_diff_of_lists_and_sets([3, 2], [2, 3, 2])
         )
         self.assertEqual(
             [[1], [2, 3], [4]], utils.find_diff_of_lists_and_sets([1, 2, 3], [2, 3, 4])
@@ -270,9 +270,6 @@ class TestShuffleInChunks(unittest.TestCase):
         diff_1 = utils.find_diff_of_lists_and_sets(list_1, list_2)
         expected_diff_1 = [[6.7], [np.nan, 1.5], [np.nan]]
 
-        flat_diff_1 = [item for sublist in diff_1 for item in sublist]
-        flat_expected_diff_1 = [item for sublist in expected_diff_1 for item in sublist]
-
         for x, y in zip(diff_1, expected_diff_1):
             comparison_1 = ((x == y) | (np.isnan(x) & np.isnan(y))).all()
             self.assertEqual(True, comparison_1)
@@ -286,6 +283,22 @@ class TestShuffleInChunks(unittest.TestCase):
         for x, y in zip(diff_2, expected_diff_2):
             comparison_2 = ((x == y) | (np.isnan(x) & np.isnan(y))).all()
             self.assertEqual(True, comparison_2)
+
+        list_5 = [np.nan, np.nan]
+        list_6 = [np.nan]
+        diff_3 = utils.find_diff_of_lists_and_sets(list_5, list_6)
+        expected_diff_3 = [[np.nan], [np.nan], []]
+
+        for x, y in zip(diff_3, expected_diff_3):
+            comparison_3 = ((x == y) | (np.isnan(x) & np.isnan(y))).all()
+            self.assertEqual(True, comparison_3)
+
+        list_7 = [np.nan, 3]
+        list_8 = [np.nan, 3]
+        diff_4 = utils.find_diff_of_lists_and_sets(list_7, list_8)
+        expected_diff_4 = "unchanged"
+
+        self.assertEqual(diff_4, expected_diff_4)
 
     def test_find_diff_of_matrices(self):
         import numpy as np

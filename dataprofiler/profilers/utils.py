@@ -429,9 +429,9 @@ def find_diff_of_lists_and_sets(stat1, stat2):
         pass
     elif stat1 is None or stat2 is None:
         diff = [stat1, stat2]
-    elif set(stat1) != set(stat2):
-        temp_stat1 = list(stat1)
-        temp_stat2 = list(stat2)
+    elif set(stat1) != set(stat2) or len(stat1) != len(stat2):
+        temp_stat1 = list(copy.deepcopy(stat1))
+        temp_stat2 = list(copy.deepcopy(stat2))
         shared = []
         for element in temp_stat1:
             if element in temp_stat2:

@@ -39,7 +39,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
 
-        self._precision: Dict[str, Optional[float]] = {
+        self._precision: Dict = {
             "min": None,
             "max": None,
             "sum": None,
@@ -92,22 +92,21 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             elif other.precision["min"] is None:
                 merged_profile._precision = copy.deepcopy(self._precision)
             else:
-                merged_profile._precision["min"] = min(  # type: ignore
-                    self._precision["min"], other._precision["min"]  # type: ignore
+                merged_profile._precision["min"] = min(
+                    self._precision["min"], other._precision["min"]
                 )
-                merged_profile._precision["max"] = max(  # type: ignore
-                    self._precision["max"], other._precision["max"]  # type: ignore
+                merged_profile._precision["max"] = max(
+                    self._precision["max"], other._precision["max"]
                 )
                 merged_profile._precision["sum"] = (
-                    self._precision["sum"] + other._precision["sum"]  # type: ignore
+                    self._precision["sum"] + other._precision["sum"]
                 )
                 merged_profile._precision["sample_size"] = (
-                    self._precision["sample_size"]  # type: ignore
-                    + other._precision["sample_size"]
+                    self._precision["sample_size"] + other._precision["sample_size"]
                 )
 
                 merged_profile._precision["mean"] = (
-                    merged_profile._precision["sum"]  # type: ignore
+                    merged_profile._precision["sum"]
                     / merged_profile._precision["sample_size"]
                 )
 

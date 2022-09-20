@@ -830,8 +830,8 @@ class TestNumericStatsMixin(unittest.TestCase):
             "median": -1,
             "mode": [[3], [], [2]],
             "median_absolute_deviation": 1,
-            "variance": np.nan,
-            "stddev": np.nan,
+            "variance": [np.nan, 9.473684210526315],
+            "stddev": [np.nan, 3.077935056255462],
             "t-test": {
                 "t-statistic": None,
                 "conservative": {"df": None, "p-value": None},
@@ -849,7 +849,13 @@ class TestNumericStatsMixin(unittest.TestCase):
         var = difference.pop("variance")
         stddev = difference.pop("stddev")
         self.assertDictEqual(expected_diff, difference)
-        self.assertTrue(np.isnan([expected_var, var, expected_stddev, stddev]).all())
+
+        for x, y in zip(expected_var, var):
+            comparison = ((x == y) | (np.isnan(x) & np.isnan(y))).all()
+            self.assertEqual(True, comparison)
+        for x, y in zip(expected_stddev, stddev):
+            comparison = ((x == y) | (np.isnan(x) & np.isnan(y))).all()
+            self.assertEqual(True, comparison)
 
         # Insufficient match count
         other1, other2 = TestColumnWProps(), TestColumnWProps()
@@ -879,8 +885,8 @@ class TestNumericStatsMixin(unittest.TestCase):
             "median": -1,
             "mode": [[3], [], [2]],
             "median_absolute_deviation": 1,
-            "variance": np.nan,
-            "stddev": np.nan,
+            "variance": [1.1111111111111112, np.nan],
+            "stddev": [1.0540925533894598, np.nan],
             "t-test": {
                 "t-statistic": None,
                 "conservative": {"df": None, "p-value": None},
@@ -897,7 +903,13 @@ class TestNumericStatsMixin(unittest.TestCase):
         var = difference.pop("variance")
         stddev = difference.pop("stddev")
         self.assertDictEqual(expected_diff, difference)
-        self.assertTrue(np.isnan([expected_var, var, expected_stddev, stddev]).all())
+
+        for x, y in zip(expected_var, var):
+            comparison = ((x == y) | (np.isnan(x) & np.isnan(y))).all()
+            self.assertEqual(True, comparison)
+        for x, y in zip(expected_stddev, stddev):
+            comparison = ((x == y) | (np.isnan(x) & np.isnan(y))).all()
+            self.assertEqual(True, comparison)
 
         # Small p-value
         other1, other2 = TestColumnWProps(), TestColumnWProps()

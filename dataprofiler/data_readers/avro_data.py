@@ -66,7 +66,7 @@ class AVROData(JSONData, BaseData):
             return lines
 
     @classmethod
-    def is_match(cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict]=None):
+    def is_match(cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict]=None) -> bool:
         """
         Test the given file to check if the file has valid AVRO format or not.
 

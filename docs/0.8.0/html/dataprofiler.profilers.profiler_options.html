@@ -1,0 +1,1764 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Text Column Profile" href="dataprofiler.profilers.text_column_profile.html" /><link rel="prev" title="Profile Builder" href="dataprofiler.profilers.profile_builder.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Profiler Options - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="API.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <section id="module-dataprofiler.profilers.profiler_options">
+<span id="profiler-options"></span><h1>Profiler Options<a class="headerlink" href="#module-dataprofiler.profilers.profiler_options" title="Permalink to this headline">¶</a></h1>
+<p>Specify the options when running the data profiler.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseOption">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">BaseOption</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>For configuring options.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseOption.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseOption.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseOption.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseOption.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BooleanOption">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">BooleanOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseOption" title="dataprofiler.profilers.profiler_options.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseOption</span></code></a></p>
+<p>For setting Boolean options.</p>
+<p>Initialize Boolean option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the option.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BooleanOption.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BooleanOption.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BooleanOption.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BooleanOption.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.HistogramOption">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">HistogramOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bin_count_or_method</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BooleanOption</span></code></a></p>
+<p>For setting histogram options.</p>
+<p>Initialize Options for histograms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the option.</p></li>
+<li><p><strong>bin_count_or_method</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>int</em><em>, </em><em>list</em><em>(</em><em>str</em><em>)</em><em>]</em>) – bin count or the method with which to
+calculate histograms</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.HistogramOption.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.HistogramOption.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.HistogramOption.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.HistogramOption.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ModeOption">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">ModeOption</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_k_modes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ModeOption" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BooleanOption</span></code></a></p>
+<p>For setting mode estimation options.</p>
+<p>Initialize Options for mode estimation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the option.</p></li>
+<li><p><strong>top_k_modes</strong> (<em>int</em>) – the max number of modes to return, if applicable</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ModeOption.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ModeOption.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ModeOption.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ModeOption.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ModeOption.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ModeOption.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">BaseInspectorOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BooleanOption</span></code></a></p>
+<p>For setting Base options.</p>
+<p>Initialize Base options for all the columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.BaseInspectorOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">NumericalOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
+<p>For configuring options for Numerican Stats Mixin.</p>
+<p>Initialize Options for the Numerical Stats Mixin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p></li>
+<li><p><strong>min</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable min</p></li>
+<li><p><strong>max</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable max</p></li>
+<li><p><strong>mode</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.ModeOption" title="dataprofiler.profilers.profiler_options.ModeOption"><em>ModeOption</em></a>) – option to enable/disable mode and set return count</p></li>
+<li><p><strong>median</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – option to enable/disable median</p></li>
+<li><p><strong>sum</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable sum</p></li>
+<li><p><strong>variance</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable variance</p></li>
+<li><p><strong>skewness</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable skewness</p></li>
+<li><p><strong>kurtosis</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable kurtosis</p></li>
+<li><p><strong>histogram_and_quantiles</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable
+histogram_and_quantiles</p></li>
+</ul>
+</dd>
+</dl>
+<p>:ivar bias_correction : boolean option to enable/disable existence of bias
+:vartype bias: BooleanOption
+:ivar num_zeros: boolean option to enable/disable num_zeros
+:vartype num_zeros: BooleanOption
+:ivar num_negatives: boolean option to enable/disable num_negatives
+:vartype num_negatives: BooleanOption
+:ivar is_numeric_stats_enabled: boolean to enable/disable all numeric</p>
+<blockquote>
+<div><p>stats</p>
+</div></blockquote>
+<dl class="field-list simple">
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.is_numeric_stats_enabled">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the state of numeric stats being enabled / disabled.</p>
+<p>If any numeric stats property is enabled it will return True,
+otherwise it will return False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>true if any numeric stats property is enabled, otherwise false</p>
+</dd>
+<dt class="field-even">Rtype bool</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include is_enabled.</p>
+<p>is_enabled: Turns on or off the column.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.NumericalOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.NumericalOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">IntOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.NumericalOptions" title="dataprofiler.profilers.profiler_options.NumericalOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.NumericalOptions</span></code></a></p>
+<p>For configuring options for Int Column.</p>
+<p>Initialize Options for the Int Column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p></li>
+<li><p><strong>min</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable min</p></li>
+<li><p><strong>max</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable max</p></li>
+<li><p><strong>mode</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.ModeOption" title="dataprofiler.profilers.profiler_options.ModeOption"><em>ModeOption</em></a>) – option to enable/disable mode and set return count</p></li>
+<li><p><strong>median</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – option to enable/disable median</p></li>
+<li><p><strong>sum</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable sum</p></li>
+<li><p><strong>variance</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable variance</p></li>
+<li><p><strong>skewness</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable skewness</p></li>
+<li><p><strong>kurtosis</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable kurtosis</p></li>
+<li><p><strong>histogram_and_quantiles</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable
+histogram_and_quantiles</p></li>
+</ul>
+</dd>
+</dl>
+<p>:ivar bias_correction : boolean option to enable/disable existence of bias
+:vartype bias: BooleanOption
+:ivar num_zeros: boolean option to enable/disable num_zeros
+:vartype num_zeros: BooleanOption
+:ivar num_negatives: boolean option to enable/disable num_negatives
+:vartype num_negatives: BooleanOption
+:ivar is_numeric_stats_enabled: boolean to enable/disable all numeric</p>
+<blockquote>
+<div><p>stats</p>
+</div></blockquote>
+<dl class="field-list simple">
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.is_numeric_stats_enabled">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the state of numeric stats being enabled / disabled.</p>
+<p>If any numeric stats property is enabled it will return True,
+otherwise it will return False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>true if any numeric stats property is enabled, otherwise false</p>
+</dd>
+<dt class="field-even">Rtype bool</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include is_enabled.</p>
+<p>is_enabled: Turns on or off the column.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.IntOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.IntOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.PrecisionOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">PrecisionOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_ratio</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BooleanOption</span></code></a></p>
+<p>For configuring options for precision.</p>
+<p>Initialize Options for precision.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p></li>
+<li><p><strong>sample_ratio</strong> (<em>float</em>) – float option to determine ratio of valid
+float samples in determining percision.
+This ratio will override any defaults.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.PrecisionOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.PrecisionOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.PrecisionOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.PrecisionOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">FloatOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.NumericalOptions" title="dataprofiler.profilers.profiler_options.NumericalOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.NumericalOptions</span></code></a></p>
+<p>For configuring options for Float Column.</p>
+<p>Initialize Options for the Float Column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p></li>
+<li><p><strong>min</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable min</p></li>
+<li><p><strong>max</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable max</p></li>
+<li><p><strong>mode</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.ModeOption" title="dataprofiler.profilers.profiler_options.ModeOption"><em>ModeOption</em></a>) – option to enable/disable mode and set return count</p></li>
+<li><p><strong>median</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – option to enable/disable median</p></li>
+<li><p><strong>sum</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable sum</p></li>
+<li><p><strong>variance</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable variance</p></li>
+<li><p><strong>skewness</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable skewness</p></li>
+<li><p><strong>kurtosis</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable kurtosis</p></li>
+<li><p><strong>histogram_and_quantiles</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable
+histogram_and_quantiles</p></li>
+</ul>
+</dd>
+</dl>
+<p>:ivar bias_correction : boolean option to enable/disable existence of bias
+:vartype bias: BooleanOption
+:ivar num_zeros: boolean option to enable/disable num_zeros
+:vartype num_zeros: BooleanOption
+:ivar num_negatives: boolean option to enable/disable num_negatives
+:vartype num_negatives: BooleanOption
+:ivar is_numeric_stats_enabled: boolean to enable/disable all numeric</p>
+<blockquote>
+<div><p>stats</p>
+</div></blockquote>
+<dl class="field-list simple">
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.is_numeric_stats_enabled">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the state of numeric stats being enabled / disabled.</p>
+<p>If any numeric stats property is enabled it will return True,
+otherwise it will return False.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>true if any numeric stats property is enabled, otherwise false</p>
+</dd>
+<dt class="field-even">Rtype bool</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include is_enabled.</p>
+<p>is_enabled: Turns on or off the column.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.FloatOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.FloatOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">TextOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.NumericalOptions" title="dataprofiler.profilers.profiler_options.NumericalOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.NumericalOptions</span></code></a></p>
+<p>For configuring options for Text Column.</p>
+<p>Initialize Options for the Text Column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p></li>
+<li><p><strong>vocab</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable vocab</p></li>
+<li><p><strong>min</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable min</p></li>
+<li><p><strong>max</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable max</p></li>
+<li><p><strong>mode</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.ModeOption" title="dataprofiler.profilers.profiler_options.ModeOption"><em>ModeOption</em></a>) – option to enable/disable mode and set return count</p></li>
+<li><p><strong>median</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – option to enable/disable median</p></li>
+<li><p><strong>sum</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable sum</p></li>
+<li><p><strong>variance</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable variance</p></li>
+<li><p><strong>skewness</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable skewness</p></li>
+<li><p><strong>kurtosis</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable kurtosis</p></li>
+</ul>
+</dd>
+</dl>
+<p>:ivar bias_correction : boolean option to enable/disable existence of bias
+:vartype bias: BooleanOption
+:ivar histogram_and_quantiles: boolean option to enable/disable</p>
+<blockquote>
+<div><p>histogram_and_quantiles</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_zeros</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable num_zeros</p></li>
+<li><p><strong>num_negatives</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – boolean option to enable/disable num_negatives</p></li>
+<li><p><strong>is_numeric_stats_enabled</strong> (<em>bool</em>) – boolean to enable/disable all numeric
+stats</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.is_numeric_stats_enabled">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">is_numeric_stats_enabled</span></span><em class="property"><span class="pre">:</span> <span class="pre">bool</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.is_numeric_stats_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the state of numeric stats being enabled / disabled.</p>
+<p>If any numeric stats property is enabled it will return True, otherwise
+it will return False. Although it seems redundant, this method is needed
+in order for the function below, the setter function
+also called is_numeric_stats_enabled, to properly work.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>true if any numeric stats property is enabled, otherwise false</p>
+</dd>
+<dt class="field-even">Rtype bool</dt>
+<dd class="field-even"><p></p></dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Include is_enabled.</p>
+<p>is_enabled: Turns on or off the column.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">DateTimeOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
+<p>For configuring options for Datetime Column.</p>
+<p>Initialize Options for the Datetime Column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DateTimeOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DateTimeOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">OrderOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
+<p>For configuring options for Order Column.</p>
+<p>Initialize options for the Order Column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.OrderOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.OrderOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">CategoricalOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k_categories</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
+<p>For configuring options Categorical Column.</p>
+<p>Initialize options for the Categorical Column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p></li>
+<li><p><strong>top_k_categories</strong> (<em>[</em><em>None</em><em>, </em><em>int</em><em>]</em>) – number of categories to be displayed when called</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CategoricalOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CategoricalOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CorrelationOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">CorrelationOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CorrelationOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
+<p>For configuring options for Correlation between Columns.</p>
+<p>Initialize options for the Correlation between Columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable.</p></li>
+<li><p><strong>columns</strong> (<em>list</em><em>(</em><em>)</em>) – Columns considered to calculate correlation</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CorrelationOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CorrelationOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CorrelationOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CorrelationOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CorrelationOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CorrelationOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.CorrelationOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.CorrelationOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">DataLabelerOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
+<p>For configuring options for Data Labeler Column.</p>
+<p>Initialize options for the Data Labeler Column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the column.</p></li>
+<li><p><strong>data_labeler_dirpath</strong> (<em>str</em>) – String to load data labeler</p></li>
+<li><p><strong>max_sample_size</strong> (<a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html#dataprofiler.labelers.base_data_labeler.BaseDataLabeler" title="dataprofiler.labelers.base_data_labeler.BaseDataLabeler"><em>BaseDataLabeler</em></a>) – Int to decide sample size</p></li>
+<li><p><strong>data_labeler_object</strong> – DataLabeler object used in profiler</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.DataLabelerOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">TextProfilerOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_enabled</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_case_sensitive</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_words</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k_chars</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_k_words</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseInspectorOptions" title="dataprofiler.profilers.profiler_options.BaseInspectorOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseInspectorOptions</span></code></a></p>
+<p>For configuring options for text profiler.</p>
+<p>Construct the TextProfilerOption object with default values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_enabled</strong> (<em>bool</em>) – boolean option to enable/disable the option.</p></li>
+<li><p><strong>is_case_sensitive</strong> (<em>bool</em>) – option set for case sensitivity.</p></li>
+<li><p><strong>stop_words</strong> (<em>Union</em><em>[</em><em>None</em><em>, </em><em>list</em><em>(</em><em>str</em><em>)</em><em>]</em>) – option set for stop words.</p></li>
+<li><p><strong>top_k_chars</strong> (<em>Union</em><em>[</em><em>None</em><em>, </em><em>int</em><em>]</em>) – option set for number of top common characters.</p></li>
+<li><p><strong>top_k_words</strong> (<em>Union</em><em>[</em><em>None</em><em>, </em><em>int</em><em>]</em>) – option set for number of top common words.</p></li>
+<li><p><strong>words</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – option set for word update.</p></li>
+<li><p><strong>vocab</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a>) – option set for vocab update.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions.is_prop_enabled">
+<span class="sig-name descname"><span class="pre">is_prop_enabled</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.is_prop_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see if a property is enabled or not and returns boolean.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prop</strong> (<em>String</em>) – The option to check if it is enabled</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether or not the property is enabled</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Boolean</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.TextProfilerOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">StructuredOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">null_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseOption" title="dataprofiler.profilers.profiler_options.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseOption</span></code></a></p>
+<p>For configuring options for structured profiler.</p>
+<p>Construct the StructuredOptions object with default values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>null_values</strong> – null values we input.</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>int</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.IntOptions" title="dataprofiler.profilers.profiler_options.IntOptions"><em>IntOptions</em></a>) – option set for int profiling.</p></li>
+<li><p><strong>float</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.FloatOptions" title="dataprofiler.profilers.profiler_options.FloatOptions"><em>FloatOptions</em></a>) – option set for float profiling.</p></li>
+<li><p><strong>datetime</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.DateTimeOptions" title="dataprofiler.profilers.profiler_options.DateTimeOptions"><em>DateTimeOptions</em></a>) – option set for datetime profiling.</p></li>
+<li><p><strong>text</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.TextOptions" title="dataprofiler.profilers.profiler_options.TextOptions"><em>TextOptions</em></a>) – option set for text profiling.</p></li>
+<li><p><strong>order</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.OrderOptions" title="dataprofiler.profilers.profiler_options.OrderOptions"><em>OrderOptions</em></a>) – option set for order profiling.</p></li>
+<li><p><strong>category</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.CategoricalOptions" title="dataprofiler.profilers.profiler_options.CategoricalOptions"><em>CategoricalOptions</em></a>) – option set for category profiling.</p></li>
+<li><p><strong>data_labeler</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions" title="dataprofiler.profilers.profiler_options.DataLabelerOptions"><em>DataLabelerOptions</em></a>) – option set for data_labeler profiling.</p></li>
+<li><p><strong>correlation</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.CorrelationOptions" title="dataprofiler.profilers.profiler_options.CorrelationOptions"><em>CorrelationOptions</em></a>) – option set for correlation profiling.</p></li>
+<li><p><strong>chi2_homogeneity</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.BooleanOption" title="dataprofiler.profilers.profiler_options.BooleanOption"><em>BooleanOption</em></a><em>(</em><em>)</em>) – option set for chi2_homogeneity matrix</p></li>
+<li><p><strong>null_replication_metrics</strong> (<em>BooleanOptions</em>) – option set for metrics
+calculation for replicating nan vals</p></li>
+<li><p><strong>null_values</strong> (<em>Union</em><em>[</em><em>None</em><em>, </em><em>dict</em><em>]</em>) – option set for defined null values</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions.enabled_profiles">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">enabled_profiles</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[str]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.enabled_profiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of the enabled profilers for columns.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.StructuredOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.StructuredOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">UnstructuredOptions</span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseOption" title="dataprofiler.profilers.profiler_options.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseOption</span></code></a></p>
+<p>For configuring options for unstructured profiler.</p>
+<p>Construct the UnstructuredOptions object with default values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.TextProfilerOptions" title="dataprofiler.profilers.profiler_options.TextProfilerOptions"><em>TextProfilerOptions</em></a>) – option set for text profiling.</p></li>
+<li><p><strong>data_labeler</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.DataLabelerOptions" title="dataprofiler.profilers.profiler_options.DataLabelerOptions"><em>DataLabelerOptions</em></a>) – option set for data_labeler profiling.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions.enabled_profiles">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">enabled_profiles</span></span><em class="property"><span class="pre">:</span> <span class="pre">List[str]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.enabled_profiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of the enabled profilers.</p>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all the options.</p>
+<p>Send in a dict that contains all of or a subset of
+the appropriate options. Set the values of the options. Will raise error
+if the formatting is improper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – dict containing the options you want to set.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.UnstructuredOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ProfilerOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.profiler_options.</span></span><span class="sig-name descname"><span class="pre">ProfilerOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">presets</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dataprofiler.profilers.profiler_options.BaseOption" title="dataprofiler.profilers.profiler_options.BaseOption"><code class="xref py py-class docutils literal notranslate"><span class="pre">dataprofiler.profilers.profiler_options.BaseOption</span></code></a></p>
+<p>For configuring options for profiler.</p>
+<p>Initialize the ProfilerOptions object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structured_options</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.StructuredOptions" title="dataprofiler.profilers.profiler_options.StructuredOptions"><em>StructuredOptions</em></a>) – option set for structured dataset profiling.</p></li>
+<li><p><strong>unstructured_options</strong> (<a class="reference internal" href="#dataprofiler.profilers.profiler_options.UnstructuredOptions" title="dataprofiler.profilers.profiler_options.UnstructuredOptions"><em>UnstructuredOptions</em></a>) – option set for unstructured dataset profiling.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ProfilerOptions.properties">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="pre">:</span> <span class="pre">Dict[str,</span> <span class="pre">dataprofiler.profilers.profiler_options.BooleanOption]</span></em><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions.properties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a copy of the option properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>dictionary of the option’s properties attr: value</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ProfilerOptions.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate the options do not conflict and cause errors.</p>
+<p>Raises error/warning if so.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>raise_error</strong> (<em>bool</em>) – Flag that raises errors if true. Returns errors if
+false.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of errors (if raise_error is false)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.profiler_options.ProfilerOptions.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.profiler_options.ProfilerOptions.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite BaseOption.set.</p>
+<p>We do this because the type (unstructured/structured) may
+need to be specified if the same options exist within both
+self.structured_options and self.unstructured_options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>dict</em>) – Dictionary of options to set</p>
+</dd>
+<dt class="field-even">Return</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="dataprofiler.profilers.text_column_profile.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Text Column Profile</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="dataprofiler.profilers.profile_builder.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Profile Builder</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/dataprofiler.profilers.profiler_options.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

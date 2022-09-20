@@ -1,0 +1,449 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Column Name Model" href="dataprofiler.labelers.column_name_model.html" /><link rel="prev" title="Character Level Cnn Model" href="dataprofiler.labelers.character_level_cnn_model.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Classification Report Utils - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="API.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <section id="module-dataprofiler.labelers.classification_report_utils">
+<span id="classification-report-utils"></span><h1>Classification Report Utils<a class="headerlink" href="#module-dataprofiler.labelers.classification_report_utils" title="Permalink to this headline">¶</a></h1>
+<p>Contains functions for classification.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.labelers.classification_report_utils.convert_confusion_matrix_to_MCM">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></span><span class="sig-name descname"><span class="pre">convert_confusion_matrix_to_MCM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.convert_confusion_matrix_to_MCM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a confusion matrix into the MCM format.</p>
+<p>Format for precision/recall/fscore/
+support computation by sklearn.</p>
+<p>The format is as specified by sklearn below:
+In multilabel confusion matrix <span class="math notranslate nohighlight">\(MCM\)</span>, the count of true negatives
+is <span class="math notranslate nohighlight">\(MCM_{:,0,0}\)</span>, false negatives is <span class="math notranslate nohighlight">\(MCM_{:,1,0}\)</span>,
+true positives is <span class="math notranslate nohighlight">\(MCM_{:,1,1}\)</span> and false positives is
+<span class="math notranslate nohighlight">\(MCM_{:,0,1}\)</span>.
+Note: this utilizes code/ideology from sklearn.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>conf_matrix</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>np.ndarray</em><em>]</em>) – confusion matrix, which is a square matrix describing
+false positives and false negatives, true positives and true negatives
+for classification</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>MCM format for readability by sklearn confusion reports.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></span><span class="sig-name descname"><span class="pre">precision_recall_fscore_support</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MCM</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('precision',</span> <span class="pre">'recall',</span> <span class="pre">'f-score')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform same functionality as recision_recall_fscore_support function.</p>
+<p>Copy of the precision_recall_fscore_support function from sklearn.metrics
+with the update to receiving the MCM instead of calculating each time it is
+called.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>MCM</strong> (<em>array</em><em>, </em><em>shape</em><em> (</em><em>n_outputs</em><em>, </em><em>2</em><em>, </em><em>2</em><em>)</em>) – Multi-classification confusion matrix as referenced by the sklearn
+metrics module. A 2x2 confusion matrix corresponding to each output in
+the input. In multilabel confusion matrix <span class="math notranslate nohighlight">\(MCM\)</span>, the count of
+true negatives is <span class="math notranslate nohighlight">\(MCM_{:,0,0}\)</span>, false negatives is
+<span class="math notranslate nohighlight">\(MCM_{:,1,0}\)</span>, true positives is <span class="math notranslate nohighlight">\(MCM_{:,1,1}\)</span> and false
+positives is <span class="math notranslate nohighlight">\(MCM_{:,0,1}\)</span>.</p></li>
+<li><p><strong>beta</strong> (<em>float</em><em>, </em><em>1.0 by default</em>) – The strength of recall versus precision in the F-score.</p></li>
+<li><p><strong>labels</strong> (<em>list</em><em>, </em><em>optional</em>) – The set of labels to include when <code class="docutils literal notranslate"><span class="pre">average</span> <span class="pre">!=</span> <span class="pre">'binary'</span></code>, and their
+order if <code class="docutils literal notranslate"><span class="pre">average</span> <span class="pre">is</span> <span class="pre">None</span></code>. Labels present in the data can be
+excluded, for example to calculate a multiclass average ignoring a
+majority negative class, while labels not present in the data will
+result in 0 components in a macro average. For multilabel targets,
+labels are column indices. By default, all labels in <code class="docutils literal notranslate"><span class="pre">y_true</span></code> and
+<code class="docutils literal notranslate"><span class="pre">y_pred</span></code> are used in sorted order.</p></li>
+<li><p><strong>pos_label</strong> (<em>str</em><em> or </em><em>int</em><em>, </em><em>1 by default</em>) – The class to report if <code class="docutils literal notranslate"><span class="pre">average='binary'</span></code> and the data is binary.
+If the data are multiclass or multilabel, this will be ignored;
+setting <code class="docutils literal notranslate"><span class="pre">labels=[pos_label]</span></code> and <code class="docutils literal notranslate"><span class="pre">average</span> <span class="pre">!=</span> <span class="pre">'binary'</span></code> will report
+scores for that label only.</p></li>
+<li><p><strong>average</strong> (<em>string</em><em>, </em><em>[</em><em>None</em><em> (</em><em>default</em><em>)</em><em>, </em><em>'binary'</em><em>, </em><em>'micro'</em><em>, </em><em>'macro'</em><em>, </em><em>'weighted'</em><em>]</em>) – <p>If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the scores for each class are returned. Otherwise, this
+determines the type of averaging performed on the data:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'binary'</span></code>:</dt><dd><p>Only report results for the class specified by <code class="docutils literal notranslate"><span class="pre">pos_label</span></code>.
+This is applicable only if targets (<code class="docutils literal notranslate"><span class="pre">y_{true,pred}</span></code>) are binary.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'micro'</span></code>:</dt><dd><p>Calculate metrics globally by counting the total true positives,
+false negatives and false positives.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'macro'</span></code>:</dt><dd><p>Calculate metrics for each label, and find their unweighted
+mean.  This does not take label imbalance into account.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">'weighted'</span></code>:</dt><dd><p>Calculate metrics for each label, and find their average weighted
+by support (the number of true instances for each label). This
+alters ‘macro’ to account for label imbalance; it can result in an
+F-score that is not between precision and recall.</p>
+</dd>
+</dl>
+</p></li>
+<li><p><strong>warn_for</strong> (<em>tuple</em><em> or </em><em>set</em><em>, </em><em>for internal use</em>) – This determines which warnings will be made in the case that this
+function is being used to return only one of its metrics.</p></li>
+<li><p><strong>sample_weight</strong> (<em>array-like of shape =</em><em> [</em><em>n_samples</em><em>]</em><em>, </em><em>optional</em>) – Sample weights.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>precision</strong> (<em>float (if average is not None) or array of float, shape =        [n_unique_labels]</em>)</p></li>
+<li><p><strong>recall</strong> (<em>float (if average is not None) or array of float, , shape =        [n_unique_labels]</em>)</p></li>
+<li><p><strong>fbeta_score</strong> (<em>float (if average is not None) or array of float, shape =        [n_unique_labels]</em>)</p></li>
+<li><p><strong>support</strong> (<em>int (if average is not None) or array of int, shape =        [n_unique_labels]</em>) – The number of occurrences of each label in <code class="docutils literal notranslate"><span class="pre">y_true</span></code>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id1"><span class="brackets">1</span></dt>
+<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Precision_and_recall">Wikipedia entry for the Precision and recall</a></p>
+</dd>
+<dt class="label" id="id2"><span class="brackets">2</span></dt>
+<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/F1_score">Wikipedia entry for the F1-score</a></p>
+</dd>
+<dt class="label" id="id3"><span class="brackets">3</span></dt>
+<dd><p><a class="reference external" href="http://www.godbole.net/shantanu/pubs/multilabelsvm-pakdd04.pdf">Discriminative Methods for Multi-labeled Classification Advances
+in Knowledge Discovery and Data Mining (2004), pp. 22-30 by Shantanu
+Godbole, Sunita Sarawagi</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">true</span> <span class="pre">positive</span> <span class="pre">+</span> <span class="pre">false</span> <span class="pre">positive</span> <span class="pre">==</span> <span class="pre">0</span></code>, precision is undefined;
+When <code class="docutils literal notranslate"><span class="pre">true</span> <span class="pre">positive</span> <span class="pre">+</span> <span class="pre">false</span> <span class="pre">negative</span> <span class="pre">==</span> <span class="pre">0</span></code>, recall is undefined.
+In such cases, the metric will be set to 0, as will f-score, and
+<code class="docutils literal notranslate"><span class="pre">UndefinedMetricWarning</span></code> will be raised.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.labelers.classification_report_utils.classification_report">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.labelers.classification_report_utils.</span></span><span class="sig-name descname"><span class="pre">classification_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.labelers.classification_report_utils.classification_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a text report showing the main classification metrics.</p>
+<p>Copy of the classification_report function from sklearn.metrics
+with the update to receiving the conf_matrix instead of calculating each
+time it is called.</p>
+<p>Read more in the <span class="xref std std-ref">User Guide</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conf_matrix</strong> (<em>array</em><em>, </em><em>shape =</em><em> [</em><em>n_labels</em><em>, </em><em>n_labels</em><em>]</em>) – confusion matrix, which is a square matrix describing
+false positives and false negatives, true positives and true negatives
+for classification.</p></li>
+<li><p><strong>labels</strong> (<em>array</em><em>, </em><em>shape =</em><em> [</em><em>n_labels</em><em>]</em>) – Optional list of label indices to include in the report.</p></li>
+<li><p><strong>target_names</strong> (<em>list of strings</em>) – Optional display names matching the labels (same order).</p></li>
+<li><p><strong>sample_weight</strong> (<em>array-like of shape =</em><em> [</em><em>n_samples</em><em>]</em><em>, </em><em>optional</em>) – Sample weights.</p></li>
+<li><p><strong>digits</strong> (<em>int</em>) – Number of digits for formatting output floating point values.
+When <code class="docutils literal notranslate"><span class="pre">output_dict</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>, this will be ignored and the
+returned values will not be rounded.</p></li>
+<li><p><strong>output_dict</strong> (<em>bool</em><em> (</em><em>default = False</em><em>)</em>) – If True, return output as dict</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p><strong>report</strong> – Text summary of the precision, recall, F1 score for each class.
+Dictionary returned if output_dict is True. Dictionary has the
+following structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'label 1'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'precision'</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span>
+             <span class="s1">'recall'</span><span class="p">:</span><span class="mf">1.0</span><span class="p">,</span>
+             <span class="s1">'f1-score'</span><span class="p">:</span><span class="mf">0.67</span><span class="p">,</span>
+             <span class="s1">'support'</span><span class="p">:</span><span class="mi">1</span><span class="p">},</span>
+ <span class="s1">'label 2'</span><span class="p">:</span> <span class="p">{</span> <span class="o">...</span> <span class="p">},</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The reported averages include macro average (averaging the unweighted
+mean per label), weighted average (averaging the support-weighted mean
+per label), sample average (only for multilabel classification) and
+micro average (averaging the total true positives, false negatives and
+false positives) it is only shown for multi-label or multi-class
+with a subset of classes because it is accuracy otherwise.
+See also:func:<cite>precision_recall_fscore_support</cite> for more details
+on averages.</p>
+<p>Note that in binary classification, recall of the positive class
+is also known as “sensitivity”; recall of the negative class is
+“specificity”.</p>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string / dict</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support" title="dataprofiler.labelers.classification_report_utils.precision_recall_fscore_support"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precision_recall_fscore_support</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">confusion_matrix</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">multilabel_confusion_matrix</span></code></p>
+</div>
+</dd></dl>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="dataprofiler.labelers.column_name_model.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Column Name Model</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="dataprofiler.labelers.character_level_cnn_model.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Character Level Cnn Model</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/dataprofiler.labelers.classification_report_utils.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    </body>
+</html>

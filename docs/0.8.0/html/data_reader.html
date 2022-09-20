@@ -1,0 +1,1099 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Structured Profilers" href="profiler_example.html" /><link rel="prev" title="Data Profiler - What’s in your data?" href="overview.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Intro to Data Readers - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="examples.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="API.html">API</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<p><a class="reference external" href="https://github.com/capitalone/rubicon/tree/main/notebooks/data_reader.nblink">View this notebook on GitHub</a></p>
+<section id="Intro-to-Data-Readers">
+<h1>Intro to Data Readers<a class="headerlink" href="#Intro-to-Data-Readers" title="Permalink to this headline">¶</a></h1>
+<p>Within the Data Profiler, there are 5 data reader classes:</p>
+<ul class="simple">
+<li><p>CSVData (delimited data: CSV, TSV, etc.)</p></li>
+<li><p>JSONData</p></li>
+<li><p>ParquetData</p></li>
+<li><p>AVROData</p></li>
+<li><p>GraphData</p></li>
+<li><p>TextData</p></li>
+</ul>
+<p>Each of these classes can be used to read data individually, however the Data Profiler provides the unique capability of auto detecting what data you have and reading it automatically by using the <code class="docutils literal notranslate"><span class="pre">Data</span></code> class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s1">'/path/to/mydata.abc'</span><span class="p">)</span>  <span class="c1"># auto detects and reads your data</span>
+</pre></div>
+</div>
+<section id="Automatically-reading-and-detecting-data">
+<h2>Automatically reading and detecting data<a class="headerlink" href="#Automatically-reading-and-detecting-data" title="Permalink to this headline">¶</a></h2>
+<p>Below is a demonstration of utilizing the <code class="docutils literal notranslate"><span class="pre">Data</span></code> class which automatically detects the type of data for a given file and reads it automatically.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># use data reader to read input data with different file types</span>
+<span class="n">data_folder</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
+<span class="n">csv_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"csv/aws_honeypot_marx_geo.csv"</span><span class="p">,</span>
+    <span class="s2">"csv/all-strings-skip-header-author.csv"</span><span class="p">,</span> <span class="c1"># csv files with the author/description on the first line</span>
+    <span class="s2">"csv/sparse-first-and-last-column-empty-first-row.txt"</span><span class="p">,</span> <span class="c1"># csv file with the .txt extension</span>
+<span class="p">]</span>
+<span class="n">json_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"json/complex_nested.json"</span><span class="p">,</span>
+    <span class="s2">"json/honeypot_intentially_mislabeled_file.csv"</span><span class="p">,</span> <span class="c1"># json file with the .csv extension</span>
+<span class="p">]</span>
+<span class="n">parquet_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"parquet/nation.dict.parquet"</span><span class="p">,</span>
+    <span class="s2">"parquet/nation.plain.intentionally_mislabled_file.csv"</span><span class="p">,</span> <span class="c1"># parquet file with the .csv extension</span>
+<span class="p">]</span>
+<span class="n">avro_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"avro/userdata1.avro"</span><span class="p">,</span>
+    <span class="s2">"avro/userdata1_intentionally_mislabled_file.json"</span><span class="p">,</span> <span class="c1"># avro file with the .json extension</span>
+<span class="p">]</span>
+<span class="n">graph_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"csv/graph_data_csv_identify.csv"</span><span class="p">,</span> <span class="c1"># csv file with graph column names</span>
+<span class="p">]</span>
+<span class="n">text_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"txt/discussion_reddit.txt"</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">all_files</span> <span class="o">=</span> <span class="n">csv_files</span> <span class="o">+</span> <span class="n">json_files</span> <span class="o">+</span> <span class="n">parquet_files</span> <span class="o">+</span> <span class="n">avro_files</span> <span class="o">+</span> <span class="n">graph_files</span> <span class="o">+</span> <span class="n">text_files</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'filepath'</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">*</span> <span class="mi">58</span> <span class="o">+</span> <span class="s1">'data type'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span><span class="o">*</span><span class="mi">80</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">all_files</span><span class="p">:</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">{:&lt;65}</span><span class="s2"> </span><span class="si">{:&lt;15}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># importing from a url</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s1">'https://raw.githubusercontent.com/capitalone/DataProfiler/main/dataprofiler/tests/data/csv/diamonds.csv'</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Specifying-detection-options-of-Data-and-loading-pandas.DataFrame">
+<h2>Specifying detection options of <code class="docutils literal notranslate"><span class="pre">Data</span></code> and loading <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code><a class="headerlink" href="#Specifying-detection-options-of-Data-and-loading-pandas.DataFrame" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Data</span></code> class also gives the ability to set options or if the user wants to load their data with specific requirements. Options for each data reader are specified in the docs: <a class="reference external" href="https://capitalone.github.io/DataProfiler/docs/0.4.4/html/dataprofiler.data_readers.html">https://capitalone.github.io/DataProfiler/docs/0.4.4/html/dataprofiler.data_readers.html</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+
+<span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>  <span class="c1"># allowed options are specified for each data reader.</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Later in this tutorial, the options for the CSVData class will be discussed.</p>
+<p>Additionally, a user can directly load a <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> as any data reader they choose.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">dataprofiler.data_readers.csv_data</span> <span class="kn">import</span> <span class="n">CSVData</span>
+
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="s1">'my'</span><span class="p">,</span> <span class="s1">'random'</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">])</span>
+
+<span class="c1"># specify via the `Data` class</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="s1">'csv'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Type: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
+
+<span class="c1"># specifically use the CSVData class</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">CSVData</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Type: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Accessing-data-and-attributes">
+<h2>Accessing data and attributes<a class="headerlink" href="#Accessing-data-and-attributes" title="Permalink to this headline">¶</a></h2>
+<p>Once loaded, the data can be accessed via the <code class="docutils literal notranslate"><span class="pre">data</span></code> property of the object. Additional information about the data loaded may differ between data readers.</p>
+<p>For this example we will focus on <code class="docutils literal notranslate"><span class="pre">CSVData</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv"</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Type: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">data_type</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Filepath: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">input_file_path</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'File Encoding: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">file_encoding</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Length (two techniques): '</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">data</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Data Access:"</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Checking-data-file-types-with-is_match">
+<h2>Checking data file types with <code class="docutils literal notranslate"><span class="pre">is_match</span></code><a class="headerlink" href="#Checking-data-file-types-with-is_match" title="Permalink to this headline">¶</a></h2>
+<p>Each data reader has a class method <code class="docutils literal notranslate"><span class="pre">is_match</span></code> which determines whether or not a dataset is of a given data type.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CSVData</span><span class="o">.</span><span class="n">is_match</span>
+<span class="n">JSONData</span><span class="o">.</span><span class="n">is_match</span>
+<span class="n">ParquetData</span><span class="o">.</span><span class="n">is_match</span>
+<span class="n">AVROData</span><span class="o">.</span><span class="n">is_match</span>
+<span class="n">GraphData</span><span class="o">.</span><span class="n">is_match</span>
+<span class="n">TextData</span><span class="o">.</span><span class="n">is_match</span>
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># supplemental function</span>
+<span class="k">def</span> <span class="nf">add_true_false_color</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">"""Converts True to green and False to red in printed text."""</span>
+    <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[92m  "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">is_match</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[0m"</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[31m "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">is_match</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\x1b</span><span class="s2">[0m"</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataprofiler.data_readers.csv_data</span> <span class="kn">import</span> <span class="n">CSVData</span>
+
+
+<span class="n">non_csv_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'json/iris-utf-8.json'</span><span class="p">,</span>
+    <span class="s1">'json/honeypot_intentially_mislabeled_file.csv'</span><span class="p">,</span>
+    <span class="s1">'parquet/titanic.parq'</span><span class="p">,</span>
+    <span class="s1">'parquet/nation.plain.intentionally_mislabled_file.csv'</span><span class="p">,</span>
+    <span class="s1">'txt/code.txt'</span><span class="p">,</span>
+    <span class="s1">'txt/sentence.txt'</span><span class="p">,</span>
+    <span class="s1">'avro/users.avro'</span><span class="p">,</span>
+    <span class="s1">'avro/snappy_compressed_intentionally_mislabeled_file.csv'</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Is the file a CSV?"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">csv_files</span><span class="p">:</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="n">is_match</span> <span class="o">=</span> <span class="n">CSVData</span><span class="o">.</span><span class="n">is_match</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">add_true_false_color</span><span class="p">(</span><span class="n">is_match</span><span class="p">),</span> <span class="s1">':'</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">non_csv_files</span><span class="p">:</span>
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="n">is_match</span> <span class="o">=</span> <span class="n">CSVData</span><span class="o">.</span><span class="n">is_match</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">add_true_false_color</span><span class="p">(</span><span class="n">is_match</span><span class="p">),</span> <span class="s1">':'</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Reloading-data-after-altering-options-with-reload">
+<h2>Reloading data after altering options with <code class="docutils literal notranslate"><span class="pre">reload</span></code><a class="headerlink" href="#Reloading-data-after-altering-options-with-reload" title="Permalink to this headline">¶</a></h2>
+<p>There are two cases for using the reload function, both of which require the data type to have been interpreted correctly:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>1. The options were not correctly determined
+2. The options were loaded correctly but a change is desired.
+</pre></div>
+</div>
+<p>In the example below, the <code class="docutils literal notranslate"><span class="pre">data_format</span></code> for reading the data is changed and the data is then reloaded.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/diamonds.csv"</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'original data:'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">'data_format'</span><span class="p">:</span> <span class="s1">'records'</span><span class="p">,</span> <span class="s1">'record_samples_per_line'</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'reloaded data:'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="A-deeper-dive-into-CSVData">
+<h2>A deeper dive into <code class="docutils literal notranslate"><span class="pre">CSVData</span></code><a class="headerlink" href="#A-deeper-dive-into-CSVData" title="Permalink to this headline">¶</a></h2>
+<p>This next section will focus on how to use the data reader class: <code class="docutils literal notranslate"><span class="pre">CSVData</span></code>. The <code class="docutils literal notranslate"><span class="pre">CSVData</span></code> class is used for reading delimited data. Delimited data are datasets which have their columns specified by a specific character, commonly the <code class="docutils literal notranslate"><span class="pre">,</span></code>. E.g. from the <code class="docutils literal notranslate"><span class="pre">diamonds.csv</span></code> dataset:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>carat,cut,color,clarity,depth,table,price,x,y,z
+0.23,Ideal,E,SI2,61.5,55,326,3.95,3.98,2.43
+0.21,Premium,E,SI1,59.8,61,326,3.89,3.84,2.31
+0.23,Good,E,VS1,56.9,65,327,4.05,4.07,2.31
+0.29,Premium,I,VS2,62.4,58,334,4.2,4.23,2.63
+0.31,Good,J,SI2,63.3,58,335,4.34,4.35,2.75
+</pre></div>
+</div>
+<p>However, the delimiter can be any character. Additionally, a <code class="docutils literal notranslate"><span class="pre">quotechar</span></code>, commonly <code class="docutils literal notranslate"><span class="pre">"</span></code>, can be specified which allows a delimiter to be contained within a column value. E.g. from the <code class="docutils literal notranslate"><span class="pre">blogposts.csv</span></code> dataset:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Blog Post,Date,Subject,Field
+"Monty Hall, meet Game Theory",4/13/2014,Statistics,Mathematics
+Gaussian Quadrature,4/13/2014,Algorithms,Mathematics
+</pre></div>
+</div>
+<p>Notice how <code class="docutils literal notranslate"><span class="pre">"Monty</span> <span class="pre">Hall,</span> <span class="pre">meet</span> <span class="pre">Game</span> <span class="pre">Theory"</span></code> is contained by the quotechar because it contains the delimiter value <code class="docutils literal notranslate"><span class="pre">,</span></code>.</p>
+<p>These delimiter dataset parameters (and more) can be automatically determined by the <code class="docutils literal notranslate"><span class="pre">CSVData</span></code> data reader, however they can also be set via the options as demonstrated later in this tutorial.</p>
+</section>
+<section id="Intro-to-the-CSVData-data-reader">
+<h2>Intro to the <code class="docutils literal notranslate"><span class="pre">CSVData</span></code> data reader<a class="headerlink" href="#Intro-to-the-CSVData-data-reader" title="Permalink to this headline">¶</a></h2>
+<p>Previously, it was shown that <code class="docutils literal notranslate"><span class="pre">CSVData</span></code> may automatically be detected using <code class="docutils literal notranslate"><span class="pre">Data</span></code> or can be manually specified by the user:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="kn">from</span> <span class="nn">dataprofiler.data_readers.csv_data</span> <span class="kn">import</span> <span class="n">CSVData</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">CSVData</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># use data reader to read delimited data</span>
+<span class="n">data_folder</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
+<span class="n">csv_files</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"csv/diamonds.csv"</span><span class="p">,</span>
+    <span class="s2">"csv/all-strings-skip-header-author.csv"</span><span class="p">,</span> <span class="c1"># csv files with the author/description on the first line</span>
+    <span class="s2">"csv/sparse-first-and-last-column-empty-first-row.txt"</span><span class="p">,</span> <span class="c1"># csv file with the .txt extension</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">csv_files</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">CSVData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="CSVData-Options">
+<h2>CSVData Options<a class="headerlink" href="#CSVData-Options" title="Permalink to this headline">¶</a></h2>
+<p>As mentioned preivously, <code class="docutils literal notranslate"><span class="pre">CSVData</span></code> has options that can be set to finetune its detection or to ensure the data is being read in a specific manner. The options for <code class="docutils literal notranslate"><span class="pre">CSVData</span></code> are detailed below:</p>
+<ul class="simple">
+<li><p>delimiter - delimiter used to decipher the csv input file</p></li>
+<li><p>quotechar - quote character used in the delimited file</p></li>
+<li><p>header - location of the header in the file.</p></li>
+<li><p>data_format - user selected format in which to return data can only be of specified types</p></li>
+<li><p>selected_columns - columns being selected from the entire dataset</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># options are set via a dictionary object in which the parameters are specified.</span>
+<span class="c1"># these are the default values for each option</span>
+<span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"delimiter"</span><span class="p">:</span> <span class="s2">","</span><span class="p">,</span>
+    <span class="s2">"quotechar"</span><span class="p">:</span> <span class="s1">'"'</span><span class="p">,</span>
+    <span class="s2">"header"</span><span class="p">:</span> <span class="s1">'auto'</span><span class="p">,</span>
+    <span class="s2">"data_format"</span><span class="p">:</span> <span class="s2">"dataframe"</span><span class="p">,</span>  <span class="c1"># type: str, choices: "dataframe", "records"</span>
+    <span class="s2">"selected_columns"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(),</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Options:-delimiter-and-quotechar">
+<h2>Options: delimiter and quotechar<a class="headerlink" href="#Options:-delimiter-and-quotechar" title="Permalink to this headline">¶</a></h2>
+<p>Below, both the auto detection and use of options will be illustrated for <code class="docutils literal notranslate"><span class="pre">delimiter</span></code> and <code class="docutils literal notranslate"><span class="pre">quotechar</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># display the data we are reading</span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/daily-activity-sheet-@-singlequote.csv"</span>
+<span class="n">num_lines</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[:</span><span class="n">num_lines</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Auto detected'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'delimiter: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">delimiter</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'quotechar: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">quotechar</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'delimiter'</span><span class="p">:</span> <span class="s1">'@'</span><span class="p">,</span> <span class="s1">'quotechar'</span><span class="p">:</span> <span class="s2">"'"</span><span class="p">}</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'manually set'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'delimiter: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">delimiter</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'quotechar: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">quotechar</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># intentional failure with incorrect options</span>
+<span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'delimiter'</span><span class="p">:</span> <span class="s1">','</span><span class="p">,</span> <span class="s1">'quotechar'</span><span class="p">:</span> <span class="s1">'"'</span><span class="p">}</span>
+
+<span class="c1"># will be interepted as TextData because the delimtier and quotechar were incorrect</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'intentional faliure set'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'delimiter: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">delimiter</span><span class="p">)</span>  <span class="c1"># attribute error raised here, bc TextData, not CSVData</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'quotechar: '</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">quotechar</span><span class="p">)</span>
+
+    <span class="c1"># should not reach this or something went wrong</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">'Should have failed because this is detected as TextData.'</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'When data_type is not set or the CSVData is not set, it will fail over to the</span><span class="se">\n</span><span class="s1">'</span>
+          <span class="s1">'next best reader. In this case it is "TextData"</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Options:-header">
+<h2>Options: header<a class="headerlink" href="#Options:-header" title="Permalink to this headline">¶</a></h2>
+<p>Below, both the auto detection and use of options will be illustrated for <code class="docutils literal notranslate"><span class="pre">header</span></code>.</p>
+<p>Notice how in the manually set mechanism, we are intentionally setting the header incorrectly to illustrate what happens.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># display the data we are reading</span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/sparse-first-and-last-column-header-and-author-description.txt"</span>
+<span class="n">num_lines</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[:</span><span class="n">num_lines</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'header'</span><span class="p">:</span> <span class="s1">'auto'</span><span class="p">}</span>  <span class="c1"># auto detected (default value)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Header:'</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'header'</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>  <span class="c1"># intentionally set incorrectly at value 2</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Data Header:'</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Options:-data_format">
+<h2>Options: data_format<a class="headerlink" href="#Options:-data_format" title="Permalink to this headline">¶</a></h2>
+<p>For CSVData, the <code class="docutils literal notranslate"><span class="pre">data_format</span></code> option can have the following values:</p>
+<ul class="simple">
+<li><p>dataframe - (default) loads the dataset as a pandas.DataFrame</p></li>
+<li><p>records - loads the data as rows of text values, the extra parameter <code class="docutils literal notranslate"><span class="pre">record_samples_per_line</span></code> how many rows are combined into a single line</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">dataframe</span></code> is used for conducting <strong>structured profiling</strong> of the dataset while <code class="docutils literal notranslate"><span class="pre">records</span></code> is for <strong>unstructured profiling</strong>.</p>
+<p>Below, both the auto detection and use of options will be illustrated for <code class="docutils literal notranslate"><span class="pre">data_format</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># display the data we are reading</span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/diamonds.csv"</span>
+<span class="n">num_lines</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[:</span><span class="n">num_lines</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'data_format'</span><span class="p">:</span> <span class="s1">'dataframe'</span><span class="p">}</span>  <span class="c1"># default</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>  <span class="c1"># or use CSVData</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'data_format'</span><span class="p">:</span> <span class="s1">'records'</span><span class="p">,</span> <span class="s1">'record_samples_per_line'</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Options:-selected-columns">
+<h2>Options: selected columns<a class="headerlink" href="#Options:-selected-columns" title="Permalink to this headline">¶</a></h2>
+<p>By default, all columns of a dataset will be read and loaded into the data reader. However, <code class="docutils literal notranslate"><span class="pre">selected_columns</span></code> can be set to only load columns which the user requests.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># display the data we are reading</span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data/csv/aws_honeypot_marx_geo.csv"</span>
+<span class="n">num_lines</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">readlines</span><span class="p">()[:</span><span class="n">num_lines</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'selected_columns'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'datetime'</span><span class="p">,</span> <span class="s1">'host'</span><span class="p">,</span> <span class="s1">'src'</span><span class="p">,</span> <span class="s1">'proto'</span><span class="p">]}</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Intro-to-GraphData-data-reader">
+<h2>Intro to <code class="docutils literal notranslate"><span class="pre">GraphData</span></code> data reader<a class="headerlink" href="#Intro-to-GraphData-data-reader" title="Permalink to this headline">¶</a></h2>
+<p>This tutorial will focus on how to use the data reader class: <code class="docutils literal notranslate"><span class="pre">GraphData</span></code>. The <code class="docutils literal notranslate"><span class="pre">GraphData</span></code> class is used for reading the delimited data from a CSV file into a <code class="docutils literal notranslate"><span class="pre">NetworkX</span></code> Graph object. This is all in an effort to prepare the data automaticaly for <code class="docutils literal notranslate"><span class="pre">GraphProfiler</span></code> class to then profile graph data.</p>
+<p>The DataProiler keys off of common graph naming conventions in the column header row. E.G. from <code class="docutils literal notranslate"><span class="pre">dataprofiler/tests/csv/graph_data_csv_identify.csv</span></code></p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>node_id_dst, node_id_src, continuous_weight, categorical_status
+108,289,7.4448069,9
+81,180,3.65064207,0
+458,83,5.9959787,10
+55,116,4.63359209,79
+454,177,5.76715529,11
+429,225,4.79556889,3
+</pre></div>
+</div>
+<p>Options for the <code class="docutils literal notranslate"><span class="pre">GraphData</span></code> are exactly the same as <code class="docutils literal notranslate"><span class="pre">CSVData</span></code>.</p>
+<p>Example implementation of <code class="docutils literal notranslate"><span class="pre">GraphData</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+<span class="kn">from</span> <span class="nn">dataprofiler.data_readers.graph_data</span> <span class="kn">import</span> <span class="n">GraphData</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">graph_file</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">GraphData</span><span class="p">(</span><span class="n">graph_file</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">dataprofiler.data_readers.graph_data</span> <span class="kn">import</span> <span class="n">GraphData</span>
+
+<span class="c1"># use data reader to read delimited data</span>
+<span class="n">data_folder</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
+<span class="n">graph_file</span> <span class="o">=</span> <span class="s2">"csv/graph_data_csv_identify.csv"</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">GraphData</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_folder</span><span class="p">,</span> <span class="n">graph_file</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'='</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="profiler_example.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Structured Profilers</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="overview.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Data Profiler - What’s in your data?</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/data_reader.nblink.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            Contents
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Intro to Data Readers</a><ul>
+<li><a class="reference internal" href="#Automatically-reading-and-detecting-data">Automatically reading and detecting data</a></li>
+<li><a class="reference internal" href="#Specifying-detection-options-of-Data-and-loading-pandas.DataFrame">Specifying detection options of <code class="docutils literal notranslate"><span class="pre">Data</span></code> and loading <code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a></li>
+<li><a class="reference internal" href="#Accessing-data-and-attributes">Accessing data and attributes</a></li>
+<li><a class="reference internal" href="#Checking-data-file-types-with-is_match">Checking data file types with <code class="docutils literal notranslate"><span class="pre">is_match</span></code></a></li>
+<li><a class="reference internal" href="#Reloading-data-after-altering-options-with-reload">Reloading data after altering options with <code class="docutils literal notranslate"><span class="pre">reload</span></code></a></li>
+<li><a class="reference internal" href="#A-deeper-dive-into-CSVData">A deeper dive into <code class="docutils literal notranslate"><span class="pre">CSVData</span></code></a></li>
+<li><a class="reference internal" href="#Intro-to-the-CSVData-data-reader">Intro to the <code class="docutils literal notranslate"><span class="pre">CSVData</span></code> data reader</a></li>
+<li><a class="reference internal" href="#CSVData-Options">CSVData Options</a></li>
+<li><a class="reference internal" href="#Options:-delimiter-and-quotechar">Options: delimiter and quotechar</a></li>
+<li><a class="reference internal" href="#Options:-header">Options: header</a></li>
+<li><a class="reference internal" href="#Options:-data_format">Options: data_format</a></li>
+<li><a class="reference internal" href="#Options:-selected-columns">Options: selected columns</a></li>
+<li><a class="reference internal" href="#Intro-to-GraphData-data-reader">Intro to <code class="docutils literal notranslate"><span class="pre">GraphData</span></code> data reader</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    </body>
+</html>

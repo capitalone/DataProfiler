@@ -1,0 +1,777 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Labelers" href="dataprofiler.labelers.html" /><link rel="prev" title="Unstructured Text Profile" href="dataprofiler.profilers.unstructured_text_profile.html" />
+
+    <link rel="shortcut icon" href="_static/DataProfilerLogoLightTheme.png"/><meta name="generator" content="sphinx-4.1.2, furo 2021.07.05.beta38"/>
+        <title>Utils - Data Profiler v0.8.0</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    
+
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link media="(prefers-color-scheme: dark)" rel="stylesheet" href="_static/pygments_dark.css"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/images/DataProfilerLogoLightThemeLong.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/images/DataProfilerDarkLogoLong.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text"><div class='hidden'>Data Profiler</div> <div class='version'> v0.8.0</div></span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Intro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Install</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_readers.html">Data Readers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiler.html">Profiler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_labeling.html">Labeler (Sensitive Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graphs.html">Graphs</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html">Overview of Data Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_reader.html">Data Reader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profiler_example.html">Structured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unstructured_profiler_example.html">Unstructured Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_data_demo.html">Graph Profiler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="labeler.html">Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="add_new_model_to_data_labeler.html">Adding Models to a Labeler Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="regex_labeler_from_scratch.html">Creating a Regex Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="column_name_labeler_example.html">Creating a ColumnName Labeler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="merge_profile_list.html">Merge Profile List</a></li>
+<li class="toctree-l2"><a class="reference internal" href="popmon_dp_loader_example.html">Dataloader with Popmon Reports</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="API.html">API</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label for="toctree-checkbox-2"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.data_readers.html">Data Readers</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label for="toctree-checkbox-3"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.avro_data.html">Avro Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.base_data.html">Base Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.csv_data.html">CSV Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.data_utils.html">Data Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.filepath_or_buffer.html">Filepath Or Buffer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.graph_data.html">Graph Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.json_data.html">JSON Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.parquet_data.html">Parquet Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.structured_mixins.html">Structured Mixins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.data_readers.text_data.html">Text Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="dataprofiler.profilers.html">Profilers</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label for="toctree-checkbox-4"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="dataprofiler.profilers.helpers.html">Helpers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label for="toctree-checkbox-5"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="dataprofiler.profilers.helpers.report_helpers.html">Report Helpers</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.base_column_profilers.html">Base Column Profilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.categorical_column_profile.html">Categorical Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.column_profile_compilers.html">Column Profile Compilers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.data_labeler_column_profile.html">Data Labeler Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.datetime_column_profile.html">Datetime Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.float_column_profile.html">Float Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.graph_profiler.html">Graph Profiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.histogram_utils.html">Histogram Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.int_column_profile.html">Int Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.numerical_column_stats.html">Numerical Column Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.order_column_profile.html">Order Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profile_builder.html">Profile Builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.profiler_options.html">Profiler Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.text_column_profile.html">Text Column Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_labeler_profile.html">Unstructured Labeler Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.profilers.unstructured_text_profile.html">Unstructured Text Profile</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.labelers.html">Labelers</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label for="toctree-checkbox-6"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_data_labeler.html">Base Data Labeler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.base_model.html">Base Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.char_load_tf_model.html">Char Load Tf Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.character_level_cnn_model.html">Character Level Cnn Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.classification_report_utils.html">Classification Report Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.column_name_model.html">Column Name Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_labelers.html">Data Labelers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.data_processing.html">Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.labeler_utils.html">Labeler Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.regex_model.html">Regex Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.labelers.utils.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="dataprofiler.validators.html">Validators</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label for="toctree-checkbox-7"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="dataprofiler.validators.base_validators.html">Base Validators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Community:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/releases">Changelog</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/issues/new/choose">Feedback</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler">GitHub</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/capitalone/DataProfiler/blob/main/.github/CONTRIBUTING.md">Contributing</a></li>
+</ul>
+
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <section id="module-dataprofiler.profilers.utils">
+<span id="utils"></span><h1>Utils<a class="headerlink" href="#module-dataprofiler.profilers.utils" title="Permalink to this headline">¶</a></h1>
+<p>Contains functions for profilers.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.dict_merge">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">dict_merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_dct</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.dict_merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge dict recursively.</p>
+<p>Inspired by :meth:<code class="docutils literal notranslate"><span class="pre">dict.update()</span></code>, instead of updating only
+top-level keys, dict_merge recurses down into dicts nested
+to an arbitrary depth, updating keys. The <code class="docutils literal notranslate"><span class="pre">merge_dct</span></code> is
+merged into <code class="docutils literal notranslate"><span class="pre">dct</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dct</strong> – dict onto which the merge is executed</p></li>
+<li><p><strong>merge_dct</strong> – dct merged into dct</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">KeyDict</span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.defaultdict</span></code></p>
+<p>Helper class for sample_in_chunks.</p>
+<p>Allows keys that are missing to become the values for that key.
+From:
+<a class="reference external" href="https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/">https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None.</span>  <span class="pre">Remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">D.</span></span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">shallow</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">D.</span></span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.default_factory">
+<span class="sig-name descname"><span class="pre">default_factory</span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.default_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory for default value called by __missing__().</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.fromkeys">
+<span class="sig-name descname"><span class="pre">fromkeys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.fromkeys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new dictionary with keys from iterable and values set to value.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.items">
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">items</span></span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.items" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.keys">
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">keys</span></span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.pop">
+<span class="sig-name descname"><span class="pre">pop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">k</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">d</span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span></span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>If key is not found, default is returned if given, otherwise KeyError is raised</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.popitem">
+<span class="sig-name descname"><span class="pre">popitem</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.popitem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove and return a (key, value) pair as a 2-tuple.</p>
+<p>Pairs are returned in LIFO (last-in, first-out) order.
+Raises KeyError if the dict is empty.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.setdefault">
+<span class="sig-name descname"><span class="pre">setdefault</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">/</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.setdefault" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert key with a value of default if key is not in the dictionary.</p>
+<p>Return the value for key if key is in the dictionary, else default.</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">E</span></em>, <span class="optional">]</span><em class="sig-param"><span class="pre">**F</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None.</span>  <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">dict/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span></span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+In either case, this is followed by: for k in F:  D[k] = F[k]</p>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.KeyDict.values">
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">values</span></span></span><a class="headerlink" href="#dataprofiler.profilers.utils.KeyDict.values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.shuffle_in_chunks">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">shuffle_in_chunks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.shuffle_in_chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create shuffled indexes in chunks.</p>
+<p>This reduces the cost of having to create all indexes,
+but only of that what is needed.
+Initial Code idea from:
+<a class="reference external" href="https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/">https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_length</strong> – length of data to be shuffled</p></li>
+<li><p><strong>chunk_size</strong> – size of shuffled chunks</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of shuffled indices of chunk size</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.warn_on_profile">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">warn_on_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.warn_on_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a warning if a given profile errors (tensorflow typically).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>col_profile</strong> (<em>str</em>) – Name of the column profile</p></li>
+<li><p><strong>e</strong> (<em>Exception</em>) – Error message from profiler error</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.partition">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.partition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a generator which returns data in specified chunk size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>list</em><em>, </em><em>dataframe</em><em>, </em><em>etc</em>) – list, dataframe, etc</p></li>
+<li><p><strong>chunk_size</strong> (<em>int</em>) – size of partition to return</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.suggest_pool_size">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">suggest_pool_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.suggest_pool_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggest the pool size based on resources.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_size</strong> (<em>int</em>) – size of the dataset</p></li>
+<li><p><strong>cols</strong> (<em>int</em>) – columns of the dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return suggested_pool_size</dt>
+<dd class="field-even"><p>suggeseted pool size</p>
+</dd>
+<dt class="field-odd">Rtype suggested_pool_size</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.generate_pool">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">generate_pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_pool_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cols</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.generate_pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a multiprocessing pool to allocate functions too.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_pool_size</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>None</em><em>]</em>) – Max number of processes assigned to the pool</p></li>
+<li><p><strong>data_size</strong> (<em>int</em>) – size of the dataset</p></li>
+<li><p><strong>cols</strong> (<em>int</em>) – columns of the dataset</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return pool</dt>
+<dd class="field-even"><p>Multiprocessing pool to allocate processes to</p>
+</dd>
+<dt class="field-odd">Rtype pool</dt>
+<dd class="field-odd"><p>Multiproessing.Pool</p>
+</dd>
+<dt class="field-even">Return cpu_count</dt>
+<dd class="field-even"><p>Number of processes (cpu bound) to utilize</p>
+</dd>
+<dt class="field-odd">Rtype cpu_count</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.overlap">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">overlap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.overlap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True iff [x1:x2] overlaps with [y1:y2].</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.add_nested_dictionaries">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">add_nested_dictionaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">first_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">second_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.add_nested_dictionaries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge two dictionaries together and add values together.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>first_dict</strong> (<em>dict</em>) – dictionary to be merged</p></li>
+<li><p><strong>second_dict</strong> (<em>dict</em>) – dictionary to be merged</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>merged dictionary</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.biased_skew">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">biased_skew</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.biased_skew" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the biased estimator for skewness of the given data.</p>
+<dl class="simple">
+<dt>The definition is formalized as g_1 here:</dt><dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Skewness#Sample_skewness">https://en.wikipedia.org/wiki/Skewness#Sample_skewness</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df_series</strong> (<em>pandas Series</em>) – data to get skewness of, assuming floats</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>biased skewness</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.biased_kurt">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">biased_kurt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_series</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.biased_kurt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the biased estimator for kurtosis of the given data.</p>
+<dl class="simple">
+<dt>The definition is formalized as g_2 here:</dt><dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Kurtosis#A_natural_but_biased_estimator">https://en.wikipedia.org/wiki/Kurtosis#A_natural_but_biased_estimator</a></p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df_series</strong> (<em>pandas Series</em>) – data to get kurtosis of, assuming floats</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>biased kurtosis</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.find_diff_of_numbers">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">find_diff_of_numbers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stat1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.find_diff_of_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the difference between two stats.</p>
+<p>If there is no difference, return “unchanged”.
+For ints/floats, returns stat1 - stat2.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stat1</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em>) – the first statistical input</p></li>
+<li><p><strong>stat2</strong> (<em>Union</em><em>[</em><em>int</em><em>, </em><em>float</em><em>]</em>) – the second statistical input</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the difference of the stats</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.find_diff_of_strings_and_bools">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">find_diff_of_strings_and_bools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stat1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.find_diff_of_strings_and_bools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the difference between two stats.</p>
+<p>If there is no difference, return “unchanged”.
+For strings and bools, return list containing [stat1, stat2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stat1</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>bool</em><em>]</em>) – the first statistical input</p></li>
+<li><p><strong>stat2</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>bool</em><em>]</em>) – the second statistical input</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the difference of the stats</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.find_diff_of_lists_and_sets">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">find_diff_of_lists_and_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stat1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.find_diff_of_lists_and_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the difference between two stats.</p>
+<p>If there is no difference, return
+“unchanged”. Remove duplicates and returns [unique values of stat1,
+shared values, unique values of stat2].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stat1</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>set</em><em>]</em>) – the first statistical input</p></li>
+<li><p><strong>stat2</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>set</em><em>]</em>) – the second statistical input</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the difference of the stats</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.find_diff_of_dates">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">find_diff_of_dates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stat1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.find_diff_of_dates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the difference between two dates.</p>
+<p>If there is no difference, return
+“unchanged”. For dates, return the difference in time.</p>
+<p>Because only days can be stored as negative values internally
+for timedelta objects, the output for these negative values is
+less readable due to the combination of signs in the default
+output. This returns a readable output for timedelta that
+accounts for potential negative differences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stat1</strong> (<em>datetime.datetime object</em>) – the first statistical input</p></li>
+<li><p><strong>stat2</strong> (<em>datetime.datetime object</em>) – the second statistical input</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Difference in stats</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.find_diff_of_dicts">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">find_diff_of_dicts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.find_diff_of_dicts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the difference between two dicts.</p>
+<p>For each key in each dict,
+return “unchanged” if there’s no difference, otherwise return
+the difference. Assume that if the two dictionaries share the
+same key, their values are the same type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dict1</strong> (<em>dict</em>) – the first dict</p></li>
+<li><p><strong>dict2</strong> (<em>dict</em>) – the second dict</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Difference in the keys of each dict</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.find_diff_of_matrices">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">find_diff_of_matrices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">matrix1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.find_diff_of_matrices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the difference between two matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>matrix1</strong> (<em>list</em><em>(</em><em>list</em><em>(</em><em>float</em><em>)</em><em>)</em>) – the first matrix</p></li>
+<li><p><strong>matrix2</strong> (<em>list</em><em>(</em><em>list</em><em>(</em><em>float</em><em>)</em><em>)</em>) – the second matrix</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Difference in the matrix</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list(list(float))</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.find_diff_of_dicts_with_diff_keys">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">find_diff_of_dicts_with_diff_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.find_diff_of_dicts_with_diff_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the difference between two dicts.</p>
+<p>For each key in each dict,
+return “unchanged” if there’s no difference, otherwise return
+the difference. Assume that if the two dictionaries share the
+same key, their values are the same type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dict1</strong> (<em>dict</em>) – the first dict</p></li>
+<li><p><strong>dict2</strong> (<em>dict</em>) – the second dict</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Difference in the keys of each dict</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.get_memory_size">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">get_memory_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'M'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.get_memory_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get memory size of the input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>numpy.array</em><em>, </em><em>pandas.DataFrame</em><em>]</em>) – list or array of data</p></li>
+<li><p><strong>unit</strong> (<em>string</em>) – memory size unit (B, K, M, or G)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>memory size of the input data</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.method_timeit">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">method_timeit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.method_timeit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Measure execution time of provided method.</p>
+<p>Record time into times dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method</strong> (<em>Callable</em>) – method to time</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – key argument for the times dictionary</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.perform_chi_squared_test_for_homogeneity">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">perform_chi_squared_test_for_homogeneity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">categories1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categories2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.perform_chi_squared_test_for_homogeneity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform a Chi Squared test for homogeneity between two groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>categories1</strong> (<em>dict</em>) – Categories and respective counts of the first group</p></li>
+<li><p><strong>sample_size1</strong> (<em>int</em>) – Number of samples in first group</p></li>
+<li><p><strong>categories2</strong> (<em>dict</em>) – Categories and respective counts of the second group</p></li>
+<li><p><strong>sample_size2</strong> (<em>int</em>) – Number of samples in second group</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Results of the chi squared test</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.chunk">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">chunk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">it</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chunk things out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>top_profile</strong> (<em>list</em>) – Categories and respective counts of the second group</p></li>
+<li><p><strong>other_profile</strong> (<em>int</em>) – Number of samples in second group</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Merge of two profile objects</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Profile</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.merge">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top_profile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_profile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge two Profiles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>top_profile</strong> (<em>list</em>) – Categories and respective counts of the second group</p></li>
+<li><p><strong>other_profile</strong> (<em>int</em>) – Number of samples in second group</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Merge of two profile objects</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Profile</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.merge_profile_list">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">merge_profile_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_of_profiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dataprofiler.profilers.utils.merge_profile_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge list of profiles into a single profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>list_of_profiles</strong> (<em>list</em>) – Categories and respective counts of the second group</p></li>
+<li><p><strong>pool_count</strong> (<em>int</em>) – Number of samples in second group</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Single profile that is the merge of all profiles in the
+<cite>list_of_profiles</cite> list.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Profile</p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="dataprofiler.labelers.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Labelers</div>
+              </div>
+              <svg><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="dataprofiler.profilers.unstructured_text_profile.html">
+              <svg><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Unstructured Text Profile</div>
+                
+              </div>
+            </a>
+        </div>
+
+        <div class="related-information">
+              Copyright &#169; 2020, Jeremy Goodsitt, Austin Walters, Anh Truong, Grant Eden, and Chris Wallace
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
+            |
+            <a class="muted-link" href="_sources/dataprofiler.profilers.utils.rst.txt"
+               rel="nofollow">
+              Show Source
+            </a>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </main>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/scripts/main.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

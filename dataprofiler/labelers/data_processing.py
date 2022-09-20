@@ -2086,15 +2086,9 @@ class ColumnNameModelPostprocessor(
 ):
     """Subclass of BaseDataPostprocessor for postprocessing regex data."""
 
-    def __init__(self, true_positive_dict=None, positive_threshold_config=None):
+    def __init__(self):
         """Initialize the ColumnNameModelPostProcessor class."""
-        if true_positive_dict is None:
-            true_positive_dict = {}
-
-        super().__init__(
-            true_positive_dict=true_positive_dict,
-            positive_threshold_config=positive_threshold_config,
-        )
+        super().__init__()
 
     def _validate_parameters(self, parameters):
         """
@@ -2118,31 +2112,9 @@ class ColumnNameModelPostprocessor(
         errors = []
 
         for param in parameters:
-            value = parameters[param]
-
-            if param == "true_positive_dict" and (
-                not isinstance(value, list)
-                or not isinstance(value[0], dict)
-                or "attribute" not in value[0].keys()
-                or "label" not in value[0].keys()
-            ):
-                errors.append(
-                    """`{}` is a required parameter that must be a list
-                    of dictionaries each with the following
-                    two keys: 'attribute' and 'label'""".format(
-                        param
-                    )
-                )
-            elif param == "positive_threshold_config" and (
-                not isinstance(value, int) or value is None
-            ):
-                errors.append(
-                    "`{}` is an required parameter that must be an integer.".format(
-                        param
-                    )
-                )
-            elif param not in allowed_parameters:
+            if param not in allowed_parameters:
                 errors.append("`{}` is not a permited parameter.".format(param))
+
         if errors:
             raise ValueError("\n".join(errors))
 

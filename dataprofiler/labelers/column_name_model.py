@@ -38,6 +38,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         parameters.setdefault("true_positive_dict", None)
         parameters.setdefault("include_label", True)
         parameters.setdefault("negative_threshold_config", None)
+        parameters.setdefault("positive_threshold_config", None)
 
         # validate and set parameters
         self.set_label_mapping(label_mapping)
@@ -66,6 +67,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             "false_positive_dict",
             "include_label",
             "negative_threshold_config",
+            "positive_threshold_config",
         ]
 
         list_of_accepted_parameters = optional_parameters + required_parameters
@@ -123,6 +125,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                     "`{}` is an optional parameter that must be a boolean.".format(
                         param
                     )
+                )
+            elif param == "positive_threshold_config" and (
+                value is None or not isinstance(value, int)
+            ):
+                errors.append(
+                    "`{}` is a required parameter that must be a boolean.".format(param)
                 )
             elif param not in list_of_accepted_parameters:
                 errors.append("`{}` is not an accepted parameter.".format(param))
@@ -234,25 +242,27 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         )
 
         predictions = np.array([])
-        confidences = None
+        confidences = np.array([])
 
         # `data` at this point is either filtered or not filtered
         # list of column names on which we are predicting
         for iter_value, value in enumerate(data):
 
             if output[iter_value][0] > self._parameters["positive_threshold_config"]:
-                predictions[iter_value] = self._parameters["true_positive_dict"][
-                    output[iter_value][1]
-                ]["label"]
+                predictions = np.append(
+                    predictions,
+                    self._parameters["true_positive_dict"][output[iter_value][1]][
+                        "label"
+                    ],
+                )
 
                 if show_confidences:
-                    confidences = np.array([])
-                    confidences[iter_value] = output[iter_value][0]
+                    confidences = np.append(confidences, output[iter_value][0])
 
         if verbose:
             logger.info("compare_positive process complete")
 
-        if confidences:
+        if show_confidences:
             return {"pred": predictions, "conf": confidences}
         return {"pred": predictions}
 

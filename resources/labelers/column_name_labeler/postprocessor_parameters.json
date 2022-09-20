@@ -1,1 +1,1 @@
-{"true_positive_dict": [{"attribute": "ssn", "label": "ssn"}, {"attribute": "suffix", "label": "name"}, {"attribute": "my_home_address", "label": "address"}], "positive_threshold_config": 85}
+{}

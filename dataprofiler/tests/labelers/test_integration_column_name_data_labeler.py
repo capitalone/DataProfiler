@@ -42,6 +42,7 @@ class TestColumnNameDataLabeler(unittest.TestCase):
                 },
             ],
             "negative_threshold_config": 50,
+            "positive_threshold_config": 85,
             "include_label": True,
         }
 
@@ -53,10 +54,7 @@ class TestColumnNameDataLabeler(unittest.TestCase):
         model = ColumnNameModel(
             label_mapping=cls.label_mapping, parameters=cls.parameters
         )
-        postprocessor = ColumnNameModelPostprocessor(
-            true_positive_dict=cls.parameters["true_positive_dict"],
-            positive_threshold_config=85,
-        )
+        postprocessor = ColumnNameModelPostprocessor()
 
         cls.data_labeler = BaseDataLabeler.load_with_components(
             preprocessor=preprocessor, model=model, postprocessor=postprocessor

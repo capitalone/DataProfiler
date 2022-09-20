@@ -35,6 +35,7 @@ mock_model_parameters = {
         },
     ],
     "negative_threshold_config": 50,
+    "positive_threshold_config": 85,
     "include_label": True,
 }
 
@@ -63,6 +64,7 @@ class TestColumnNameModel(unittest.TestCase):
 
         cls.invalid_parameters = [
             {
+                "positive_threshold_config": 85,
                 "false_positive_dict": [
                     {
                         "attribute": "test_attribute",
@@ -76,6 +78,7 @@ class TestColumnNameModel(unittest.TestCase):
                 "true_positive_dict": [
                     {"attribute": "test_attribute", "label": "test_label"}
                 ],
+                "positive_threshold_config": 85,
             },
             {
                 "false_positive_dict": [
@@ -91,6 +94,22 @@ class TestColumnNameModel(unittest.TestCase):
                     {"attribute": "my_home_address", "label": "address"},
                     {"attribute": "test_attribute", "label": "test_label"},
                 ],
+                "positive_threshold_config": 85,
+            },
+            {
+                "false_positive_dict": [
+                    {
+                        "attribute": "test_attribute",
+                        "label": "test_label",
+                    }
+                ],
+                # fails, true_positive not subset of label_mapping
+                "true_positive_dict": [
+                    {"attribute": "ssn", "label": "ssn"},
+                    {"attribute": "suffix", "label": "name"},
+                    {"attribute": "my_home_address", "label": "address"},
+                ],
+                "positive_threshold_config": "failure",
             },
         ]
 
@@ -115,6 +134,7 @@ class TestColumnNameModel(unittest.TestCase):
                 },
             ],
             "negative_threshold_config": 50,
+            "positive_threshold_config": 85,
             "include_label": True,
         }
 
@@ -145,25 +165,16 @@ class TestColumnNameModel(unittest.TestCase):
         model = ColumnNameModel(
             label_mapping=self.test_label_mapping, parameters=mock_model_parameters
         )
-        expected_output = [[100.0, 0]]
+        expected_output = {
+            "pred": np.array(["ssn"], dtype="<U32"),
+            "conf": np.array([100.0]),
+        }
         with self.assertLogs(
             "DataProfiler.labelers.column_name_model", level="INFO"
         ) as logs:
-            model_output = model.predict(data=self.data)
+            model_output = model.predict(data=self.data, show_confidences=True)
         self.assertTrue(np.array_equal(expected_output, model_output))
         self.assertTrue(len(logs.output))
-
-        # `show_confidences` is disabled currently
-        # should raise error if set to `True`
-        with self.assertLogs(
-            "DataProfiler.labelers.column_name_model",
-            level="WARNING"
-            # """`show_confidences` parameter is disabled
-            #     for MVP implementation. Due to the requirement
-            #     of having the data point in the post processor.
-            #     Note: Confidence values are returned by default.""",
-        ):
-            model.predict(data=self.data, show_confidences=True)
 
         # clear stdout
         mock_stdout.seek(0)
@@ -191,7 +202,7 @@ class TestColumnNameModel(unittest.TestCase):
         mock_file = setup_save_mock_open(mock_open)
 
         model = ColumnNameModel(
-            label_mapping=mock_model_parameters, parameters=self.parameters
+            label_mapping=mock_label_mapping, parameters=self.parameters
         )
 
         model.save_to_disk(".")
@@ -199,14 +210,10 @@ class TestColumnNameModel(unittest.TestCase):
             '{"true_positive_dict": [{"attribute": "ssn", "label": "ssn"}, '
             '{"attribute": "suffix", "label": "name"}, {"attribute": "my_home_address", '
             '"label": "address"}], "false_positive_dict": [{"attribute": '
-            '"contract_number", "label": "ssn"}, {"attribute": "role", '
-            '"label": "name"}, {"attribute": "send_address", "label": "address"}], '
-            '"negative_threshold_config": 50, "include_label": true}{"true_positive_dict": '
-            '[{"attribute": "ssn", "label": "ssn"}, {"attribute": "suffix", '
-            '"label": "name"}, {"attribute": "my_home_address", "label": "address"}], '
-            '"false_positive_dict": [{"attribute": "contract_number", "label": "ssn"}, '
-            '{"attribute": "role", "label": "name"}, {"attribute": "send_address", "label": '
-            '"address"}], "negative_threshold_config": 50, "include_label": true}',
+            '"contract_number", "label": "ssn"}, {"attribute": "role", "label": '
+            '"name"}, {"attribute": "send_address", "label": "address"}], '
+            '"negative_threshold_config": 50, "positive_threshold_config": 85, '
+            '"include_label": true}{"ssn": 1, "name": 2, "address": 3}',
             mock_file.getvalue(),
         )
 
@@ -234,6 +241,10 @@ class TestColumnNameModel(unittest.TestCase):
         self.assertEqual(
             mock_model_parameters["negative_threshold_config"],
             loaded_model._parameters["negative_threshold_config"],
+        )
+        self.assertEqual(
+            mock_model_parameters["positive_threshold_config"],
+            loaded_model._parameters["positive_threshold_config"],
         )
 
     def test_reverse_label_mapping(self):

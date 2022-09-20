@@ -2945,91 +2945,27 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
         self.assertIn("Parameters", mock_stdout.getvalue())
         self.assertIn("Output Format", mock_stdout.getvalue())
 
-    def test_validate_parameters(self):
-        # passing validate on params provided
-        params = {
-            "true_positive_dict": [{"attribute": "test", "label": "test"}],
-            "positive_threshold_config": 85,
-        }
-        ColumnNameModelPostprocessor(
-            true_positive_dict=params["true_positive_dict"],
-            positive_threshold_config=params["positive_threshold_config"],
-        )
-
-        # failing validate on `attribute` on `true_positive_dict`
-        params = {
-            "true_positive_dict": [{"failing": "test", "label": "test"}],
-            "positive_threshold_config": 85,
-        }
-        with self.assertRaisesRegex(
-            ValueError,
-            """`true_positive_dict` is a required parameter that must be a list
-                    of dictionaries each with the following
-                    two keys: 'attribute' and 'label'""",
-        ):
-            ColumnNameModelPostprocessor(
-                true_positive_dict=params["true_positive_dict"],
-                positive_threshold_config=params["positive_threshold_config"],
-            )
-
-        # failing validate on `positive_threshold_config`
-        params = {
-            "true_positive_dict": [{"attribute": "test", "label": "test"}],
-            "positive_threshold_config": "failing",
-        }
-        with self.assertRaisesRegex(
-            ValueError,
-            "`positive_threshold_config` is an required parameter that must be an integer.",
-        ):
-            ColumnNameModelPostprocessor(
-                true_positive_dict=params["true_positive_dict"],
-                positive_threshold_config=params["positive_threshold_config"],
-            )
-
-        # failing __init__ on unaccepted parameters
-        params = {
-            "true_positive_dict": [{"attribute": "test", "label": "test"}],
-            "positive_threshold_config": 30,
-            "one_of_these_things": "one_of_these_doesn't belong",
-        }
-        with self.assertRaises(TypeError):
-            ColumnNameModelPostprocessor(
-                true_positive_dict=params["true_positive_dict"],
-                positive_threshold_config=params["positive_threshold_config"],
-                one_of_these_things=params["one_of_these_things"],
-            )
-
     def test_process(self):
         """Test post-processing data from the ColumnNameModel class."""
         data = ["ssn", "role_name", "wallet_address"]
-        model_output = [[100.0, 0]]
-        expected_output = {0: {"pred": "ssn", "conf": 100.0}}
-
-        params = {
-            "true_positive_dict": [
-                {"attribute": "ssn", "label": "ssn"},
-                {"attribute": "suffix", "label": "name"},
-                {"attribute": "my_home_address", "label": "address"},
-            ],
-            "positive_threshold_config": 85,
+        model_output = {
+            "pred": np.array(["ssn"], dtype="<U32"),
+            "conf": np.array([100.0]),
+        }
+        expected_output = {
+            "pred": np.array(["ssn"], dtype="<U32"),
+            "conf": np.array([100.0]),
         }
 
-        processor = ColumnNameModelPostprocessor(
-            true_positive_dict=params["true_positive_dict"],
-            positive_threshold_config=params["positive_threshold_config"],
-        )
+        processor = ColumnNameModelPostprocessor()
         process_output = processor.process(data, labels=model_output)
         self.assertDictEqual(expected_output, process_output)
 
     def test_set_params(self):
-        params = {
-            "true_positive_dict": [{"attribute": "test", "label": "test"}],
-            "positive_threshold_config": 85,
-        }
-        processor = ColumnNameModelPostprocessor(
-            true_positive_dict=params["true_positive_dict"],
-            positive_threshold_config=params["positive_threshold_config"],
-        )
+        """becuase there are no permitted parameters to the __init__
+        method anymore, this acts as both a `set_params` and
+        `_validate_parameters` unit test"""
+        processor = ColumnNameModelPostprocessor()
         with self.assertRaisesRegex(
             ValueError, "`failing` is not a permited parameter."
         ):

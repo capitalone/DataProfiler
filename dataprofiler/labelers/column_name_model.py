@@ -234,7 +234,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         )
 
         if show_confidences:
-            raise Warning(
+            logger.warning(
                 """`show_confidences` parameter is disabled
                 for MVP implementation. Due to the requirement
                 of having the data point in the post processor.

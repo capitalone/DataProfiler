@@ -10,6 +10,7 @@ import multiprocessing as mp
 import os
 import time
 import warnings
+from abc import abstractmethod
 from itertools import islice
 from multiprocessing.pool import Pool
 from typing import (
@@ -22,6 +23,7 @@ from typing import (
     Optional,
     Set,
     Tuple,
+    TypeVar,
     Union,
 )
 
@@ -29,6 +31,7 @@ import numpy as np
 import psutil
 import scipy
 from pandas import DataFrame, Series
+from typing_extensions import Protocol
 
 from dataprofiler import profilers, settings
 
@@ -392,9 +395,24 @@ def biased_kurt(df_series: Series) -> float:
     return kurt
 
 
-def find_diff_of_numbers(
-    stat1: Union[int, float, None], stat2: Union[int, float, None]
-) -> Union[List[Union[int, float, None]], int, float, str]:
+class Subtractable(Protocol):
+    """Protocol for annotating subtractable types."""
+
+    @abstractmethod
+    def __eq__(self: object, other: object) -> bool:
+        """Compare two objects."""
+        pass
+
+    @abstractmethod
+    def __sub__(self: T, other: T) -> Any:
+        """Compare two subtractables."""
+        pass
+
+
+T = TypeVar("T", bound=Subtractable)
+
+
+def find_diff_of_numbers(stat1: Optional[T], stat2: Optional[T]) -> Any:
     """
     Find the difference between two stats.
 
@@ -494,12 +512,18 @@ def find_diff_of_dates(
     :return: difference in stats
     :rtype: Union[List, str]
     """
-    if stat1 is None or stat2 is None:
-        return [i if i is None else i.strftime("%x %X") for i in [stat1, stat2]]
-    elif stat1 != stat2:
-        diff = stat1 - stat2
-        return ("+" if diff.days >= 0 else "-") + str(abs(diff))
-    return "unchanged"
+    # We can use find_diff_of_numbers since datetime objects
+    # can be compared and subtracted naturally
+    diff: Union[datetime.timedelta, List, str] = find_diff_of_numbers(stat1, stat2)
+    if isinstance(diff, str):
+        return diff
+    if isinstance(diff, list):
+        return [None if i is None else i.strftime("%x %X") for i in diff]
+
+    # Must be timedelta object
+    if diff.days >= 0:
+        return "+" + str(diff)
+    return "-" + str(abs(diff))
 
 
 def find_diff_of_dicts(dict1: Dict, dict2: Dict) -> Union[Dict, str]:

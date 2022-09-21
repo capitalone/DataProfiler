@@ -1,4 +1,9 @@
 """Index profile analysis for individual col within structured profiling."""
+from __future__ import annotations
+
+from typing import Dict, Optional, Tuple, cast
+
+from pandas import DataFrame, Series
 
 from . import BaseColumnProfiler, utils
 from .profiler_options import OrderOptions
@@ -13,7 +18,7 @@ class OrderColumn(BaseColumnProfiler):
 
     type = "order"
 
-    def __init__(self, name, options=None):
+    def __init__(self, name: Optional[str], options: OrderOptions = None) -> None:
         """
         Initialize column base properties and self.
 
@@ -26,16 +31,18 @@ class OrderColumn(BaseColumnProfiler):
             raise ValueError(
                 "OrderColumn parameter 'options' must be of type" " OrderOptions."
             )
-        self.order = None
-        self._last_value = None
-        self._first_value = None
-        self._piecewise = False
-        self.__calculations = {}
+        self.order: Optional[str] = None
+        self._last_value: Optional[int] = None
+        self._first_value: Optional[int] = None
+        self._piecewise: Optional[bool] = False
+        self.__calculations: Dict = {}
         self._filter_properties_w_options(self.__calculations, options)
         super(OrderColumn, self).__init__(name)
 
     @staticmethod
-    def _is_intersecting(first_value1, last_value1, first_value2, last_value2):
+    def _is_intersecting(
+        first_value1: int, last_value1: int, first_value2: int, last_value2: int
+    ) -> bool:
         """
         Check to see if the range of the datasets intersect.
 
@@ -69,7 +76,9 @@ class OrderColumn(BaseColumnProfiler):
         return is_intersecting
 
     @staticmethod
-    def _is_enveloping(first_value1, last_value1, first_value2, last_value2):
+    def _is_enveloping(
+        first_value1: int, last_value1: int, first_value2: int, last_value2: int
+    ) -> bool:
         """
         Check to see if the range of the dataset 1 envelopes dataset 2.
 
@@ -98,15 +107,15 @@ class OrderColumn(BaseColumnProfiler):
     @BaseColumnProfiler._timeit(name="order")
     def _merge_order(
         self,
-        order1,
-        first_value1,
-        last_value1,
-        piecewise1,
-        order2,
-        first_value2,
-        last_value2,
-        piecewise2,
-    ):
+        order1: str,
+        first_value1: int,
+        last_value1: int,
+        piecewise1: bool,
+        order2: str,
+        first_value2: int,
+        last_value2: int,
+        piecewise2: bool,
+    ) -> Tuple[str, int, int, bool]:
         """
         Add the order of two datasets together.
 
@@ -127,7 +136,7 @@ class OrderColumn(BaseColumnProfiler):
         :type last_value2: Integer
         :type piecewise2: Boolean
         :return: order, first_value, last_value, piecewise
-        :rtype: String, Float, Float, Boolean
+        :rtype: String, Int, Int, Boolean
         """
         # Return either order if one is None
         if not order1:
@@ -147,8 +156,8 @@ class OrderColumn(BaseColumnProfiler):
 
         # Default initialization
         order = "random"
-        first_value = None
-        last_value = None
+        first_value: Optional[int] = None
+        last_value: Optional[int] = None
 
         if order1 == "random" or order2 == "random":
             order = "random"
@@ -209,9 +218,9 @@ class OrderColumn(BaseColumnProfiler):
         ) or order == "random":
             piecewise = False
 
-        return order, first_value, last_value, piecewise
+        return order, cast(int, first_value), cast(int, last_value), piecewise
 
-    def __add__(self, other):
+    def __add__(self, other: OrderColumn) -> OrderColumn:
         """
         Merge the properties of two OrderColumn profiles.
 
@@ -251,7 +260,7 @@ class OrderColumn(BaseColumnProfiler):
         )
         return merged_profile
 
-    def report(self, remove_disabled_flag=False):
+    def report(self, remove_disabled_flag: bool = False) -> Dict:
         """
         Private abstract method for returning report.
 
@@ -262,7 +271,7 @@ class OrderColumn(BaseColumnProfiler):
         return self.profile
 
     @property
-    def profile(self):
+    def profile(self) -> Dict:
         """
         Property for profile. Returns the profile of the column.
 
@@ -270,7 +279,7 @@ class OrderColumn(BaseColumnProfiler):
         """
         return dict(order=self.order, times=self.times)
 
-    def diff(self, other_profile, options=None):
+    def diff(self, other_profile: OrderColumn, options: Dict = None) -> Dict:
         """
         Generate the differences between the orders of two OrderColumns.
 
@@ -288,7 +297,7 @@ class OrderColumn(BaseColumnProfiler):
         return differences
 
     @BaseColumnProfiler._timeit(name="order")
-    def _get_data_order(self, df_series):
+    def _get_data_order(self, df_series: Series) -> Tuple[str, float, float]:
         """
         Retrieve the order profile of a given data series.
 
@@ -328,8 +337,11 @@ class OrderColumn(BaseColumnProfiler):
         return order, first_value, last_value
 
     def _update_order(
-        self, df_series, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        df_series: DataFrame,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """
         Update order profile with order info attained from new dataset.
 
@@ -368,7 +380,7 @@ class OrderColumn(BaseColumnProfiler):
             piecewise2=False,
         )
 
-    def _update_helper(self, df_series_clean, profile):
+    def _update_helper(self, df_series_clean: Series, profile: Dict) -> None:
         """
         Update col profile properties with clean dataset and its known null parameters.
 
@@ -380,13 +392,14 @@ class OrderColumn(BaseColumnProfiler):
         """
         self._update_column_base_properties(profile)
 
-    def update(self, df_series):
+    def update(self, df_series: Series) -> OrderColumn:
         """
         Update the column profile.
 
         :param df_series: df series
         :type df_series: pandas.core.series.Series
-        :return: None
+        :return: updated OrderColumn
+        :rtype: OrderColumn
         """
         if len(df_series) == 0:
             return self

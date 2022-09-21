@@ -2436,7 +2436,7 @@ class StructuredProfiler(BaseProfiler):
         # If there are no minimum true samples, you can sort to save time
         if min_true_samples in [None, 0]:
             sample_ids[0] = sample_ids[0][:sample_size]
-            # Sort the sample_id_list and replace prior
+            # Sort the sample_ids and replace prior
             sample_ids[0] = sorted(sample_ids[0])
 
         # Numpy arrays allocate to heap and can be shared between processes

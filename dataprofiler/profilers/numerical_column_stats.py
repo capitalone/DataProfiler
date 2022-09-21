@@ -1176,13 +1176,15 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         return self.histogram_methods[self.histogram_selection]["histogram"]
 
-    def _get_percentile(self, percentiles: List[float]) -> List[float]:
+    def _get_percentile(
+        self, percentiles: Union[np.ndarray, List[float]]
+    ) -> List[float]:
         """
         Get value for the number where the given percentage of values fall below it.
 
         :param percentiles: List of percentage of values to fall before the
             value
-        :type percentiles: list[float]
+        :type percentiles: Union[np.ndarray, list[float]]
         :return: List of corresponding values for which the percentage of values
             in the distribution fall before each percentage
         """
@@ -1346,7 +1348,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
 
         :return: list of quantiles
         """
-        percentiles: List[float] = np.linspace(0, 100, len(self.quantiles) + 2)[1:-1]
+        percentiles: np.ndarray = np.linspace(0, 100, len(self.quantiles) + 2)[1:-1]
         self.quantiles = self._get_percentile(percentiles=percentiles)
 
     def _update_helper(self, df_series_clean: pd.Series, profile: Dict) -> None:

@@ -33,8 +33,9 @@ class UnstructuredLabelerProfile(object):
         # initializing a UnstructuredDataLabeler as well as the entity counts
         # statistic:
 
+        self.data_labeler: BaseDataLabeler = None  # type: ignore[assignment]
         if options and options.data_labeler_object:
-            self.data_labeler: BaseDataLabeler = options.data_labeler_object
+            self.data_labeler = options.data_labeler_object
         if self.data_labeler is None:
             data_labeler_dirpath = None
             if options:

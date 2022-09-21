@@ -1315,7 +1315,7 @@ class UnstructuredProfiler(BaseProfiler):
         # Setup sample generator
         sample_ind_generator = utils.shuffle_in_chunks(len_data, chunk_size=sample_size)
 
-        true_sample_set = set()
+        true_sample_list = set()
         total_sample_size = 0
 
         regex = r"^\s*$"
@@ -1329,12 +1329,12 @@ class UnstructuredProfiler(BaseProfiler):
             matches = data_subset.str.match(regex, flags=re.IGNORECASE)
 
             # Split series into None samples and true samples
-            true_sample_set.update(data_subset[~matches].index)
+            true_sample_list.update(data_subset[~matches].index)
 
             # Ensure minimum number of true samples met
             # and if total_sample_size >= sample size, exit
             if (
-                len(true_sample_set) >= min_true_samples
+                len(true_sample_list) >= min_true_samples
                 and total_sample_size >= sample_size
             ):
                 break
@@ -1342,7 +1342,7 @@ class UnstructuredProfiler(BaseProfiler):
         # close the generator in case it is not exhausted.
         sample_ind_generator.close()
 
-        true_sample_list = sorted(true_sample_set)
+        true_sample_list = sorted(true_sample_list)  # type: ignore[assignment]
 
         # Split out true values for later utilization
         data = data.loc[true_sample_list]
@@ -2431,19 +2431,19 @@ class StructuredProfiler(BaseProfiler):
                         yield e
 
         # Shuffle indices once and share with columns
-        sample_id_list = [*utils.shuffle_in_chunks(len(data), len(data))]
+        sample_ids = [*utils.shuffle_in_chunks(len(data), len(data))]
 
         # If there are no minimum true samples, you can sort to save time
         if min_true_samples in [None, 0]:
-            sample_id_list[0] = sample_id_list[0][:sample_size]
+            sample_ids[0] = sample_ids[0][:sample_size]
             # Sort the sample_id_list and replace prior
-            sample_id_list[0] = sorted(sample_id_list[0])
+            sample_ids[0] = sorted(sample_ids[0])
 
         # Numpy arrays allocate to heap and can be shared between processes
         # Non-locking multiprocessing fails on machines without POSIX (windows)
         # The function handles that situation, but will be single process
         # Newly introduced features (python3.8) improves the situation
-        sample_ids = np.array(sample_id_list)
+        sample_ids: np.ndarray = np.array(sample_ids)  # type: ignore
 
         # Record the previous mean/std values of columns that need to
         # have correlation updated.
@@ -2460,7 +2460,7 @@ class StructuredProfiler(BaseProfiler):
                     StructuredColProfiler(  # type: ignore
                         sample_size=sample_size,
                         min_true_samples=min_true_samples,  # type: ignore
-                        sample_ids=sample_ids,
+                        sample_ids=sample_ids,  # type: ignore
                         options=self.options,
                     )
                 )

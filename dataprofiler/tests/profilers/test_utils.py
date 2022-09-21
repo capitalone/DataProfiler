@@ -104,7 +104,7 @@ class TestShuffleInChunks(unittest.TestCase):
         self.assertEqual("+23:00:00", utils.find_diff_of_dates(a, b))
         self.assertEqual("-23:00:00", utils.find_diff_of_dates(b, a))
         self.assertEqual(["06/28/21 00:00:00", None], utils.find_diff_of_dates(a, None))
-        self.assertEqual("unchanged", utils.find_diff_of_numbers(None, None))
+        self.assertEqual("unchanged", utils.find_diff_of_dates(None, None))
 
         # Ensure that differencing dictionaries is handled appropriately
         dict1 = {

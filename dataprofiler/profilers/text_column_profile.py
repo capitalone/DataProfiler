@@ -1,6 +1,11 @@
 """Text profile analysis for individual col within structured profiling.."""
+from __future__ import annotations
 
 import itertools
+from typing import Dict, List, Optional, Union
+
+import numpy as np
+import pandas as pd
 
 from . import utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -17,7 +22,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     type = "text"
 
-    def __init__(self, name, options=None):
+    def __init__(self, name: Optional[str], options: TextOptions = None) -> None:
         """
         Initialize column base properties and itself.
 
@@ -32,11 +37,11 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             )
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
-        self.vocab = list()
+        self.vocab: List = list()
         self.__calculations = {"vocab": TextColumn._update_vocab}
         self._filter_properties_w_options(self.__calculations, options)
 
-    def __add__(self, other):
+    def __add__(self, other: TextColumn) -> TextColumn:
         """
         Merge properties of two TextColumn profiles.
 
@@ -62,7 +67,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             merged_profile._update_vocab(other.vocab)
         return merged_profile
 
-    def report(self, remove_disabled_flag=False):
+    def report(self, remove_disabled_flag: bool = False) -> Dict:
         """Report profile attribute of class; potentially pop val from self.profile."""
         calcs_dict_keys = self._TextColumn__calculations.keys()
         profile = self.profile
@@ -78,7 +83,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return profile
 
     @property
-    def profile(self):
+    def profile(self) -> Dict:
         """
         Return the profile of the column.
 
@@ -92,7 +97,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile.update(dict(vocab=self.vocab))
         return profile
 
-    def diff(self, other_profile, options=None):
+    def diff(self, other_profile: TextColumn, options: Dict = None) -> Dict:
         """
         Find the differences for text columns.
 
@@ -107,7 +112,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return differences
 
     @property
-    def data_type_ratio(self):
+    def data_type_ratio(self) -> Optional[float]:
         """
         Calculate the ratio of samples which match this data type.
 
@@ -121,8 +126,11 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     @BaseColumnProfiler._timeit(name="vocab")
     def _update_vocab(
-        self, data, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        data: Union[List, np.ndarray, pd.DataFrame],
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """
         Find the unique vocabulary used in the text column.
 
@@ -139,7 +147,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         data_flat = list(itertools.chain(*data))
         self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
 
-    def _update_helper(self, df_series_clean, profile):
+    def _update_helper(self, df_series_clean: pd.Series, profile: Dict) -> None:
         """
         Update col profile properties with clean dataset and its known null parameters.
 
@@ -156,13 +164,14 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         if self.max:
             self.type = "string" if self.max <= 255 else "text"
 
-    def update(self, df_series):
+    def update(self, df_series: pd.Series) -> TextColumn:
         """
         Update the column profile.
 
         :param df_series: df series
         :type df_series: pandas.core.series.Series
-        :return: None
+        :return: updated TextColumn
+        :rtype: TextColumn
         """
         len_df = len(df_series)
         if len_df == 0:

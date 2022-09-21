@@ -633,7 +633,7 @@ class TextProfiler(object):
 
     def report(self, remove_disabled_flag: bool = False) -> Dict:
         """Report profile attribute of class; potentially pop val from self.profile."""
-        calcs_dict_keys = self.__calculations.keys()
+        calcs_dict_keys = self._TextProfiler__calculations.keys()  # type: ignore
         profile = self.profile
 
         if remove_disabled_flag:

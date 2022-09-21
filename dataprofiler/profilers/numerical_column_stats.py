@@ -792,9 +792,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
             elif bin_counts[i] == cur_max and count < self._top_k_modes:
                 highest_idxs.append(i)
                 count += 1
-        highest_idxs_array = np.array(highest_idxs)
+        highest_idxs = np.array(highest_idxs)  # type: ignore
 
-        mode = (bin_edges[highest_idxs_array] + bin_edges[highest_idxs_array + 1]) / 2
+        mode = (
+            bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]  # type: ignore
+        ) / 2
         return mode.tolist()
 
     def _estimate_stats_from_histogram(self) -> float:
@@ -1184,7 +1186,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         :return: List of corresponding values for which the percentage of values
             in the distribution fall before each percentage
         """
-        percentiles_array = np.array(percentiles)
+        percentiles = np.array(percentiles)  # type: ignore
         bin_counts = self._stored_histogram["histogram"]["bin_counts"]
         bin_edges = self._stored_histogram["histogram"]["bin_edges"]
 
@@ -1206,10 +1208,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         cumsum_bin_counts = np.append([0], cumsum_bin_counts)
 
         quantiles: np.ndarray = np.interp(
-            percentiles_array / 100, cumsum_bin_counts, bin_edges
+            percentiles / 100, cumsum_bin_counts, bin_edges
         )
         if median_value:
-            quantiles[percentiles_array == 50] = median_value
+            quantiles[percentiles == 50] = median_value
         return quantiles.tolist()
 
     @staticmethod
@@ -1662,6 +1664,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         """
         if isinstance(val, np.integer):
             return int(val)
-        if isinstance(val, float):
+        if isinstance(val, np.floating):
             return float(val)
         return val

@@ -4,16 +4,22 @@ Histogram-related functions.
 https://github.com/numpy/numpy/blob/v1.19.0/numpy/lib/histograms.py
 """
 import operator
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
-from numpy.lib.histograms import (
+from numpy.lib.histograms import (  # type: ignore
     _get_outer_edges,
     _hist_bin_selectors,
     _unsigned_subtract,
 )
 
 
-def _get_bin_edges(a, bins, range, weights):
+def _get_bin_edges(
+    a: np.ndarray,
+    bins: Union[str, int, List],
+    range: Optional[Tuple[int, int]],
+    weights: Optional[np.ndarray],
+) -> Tuple[None, int]:
     """
     Compute the bins used internally by `histogram`.
 

@@ -13,6 +13,7 @@ import scipy.stats as st
 
 from ..data_readers.graph_data import GraphData
 from . import BaseColumnProfiler, utils
+from .profiler_options import ProfilerOptions
 
 
 class GraphProfiler(object):
@@ -23,7 +24,9 @@ class GraphProfiler(object):
     Statistical properties of graph
     """
 
-    def __init__(self, data: Union[nx.Graph, GraphData], options: Dict = None) -> None:
+    def __init__(
+        self, data: Union[nx.Graph, GraphData], options: ProfilerOptions = None
+    ) -> None:
         """
         Initialize Graph Profiler.
 
@@ -132,10 +135,12 @@ class GraphProfiler(object):
                 other_profile._global_max_component_size,
             ),
             "continuous_distribution": utils.find_diff_of_dicts_with_diff_keys(
-                self._continuous_distribution, other_profile._continuous_distribution
+                self._continuous_distribution,  # type: ignore
+                other_profile._continuous_distribution,  # type: ignore
             ),
             "categorical_distribution": utils.find_diff_of_dicts_with_diff_keys(
-                self._categorical_distribution, other_profile._categorical_distribution
+                self._categorical_distribution,  # type: ignore
+                other_profile._categorical_distribution,  # type: ignore
             ),
             "times": utils.find_diff_of_dicts(self.times, other_profile.times),
         }

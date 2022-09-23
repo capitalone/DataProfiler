@@ -910,7 +910,7 @@ class BaseProfiler(object):
         :return: data_labeler used for unstructured labelling
         :rtype: DataLabeler
         """
-        data_labeler: Optional[DataLabeler] = None
+        data_labeler = None
         data_labeler_options = None
 
         # determine if the data labeler is enabled
@@ -952,7 +952,7 @@ class BaseProfiler(object):
             if profiler and "data_labeler" in profiler._profiles:
                 profiler._profiles["data_labeler"].data_labeler = replacement_type
 
-        return data_labeler
+        return cast(Optional[DataLabeler], data_labeler)
 
     def _restore_data_labelers(self, data_labeler: DataLabeler = None) -> None:
         """

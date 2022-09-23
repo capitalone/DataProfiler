@@ -18,7 +18,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     type = "data_labeler"
 
-    def __init__(self, name: str, options: DataLabelerOptions = None) -> None:
+    def __init__(self, name: Optional[str], options: DataLabelerOptions = None) -> None:
         """
         Initialize Data Label profiling for structured datasets.
 
@@ -336,9 +336,11 @@ class DataLabelerColumn(BaseColumnProfiler):
 
         differences = {
             "data_label": utils.find_diff_of_lists_and_sets(labels, other_labels),
-            "avg_predictions": utils.find_diff_of_dicts(avg_preds, other_avg_preds),
+            "avg_predictions": utils.find_diff_of_dicts(
+                avg_preds, other_avg_preds  # type: ignore
+            ),
             "label_representation": utils.find_diff_of_dicts(
-                label_rep, other_label_rep
+                label_rep, other_label_rep  # type: ignore
             ),
         }
         return differences

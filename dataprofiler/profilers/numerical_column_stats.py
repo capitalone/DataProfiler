@@ -31,7 +31,7 @@ class abstractstaticmethod(staticmethod):
     __isabstractmethod__ = True
 
 
-class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
+class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     """
     Abstract numerical column profile subclass of BaseColumnProfiler.
 
@@ -1601,7 +1601,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):
         self.num_negatives = self.num_negatives + num_negatives_value
 
     @abc.abstractmethod
-    def update(self, df_series: pd.Series) -> None:
+    def update(self, df_series: pd.Series) -> NumericStatsMixin:
         """
         Update the numerical profile properties with an uncleaned dataset.
 

@@ -9,9 +9,9 @@ import warnings
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
-import pandas as pd
 import scipy.stats
 from future.utils import with_metaclass
+from pandas import Series
 
 from . import histogram_utils, utils
 from .base_column_profilers import BaseColumnProfiler
@@ -53,17 +53,17 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "NumericalStatsMixin parameter 'options' must be "
                 "of type NumericalOptions."
             )
-        self.min = None
-        self.max = None
-        self._top_k_modes = 5  # By default, return at max 5 modes
-        self.sum = 0
-        self._biased_variance = np.nan
-        self._biased_skewness = np.nan
-        self._biased_kurtosis = np.nan
-        self._median_is_enabled = True
-        self._median_abs_dev_is_enabled = True
-        self.max_histogram_bin = 100000
-        self.min_histogram_bin = 1000
+        self.min: Union[int, float, None] = None
+        self.max: Union[int, float, None] = None
+        self._top_k_modes: int = 5  # By default, return at max 5 modes
+        self.sum: Union[int, float] = 0
+        self._biased_variance: float = np.nan
+        self._biased_skewness: float = np.nan
+        self._biased_kurtosis: float = np.nan
+        self._median_is_enabled: bool = True
+        self._median_abs_dev_is_enabled: bool = True
+        self.max_histogram_bin: int = 100000
+        self.min_histogram_bin: int = 1000
         self.histogram_bin_method_names: List[str] = [
             "auto",
             "fd",
@@ -76,9 +76,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self.histogram_selection: Optional[str] = None
         self.user_set_histogram_bin: Optional[int] = None
         self.bias_correction: bool = True  # By default, we correct for bias
-        self._mode_is_enabled = True
-        self.num_zeros = 0
-        self.num_negatives = 0
+        self._mode_is_enabled: bool = True
+        self.num_zeros: int = 0
+        self.num_negatives: int = 0
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
@@ -108,7 +108,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "suggested_bin_count": self.min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
-        num_quantiles = 1000  # TODO: add to options
+        num_quantiles: int = 1000  # TODO: add to options
         self.quantiles: Union[List[float], Dict] = {
             bin_num: None for bin_num in range(num_quantiles - 1)
         }
@@ -168,7 +168,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                     "User set histogram bin counts did not match. "
                     "Choosing the larger bin count."
                 )
-            self.user_set_histogram_bin = max(  # type: ignore
+            self.user_set_histogram_bin = max(
                 other1.user_set_histogram_bin, other2.user_set_histogram_bin
             )
 
@@ -809,7 +809,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return var
 
     def _total_histogram_bin_variance(
-        self, input_array: Union[np.ndarray, pd.Series]
+        self, input_array: Union[np.ndarray, Series]
     ) -> float:
         # calculate total variance over all bins of a histogram
         bin_counts = self._stored_histogram["histogram"]["bin_counts"]
@@ -828,12 +828,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             sum_var += bin_var
         return sum_var
 
-    def _histogram_bin_error(self, input_array: Union[np.ndarray, pd.Series]) -> float:
+    def _histogram_bin_error(self, input_array: Union[np.ndarray, Series]) -> float:
         """
         Calculate error of each value from bin of the histogram it falls within.
 
         :param input_array: input data used to calculate the histogram
-        :type input_array: Union[np.array, pd.Series]
+        :type input_array: Union[np.array, Series]
         :return: binning error
         :rtype: float
         """
@@ -953,7 +953,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return array_flatten
 
     def _get_histogram(
-        self, values: Union[np.ndarray, pd.Series]
+        self, values: Union[np.ndarray, Series]
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Calculate stored histogram the suggested bin counts for each histogram method.
@@ -961,7 +961,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         Uses np.histogram.
 
         :param values: input data values
-        :type values: Union[np.array, pd.Series]
+        :type values: Union[np.array, Series]
         :return: bin edges and bin counts
         """
         if len(np.unique(values)) == 1:
@@ -1007,7 +1007,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             bin_counts, bin_edges = np.histogram(values, bins=n_equal_bins)
         return bin_counts, bin_edges
 
-    def _merge_histogram(self, values: Union[np.ndarray, pd.Series]) -> None:
+    def _merge_histogram(self, values: Union[np.ndarray, Series]) -> None:
         # values is the current array of values,
         # that needs to be updated to the accumulated histogram
         combined_values = np.concatenate([values, self._histogram_to_array()])
@@ -1015,7 +1015,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self._stored_histogram["histogram"]["bin_counts"] = bin_counts
         self._stored_histogram["histogram"]["bin_edges"] = bin_edges
 
-    def _update_histogram(self, df_series: pd.Series) -> None:
+    def _update_histogram(self, df_series: Series) -> None:
         """
         Update histogram for each method and the combined method.
 
@@ -1188,7 +1188,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         :return: List of corresponding values for which the percentage of values
             in the distribution fall before each percentage
         """
-        percentiles = np.array(percentiles)  # type: ignore
+        percentiles = np.array(percentiles)
         bin_counts = self._stored_histogram["histogram"]["bin_counts"]
         bin_edges = self._stored_histogram["histogram"]["bin_edges"]
 
@@ -1328,10 +1328,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             np.append([True], np.diff(bin_edges_impose) > 1e-14)
         ]
 
-        bin_counts_impose_pos = np.interp(
+        bin_counts_impose_pos: float = np.interp(
             bin_edges_impose, bin_edges_pos, np.cumsum(np.append([0], bin_counts_pos))
         )
-        bin_counts_impose_neg = np.interp(
+        bin_counts_impose_neg: float = np.interp(
             bin_edges_impose, bin_edges_neg, np.cumsum(np.append([0], bin_counts_neg))
         )
         bin_counts_impose = bin_counts_impose_pos + bin_counts_impose_neg
@@ -1351,7 +1351,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         percentiles: np.ndarray = np.linspace(0, 100, len(self.quantiles) + 2)[1:-1]
         self.quantiles = self._get_percentile(percentiles=percentiles)
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: Dict) -> None:
+    def _update_helper(self, df_series_clean: Series, profile: Dict) -> None:
         """
         Update base numerical profile properties w/ clean dataset and known null params.
 
@@ -1385,7 +1385,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @BaseColumnProfiler._timeit(name="min")
     def _get_min(
         self,
-        df_series: pd.Series,
+        df_series: Series,
         prev_dependent_properties: Dict,
         subset_properties: Dict,
     ) -> None:
@@ -1395,7 +1395,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @BaseColumnProfiler._timeit(name="max")
     def _get_max(
-        self, df_series, prev_dependent_properties: Dict, subset_properties: Dict
+        self,
+        df_series: Series,
+        prev_dependent_properties: Dict,
+        subset_properties: Dict,
     ) -> None:
         max_value = df_series.max()
         self.max = max_value if not self.max else max(self.max, max_value)
@@ -1403,7 +1406,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @BaseColumnProfiler._timeit(name="sum")
     def _get_sum(
-        self, df_series, prev_dependent_properties: Dict, subset_properties: Dict
+        self,
+        df_series: Series,
+        prev_dependent_properties: Dict,
+        subset_properties: Dict,
     ) -> None:
         if np.isinf(self.sum) or (np.isnan(self.sum) and self.match_count > 0):
             return
@@ -1423,7 +1429,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @BaseColumnProfiler._timeit(name="variance")
     def _get_variance(
         self,
-        df_series: pd.Series,
+        df_series: Series,
         prev_dependent_properties: Dict,
         subset_properties: Dict,
     ) -> None:
@@ -1453,7 +1459,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @BaseColumnProfiler._timeit(name="skewness")
     def _get_skewness(
         self,
-        df_series: pd.series,
+        df_series: Series,
         prev_dependent_properties: Dict,
         subset_properties: Dict,
     ) -> None:
@@ -1497,7 +1503,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @BaseColumnProfiler._timeit(name="kurtosis")
     def _get_kurtosis(
         self,
-        df_series: pd.Series,
+        df_series: Series,
         prev_dependent_properties: Dict,
         subset_properties: Dict,
     ) -> None:
@@ -1543,7 +1549,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @BaseColumnProfiler._timeit(name="histogram_and_quantiles")
     def _get_histogram_and_quantiles(
-        self, df_series, prev_dependent_properties: Dict, subset_properties: Dict
+        self,
+        df_series: Series,
+        prev_dependent_properties: Dict,
+        subset_properties: Dict,
     ) -> None:
         try:
             self._update_histogram(df_series)
@@ -1559,7 +1568,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @BaseColumnProfiler._timeit(name="num_zeros")
     def _get_num_zeros(
         self,
-        df_series: pd.Series,
+        df_series: Series,
         prev_dependent_properties: Dict,
         subset_properties: Dict,
     ) -> None:
@@ -1581,7 +1590,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @BaseColumnProfiler._timeit(name="num_negatives")
     def _get_num_negatives(
         self,
-        df_series: pd.Series,
+        df_series: Series,
         prev_dependent_properties: Dict,
         subset_properties: Dict,
     ) -> None:
@@ -1601,7 +1610,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self.num_negatives = self.num_negatives + num_negatives_value
 
     @abc.abstractmethod
-    def update(self, df_series: pd.Series) -> NumericStatsMixin:
+    def update(self, df_series: Series) -> NumericStatsMixin:
         """
         Update the numerical profile properties with an uncleaned dataset.
 

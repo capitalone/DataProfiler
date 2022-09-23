@@ -36,12 +36,12 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         :param name: Name of the dataset
         :type name: String
         """
-        self.name = name
+        self.name: Optional[str] = name
         self.col_index = np.nan
-        self.sample_size = 0
+        self.sample_size: int = 0
         self.metadata: Dict = dict()
         self.times: Dict = defaultdict(float)
-        self.thread_safe = True
+        self.thread_safe: bool = True
 
     # TODO: Not needed for data labeling
     @staticmethod
@@ -266,7 +266,7 @@ class BaseColumnPrimitiveTypeProfiler(
         BaseColumnProfiler.__init__(self, name)
         # Number of values that match the column type. eg. how many floats match
         # in the float column
-        self.match_count = 0
+        self.match_count: int = 0
 
     def _update_column_base_properties(self, profile: Dict) -> None:
         """

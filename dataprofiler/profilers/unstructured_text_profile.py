@@ -626,7 +626,7 @@ class TextProfiler(object):
         diff["words"] = utils.find_diff_of_lists_and_sets(self_words, other_words)
 
         diff["word_count"] = utils.find_diff_of_dicts_with_diff_keys(
-            self_word_count, other_word_count  # type: ignore
+            self_word_count, other_word_count
         )
 
         return diff

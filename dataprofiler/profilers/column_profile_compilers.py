@@ -26,7 +26,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     """Abstract class for generating a report."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
-    _profilers: List = list()  # type: ignore[assignment]
+    _profilers: List = list()
 
     _option_class: Type[BaseOption] = None  # type: ignore[assignment]
 
@@ -69,7 +69,7 @@ class BaseCompiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return self.report(remove_disabled_flag=False)
 
     def _create_profile(
-        self, df_series: Series, options: StructuredOptions = None, pool=None
+        self, df_series: Series, options: StructuredOptions = None, pool: Pool = None
     ) -> None:
         """
         Initialize and evaluate all profilers for the given dataframe.

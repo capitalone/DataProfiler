@@ -84,7 +84,7 @@ class KeyDict(collections.defaultdict):
     https://www.drmaciver.com/2018/01/lazy-fisher-yates-shuffling-for-precise-rejection-sampling/
     """
 
-    def __missing__(self, key):
+    def __missing__(self, key: str) -> str:
         """Return key if key nonexistent."""
         return key
 
@@ -680,9 +680,9 @@ def method_timeit(method: Callable = None, name: str = None) -> Callable:
     :type name: str
     """
 
-    def decorator(method, name_dec=None):
+    def decorator(method: Callable, name_dec: str = None) -> Callable:
         @functools.wraps(method)
-        def wrapper(self, *args, **kw):
+        def wrapper(self: Any, *args: Any, **kw: Any) -> Any:
             # necessary bc can't reassign external name
             name_dec = name
             if not name_dec:

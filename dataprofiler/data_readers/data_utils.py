@@ -1,12 +1,23 @@
 """Contains functions for data readers."""
 import json
-from logging import Logger
 import re
-from typing import Any, Dict, Generator, Iterator, List, Optional, Tuple, Union, cast
 import urllib
 from builtins import next
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
+from logging import Logger
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    Iterator,
+    List,
+    Optional,
+    Pattern,
+    Tuple,
+    Union,
+    cast,
+)
 
 import dateutil
 import pandas as pd
@@ -33,7 +44,9 @@ def data_generator(data_list: List[str]) -> Generator[str, None, None]:
         yield item
 
 
-def generator_on_file(file_object: Union[StringIO, BytesIO]) -> Generator[Union[str, bytes], None, None]:
+def generator_on_file(
+    file_object: Union[StringIO, BytesIO]
+) -> Generator[Union[str, bytes], None, None]:
     """
     Take a file and return a generator that returns lines.
 
@@ -71,7 +84,9 @@ def convert_int_to_string(x: int) -> str:
         return str(x)
 
 
-def unicode_to_str(data: Union[str, List, Dict], ignore_dicts: bool=False) -> Union[str, List, Dict]:
+def unicode_to_str(
+    data: Union[str, List, Dict], ignore_dicts: bool = False
+) -> Union[str, List, Dict]:
     """
     Convert data to string representation if it is a unicode string.
 
@@ -101,7 +116,11 @@ def unicode_to_str(data: Union[str, List, Dict], ignore_dicts: bool=False) -> Un
     return data
 
 
-def json_to_dataframe(json_lines: List[Dict], selected_columns: Optional[List[str]]=None, read_in_string: bool=False) -> Tuple[pd.DataFrame, pd.Series]:
+def json_to_dataframe(
+    json_lines: List[Dict],
+    selected_columns: Optional[List[str]] = None,
+    read_in_string: bool = False,
+) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Take list of json objects and return dataframe representing json list.
 
@@ -139,7 +158,11 @@ def json_to_dataframe(json_lines: List[Dict], selected_columns: Optional[List[st
     return df, original_df_dtypes
 
 
-def read_json_df(data_generator: Generator, selected_columns: Optional[List[str]]=None, read_in_string: bool=False) -> Tuple[Iterator[pd.DataFrame], pd.Series]:
+def read_json_df(
+    data_generator: Generator,
+    selected_columns: Optional[List[str]] = None,
+    read_in_string: bool = False,
+) -> Tuple[Iterator[pd.DataFrame], pd.Series]:
     """
     Return an iterator that returns a chunk of data as dataframe in each call.
 
@@ -192,7 +215,11 @@ def read_json_df(data_generator: Generator, selected_columns: Optional[List[str]
     return json_to_dataframe(cast(List[Dict], lines), selected_columns, read_in_string)
 
 
-def read_json(data_generator: Generator, selected_columns: Optional[List[str]]=None, read_in_string: bool=False) -> List[Dict]:
+def read_json(
+    data_generator: Generator,
+    selected_columns: Optional[List[str]] = None,
+    read_in_string: bool = False,
+) -> List[Dict]:
     """
     Return the lines of a json.
 
@@ -248,9 +275,9 @@ def read_csv_df(
     file_path: Union[str, BytesIO, TextIOWrapper],
     delimiter: str,
     header: int,
-    selected_columns: List[str]=[],
-    read_in_string: bool=False,
-    encoding: str="utf-8",
+    selected_columns: List[str] = [],
+    read_in_string: bool = False,
+    encoding: str = "utf-8",
 ) -> pd.DataFrame:
     """
     Read a CSV file in chunks and return dataframe in form of iterator.
@@ -308,7 +335,11 @@ def read_csv_df(
     return data
 
 
-def read_parquet_df(file_path: str, selected_columns: Optional[List[str]]=None, read_in_string: bool=False) -> Tuple[pd.DataFrame, pd.Series]:
+def read_parquet_df(
+    file_path: str,
+    selected_columns: Optional[List[str]] = None,
+    read_in_string: bool = False,
+) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Return an iterator that returns one row group each time.
 
@@ -352,7 +383,9 @@ def read_parquet_df(file_path: str, selected_columns: Optional[List[str]]=None, 
     return data, original_df_dtypes
 
 
-def read_text_as_list_of_strs(file_path: str, encoding: Optional[str]=None) -> List[str]:
+def read_text_as_list_of_strs(
+    file_path: str, encoding: Optional[str] = None
+) -> List[str]:
     """
     Return list of strings relative to the chunk size.
 
@@ -370,7 +403,9 @@ def read_text_as_list_of_strs(file_path: str, encoding: Optional[str]=None) -> L
     return data
 
 
-def detect_file_encoding(file_path: str, buffer_size: int=1024, max_lines: int=20) -> str:
+def detect_file_encoding(
+    file_path: str, buffer_size: int = 1024, max_lines: int = 20
+) -> str:
     """
     Determine encoding of files within initial `max_lines` of length `buffer_size`.
 
@@ -491,7 +526,7 @@ def detect_cell_type(cell: str) -> str:
     return cell_type
 
 
-def get_delimiter_regex(delimiter: str=",", quotechar: str=",") -> re.Pattern[str]:
+def get_delimiter_regex(delimiter: str = ",", quotechar: str = ",") -> Pattern[str]:
     """
     Build regex for delimiter checks.
 
@@ -521,7 +556,12 @@ def get_delimiter_regex(delimiter: str=",", quotechar: str=",") -> re.Pattern[st
     return re.compile(delimiter_regex + quotechar_regex)
 
 
-def find_nth_loc(string: Optional[str]=None, search_query: Optional[str]=None, n: int=0, ignore_consecutive: bool=True) -> Tuple[int, int]:
+def find_nth_loc(
+    string: Optional[str] = None,
+    search_query: Optional[str] = None,
+    n: int = 0,
+    ignore_consecutive: bool = True,
+) -> Tuple[int, int]:
     """
     Search string via search_query and return nth index in which query occurs.
 
@@ -568,7 +608,11 @@ def find_nth_loc(string: Optional[str]=None, search_query: Optional[str]=None, n
 
 
 def load_as_str_from_file(
-    file_path: str, file_encoding: Optional[str]=None, max_lines: int=10, max_bytes: int=65536, chunk_size_bytes: int=1024
+    file_path: str,
+    file_encoding: Optional[str] = None,
+    max_lines: int = 10,
+    max_bytes: int = 65536,
+    chunk_size_bytes: int = 1024,
 ) -> str:
     """
     Load data from a csv file up to a specific line OR byte_size.
@@ -614,7 +658,9 @@ def load_as_str_from_file(
             while start_loc < len_sample_lines - 1 and total_occurrences < max_lines:
                 loc, occurrence = find_nth_loc(
                     sample_lines[start_loc:],
-                    search_query=cast(str, search_query_value), # TODO: make sure find_nth_loc() works with search_query as bytes
+                    search_query=cast(
+                        str, search_query_value
+                    ),  # TODO: make sure find_nth_loc() works with search_query as bytes
                     n=remaining_lines,
                 )
 

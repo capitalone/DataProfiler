@@ -132,7 +132,7 @@ class AVROData(JSONData, BaseData):
         :type dicts: list(dict)
         :return: a dictionary containing nested keys
         """
-        nested_keys: Dict
+        nested_keys: Dict = {}
         for dict_line in dicts:
             nested_keys = cls._get_nested_key(dict_line, nested_keys)
         return nested_keys

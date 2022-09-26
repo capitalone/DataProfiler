@@ -80,15 +80,13 @@ class AVROData(JSONData, BaseData):
             options = dict()
 
         # get current position of stream
-        if data_utils.is_stream_buffer(file_path):
-            assert not isinstance(file_path, str)
+        if data_utils.is_stream_buffer(file_path) and not isinstance(file_path, str):
             starting_location = file_path.tell()
 
         is_valid_avro = fastavro.is_avro(file_path)
 
         # return to original position in stream
-        if data_utils.is_stream_buffer(file_path):
-            assert not isinstance(file_path, str)
+        if data_utils.is_stream_buffer(file_path) and not isinstance(file_path, str):
             file_path.seek(starting_location, 0)
 
         return is_valid_avro

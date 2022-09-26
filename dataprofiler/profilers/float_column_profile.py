@@ -285,7 +285,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return subset_precision
 
     @classmethod
-    def _is_each_row_float(cls, df_series: pd.Series[float]) -> List[bool]:
+    def _is_each_row_float(cls, df_series: pd.Series) -> List[bool]:
         """
         Determine if each value in a dataframe is a float.
 

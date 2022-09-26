@@ -5,7 +5,6 @@ import urllib
 from builtins import next
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
-from logging import Logger
 from typing import (
     Any,
     Dict,
@@ -28,7 +27,7 @@ from chardet.universaldetector import UniversalDetector
 from .. import dp_logging
 from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
-logger: Logger = dp_logging.get_child_logger(__name__)
+logger = dp_logging.get_child_logger(__name__)
 
 
 def data_generator(data_list: List[str]) -> Generator[str, None, None]:

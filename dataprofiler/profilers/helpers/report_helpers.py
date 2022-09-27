@@ -1,11 +1,23 @@
 """Contains helper functions for generating report."""
 import math
+from typing import Dict, List
 
 import numpy as np
 
 
-def calculate_quantiles(num_quantile_groups, quantiles):
-    """Calculate and return quantiles."""
+def calculate_quantiles(
+    num_quantile_groups: int, quantiles: Dict[int, int]
+) -> Dict[int, int]:
+    """
+    Calculate and return quantiles.
+
+    :param num_quantile_groups: number of quantile groups
+    :type num_quantile_groups: int
+    :param quantiles: original quantiles
+    :type quantiles: Dict[int, int]
+    :returns: calculated quantiles
+    :rtype: Dict[int, int]
+    """
     len_quant = len(quantiles)
     if not (num_quantile_groups and 0 < num_quantile_groups <= (len_quant + 1)):
         num_quantile_groups = 4
@@ -24,7 +36,7 @@ def calculate_quantiles(num_quantile_groups, quantiles):
     return quantiles
 
 
-def flat_dict(od, separator="_", key=""):
+def flat_dict(od: Dict, separator: str = "_", key: str = "") -> Dict:
     """
     Flatten nested dictionary.
 
@@ -51,7 +63,9 @@ def flat_dict(od, separator="_", key=""):
     )
 
 
-def _prepare_report(report, output_format=None, omit_keys=None):
+def _prepare_report(
+    report: Dict, output_format: str = None, omit_keys: List[str] = None
+) -> Dict:
     """
     Prepare report dictionary for users upon request.
 
@@ -67,7 +81,7 @@ def _prepare_report(report, output_format=None, omit_keys=None):
     :type report: dict()
     :param output_format: designation for how to format the returned report;
                           possible options: pretty, serializable, flat, compact
-    :type output_format: dict()
+    :type output_format: str
     :param omit_keys: Keys to omit from the output report, to omit keys in the
                       report a '.' represents a level of recursion example:
                       report: { 'test1': { 'test2': val, 'test3': val },
@@ -82,7 +96,7 @@ def _prepare_report(report, output_format=None, omit_keys=None):
     if omit_keys is None:
         omit_keys = []
 
-    fmt_report = {}
+    fmt_report: Dict = {}
     max_str_len = 50
     max_array_len = 5
 

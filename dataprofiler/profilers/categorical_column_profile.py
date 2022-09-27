@@ -1,6 +1,11 @@
 """Contains class for categorical column profiler."""
+from __future__ import annotations
+
 from collections import defaultdict
 from operator import itemgetter
+from typing import Dict, List, Optional
+
+from pandas import DataFrame, Series
 
 from . import BaseColumnProfiler, utils
 from .profiler_options import CategoricalOptions
@@ -22,7 +27,7 @@ class CategoricalColumn(BaseColumnProfiler):
     # Default value that determines if a given col is categorical or not.
     _CATEGORICAL_THRESHOLD_DEFAULT = 0.2
 
-    def __init__(self, name, options=None):
+    def __init__(self, name: Optional[str], options: CategoricalOptions = None) -> None:
         """
         Initialize column base properties and itself.
 
@@ -35,14 +40,14 @@ class CategoricalColumn(BaseColumnProfiler):
                 " type CategoricalOptions."
             )
         super(CategoricalColumn, self).__init__(name)
-        self._categories = defaultdict(int)
-        self.__calculations = {}
+        self._categories: Dict[str, int] = defaultdict(int)
+        self.__calculations: Dict = {}
         self._filter_properties_w_options(self.__calculations, options)
-        self._top_k_categories = None
+        self._top_k_categories: Optional[int] = None
         if options:
             self._top_k_categories = options.top_k_categories
 
-    def __add__(self, other):
+    def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """
         Merge the properties of two CategoricalColumn profiles.
 
@@ -68,7 +73,7 @@ class CategoricalColumn(BaseColumnProfiler):
         )
         return merged_profile
 
-    def diff(self, other_profile, options=None):
+    def diff(self, other_profile: CategoricalColumn, options: Dict = None) -> Dict:
         """
         Find the differences for CategoricalColumns.
 
@@ -77,7 +82,7 @@ class CategoricalColumn(BaseColumnProfiler):
         :return: the CategoricalColumn differences
         :rtype: dict
         """
-        differences = super().diff(other_profile, options)
+        differences: Dict = super().diff(other_profile, options)
 
         differences["categorical"] = utils.find_diff_of_strings_and_bools(
             self.is_match, other_profile.is_match
@@ -132,7 +137,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
         return differences
 
-    def report(self, remove_disabled_flag=False):
+    def report(self, remove_disabled_flag: bool = False) -> Dict:
         """
         Return report.
 
@@ -145,14 +150,14 @@ class CategoricalColumn(BaseColumnProfiler):
         return self.profile
 
     @property
-    def profile(self):
+    def profile(self) -> Dict:
         """
         Return the profile of the column.
 
         For categorical_count, it will display the top k categories most
         frequently occurred in descending order.
         """
-        profile = dict(
+        profile: Dict = dict(
             categorical=self.is_match,
             statistics=dict(
                 [
@@ -174,17 +179,17 @@ class CategoricalColumn(BaseColumnProfiler):
         return profile
 
     @property
-    def categories(self):
+    def categories(self) -> List[str]:
         """Return categories."""
         return list(self._categories.keys())
 
     @property
-    def categorical_counts(self):
+    def categorical_counts(self) -> Dict[str, int]:
         """Return counts of each category."""
         return self._categories.copy()
 
     @property
-    def unique_ratio(self):
+    def unique_ratio(self) -> float:
         """Return ratio of unique categories to sample_size."""
         unique_ratio = 1.0
         if self.sample_size:
@@ -192,7 +197,7 @@ class CategoricalColumn(BaseColumnProfiler):
         return unique_ratio
 
     @property
-    def is_match(self):
+    def is_match(self) -> bool:
         """Return true if column is categorical."""
         is_match = False
         unique = len(self._categories)
@@ -207,8 +212,11 @@ class CategoricalColumn(BaseColumnProfiler):
 
     @BaseColumnProfiler._timeit(name="categories")
     def _update_categories(
-        self, df_series, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        df_series: DataFrame,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """
         Check whether column corresponds to category type.
 
@@ -229,7 +237,7 @@ class CategoricalColumn(BaseColumnProfiler):
             self._categories, category_count
         )
 
-    def _update_helper(self, df_series_clean, profile):
+    def _update_helper(self, df_series_clean: Series, profile: Dict) -> None:
         """
         Update col profile properties with clean dataset and its known profile.
 
@@ -241,13 +249,14 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         self._update_column_base_properties(profile)
 
-    def update(self, df_series):
+    def update(self, df_series: Series) -> CategoricalColumn:
         """
         Update the column profile.
 
         :param df_series: Data to profile.
         :type df_series: pandas.core.series.Series
-        :return: None
+        :return: updated CategoricalColumn
+        :rtype: CategoricalColumn
         """
         if len(df_series) == 0:
             return self
@@ -267,7 +276,7 @@ class CategoricalColumn(BaseColumnProfiler):
         return self
 
     @property
-    def gini_impurity(self):
+    def gini_impurity(self) -> Optional[float]:
         """
         Return Gini Impurity.
 
@@ -282,7 +291,7 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         if self.sample_size == 0:
             return None
-        gini_sum = 0
+        gini_sum: float = 0
         for i in self._categories:
             gini_sum += (self._categories[i] / self.sample_size) * (
                 1 - (self._categories[i] / self.sample_size)
@@ -290,7 +299,7 @@ class CategoricalColumn(BaseColumnProfiler):
         return gini_sum
 
     @property
-    def unalikeability(self):
+    def unalikeability(self) -> Optional[float]:
         """
         Return Unlikeability.
 
@@ -307,10 +316,10 @@ class CategoricalColumn(BaseColumnProfiler):
             return None
         elif self.sample_size == 1:
             return 0
-        unalike_sum = 0
+        unalike_sum: int = 0
         for category in self._categories:
             unalike_sum += (
                 self.sample_size - self._categories[category]
             ) * self._categories[category]
-        unalike = unalike_sum / (self.sample_size**2 - self.sample_size)
+        unalike: float = unalike_sum / (self.sample_size**2 - self.sample_size)
         return unalike

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional
 
 from pandas import Series
 
@@ -267,7 +267,7 @@ class UnstructuredLabelerProfile(object):
         :type predictions: list
         :return: None
         """
-        label_lookup = cast(BaseDataLabeler, self.data_labeler).reverse_label_mapping
+        label_lookup = self.data_labeler.reverse_label_mapping
         char_label_counts = self.entity_counts["true_char_level"]
 
         for sample in predictions:

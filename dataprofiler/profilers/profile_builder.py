@@ -11,7 +11,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 from multiprocessing.pool import Pool
-from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Dict, Generator, List, Optional, Set, Tuple, Type, Union, cast
 
 import networkx as nx
 import numpy as np
@@ -172,7 +172,7 @@ class StructuredColProfiler(object):
             for profile in self.profiles.values():
                 profile.update_profile(clean_sampled_df, pool)
 
-    def __add__(self, other: StructuredColProfiler):
+    def __add__(self, other: StructuredColProfiler) -> StructuredColProfiler:
         """
         Merge two Structured profiles together overriding the `+` operator.
 
@@ -369,7 +369,7 @@ class StructuredColProfiler(object):
         return profile
 
     @property
-    def profile(self):
+    def profile(self) -> Dict:
         """Return a report."""
         return self.report(remove_disabled_flag=False)
 
@@ -826,7 +826,7 @@ class BaseProfiler(object):
         data: Union[pd.Series, pd.DataFrame, List],
         sample_size: int,
         min_true_samples: int = None,
-    ):
+    ) -> None:
         """
         Iterate over the dataset and identify its parameters via profiles.
 
@@ -836,8 +836,7 @@ class BaseProfiler(object):
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
         :type min_true_samples: int
-        :return: list of column profile base subclasses
-        :rtype: list(BaseColumnProfiler)
+        :return: None
         """
         raise NotImplementedError()
 
@@ -903,14 +902,14 @@ class BaseProfiler(object):
 
     def _remove_data_labelers(
         self, replacement_type: BaseDataLabeler = BaseDataLabeler()
-    ) -> Optional[DataLabeler]:
+    ) -> Optional[BaseDataLabeler]:
         """
         Help remove all data labelers before saving to disk.
 
         :return: data_labeler used for unstructured labelling
-        :rtype: DataLabeler
+        :rtype: BaseDataLabeler
         """
-        data_labeler: Optional[DataLabeler] = None
+        data_labeler = None
         data_labeler_options = None
 
         # determine if the data labeler is enabled
@@ -954,12 +953,12 @@ class BaseProfiler(object):
 
         return data_labeler
 
-    def _restore_data_labelers(self, data_labeler: DataLabeler = None) -> None:
+    def _restore_data_labelers(self, data_labeler: BaseDataLabeler = None) -> None:
         """
         Help restore all data labelers after saving to or loading from disk.
 
         :param data_labeler: unstructured data_labeler
-        :type data_labeler: DataLabeler
+        :type data_labeler: BaseDataLabeler
         """
         # Restore data labeler for options
         use_data_labeler = True
@@ -974,7 +973,7 @@ class BaseProfiler(object):
         if use_data_labeler:
             try:
                 if data_labeler is None:
-                    data_labeler = DataLabeler(
+                    data_labeler = DataLabeler(  # type: ignore[assignment]
                         labeler_type=self._default_labeler_type,
                         dirpath=data_labeler_dirpath,
                         load_options=None,
@@ -1363,7 +1362,7 @@ class UnstructuredProfiler(BaseProfiler):
         data: Union[pd.Series, pd.DataFrame, List],
         sample_size: int,
         min_true_samples: int = None,
-    ):
+    ) -> None:
         """
         Iterate over the dataset and identify its parameters via profiles.
 
@@ -1373,8 +1372,7 @@ class UnstructuredProfiler(BaseProfiler):
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
         :type min_true_samples: int
-        :return: list of column profile base subclasses
-        :rtype: list(BaseColumnProfiler)
+        :return: None
         """
         if isinstance(data, pd.DataFrame):
             if len(data.columns) > 1:
@@ -2317,7 +2315,7 @@ class StructuredProfiler(BaseProfiler):
         other_row_sum = np.asarray(
             [get_data_type_profiler(profile).sum for profile in other._profile]
         )
-        total_row_sum = self_row_sum + other_row_sum
+        total_row_sum: np.ndarray = self_row_sum + other_row_sum
         merged_properties: Dict = defaultdict(dict)
         for col_id in range(len(self._profile)):
             self_profile = self._profile[col_id]
@@ -2382,7 +2380,7 @@ class StructuredProfiler(BaseProfiler):
 
     def _update_profile_from_chunk(
         self, data: pd.DataFrame, sample_size: int, min_true_samples: int = None
-    ):
+    ) -> None:
         """
         Iterate over the columns of a dataset and identify its parameters.
 
@@ -2392,8 +2390,7 @@ class StructuredProfiler(BaseProfiler):
         :type sample_size: int
         :param min_true_samples: minimum number of true samples required
         :type min_true_samples: int
-        :return: list of column profile base subclasses
-        :rtype: list(BaseColumnProfiler)
+        :return: None
         """
         if isinstance(data, pd.Series):
             data = data.to_frame()
@@ -2423,7 +2420,7 @@ class StructuredProfiler(BaseProfiler):
         finally:
             if not has_tqdm or logger.getEffectiveLevel() > logging.INFO:
 
-                def tqdm(level):
+                def tqdm(level: Set[int]) -> Generator[int, None, None]:
                     for i, e in enumerate(level):
                         # These will automatically be ignored if user sets
                         # logger level as higher than INFO

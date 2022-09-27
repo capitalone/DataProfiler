@@ -1,16 +1,24 @@
 """Contains abstract classes for labeling data."""
+from __future__ import annotations
+
 import abc
 import copy
 import inspect
 import warnings
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
+
+import numpy as np
+import pandas as pd
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
     """For registering subclasses."""
 
-    def __new__(cls, clsname, bases, attrs):
+    def __new__(
+        cls, clsname: str, bases: Tuple[type, ...], attrs: Dict[str, object]
+    ) -> AutoSubRegistrationMeta:
         """Create auto registration object and return new class."""
-        new_class = super(AutoSubRegistrationMeta, cls).__new__(
+        new_class: Any = super(AutoSubRegistrationMeta, cls).__new__(
             cls, clsname, bases, attrs
         )
         new_class._register_subclass()
@@ -20,17 +28,20 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
 class BaseModel(object, metaclass=abc.ABCMeta):
     """For labeling data."""
 
-    _BaseModel__subclasses = {}
+    _BaseModel__subclasses: Dict[str, Type[BaseModel]] = {}
     __metaclass__ = abc.ABCMeta
 
     # boolean if the label mapping requires the mapping for index 0 reserved
-    requires_zero_mapping = False
+    requires_zero_mapping: bool = False
 
-    def __init__(self, label_mapping, parameters):
+    def __init__(self, label_mapping: Union[List, Dict], parameters: Dict) -> None:
         """
         Initialize Base Model.
 
         Only model and model parameters are stored here.
+        :param label_mapping: label mapping of the model or list of labels to be
+            converted into the label mapping
+        :type label_mapping: Union[list, dict]
         :param parameters: Contains all the appropriate parameters for the model.
                            Must contain num_labels.
         :type parameters: dict
@@ -39,17 +50,17 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         # initialize class
         self._model = None
         self._validate_parameters(parameters)
-        self._parameters = parameters
-        self._label_mapping = None
+        self._parameters: Dict = parameters
+        self._label_mapping: Dict[str, int] = None  # type: ignore
 
         self.set_label_mapping(label_mapping)
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         """Initialize and register subclass."""
         super().__init_subclass__(**kwargs)
         cls._register_subclass()
 
-    def __eq__(self, other):
+    def __eq__(self, other: BaseModel) -> bool:  # type: ignore
         """
         Check if two models are equal with one another.
 
@@ -71,18 +82,18 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         return True
 
     @classmethod
-    def _register_subclass(cls):
+    def _register_subclass(cls) -> None:
         """Register a subclass for the class factory."""
         if not inspect.isabstract(cls):
             cls._BaseModel__subclasses[cls.__name__.lower()] = cls
 
     @property
-    def label_mapping(self):
+    def label_mapping(self) -> Dict[str, int]:
         """Return mapping of labels to their encoded values."""
         return copy.deepcopy(self._label_mapping)
 
     @property
-    def reverse_label_mapping(self):
+    def reverse_label_mapping(self) -> Dict[int, str]:
         """
         Return reversed order of current labels.
 
@@ -91,7 +102,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         return {v: k for k, v in self.label_mapping.items()}
 
     @property
-    def labels(self):
+    def labels(self) -> List[str]:
         """
         Retrieve the label.
 
@@ -105,7 +116,9 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         ]
 
     @staticmethod
-    def _convert_labels_to_label_mapping(labels, requires_zero_mapping):
+    def _convert_labels_to_label_mapping(
+        labels: Union[List[str], Dict[str, int]], requires_zero_mapping: bool
+    ) -> Dict:
         """
         Convert the new labels set to be in an encoding dict if not already.
 
@@ -124,12 +137,12 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         return dict(zip(labels, list(range(start_index, start_index + len(labels)))))
 
     @property
-    def num_labels(self):
+    def num_labels(self) -> int:
         """Return max label mapping."""
         return max(self.label_mapping.values()) + 1
 
     @classmethod
-    def get_class(cls, class_name):
+    def get_class(cls, class_name: str) -> Optional[Type[BaseModel]]:
         """Get subclasses."""
         # Import possible internal models
         from .character_level_cnn_model import CharacterLevelCnnModel  # NOQA
@@ -138,12 +151,12 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
         return cls._BaseModel__subclasses.get(class_name.lower(), None)
 
-    def get_parameters(self, param_list=None):
+    def get_parameters(self, param_list: List[str] = None) -> Dict:
         """
         Return a dict of parameters from the model given a list.
 
         :param param_list: list of parameters to retrieve from the model.
-        :type param_list: list
+        :type param_list: List[str]
         :return: dict of parameters
         """
         if param_list is None:
@@ -165,7 +178,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
                 )
         return copy.deepcopy(param_dict)
 
-    def set_params(self, **kwargs):
+    def set_params(self, **kwargs: Any) -> None:
         """Set the parameters if they exist given kwargs."""
         # first check if any parameters are invalid
         self._validate_parameters(kwargs)
@@ -173,7 +186,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         for param in kwargs:
             self._parameters[param] = kwargs[param]
 
-    def add_label(self, label, same_as=None):
+    def add_label(self, label: str, same_as: str = None) -> None:
         """
         Add a label to the data labeler.
 
@@ -204,9 +217,13 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
         # add label to label_mapping
         max_label_ind = max(self._label_mapping.values())
-        self._label_mapping[label] = self._label_mapping.get(same_as, max_label_ind + 1)
+        self._label_mapping[label] = self._label_mapping.get(
+            same_as, max_label_ind + 1  # type: ignore
+        )
 
-    def set_label_mapping(self, label_mapping):
+    def set_label_mapping(
+        self, label_mapping: Union[List[str], Dict[str, int]]
+    ) -> None:
         """
         Set the labels for the model.
 
@@ -226,7 +243,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         self._label_mapping = copy.deepcopy(label_mapping)
 
     @abc.abstractmethod
-    def _need_to_reconstruct_model(self):
+    def _need_to_reconstruct_model(self) -> bool:
         """
         Determinine whether or not to reconstruct the model.
 
@@ -235,7 +252,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate the parameters sent in.
 
@@ -248,13 +265,13 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Help describe alterable parameters.
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_docs: str = inspect.getdoc(cls._validate_parameters)  # type: ignore
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:") - 1
 
@@ -267,7 +284,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         print(help_str)
 
     @abc.abstractmethod
-    def _construct_model(self):
+    def _construct_model(self) -> None:
         """
         Construct model for the data labeler.
 
@@ -278,7 +295,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _reconstruct_model(self):
+    def _reconstruct_model(self) -> None:
         """
         Reconstruct appropriate layers if number of number of labels is altered.
 
@@ -287,7 +304,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def reset_weights(self):
+    def reset_weights(self) -> None:
         """
         Reset the weights of the model.
 
@@ -296,7 +313,9 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def predict(self, data, batch_size, show_confidences, verbose):
+    def predict(
+        self, data: Iterator, batch_size: int, show_confidences: bool, verbose: bool
+    ) -> Dict:
         """
         Predict the data with the current model.
 
@@ -315,18 +334,19 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def load_from_disk(cls, dirpath):
+    def load_from_disk(cls, dirpath: str) -> BaseModel:
         """
         Load whole model from disk with weights.
 
         :param dirpath: directory path where you want to load the model from
         :type dirpath: str
-        :return: None
+        :return: loaded model
+        :rtype: BaseModel
         """
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def save_to_disk(self, dirpath):
+    def save_to_disk(self, dirpath: str) -> None:
         """
         Save whole model to disk with weights.
 
@@ -343,13 +363,13 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def fit(
         self,
-        train_data,
-        val_data,
-        batch_size=32,
-        epochs=1,
-        label_mapping=None,
-        reset_weights=False,
-    ):
+        train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        val_data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        batch_size: int = 32,
+        epochs: int = 1,
+        label_mapping: Dict[str, int] = None,
+        reset_weights: bool = False,
+    ) -> None:
         """
         Train the current model with the training data and validation data.
 

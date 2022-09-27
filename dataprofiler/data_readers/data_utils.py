@@ -204,8 +204,8 @@ def read_json_df(
                 ),
                 ignore_dicts=True,
             )
-            if isinstance(obj, dict): # shold always pass but needed for mypy
-                lines.append(obj) 
+            if isinstance(obj, dict):  # shold always pass but needed for mypy
+                lines.append(obj)
         except ValueError:
             pass
             # To ignore malformatted lines.
@@ -261,8 +261,8 @@ def read_json(
                 ),
                 ignore_dicts=True,
             )
-            if isinstance(obj, dict): # should always pass but needed for mypy
-                lines.append(obj) 
+            if isinstance(obj, dict):  # should always pass but needed for mypy
+                lines.append(obj)
         except ValueError:
             pass
             # To ignore malformatted lines.

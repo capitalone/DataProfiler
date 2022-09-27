@@ -18,7 +18,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
     type = "data_labeler"
 
-    def __init__(self, name: str, options: DataLabelerOptions = None) -> None:
+    def __init__(self, name: Optional[str], options: DataLabelerOptions = None) -> None:
         """
         Initialize Data Label profiling for structured datasets.
 
@@ -209,7 +209,7 @@ class DataLabelerColumn(BaseColumnProfiler):
                     zip(self.reverse_label_mapping.keys(), self._possible_data_labels)
                 )
             ]
-        return cast(List[str], self._possible_data_labels)
+        return self._possible_data_labels
 
     @property
     def rank_distribution(self) -> Dict[str, int]:

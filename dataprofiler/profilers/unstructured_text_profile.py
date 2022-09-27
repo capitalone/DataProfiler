@@ -613,7 +613,7 @@ class TextProfiler(object):
             other_words = [each_string.lower() for each_string in other_words]
             other_word_count = {k.lower(): v for k, v in other_word_count.items()}
 
-        diff = {}
+        diff: Dict = {}
         diff["vocab"] = utils.find_diff_of_lists_and_sets(
             list(self.vocab_count.keys()), list(other_profile.vocab_count.keys())
         )

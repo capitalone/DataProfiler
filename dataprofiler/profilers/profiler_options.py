@@ -185,7 +185,9 @@ class HistogramOption(BooleanOption):
     """For setting histogram options."""
 
     def __init__(
-        self, is_enabled=True, bin_count_or_method: Union[str, int, List[str]] = "auto"
+        self,
+        is_enabled: bool = True,
+        bin_count_or_method: Union[str, int, List[str]] = "auto",
     ) -> None:
         """
         Initialize Options for histograms.

@@ -17,7 +17,7 @@ from dataprofiler.profilers.profiler_options import BaseInspectorOptions
 from . import utils
 
 
-class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
+class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     """Abstract class for profiling a column of data."""
 
     col_type = None
@@ -36,12 +36,12 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         :param name: Name of the dataset
         :type name: String
         """
-        self.name = name
+        self.name: Optional[str] = name
         self.col_index = np.nan
-        self.sample_size = 0
+        self.sample_size: int = 0
         self.metadata: Dict = dict()
         self.times: Dict = defaultdict(float)
-        self.thread_safe = True
+        self.thread_safe: bool = True
 
     # TODO: Not needed for data labeling
     @staticmethod
@@ -80,7 +80,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
 
     @staticmethod
     def _filter_properties_w_options(
-        calculations: Dict, options: BaseInspectorOptions
+        calculations: Dict, options: Optional[BaseInspectorOptions]
     ) -> None:
         """
         Cycle through the calculations and turns off the ones that are disabled.
@@ -224,7 +224,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def update(self, df_series: pd.DataFrame) -> None:
+    def update(self, df_series: pd.DataFrame) -> BaseColumnProfiler:
         """
         Update the profile.
 
@@ -235,12 +235,12 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
 
     @property
     @abc.abstractmethod
-    def profile(self) -> None:
+    def profile(self) -> Dict:
         """Return the profile of the column."""
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def report(self, remove_disabled_flag: bool = False) -> None:
+    def report(self, remove_disabled_flag: bool = False) -> Dict:
         """
         Return report.
 
@@ -251,7 +251,9 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):
         raise NotImplementedError()
 
 
-class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta, BaseColumnProfiler)):
+class BaseColumnPrimitiveTypeProfiler(
+    with_metaclass(abc.ABCMeta, BaseColumnProfiler)  # type: ignore
+):
     """Abstract class for profiling primative data type for col of data."""
 
     def __init__(self, name: Optional[str]) -> None:
@@ -264,7 +266,7 @@ class BaseColumnPrimitiveTypeProfiler(with_metaclass(abc.ABCMeta, BaseColumnProf
         BaseColumnProfiler.__init__(self, name)
         # Number of values that match the column type. eg. how many floats match
         # in the float column
-        self.match_count = 0
+        self.match_count: int = 0
 
     def _update_column_base_properties(self, profile: Dict) -> None:
         """

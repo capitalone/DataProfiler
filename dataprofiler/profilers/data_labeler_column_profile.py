@@ -336,11 +336,9 @@ class DataLabelerColumn(BaseColumnProfiler):
 
         differences = {
             "data_label": utils.find_diff_of_lists_and_sets(labels, other_labels),
-            "avg_predictions": utils.find_diff_of_dicts(
-                avg_preds, other_avg_preds  # type: ignore
-            ),
+            "avg_predictions": utils.find_diff_of_dicts(avg_preds, other_avg_preds),
             "label_representation": utils.find_diff_of_dicts(
-                label_rep, other_label_rep  # type: ignore
+                label_rep, other_label_rep
             ),
         }
         return differences

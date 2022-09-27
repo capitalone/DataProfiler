@@ -902,12 +902,12 @@ class BaseProfiler(object):
 
     def _remove_data_labelers(
         self, replacement_type: BaseDataLabeler = BaseDataLabeler()
-    ) -> Optional[DataLabeler]:
+    ) -> Optional[BaseDataLabeler]:
         """
         Help remove all data labelers before saving to disk.
 
         :return: data_labeler used for unstructured labelling
-        :rtype: DataLabeler
+        :rtype: BaseDataLabeler
         """
         data_labeler = None
         data_labeler_options = None
@@ -951,14 +951,14 @@ class BaseProfiler(object):
             if profiler and "data_labeler" in profiler._profiles:
                 profiler._profiles["data_labeler"].data_labeler = replacement_type
 
-        return cast(Optional[DataLabeler], data_labeler)
+        return data_labeler
 
-    def _restore_data_labelers(self, data_labeler: DataLabeler = None) -> None:
+    def _restore_data_labelers(self, data_labeler: BaseDataLabeler = None) -> None:
         """
         Help restore all data labelers after saving to or loading from disk.
 
         :param data_labeler: unstructured data_labeler
-        :type data_labeler: DataLabeler
+        :type data_labeler: BaseDataLabeler
         """
         # Restore data labeler for options
         use_data_labeler = True
@@ -973,7 +973,7 @@ class BaseProfiler(object):
         if use_data_labeler:
             try:
                 if data_labeler is None:
-                    data_labeler = DataLabeler(
+                    data_labeler = DataLabeler(  # type: ignore[assignment]
                         labeler_type=self._default_labeler_type,
                         dirpath=data_labeler_dirpath,
                         load_options=None,

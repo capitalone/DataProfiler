@@ -526,7 +526,9 @@ def find_diff_of_dates(
     return "-" + str(abs(diff))
 
 
-def find_diff_of_dicts(dict1: Dict, dict2: Dict) -> Union[Dict, str]:
+def find_diff_of_dicts(
+    dict1: Optional[Dict], dict2: Optional[Dict]
+) -> Union[Dict, str]:
     """
     Find the difference between two dicts.
 
@@ -542,6 +544,9 @@ def find_diff_of_dicts(dict1: Dict, dict2: Dict) -> Union[Dict, str]:
     :return: Difference in the keys of each dict
     :rtype: dict
     """
+    dict1 = dict1 or {}
+    dict2 = dict2 or {}
+
     diff: Dict = {}
     for key, value1 in dict1.items():
         value2 = dict2.get(key, None)
@@ -595,7 +600,7 @@ def find_diff_of_matrices(
 
 
 def find_diff_of_dicts_with_diff_keys(
-    dict1: Dict, dict2: Dict
+    dict1: Optional[Dict], dict2: Optional[Dict]
 ) -> Union[List[Dict], str]:
     """
     Find the difference between two dicts.
@@ -612,6 +617,9 @@ def find_diff_of_dicts_with_diff_keys(
     :return: Difference in the keys of each dict
     :rtype: list
     """
+    dict1 = dict1 or {}
+    dict2 = dict2 or {}
+
     diff_1: Dict = {}
     diff_shared: Dict = {}
     diff_2: Dict = {}

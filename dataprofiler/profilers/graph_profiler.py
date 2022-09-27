@@ -257,7 +257,7 @@ class GraphProfiler(object):
             subset_properties = {}
 
         self._avg_node_degree = self._get_avg_node_degree(
-            graph, subset_properties["num_nodes"]
+            graph, subset_properties.get("num_nodes", 0)
         )
 
     def _update_global_max_comp_size(

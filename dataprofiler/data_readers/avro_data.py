@@ -1,4 +1,7 @@
 """Contains class for saving and loading spreadsheet data."""
+from io import BytesIO, StringIO
+from typing import Any, Dict, List, Optional, Union
+
 import fastavro
 
 from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
@@ -11,9 +14,14 @@ from .json_data import JSONData
 class AVROData(JSONData, BaseData):
     """AVROData class to save and load spreadsheet data."""
 
-    data_type = "avro"
+    data_type: Optional[str] = "avro"
 
-    def __init__(self, input_file_path=None, data=None, options=None):
+    def __init__(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[Any] = None,
+        options: Optional[Dict] = None,
+    ) -> None:
         """
         Initialize Data class for loading datasets of type AVRO.
 
@@ -40,25 +48,35 @@ class AVROData(JSONData, BaseData):
         JSONData.__init__(self, input_file_path, data, options)
 
     @property
-    def file_encoding(self):
+    def file_encoding(self) -> Optional[str]:
         """Set file encoding to None since not detected for avro."""
         return None
 
-    def _load_data_from_file(self, input_file_path):
+    @file_encoding.setter
+    def file_encoding(self, value: Any) -> None:
+        """Do nothing.
+
+        Required by mypy because the inherited self.file_encoding is read-write).
+        """
+        pass
+
+    def _load_data_from_file(self, input_file_path: str) -> List:
         """Load data from file."""
         with FileOrBufferHandler(input_file_path, "rb") as input_file:
             # Currently, string reading with 'r' option has the unicode issue,
             # even when the option encoding='utf-8' is added. It may come from
             # some special compression codec, e.g., snappy. Then, binary mode
             # reading is currently used to get the dict-formatted lines.
-            df_reader = fastavro.reader(input_file)
-            lines = list()
+            df_reader: fastavro.reader = fastavro.reader(input_file)
+            lines: List = list()
             for line in df_reader:
                 lines.append(line)
             return lines
 
     @classmethod
-    def is_match(cls, file_path, options=None):
+    def is_match(
+        cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict] = None
+    ) -> bool:
         """
         Test the given file to check if the file has valid AVRO format or not.
 
@@ -73,19 +91,19 @@ class AVROData(JSONData, BaseData):
             options = dict()
 
         # get current position of stream
-        if data_utils.is_stream_buffer(file_path):
+        if data_utils.is_stream_buffer(file_path) and not isinstance(file_path, str):
             starting_location = file_path.tell()
 
         is_valid_avro = fastavro.is_avro(file_path)
 
         # return to original position in stream
-        if data_utils.is_stream_buffer(file_path):
+        if data_utils.is_stream_buffer(file_path) and not isinstance(file_path, str):
             file_path.seek(starting_location, 0)
 
         return is_valid_avro
 
     @classmethod
-    def _get_nested_key(cls, dict_line, nested_key):
+    def _get_nested_key(cls, dict_line: Dict, nested_key: Dict) -> Dict:
         """
         Update nested keys from a dictionary and the current nested key.
 
@@ -113,7 +131,7 @@ class AVROData(JSONData, BaseData):
         return nested_key
 
     @classmethod
-    def _get_nested_keys_from_dicts(cls, dicts):
+    def _get_nested_keys_from_dicts(cls, dicts: List[Dict]) -> Dict:
         """
         Extract nested keys from a list of dictionaries.
 
@@ -125,13 +143,13 @@ class AVROData(JSONData, BaseData):
         :type dicts: list(dict)
         :return: a dictionary containing nested keys
         """
-        nested_keys = {}
+        nested_keys: Dict = {}
         for dict_line in dicts:
             nested_keys = cls._get_nested_key(dict_line, nested_keys)
         return nested_keys
 
     @classmethod
-    def _get_schema_avro(cls, nested_keys, schema_avro):
+    def _get_schema_avro(cls, nested_keys: Dict, schema_avro: Dict) -> Dict:
         """
         Update avro schema from the nested keys and the current avro schema.
 
@@ -172,7 +190,7 @@ class AVROData(JSONData, BaseData):
             if type(value) is dict:
                 # here, the null option to specify keys not required
                 # for every lines
-                schema_avro_temp = {
+                schema_avro_temp: Dict[str, Any] = {
                     "name": key,
                     "type": [{"name": key, "type": "record", "fields": []}, "null"],
                 }

@@ -187,7 +187,7 @@ def read_json_df(
         each call as well as original dtypes of the dataframe columns.
     :rtype: typle(Iterator(pd.DataFrame), pd.Series(dtypes)
     """
-    lines = list()
+    lines: List[Dict] = list()
     k = 0
     while True:
         try:
@@ -204,14 +204,15 @@ def read_json_df(
                 ),
                 ignore_dicts=True,
             )
-            lines.append(obj)
+            if isinstance(obj, dict): # shold always pass but needed for mypy
+                lines.append(obj) 
         except ValueError:
             pass
             # To ignore malformatted lines.
         k += 1
     if not lines and k:
         raise ValueError("No JSON data could be read from these data.")
-    return json_to_dataframe(cast(List[Dict], lines), selected_columns, read_in_string)
+    return json_to_dataframe(lines, selected_columns, read_in_string)
 
 
 def read_json(
@@ -260,14 +261,15 @@ def read_json(
                 ),
                 ignore_dicts=True,
             )
-            lines.append(obj)
+            if isinstance(obj, dict): # should always pass but needed for mypy
+                lines.append(obj) 
         except ValueError:
             pass
             # To ignore malformatted lines.
         k += 1
     if not lines and k:
         raise ValueError("No JSON data could be read from these data.")
-    return cast(List[Dict], lines)
+    return lines
 
 
 def read_csv_df(

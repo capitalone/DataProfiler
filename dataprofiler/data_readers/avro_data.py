@@ -1,6 +1,7 @@
 """Contains class for saving and loading spreadsheet data."""
 from io import BytesIO, StringIO
-from typing import Any, Dict, List, Optional, Union 
+from typing import Any, Dict, List, Optional, Union
+
 import fastavro
 
 from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
@@ -15,7 +16,12 @@ class AVROData(JSONData, BaseData):
 
     data_type: Optional[str] = "avro"
 
-    def __init__(self, input_file_path: Optional[str]=None, data: Optional[Any]=None, options: Optional[Dict]=None) -> None:
+    def __init__(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[Any] = None,
+        options: Optional[Dict] = None,
+    ) -> None:
         """
         Initialize Data class for loading datasets of type AVRO.
 
@@ -48,7 +54,10 @@ class AVROData(JSONData, BaseData):
 
     @file_encoding.setter
     def file_encoding(self, value: Any) -> None:
-        """Does nothing but required by mypy because the inherited self.file_encoding is read-write."""
+        """Do nothing.
+
+        Required by mypy because the inherited self.file_encoding is read-write.
+        """
         pass
 
     def _load_data_from_file(self, input_file_path: str) -> List:
@@ -65,7 +74,9 @@ class AVROData(JSONData, BaseData):
             return lines
 
     @classmethod
-    def is_match(cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict]=None) -> bool:
+    def is_match(
+        cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict] = None
+    ) -> bool:
         """
         Test the given file to check if the file has valid AVRO format or not.
 
@@ -132,7 +143,7 @@ class AVROData(JSONData, BaseData):
         :type dicts: list(dict)
         :return: a dictionary containing nested keys
         """
-        nested_keys: Dict
+        nested_keys: Dict = {}
         for dict_line in dicts:
             nested_keys = cls._get_nested_key(dict_line, nested_keys)
         return nested_keys

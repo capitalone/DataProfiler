@@ -128,7 +128,7 @@ class TestDataLabeler(unittest.TestCase):
             ".* != .*",
         ):
             mocked_model = mock.Mock(spec=CharacterLevelCnnModel)
-            mocked_model.__name__ = "FakeClassName"
+            mocked_model.__class__.__name__ = "FakeClassName"
             load_options = dict(model_class=mocked_model)
             UnstructuredDataLabeler._load_parameters("test/path", load_options)
 
@@ -147,7 +147,7 @@ class TestDataLabeler(unittest.TestCase):
             "preprocessor.\n .* != .*",
         ):
             mocked_preprocessor = mock.Mock(spec=data_processing.BaseDataPreprocessor)
-            mocked_preprocessor.__name__ = "FakeProcessorName"
+            mocked_preprocessor.__class__.__name__ = "FakeProcessorName"
             load_options = dict(preprocessor_class=mocked_preprocessor)
             UnstructuredDataLabeler._load_parameters("test/path", load_options)
 

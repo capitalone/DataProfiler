@@ -468,11 +468,11 @@ class BaseDataLabeler(object):
             if not isinstance(model_class, BaseModel):
                 raise TypeError("`model_class` must be a BaseModel")
             param_model_class = params.get("model", {}).get("class", None)
-            if param_model_class != model_class.__name__:
+            if param_model_class != model_class.__class__.__name__:
                 raise ValueError(
                     "The load_options model class does not match "
                     "the required DataLabeler model.\n {} != {}".format(
-                        model_class.__name__, param_model_class
+                        model_class.__class__.__name__, param_model_class
                     )
                 )
             params["model"]["class"] = model_class
@@ -483,11 +483,13 @@ class BaseDataLabeler(object):
                     "`preprocessor_class` must be a " "BaseDataPreprocessor"
                 )
             param_processor_class = params.get("preprocessor", {}).get("class", None)
-            if param_processor_class != processor_class:
+            if param_processor_class != processor_class.__class__.__name__:
                 raise ValueError(
                     "The load_options preprocessor class does not "
                     "match the required DataLabeler preprocessor."
-                    "\n {} != {}".format(processor_class, param_processor_class)
+                    "\n {} != {}".format(
+                        processor_class.__class__.__name__, param_processor_class
+                    )
                 )
             params["preprocessor"]["class"] = load_options.get("preprocessor_class")
         if "postprocessor_class" in load_options:
@@ -497,11 +499,11 @@ class BaseDataLabeler(object):
                     "`postprocessor_class` must be a " "BaseDataPostprocessor"
                 )
             param_processor_class = params.get("postprocessor", {}).get("class", None)
-            if param_processor_class != processor_class.__name__:
+            if param_processor_class != processor_class.__class__.__name__:
                 raise ValueError(
                     "The load_options postprocessor class does not match "
                     "the required DataLabeler postprocessor.\n {} != {}".format(
-                        processor_class.__name__, param_processor_class
+                        processor_class.__class__.__name__, param_processor_class
                     )
                 )
             params["postprocessor"]["class"] = load_options.get("postprocessor_class")

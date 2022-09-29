@@ -314,7 +314,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         beta: float = 1.0,
         threshold: float = None,
         name: str = "fbeta_score",
-        dtype: tf.DType = None,
+        dtype: str = None,
         **kwargs: Any,
     ) -> None:
         """Initialize FBetaScore class."""
@@ -481,7 +481,7 @@ class F1Score(FBetaScore):
         average: str = None,
         threshold: float = None,
         name: str = "f1_score",
-        dtype: tf.Dtype = None,
+        dtype: str = None,
     ) -> None:
         """Initialize F1Score object."""
         super().__init__(num_classes, average, 1.0, threshold, name=name, dtype=dtype)

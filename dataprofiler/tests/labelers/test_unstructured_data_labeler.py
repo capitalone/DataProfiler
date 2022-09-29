@@ -68,6 +68,7 @@ class TestDataLabeler(unittest.TestCase):
     @staticmethod
     def _setup_mock_load_model(mock_load_model):
         model_mock = mock.Mock(spec=CharacterLevelCnnModel)
+        model_mock.__class__.__name__ = "CharacterLevelCnnModel"
         model_mock.set_num_labels = mock.Mock()
         mock_load_model.return_value = model_mock
         model_mock.requires_zero_mapping = True

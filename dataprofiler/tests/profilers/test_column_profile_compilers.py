@@ -379,6 +379,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             "dataprofiler.profilers.data_labeler_column_profile."
             "DataLabelerColumn.label_representation"
         ):
+            compiler1._profiles["data_labeler"].sample_size = 20
             compiler1._profiles["data_labeler"].data_label = "a"
             compiler1._profiles["data_labeler"].avg_predictions = {
                 "a": 0.25,
@@ -391,6 +392,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 "c": 0.84,
             }
 
+            compiler2._profiles["data_labeler"].sample_size = 20
             compiler2._profiles["data_labeler"].data_label = "b"
             compiler2._profiles["data_labeler"].avg_predictions = {
                 "a": 0.25,

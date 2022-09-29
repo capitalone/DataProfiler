@@ -376,3 +376,17 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             }
             self.maxDiff = None
             self.assertDictEqual(expected_diff, diff)
+
+    def test_empty_data(self, *mocks):
+        # self._setup_data_labeler_mock(mock_instance)
+
+        profiler1 = DataLabelerColumn("")
+        profiler2 = DataLabelerColumn("")
+
+        # Mock out the data_label, avg_predictions, and label_representation
+        # properties
+        profiler1.update(pd.Series())
+        profiler2.update(pd.Series())
+
+        merge_profile = profiler1 + profiler2
+        diff_profile = profiler1.diff(profiler2)

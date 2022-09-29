@@ -174,19 +174,22 @@ class DataLabelerColumn(BaseColumnProfiler):
         merged_profile._max_sample_size = self._max_sample_size
         merged_profile._top_k_voting = self._top_k_voting
 
-        # Combine rank distribution
-        merged_profile._rank_distribution = {
-            key: self._rank_distribution.get(key, 0)
-            + other._rank_distribution.get(key, 0)
-            for key in set(self._rank_distribution) | set(other._rank_distribution)
-        }
-
-        # Combine Sum Predictions
-        merged_profile._sum_predictions = self._sum_predictions + other._sum_predictions
-
         self._merge_calculations(
             merged_profile.__calculations, self.__calculations, other.__calculations
         )
+
+        # Combine rank distribution
+        if self.sample_size or other.sample_size:
+            merged_profile._rank_distribution = {
+                key: self._rank_distribution.get(key, 0)
+                + other._rank_distribution.get(key, 0)
+                for key in set(self._rank_distribution) | set(other._rank_distribution)
+            }
+
+            # Combine Sum Predictions
+            merged_profile._sum_predictions = (
+                self._sum_predictions + other._sum_predictions
+            )
         return merged_profile
 
     @property
@@ -327,15 +330,19 @@ class DataLabelerColumn(BaseColumnProfiler):
         """
         differences = super().diff(other_profile, options)
 
-        labels = cast(str, self.data_label).split("|")
+        self_labels = None
+        if self.sample_size:
+            self_labels = cast(str, self.data_label).split("|")
+        other_labels = None
+        if other_profile.sample_size:
+            other_labels = cast(str, other_profile.data_label).split("|")
         avg_preds = self.avg_predictions
         label_rep = self.label_representation
-        other_labels = cast(str, other_profile.data_label).split("|")
         other_avg_preds = other_profile.avg_predictions
         other_label_rep = other_profile.label_representation
 
         differences = {
-            "data_label": utils.find_diff_of_lists_and_sets(labels, other_labels),
+            "data_label": utils.find_diff_of_lists_and_sets(self_labels, other_labels),
             "avg_predictions": utils.find_diff_of_dicts(avg_preds, other_avg_preds),
             "label_representation": utils.find_diff_of_dicts(
                 label_rep, other_label_rep

@@ -1,6 +1,7 @@
 """Contains mixin data class for loading datasets of tye SpreadSheet."""
 from logging import Logger
 from typing import Any, Dict, List, Optional, Union
+
 import pandas as pd
 
 from .. import dp_logging
@@ -44,7 +45,7 @@ class SpreadSheetDataMixin(object):
         """Load the data into memory from the file."""
         raise NotImplementedError()
 
-    def _load_data(self, data: Optional[Union[pd.DataFrame, str]]=None) -> None:
+    def _load_data(self, data: Optional[Union[pd.DataFrame, str]] = None) -> None:
         """Load either the specified data or the input_file into memory."""
         if data is not None:
             if isinstance(data, pd.DataFrame):

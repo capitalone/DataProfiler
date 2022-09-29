@@ -187,9 +187,12 @@ def evaluate_accuracy(
             if not num_labels_with_positive_support:
                 f1_report["macro avg"][metric] = np.nan
             else:
-                f1_report["macro avg"][metric] *= (
-                    float(len(label_names or [])) / num_labels_with_positive_support
-                )
+                if not label_names:
+                    f1_report["macro avg"][metric] = 0
+                else:
+                    f1_report["macro avg"][metric] *= (
+                        float(len(label_names)) / num_labels_with_positive_support
+                    )
 
     if "macro avg" in f1_report:
         f1: float = f1_report["macro avg"]["f1-score"]  # this is micro for the report
@@ -198,7 +201,10 @@ def evaluate_accuracy(
         f1 = f1_report["accuracy"]
 
     if verbose:
-        f1_report_str = f1_report_dict_to_str(f1_report, label_names or [""])
+        if not label_names:
+            label_names = [""]
+
+        f1_report_str = f1_report_dict_to_str(f1_report, label_names)
         logger.info(f"(After removing non-entity tokens)\n{f1_report_str}")
         logger.info(f"F1 Score: {f1}")
 

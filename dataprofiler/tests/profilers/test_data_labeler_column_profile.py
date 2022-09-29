@@ -358,10 +358,12 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             "dataprofiler.profilers.data_labeler_column_profile."
             "DataLabelerColumn.label_representation"
         ):
+            profiler1.sample_size = 10
             profiler1.data_label = "a|b|c"
             profiler1.avg_predictions = {"a": 0.25, "b": 0.0, "c": 0.75}
             profiler1.label_representation = {"a": 0.15, "b": 0.01, "c": 0.84}
 
+            profiler2.sample_size = 10
             profiler2.data_label = "b|c|d"
             profiler2.avg_predictions = {"a": 0.25, "b": 0.70, "c": 0.05}
             profiler2.label_representation = {"a": 0.99, "b": 0.01, "c": 0.0}

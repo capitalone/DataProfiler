@@ -1862,7 +1862,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
     @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     def test_diff_with_different_schema(self, *mocks):
 

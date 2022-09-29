@@ -1,9 +1,10 @@
 """Contains functions for checking for installations/dependencies."""
 import sys
 import warnings
+from typing import Any, Callable, List
 
 
-def warn_missing_module(labeler_function, module_name):
+def warn_missing_module(labeler_function: str, module_name: str) -> None:
     """
     Return a warning if a given graph module doesn't exist.
 
@@ -21,7 +22,7 @@ def warn_missing_module(labeler_function, module_name):
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=3)
 
 
-def require_module(names):
+def require_module(names: List[str]) -> Callable:
     """
     Check if a set of modules exists in sys.modules prior to running function.
 
@@ -32,8 +33,8 @@ def require_module(names):
     :type names: list[str]
     """
 
-    def check_module(f):
-        def new_f(*args, **kwds):
+    def check_module(f) -> Callable:
+        def new_f(*args: Any, **kwds: Any) -> Any:
             for module_name in names:
                 if module_name not in sys.modules.keys():
                     # attempt to reload if missing

@@ -2,6 +2,7 @@
 import logging
 import os
 import warnings
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 import numpy as np
 import scipy
@@ -16,7 +17,7 @@ warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
 logger = dp_logging.get_child_logger(__name__)
 
 
-def f1_report_dict_to_str(f1_report, label_names):
+def f1_report_dict_to_str(f1_report: Dict, label_names: List[str]) -> str:
     """
     Return the report string from the f1_report dict.
 
@@ -75,14 +76,14 @@ def f1_report_dict_to_str(f1_report, label_names):
 
 
 def evaluate_accuracy(
-    predicted_entities_in_index,
-    true_entities_in_index,
-    num_labels,
-    entity_rev_dict,
-    verbose=True,
-    omitted_labels=("PAD", "UNKNOWN"),
-    confusion_matrix_file=None,
-):
+    predicted_entities_in_index: List[List[int]],
+    true_entities_in_index: List[List[int]],
+    num_labels: int,
+    entity_rev_dict: Dict,
+    verbose: bool = True,
+    omitted_labels: Tuple[str, ...] = ("PAD", "UNKNOWN"),
+    confusion_matrix_file: str = None,
+) -> Tuple[float, Dict]:
     """
     Evaluate accuracy from comparing predicted labels with true labels.
 
@@ -121,7 +122,7 @@ def evaluate_accuracy(
     for i, true_labels_row in enumerate(true_entities_in_index):
         true_labels_padded[i][: len(true_labels_row)] = true_labels_row
 
-    true_labels_flatten = np.hstack(true_labels_padded)
+    true_labels_flatten = np.hstack(true_labels_padded)  # type: ignore
     predicted_labels_flatten = np.hstack(predicted_entities_in_index)
 
     if entity_rev_dict:
@@ -164,8 +165,11 @@ def evaluate_accuracy(
 
         conf_mat_pd.to_csv(confusion_matrix_file)
 
-    f1_report = classification_report(
-        conf_mat, labels=label_indexes, target_names=label_names, output_dict=True
+    f1_report: Dict = cast(
+        Dict,
+        classification_report(
+            conf_mat, labels=label_indexes, target_names=label_names, output_dict=True
+        ),
     )
 
     # adjust macro average to be updated only on positive support labels
@@ -184,24 +188,26 @@ def evaluate_accuracy(
                 f1_report["macro avg"][metric] = np.nan
             else:
                 f1_report["macro avg"][metric] *= (
-                    float(len(label_names)) / num_labels_with_positive_support
+                    float(len(label_names or [])) / num_labels_with_positive_support
                 )
 
     if "macro avg" in f1_report:
-        f1 = f1_report["macro avg"]["f1-score"]  # this is micro for the report
+        f1: float = f1_report["macro avg"]["f1-score"]  # this is micro for the report
     else:
         # this is the only remaining option for the report
         f1 = f1_report["accuracy"]
 
     if verbose:
-        f1_report_str = f1_report_dict_to_str(f1_report, label_names)
+        f1_report_str = f1_report_dict_to_str(f1_report, label_names or [""])
         logger.info(f"(After removing non-entity tokens)\n{f1_report_str}")
         logger.info(f"F1 Score: {f1}")
 
     return f1, f1_report
 
 
-def get_tf_layer_index_from_name(model, layer_name):
+def get_tf_layer_index_from_name(
+    model: tf.keras.Model, layer_name: str
+) -> Optional[int]:
     """
     Return the index of the layer given the layer name within a tf model.
 
@@ -212,15 +218,16 @@ def get_tf_layer_index_from_name(model, layer_name):
     for idx, layer in enumerate(model.layers):
         if layer.name == layer_name:
             return idx
+    return None
 
 
-def hide_tf_logger_warnings():
+def hide_tf_logger_warnings() -> None:
     """Filter out a set of warnings from the tf logger."""
 
     class NoV1ResourceMessageFilter(logging.Filter):
         """Removes TF2 warning for using TF1 model which has resources."""
 
-        def filter(self, record):
+        def filter(self, record: logging.LogRecord) -> bool:
             """Remove warning."""
             msg = (
                 "is a problem, consider rebuilding the SavedModel after "
@@ -232,7 +239,9 @@ def hide_tf_logger_warnings():
     tf_logger.addFilter(NoV1ResourceMessageFilter())
 
 
-def protected_register_keras_serializable(package="Custom", name=None):
+def protected_register_keras_serializable(
+    package: str = "Custom", name: str = None
+) -> Callable:
     """
     Protect against already registered keras serializable layers.
 
@@ -240,7 +249,7 @@ def protected_register_keras_serializable(package="Custom", name=None):
     register it again.
     """
 
-    def decorator(arg):
+    def decorator(arg: Any) -> Any:
         """Protect against double registration of a keras layer."""
         class_name = name if name is not None else arg.__name__
         registered_name = package + ">" + class_name
@@ -300,14 +309,14 @@ class FBetaScore(tf.keras.metrics.Metric):
     # Modification: remove the run-time type checking for functions
     def __init__(
         self,
-        num_classes,
-        average=None,
-        beta=1.0,
-        threshold=None,
-        name="fbeta_score",
-        dtype=None,
-        **kwargs,
-    ):
+        num_classes: int,
+        average: str = None,
+        beta: float = 1.0,
+        threshold: float = None,
+        name: str = "fbeta_score",
+        dtype: tf.DType = None,
+        **kwargs: Any,
+    ) -> None:
         """Initialize FBetaScore class."""
         super().__init__(name=name, dtype=dtype)
 
@@ -340,7 +349,7 @@ class FBetaScore(tf.keras.metrics.Metric):
             self.axis = 0
             self.init_shape = [self.num_classes]
 
-        def _zero_wt_init(name):
+        def _zero_wt_init(name: str) -> tf.Variable:
             return self.add_weight(
                 name, shape=self.init_shape, initializer="zeros", dtype=self.dtype
             )
@@ -350,7 +359,9 @@ class FBetaScore(tf.keras.metrics.Metric):
         self.false_negatives = _zero_wt_init("false_negatives")
         self.weights_intermediate = _zero_wt_init("weights_intermediate")
 
-    def update_state(self, y_true, y_pred, sample_weight=None):
+    def update_state(
+        self, y_true: tf.Tensor, y_pred: tf.Tensor, sample_weight: tf.Tensor = None
+    ) -> None:
         """Update state."""
         if self.threshold is None:
             threshold = tf.reduce_max(y_pred, axis=-1, keepdims=True)
@@ -363,7 +374,9 @@ class FBetaScore(tf.keras.metrics.Metric):
         y_true = tf.cast(y_true, self.dtype)
         y_pred = tf.cast(y_pred, self.dtype)
 
-        def _weighted_sum(val, sample_weight):
+        def _weighted_sum(
+            val: tf.Tensor, sample_weight: Optional[tf.Tensor]
+        ) -> tf.Tensor:
             if sample_weight is not None:
                 val = tf.math.multiply(val, tf.expand_dims(sample_weight, 1))
             return tf.reduce_sum(val, axis=self.axis)
@@ -377,7 +390,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         )
         self.weights_intermediate.assign_add(_weighted_sum(y_true, sample_weight))
 
-    def result(self):
+    def result(self) -> tf.Tensor:
         """Return f1 score."""
         precision = tf.math.divide_no_nan(
             self.true_positives, self.true_positives + self.false_positives
@@ -402,7 +415,7 @@ class FBetaScore(tf.keras.metrics.Metric):
 
         return f1_score
 
-    def get_config(self):
+    def get_config(self) -> Dict:
         """Return the serializable config of the metric."""
         config = {
             "num_classes": self.num_classes,
@@ -414,7 +427,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         base_config = super().get_config()
         return {**base_config, **config}
 
-    def reset_states(self):
+    def reset_states(self) -> None:
         """Reset states."""
         reset_value = tf.zeros(self.init_shape, dtype=self.dtype)
         tf.keras.backend.batch_set_value([(v, reset_value) for v in self.variables])
@@ -463,12 +476,17 @@ class F1Score(FBetaScore):
 
     # Modification: remove the run-time type checking for functions
     def __init__(
-        self, num_classes, average=None, threshold=None, name="f1_score", dtype=None
-    ):
+        self,
+        num_classes: int,
+        average: str = None,
+        threshold: float = None,
+        name: str = "f1_score",
+        dtype: tf.Dtype = None,
+    ) -> None:
         """Initialize F1Score object."""
         super().__init__(num_classes, average, 1.0, threshold, name=name, dtype=dtype)
 
-    def get_config(self):
+    def get_config(self) -> Dict:
         """Get configuration."""
         base_config = super().get_config()
         del base_config["beta"]

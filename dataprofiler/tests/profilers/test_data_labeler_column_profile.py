@@ -389,4 +389,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
         profiler2.update(pd.Series())
 
         merge_profile = profiler1 + profiler2
+        self.assertIsNone(merge_profile._rank_distribution)
+
         diff_profile = profiler1.diff(profiler2)
+        self.assertIsNone(merge_profile.data_label)

@@ -1,9 +1,11 @@
 """Contains abstract classes from which labeler classes will inherit."""
+from __future__ import annotations
 
 import json
 import os
 import sys
 import warnings
+from typing import Dict, List, Optional, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -19,9 +21,9 @@ default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 class BaseDataLabeler(object):
     """Parent class for data labeler objects."""
 
-    _default_model_loc = None
+    _default_model_loc: str = None  # type: ignore
 
-    def __init__(self, dirpath=None, load_options=None):
+    def __init__(self, dirpath: str = None, load_options: Dict = None) -> None:
         """
         Initialize DataLabeler class.
 
@@ -34,12 +36,14 @@ class BaseDataLabeler(object):
                 "`dirpath` must be a file directory where a " "DataLabeler exists."
             )
         # Example: self._model is an instance of BaseModel
-        self._model = None
+        self._model: BaseModel = None  # type: ignore
 
         # Example: self._preprocessor and self._postprocessor are instances of
         # DataProcessing
-        self._preprocessor = None
-        self._postprocessor = None
+        self._preprocessor: data_processing.BaseDataPreprocessor = None  # type: ignore
+        self._postprocessor: data_processing.BaseDataPostprocessor = (
+            None  # type: ignore
+        )
 
         # load default model
         if dirpath or self._default_model_loc:
@@ -47,7 +51,7 @@ class BaseDataLabeler(object):
                 dirpath = os.path.join(default_labeler_dir, self._default_model_loc)
             self._load_data_labeler(dirpath, load_options)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Check if two data labelers are equal with one another.
 
@@ -70,7 +74,7 @@ class BaseDataLabeler(object):
             return False
         return True
 
-    def help(self):
+    def help(self) -> None:
         """
         Describe alterable parameters.
 
@@ -93,7 +97,7 @@ class BaseDataLabeler(object):
         self._postprocessor.help()
 
     @property
-    def label_mapping(self):
+    def label_mapping(self) -> Dict:
         """
         Retrieve the label encodings.
 
@@ -102,7 +106,7 @@ class BaseDataLabeler(object):
         return self._model.label_mapping
 
     @property
-    def reverse_label_mapping(self):
+    def reverse_label_mapping(self) -> Dict:
         """
         Retrieve the index to label encoding.
 
@@ -111,7 +115,7 @@ class BaseDataLabeler(object):
         return self._model.reverse_label_mapping
 
     @property
-    def labels(self):
+    def labels(self) -> List[str]:
         """
         Retrieve the label.
 
@@ -120,7 +124,7 @@ class BaseDataLabeler(object):
         return self._model.labels
 
     @property
-    def preprocessor(self):
+    def preprocessor(self) -> Optional[data_processing.BaseDataPreprocessor]:
         """
         Retrieve the data preprocessor.
 
@@ -129,7 +133,7 @@ class BaseDataLabeler(object):
         return self._preprocessor
 
     @property
-    def model(self):
+    def model(self) -> Optional[BaseModel]:
         """
         Retrieve the data labeler model.
 
@@ -138,7 +142,7 @@ class BaseDataLabeler(object):
         return self._model
 
     @property
-    def postprocessor(self):
+    def postprocessor(self) -> Optional[data_processing.BaseDataPostprocessor]:
         """
         Retrieve the data postprocessor.
 
@@ -147,7 +151,9 @@ class BaseDataLabeler(object):
         return self._postprocessor
 
     @staticmethod
-    def _check_and_return_valid_data_format(data, fit_or_predict="fit"):
+    def _check_and_return_valid_data_format(
+        data: Union[pd.DataFrame, pd.Series, np.ndarray], fit_or_predict: str = "fit"
+    ) -> Union[pd.DataFrame, pd.Series, np.ndarray]:
         """
         Check incoming data to match the specified fit or predict format.
 
@@ -179,7 +185,7 @@ class BaseDataLabeler(object):
         else:
             return np.reshape(data, -1)
 
-    def set_params(self, params):
+    def set_params(self, params: Dict) -> None:
         """
         Allow user to set parameters of pipeline components.
 
@@ -241,7 +247,7 @@ class BaseDataLabeler(object):
             skip_postprocessor=self._postprocessor is None, error_on_mismatch=False
         )
 
-    def add_label(self, label, same_as=None):
+    def add_label(self, label: str, same_as: str = None) -> None:
         """
         Add a label to the data labeler.
 
@@ -254,7 +260,7 @@ class BaseDataLabeler(object):
         """
         self._model.add_label(label, same_as)
 
-    def set_labels(self, labels):
+    def set_labels(self, labels: Union[List, Dict]) -> None:
         """
         Set the labels for the data labeler.
 
@@ -267,23 +273,29 @@ class BaseDataLabeler(object):
 
     def predict(
         self,
-        data,
-        batch_size=32,
-        predict_options=None,
-        error_on_mismatch=False,
-        verbose=1,
-    ):
+        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        batch_size: int = 32,
+        predict_options: Dict[str, bool] = None,
+        error_on_mismatch: bool = False,
+        verbose: bool = True,
+    ) -> Dict:
         """
         Predict labels of input data based with the data labeler model.
 
         :param data: data to be predicted upon
+        :type data: Union[pd.DataFrame, pd.Series, np.ndarray]
         :param batch_size: batch size of prediction
+        :type batch_size: int
         :param predict_options: optional parameters to allow for predict as a
             dict, i.e.  dict(show_confidences=True)
+        :type predict_options: Dict[str, bool]
         :param error_on_mismatch: if true, errors instead of warns on parameter
             mismatches in pipeline
+        :type error_on_mismatch: bool
         :param verbose: Flag to determine whether to print status or not
+        :type verbose: bool
         :return: predictions
+        :rtype: Dict
         """
         if predict_options is None:
             predict_options = {}
@@ -310,7 +322,9 @@ class BaseDataLabeler(object):
 
         return results
 
-    def set_preprocessor(self, data_processor):
+    def set_preprocessor(
+        self, data_processor: data_processing.BaseDataPreprocessor
+    ) -> None:
         """
         Set the data preprocessor for the data labeler.
 
@@ -325,7 +339,7 @@ class BaseDataLabeler(object):
             )
         self._preprocessor = data_processor
 
-    def set_model(self, model):
+    def set_model(self, model: BaseModel) -> None:
         """
         Set the model for the data labeler.
 
@@ -339,7 +353,9 @@ class BaseDataLabeler(object):
             )
         self._model = model
 
-    def set_postprocessor(self, data_processor):
+    def set_postprocessor(
+        self, data_processor: data_processing.BaseDataPostprocessor
+    ) -> None:
         """
         Set the data postprocessor for the data labeler.
 
@@ -354,7 +370,9 @@ class BaseDataLabeler(object):
             )
         self._postprocessor = data_processor
 
-    def check_pipeline(self, skip_postprocessor=False, error_on_mismatch=False):
+    def check_pipeline(
+        self, skip_postprocessor: bool = False, error_on_mismatch: bool = False
+    ) -> None:
         """
         Check whether the processors and models connect together without error.
 
@@ -364,11 +382,13 @@ class BaseDataLabeler(object):
         :param error_on_mismatch: if true, errors instead of warns on parameter
             mismatches in pipeline
         :type error_on_mismatch: bool
-        :return: bool indicating valid pipeline
+        :return: None
         """
         messages = []
 
-        def get_parameter_overlap_mismatches(param_dict1, param_dict2):
+        def get_parameter_overlap_mismatches(
+            param_dict1: Dict, param_dict2: Dict
+        ) -> List[str]:
             """
             Get mismatching parameters in dictionary if same key exists.
 
@@ -376,7 +396,8 @@ class BaseDataLabeler(object):
             :type param_dict1: dict
             :param param_dict2: 2nd set of dictionary of parameters
             :type param_dict2: dict
-            :return: None
+            :return: list of mismatching parameters
+            :rtype: List[str]
             """
             param_mismatch_overlaps = []
             for key in param_dict1:
@@ -424,7 +445,7 @@ class BaseDataLabeler(object):
             warnings.warn("\n".join(messages), category=RuntimeWarning)
 
     @staticmethod
-    def _load_parameters(dirpath, load_options=None):
+    def _load_parameters(dirpath: str, load_options: Dict = None) -> Dict[str, Dict]:
         """
         Load the data labeler parameters.
 
@@ -434,6 +455,7 @@ class BaseDataLabeler(object):
                              for model or processors
         :type load_options: dict
         :return: data labeler parameter dict
+        :rtype: Dict[str, Dict]
         """
         if not load_options:
             load_options = {}
@@ -446,11 +468,11 @@ class BaseDataLabeler(object):
             if not isinstance(model_class, BaseModel):
                 raise TypeError("`model_class` must be a BaseModel")
             param_model_class = params.get("model", {}).get("class", None)
-            if param_model_class != model_class.__name__:
+            if param_model_class != model_class.__class__.__name__:
                 raise ValueError(
                     "The load_options model class does not match "
                     "the required DataLabeler model.\n {} != {}".format(
-                        model_class.__name__, param_model_class
+                        model_class.__class__.__name__, param_model_class
                     )
                 )
             params["model"]["class"] = model_class
@@ -461,11 +483,13 @@ class BaseDataLabeler(object):
                     "`preprocessor_class` must be a " "BaseDataPreprocessor"
                 )
             param_processor_class = params.get("preprocessor", {}).get("class", None)
-            if param_processor_class != processor_class:
+            if param_processor_class != processor_class.__class__.__name__:
                 raise ValueError(
                     "The load_options preprocessor class does not "
                     "match the required DataLabeler preprocessor."
-                    "\n {} != {}".format(processor_class, param_processor_class)
+                    "\n {} != {}".format(
+                        processor_class.__class__.__name__, param_processor_class
+                    )
                 )
             params["preprocessor"]["class"] = load_options.get("preprocessor_class")
         if "postprocessor_class" in load_options:
@@ -475,17 +499,17 @@ class BaseDataLabeler(object):
                     "`postprocessor_class` must be a " "BaseDataPostprocessor"
                 )
             param_processor_class = params.get("postprocessor", {}).get("class", None)
-            if param_processor_class != processor_class.__name__:
+            if param_processor_class != processor_class.__class__.__name__:
                 raise ValueError(
                     "The load_options postprocessor class does not match "
                     "the required DataLabeler postprocessor.\n {} != {}".format(
-                        processor_class.__name__, param_processor_class
+                        processor_class.__class__.__name__, param_processor_class
                     )
                 )
             params["postprocessor"]["class"] = load_options.get("postprocessor_class")
         return params
 
-    def _load_model(self, model_class, dirpath):
+    def _load_model(self, model_class: Union[BaseModel, str], dirpath: str) -> None:
         """
         Load the data labeler model.
 
@@ -499,16 +523,20 @@ class BaseDataLabeler(object):
         :return: None
         """
         if isinstance(model_class, str):
-            model_class = BaseModel.get_class(model_class)
+            model_class: BaseModel = BaseModel.get_class(model_class)  # type: ignore
         if not model_class:
             raise ValueError(
                 "`model_class`, {}, was not set in load_options "
                 "and could not be found as a registered model "
                 "class in BaseModel.".format(str(model_class))
             )
-        self.set_model(model_class.load_from_disk(dirpath))
+        self.set_model(cast(BaseModel, model_class).load_from_disk(dirpath))
 
-    def _load_preprocessor(self, processor_class, dirpath):
+    def _load_preprocessor(
+        self,
+        processor_class: Union[data_processing.BaseDataProcessor, str],
+        dirpath: str,
+    ) -> None:
         """
         Load the preprocessor for the data labeler.
 
@@ -528,9 +556,17 @@ class BaseDataLabeler(object):
                 "and could not be found as a registered model "
                 "class in BaseDataProcessor.".format(str(processor_class))
             )
-        self.set_preprocessor(processor_class.load_from_disk(dirpath))
+        self.set_preprocessor(
+            cast(data_processing.BaseDataProcessor, processor_class).load_from_disk(
+                dirpath
+            )
+        )
 
-    def _load_postprocessor(self, processor_class, dirpath):
+    def _load_postprocessor(
+        self,
+        processor_class: Union[data_processing.BaseDataProcessor, str],
+        dirpath: str,
+    ) -> None:
         """
         Load the postprocessor for the data labeler.
 
@@ -552,9 +588,13 @@ class BaseDataLabeler(object):
                     str(processor_class)
                 )
             )
-        self.set_postprocessor(processor_class.load_from_disk(dirpath))
+        self.set_postprocessor(
+            cast(data_processing.BaseDataProcessor, processor_class).load_from_disk(
+                dirpath
+            )
+        )
 
-    def _load_data_labeler(self, dirpath, load_options=None):
+    def _load_data_labeler(self, dirpath: str, load_options: Dict = None) -> None:
         """
         Load and initializes the data data labeler in the given path.
 
@@ -563,7 +603,7 @@ class BaseDataLabeler(object):
         :param load_options: optional arguments to include for load i.e. class
                              for model or processors
         :type load_options: dict
-        :return: DataLabeler class
+        :return: None
         """
         # get loaded parameters
         params = self._load_parameters(dirpath, load_options)
@@ -572,23 +612,28 @@ class BaseDataLabeler(object):
         postprocessor_params = params.get("postprocessor")
 
         # setup data labeler based on parameters
-        self._load_model(model_params.get("class"), dirpath)
-        self._load_preprocessor(preprocessor_params.get("class"), dirpath)
-        self._load_postprocessor(postprocessor_params.get("class"), dirpath)
+        self._load_model(model_params.get("class"), dirpath)  # type: ignore
+        self._load_preprocessor(
+            preprocessor_params.get("class"), dirpath  # type: ignore
+        )
+        self._load_postprocessor(
+            postprocessor_params.get("class"), dirpath  # type: ignore
+        )
 
     @classmethod
-    def load_from_library(cls, name):
+    def load_from_library(cls, name: str) -> BaseDataLabeler:
         """
         Load the data labeler from the data labeler zoo in the library.
 
         :param name: name of the data labeler.
         :type name: str
         :return: DataLabeler class
+        :rtype: BaseDataLabeler
         """
         return cls(os.path.join(default_labeler_dir, name))
 
     @classmethod
-    def load_from_disk(cls, dirpath, load_options=None):
+    def load_from_disk(cls, dirpath: str, load_options: Dict = None) -> BaseDataLabeler:
         """
         Load the data labeler from a saved location on disk.
 
@@ -598,11 +643,17 @@ class BaseDataLabeler(object):
                              for model or processors
         :type load_options: dict
         :return: DataLabeler class
+        :rtype: BaseDataLabeler
         """
         return cls(dirpath, load_options)
 
     @classmethod
-    def load_with_components(cls, preprocessor, model, postprocessor):
+    def load_with_components(
+        cls,
+        preprocessor: data_processing.BaseDataPreprocessor,
+        model: BaseModel,
+        postprocessor: data_processing.BaseDataPostprocessor,
+    ) -> BaseDataLabeler:
         """
         Load the data labeler from a its set  of components.
 
@@ -612,7 +663,8 @@ class BaseDataLabeler(object):
         :type model: base_model.BaseModel
         :param postprocessor: processor to set as the postprocessor
         :type postprocessor: data_processing.BaseDataPostprocessor
-        :return:
+        :return: loaded BaseDataLabeler
+        :rtype: BaseDataLabeler
         """
         data_labeler = type("CustomDataLabeler", (BaseDataLabeler,), {})()
         data_labeler.set_preprocessor(preprocessor)
@@ -620,7 +672,7 @@ class BaseDataLabeler(object):
         data_labeler.set_postprocessor(postprocessor)
         return data_labeler
 
-    def _save_model(self, dirpath):
+    def _save_model(self, dirpath: str) -> None:
         """
         Save the data labeler model.
 
@@ -630,7 +682,7 @@ class BaseDataLabeler(object):
         """
         self._model.save_to_disk(dirpath)
 
-    def _save_preprocessor(self, dirpath):
+    def _save_preprocessor(self, dirpath: str) -> None:
         """
         Save the preprocessor for the data labeler.
 
@@ -640,7 +692,7 @@ class BaseDataLabeler(object):
         """
         self._preprocessor.save_to_disk(dirpath)
 
-    def _save_postprocessor(self, dirpath):
+    def _save_postprocessor(self, dirpath: str) -> None:
         """
         Save the postprocessor for the data labeler.
 
@@ -650,7 +702,7 @@ class BaseDataLabeler(object):
         """
         self._postprocessor.save_to_disk(dirpath)
 
-    def _save_parameters(self, dirpath):
+    def _save_parameters(self, dirpath: str) -> None:
         """
         Save data labeler-specific parameters.
 
@@ -670,7 +722,7 @@ class BaseDataLabeler(object):
         with open(os.path.join(dirpath, "data_labeler_parameters.json"), "w") as fp:
             json.dump(parameters, fp)
 
-    def _save_data_labeler(self, dirpath):
+    def _save_data_labeler(self, dirpath: str) -> None:
         """
         Save each component of the data labeler to the specified location.
 
@@ -683,7 +735,7 @@ class BaseDataLabeler(object):
         self._save_preprocessor(dirpath)
         self._save_postprocessor(dirpath)
 
-    def save_to_disk(self, dirpath):
+    def save_to_disk(self, dirpath: str) -> None:
         """
         Save the data labeler to the specified location.
 
@@ -701,15 +753,15 @@ class TrainableDataLabeler(BaseDataLabeler):
 
     def fit(
         self,
-        x,
-        y,
-        validation_split=0.2,
-        labels=None,
-        reset_weights=False,
-        batch_size=32,
-        epochs=1,
-        error_on_mismatch=False,
-    ):
+        x: Union[pd.DataFrame, pd.Series, np.ndarray],
+        y: Union[pd.DataFrame, pd.Series, np.ndarray],
+        validation_split: float = 0.2,
+        labels: Union[List, Dict] = None,
+        reset_weights: bool = False,
+        batch_size: int = 32,
+        epochs: int = 1,
+        error_on_mismatch: bool = False,
+    ) -> List:
         """
         Fit the data labeler model for the dataset.
 
@@ -788,7 +840,9 @@ class TrainableDataLabeler(BaseDataLabeler):
 
         results = []
         for i in range(epochs):
-            results.append(self._model.fit(train_data, cv_data))
+            results.append(
+                cast(TrainableDataLabeler, self._model).fit(train_data, cv_data)
+            )
             if i < epochs - 1:
                 # shuffle input data
                 shuffle_inds = np.random.permutation(cv_split_index)
@@ -816,7 +870,7 @@ class TrainableDataLabeler(BaseDataLabeler):
                 )
         return results
 
-    def set_model(self, model):
+    def set_model(self, model: BaseModel) -> None:
         """
         Set the model for a trainable data labeler.
 
@@ -831,7 +885,12 @@ class TrainableDataLabeler(BaseDataLabeler):
         BaseDataLabeler.set_model(self, model)
 
     @classmethod
-    def load_with_components(cls, preprocessor, model, postprocessor):
+    def load_with_components(
+        cls,
+        preprocessor: data_processing.BaseDataPreprocessor,
+        model: BaseModel,
+        postprocessor: data_processing.BaseDataPostprocessor,
+    ) -> TrainableDataLabeler:
         """
         Load the data labeler from a its set  of components.
 
@@ -841,7 +900,8 @@ class TrainableDataLabeler(BaseDataLabeler):
         :type model: base_model.BaseModel
         :param postprocessor: processor to set as the postprocessor
         :type postprocessor: data_processing.BaseDataPostprocessor
-        :return:
+        :return: loaded TrainableDataLabeler
+        :rtype: TrainableDataLabeler
         """
         data_labeler = type("CustomTrainableDataLabeler", (TrainableDataLabeler,), {})()
         data_labeler.set_preprocessor(preprocessor)

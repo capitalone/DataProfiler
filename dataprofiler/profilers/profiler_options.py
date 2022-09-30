@@ -6,7 +6,7 @@ import abc
 import copy
 import re
 import warnings
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Set, Union
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 
@@ -185,7 +185,9 @@ class HistogramOption(BooleanOption):
     """For setting histogram options."""
 
     def __init__(
-        self, is_enabled=True, bin_count_or_method: Union[str, int, List[str]] = "auto"
+        self,
+        is_enabled: bool = True,
+        bin_count_or_method: Union[str, int, List[str]] = "auto",
     ) -> None:
         """
         Initialize Options for histograms.
@@ -957,9 +959,9 @@ class DataLabelerOptions(BaseInspectorOptions):
         :vartype max_sample_size: BaseDataLabeler
         """
         BaseInspectorOptions.__init__(self)
-        self.data_labeler_dirpath = None
-        self.max_sample_size = None
-        self.data_labeler_object = None
+        self.data_labeler_dirpath: Optional[str] = None
+        self.max_sample_size: Optional[int] = None
+        self.data_labeler_object: Optional[BaseDataLabeler] = None
 
     def __deepcopy__(self, memo: Dict) -> DataLabelerOptions:
         """
@@ -1050,7 +1052,7 @@ class TextProfilerOptions(BaseInspectorOptions):
         self,
         is_enabled: bool = True,
         is_case_sensitive: bool = True,
-        stop_words: List[str] = None,
+        stop_words: Set[str] = None,
         top_k_chars: int = None,
         top_k_words: int = None,
     ) -> None:

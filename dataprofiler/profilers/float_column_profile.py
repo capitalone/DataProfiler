@@ -1,9 +1,12 @@
 """Float profile analysis for individual col within structured profiling."""
+from __future__ import annotations
 
 import copy
 import re
+from typing import Dict, List, Optional
 
 import numpy as np
+import pandas as pd
 
 from . import utils
 from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnProfiler
@@ -20,7 +23,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     type = "float"
 
-    def __init__(self, name, options=None):
+    def __init__(self, name: Optional[str], options: FloatOptions = None) -> None:
         """
         Initialize column base properties and itself.
 
@@ -36,7 +39,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
 
-        self._precision = {
+        self._precision: Dict = {
             "min": None,
             "max": None,
             "sum": None,
@@ -58,7 +61,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         }
         self._filter_properties_w_options(self.__calculations, options)
 
-    def __add__(self, other):
+    def __add__(self, other: FloatColumn) -> FloatColumn:
         """
         Merge the properties of two FloatColumn profiles.
 
@@ -118,7 +121,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
         return merged_profile
 
-    def diff(self, other_profile, options=None):
+    def diff(self, other_profile: FloatColumn, options: Dict = None) -> Dict:
         """
         Find the differences for FloatColumns.
 
@@ -138,7 +141,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         differences["precision"] = precision_diff
         return differences
 
-    def report(self, remove_disabled_flag=False):
+    def report(self, remove_disabled_flag: bool = False) -> Dict:
         """Report profile attribute of class; potentially pop val from self.profile."""
         calcs_dict_keys = self._FloatColumn__calculations.keys()
         profile = self.profile
@@ -154,7 +157,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return profile
 
     @property
-    def profile(self):
+    def profile(self) -> Dict:
         """
         Return the profile of the column.
 
@@ -182,7 +185,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return profile
 
     @property
-    def precision(self):
+    def precision(self) -> Dict[str, Optional[float]]:
         """
         Report statistics on the significant figures of each element in the data.
 
@@ -222,7 +225,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return precision
 
     @property
-    def data_type_ratio(self):
+    def data_type_ratio(self) -> Optional[float]:
         """
         Calculate the ratio of samples which match this data type.
 
@@ -234,7 +237,9 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return None
 
     @classmethod
-    def _get_float_precision(cls, df_series_clean, sample_ratio=None):
+    def _get_float_precision(
+        cls, df_series_clean: pd.Series, sample_ratio: float = None
+    ) -> Optional[Dict]:
         """
         Determine the precision of the numeric value.
 
@@ -280,7 +285,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return subset_precision
 
     @classmethod
-    def _is_each_row_float(cls, df_series):
+    def _is_each_row_float(cls, df_series: pd.Series) -> List[bool]:
         """
         Determine if each value in a dataframe is a float.
 
@@ -300,8 +305,11 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     @BaseColumnProfiler._timeit(name="precision")
     def _update_precision(
-        self, df_series, prev_dependent_properties, subset_properties
-    ):
+        self,
+        df_series: pd.DataFrame,
+        prev_dependent_properties: Dict,
+        subset_properties: Dict,
+    ) -> None:
         """
         Update the precision value of the column.
 
@@ -349,7 +357,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
                 self._precision["sum"] / self._precision["sample_size"]
             )
 
-    def _update_helper(self, df_series_clean, profile):
+    def _update_helper(self, df_series_clean: pd.Series, profile: Dict) -> None:
         """
         Update column profile properties with cleaned dataset and its known profile.
 
@@ -364,8 +372,11 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         self._update_column_base_properties(profile)
 
     def _update_numeric_stats(
-        self, df_series, prev_dependent_properties, subset_properties
-    ):
+        self,
+        df_series: pd.DataFrame,
+        prev_dependent_properties: Dict,
+        subset_properties: Dict,
+    ) -> None:
         """
         Call the numeric stats update function.
 
@@ -382,13 +393,14 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         """
         super(FloatColumn, self)._update_helper(df_series, subset_properties)
 
-    def update(self, df_series):
+    def update(self, df_series: pd.Series) -> FloatColumn:
         """
         Update the column profile.
 
         :param df_series: df series
         :type df_series: pandas.core.series.Series
-        :return: None
+        :return: updated FloatColumn
+        :rtype: FloatColumn
         """
         if len(df_series) == 0:
             return self

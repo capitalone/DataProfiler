@@ -1,7 +1,10 @@
 """Class and functions to calculate and profile properties of graph data."""
+from __future__ import annotations
+
 import pickle
 from collections import defaultdict
 from datetime import datetime
+from typing import Dict, List, Optional, Tuple, Union
 
 import networkx as nx
 import numpy as np
@@ -10,6 +13,7 @@ import scipy.stats as st
 
 from ..data_readers.graph_data import GraphData
 from . import BaseColumnProfiler, utils
+from .profiler_options import ProfilerOptions
 
 
 class GraphProfiler(object):
@@ -20,7 +24,9 @@ class GraphProfiler(object):
     Statistical properties of graph
     """
 
-    def __init__(self, data, options=None):
+    def __init__(
+        self, data: Union[nx.Graph, GraphData], options: ProfilerOptions = None
+    ) -> None:
         """
         Initialize Graph Profiler.
 
@@ -30,7 +36,7 @@ class GraphProfiler(object):
         :type options: GraphOptions
         """
         self.sample_size = 0
-        self.times = defaultdict(float)
+        self.times: Dict[str, float] = defaultdict(float)
 
         """
         Properties
@@ -44,7 +50,7 @@ class GraphProfiler(object):
         self._global_max_component_size = None
         self._continuous_distribution = None
         self._categorical_distribution = None
-        self.metadata = dict()
+        self.metadata: Dict = dict()
 
         self.__calculations = {
             "num_nodes": GraphProfiler._update_num_nodes,
@@ -57,7 +63,7 @@ class GraphProfiler(object):
             "categorical_distribution": GraphProfiler._update_categorical_distribution,
         }
 
-    def __add__(self, other):
+    def __add__(self, other: GraphProfiler) -> GraphProfiler:
         """
         Merge two Graph profiles together overriding the `+` operator.
 
@@ -71,7 +77,7 @@ class GraphProfiler(object):
         )
 
     @property
-    def profile(self):
+    def profile(self) -> Dict:
         """
         Return the profile of the graph.
 
@@ -90,7 +96,7 @@ class GraphProfiler(object):
         )
         return profile
 
-    def diff(self, other_profile, options=None):
+    def diff(self, other_profile: GraphProfiler, options: Dict = None) -> Dict:
         """
         Find the differences for two graph profiles.
 
@@ -129,17 +135,19 @@ class GraphProfiler(object):
                 other_profile._global_max_component_size,
             ),
             "continuous_distribution": utils.find_diff_of_dicts_with_diff_keys(
-                self._continuous_distribution, other_profile._continuous_distribution
+                self._continuous_distribution,
+                other_profile._continuous_distribution,
             ),
             "categorical_distribution": utils.find_diff_of_dicts_with_diff_keys(
-                self._categorical_distribution, other_profile._categorical_distribution
+                self._categorical_distribution,
+                other_profile._categorical_distribution,
             ),
             "times": utils.find_diff_of_dicts(self.times, other_profile.times),
         }
 
         return diff_profile
 
-    def report(self, remove_disabled_flag=False):
+    def report(self, remove_disabled_flag: bool = False) -> Dict:
         """
         Report on profile attribute of the class.
 
@@ -168,7 +176,7 @@ class GraphProfiler(object):
                 profile.pop(profile_key)
         return profile
 
-    def _update_helper(self, profile):
+    def _update_helper(self, profile: Dict) -> None:
         """
         Update the graph profile properties with a cleaned dataset.
 
@@ -181,7 +189,7 @@ class GraphProfiler(object):
         self.sample_size += profile.pop("sample_size")
         self.metadata = profile
 
-    def update(self, graph):
+    def update(self, graph: nx.Graph) -> GraphProfiler:
         """
         Update the graph profile.
 
@@ -201,7 +209,7 @@ class GraphProfiler(object):
         profile = dict(sample_size=graph_size)
 
         BaseColumnProfiler._perform_property_calcs(
-            self,
+            self,  # type: ignore
             self.__calculations,
             df_series=graph,
             prev_dependent_properties={},
@@ -217,60 +225,102 @@ class GraphProfiler(object):
     """
 
     def _update_num_nodes(
-        self, graph, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        graph: nx.Graph,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """Update num_nodes for profile."""
+        if subset_properties is None:
+            subset_properties = {}
+
         self._num_nodes = self._get_num_nodes(graph)
         subset_properties["num_nodes"] = self._num_nodes
 
     def _update_num_edges(
-        self, graph, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        graph: nx.Graph,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """Update num_edges for profile."""
         self._num_edges = self._get_num_edges(graph)
 
     def _update_avg_node_degree(
-        self, graph, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        graph: nx.Graph,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """Update avg_node_degree for profile."""
+        if subset_properties is None:
+            subset_properties = {}
+
         self._avg_node_degree = self._get_avg_node_degree(
-            graph, subset_properties["num_nodes"]
+            graph, subset_properties.get("num_nodes", 0)
         )
 
     def _update_global_max_comp_size(
-        self, graph, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        graph: nx.Graph,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """Update global_max_component_size for profile."""
         self._global_max_component_size = self._get_global_max_component_size(graph)
 
     def _update_categorical_attributes(
-        self, graph, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        graph: nx.Graph,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """Update categorical_attributes for profile."""
+        if subset_properties is None:
+            subset_properties = {}
+
         self._categorical_attributes = self._get_categorical_attributes(graph)
         subset_properties["categorical_attributes"] = self._categorical_attributes
 
     def _update_continuous_attributes(
-        self, graph, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        graph: nx.Graph,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """Update continuous_attributes for profile."""
+        if subset_properties is None:
+            subset_properties = {}
+
         self._continuous_attributes = self._get_continuous_attributes(graph)
         subset_properties["continuous_attributes"] = self._continuous_attributes
 
     def _update_continuous_distribution(
-        self, graph, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        graph: nx.Graph,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """Update continuous_distribution for profile."""
+        if subset_properties is None:
+            subset_properties = {}
+
         self._continuous_distribution = self._get_continuous_distribution(
-            graph, subset_properties["continuous_attributes"]
+            graph, subset_properties.get("continuous_attributes", [])
         )
 
     def _update_categorical_distribution(
-        self, graph, prev_dependent_properties=None, subset_properties=None
-    ):
+        self,
+        graph: nx.Graph,
+        prev_dependent_properties: Dict = None,
+        subset_properties: Dict = None,
+    ) -> None:
         """Update categorical_distribution for profile."""
+        if subset_properties is None:
+            subset_properties = {}
+
         self._categorical_distribution = self._get_categorical_distribution(
-            graph, subset_properties["categorical_attributes"]
+            graph, subset_properties.get("categorical_attributes", [])
         )
 
     """
@@ -278,27 +328,27 @@ class GraphProfiler(object):
     """
 
     @BaseColumnProfiler._timeit(name="num_nodes")
-    def _get_num_nodes(self, graph):
+    def _get_num_nodes(self, graph: nx.Graph) -> int:
         """Compute the number of nodes."""
         return graph.number_of_nodes()
 
     @BaseColumnProfiler._timeit(name="num_edges")
-    def _get_num_edges(self, graph):
+    def _get_num_edges(self, graph: nx.Graph) -> int:
         """Compute the number of edges."""
         return graph.number_of_edges()
 
     @BaseColumnProfiler._timeit(name="categorical_attributes")
-    def _get_categorical_attributes(self, graph):
+    def _get_categorical_attributes(self, graph: nx.Graph) -> List[str]:
         """Fetch list of categorical attributes."""
         return self._get_categorical_and_continuous_attributes(graph)[0]
 
     @BaseColumnProfiler._timeit(name="continuous_attributes")
-    def _get_continuous_attributes(self, graph):
+    def _get_continuous_attributes(self, graph: nx.Graph) -> List[str]:
         """Fetch list of continuous attributes."""
         return self._get_categorical_and_continuous_attributes(graph)[1]
 
     @BaseColumnProfiler._timeit(name="avg_node_degree")
-    def _get_avg_node_degree(self, graph, num_nodes):
+    def _get_avg_node_degree(self, graph: nx.Graph, num_nodes: int) -> float:
         """Compute average node degree of nodes in graph."""
         total_degree = 0
         for node in graph:
@@ -306,16 +356,18 @@ class GraphProfiler(object):
         return total_degree / num_nodes
 
     @BaseColumnProfiler._timeit(name="global_max_component_size")
-    def _get_global_max_component_size(self, graph):
+    def _get_global_max_component_size(self, graph: nx.Graph) -> int:
         """Compute largest subgraph component of the graph."""
         graph_connected_components = sorted(
             nx.connected_components(graph), key=len, reverse=True
         )
-        largest_component = graph.subgraph(graph_connected_components[0])
+        largest_component: nx.Graph = graph.subgraph(graph_connected_components[0])
         return largest_component.size()
 
     @BaseColumnProfiler._timeit(name="continuous_distribution")
-    def _get_continuous_distribution(self, graph, continuous_attributes):
+    def _get_continuous_distribution(
+        self, graph: nx.Graph, continuous_attributes: List[str]
+    ) -> Dict:
         """
         Compute the continuous distribution of graph edge continuous attributes.
 
@@ -328,9 +380,9 @@ class GraphProfiler(object):
             - lognorm: shape=s
         """
         attributes = self._find_all_attributes(graph)
-        continuous_distributions = dict()
+        continuous_distributions: Dict = dict()
 
-        distribution_candidates = [
+        distribution_candidates: List[st.rv_continuous] = [
             st.norm,
             st.uniform,
             st.expon,
@@ -342,9 +394,9 @@ class GraphProfiler(object):
             if attribute in continuous_attributes:
                 data_as_list = self._attribute_data_as_list(graph, attribute)
                 df = pd.Series(data_as_list)
-                best_fit = None
-                best_mle = 1000
-                best_fit_properties = None
+                best_fit: str = None  # type: ignore[assignment]
+                best_mle: float = 1000
+                best_fit_properties: Tuple = None  # type: ignore[assignment]
 
                 for distribution in distribution_candidates:
                     # compute fit, mle, kolmogorov-smirnov test to test fit, and pdf
@@ -360,7 +412,7 @@ class GraphProfiler(object):
                 mean, variance, skew, kurtosis = best_distrib.stats(
                     best_fit_properties, moments="mvsk"
                 )
-                properties = {
+                properties: Dict[str, List[np.ndarray]] = {
                     "best_fit_properties": list(best_fit_properties),
                     "mean": list(mean),
                     "variance": list(variance),
@@ -377,11 +429,13 @@ class GraphProfiler(object):
         return continuous_distributions
 
     @BaseColumnProfiler._timeit(name="categorical_distribution")
-    def _get_categorical_distribution(self, graph, categorical_attributes):
+    def _get_categorical_distribution(
+        self, graph: nx.Graph, categorical_attributes: List[str]
+    ) -> Dict:
         """Compute histogram of graph edge categorical attributes."""
         attributes = GraphProfiler._find_all_attributes(graph)
 
-        categorical_distributions = dict()
+        categorical_distributions: Dict = dict()
 
         for attribute in attributes:
             if attribute in categorical_attributes:
@@ -396,7 +450,9 @@ class GraphProfiler(object):
         return categorical_distributions
 
     @staticmethod
-    def _get_categorical_and_continuous_attributes(graph):
+    def _get_categorical_and_continuous_attributes(
+        graph: nx.Graph,
+    ) -> Tuple[List[str], List[str]]:
         """Find and list categorical and continuous attributes."""
         categorical_attributes = []
         continuous_attributes = []
@@ -419,14 +475,14 @@ class GraphProfiler(object):
     """
 
     @staticmethod
-    def _find_all_attributes(graph):
+    def _find_all_attributes(graph: nx.Graph) -> List[str]:
         """Compute the number of attributes for each edge."""
         attribute_list = set(
             np.array([list(graph.edges[n].keys()) for n in graph.edges()]).flatten()
         )
         return list(attribute_list)
 
-    def _attribute_data_as_list(self, graph, attribute):
+    def _attribute_data_as_list(self, graph: nx.Graph, attribute: str) -> List:
         """Fetch graph attribute data and convert it to a readable list."""
         data_as_list = []
         for u, v in list(graph.edges):
@@ -434,7 +490,7 @@ class GraphProfiler(object):
             data_as_list.append(value)
         return data_as_list
 
-    def _save_helper(self, filepath, data_dict):
+    def _save_helper(self, filepath: Optional[str], data_dict: Dict) -> None:
         """
         Save profiler to disk.
 
@@ -457,7 +513,7 @@ class GraphProfiler(object):
         with open(filepath, "wb") as outfile:
             pickle.dump(data_dict, outfile)
 
-    def save(self, filepath=None):
+    def save(self, filepath: str = None) -> None:
         """
         Save profiler to disk.
 
@@ -484,7 +540,7 @@ class GraphProfiler(object):
         self._save_helper(filepath, data_dict)
 
     @classmethod
-    def load(cls, filepath):
+    def load(cls, filepath: str) -> GraphProfiler:
         """
         Load profiler from disk.
 

@@ -1,11 +1,12 @@
 """Contains functions for classification."""
 import warnings
+from typing import Dict, List, Optional, Set, Tuple, Union, cast
 
 import numpy as np
 import sklearn.metrics._classification
 
 
-def convert_confusion_matrix_to_MCM(conf_matrix):
+def convert_confusion_matrix_to_MCM(conf_matrix: Union[List, np.ndarray]):
     """
     Convert a confusion matrix into the MCM format.
 
@@ -52,14 +53,14 @@ def convert_confusion_matrix_to_MCM(conf_matrix):
 
 
 def precision_recall_fscore_support(
-    MCM,
-    beta=1.0,
-    labels=None,
-    pos_label=1,
-    average=None,
-    warn_for=("precision", "recall", "f-score"),
-    sample_weight=None,
-):
+    MCM: np.ndarray,
+    beta: float = 1.0,
+    labels: np.ndarray = None,
+    pos_label: Union[str, int] = 1,
+    average: str = None,
+    warn_for: Union[Tuple[str, ...], Set[str]] = ("precision", "recall", "f-score"),
+    sample_weight: np.ndarray = None,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Optional[np.ndarray]]:
     """
     Perform same functionality as recision_recall_fscore_support function.
 
@@ -222,13 +223,13 @@ def precision_recall_fscore_support(
 
 
 def classification_report(
-    conf_matrix,
-    labels=None,
-    target_names=None,
-    sample_weight=None,
-    digits=2,
-    output_dict=False,
-):
+    conf_matrix: np.ndarray,
+    labels: Union[List, np.ndarray] = None,
+    target_names: List[str] = None,
+    sample_weight: np.ndarray = None,
+    digits: int = 2,
+    output_dict: bool = False,
+) -> Union[str, Dict]:
     """
     Build a text report showing the main classification metrics.
 
@@ -342,15 +343,15 @@ def classification_report(
     p, r, f1, s = precision_recall_fscore_support(
         MCM, labels=labels, average=None, sample_weight=sample_weight
     )
-    rows = zip(target_names, p, r, f1, s)
+    rows = zip(target_names, p, r, f1, cast(np.ndarray, s))
 
     if y_type.startswith("multilabel"):
-        average_options = ("micro", "macro", "weighted", "samples")
+        average_options: Tuple[str, ...] = ("micro", "macro", "weighted", "samples")
     else:
         average_options = ("micro", "macro", "weighted")
 
     if output_dict:
-        report_dict = {label[0]: label[1:] for label in rows}
+        report_dict: Dict = {label[0]: label[1:] for label in rows}
         for label, scores in report_dict.items():
             report_dict[label] = dict(zip(headers, [i.item() for i in scores]))
     else:
@@ -379,7 +380,7 @@ def classification_report(
         avg_p, avg_r, avg_f1, _ = precision_recall_fscore_support(
             MCM, labels=labels, average=average, sample_weight=sample_weight
         )
-        avg = [avg_p, avg_r, avg_f1, np.sum(s)]
+        avg = [avg_p, avg_r, avg_f1, np.sum(cast(np.ndarray, s))]
 
         if output_dict:
             report_dict[line_heading] = dict(zip(headers, [i.item() for i in avg]))

@@ -1,11 +1,23 @@
 """Contains helper functions for generating report."""
 import math
+from typing import Dict, List
 
 import numpy as np
 
 
-def calculate_quantiles(num_quantile_groups, quantiles):
-    """Calculate and return quantiles."""
+def calculate_quantiles(
+    num_quantile_groups: int, quantiles: Dict[int, int]
+) -> Dict[int, int]:
+    """
+    Calculate and return quantiles.
+
+    :param num_quantile_groups: number of quantile groups
+    :type num_quantile_groups: int
+    :param quantiles: original quantiles
+    :type quantiles: Dict[int, int]
+    :returns: calculated quantiles
+    :rtype: Dict[int, int]
+    """
     len_quant = len(quantiles)
     if not (num_quantile_groups and 0 < num_quantile_groups <= (len_quant + 1)):
         num_quantile_groups = 4
@@ -24,7 +36,7 @@ def calculate_quantiles(num_quantile_groups, quantiles):
     return quantiles
 
 
-def flat_dict(od, separator="_", key=""):
+def flat_dict(od: Dict, separator: str = "_", key: str = "") -> Dict:
     """
     Flatten nested dictionary.
 
@@ -51,7 +63,31 @@ def flat_dict(od, separator="_", key=""):
     )
 
 
-def _prepare_report(report, output_format=None, omit_keys=None):
+def _clean_profile_schema(value: Dict) -> Dict:
+    """
+    Clean schemas in profile.
+
+    Prepares profile schemas specifically which requires the entire list to be
+    shown and update specific issues related to some np.numbers not being
+    serializable.
+
+    :param value: dict of the data's profile schema
+    :type value: dict[str, list[ints]]
+    :return: cleaned profile schema
+    :rtype: dict[str, list[ints]]
+    """
+    profile_schema_keys = list(value.keys())
+    for i, col_name in enumerate(profile_schema_keys):
+        if isinstance(col_name, np.int64):
+            profile_schema_keys[i] = int(col_name)
+        elif not isinstance(col_name, (str, int, float, bool, type(None))):
+            profile_schema_keys[i] = str(col_name)
+    return dict(zip(profile_schema_keys, value.values()))
+
+
+def _prepare_report(
+    report: Dict, output_format: str = None, omit_keys: List[str] = None
+) -> Dict:
     """
     Prepare report dictionary for users upon request.
 
@@ -67,7 +103,7 @@ def _prepare_report(report, output_format=None, omit_keys=None):
     :type report: dict()
     :param output_format: designation for how to format the returned report;
                           possible options: pretty, serializable, flat, compact
-    :type output_format: dict()
+    :type output_format: str
     :param omit_keys: Keys to omit from the output report, to omit keys in the
                       report a '.' represents a level of recursion example:
                       report: { 'test1': { 'test2': val, 'test3': val },
@@ -82,7 +118,7 @@ def _prepare_report(report, output_format=None, omit_keys=None):
     if omit_keys is None:
         omit_keys = []
 
-    fmt_report = {}
+    fmt_report: Dict = {}
     max_str_len = 50
     max_array_len = 5
 
@@ -167,13 +203,13 @@ def _prepare_report(report, output_format=None, omit_keys=None):
         # Do not recurse or modify profile_schema
         elif key == "profile_schema" and "profile_schema" not in omit_keys:
             if output_format in ["serializable", "pretty", "compact"]:
-                profile_schema_keys = list(value.keys())
-                for i, col_name in enumerate(profile_schema_keys):
-                    if isinstance(col_name, np.int64):
-                        profile_schema_keys[i] = int(col_name)
-                    elif not isinstance(col_name, (str, int, float, bool, type(None))):
-                        profile_schema_keys[i] = str(col_name)
-                value = dict(zip(profile_schema_keys, value.values()))
+                if isinstance(value, list):
+                    # for diff specifically
+                    value = [_clean_profile_schema(schema) for schema in value]
+                else:
+                    # for report
+                    value = _clean_profile_schema(value)
+
             fmt_report[key] = value
 
         elif isinstance(value, dict):
@@ -197,11 +233,11 @@ def _prepare_report(report, output_format=None, omit_keys=None):
                 value, output_format, next_layer_omit_keys
             )
 
-        elif isinstance(value, list) or isinstance(value, np.ndarray):
+        elif isinstance(value, (list, np.ndarray, set)):
 
             if output_format == "pretty":
 
-                if isinstance(value, list):
+                if isinstance(value, (set, list)):
                     value = np.array(value)
 
                 str_value = np.array2string(value, separator=", ")
@@ -223,6 +259,13 @@ def _prepare_report(report, output_format=None, omit_keys=None):
                 fmt_report[key] = value.tolist()
             else:
                 fmt_report[key] = value
+
+            if output_format in ["pretty", "serializable", "compact"] and all(
+                isinstance(v, dict) for v in value
+            ):
+                fmt_report[key] = [
+                    _prepare_report(v, output_format, omit_keys) for v in value
+                ]
 
         elif isinstance(value, float) and output_format == "pretty":
             fmt_report[key] = round(value, 4)

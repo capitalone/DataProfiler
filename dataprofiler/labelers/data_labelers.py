@@ -1,17 +1,26 @@
 """Module to train and choose between structured and unstructured data labelers."""
+from __future__ import annotations
 
 import os
+from typing import Dict, Union
 
 import pandas as pd
 import pkg_resources
 
 from .. import data_readers
 from .base_data_labeler import BaseDataLabeler, TrainableDataLabeler
+from .base_model import BaseModel
+from .data_processing import BaseDataPostprocessor, BaseDataPreprocessor
 
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
-def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs=2):
+def train_structured_labeler(
+    data: Union[None, pd.DataFrame],
+    default_label: int = None,
+    save_dirpath: str = None,
+    epochs: int = 2,
+) -> TrainableDataLabeler:
     """
     Use provided data to create and save a structured data labeler.
 
@@ -21,7 +30,8 @@ def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs
     :type save_dirpath: Union[None, str]
     :param epochs: number of epochs to loop training the data
     :type epochs: int
-    :return:
+    :return: structured data labeler
+    :rtype: TrainableDataLabeler
     """
     if isinstance(data, data_readers.base_data.BaseData) and not isinstance(
         data, data_readers.text_data.TextData
@@ -45,34 +55,36 @@ def train_structured_labeler(data, default_label=None, save_dirpath=None, epochs
     value_label_df.columns = [1, 0]  # labels=1, values=0 in that order
     value_label_df = value_label_df.astype(str)
 
-    data_labeler = DataLabeler(labeler_type="structured", trainable=True)
+    data_labeler: TrainableDataLabeler = DataLabeler(  # type: ignore
+        labeler_type="structured", trainable=True
+    )
     labels = value_label_df[1].unique().tolist()
 
     # set default label to the data labeler pipeline
     if default_label:
         params = {"default_label": default_label}
-        data_labeler.set_params(
+        data_labeler.set_params(  # pylint: disable=no-member
             {"preprocessor": params, "model": params, "postprocessor": params}
         )
 
-    data_labeler.fit(
+    data_labeler.fit(  # pylint: disable=no-member
         x=value_label_df[0], y=value_label_df[1], labels=labels, epochs=epochs
     )
     if save_dirpath:
-        data_labeler.save_to_disk(save_dirpath)
+        data_labeler.save_to_disk(save_dirpath)  # pylint: disable=no-member
     return data_labeler
 
 
 class UnstructuredDataLabeler(BaseDataLabeler):
     """BaseDataLabeler subclass specified as unstructured with internal variable."""
 
-    _default_model_loc = "unstructured_model"
+    _default_model_loc: str = "unstructured_model"
 
 
 class StructuredDataLabeler(BaseDataLabeler):
     """BaseDataLabeler subclass specified as structured with internal variable."""
 
-    _default_model_loc = "structured_model"
+    _default_model_loc: str = "structured_model"
 
 
 class DataLabeler(object):
@@ -83,14 +95,20 @@ class DataLabeler(object):
         unstructured=UnstructuredDataLabeler,
     )
 
-    def __new__(cls, labeler_type, dirpath=None, load_options=None, trainable=False):
+    def __new__(  # type: ignore
+        cls,
+        labeler_type: str,
+        dirpath: str = None,
+        load_options: Dict = None,
+        trainable: bool = False,
+    ) -> BaseDataLabeler:
         """
         Create structured and unstructred data labeler objects.
 
         :param dirpath: Path to load data labeler
-        :type dirpath: Any
+        :type dirpath: str
         :param load_options: Optional arguments to include for load.
-        :type load_options: Any
+        :type load_options: Dict
         :param trainable: variable to dictate whether you want a trainable data
             labeler
         :type trainable: bool
@@ -113,7 +131,7 @@ class DataLabeler(object):
         return data_labeler(dirpath, load_options)
 
     @classmethod
-    def load_from_library(cls, name, trainable=False):
+    def load_from_library(cls, name: str, trainable: bool = False) -> BaseDataLabeler:
         """
         Load the data labeler from the data labeler zoo in the library.
 
@@ -129,7 +147,9 @@ class DataLabeler(object):
         return BaseDataLabeler.load_from_library(name)
 
     @classmethod
-    def load_from_disk(cls, dirpath, load_options=None, trainable=False):
+    def load_from_disk(
+        cls, dirpath: str, load_options: Dict = None, trainable: bool = False
+    ) -> BaseDataLabeler:
         """
         Load the data labeler from a saved location on disk.
 
@@ -148,7 +168,13 @@ class DataLabeler(object):
         return BaseDataLabeler.load_from_disk(dirpath, load_options)
 
     @classmethod
-    def load_with_components(cls, preprocessor, model, postprocessor, trainable=False):
+    def load_with_components(
+        cls,
+        preprocessor: BaseDataPreprocessor,
+        model: BaseModel,
+        postprocessor: BaseDataPostprocessor,
+        trainable: bool = False,
+    ) -> BaseDataLabeler:
         """
         Load the data labeler from a its set  of components.
 

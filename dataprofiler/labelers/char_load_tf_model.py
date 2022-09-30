@@ -1,12 +1,16 @@
 """Contains class for training data labeler model."""
+from __future__ import annotations
+
 import copy
 import json
 import os
 import sys
 import time
 from collections import defaultdict
+from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 
 from .. import dp_logging
@@ -25,7 +29,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
     # boolean if the label mapping requires the mapping for index 0 reserved
     requires_zero_mapping = False
 
-    def __init__(self, model_path, label_mapping=None, parameters=None):
+    def __init__(
+        self, model_path: str, label_mapping: Dict, parameters: Dict = None
+    ) -> None:
         """
         Initialize Loadable TF Model.
 
@@ -54,7 +60,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         BaseModel.__init__(self, label_mapping, parameters)
 
-    def __eq__(self, other):
+    def __eq__(self, other: BaseModel) -> bool:  # type: ignore
         """
         Check if two models are equal with one another.
 
@@ -74,7 +80,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             return False
         return True
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate the parameters sent in.
 
@@ -110,7 +116,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         if errors:
             raise ValueError("\n".join(errors))
 
-    def set_label_mapping(self, label_mapping):
+    def set_label_mapping(
+        self, label_mapping: Union[List[str], Dict[str, int]]
+    ) -> None:
         """
         Set the labels for the model.
 
@@ -139,7 +147,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             )
         super().set_label_mapping(label_mapping)
 
-    def _need_to_reconstruct_model(self):
+    def _need_to_reconstruct_model(self) -> bool:
         """
         Determine whether or not the model needs to be reconstructed.
 
@@ -153,7 +161,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             or default_ind != self._model_default_ind
         )
 
-    def save_to_disk(self, dirpath):
+    def save_to_disk(self, dirpath: str) -> None:
         """
         Save whole model to disk with weights.
 
@@ -177,13 +185,14 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         self._model.save(dirpath)
 
     @classmethod
-    def load_from_disk(cls, dirpath):
+    def load_from_disk(cls, dirpath: str) -> CharLoadTFModel:
         """
         Load whole model from disk with weights.
 
         :param dirpath: directory path where you want to load the model from
         :type dirpath: str
-        :return: None
+        :return: loaded CharLoadTFModel
+        :rtype: CharLoadTFModel
         """
         # load parameters
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
@@ -215,7 +224,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         ]
         return loaded_model
 
-    def _construct_model(self):
+    def _construct_model(self) -> None:
         """
         Model constructor for the data labeler.
 
@@ -227,7 +236,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         default_ind = self.label_mapping[self._parameters["default_label"]]
         model_loc = self._parameters["model_path"]
 
-        self._model = tf.keras.models.load_model(model_loc)
+        self._model: tf.keras.Model = tf.keras.models.load_model(model_loc)
         softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
         softmax_layer_ind = labeler_utils.get_tf_layer_index_from_name(
             self._model, softmax_output_layer_name
@@ -238,7 +247,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         if softmax_layer.weights[0].shape[-1] != num_labels:
             new_softmax_layer = tf.keras.layers.Dense(
                 num_labels, activation="softmax", name="softmax_output"
-            )(self._model.layers[softmax_layer_ind - 1].output)
+            )(self._model.layers[cast(int, softmax_layer_ind) - 1].output)
 
         # Output the model into a .pb file for TensorFlow
         argmax_layer = tf.keras.backend.argmax(new_softmax_layer)
@@ -262,7 +271,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         self._model_num_labels = num_labels
         self._model_default_ind = default_ind
 
-    def reset_weights(self):
+    def reset_weights(self) -> None:
         """
         Reset the weights of the model.
 
@@ -270,7 +279,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         """
         self._construct_model()
 
-    def _reconstruct_model(self):
+    def _reconstruct_model(self) -> None:
         """
         Reconstruct appropriate layers if number of number of labels is altered.
 
@@ -315,13 +324,13 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def fit(
         self,
-        train_data,
-        val_data=None,
-        batch_size=32,
-        label_mapping=None,
-        reset_weights=False,
-        verbose=True,
-    ):
+        train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        val_data: Union[pd.DataFrame, pd.Series, np.ndarray] = None,
+        batch_size: int = 32,
+        label_mapping: Dict[str, int] = None,
+        reset_weights: bool = False,
+        verbose: bool = True,
+    ) -> Tuple[Dict, Optional[str], Dict]:
         """
         Train the current model with the training data and validation data.
 
@@ -351,9 +360,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             if reset_weights:
                 self.reset_weights()
 
-        history = defaultdict()
-        f1 = None
-        f1_report = []
+        history: Dict = defaultdict()
+        f1: Optional[str] = None
+        f1_report: Dict = {}
 
         self._model.reset_metrics()
         softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
@@ -376,7 +385,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             history[metric_label] = model_results[i]
 
         if val_data:
-            f1, f1_report = self._validate_training(val_data)
+            f1, f1_report = self._validate_training(val_data)  # type: ignore
             history["f1_report"] = f1_report
 
             val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.NAN
@@ -403,13 +412,17 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         return history, f1, f1_report
 
     def _validate_training(
-        self, val_data, batch_size_test=32, verbose_log=True, verbose_keras=False
-    ):
+        self,
+        val_data: Iterable,
+        batch_size_test: int = 32,
+        verbose_log: bool = True,
+        verbose_keras: bool = False,
+    ) -> Tuple[Optional[float], Optional[Dict]]:
         """
         Validate the model on the test set and return the evaluation metrics.
 
         :param val_data: data generator for the validation
-        :type val_data: iterator
+        :type val_data: iterable
         :param batch_size_test: Number of samples to process in testing
         :type batch_size_test: int
         :param verbose_log: whether or not to print out scores for training,
@@ -420,8 +433,8 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         :type verbose_keras: bool
         return (f1-score, f1 report).
         """
-        f1 = None
-        f1_report = None
+        f1: Optional[float] = None
+        f1_report: Optional[Dict] = None
 
         if val_data is None:
             return f1, f1_report
@@ -456,7 +469,13 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         return f1, f1_report
 
-    def predict(self, data, batch_size=32, show_confidences=False, verbose=True):
+    def predict(
+        self,
+        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        batch_size: int = 32,
+        show_confidences: bool = False,
+        verbose: bool = True,
+    ) -> Dict:
         """
         Run model and get predictions.
 
@@ -481,8 +500,8 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
                 "predict."
             )
         # Pre-allocate space for predictions
-        confidences = []
-        predictions = []
+        confidences: List = []
+        predictions: List = []
 
         # Run model with batching
         allocation_index = 0
@@ -517,7 +536,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             return {"pred": predictions, "conf": confidences}
         return {"pred": predictions}
 
-    def details(self):
+    def details(self) -> None:
         """
         Print the relevant details of the model.
 

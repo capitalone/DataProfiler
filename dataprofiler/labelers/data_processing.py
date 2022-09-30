@@ -1,4 +1,5 @@
 """Contains pre-built processors for data labeling/processing."""
+from __future__ import annotations
 
 import abc
 import copy
@@ -10,6 +11,7 @@ import random
 import types
 import warnings
 from collections import Counter
+from typing import Any, Dict, Generator, Iterable, List, Tuple, Type, Union
 
 import numpy as np
 import pkg_resources
@@ -20,9 +22,9 @@ default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 class AutoSubRegistrationMeta(abc.ABCMeta):
     """For registering subclasses."""
 
-    def __new__(cls, clsname, bases, attrs):
+    def __new__(cls, clsname: str, bases: Tuple[type, ...], attrs: Dict[str, object]):
         """Create AutoSubRegistration object."""
-        new_class = super(AutoSubRegistrationMeta, cls).__new__(
+        new_class: Any = super(AutoSubRegistrationMeta, cls).__new__(
             cls, clsname, bases, attrs
         )
         new_class._register_subclass()
@@ -32,26 +34,30 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
 class BaseDataProcessor(metaclass=abc.ABCMeta):
     """Abstract Data processing class."""
 
-    processor_type = None
-    __subclasses = {}
+    processor_type: str = None  # type: ignore[assignment]
+    __subclasses: Dict[str, Type[BaseDataProcessor]] = {}
 
-    def __init__(self, **parameters):
+    def __init__(self, **parameters: Any) -> None:
         """Initialize BaseDataProcessor object."""
         self._validate_parameters(parameters)
         self._parameters = parameters
 
     @classmethod
-    def _register_subclass(cls):
+    def _register_subclass(cls) -> None:
         """Register a subclass for the class factory."""
         if not inspect.isabstract(cls):
-            cls._BaseDataProcessor__subclasses[cls.__name__.lower()] = cls
+            cls._BaseDataProcessor__subclasses[  # type: ignore
+                cls.__name__.lower()
+            ] = cls
 
     @classmethod
-    def get_class(cls, class_name):
+    def get_class(cls, class_name: str) -> BaseDataProcessor:
         """Get class of BaseDataProcessor object."""
-        return cls._BaseDataProcessor__subclasses.get(class_name.lower(), None)
+        return cls._BaseDataProcessor__subclasses.get(  # type: ignore
+            class_name.lower(), None
+        )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Check if two processors are equal with one another.
 
@@ -62,18 +68,21 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         :return: Whether or not self and other are equal
         :rtype: bool
         """
-        if type(self) != type(other) or self._parameters != other._parameters:
+        if (
+            not isinstance(other, BaseDataProcessor)
+            or self._parameters != other._parameters
+        ):
             return False
         return True
 
     @abc.abstractmethod
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Any) -> None:
         """Validate class input parameters for processing."""
         raise NotImplementedError()
 
     @classmethod
     @abc.abstractmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -84,7 +93,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         """
         raise NotImplementedError()
 
-    def get_parameters(self, param_list=None):
+    def get_parameters(self, param_list: List[str] = None) -> Dict:
         """
         Return a dict of parameters from the model given a list.
 
@@ -107,7 +116,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
                 )
         return param_dict
 
-    def set_params(self, **kwargs):
+    def set_params(self, **kwargs: Any) -> None:
         """Set the parameters if they exist given kwargs."""
         # first check if any parameters are invalid
         self._validate_parameters(kwargs)
@@ -115,13 +124,8 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         for param in kwargs:
             self._parameters[param] = kwargs[param]
 
-    @abc.abstractmethod
-    def process(self, *args):
-        """Process data."""
-        raise NotImplementedError()
-
     @classmethod
-    def load_from_disk(cls, dirpath):
+    def load_from_disk(cls, dirpath: str) -> BaseDataProcessor:
         """Load data processor from a given path on disk."""
         with open(os.path.join(dirpath, cls.processor_type + "_parameters.json")) as fp:
             parameters = json.load(fp)
@@ -129,18 +133,18 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         return cls(**parameters)
 
     @classmethod
-    def load_from_library(cls, name):
+    def load_from_library(cls, name: str) -> BaseDataProcessor:
         """Load data processor from within the library."""
         return cls.load_from_disk(os.path.join(default_labeler_dir, name))
 
-    def _save_processor(self, dirpath):
+    def _save_processor(self, dirpath: str) -> None:
         """Save data processor."""
         with open(
             os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
         ) as fp:
             json.dump(self.get_parameters(), fp)
 
-    def save_to_disk(self, dirpath):
+    def save_to_disk(self, dirpath: str) -> None:
         """Save data processor to a path on disk."""
         self._save_processor(dirpath)
 
@@ -151,12 +155,18 @@ class BaseDataPreprocessor(BaseDataProcessor):
     processor_type = "preprocessor"
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, **parameters):
+    def __init__(self, **parameters: Any) -> None:
         """Initialize BaseDataPreprocessor object."""
         super(BaseDataPreprocessor, self).__init__(**parameters)
 
     @abc.abstractmethod
-    def process(self, data, labels, label_mapping, batch_size):
+    def process(
+        self,
+        data: np.ndarray,
+        labels: np.ndarray = None,
+        label_mapping: Dict[str, int] = None,
+        batch_size: int = 32,
+    ) -> Generator[Union[Tuple[np.ndarray, np.ndarray], np.ndarray], None, None]:
         """Preprocess data."""
         raise NotImplementedError()
 
@@ -172,7 +182,12 @@ class BaseDataPostprocessor(BaseDataProcessor):
         super(BaseDataPostprocessor, self).__init__(**parameters)
 
     @abc.abstractmethod
-    def process(self, data, results, label_mapping):
+    def process(
+        self,
+        data: np.ndarray,
+        results: Dict,
+        label_mapping: Dict[str, int],
+    ) -> Dict:
         """Postprocess data."""
         raise NotImplementedError()
 
@@ -180,11 +195,11 @@ class BaseDataPostprocessor(BaseDataProcessor):
 class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
     """Subclass of BaseDataPreprocessor for preprocessing data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the DirectPassPreprocessor class."""
         super(DirectPassPreprocessor, self).__init__()
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -198,7 +213,7 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
             raise ValueError("`DirectPassPreprocessor` has no parameters.")
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -216,7 +231,13 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
         )
         print(help_str)
 
-    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        labels: np.ndarray = None,
+        label_mapping: Dict[str, int] = None,
+        batch_size: int = 32,
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """Preprocess data."""
         if labels is not None:
             return data, labels
@@ -228,14 +249,14 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
     def __init__(
         self,
-        max_length=3400,
-        default_label="UNKNOWN",
-        pad_label="PAD",
-        flatten_split=0,
-        flatten_separator=" ",
-        is_separate_at_max_len=False,
-        **kwargs,
-    ):
+        max_length: int = 3400,
+        default_label: str = "UNKNOWN",
+        pad_label: str = "PAD",
+        flatten_split: float = 0,
+        flatten_separator: str = " ",
+        is_separate_at_max_len: bool = False,
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize the CharPreprocessor class.
 
@@ -268,7 +289,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             **kwargs,
         )
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -317,7 +338,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             raise ValueError("\n".join(errors))
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -327,6 +348,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         :return: None
         """
         param_docs = inspect.getdoc(cls._validate_parameters)
+        assert param_docs is not None
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -344,11 +366,11 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
     @staticmethod
     def _find_nearest_sentence_break_before_ind(
-        sentence,
-        start_ind,
-        min_ind=0,
-        separators=(" ", "\n", ",", "\t", "\r", "\x00", "\x01", ";"),
-    ):
+        sentence: str,
+        start_ind: int,
+        min_ind: int = 0,
+        separators: Tuple[str, ...] = (" ", "\n", ",", "\t", "\r", "\x00", "\x01", ";"),
+    ) -> int:
         """
         Find nearest separator before the start_ind and return the index.
 
@@ -375,19 +397,19 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
     def _process_batch_helper(
         self,
-        data,
-        max_length,
-        default_label,
-        pad_label,
-        labels=None,
-        label_mapping=None,
-        batch_size=32,
-    ):
+        data: np.ndarray,
+        max_length: int,
+        default_label: str,
+        pad_label: str,
+        labels: Iterable = None,
+        label_mapping: Dict[str, int] = None,
+        batch_size: int = 32,
+    ) -> Generator[Dict[str, List], None, None]:
         """
         Flatten batches of data.
 
         :param data: List of strings to create embeddings for
-        :type data: list(str)
+        :type data: numpy.ndarray
         :param max_length: Maximum char length in a sample.
         :type max_length: int
         :param default_label: Key for label_mapping that is the default label
@@ -417,7 +439,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         # Create list of vectors for samples
         flattened_entities = []
         flattened_sample = []
-        batch_data = (
+        batch_data: Dict[str, List] = (
             {"samples": []} if labels is None else {"samples": [], "labels": []}
         )
 

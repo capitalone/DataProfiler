@@ -2,7 +2,7 @@
 ![GitHub](https://img.shields.io/github/license/CapitalOne/DataProfiler)
 ![GitHub last commit](https://img.shields.io/github/last-commit/CapitalOne/DataProfiler)
 
-<p align="center">
+<p align="left">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://github.com/capitalone/DataProfiler/blob/gh-pages/docs/source/_static/images/DataProfilerDarkLogoLong.png">
       <source media="(prefers-color-scheme: light)" srcset="https://github.com/capitalone/DataProfiler/blob/gh-pages/docs/source/_static/images/DataProfilerLogoLightThemeLong.png">

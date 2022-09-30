@@ -6,10 +6,12 @@ import json
 import os
 import re
 import sys
-from typing import Dict, Union
+from typing import TYPE_CHECKING, Dict, Union
 
 import numpy as np
-import pandas as pd
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 from .. import dp_logging
 from .base_model import AutoSubRegistrationMeta, BaseModel

@@ -133,7 +133,7 @@ class BaseDataLabeler(object):
         return self._preprocessor
 
     @property
-    def model(self) -> Optional[BaseModel]:
+    def model(self) -> BaseModel:
         """
         Retrieve the data labeler model.
 
@@ -556,11 +556,7 @@ class BaseDataLabeler(object):
                 "and could not be found as a registered model "
                 "class in BaseDataProcessor.".format(str(processor_class))
             )
-        self.set_preprocessor(
-            cast(data_processing.BaseDataProcessor, processor_class).load_from_disk(
-                dirpath
-            )
-        )
+        self.set_preprocessor(processor_class.load_from_disk(dirpath))  # type: ignore
 
     def _load_postprocessor(
         self,
@@ -588,11 +584,7 @@ class BaseDataLabeler(object):
                     str(processor_class)
                 )
             )
-        self.set_postprocessor(
-            cast(data_processing.BaseDataProcessor, processor_class).load_from_disk(
-                dirpath
-            )
-        )
+        self.set_postprocessor(processor_class.load_from_disk(dirpath))  # type: ignore
 
     def _load_data_labeler(self, dirpath: str, load_options: Dict = None) -> None:
         """

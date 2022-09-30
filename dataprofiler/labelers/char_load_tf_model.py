@@ -30,7 +30,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
     requires_zero_mapping = False
 
     def __init__(
-        self, model_path: str, label_mapping: Dict, parameters: Dict = None
+        self, model_path: str, label_mapping: Dict[str, int], parameters: Dict = None
     ) -> None:
         """
         Initialize Loadable TF Model.

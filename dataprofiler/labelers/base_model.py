@@ -5,11 +5,13 @@ import abc
 import copy
 import inspect
 import warnings
-from typing import Any, Dict, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
+
+if TYPE_CHECKING:
+    import tensorflow as tf
 
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):

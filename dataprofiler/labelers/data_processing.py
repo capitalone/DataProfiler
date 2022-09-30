@@ -2234,6 +2234,7 @@ class ColumnNameModelPostprocessor(
         :return: None
         """
         param_docs = inspect.getdoc(cls._validate_parameters)
+        assert param_docs is not None
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -2248,6 +2249,11 @@ class ColumnNameModelPostprocessor(
         )
         print(help_str)
 
-    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+    def process(
+        self,
+        data: np.ndarray,
+        results: Dict,
+        label_mapping: Dict[str, int] = None,
+    ) -> Dict:
         """Preprocess data."""
-        return labels
+        return results

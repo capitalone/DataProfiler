@@ -7,7 +7,7 @@ import os
 import sys
 import time
 from collections import defaultdict
-from typing import Dict, Iterable, List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -60,7 +60,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         BaseModel.__init__(self, label_mapping, parameters)
 
-    def __eq__(self, other: BaseModel) -> bool:  # type: ignore
+    def __eq__(self, other: object) -> bool:
         """
         Check if two models are equal with one another.
 
@@ -74,7 +74,8 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         :rtype: bool
         """
         if (
-            self._parameters != other._parameters
+            not isinstance(other, BaseModel)
+            or self._parameters != other._parameters
             or self._label_mapping != other._label_mapping
         ):
             return False
@@ -330,7 +331,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
-    ) -> Tuple[Dict, Optional[str], Dict]:
+    ) -> Tuple[Dict, Optional[float], Dict]:
         """
         Train the current model with the training data and validation data.
 
@@ -361,7 +362,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
                 self.reset_weights()
 
         history: Dict = defaultdict()
-        f1: Optional[str] = None
+        f1: Optional[float] = None
         f1_report: Dict = {}
 
         self._model.reset_metrics()
@@ -413,7 +414,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def _validate_training(
         self,
-        val_data: Iterable,
+        val_data: Union[pd.DataFrame, pd.Series, np.ndarray],
         batch_size_test: int = 32,
         verbose_log: bool = True,
         verbose_keras: bool = False,

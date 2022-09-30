@@ -1,12 +1,16 @@
 """Contains classes for char data labeling."""
+from __future__ import annotations
+
 import copy
 import json
 import os
 import sys
 import time
 from collections import defaultdict
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from sklearn import decomposition
 
@@ -20,7 +24,7 @@ logger = dp_logging.get_child_logger(__name__)
 labeler_utils.hide_tf_logger_warnings()
 
 
-def build_embd_dictionary(filename):
+def build_embd_dictionary(filename: str) -> Dict[str, np.ndarray]:
     """
     Return a numpy embedding dictionary from embed file with GloVe-like format.
 
@@ -30,13 +34,13 @@ def build_embd_dictionary(filename):
     embd_table = dict()
     with open(filename, "r") as embds:
         for line in embds:
-            line = line.strip().split()
+            line = line.strip().split()  # type: ignore[assignment]
             embd_table[line[0]] = np.asarray(line[1:])
 
     return embd_table
 
 
-def create_glove_char(n_dims, source_file=None):
+def create_glove_char(n_dims: int, source_file: str = None) -> None:
     """
     Embed GloVe chars embeddings from source file to n_dims principal components.
 
@@ -58,13 +62,13 @@ def create_glove_char(n_dims, source_file=None):
 
     # get PCA embedder
     pca = decomposition.PCA(n_components=n_dims)
-    reduced_embds = pca.fit_transform(embd_matrix)
+    reduced_embds: np.ndarray = pca.fit_transform(embd_matrix)
 
     # write to file
     dir_name = os.path.dirname(source_file)
     embd_file_name = os.path.join(dir_name, "glove-reduced-{}D.txt".format(n_dims))
     with open(embd_file_name, "w") as file:
-        for word, embd in zip(embd_words, reduced_embds):
+        for word, embd in zip(embd_words, reduced_embds):  # type: ignore
             file.write(word + " " + " ".join(str(num) for num in embd) + "\n")
 
 
@@ -72,9 +76,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
     """Class for training char data labeler."""
 
     # boolean if the label mapping requires the mapping for index 0 reserved
-    requires_zero_mapping = True
+    requires_zero_mapping: bool = True
 
-    def __init__(self, label_mapping=None, parameters=None):
+    def __init__(self, label_mapping: Dict[str, int], parameters: Dict = None) -> None:
         """
         Initialize CNN Model.
 
@@ -109,7 +113,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
         BaseModel.__init__(self, label_mapping, parameters)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Check if two models are equal with one another.
 
@@ -123,13 +127,14 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         :rtype: bool
         """
         if (
-            self._parameters != other._parameters
+            not isinstance(other, BaseModel)
+            or self._parameters != other._parameters
             or self._label_mapping != other._label_mapping
         ):
             return False
         return True
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate the parameters sent in.
 
@@ -209,7 +214,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         if errors:
             raise ValueError("\n".join(errors))
 
-    def set_label_mapping(self, label_mapping):
+    def set_label_mapping(
+        self, label_mapping: Union[List[str], Dict[str, int]]
+    ) -> None:
         """
         Set the labels for the model.
 
@@ -240,7 +247,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             )
         super().set_label_mapping(label_mapping)
 
-    def _need_to_reconstruct_model(self):
+    def _need_to_reconstruct_model(self) -> bool:
         """
         Determine whether or not the model needs to be reconstructed.
 
@@ -254,7 +261,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             or default_ind != self._model_default_ind
         )
 
-    def save_to_disk(self, dirpath):
+    def save_to_disk(self, dirpath: str) -> None:
         """
         Save whole model to disk with weights.
 
@@ -276,7 +283,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         self._model.save(os.path.join(dirpath))
 
     @classmethod
-    def load_from_disk(cls, dirpath):
+    def load_from_disk(cls, dirpath: str) -> CharacterLevelCnnModel:
         """
         Load whole model from disk with weights.
 
@@ -327,7 +334,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         return loaded_model
 
     @staticmethod
-    def _char_encoding_layer(input_str_tensor, max_char_encoding_id, max_len):
+    def _char_encoding_layer(
+        input_str_tensor: tf.Tensor, max_char_encoding_id: int, max_len: int
+    ) -> tf.Tensor:
         """
         Encode characters for the list of sentences.
 
@@ -354,7 +363,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         return sentences_encode_pad
 
     @staticmethod
-    def _argmax_threshold_layer(num_labels, threshold=0.0, default_ind=1):
+    def _argmax_threshold_layer(
+        num_labels: int, threshold: float = 0.0, default_ind: int = 1
+    ) -> tf.keras.layers.Layer:
         """
         Add an argmax threshold layer to the model.
 
@@ -373,7 +384,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         # Initialize the thresholds vector variable and create the threshold
         # matrix.
         class ThreshArgMaxLayer(tf.keras.layers.Layer):
-            def __init__(self, threshold_, num_labels_):
+            def __init__(self, threshold_: float, num_labels_: int) -> None:
                 super(ThreshArgMaxLayer, self).__init__()
                 thresh_init = tf.constant_initializer(threshold_)
                 self.thresh_vec = tf.Variable(
@@ -382,7 +393,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
                     trainable=False,
                 )
 
-            def call(self, argmax_layer, confidence_layer):
+            def call(
+                self, argmax_layer: tf.Tensor, confidence_layer: tf.Tensor
+            ) -> tf.Tensor:
                 threshold_at_argmax = tf.gather(self.thresh_vec, argmax_layer)
 
                 confidence_max_layer = tf.keras.backend.max(confidence_layer, axis=2)
@@ -412,7 +425,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
         return ThreshArgMaxLayer(threshold, num_labels)
 
-    def _construct_model(self):
+    def _construct_model(self) -> None:
         """
         Construct model for the data labeler.
 
@@ -437,7 +450,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         max_char_encoding_id = self._parameters["max_char_encoding_id"]
 
         # Encoding layer
-        def encoding_function(input_str):
+        def encoding_function(input_str: tf.Tensor) -> tf.Tensor:
             char_in_vector = CharacterLevelCnnModel._char_encoding_layer(
                 input_str, max_char_encoding_id, max_length
             )
@@ -531,7 +544,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         self._model_num_labels = num_labels
         self._model_default_ind = default_ind
 
-    def reset_weights(self):
+    def reset_weights(self) -> None:
         """
         Reset the weights of the model.
 
@@ -539,7 +552,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         """
         self._construct_model()
 
-    def _reconstruct_model(self):
+    def _reconstruct_model(self) -> None:
         """
         Reconstruct appropriate layers if number of labels is altered.
 
@@ -592,13 +605,13 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def fit(
         self,
-        train_data,
-        val_data=None,
-        batch_size=32,
-        label_mapping=None,
-        reset_weights=False,
-        verbose=True,
-    ):
+        train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        val_data: Union[pd.DataFrame, pd.Series, np.ndarray] = None,
+        batch_size: int = 32,
+        label_mapping: Dict[str, int] = None,
+        reset_weights: bool = False,
+        verbose: bool = True,
+    ) -> Tuple[Dict, Optional[float], Dict]:
         """
         Train the current model with the training data and validation data.
 
@@ -628,9 +641,9 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             if reset_weights:
                 self.reset_weights()
 
-        history = defaultdict()
-        f1 = None
-        f1_report = []
+        history: Dict = defaultdict()
+        f1: Optional[float] = None
+        f1_report: Dict = {}
 
         self._model.reset_metrics()
         softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
@@ -653,7 +666,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             history[metric_label] = model_results[i]
 
         if val_data:
-            f1, f1_report = self._validate_training(val_data)
+            f1, f1_report = self._validate_training(val_data)  # type: ignore
             history["f1_report"] = f1_report
 
             val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.NAN
@@ -680,8 +693,12 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         return history, f1, f1_report
 
     def _validate_training(
-        self, val_data, batch_size_test=32, verbose_log=True, verbose_keras=False
-    ):
+        self,
+        val_data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        batch_size_test: int = 32,
+        verbose_log: bool = True,
+        verbose_keras: bool = False,
+    ) -> Tuple[Optional[float], Optional[Dict]]:
         """
         Validate the model on the test set and return the evaluation metrics.
 
@@ -697,8 +714,8 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         :type verbose_keras: bool
         return (f1-score, f1 report).
         """
-        f1 = None
-        f1_report = None
+        f1: Optional[float] = None
+        f1_report: Optional[Dict] = None
 
         if val_data is None:
             return f1, f1_report
@@ -733,7 +750,13 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
         return f1, f1_report
 
-    def predict(self, data, batch_size=32, show_confidences=False, verbose=True):
+    def predict(
+        self,
+        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        batch_size: int = 32,
+        show_confidences: bool = False,
+        verbose: bool = True,
+    ) -> Dict:
         """
         Run model and get predictions.
 
@@ -761,7 +784,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
                 "predict."
             )
         # Pre-allocate space for predictions
-        confidences = []
+        confidences: Union[List, np.ndarray] = []
         sentence_lengths = np.zeros((batch_size,), dtype=int)
         predictions = np.zeros((batch_size, self._parameters["max_length"]))
         if show_confidences:
@@ -809,8 +832,8 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             allocation_index += num_samples_in_batch
 
         # Convert predictions, confidences to lists from numpy
-        predictions_list = [i for i in range(0, allocation_index)]
-        confidences_list = None
+        predictions_list: List = [i for i in range(0, allocation_index)]
+        confidences_list: Optional[List] = None
         if show_confidences:
             confidences_list = [i for i in range(0, allocation_index)]
 
@@ -818,13 +841,15 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         for index, sentence_length in enumerate(sentence_lengths[:allocation_index]):
             predictions_list[index] = list(predictions[index][:sentence_length])
             if show_confidences:
-                confidences_list[index] = list(confidences[index][:sentence_length])
+                confidences_list[index] = list(  # type: ignore
+                    confidences[index][:sentence_length]
+                )
 
         if show_confidences:
             return {"pred": predictions_list, "conf": confidences_list}
         return {"pred": predictions_list}
 
-    def details(self):
+    def details(self) -> None:
         """
         Print the relevant details of the model.
 

@@ -5,10 +5,11 @@ import abc
 import copy
 import inspect
 import warnings
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
@@ -48,7 +49,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         :return: None
         """
         # initialize class
-        self._model = None
+        self._model: tf.keras.Model = None
         self._validate_parameters(parameters)
         self._parameters: Dict = parameters
         self._label_mapping: Dict[str, int] = None  # type: ignore
@@ -314,7 +315,11 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def predict(
-        self, data: Iterator, batch_size: int, show_confidences: bool, verbose: bool
+        self,
+        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        batch_size: int,
+        show_confidences: bool,
+        verbose: bool,
     ) -> Dict:
         """
         Predict the data with the current model.
@@ -366,10 +371,10 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
         val_data: Union[pd.DataFrame, pd.Series, np.ndarray],
         batch_size: int = 32,
-        epochs: int = 1,
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
-    ) -> None:
+        verbose: bool = True,
+    ) -> Tuple[Dict, Optional[float], Dict]:
         """
         Train the current model with the training data and validation data.
 

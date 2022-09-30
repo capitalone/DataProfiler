@@ -488,6 +488,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 RuntimeWarning,
             )
             invalid_stats = True
+        if not var1 and not var2:
+            warnings.warn(
+                "Data were essentially constant. T-test cannot be performed.",
+                RuntimeWarning,
+            )
+            invalid_stats = True
         if invalid_stats:
             return results
 
@@ -575,8 +581,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _correct_bias_variance(match_count: int, biased_variance: float) -> float:
         if match_count is None or biased_variance is None or match_count < 2:
             warnings.warn(
-                "Insufficient match count to correct bias in variance. Bias correction"
-                "can be manually disabled by setting bias_correction.is_enabled to"
+                "Insufficient match count to correct bias in variance. Bias correction "
+                "can be manually disabled by setting bias_correction.is_enabled to "
                 "False in ProfilerOptions.",
                 RuntimeWarning,
             )

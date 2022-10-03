@@ -261,8 +261,7 @@ def read_json(
                 ),
                 ignore_dicts=True,
             )
-            if isinstance(obj, dict):  # should always pass but needed for mypy
-                lines.append(obj)
+            lines.append(cast(Dict, obj)) # should always be Dict
         except ValueError:
             pass
             # To ignore malformatted lines.

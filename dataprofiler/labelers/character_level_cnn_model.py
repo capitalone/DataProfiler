@@ -607,7 +607,8 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         self,
         train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
         val_data: Union[pd.DataFrame, pd.Series, np.ndarray] = None,
-        batch_size: int = 32,
+        batch_size: int = None,
+        epochs: int = None,
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
@@ -628,7 +629,8 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         :type reset_weights: bool
         :param verbose: Flag to determine whether to print status or not
         :type verbose: bool
-        :return: None
+        :return: history, f1, f1_report
+        :rtype: Tuple[dict, float, dict]
         """
         if label_mapping is not None:
             self.set_label_mapping(label_mapping)

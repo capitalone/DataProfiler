@@ -372,7 +372,8 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         self,
         train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
         val_data: Union[pd.DataFrame, pd.Series, np.ndarray],
-        batch_size: int = 32,
+        batch_size: int = None,
+        epochs: int = None,
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
@@ -393,6 +394,7 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         :param reset_weights: Flag to determine whether or not to reset the
             model's weights
         :type reset_weights: bool
-        :return: None
+        :return: history, f1, f1_report
+        :rtype: Tuple[dict, float, dict]
         """
         raise NotImplementedError()

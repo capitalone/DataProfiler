@@ -273,11 +273,11 @@ def read_json(
 
 def read_csv_df(
     file_path: Union[str, BytesIO, TextIOWrapper],
-    delimiter: str,
-    header: int,
+    delimiter: Optional[str],
+    header: Optional[int],
     selected_columns: List[str] = [],
     read_in_string: bool = False,
-    encoding: str = "utf-8",
+    encoding: Optional[str] = "utf-8",
 ) -> pd.DataFrame:
     """
     Read a CSV file in chunks and return dataframe in form of iterator.

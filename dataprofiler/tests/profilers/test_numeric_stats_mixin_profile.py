@@ -799,7 +799,6 @@ class TestNumericStatsMixin(unittest.TestCase):
         }
 
         difference = other1.diff(other2)
-        self.maxDiff = None
         self.assertDictEqual(expected_diff, difference)
 
         # Invalid statistics
@@ -891,13 +890,60 @@ class TestNumericStatsMixin(unittest.TestCase):
         expected_stddev = expected_diff.pop("stddev")
         with self.assertWarns(
             RuntimeWarning,
-            msg="Insufficient sample size. " "T-test cannot be performed.",
+            msg="Insufficient sample size. T-test cannot be performed.",
         ):
             difference = other1.diff(other2)
         var = difference.pop("variance")
         stddev = difference.pop("stddev")
         self.assertDictEqual(expected_diff, difference)
         self.assertTrue(np.isnan([expected_var, var, expected_stddev, stddev]).all())
+
+        # Constant values
+        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1.min = 3
+        other1.max = 4
+        other1._biased_variance = 0  # constant value has 0 variance
+        other1.sum = 6
+        other1.match_count = 3
+        other1.median = 5
+        other1.mode = [3]
+        other1.median_abs_deviation = 4
+
+        other2.min = 3
+        other2.max = None
+        other2._biased_variance = 0  # constant value has 0 variance
+        other2.sum = 6
+        other2.match_count = 3
+        other2.median = 6
+        other2.mode = [2]
+        other2.median_abs_deviation = 3
+
+        expected_diff = {
+            "min": "unchanged",
+            "max": [4, None],
+            "sum": "unchanged",
+            "mean": "unchanged",
+            "median": -1,
+            "mode": [[3], [], [2]],
+            "median_absolute_deviation": 1,
+            "variance": 0,
+            "stddev": 0,
+            "t-test": {
+                "t-statistic": None,
+                "conservative": {"df": None, "p-value": None},
+                "welch": {"df": None, "p-value": None},
+            },
+        }
+        expected_var = expected_diff.pop("variance")
+        expected_stddev = expected_diff.pop("stddev")
+        with self.assertWarns(
+            RuntimeWarning,
+            msg="Data were essentially constant. T-test cannot be performed.",
+        ):
+            difference = other1.diff(other2)
+        var = difference.pop("variance")
+        stddev = difference.pop("stddev")
+        self.assertDictEqual(expected_diff, difference)
 
         # Small p-value
         other1, other2 = TestColumnWProps(), TestColumnWProps()

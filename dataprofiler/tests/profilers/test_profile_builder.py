@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import json
 import logging
 import os
 import random
@@ -1847,6 +1848,10 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal(expected_chi2_mat, diff_chi2_mat)
         self.assertDictEqual(expected_diff, diff)
 
+        diff = profile1.diff(profile2, options={"output_format": "serializable"})
+        # validate can serialize
+        json.dumps(diff)
+
     @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
     @mock.patch(
         "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
@@ -1862,7 +1867,7 @@ class TestStructuredProfiler(unittest.TestCase):
 
     @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
     @mock.patch(
-        "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
     )
     def test_diff_with_different_schema(self, *mocks):
 
@@ -2693,6 +2698,10 @@ class TestUnstructuredProfiler(unittest.TestCase):
             },
         }
         self.assertDictEqual(expected_diff, profiler1.diff(profiler2))
+
+        # validate can serialize
+        diff = profiler1.diff(profiler2, options=dict(output_format="serializable"))
+        json.dumps(diff)
 
     def test_get_sample_size(self, *mocks):
         data = pd.DataFrame([0] * int(50e3))

@@ -1177,7 +1177,7 @@ class UnstructuredProfiler(BaseProfiler):
         return merged_profile
 
     def diff(  # type: ignore[override]
-        self, other_profile: UnstructuredProfiler, options: Dict = None
+        self, other_profile: UnstructuredProfiler, options: Optional[Dict] = None
     ) -> Dict:
         """
         Find difference between 2 unstuctured profiles and return the report.
@@ -1189,6 +1189,9 @@ class UnstructuredProfiler(BaseProfiler):
         :return: difference of the profiles
         :rtype: dict
         """
+        if options is None:
+            options = {}
+
         report = super().diff(other_profile, options)
 
         report["global_stats"].update(
@@ -1208,7 +1211,11 @@ class UnstructuredProfiler(BaseProfiler):
         report["data_stats"] = self._profile.diff(
             other_profile._profile, options=options
         )
-        return _prepare_report(report)
+        return _prepare_report(
+            report,
+            output_format=options.get("output_format", None),
+            omit_keys=options.get("omit_keys", None),
+        )
 
     def _update_base_stats(self, base_stats: Dict) -> None:
         """
@@ -1593,7 +1600,7 @@ class StructuredProfiler(BaseProfiler):
         return merged_profile
 
     def diff(  # type: ignore[override]
-        self, other_profile: StructuredProfiler, options: Dict = None
+        self, other_profile: StructuredProfiler, options: Optional[Dict] = None
     ) -> Dict:
         """
         Find the difference between 2 Profiles and return the report.
@@ -1605,6 +1612,9 @@ class StructuredProfiler(BaseProfiler):
         :return: difference of the profiles
         :rtype: dict
         """
+        if options is None:
+            options = {}
+
         report = super().diff(other_profile, options)
         report["global_stats"].update(
             {
@@ -1666,7 +1676,11 @@ class StructuredProfiler(BaseProfiler):
                     self._profile[i].diff(other_profile._profile[i], options=options)
                 )
 
-        return _prepare_report(report)
+        return _prepare_report(
+            report,
+            output_format=options.get("output_format", None),
+            omit_keys=options.get("omit_keys", None),
+        )
 
     @property
     def _max_col_samples_used(self) -> int:

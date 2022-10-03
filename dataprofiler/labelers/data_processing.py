@@ -69,8 +69,8 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         :rtype: bool
         """
         if (
-            not isinstance(other, BaseDataProcessor)
-            or self._parameters != other._parameters
+            type(self) != type(other)
+            or self._parameters != other._parameters  # type: ignore
         ):
             return False
         return True

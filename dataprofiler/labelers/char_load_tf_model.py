@@ -22,6 +22,8 @@ _file_dir = os.path.dirname(os.path.abspath(__file__))
 logger = dp_logging.get_child_logger(__name__)
 labeler_utils.hide_tf_logger_warnings()
 
+Data = Union[pd.DataFrame, pd.Series, np.ndarray]
+
 
 class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
     """For training data labeler model."""
@@ -325,8 +327,8 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def fit(
         self,
-        train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
-        val_data: Union[pd.DataFrame, pd.Series, np.ndarray] = None,
+        train_data: Data,
+        val_data: Data = None,
         batch_size: int = None,
         epochs: int = None,
         label_mapping: Dict[str, int] = None,
@@ -416,11 +418,11 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def _validate_training(
         self,
-        val_data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        val_data: Data,
         batch_size_test: int = 32,
         verbose_log: bool = True,
         verbose_keras: bool = False,
-    ) -> Tuple[Optional[float], Optional[Dict]]:
+    ) -> Union[Tuple[float, Dict], Tuple[None, None]]:
         """
         Validate the model on the test set and return the evaluation metrics.
 
@@ -436,11 +438,8 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         :type verbose_keras: bool
         return (f1-score, f1 report).
         """
-        f1: Optional[float] = None
-        f1_report: Optional[Dict] = None
-
         if val_data is None:
-            return f1, f1_report
+            return None, None
 
         # Predict on the test set
         batch_id = 0
@@ -474,7 +473,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def predict(
         self,
-        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        data: Data,
         batch_size: int = 32,
         show_confidences: bool = False,
         verbose: bool = True,

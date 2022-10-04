@@ -23,6 +23,8 @@ _file_dir = os.path.dirname(os.path.abspath(__file__))
 logger = dp_logging.get_child_logger(__name__)
 labeler_utils.hide_tf_logger_warnings()
 
+Data = Union[pd.DataFrame, pd.Series, np.ndarray]
+
 
 def build_embd_dictionary(filename: str) -> Dict[str, np.ndarray]:
     """
@@ -55,8 +57,10 @@ def create_glove_char(n_dims: int, source_file: str = None) -> None:
         source_file = os.path.join(_file_dir, "embeddings/glove.840B.300d-char.txt")
     # get embedding table first and vectors as array
     embd_table = build_embd_dictionary(source_file)
+    embd_words: List[str]
+    embd_matrix: List[np.ndarray]
     embd_words, embd_matrix = [
-        np.asarray(ls) if i > 0 else list(ls)
+        np.asarray(ls) if i > 0 else list(ls)  # type: ignore
         for i, ls in enumerate(zip(*embd_table.items()))
     ]
 
@@ -68,7 +72,7 @@ def create_glove_char(n_dims: int, source_file: str = None) -> None:
     dir_name = os.path.dirname(source_file)
     embd_file_name = os.path.join(dir_name, "glove-reduced-{}D.txt".format(n_dims))
     with open(embd_file_name, "w") as file:
-        for word, embd in zip(embd_words, reduced_embds):  # type: ignore
+        for word, embd in zip(embd_words, reduced_embds):
             file.write(word + " " + " ".join(str(num) for num in embd) + "\n")
 
 
@@ -605,8 +609,8 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def fit(
         self,
-        train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
-        val_data: Union[pd.DataFrame, pd.Series, np.ndarray] = None,
+        train_data: Data,
+        val_data: Optional[Data] = None,
         batch_size: int = None,
         epochs: int = None,
         label_mapping: Dict[str, int] = None,
@@ -696,7 +700,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def _validate_training(
         self,
-        val_data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        val_data: Data,
         batch_size_test: int = 32,
         verbose_log: bool = True,
         verbose_keras: bool = False,
@@ -754,7 +758,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
     def predict(
         self,
-        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        data: Data,
         batch_size: int = 32,
         show_confidences: bool = False,
         verbose: bool = True,

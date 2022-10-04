@@ -204,8 +204,7 @@ def read_json_df(
                 ),
                 ignore_dicts=True,
             )
-            if isinstance(obj, dict):  # shold always pass but needed for mypy
-                lines.append(obj)
+            lines.append(cast(Dict, obj))
         except ValueError:
             pass
             # To ignore malformatted lines.
@@ -261,7 +260,7 @@ def read_json(
                 ),
                 ignore_dicts=True,
             )
-            lines.append(cast(Dict, obj)) # should always be Dict
+            lines.append(cast(Dict, obj))  # should always be Dict
         except ValueError:
             pass
             # To ignore malformatted lines.
@@ -658,9 +657,8 @@ def load_as_str_from_file(
             while start_loc < len_sample_lines - 1 and total_occurrences < max_lines:
                 loc, occurrence = find_nth_loc(
                     sample_lines[start_loc:],
-                    search_query=cast(
-                        str, search_query_value
-                    ),  # TODO: make sure find_nth_loc() works with search_query as bytes
+                    search_query=cast(str, search_query_value),
+                    # TODO: make sure find_nth_loc() works with search_query as bytes
                     n=remaining_lines,
                 )
 

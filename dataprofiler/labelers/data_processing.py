@@ -11,7 +11,18 @@ import random
 import types
 import warnings
 from collections import Counter
-from typing import Any, Dict, Generator, Iterable, List, Optional, Tuple, Type, Union
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+    cast,
+)
 
 import numpy as np
 import pkg_resources
@@ -347,8 +358,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
-        assert param_docs is not None
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -994,8 +1004,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
-        assert param_docs is not None
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -1368,8 +1377,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
-        assert param_docs is not None
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -1575,7 +1583,8 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         :rtype: bool
         """
         if (
-            not isinstance(other, StructCharPostprocessor)
+            type(self) != type(other)
+            or not isinstance(other, StructCharPostprocessor)
             or self._parameters["default_label"] != other._parameters["default_label"]
             or self._parameters["pad_label"] != other._parameters["pad_label"]
             or self._parameters["flatten_separator"]
@@ -1631,8 +1640,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
-        assert param_docs is not None
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -1965,8 +1973,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
-        assert param_docs is not None
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -2120,8 +2127,7 @@ class StructRegexPostProcessor(
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
-        assert param_docs is not None
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -2233,8 +2239,7 @@ class ColumnNameModelPostprocessor(
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
-        assert param_docs is not None
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 

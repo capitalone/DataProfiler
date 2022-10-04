@@ -284,13 +284,14 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type data: list
         :return: dataframe in record format
         """
-        data_df: pd.DataFrame = self._get_data_as_df(data)
-        data_records: List = data_df.to_dict(orient="records", into=OrderedDict)
-        for i, sample in enumerate(data_records):
-            data_records[i] = json.dumps(
+        _data: Union[pd.DataFrame, List]
+        _data = self._get_data_as_df(data)
+        _data = _data.to_dict(orient="records", into=OrderedDict)
+        for i, sample in enumerate(_data):
+            _data[i] = json.dumps(
                 self._convert_flat_to_nested_cols(sample), ensure_ascii=False
             )
-        return super(JSONData, self)._get_data_as_records(data_records)
+        return super(JSONData, self)._get_data_as_records(_data)
 
     def _get_data_as_json(self, data: List) -> List[str]:
         """
@@ -300,10 +301,11 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type data: list
         :return: dataframe in json format
         """
-        data_df: pd.DataFrame = self._get_data_as_df(data)
-        data_json = data_df.to_json(orient="records")
-        char_per_line = min(len(data_json), self.SAMPLES_PER_LINE_DEFAULT)
-        return list(map("".join, zip(*[iter(data_json)] * char_per_line)))
+        _data: Union[pd.DataFrame, List]
+        _data = self._get_data_as_df(data)
+        _data = _data.to_json(orient="records")
+        char_per_line = min(len(_data), self.SAMPLES_PER_LINE_DEFAULT)
+        return list(map("".join, zip(*[iter(_data)] * char_per_line)))
 
     def _get_data_as_df(self, data: Union[pd.DataFrame, Dict, List]) -> pd.DataFrame:
         """

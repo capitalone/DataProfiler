@@ -1,17 +1,26 @@
 #!/usr/bin/python
-import sys
-import subprocess
+"""Script which auto updates the github pages documentation."""
 import os
+import subprocess
+import sys
 
 branch_folder = "feature_branch"
-sys.path.insert(0, os.path.abspath(f'../{branch_folder}'))
+sys.path.insert(0, os.path.abspath(f"../{branch_folder}"))
 from dataprofiler import __version__ as version  # noqa F401
 
 # Make the rst files from the current repo
-subprocess.run([
-    "sphinx-apidoc", "--templatedir=./source/_templates/", "-f",
-    "-e", "-o", "../docs/source", f"../{branch_folder}/dataprofiler",
-    f"../{branch_folder}/dataprofiler/tests/"])
+subprocess.run(
+    [
+        "sphinx-apidoc",
+        "--templatedir=./source/_templates/",
+        "-f",
+        "-e",
+        "-o",
+        "../docs/source",
+        f"../{branch_folder}/dataprofiler",
+        f"../{branch_folder}/dataprofiler/tests/",
+    ]
+)
 
 update_index_rst = True
 
@@ -38,9 +47,11 @@ if update_index_rst:
         elif sentence.startswith("Versions"):
             source_index.write("Versions\n")
             source_index.write("========\n")
-            version_tag ="* `" + version + "`_\n"
+            version_tag = "* `" + version + "`_\n"
             source_index.write(version_tag)
-            version_reference = ".. _" + version + ": ../../" + version + "/html/index.html\n\n"
+            version_reference = (
+                ".. _" + version + ": ../../" + version + "/html/index.html\n\n"
+            )
             buffer = 1
         else:
             if buffer == 0:
@@ -56,6 +67,10 @@ subprocess.run(["make", "html", build_directory])
 
 # update the index file to redirect to the most current version of documentation
 index_file = open("../index.html", "w")
-redirect_link = "<meta http-equiv=\"refresh\" content=\"0; url=./docs/" + version + "/html/index.html\" />"
+redirect_link = (
+    '<meta http-equiv="refresh" content="0; url=./docs/'
+    + version
+    + '/html/index.html" />'
+)
 index_file.write(redirect_link)
 index_file.close()

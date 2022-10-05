@@ -615,7 +615,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
-    ) -> Tuple[Dict, Optional[float], Dict]:
+    ) -> Tuple[Dict, Optional[float], Optional[Dict]]:
         """
         Train the current model with the training data and validation data.
 
@@ -648,7 +648,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
         history: Dict = defaultdict()
         f1: Optional[float] = None
-        f1_report: Dict = {}
+        f1_report: Optional[Dict] = None
 
         self._model.reset_metrics()
         softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]

@@ -6,15 +6,13 @@ import json
 import os
 import re
 import sys
-from typing import TYPE_CHECKING, Dict, Union
+from typing import Dict
 
 import numpy as np
 
-if TYPE_CHECKING:
-    import pandas as pd
-
 from .. import dp_logging
 from .base_model import AutoSubRegistrationMeta, BaseModel
+from .utils import DataArray
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -180,7 +178,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def predict(
         self,
-        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        data: DataArray,
         batch_size: int = None,
         show_confidences: bool = False,
         verbose: bool = True,

@@ -10,19 +10,17 @@ from collections import defaultdict
 from typing import Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 
 from .. import dp_logging
 from . import labeler_utils
 from .base_model import AutoSubRegistrationMeta, BaseModel, BaseTrainableModel
+from .utils import DataArray
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 
 logger = dp_logging.get_child_logger(__name__)
 labeler_utils.hide_tf_logger_warnings()
-
-Data = Union[pd.DataFrame, pd.Series, np.ndarray]
 
 
 class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
@@ -327,8 +325,8 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def fit(
         self,
-        train_data: Data,
-        val_data: Data = None,
+        train_data: DataArray,
+        val_data: DataArray = None,
         batch_size: int = None,
         epochs: int = None,
         label_mapping: Dict[str, int] = None,
@@ -418,7 +416,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def _validate_training(
         self,
-        val_data: Data,
+        val_data: DataArray,
         batch_size_test: int = 32,
         verbose_log: bool = True,
         verbose_keras: bool = False,
@@ -473,7 +471,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
     def predict(
         self,
-        data: Data,
+        data: DataArray,
         batch_size: int = 32,
         show_confidences: bool = False,
         verbose: bool = True,

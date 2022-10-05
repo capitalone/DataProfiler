@@ -10,8 +10,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
 if TYPE_CHECKING:
     import tensorflow as tf
 
-import numpy as np
-import pandas as pd
+from .utils import DataArray
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
@@ -318,7 +317,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def predict(
         self,
-        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        data: DataArray,
         batch_size: int,
         show_confidences: bool,
         verbose: bool,
@@ -370,8 +369,8 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def fit(
         self,
-        train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
-        val_data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        train_data: DataArray,
+        val_data: DataArray,
         batch_size: int = None,
         epochs: int = None,
         label_mapping: Dict[str, int] = None,

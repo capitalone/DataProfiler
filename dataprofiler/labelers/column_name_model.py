@@ -3,10 +3,9 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List
 
 import numpy as np
-import pandas as pd
 
 try:
     import rapidfuzz
@@ -18,7 +17,7 @@ except ImportError:
 
 from .. import dp_logging
 from .base_model import AutoSubRegistrationMeta, BaseModel
-from .utils import require_module
+from .utils import DataArray, require_module
 
 logger = dp_logging.get_child_logger(__name__)
 
@@ -148,10 +147,10 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def _compare_negative(
         self,
-        list_of_column_names: Union[pd.DataFrame, pd.Series, np.ndarray],
+        list_of_column_names: DataArray,
         check_values_dict: Dict,
         negative_threshold: float,
-    ) -> Union[pd.DataFrame, pd.Series, np.ndarray]:
+    ) -> DataArray:
         """Filter out column name examples that are false positives."""
         scores = self._model(
             list_of_column_names,
@@ -208,7 +207,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def predict(
         self,
-        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        data: DataArray,
         batch_size: int = None,
         show_confidences: bool = False,
         verbose: bool = True,

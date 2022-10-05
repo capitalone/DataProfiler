@@ -20,6 +20,7 @@ from typing import (
     Optional,
     Tuple,
     Type,
+    TypeVar,
     Union,
     cast,
 )
@@ -28,6 +29,8 @@ import numpy as np
 import pkg_resources
 
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
+
+Processor = TypeVar("Processor", bound="BaseDataProcessor")
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
@@ -62,7 +65,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
             ] = cls
 
     @classmethod
-    def get_class(cls, class_name: str) -> BaseDataProcessor:
+    def get_class(cls: Type[Processor], class_name: str) -> Optional[Processor]:
         """Get class of BaseDataProcessor object."""
         return cls._BaseDataProcessor__subclasses.get(  # type: ignore
             class_name.lower(), None
@@ -81,7 +84,8 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         """
         if (
             type(self) != type(other)
-            or self._parameters != other._parameters  # type: ignore
+            or not isinstance(other, BaseDataProcessor)
+            or self._parameters != other._parameters
         ):
             return False
         return True
@@ -136,7 +140,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
             self._parameters[param] = kwargs[param]
 
     @classmethod
-    def load_from_disk(cls, dirpath: str) -> BaseDataProcessor:
+    def load_from_disk(cls: Type[Processor], dirpath: str) -> Processor:
         """Load data processor from a given path on disk."""
         with open(os.path.join(dirpath, cls.processor_type + "_parameters.json")) as fp:
             parameters = json.load(fp)

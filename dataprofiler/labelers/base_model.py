@@ -5,7 +5,7 @@ import abc
 import copy
 import inspect
 import warnings
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -60,7 +60,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         super().__init_subclass__(**kwargs)
         cls._register_subclass()
 
-    def __eq__(self, other: BaseModel) -> bool:  # type: ignore
+    def __eq__(self, other: object) -> bool:
         """
         Check if two models are equal with one another.
 
@@ -75,6 +75,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         """
         if (
             type(self) != type(other)
+            or not isinstance(other, BaseModel)
             or self._parameters != other._parameters
             or self._label_mapping != other._label_mapping
         ):
@@ -271,7 +272,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
         :return: None
         """
-        param_docs: str = inspect.getdoc(cls._validate_parameters)  # type: ignore
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:") - 1
 

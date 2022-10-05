@@ -12,8 +12,12 @@ import pandas as pd
 import pkg_resources
 
 from .. import data_readers
-from . import data_processing
 from .base_model import BaseModel
+from .data_processing import (
+    BaseDataPostprocessor,
+    BaseDataPreprocessor,
+    BaseDataProcessor,
+)
 
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
@@ -40,10 +44,8 @@ class BaseDataLabeler(object):
 
         # Example: self._preprocessor and self._postprocessor are instances of
         # DataProcessing
-        self._preprocessor: data_processing.BaseDataPreprocessor = None  # type: ignore
-        self._postprocessor: data_processing.BaseDataPostprocessor = (
-            None  # type: ignore
-        )
+        self._preprocessor: BaseDataPreprocessor = None  # type: ignore
+        self._postprocessor: BaseDataPostprocessor = None  # type: ignore
 
         # load default model
         if dirpath or self._default_model_loc:
@@ -124,7 +126,7 @@ class BaseDataLabeler(object):
         return self._model.labels
 
     @property
-    def preprocessor(self) -> Optional[data_processing.BaseDataPreprocessor]:
+    def preprocessor(self) -> Optional[BaseDataPreprocessor]:
         """
         Retrieve the data preprocessor.
 
@@ -142,7 +144,7 @@ class BaseDataLabeler(object):
         return self._model
 
     @property
-    def postprocessor(self) -> Optional[data_processing.BaseDataPostprocessor]:
+    def postprocessor(self) -> Optional[BaseDataPostprocessor]:
         """
         Retrieve the data postprocessor.
 
@@ -322,9 +324,7 @@ class BaseDataLabeler(object):
 
         return results
 
-    def set_preprocessor(
-        self, data_processor: data_processing.BaseDataPreprocessor
-    ) -> None:
+    def set_preprocessor(self, data_processor: BaseDataPreprocessor) -> None:
         """
         Set the data preprocessor for the data labeler.
 
@@ -332,7 +332,7 @@ class BaseDataLabeler(object):
         :type data_processor: data_processing.BaseDataPreprocessor
         :return: None
         """
-        if not isinstance(data_processor, data_processing.BaseDataPreprocessor):
+        if not isinstance(data_processor, BaseDataPreprocessor):
             raise TypeError(
                 "The specified preprocessor was not of the correct"
                 " type, `DataProcessing`."
@@ -353,9 +353,7 @@ class BaseDataLabeler(object):
             )
         self._model = model
 
-    def set_postprocessor(
-        self, data_processor: data_processing.BaseDataPostprocessor
-    ) -> None:
+    def set_postprocessor(self, data_processor: BaseDataPostprocessor) -> None:
         """
         Set the data postprocessor for the data labeler.
 
@@ -363,7 +361,7 @@ class BaseDataLabeler(object):
         :type data_processor: data_processing.BaseDataPostprocessor
         :return: None
         """
-        if not isinstance(data_processor, data_processing.BaseDataPostprocessor):
+        if not isinstance(data_processor, BaseDataPostprocessor):
             raise TypeError(
                 "The specified postprocessor was not of the "
                 "correct type, `DataProcessing`."
@@ -478,7 +476,7 @@ class BaseDataLabeler(object):
             params["model"]["class"] = model_class
         if "preprocessor_class" in load_options:
             processor_class = load_options.get("preprocessor_class")
-            if not isinstance(processor_class, data_processing.BaseDataPreprocessor):
+            if not isinstance(processor_class, BaseDataPreprocessor):
                 raise TypeError(
                     "`preprocessor_class` must be a " "BaseDataPreprocessor"
                 )
@@ -494,7 +492,7 @@ class BaseDataLabeler(object):
             params["preprocessor"]["class"] = load_options.get("preprocessor_class")
         if "postprocessor_class" in load_options:
             processor_class = load_options.get("postprocessor_class")
-            if not isinstance(processor_class, data_processing.BaseDataPostprocessor):
+            if not isinstance(processor_class, BaseDataPostprocessor):
                 raise TypeError(
                     "`postprocessor_class` must be a " "BaseDataPostprocessor"
                 )
@@ -523,18 +521,18 @@ class BaseDataLabeler(object):
         :return: None
         """
         if isinstance(model_class, str):
-            model_class: BaseModel = BaseModel.get_class(model_class)  # type: ignore
+            model_class = cast(BaseModel, BaseModel.get_class(model_class))
         if not model_class:
             raise ValueError(
                 "`model_class`, {}, was not set in load_options "
                 "and could not be found as a registered model "
                 "class in BaseModel.".format(str(model_class))
             )
-        self.set_model(cast(BaseModel, model_class).load_from_disk(dirpath))
+        self.set_model(model_class.load_from_disk(dirpath))
 
     def _load_preprocessor(
         self,
-        processor_class: Union[data_processing.BaseDataProcessor, str],
+        processor_class: Union[BaseDataPreprocessor, str],
         dirpath: str,
     ) -> None:
         """
@@ -547,20 +545,18 @@ class BaseDataLabeler(object):
         :return: None
         """
         if isinstance(processor_class, str):
-            processor_class = data_processing.BaseDataProcessor.get_class(
-                processor_class
-            )
-        if not processor_class:
+            preprocessor = BaseDataPreprocessor.get_class(processor_class)
+        if not preprocessor:
             raise ValueError(
                 "`processor_class`, {}, was not set in load_options "
                 "and could not be found as a registered model "
-                "class in BaseDataProcessor.".format(str(processor_class))
+                "class in BaseDataProcessor.".format(str(preprocessor))
             )
-        self.set_preprocessor(processor_class.load_from_disk(dirpath))  # type: ignore
+        self.set_preprocessor(preprocessor.load_from_disk(dirpath))
 
     def _load_postprocessor(
         self,
-        processor_class: Union[data_processing.BaseDataProcessor, str],
+        processor_class: Union[BaseDataProcessor, str],
         dirpath: str,
     ) -> None:
         """
@@ -573,18 +569,16 @@ class BaseDataLabeler(object):
         :return: None
         """
         if isinstance(processor_class, str):
-            processor_class = data_processing.BaseDataProcessor.get_class(
-                processor_class
-            )
-        if not processor_class:
+            postprocessor = BaseDataPostprocessor.get_class(processor_class)
+        if not postprocessor:
             raise ValueError(
                 "`processor_class`, {}, was not set in "
                 "load_options and could not be found as a "
                 "registered model class in BaseDataProcessor.".format(
-                    str(processor_class)
+                    str(postprocessor)
                 )
             )
-        self.set_postprocessor(processor_class.load_from_disk(dirpath))  # type: ignore
+        self.set_postprocessor(postprocessor.load_from_disk(dirpath))
 
     def _load_data_labeler(self, dirpath: str, load_options: Dict = None) -> None:
         """
@@ -642,9 +636,9 @@ class BaseDataLabeler(object):
     @classmethod
     def load_with_components(
         cls,
-        preprocessor: data_processing.BaseDataPreprocessor,
+        preprocessor: BaseDataPreprocessor,
         model: BaseModel,
-        postprocessor: data_processing.BaseDataPostprocessor,
+        postprocessor: BaseDataPostprocessor,
     ) -> BaseDataLabeler:
         """
         Load the data labeler from a its set  of components.
@@ -879,9 +873,9 @@ class TrainableDataLabeler(BaseDataLabeler):
     @classmethod
     def load_with_components(
         cls,
-        preprocessor: data_processing.BaseDataPreprocessor,
+        preprocessor: BaseDataPreprocessor,
         model: BaseModel,
-        postprocessor: data_processing.BaseDataPostprocessor,
+        postprocessor: BaseDataPostprocessor,
     ) -> TrainableDataLabeler:
         """
         Load the data labeler from a its set  of components.

@@ -670,7 +670,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             history[metric_label] = model_results[i]
 
         if val_data:
-            f1, f1_report = self._validate_training(val_data)  # type: ignore
+            f1, f1_report = self._validate_training(val_data)
             history["f1_report"] = f1_report
 
             val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.NAN
@@ -702,7 +702,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         batch_size_test: int = 32,
         verbose_log: bool = True,
         verbose_keras: bool = False,
-    ) -> Tuple[Optional[float], Optional[Dict]]:
+    ) -> Tuple[float, Dict]:
         """
         Validate the model on the test set and return the evaluation metrics.
 
@@ -718,12 +718,6 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         :type verbose_keras: bool
         return (f1-score, f1 report).
         """
-        f1: Optional[float] = None
-        f1_report: Optional[Dict] = None
-
-        if val_data is None:
-            return f1, f1_report
-
         # Predict on the test set
         batch_id = 0
         y_val_pred = []
@@ -837,7 +831,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
 
         # Convert predictions, confidences to lists from numpy
         predictions_list: List = [i for i in range(0, allocation_index)]
-        confidences_list: Optional[List] = None
+        confidences_list: List
         if show_confidences:
             confidences_list = [i for i in range(0, allocation_index)]
 
@@ -845,9 +839,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         for index, sentence_length in enumerate(sentence_lengths[:allocation_index]):
             predictions_list[index] = list(predictions[index][:sentence_length])
             if show_confidences:
-                confidences_list[index] = list(  # type: ignore
-                    confidences[index][:sentence_length]
-                )
+                confidences_list[index] = list(confidences[index][:sentence_length])
 
         if show_confidences:
             return {"pred": predictions_list, "conf": confidences_list}

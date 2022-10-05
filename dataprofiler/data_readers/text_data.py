@@ -3,6 +3,7 @@ from __future__ import unicode_literals  # at top of module
 from __future__ import print_function
 
 from io import StringIO
+from typing import Dict, List, Optional, Union, cast
 
 from past.builtins import basestring
 
@@ -13,9 +14,9 @@ from .base_data import BaseData
 class TextData(BaseData):
     """TextData class to save and load text files."""
 
-    data_type = "text"
+    data_type: Optional[str] = "text"
 
-    def __init__(self, input_file_path=None, data=None, options=None):
+    def __init__(self, input_file_path: Optional[str]=None, data: Optional[List[str]]=None, options: Optional[Dict]=None) -> None:
         """
         Initialize Data class for loading datasets of type TEXT.
 
@@ -45,6 +46,7 @@ class TextData(BaseData):
             raise ValueError("Input data type is not string.")
 
         options = self._check_and_return_options(options)
+        options = cast(Dict, options)
         super(TextData, self).__init__(input_file_path, data, options)
 
         # 'Private' properties
@@ -56,32 +58,32 @@ class TextData(BaseData):
         #  _delimiter: delimiter used to decipher the csv input file
         #  _selected_columns: columns being selected from the entire dataset
         self._data_formats["text"] = self._get_data_as_text
-        self._selected_data_format = options.get("data_format", "text")
-        self._samples_per_line = options.get("samples_per_line", int(5e9))
+        self._selected_data_format: str = options.get("data_format", "text")
+        self._samples_per_line: int = options.get("samples_per_line", int(5e9))
 
         if data is not None:
             self._load_data(data)
 
     @property
-    def samples_per_line(self):
+    def samples_per_line(self) -> int:
         """Return samples per line."""
         return self._samples_per_line
 
     @property
-    def is_structured(self):
+    def is_structured(self) -> bool:
         """Determine compatibility with StructuredProfiler."""
         return False
 
-    def _load_data(self, data=None):
+    def _load_data(self, data: Optional[List[str]]=None) -> None:
         """Load data."""
         if data is not None:
             self._data = data
         else:
             self._data = data_utils.read_text_as_list_of_strs(
-                self.input_file_path, self.file_encoding
+                cast(str, self.input_file_path), self.file_encoding
             )
 
-    def _get_data_as_text(self, data):
+    def _get_data_as_text(self, data: Union[str, List[str]]) -> List[str]:
         """Return data as text."""
         if (
             isinstance(data, list)
@@ -94,6 +96,7 @@ class TextData(BaseData):
                 "Data is not in a str or list of str format and cannot be " "converted."
             )
 
+        data = cast(str, data)
         samples_per_line = min(max(len(data), 1), self.samples_per_line)
         data = [
             data[i * samples_per_line : (i + 1) * samples_per_line]
@@ -101,12 +104,12 @@ class TextData(BaseData):
         ]
         return data
 
-    def tokenize(self):
+    def tokenize(self) -> None:
         """Tokenize data."""
         raise NotImplementedError("Tokenizing does not currently exist for text data.")
 
     @classmethod
-    def is_match(cls, file_path, options=None):
+    def is_match(cls, file_path: str, options: Optional[Dict]=None) -> bool:
         """
         Return True if all are text files.
 
@@ -125,7 +128,7 @@ class TextData(BaseData):
             options = {"encoding": data_utils.detect_file_encoding(file_path)}
         return True
 
-    def reload(self, input_file_path=None, data=None, options=None):
+    def reload(self, input_file_path: Optional[str]=None, data: Optional[List[str]]=None, options: Optional[Dict]=None) -> None:
         """
         Reload the data class with a new dataset.
 
@@ -141,4 +144,4 @@ class TextData(BaseData):
         :return: None
         """
         super(TextData, self).reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options)
+        self.__init__(self.input_file_path, data, options) # type: ignore

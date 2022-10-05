@@ -365,7 +365,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         history: Dict = defaultdict()
         f1: Optional[float] = None
-        f1_report: Dict = {}
+        f1_report: Optional[Dict] = None
 
         self._model.reset_metrics()
         softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]

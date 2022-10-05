@@ -1,12 +1,7 @@
 """Contains functions for checking for installations/dependencies."""
 import sys
 import warnings
-from typing import Any, Callable, List, Union
-
-import numpy as np
-import pandas as pd
-
-DataArray = Union[pd.DataFrame, pd.Series, np.ndarray]
+from typing import Any, Callable, List
 
 
 def warn_missing_module(labeler_function: str, module_name: str) -> None:

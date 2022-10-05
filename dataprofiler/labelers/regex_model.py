@@ -10,9 +10,10 @@ from typing import Dict
 
 import numpy as np
 
+from dataprofiler._typing import DataArray
+
 from .. import dp_logging
 from .base_model import AutoSubRegistrationMeta, BaseModel
-from .utils import DataArray
 
 logger = dp_logging.get_child_logger(__name__)
 

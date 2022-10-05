@@ -13,10 +13,11 @@ import numpy as np
 import tensorflow as tf
 from sklearn import decomposition
 
+from dataprofiler._typing import DataArray
+
 from .. import dp_logging
 from . import labeler_utils
 from .base_model import AutoSubRegistrationMeta, BaseModel, BaseTrainableModel
-from .utils import DataArray
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 

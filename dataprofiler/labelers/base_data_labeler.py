@@ -11,10 +11,11 @@ import numpy as np
 import pandas as pd
 import pkg_resources
 
+from dataprofiler._typing import DataArray
+
 from .. import data_readers
 from . import data_processing
 from .base_model import BaseModel
-from .utils import DataArray
 
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 

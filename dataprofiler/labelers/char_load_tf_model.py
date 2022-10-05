@@ -12,10 +12,11 @@ from typing import Dict, List, Optional, Tuple, Union, cast
 import numpy as np
 import tensorflow as tf
 
+from dataprofiler._typing import DataArray
+
 from .. import dp_logging
 from . import labeler_utils
 from .base_model import AutoSubRegistrationMeta, BaseModel, BaseTrainableModel
-from .utils import DataArray
 
 _file_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -239,8 +240,11 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         self._model: tf.keras.Model = tf.keras.models.load_model(model_loc)
         softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
-        softmax_layer_ind = labeler_utils.get_tf_layer_index_from_name(
-            self._model, softmax_output_layer_name
+        softmax_layer_ind = cast(
+            int,
+            labeler_utils.get_tf_layer_index_from_name(
+                self._model, softmax_output_layer_name
+            ),
         )
         softmax_layer = self._model.get_layer(softmax_output_layer_name)
 
@@ -248,7 +252,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         if softmax_layer.weights[0].shape[-1] != num_labels:
             new_softmax_layer = tf.keras.layers.Dense(
                 num_labels, activation="softmax", name="softmax_output"
-            )(self._model.layers[cast(int, softmax_layer_ind) - 1].output)
+            )(self._model.layers[softmax_layer_ind - 1].output)
 
         # Output the model into a .pb file for TensorFlow
         argmax_layer = tf.keras.backend.argmax(new_softmax_layer)
@@ -332,7 +336,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
-    ) -> Tuple[Dict, Optional[float], Dict]:
+    ) -> Tuple[Dict, Optional[float], Optional[Dict]]:
         """
         Train the current model with the training data and validation data.
 

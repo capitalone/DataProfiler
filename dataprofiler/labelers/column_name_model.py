@@ -7,6 +7,8 @@ from typing import Any, Callable, Dict, List
 
 import numpy as np
 
+from dataprofiler._typing import DataArray
+
 try:
     import rapidfuzz
 except ImportError:
@@ -17,7 +19,7 @@ except ImportError:
 
 from .. import dp_logging
 from .base_model import AutoSubRegistrationMeta, BaseModel
-from .utils import DataArray, require_module
+from .utils import require_module
 
 logger = dp_logging.get_child_logger(__name__)
 

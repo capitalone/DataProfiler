@@ -7,7 +7,7 @@ import inspect
 import warnings
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
-from .utils import DataArray
+from dataprofiler._typing import DataArray
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
@@ -373,7 +373,7 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
-    ) -> Tuple[Dict, Optional[float], Dict]:
+    ) -> Tuple[Dict, Optional[float], Optional[Dict]]:
         """
         Train the current model with the training data and validation data.
 

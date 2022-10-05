@@ -5,10 +5,7 @@ import abc
 import copy
 import inspect
 import warnings
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Type, Union
-
-if TYPE_CHECKING:
-    import tensorflow as tf
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 
 from .utils import DataArray
 
@@ -50,7 +47,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         :return: None
         """
         # initialize class
-        self._model: tf.keras.Model = None
+        self._model: Any = None
         self._validate_parameters(parameters)
         self._parameters: Dict = parameters
         self._label_mapping: Dict[str, int] = None  # type: ignore

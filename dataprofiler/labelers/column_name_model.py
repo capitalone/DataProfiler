@@ -1,8 +1,13 @@
 """Contains class for column name data labeling model."""
+from __future__ import annotations
+
 import json
 import os
+from typing import Any, Callable, Dict, List
 
 import numpy as np
+
+from dataprofiler._typing import DataArray
 
 try:
     import rapidfuzz
@@ -22,7 +27,7 @@ logger = dp_logging.get_child_logger(__name__)
 class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     """Class for column name data labeling model."""
 
-    def __init__(self, label_mapping=None, parameters=None):
+    def __init__(self, label_mapping: Dict[str, int], parameters: Dict = None) -> None:
         """Initialize function for ColumnNameModel.
 
         :param parameters: Contains all the appropriate parameters for the model.
@@ -45,7 +50,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         self._validate_parameters(parameters)
         self._parameters = parameters
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         r"""
         Validate the parameters sent in.
 
@@ -139,12 +144,15 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
             raise ValueError("\n".join(errors))
 
     @staticmethod
-    def _make_lower_case(str, **kwargs):
+    def _make_lower_case(str: str, **kwargs: Any) -> str:
         return str.lower()
 
     def _compare_negative(
-        self, list_of_column_names, check_values_dict, negative_threshold
-    ):
+        self,
+        list_of_column_names: DataArray,
+        check_values_dict: Dict,
+        negative_threshold: float,
+    ) -> DataArray:
         """Filter out column name examples that are false positives."""
         scores = self._model(
             list_of_column_names,
@@ -160,28 +168,28 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
         return list_of_column_names_filtered
 
-    def _construct_model(self):
+    def _construct_model(self) -> None:
         pass
 
-    def _reconstruct_model(self):
+    def _reconstruct_model(self) -> None:
         pass
 
-    def _need_to_reconstruct_model(self):
+    def _need_to_reconstruct_model(self) -> bool:
         pass
 
-    def reset_weights(self):
+    def reset_weights(self) -> None:
         """Reset weights function."""
         pass
 
     @require_module(["rapidfuzz"])
     def _model(
         self,
-        list_of_column_names,
-        check_values_dict,
-        processor,
-        scorer,
-        include_label=False,
-    ):
+        list_of_column_names: List[str],
+        check_values_dict: List[Dict],
+        processor: Callable,
+        scorer: Callable,
+        include_label: bool = False,
+    ) -> List:
         scores = []
 
         check_values_list = [dict["attribute"] for dict in check_values_dict]
@@ -201,11 +209,11 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def predict(
         self,
-        data,
-        batch_size=None,
-        show_confidences=False,
-        verbose=True,
-    ):
+        data: DataArray,
+        batch_size: int = None,
+        show_confidences: bool = False,
+        verbose: bool = True,
+    ) -> Dict:
         """
         Apply the `process.cdist` for similarity score on input list of strings.
 
@@ -267,7 +275,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         return {"pred": predictions}
 
     @classmethod
-    def load_from_disk(cls, dirpath):
+    def load_from_disk(cls, dirpath: str) -> ColumnNameModel:
         """
         Load whole model from disk with weights.
 
@@ -288,7 +296,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         loaded_model = cls(label_mapping, parameters)
         return loaded_model
 
-    def save_to_disk(self, dirpath):
+    def save_to_disk(self, dirpath: str) -> None:
         """
         Save whole model to disk with weights.
 

@@ -322,6 +322,7 @@ def read_csv_df(
     fo = pd.read_csv(file_path, **args)
     data = fo.read()
 
+    # account for py3.6 requirement for pandas, can remove if >= py3.7
     # if the buffer was wrapped, detach it before returning
     if isinstance(file_path, TextIOWrapper):
         file_path.detach()

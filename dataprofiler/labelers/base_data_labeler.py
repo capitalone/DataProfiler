@@ -11,6 +11,8 @@ import numpy as np
 import pandas as pd
 import pkg_resources
 
+from dataprofiler._typing import DataArray
+
 from .. import data_readers
 from .base_model import BaseModel
 from .data_processing import (
@@ -154,8 +156,8 @@ class BaseDataLabeler(object):
 
     @staticmethod
     def _check_and_return_valid_data_format(
-        data: Union[pd.DataFrame, pd.Series, np.ndarray], fit_or_predict: str = "fit"
-    ) -> Union[pd.DataFrame, pd.Series, np.ndarray]:
+        data: DataArray, fit_or_predict: str = "fit"
+    ) -> DataArray:
         """
         Check incoming data to match the specified fit or predict format.
 
@@ -275,7 +277,7 @@ class BaseDataLabeler(object):
 
     def predict(
         self,
-        data: Union[pd.DataFrame, pd.Series, np.ndarray],
+        data: DataArray,
         batch_size: int = 32,
         predict_options: Dict[str, bool] = None,
         error_on_mismatch: bool = False,
@@ -739,8 +741,8 @@ class TrainableDataLabeler(BaseDataLabeler):
 
     def fit(
         self,
-        x: Union[pd.DataFrame, pd.Series, np.ndarray],
-        y: Union[pd.DataFrame, pd.Series, np.ndarray],
+        x: DataArray,
+        y: DataArray,
         validation_split: float = 0.2,
         labels: Union[List, Dict] = None,
         reset_weights: bool = False,

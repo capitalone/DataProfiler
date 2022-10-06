@@ -374,7 +374,7 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
-    ) -> Tuple[Dict, Optional[float], Optional[Dict]]:
+    ) -> Tuple[Dict, Optional[float], Dict]:
         """
         Train the current model with the training data and validation data.
 

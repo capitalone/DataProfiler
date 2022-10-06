@@ -1,11 +1,16 @@
 """Contains class for regex data labeling model."""
+from __future__ import annotations
+
 import copy
 import json
 import os
 import re
 import sys
+from typing import Dict
 
 import numpy as np
+
+from dataprofiler._typing import DataArray
 
 from .. import dp_logging
 from .base_model import AutoSubRegistrationMeta, BaseModel
@@ -16,7 +21,7 @@ logger = dp_logging.get_child_logger(__name__)
 class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     """Class for regex data labeling model."""
 
-    def __init__(self, label_mapping=None, parameters=None):
+    def __init__(self, label_mapping: Dict[str, int], parameters: Dict = None) -> None:
         r"""
         Initialize Regex Model.
 
@@ -63,7 +68,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         self._validate_parameters(parameters)
         self._parameters = parameters
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         r"""
         Validate the parameters sent in.
 
@@ -159,20 +164,26 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         if errors:
             raise ValueError("\n".join(errors))
 
-    def _construct_model(self):
+    def _construct_model(self) -> None:
         pass
 
-    def _reconstruct_model(self):
+    def _reconstruct_model(self) -> None:
         pass
 
-    def _need_to_reconstruct_model(self):
+    def _need_to_reconstruct_model(self) -> bool:
         pass
 
-    def reset_weights(self):
+    def reset_weights(self) -> None:
         """Reset weights."""
         pass
 
-    def predict(self, data, batch_size=None, show_confidences=False, verbose=True):
+    def predict(
+        self,
+        data: DataArray,
+        batch_size: int = None,
+        show_confidences: bool = False,
+        verbose: bool = True,
+    ) -> Dict:
         """
         Apply the regex patterns (within regex_model) to the input_string.
 
@@ -259,7 +270,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         return {"pred": predictions}
 
     @classmethod
-    def load_from_disk(cls, dirpath):
+    def load_from_disk(cls, dirpath: str) -> RegexModel:
         """
         Load whole model from disk with weights.
 
@@ -280,7 +291,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         loaded_model = cls(label_mapping, parameters)
         return loaded_model
 
-    def save_to_disk(self, dirpath):
+    def save_to_disk(self, dirpath: str) -> None:
         """
         Save whole model to disk with weights.
 

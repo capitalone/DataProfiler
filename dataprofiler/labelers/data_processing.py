@@ -65,7 +65,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
             ] = cls
 
     @classmethod
-    def get_class(cls: Type[Processor], class_name: str) -> Optional[Processor]:
+    def get_class(cls: Type[Processor], class_name: str) -> Optional[Type[Processor]]:
         """Get class of BaseDataProcessor object."""
         return cls._BaseDataProcessor__subclasses.get(  # type: ignore
             class_name.lower(), None

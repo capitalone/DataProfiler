@@ -5,7 +5,7 @@ import json
 import os
 import sys
 import warnings
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Type, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -15,11 +15,7 @@ from dataprofiler._typing import DataArray
 
 from .. import data_readers
 from .base_model import BaseModel
-from .data_processing import (
-    BaseDataPostprocessor,
-    BaseDataPreprocessor,
-    BaseDataProcessor,
-)
+from .data_processing import BaseDataPostprocessor, BaseDataPreprocessor
 
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
@@ -509,7 +505,9 @@ class BaseDataLabeler(object):
             params["postprocessor"]["class"] = load_options.get("postprocessor_class")
         return params
 
-    def _load_model(self, model_class: Union[BaseModel, str], dirpath: str) -> None:
+    def _load_model(
+        self, model_class: Union[Type[BaseModel], str], dirpath: str
+    ) -> None:
         """
         Load the data labeler model.
 
@@ -517,67 +515,79 @@ class BaseDataLabeler(object):
         retrieving a registered data labeler model.
 
         :param model_class: class of model being loaded
-        :type model_class: Union[BaseModel, str]
+        :type model_class: Union[Type[BaseModel], str]
         :param dirpath: directory where the saved DataLabeler model exists.
         :type dirpath: str
         :return: None
         """
-        if isinstance(model_class, str):
-            model_class = cast(BaseModel, BaseModel.get_class(model_class))
-        if not model_class:
+        model = (
+            BaseModel.get_class(model_class)
+            if isinstance(model_class, str)
+            else model_class
+        )
+
+        if not model:
             raise ValueError(
                 "`model_class`, {}, was not set in load_options "
                 "and could not be found as a registered model "
                 "class in BaseModel.".format(str(model_class))
             )
-        self.set_model(model_class.load_from_disk(dirpath))
+        self.set_model(model.load_from_disk(dirpath))
 
     def _load_preprocessor(
         self,
-        processor_class: Union[BaseDataPreprocessor, str],
+        processor_class: Union[Type[BaseDataPreprocessor], str],
         dirpath: str,
     ) -> None:
         """
         Load the preprocessor for the data labeler.
 
         :param processor_class: class of model being loaded
-        :type processor_class: Union[data_processing.BaseDataProcessor, str]
+        :type processor_class: Union[Type[data_processing.BaseDataPreprocessor], str]
         :param dirpath: directory where the saved DataLabeler model exists.
         :type dirpath: str
         :return: None
         """
-        if isinstance(processor_class, str):
-            preprocessor = BaseDataPreprocessor.get_class(processor_class)
+        preprocessor = (
+            BaseDataPreprocessor.get_class(processor_class)
+            if isinstance(processor_class, str)
+            else processor_class
+        )
+
         if not preprocessor:
             raise ValueError(
                 "`processor_class`, {}, was not set in load_options "
                 "and could not be found as a registered model "
-                "class in BaseDataProcessor.".format(str(preprocessor))
+                "class in BaseDataProcessor.".format(str(processor_class))
             )
         self.set_preprocessor(preprocessor.load_from_disk(dirpath))
 
     def _load_postprocessor(
         self,
-        processor_class: Union[BaseDataProcessor, str],
+        processor_class: Union[Type[BaseDataPostprocessor], str],
         dirpath: str,
     ) -> None:
         """
         Load the postprocessor for the data labeler.
 
         :param processor_class: class of model being loaded
-        :type processor_class: Union[data_processing.BaseDataProcessor, str]
+        :type processor_class: Union[Type[data_processing.BaseDataPostprocessor], str]
         :param dirpath: directory where the saved DataLabeler model exists.
         :type dirpath: str
         :return: None
         """
-        if isinstance(processor_class, str):
-            postprocessor = BaseDataPostprocessor.get_class(processor_class)
+        postprocessor = (
+            BaseDataPostprocessor.get_class(processor_class)
+            if isinstance(processor_class, str)
+            else processor_class
+        )
+
         if not postprocessor:
             raise ValueError(
                 "`processor_class`, {}, was not set in "
                 "load_options and could not be found as a "
                 "registered model class in BaseDataProcessor.".format(
-                    str(postprocessor)
+                    str(processor_class)
                 )
             )
         self.set_postprocessor(postprocessor.load_from_disk(dirpath))

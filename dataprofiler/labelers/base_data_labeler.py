@@ -43,8 +43,8 @@ class BaseDataLabeler(object):
         # Example: self._preprocessor and self._postprocessor are instances of
         # DataProcessing
         self._preprocessor: data_processing.BaseDataPreprocessor = None  # type: ignore
-        self._postprocessor: data_processing.BaseDataPostprocessor = (  # type: ignore
-            None
+        self._postprocessor: data_processing.BaseDataPostprocessor = (
+            None  # type: ignore
         )
 
         # load default model

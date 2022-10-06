@@ -139,6 +139,11 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         for param in kwargs:
             self._parameters[param] = kwargs[param]
 
+    @abc.abstractmethod
+    def process(self, *args):
+        """Process data."""
+        raise NotImplementedError()
+
     @classmethod
     def load_from_disk(cls: Type[Processor], dirpath: str) -> Processor:
         """Load data processor from a given path on disk."""
@@ -175,7 +180,7 @@ class BaseDataPreprocessor(BaseDataProcessor):
         super(BaseDataPreprocessor, self).__init__(**parameters)
 
     @abc.abstractmethod
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         labels: np.ndarray = None,
@@ -197,7 +202,7 @@ class BaseDataPostprocessor(BaseDataProcessor):
         super(BaseDataPostprocessor, self).__init__(**parameters)
 
     @abc.abstractmethod
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         results: Dict,
@@ -674,7 +679,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         if batch_data["samples"]:
             yield batch_data
 
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         labels: np.ndarray = None,
@@ -842,7 +847,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
         if errors:
             raise ValueError("\n".join(errors))
 
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         labels: np.ndarray = None,
@@ -1275,7 +1280,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
         return results
 
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         results: Dict,
@@ -1444,7 +1449,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
         return text, entities
 
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         labels: np.ndarray = None,
@@ -1805,7 +1810,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
         return results
 
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         results: Dict,
@@ -2027,7 +2032,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
                 pred, axis=1, ord=1, keepdims=True
             )
 
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         results: Dict,
@@ -2165,7 +2170,7 @@ class StructRegexPostProcessor(
         ) as fp:
             json.dump(params, fp)
 
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         results: Dict,
@@ -2258,7 +2263,7 @@ class ColumnNameModelPostprocessor(
         )
         print(help_str)
 
-    def process(
+    def process(  # type: ignore
         self,
         data: np.ndarray,
         results: Dict,

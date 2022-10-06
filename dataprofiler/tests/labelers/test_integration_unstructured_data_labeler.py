@@ -45,7 +45,7 @@ class TestUnstructuredDataLabeler(unittest.TestCase):
         self.assertEqual(3, len(model_predictions[0]))
         self.assertIsInstance(model_predictions[0][0], dict)
         self.assertIsNone(model_predictions[0][1])  # no f1 since no validation
-        self.assertListEqual(model_predictions[0][2], [])
+        self.assertDictEqual(model_predictions[0][2], {})  # empty f1_report
 
         # validate epoch id
         self.assertEqual(2, default.model._epoch_id)

@@ -33,7 +33,7 @@ def require_module(names: List[str]) -> Callable:
     :type names: list[str]
     """
 
-    def check_module(f) -> Callable:
+    def check_module(f: Callable) -> Callable:
         def new_f(*args: Any, **kwds: Any) -> Any:
             for module_name in names:
                 if module_name not in sys.modules.keys():

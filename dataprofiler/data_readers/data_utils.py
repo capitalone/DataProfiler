@@ -314,17 +314,20 @@ def read_csv_df(
     if len(selected_columns) > 0:
         args["usecols"] = selected_columns
 
+    # account for py3.6 requirement for pandas, can remove if >= py3.7
+    is_buf_wrapped = False
     if isinstance(file_path, BytesIO):
         # a BytesIO stream has to be wrapped in order to properly be detached
         # in 3.6 this avoids read_csv wrapping the stream and closing too early
         file_path = TextIOWrapper(file_path, encoding=encoding)
+        is_buf_wrapped = True
 
     fo = pd.read_csv(file_path, **args)
     data = fo.read()
 
-    # account for py3.6 requirement for pandas, can remove if >= py3.7
     # if the buffer was wrapped, detach it before returning
-    if isinstance(file_path, TextIOWrapper):
+    if is_buf_wrapped:
+        file_path = cast(TextIOWrapper, file_path)
         file_path.detach()
     fo.close()
 

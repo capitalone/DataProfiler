@@ -172,9 +172,10 @@ class GraphData(BaseData):
     def _format_data_networkx(self) -> nx.Graph:
         """Format the input file into a networkX graph."""
         networkx_graph = nx.Graph()
+        assert self.input_file_path is not None
 
         # read lines from csv
-        if (not self._checked_header or not self._delimiter) and self.input_file_path is not None:
+        if not self._checked_header or not self._delimiter:
             delimiter, quotechar = None, None
             data_as_str = data_utils.load_as_str_from_file(
                 self.input_file_path, self.file_encoding
@@ -212,7 +213,7 @@ class GraphData(BaseData):
                     if count_delimiter_last == num_lines_read:
                         self._delimiter = None
 
-        if self._column_names is None and self.input_file_path is not None and isinstance(self._header, int) and self.file_encoding is not None:
+        if self._column_names is None and isinstance(self._header, int) and self.file_encoding is not None:
             self._column_names = self.csv_column_names(
                 self.input_file_path, self._header, self._delimiter, self.file_encoding
             )

@@ -38,6 +38,8 @@ For API documentation, visit the [documentation page](https://capitalone.github.
 
 If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/dataprofiler/issues/new/choose).
 
+If you want to contribute, visit the [contributing page](https://github.com/capitalone/dataprofiler/.github/CONTRIBUTING.md).
+
 ------------------
 
 # Install

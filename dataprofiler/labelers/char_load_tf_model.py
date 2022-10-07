@@ -336,7 +336,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
-    ) -> Tuple[Dict, Optional[float], Optional[Dict]]:
+    ) -> Tuple[Dict, Optional[float], Dict]:
         """
         Train the current model with the training data and validation data.
 
@@ -369,7 +369,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
 
         history: Dict = defaultdict()
         f1: Optional[float] = None
-        f1_report: Optional[Dict] = None
+        f1_report: Dict = {}
 
         self._model.reset_metrics()
         softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
@@ -419,17 +419,12 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         return history, f1, f1_report
 
     def _validate_training(
-        self,
-        val_data: DataArray,
-        batch_size_test: int = 32,
-        verbose_log: bool = True,
-        verbose_keras: bool = False,
-    ) -> Tuple[float, Dict]:
+        self, val_data, batch_size_test=32, verbose_log=True, verbose_keras=False
+    ):
         """
         Validate the model on the test set and return the evaluation metrics.
-
         :param val_data: data generator for the validation
-        :type val_data: iterable
+        :type val_data: iterator
         :param batch_size_test: Number of samples to process in testing
         :type batch_size_test: int
         :param verbose_log: whether or not to print out scores for training,
@@ -440,6 +435,12 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         :type verbose_keras: bool
         return (f1-score, f1 report).
         """
+        f1 = None
+        f1_report = None
+
+        if val_data is None:
+            return f1, f1_report
+
         # Predict on the test set
         batch_id = 0
         y_val_pred = []

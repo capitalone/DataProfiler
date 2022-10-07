@@ -6,7 +6,7 @@ import numpy as np
 import sklearn.metrics._classification
 
 
-def convert_confusion_matrix_to_MCM(conf_matrix: Union[List, np.ndarray]):
+def convert_confusion_matrix_to_MCM(conf_matrix: Union[List, np.ndarray]) -> np.ndarray:
     """
     Convert a confusion matrix into the MCM format.
 

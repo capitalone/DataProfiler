@@ -1,4 +1,5 @@
 """Contains pre-built processors for data labeling/processing."""
+from __future__ import annotations
 
 import abc
 import copy
@@ -10,19 +11,34 @@ import random
 import types
 import warnings
 from collections import Counter
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    cast,
+)
 
 import numpy as np
 import pkg_resources
 
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
+Processor = TypeVar("Processor", bound="BaseDataProcessor")
+
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
     """For registering subclasses."""
 
-    def __new__(cls, clsname, bases, attrs):
+    def __new__(cls, clsname: str, bases: Tuple[type, ...], attrs: Dict[str, object]):
         """Create AutoSubRegistration object."""
-        new_class = super(AutoSubRegistrationMeta, cls).__new__(
+        new_class: Any = super(AutoSubRegistrationMeta, cls).__new__(
             cls, clsname, bases, attrs
         )
         new_class._register_subclass()
@@ -32,26 +48,30 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
 class BaseDataProcessor(metaclass=abc.ABCMeta):
     """Abstract Data processing class."""
 
-    processor_type = None
-    __subclasses = {}
+    processor_type: str = None  # type: ignore[assignment]
+    __subclasses: Dict[str, Type[BaseDataProcessor]] = {}
 
-    def __init__(self, **parameters):
+    def __init__(self, **parameters: Any) -> None:
         """Initialize BaseDataProcessor object."""
         self._validate_parameters(parameters)
         self._parameters = parameters
 
     @classmethod
-    def _register_subclass(cls):
+    def _register_subclass(cls) -> None:
         """Register a subclass for the class factory."""
         if not inspect.isabstract(cls):
-            cls._BaseDataProcessor__subclasses[cls.__name__.lower()] = cls
+            cls._BaseDataProcessor__subclasses[  # type: ignore
+                cls.__name__.lower()
+            ] = cls
 
     @classmethod
-    def get_class(cls, class_name):
+    def get_class(cls: Type[Processor], class_name: str) -> Optional[Type[Processor]]:
         """Get class of BaseDataProcessor object."""
-        return cls._BaseDataProcessor__subclasses.get(class_name.lower(), None)
+        return cls._BaseDataProcessor__subclasses.get(  # type: ignore
+            class_name.lower(), None
+        )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Check if two processors are equal with one another.
 
@@ -62,18 +82,22 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         :return: Whether or not self and other are equal
         :rtype: bool
         """
-        if type(self) != type(other) or self._parameters != other._parameters:
+        if (
+            type(self) != type(other)
+            or not isinstance(other, BaseDataProcessor)
+            or self._parameters != other._parameters
+        ):
             return False
         return True
 
     @abc.abstractmethod
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Any) -> None:
         """Validate class input parameters for processing."""
         raise NotImplementedError()
 
     @classmethod
     @abc.abstractmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -84,7 +108,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         """
         raise NotImplementedError()
 
-    def get_parameters(self, param_list=None):
+    def get_parameters(self, param_list: List[str] = None) -> Dict:
         """
         Return a dict of parameters from the model given a list.
 
@@ -107,7 +131,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
                 )
         return param_dict
 
-    def set_params(self, **kwargs):
+    def set_params(self, **kwargs: Any) -> None:
         """Set the parameters if they exist given kwargs."""
         # first check if any parameters are invalid
         self._validate_parameters(kwargs)
@@ -121,7 +145,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @classmethod
-    def load_from_disk(cls, dirpath):
+    def load_from_disk(cls: Type[Processor], dirpath: str) -> Processor:
         """Load data processor from a given path on disk."""
         with open(os.path.join(dirpath, cls.processor_type + "_parameters.json")) as fp:
             parameters = json.load(fp)
@@ -129,18 +153,18 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         return cls(**parameters)
 
     @classmethod
-    def load_from_library(cls, name):
+    def load_from_library(cls, name: str) -> BaseDataProcessor:
         """Load data processor from within the library."""
         return cls.load_from_disk(os.path.join(default_labeler_dir, name))
 
-    def _save_processor(self, dirpath):
+    def _save_processor(self, dirpath: str) -> None:
         """Save data processor."""
         with open(
             os.path.join(dirpath, self.processor_type + "_parameters.json"), "w"
         ) as fp:
             json.dump(self.get_parameters(), fp)
 
-    def save_to_disk(self, dirpath):
+    def save_to_disk(self, dirpath: str) -> None:
         """Save data processor to a path on disk."""
         self._save_processor(dirpath)
 
@@ -151,12 +175,18 @@ class BaseDataPreprocessor(BaseDataProcessor):
     processor_type = "preprocessor"
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, **parameters):
+    def __init__(self, **parameters: Any) -> None:
         """Initialize BaseDataPreprocessor object."""
         super(BaseDataPreprocessor, self).__init__(**parameters)
 
     @abc.abstractmethod
-    def process(self, data, labels, label_mapping, batch_size):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        labels: np.ndarray = None,
+        label_mapping: Dict[str, int] = None,
+        batch_size: int = 32,
+    ) -> Generator[Union[Tuple[np.ndarray, np.ndarray], np.ndarray], None, None]:
         """Preprocess data."""
         raise NotImplementedError()
 
@@ -172,7 +202,12 @@ class BaseDataPostprocessor(BaseDataProcessor):
         super(BaseDataPostprocessor, self).__init__(**parameters)
 
     @abc.abstractmethod
-    def process(self, data, results, label_mapping):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        results: Dict,
+        label_mapping: Dict[str, int],
+    ) -> Dict:
         """Postprocess data."""
         raise NotImplementedError()
 
@@ -180,11 +215,11 @@ class BaseDataPostprocessor(BaseDataProcessor):
 class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
     """Subclass of BaseDataPreprocessor for preprocessing data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the DirectPassPreprocessor class."""
         super(DirectPassPreprocessor, self).__init__()
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -198,7 +233,7 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
             raise ValueError("`DirectPassPreprocessor` has no parameters.")
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -216,7 +251,13 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
         )
         print(help_str)
 
-    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        labels: np.ndarray = None,
+        label_mapping: Dict[str, int] = None,
+        batch_size: int = 32,
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
         """Preprocess data."""
         if labels is not None:
             return data, labels
@@ -228,14 +269,14 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
     def __init__(
         self,
-        max_length=3400,
-        default_label="UNKNOWN",
-        pad_label="PAD",
-        flatten_split=0,
-        flatten_separator=" ",
-        is_separate_at_max_len=False,
-        **kwargs,
-    ):
+        max_length: int = 3400,
+        default_label: str = "UNKNOWN",
+        pad_label: str = "PAD",
+        flatten_split: float = 0,
+        flatten_separator: str = " ",
+        is_separate_at_max_len: bool = False,
+        **kwargs: Any,
+    ) -> None:
         """
         Initialize the CharPreprocessor class.
 
@@ -268,7 +309,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             **kwargs,
         )
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -317,7 +358,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             raise ValueError("\n".join(errors))
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -326,7 +367,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -344,11 +385,11 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
     @staticmethod
     def _find_nearest_sentence_break_before_ind(
-        sentence,
-        start_ind,
-        min_ind=0,
-        separators=(" ", "\n", ",", "\t", "\r", "\x00", "\x01", ";"),
-    ):
+        sentence: str,
+        start_ind: int,
+        min_ind: int = 0,
+        separators: Tuple[str, ...] = (" ", "\n", ",", "\t", "\r", "\x00", "\x01", ";"),
+    ) -> int:
         """
         Find nearest separator before the start_ind and return the index.
 
@@ -375,19 +416,19 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
 
     def _process_batch_helper(
         self,
-        data,
-        max_length,
-        default_label,
-        pad_label,
-        labels=None,
-        label_mapping=None,
-        batch_size=32,
-    ):
+        data: np.ndarray,
+        max_length: int,
+        default_label: str,
+        pad_label: str,
+        labels: Iterable = None,
+        label_mapping: Dict[str, int] = None,
+        batch_size: int = 32,
+    ) -> Generator[Dict[str, List], None, None]:
         """
         Flatten batches of data.
 
         :param data: List of strings to create embeddings for
-        :type data: list(str)
+        :type data: numpy.ndarray
         :param max_length: Maximum char length in a sample.
         :type max_length: int
         :param default_label: Key for label_mapping that is the default label
@@ -417,7 +458,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         # Create list of vectors for samples
         flattened_entities = []
         flattened_sample = []
-        batch_data = (
+        batch_data: Dict[str, List] = (
             {"samples": []} if labels is None else {"samples": [], "labels": []}
         )
 
@@ -431,12 +472,15 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         # create None generator if labels is not set
         if labels is None:
 
-            def gen_none():
+            def gen_none() -> Generator[None, None, None]:
                 """Generate infinite None(s). Must be closed manually."""
                 while True:
                     yield None
 
             labels = gen_none()
+
+        if label_mapping is None:
+            label_mapping = {}
 
         # loop through each sample
         for sample_buffer, label_set in zip(data, labels):
@@ -635,7 +679,13 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         if batch_data["samples"]:
             yield batch_data
 
-    def process(self, data, labels=None, label_mapping=None, batch_size=32):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        labels: np.ndarray = None,
+        label_mapping: Dict[str, int] = None,
+        batch_size: int = 32,
+    ) -> Generator[Union[Tuple[np.ndarray, np.ndarray], np.ndarray], None, None]:
         """
         Flatten batches of data.
 
@@ -697,7 +747,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
                 [[sentence] for sentence in batch_data["samples"]], dtype=object
             )
             if labels is not None:
-                num_classes = max(label_mapping.values()) + 1
+                num_classes = max(label_mapping.values()) + 1  # type: ignore
 
                 Y_train = tf.keras.utils.to_categorical(
                     batch_data["labels"], num_classes
@@ -712,14 +762,14 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
 
     def __init__(
         self,
-        encoding_map=None,
-        max_length=5000,
-        default_label="UNKNOWN",
-        pad_label="PAD",
-        flatten_split=0,
-        flatten_separator=" ",
-        is_separate_at_max_len=False,
-    ):
+        encoding_map: Dict[str, int] = None,
+        max_length: int = 5000,
+        default_label: str = "UNKNOWN",
+        pad_label: str = "PAD",
+        flatten_split: float = 0,
+        flatten_separator: str = " ",
+        is_separate_at_max_len: bool = False,
+    ) -> None:
         """
         Initialize the CharEncodedPreprocessor class.
 
@@ -731,6 +781,12 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
         :type default_label: string (could be int, char, etc.)
         :param pad_label: Key for label_mapping that is the pad label
         :type pad_label: string (could be int, char, etc.)
+        :param flatten_split: approximate output of split between flattened and
+            non-flattened characters, value between [0, 1]. When the current
+            flattened split becomes more than the `flatten_split` value, any
+            leftover sample or subsequent samples will be non-flattened until
+            the current flattened split is below the `flatten_split` value
+        :type flatten_split: float
         :param flatten_separator: separator used to put between flattened
             samples.
         :type flatten_separator: str
@@ -748,7 +804,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
             is_separate_at_max_len=is_separate_at_max_len,
         )
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -791,7 +847,13 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
         if errors:
             raise ValueError("\n".join(errors))
 
-    def process(self, data, labels=None, label_mapping=None, batch_size=32):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        labels: np.ndarray = None,
+        label_mapping: Dict[str, int] = None,
+        batch_size: int = 32,
+    ) -> Generator[Union[Tuple[np.ndarray, np.ndarray], np.ndarray], None, None]:
         """
         Process structured data for being processed by CharacterLevelCnnModel.
 
@@ -835,14 +897,14 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
     def __init__(
         self,
-        default_label="UNKNOWN",
-        pad_label="PAD",
-        flatten_separator=" ",
-        use_word_level_argmax=False,
-        output_format="character_argmax",
-        separators=(" ", ",", ";", "'", '"', ":", "\n", "\t", "."),
-        word_level_min_percent=0.75,
-    ):
+        default_label: str = "UNKNOWN",
+        pad_label: str = "PAD",
+        flatten_separator: str = " ",
+        use_word_level_argmax: bool = False,
+        output_format: str = "character_argmax",
+        separators: Tuple[str, ...] = (" ", ",", ";", "'", '"', ":", "\n", "\t", "."),
+        word_level_min_percent: float = 0.75,
+    ) -> None:
         """
         Initialize the CharPostprocessor class.
 
@@ -878,7 +940,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
             word_level_min_percent=word_level_min_percent,
         )
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -942,7 +1004,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
             raise ValueError("\n".join(errors))
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -951,7 +1013,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -976,7 +1038,13 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         )
         print(help_str)
 
-    def _word_level_argmax(self, data, predictions, label_mapping, default_label):
+    def _word_level_argmax(
+        self,
+        data: np.ndarray,
+        predictions: List,
+        label_mapping: Dict[str, int],
+        default_label: str,
+    ) -> List[List]:
         """
         Convert char level predictions to word level predictions.
 
@@ -1071,7 +1139,12 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         return word_level_predictions
 
     @staticmethod
-    def convert_to_NER_format(predictions, label_mapping, default_label, pad_label):
+    def convert_to_NER_format(
+        predictions: List[List],
+        label_mapping: Dict[str, int],
+        default_label: str,
+        pad_label: str,
+    ) -> List[List]:
         """
         Convert word level predictions to specified format.
 
@@ -1131,7 +1204,9 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         return output_result
 
     @staticmethod
-    def match_sentence_lengths(data, results, flatten_separator, inplace=True):
+    def match_sentence_lengths(
+        data: np.ndarray, results: Dict, flatten_separator: str, inplace: bool = True
+    ) -> Dict:
         """
         Convert results from model into same ragged data shapes as original data.
 
@@ -1205,12 +1280,17 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
         return results
 
-    def process(self, data, results, label_mapping):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        results: Dict,
+        label_mapping: Dict[str, int],
+    ) -> Dict:
         """
         Conduct processing on data given predictions, label_mapping, and default_label.
 
         :param data: original input data to the data labeler
-        :type data: np.ndarray
+        :type data: Union[np.ndarray, pd.DataFrame]
         :param results: dict of model character level predictions and confs
         :type results: dict
         :param label_mapping: labels and corresponding integers
@@ -1245,12 +1325,12 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
     def __init__(
         self,
-        max_length=3400,
-        default_label="UNKNOWN",
-        pad_label="PAD",
-        flatten_separator="\x01" * 5,
-        is_separate_at_max_len=False,
-    ):
+        max_length: int = 3400,
+        default_label: str = "UNKNOWN",
+        pad_label: str = "PAD",
+        flatten_separator: str = "\x01" * 5,
+        is_separate_at_max_len: bool = False,
+    ) -> None:
         """
         Initialize the StructCharPreprocessor class.
 
@@ -1276,7 +1356,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
             is_separate_at_max_len=is_separate_at_max_len,
         )
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -1297,7 +1377,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         super()._validate_parameters(parameters)
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -1306,7 +1386,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -1321,7 +1401,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         )
         print(help_str)
 
-    def get_parameters(self, param_list=None):
+    def get_parameters(self, param_list: List[str] = None) -> Dict:
         """
         Return a dict of parameters from the model given a list.
 
@@ -1333,7 +1413,9 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         params.pop("flatten_split", None)
         return params
 
-    def convert_to_unstructured_format(self, data, labels):
+    def convert_to_unstructured_format(
+        self, data: np.ndarray, labels: Optional[List[str]]
+    ) -> Tuple[str, Optional[List[Tuple[int, int, str]]]]:
         """
         Convert data samples list to StructCharPreprocessor required input data format.
 
@@ -1346,8 +1428,8 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
                  entities=[(start=<INT>, end=<INT>, label="<LABEL>"),
                                   ...(num_samples in data)])
         """
-        separator = self._parameters["flatten_separator"]
-        default_label = self._parameters["default_label"]
+        separator: str = self._parameters["flatten_separator"]
+        default_label: str = self._parameters["default_label"]
 
         text = separator.join(data.astype(str))
         if labels is None:
@@ -1367,7 +1449,13 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
 
         return text, entities
 
-    def process(self, data, labels=None, label_mapping=None, batch_size=32):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        labels: np.ndarray = None,
+        label_mapping: Dict[str, int] = None,
+        batch_size: int = 32,
+    ) -> Generator[Union[Tuple[np.ndarray, np.ndarray], np.ndarray], None, None]:
         """
         Process structured data for being processed by CharacterLevelCnnModel.
 
@@ -1409,20 +1497,24 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
             labels = labels.reshape(-1)
 
         # convert structured to unstructured format
-        unstructured_data = [[]] * len(data)
-        unstructured_labels = None if labels is None else [[]] * len(data)
+        unstructured_data: List[Union[List, str]] = [[]] * len(data)
+        unstructured_labels: Optional[List[List]] = (
+            None if labels is None else [[]] * len(data)
+        )
 
         # with rework, can be tuned to be batches > size 1
         for ind in range(len(data)):
-            batch_data = data[ind : ind + 1]
-            batch_labels = None if labels is None else labels[ind : ind + 1]
+            batch_data: np.ndarray = data[ind : ind + 1]
+            batch_labels: Optional[List[str]] = (
+                None if labels is None else labels[ind : ind + 1]
+            )
             (
                 unstructured_text,
                 unstructured_label_set,
             ) = self.convert_to_unstructured_format(batch_data, batch_labels)
             unstructured_data[ind] = unstructured_text
             if labels is not None:
-                unstructured_labels[ind] = unstructured_label_set
+                unstructured_labels[ind] = unstructured_label_set  # type: ignore
 
         if labels is not None:
             np_unstruct_labels = np.array(unstructured_labels, dtype="object")
@@ -1439,12 +1531,12 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
     def __init__(
         self,
-        default_label="UNKNOWN",
-        pad_label="PAD",
-        flatten_separator="\x01" * 5,
-        is_pred_labels=True,
-        random_state=None,
-    ):
+        default_label: str = "UNKNOWN",
+        pad_label: str = "PAD",
+        flatten_separator: str = "\x01" * 5,
+        is_pred_labels: bool = True,
+        random_state: Union[random.Random, int, List, Tuple] = None,
+    ) -> None:
         """
         Initialize the StructCharPostprocessor class.
 
@@ -1470,7 +1562,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         elif isinstance(random_state, (list, tuple)) and len(random_state) == 3:
             # tuple required for random state to be set, lists do not work
             if isinstance(random_state[1], list):
-                random_state[1] = tuple(random_state[1])
+                random_state[1] = tuple(random_state[1])  # type: ignore
             if isinstance(random_state, list):
                 random_state = tuple(random_state)
             temp_random_state = random.Random()
@@ -1488,7 +1580,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
             random_state=random_state,
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         """
         Check if two processors are equal with one another.
 
@@ -1501,6 +1593,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         """
         if (
             type(self) != type(other)
+            or not isinstance(other, StructCharPostprocessor)
             or self._parameters["default_label"] != other._parameters["default_label"]
             or self._parameters["pad_label"] != other._parameters["pad_label"]
             or self._parameters["flatten_separator"]
@@ -1510,7 +1603,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
             return False
         return True
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -1547,7 +1640,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
             raise ValueError("\n".join(errors))
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -1556,7 +1649,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -1574,7 +1667,9 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         print(help_str)
 
     @staticmethod
-    def match_sentence_lengths(data, results, flatten_separator, inplace=True):
+    def match_sentence_lengths(
+        data: np.ndarray, results: Dict, flatten_separator: str, inplace: bool = True
+    ) -> Dict:
         """
         Convert results from model into same ragged data shapes as original data.
 
@@ -1649,8 +1744,13 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         return results
 
     def convert_to_structured_analysis(
-        self, sentences, results, label_mapping, default_label, pad_label
-    ):
+        self,
+        sentences: np.ndarray,
+        results: Dict,
+        label_mapping: Dict[str, int],
+        default_label: str,
+        pad_label: str,
+    ) -> Dict:
         """
         Convert unstructured results to a structured column analysis.
 
@@ -1660,7 +1760,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         the remaining labels.
 
         :param sentences: samples which were predicted upon
-        :type sentences: list(str)
+        :type sentences: numpy.ndarray
         :param results: character predictions for each sample return from model
         :type results: dict
         :param label_mapping: maps labels to their encoded integers
@@ -1710,7 +1810,12 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
         return results
 
-    def process(self, data, results, label_mapping):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        results: Dict,
+        label_mapping: Dict[str, int],
+    ) -> Dict:
         """
         Postprocess CharacterLevelCnnModel results when given structured data.
 
@@ -1750,7 +1855,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
             results["pred"] = rev_label_map_vec_func(results["pred"])
         return results
 
-    def _save_processor(self, dirpath):
+    def _save_processor(self, dirpath: str) -> None:
         """
         Save the data processor.
 
@@ -1770,8 +1875,11 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
     """Subclass of BaseDataPostprocessor for postprocessing regex data."""
 
     def __init__(
-        self, aggregation_func="split", priority_order=None, random_state=None
-    ):
+        self,
+        aggregation_func: str = "split",
+        priority_order: Union[List, np.ndarray] = None,
+        random_state: Union[random.Random, int, List, Tuple] = None,
+    ) -> None:
         """
         Initialize the RegexPostProcessor class.
 
@@ -1793,7 +1901,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
         elif isinstance(random_state, (list, tuple)) and len(random_state) == 3:
             # tuple required for random state to be set, lists do not work
             if isinstance(random_state[1], list):
-                random_state[1] = tuple(random_state[1])
+                random_state[1] = tuple(random_state[1])  # type: ignore
             if isinstance(random_state, list):
                 random_state = tuple(random_state)
             temp_random_state = random.Random()
@@ -1811,7 +1919,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
 
         super().__init__(**parameters)
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in the processor and raise error if issues exist.
 
@@ -1865,7 +1973,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
             raise ValueError("\n".join(errors))
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -1874,7 +1982,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -1892,7 +2000,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
         print(help_str)
 
     @staticmethod
-    def priority_prediction(results, entity_priority_order):
+    def priority_prediction(results: Dict, entity_priority_order: np.ndarray) -> None:
         """
         Use priority of regex to give entity determination.
 
@@ -1901,7 +2009,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
         :param entity_priority_order: list of entity priorities (lowest has
             higher priority)
         :type entity_priority_order: np.ndarray
-        :return: aggregated predictions
+        :return: None
         """
         # default aggregation function which selects the first predicted label
         # with the lowest priority of integer.
@@ -1911,25 +2019,30 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
             ]
 
     @staticmethod
-    def split_prediction(results):
+    def split_prediction(results) -> None:
         """
         Split the prediction across votes.
 
         :param results: regex from model in format: dict(pred=..., conf=...)
         :type results: dict
-        :return: aggregated predictions
+        :return: None
         """
         for i, pred in enumerate(results["pred"]):
             results["pred"][i] = pred / np.linalg.norm(
                 pred, axis=1, ord=1, keepdims=True
             )
 
-    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        results: Dict,
+        label_mapping: Dict[str, int],
+    ) -> Dict:
         """Preprocess data."""
         aggregation_func = self._parameters["aggregation_func"]
         aggregation_func = aggregation_func.lower()
 
-        results = copy.deepcopy(labels)
+        results = copy.deepcopy(results)
 
         if aggregation_func == "split":
             self.split_prediction(results)
@@ -1939,9 +2052,9 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
             )
         elif aggregation_func == "random":
             num_labels = max(label_mapping.values()) + 1
-            random_state = self._parameters["random_state"]
+            random_state: random.Random = self._parameters["random_state"]
             priority_order = np.array(list(range(num_labels)))
-            random_state.shuffle(priority_order)
+            random_state.shuffle(priority_order)  # type: ignore
             self.priority_prediction(results, priority_order)
         else:
             raise ValueError(
@@ -1950,7 +2063,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
 
         return results
 
-    def _save_processor(self, dirpath):
+    def _save_processor(self, dirpath: str) -> None:
         """
         Save the data processor.
 
@@ -1971,7 +2084,9 @@ class StructRegexPostProcessor(
 ):
     """Subclass of BaseDataPostprocessor for postprocessing struct regex data."""
 
-    def __init__(self, random_state=None):
+    def __init__(
+        self, random_state: Union[random.Random, int, List, Tuple] = None
+    ) -> None:
         """
         Initialize the RegexPostProcessor class.
 
@@ -1985,7 +2100,7 @@ class StructRegexPostProcessor(
             random_state=random_state
         )
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate parameters set in processor and raise an error if any issues exist.
 
@@ -1998,7 +2113,7 @@ class StructRegexPostProcessor(
         """
         pass  # is validated by the regex processor
 
-    def set_params(self, **kwargs):
+    def set_params(self, **kwargs: Any) -> None:
         """Given kwargs, set the parameters if they exist."""
         allowed_parameters = self.__class__.__init__.__code__.co_varnames[
             1 : self.__class__.__init__.__code__.co_argcount
@@ -2012,7 +2127,7 @@ class StructRegexPostProcessor(
         self._parameters["regex_processor"].set_params(**kwargs)
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -2021,7 +2136,7 @@ class StructRegexPostProcessor(
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -2038,7 +2153,7 @@ class StructRegexPostProcessor(
         )
         print(help_str)
 
-    def _save_processor(self, dirpath):
+    def _save_processor(self, dirpath: str) -> None:
         """
         Save the data processor.
 
@@ -2055,14 +2170,19 @@ class StructRegexPostProcessor(
         ) as fp:
             json.dump(params, fp)
 
-    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        results: Dict,
+        label_mapping: Dict[str, int],
+    ) -> Dict:
         """Preprocess data."""
         # predictions come from regex_processor in the split format which
         # still is in a 3d format [samples x characters x labels]
         # split meaning it can have a partial prediction between labels, hence
         # it is still like a confidence
         results = self._parameters["regex_processor"].process(
-            data, labels, label_mapping
+            data, results, label_mapping
         )
 
         # get the average of the label confidences over a cell for each label
@@ -2086,11 +2206,11 @@ class ColumnNameModelPostprocessor(
 ):
     """Subclass of BaseDataPostprocessor for postprocessing regex data."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the ColumnNameModelPostProcessor class."""
         super().__init__()
 
-    def _validate_parameters(self, parameters):
+    def _validate_parameters(self, parameters: Dict) -> None:
         """
         Validate params set in the processor and raise error if issues exist.
 
@@ -2119,7 +2239,7 @@ class ColumnNameModelPostprocessor(
             raise ValueError("\n".join(errors))
 
     @classmethod
-    def help(cls):
+    def help(cls) -> None:
         """
         Describe alterable parameters.
 
@@ -2128,7 +2248,7 @@ class ColumnNameModelPostprocessor(
 
         :return: None
         """
-        param_docs = inspect.getdoc(cls._validate_parameters)
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:")
 
@@ -2143,6 +2263,11 @@ class ColumnNameModelPostprocessor(
         )
         print(help_str)
 
-    def process(self, data, labels=None, label_mapping=None, batch_size=None):
+    def process(  # type: ignore
+        self,
+        data: np.ndarray,
+        results: Dict,
+        label_mapping: Dict[str, int] = None,
+    ) -> Dict:
         """Preprocess data."""
-        return labels
+        return results

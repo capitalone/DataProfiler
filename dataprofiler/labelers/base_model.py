@@ -5,10 +5,9 @@ import abc
 import copy
 import inspect
 import warnings
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union, cast
 
-import numpy as np
-import pandas as pd
+from dataprofiler._typing import DataArray
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
@@ -48,7 +47,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         :return: None
         """
         # initialize class
-        self._model = None
+        self._model: Any = None
         self._validate_parameters(parameters)
         self._parameters: Dict = parameters
         self._label_mapping: Dict[str, int] = None  # type: ignore
@@ -60,7 +59,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         super().__init_subclass__(**kwargs)
         cls._register_subclass()
 
-    def __eq__(self, other: BaseModel) -> bool:  # type: ignore
+    def __eq__(self, other: object) -> bool:
         """
         Check if two models are equal with one another.
 
@@ -75,6 +74,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         """
         if (
             type(self) != type(other)
+            or not isinstance(other, BaseModel)
             or self._parameters != other._parameters
             or self._label_mapping != other._label_mapping
         ):
@@ -271,7 +271,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
         :return: None
         """
-        param_docs: str = inspect.getdoc(cls._validate_parameters)  # type: ignore
+        param_docs = cast(str, inspect.getdoc(cls._validate_parameters))
         param_start_ind = param_docs.find("parameters:\n") + 12
         param_end_ind = param_docs.find(":type parameters:") - 1
 
@@ -314,7 +314,11 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def predict(
-        self, data: Iterator, batch_size: int, show_confidences: bool, verbose: bool
+        self,
+        data: DataArray,
+        batch_size: int,
+        show_confidences: bool,
+        verbose: bool,
     ) -> Dict:
         """
         Predict the data with the current model.
@@ -363,13 +367,14 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def fit(
         self,
-        train_data: Union[pd.DataFrame, pd.Series, np.ndarray],
-        val_data: Union[pd.DataFrame, pd.Series, np.ndarray],
-        batch_size: int = 32,
-        epochs: int = 1,
+        train_data: DataArray,
+        val_data: DataArray,
+        batch_size: int = None,
+        epochs: int = None,
         label_mapping: Dict[str, int] = None,
         reset_weights: bool = False,
-    ) -> None:
+        verbose: bool = True,
+    ) -> Tuple[Dict, Optional[float], Dict]:
         """
         Train the current model with the training data and validation data.
 
@@ -386,6 +391,7 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         :param reset_weights: Flag to determine whether or not to reset the
             model's weights
         :type reset_weights: bool
-        :return: None
+        :return: history, f1, f1_report
+        :rtype: Tuple[dict, float, dict]
         """
         raise NotImplementedError()

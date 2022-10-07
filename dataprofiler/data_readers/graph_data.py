@@ -15,7 +15,12 @@ class GraphData(BaseData):
 
     data_type: Optional[str] = "graph"
 
-    def __init__(self, input_file_path: Optional[str]=None, data: Optional[nx.Graph]=None, options: Optional[Dict]=None) -> None:
+    def __init__(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[nx.Graph] = None,
+        options: Optional[Dict] = None,
+    ) -> None:
         """
         Initialize Data class for identifying, reading, and loading graph data.
 
@@ -76,7 +81,9 @@ class GraphData(BaseData):
             self._load_data(data)
 
     @classmethod
-    def _find_target_string_in_column(self, column_names: List[str], keyword_list: List[str]) -> int:
+    def _find_target_string_in_column(
+        self, column_names: List[str], keyword_list: List[str]
+    ) -> int:
         """Find out if col name contains keyword that could refer to target node col."""
         column_name_symbols = ["_", ".", "-"]
         has_target = False
@@ -103,7 +110,13 @@ class GraphData(BaseData):
         return target_index
 
     @classmethod
-    def csv_column_names(cls, file_path: str, header: Optional[int], delimiter: Optional[str], encoding: str="utf-8") -> List[str]:
+    def csv_column_names(
+        cls,
+        file_path: str,
+        header: Optional[int],
+        delimiter: Optional[str],
+        encoding: str = "utf-8",
+    ) -> List[str]:
         """Fetch a list of column names from the csv file."""
         column_names: List[str] = []
         if delimiter is None:
@@ -128,7 +141,7 @@ class GraphData(BaseData):
         return column_names
 
     @classmethod
-    def is_match(cls, file_path: str, options: Optional[Dict]=None) -> bool:
+    def is_match(cls, file_path: str, options: Optional[Dict] = None) -> bool:
         """
         Determine whether the file is a graph.
 
@@ -144,17 +157,25 @@ class GraphData(BaseData):
         header: int = options.get("header", 0)
         delimiter: str = options.get("delimiter", ",")
         encoding: str = options.get("encoding", "utf-8")
-        column_names: List[str] = cls.csv_column_names(file_path, header, delimiter, encoding)
-        source_keywords: List[str] = options.get("source_keywords", ["source", "src", "origin"])
+        column_names: List[str] = cls.csv_column_names(
+            file_path, header, delimiter, encoding
+        )
+        source_keywords: List[str] = options.get(
+            "source_keywords", ["source", "src", "origin"]
+        )
         target_keywords: List[str] = options.get(
             "target_keywords", ["target", "destination", "dst"]
         )
         graph_keywords: List[str] = options.get("graph_keywords", ["node"])
-        source_index: int = cls._find_target_string_in_column(column_names, source_keywords)
+        source_index: int = cls._find_target_string_in_column(
+            column_names, source_keywords
+        )
         destination_index: int = cls._find_target_string_in_column(
             column_names, target_keywords
         )
-        graph_index: int = cls._find_target_string_in_column(column_names, graph_keywords)
+        graph_index: int = cls._find_target_string_in_column(
+            column_names, graph_keywords
+        )
 
         has_source: bool = True if source_index >= 0 else False
         has_target: bool = True if destination_index >= 0 else False
@@ -213,7 +234,11 @@ class GraphData(BaseData):
                     if count_delimiter_last == num_lines_read:
                         self._delimiter = None
 
-        if self._column_names is None and isinstance(self._header, int) and self.file_encoding is not None:
+        if (
+            self._column_names is None
+            and isinstance(self._header, int)
+            and self.file_encoding is not None
+        ):
             self._column_names = self.csv_column_names(
                 self.input_file_path, self._header, self._delimiter, self.file_encoding
             )
@@ -264,7 +289,7 @@ class GraphData(BaseData):
         # get NetworkX object from list
         return networkx_graph
 
-    def _load_data(self, data: Optional[nx.Graph]=None) -> nx.Graph:
+    def _load_data(self, data: Optional[nx.Graph] = None) -> nx.Graph:
         if data is not None:
             if not isinstance(data, nx.Graph):
                 raise ValueError("Only NetworkX Graph objects allowed as input data.")

@@ -16,7 +16,12 @@ class TextData(BaseData):
 
     data_type: Optional[str] = "text"
 
-    def __init__(self, input_file_path: Optional[str]=None, data: Optional[List[str]]=None, options: Optional[Dict]=None) -> None:
+    def __init__(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[List[str]] = None,
+        options: Optional[Dict] = None,
+    ) -> None:
         """
         Initialize Data class for loading datasets of type TEXT.
 
@@ -74,7 +79,7 @@ class TextData(BaseData):
         """Determine compatibility with StructuredProfiler."""
         return False
 
-    def _load_data(self, data: Optional[List[str]]=None) -> None:
+    def _load_data(self, data: Optional[List[str]] = None) -> None:
         """Load data."""
         if data is not None:
             self._data = data
@@ -109,7 +114,7 @@ class TextData(BaseData):
         raise NotImplementedError("Tokenizing does not currently exist for text data.")
 
     @classmethod
-    def is_match(cls, file_path: str, options: Optional[Dict]=None) -> bool:
+    def is_match(cls, file_path: str, options: Optional[Dict] = None) -> bool:
         """
         Return True if all are text files.
 
@@ -128,7 +133,12 @@ class TextData(BaseData):
             options = {"encoding": data_utils.detect_file_encoding(file_path)}
         return True
 
-    def reload(self, input_file_path: Optional[str]=None, data: Optional[List[str]]=None, options: Optional[Dict]=None) -> None:
+    def reload(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[List[str]] = None,
+        options: Optional[Dict] = None,
+    ) -> None:
         """
         Reload the data class with a new dataset.
 
@@ -144,4 +154,4 @@ class TextData(BaseData):
         :return: None
         """
         super(TextData, self).reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options) # type: ignore
+        self.__init__(self.input_file_path, data, options)  # type: ignore

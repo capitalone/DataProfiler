@@ -1,8 +1,9 @@
 """Contains class to save and load parquet data."""
 from io import BytesIO, StringIO
 from typing import Any, Dict, List, Optional, Union, cast
-import pyarrow.parquet as pq
+
 import pandas as pd
+import pyarrow.parquet as pq
 
 from . import data_utils
 from .base_data import BaseData
@@ -14,7 +15,12 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
 
     data_type: Optional[str] = "parquet"
 
-    def __init__(self, input_file_path: Optional[str]=None, data: Optional[Union[pd.DataFrame, str]]=None, options: Optional[Dict]=None):
+    def __init__(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[Union[pd.DataFrame, str]] = None,
+        options: Optional[Dict] = None,
+    ):
         """
         Initialize Data class for loading datasets of type PARQUET.
 
@@ -113,7 +119,9 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         return list(map("".join, zip(*[iter(data)] * chars_per_line)))
 
     @classmethod
-    def is_match(cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict]=None) -> bool:
+    def is_match(
+        cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict] = None
+    ) -> bool:
         """
         Test the given file to check if the file has valid Parquet format.
 
@@ -129,7 +137,9 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
 
         # get current position of stream
         if data_utils.is_stream_buffer(file_path):
-            file_path = cast(Union[StringIO, BytesIO], file_path) # guaranteed by is_stream_buffer
+            file_path = cast(
+                Union[StringIO, BytesIO], file_path
+            )  # guaranteed by is_stream_buffer
             starting_location = file_path.tell()
 
         try:
@@ -140,12 +150,19 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
 
         # return to original position in stream
         if data_utils.is_stream_buffer(file_path):
-            file_path = cast(Union[StringIO, BytesIO], file_path) # guaranteed by is_stream_buffer
+            file_path = cast(
+                Union[StringIO, BytesIO], file_path
+            )  # guaranteed by is_stream_buffer
             file_path.seek(starting_location, 0)
 
         return is_valid_parquet
 
-    def reload(self, input_file_path: Optional[str]=None, data: Any=None, options: Optional[Dict]=None) -> None:
+    def reload(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Any = None,
+        options: Optional[Dict] = None,
+    ) -> None:
         """
         Reload the data class with a new dataset.
 
@@ -161,4 +178,4 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         :return: None
         """
         super(ParquetData, self).reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options) # type: ignore
+        self.__init__(self.input_file_path, data, options)  # type: ignore

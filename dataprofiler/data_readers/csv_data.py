@@ -22,7 +22,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     data_type: Optional[str] = "csv"
 
-    def __init__(self, input_file_path: Optional[str]=None, data: Optional[pd.DataFrame]=None, options: Optional[Dict]=None):
+    def __init__(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[pd.DataFrame] = None,
+        options: Optional[Dict] = None,
+    ):
         """
         Initialize Data class for loading datasets of type CSV.
 
@@ -76,10 +81,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         self._data_formats["records"] = self._get_data_as_records
         self.SAMPLES_PER_LINE_DEFAULT: int = options.get("record_samples_per_line", 1)
         self._selected_data_format: str = options.get("data_format", "dataframe")
-        self._delimiter: Optional[str] = options.get("delimiter", None) 
-        self._quotechar: Optional[str] = options.get("quotechar", None) 
-        self._selected_columns: List[str] = options.get("selected_columns", list()) 
-        self._header: Optional[Union[str, int]] = options.get("header", "auto") 
+        self._delimiter: Optional[str] = options.get("delimiter", None)
+        self._quotechar: Optional[str] = options.get("quotechar", None)
+        self._selected_columns: List[str] = options.get("selected_columns", list())
+        self._header: Optional[Union[str, int]] = options.get("header", "auto")
         self._checked_header: bool = "header" in options and self._header != "auto"
         self._default_delimiter: str = ","
         self._default_quotechar: str = '"'
@@ -168,7 +173,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     @staticmethod
     def _guess_delimiter_and_quotechar(
-        data_as_str: str, quotechar: Optional[str]=None, preferred: List[str]=[",", "\t"], omitted: List[str]=['"', "'"]
+        data_as_str: str,
+        quotechar: Optional[str] = None,
+        preferred: List[str] = [",", "\t"],
+        omitted: List[str] = ['"', "'"],
     ) -> Tuple[Optional[str], Optional[str]]:
         r"""
         Automatically check for what delimiter exists in a text document.
@@ -191,7 +199,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if "\n" in vocab:
             vocab.pop("\n")
         for char in omitted + ([quotechar] if quotechar is not None else []):
-            if char in vocab: 
+            if char in vocab:
                 vocab.pop(char)
 
         # Sort vocabulary by count
@@ -325,11 +333,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     @staticmethod
     def _guess_header_row(
         data_as_str: str,
-        suggested_delimiter: Optional[str]=None,
-        suggested_quotechar: Optional[str]=None,
-        diff_thresh: float=0.1,
-        none_thresh: float=0.5,
-        str_thresh: float=0.9,
+        suggested_delimiter: Optional[str] = None,
+        suggested_quotechar: Optional[str] = None,
+        diff_thresh: float = 0.1,
+        none_thresh: float = 0.5,
+        str_thresh: float = 0.9,
     ) -> Optional[int]:
         r"""
         Attempt to select the best row for which a header would be valid.
@@ -560,9 +568,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 self._quotechar = quotechar
 
             if self._header == "auto":
-                self._header = cast(int, self._guess_header_row(
-                    data_as_str, self._delimiter, self._quotechar
-                ))
+                self._header = cast(
+                    int,
+                    self._guess_header_row(
+                        data_as_str, self._delimiter, self._quotechar
+                    ),
+                )
                 self._checked_header = True
 
         # if there is only one delimiter at the end of each row,
@@ -600,7 +611,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         return super(CSVData, self)._get_data_as_records(data)
 
     @classmethod
-    def is_match(cls, file_path: str, options: Optional[Dict]=None) -> bool:
+    def is_match(cls, file_path: str, options: Optional[Dict] = None) -> bool:
         """
         Check if first 1000 lines of given file has valid delimited format.
 
@@ -720,7 +731,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # Assume not a CSV
         return False
 
-    def reload(self, input_file_path: Optional[str]=None, data: Optional[pd.DataFrame]=None, options: Optional[Dict]=None):
+    def reload(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[pd.DataFrame] = None,
+        options: Optional[Dict] = None,
+    ):
         """
         Reload the data class with a new dataset.
 
@@ -741,4 +757,4 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             header=self.header, delimiter=self.delimiter, quotechar=self.quotechar
         )
         super(CSVData, self).reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options) # type: ignore
+        self.__init__(self.input_file_path, data, options)  # type: ignore

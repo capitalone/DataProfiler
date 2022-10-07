@@ -3,6 +3,7 @@ import locale
 import sys
 from collections import OrderedDict
 from io import StringIO
+from typing import Any, Dict, Generator, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -16,10 +17,12 @@ logger = dp_logging.get_child_logger(__name__)
 class BaseData(object):
     """Abstract class for data loading and saving."""
 
-    data_type = None
-    info = None
+    data_type: Optional[str] = None
+    info: Optional[str] = None
 
-    def __init__(self, input_file_path, data, options):
+    def __init__(
+        self, input_file_path: Optional[str], data: Any, options: Dict
+    ) -> None:
         """
         Initialize Base class for loading a dataset.
 
@@ -39,7 +42,7 @@ class BaseData(object):
 
         # Public properties
         self.input_file_path = input_file_path
-        self.options = options
+        self.options: Optional[Dict] = options
 
         # 'Private' properties
         #  _data_formats: dict containing data_formats (key) and function
@@ -53,12 +56,12 @@ class BaseData(object):
         #               constant across function calls.
         #  _tmp_file_name: randomly set variables for file name usable by system
         #  _file_encoding: contains the suggested file encoding for reading data
-        self._data_formats = OrderedDict()
-        self._selected_data_format = None
-        self._data = data
-        self._batch_info = dict(perm=list(), iter=0)
-        self._tmp_file_name = None
-        self._file_encoding = options.get("encoding", None)
+        self._data_formats: Dict[str, Any] = OrderedDict()
+        self._selected_data_format: Optional[str] = None
+        self._data: Optional[Any] = data
+        self._batch_info: Dict = dict(perm=list(), iter=0)
+        self._tmp_file_name: Optional[str] = None
+        self._file_encoding: Optional[str] = options.get("encoding", None)
 
     @property
     def data(self):
@@ -79,17 +82,12 @@ class BaseData(object):
             )
 
     @property
-    def data_format(self):
+    def data_format(self) -> Optional[str]:
         """Return data format."""
         return self._selected_data_format
 
-    @property
-    def is_structured(self):
-        """Determine compatibility with StructuredProfiler."""
-        raise NotImplementedError
-
     @data_format.setter
-    def data_format(self, value):
+    def data_format(self, value: str):
         allowed_data_formats = list(self._data_formats.keys())
         if value.lower() not in allowed_data_formats:
             raise ValueError(
@@ -100,7 +98,12 @@ class BaseData(object):
         self._selected_data_format = value.lower()
 
     @property
-    def file_encoding(self):
+    def is_structured(self) -> bool:
+        """Determine compatibility with StructuredProfiler."""
+        raise NotImplementedError
+
+    @property
+    def file_encoding(self) -> Optional[str]:
         """Return file encoding."""
         if not self._file_encoding:
             # get system default, but if set to ascii, just update to utf-8
@@ -122,7 +125,7 @@ class BaseData(object):
         return self._file_encoding
 
     @file_encoding.setter
-    def file_encoding(self, value):
+    def file_encoding(self, value: str) -> None:
         """Set file encoding."""
         valid_user_set_encodings = ["ascii", "utf-8", "utf-16", "utf-32"]
         if not value or value.lower() not in valid_user_set_encodings:
@@ -134,7 +137,7 @@ class BaseData(object):
         self._file_encoding = value
 
     @staticmethod
-    def _check_and_return_options(options):
+    def _check_and_return_options(options: Optional[Dict]) -> Dict:
         """Return options or raise error."""
         if not options:
             options = dict()
@@ -142,11 +145,13 @@ class BaseData(object):
             raise ValueError("Options must be a dictionary.")
         return options
 
-    def _load_data(self, data=None):
+    def _load_data(self, data: Optional[Any] = None) -> None:
         """Load data."""
         raise NotImplementedError()
 
-    def get_batch_generator(self, batch_size):
+    def get_batch_generator(
+        self, batch_size: int
+    ) -> Generator[Union[pd.DataFrame, List], None, None]:
         """Get batch generator."""
         data_length = len(self.data)
         indices = np.random.permutation(data_length)
@@ -157,11 +162,13 @@ class BaseData(object):
                 yield list(self.data[k] for k in indices[i : i + batch_size])
 
     @classmethod
-    def is_match(cls, input_file_path, options):
+    def is_match(cls, input_file_path: str, options: Optional[Dict]) -> bool:
         """Return true if match, false otherwise."""
         raise NotImplementedError()
 
-    def reload(self, input_file_path, data, options):
+    def reload(
+        self, input_file_path: Optional[str], data: Any, options: Optional[Dict]
+    ) -> None:
         """
         Reload the data class with a new dataset.
 
@@ -185,7 +192,7 @@ class BaseData(object):
         self.options = None
         self._batch_info = dict(perm=list(), iter=0)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Return the length of the dataset which is loaded.
 
@@ -194,7 +201,7 @@ class BaseData(object):
         return len(self.data)
 
     @property
-    def length(self):
+    def length(self) -> int:
         """
         Return the length of the dataset which is loaded.
 
@@ -202,7 +209,7 @@ class BaseData(object):
         """
         return len(self)
 
-    def __getattribute__(self, name):
+    def __getattribute__(self, name: Any) -> Any:
         """
         Override getattr for the class.
 

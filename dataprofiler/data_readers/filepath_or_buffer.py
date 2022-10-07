@@ -1,8 +1,9 @@
 """Contains functions and classes for handling filepaths and buffers."""
 from io import BytesIO, StringIO, TextIOWrapper, open
+from typing import IO, Any, Optional, Type, Union, cast
 
 
-def is_stream_buffer(filepath_or_buffer):
+def is_stream_buffer(filepath_or_buffer: Any) -> bool:
     """
     Determine whether a given argument is a filepath or buffer.
 
@@ -25,12 +26,12 @@ class FileOrBufferHandler:
 
     def __init__(
         self,
-        filepath_or_buffer,
-        open_method="r",
-        encoding=None,
-        seek_offset=None,
-        seek_whence=0,
-    ):
+        filepath_or_buffer: Union[str, StringIO, BytesIO],
+        open_method: str ="r",
+        encoding: Optional[str]=None,
+        seek_offset: Optional[int]=None,
+        seek_whence: int=0,
+    ) -> None:
         """
         Initialize Context manager class.
 
@@ -45,15 +46,15 @@ class FileOrBufferHandler:
         :type seek_offset: int
         :return: TextIOBase or BufferedIOBase class/subclass
         """
-        self._filepath_or_buffer = filepath_or_buffer
-        self.open_method = open_method
-        self.seek_offset = seek_offset
-        self.seek_whence = seek_whence
-        self._encoding = encoding
-        self.original_type = type(filepath_or_buffer)
-        self._is_wrapped = False
+        self._filepath_or_buffer: Union[str, StringIO, BytesIO, IO] = filepath_or_buffer
+        self.open_method: str = open_method
+        self.seek_offset: Optional[int] = seek_offset
+        self.seek_whence: int = seek_whence
+        self._encoding: Optional[str] = encoding
+        self.original_type: Union[Type[str], Type[StringIO], Type[BytesIO], Type[IO]] = type(filepath_or_buffer)
+        self._is_wrapped: bool = False
 
-    def __enter__(self):
+    def __enter__(self) -> IO:
         """Open resources."""
         if isinstance(self._filepath_or_buffer, str):
             self._filepath_or_buffer = open(
@@ -79,10 +80,11 @@ class FileOrBufferHandler:
 
         return self._filepath_or_buffer
 
-    def __exit__(self, exc_type, exc_value, exc_traceback):
+    def __exit__(self, exc_type: Any, exc_value: Any, exc_traceback: Any) -> None:
         """Release resources."""
         # Need to detach buffer if wrapped (i.e. BytesIO opened with 'r')
         if self._is_wrapped:
+            self._filepath_or_buffer = cast(TextIOWrapper, self._filepath_or_buffer) # guaranteed by self._is_wrapped
             wrapper = self._filepath_or_buffer
             self._filepath_or_buffer = wrapper.buffer
             wrapper.detach()
@@ -90,4 +92,5 @@ class FileOrBufferHandler:
         if isinstance(self._filepath_or_buffer, (StringIO, BytesIO)):
             self._filepath_or_buffer.seek(0)
         else:
+            self._filepath_or_buffer = cast(IO, self._filepath_or_buffer) # can't be str due to conversion in __enter__
             self._filepath_or_buffer.close()

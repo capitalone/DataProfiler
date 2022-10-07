@@ -59,8 +59,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :type options: dict
         :return: None
         """
-        if options is not None:
-            options = self._check_and_return_options(options)
+        options = self._check_and_return_options(options)
         options = cast(Dict, options)
         BaseData.__init__(self, input_file_path, data, options)
         SpreadSheetDataMixin.__init__(self, input_file_path, data, cast(Dict, options))

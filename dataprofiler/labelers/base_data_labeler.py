@@ -5,7 +5,7 @@ import json
 import os
 import sys
 import warnings
-from typing import Dict, List, Optional, Union, cast
+from typing import Dict, List, Optional, Type, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -135,7 +135,7 @@ class BaseDataLabeler(object):
         return self._preprocessor
 
     @property
-    def model(self) -> Optional[BaseModel]:
+    def model(self) -> BaseModel:
         """
         Retrieve the data labeler model.
 
@@ -511,7 +511,9 @@ class BaseDataLabeler(object):
             params["postprocessor"]["class"] = load_options.get("postprocessor_class")
         return params
 
-    def _load_model(self, model_class: Union[BaseModel, str], dirpath: str) -> None:
+    def _load_model(
+        self, model_class: Optional[Union[Type[BaseModel], str]], dirpath: str
+    ) -> None:
         """
         Load the data labeler model.
 
@@ -519,24 +521,25 @@ class BaseDataLabeler(object):
         retrieving a registered data labeler model.
 
         :param model_class: class of model being loaded
-        :type model_class: Union[BaseModel, str]
+        :type model_class: Union[Type[BaseModel], str]
         :param dirpath: directory where the saved DataLabeler model exists.
         :type dirpath: str
         :return: None
         """
         if isinstance(model_class, str):
-            model_class: BaseModel = BaseModel.get_class(model_class)  # type: ignore
+            model_class = BaseModel.get_class(model_class)
+
         if not model_class:
             raise ValueError(
                 "`model_class`, {}, was not set in load_options "
                 "and could not be found as a registered model "
                 "class in BaseModel.".format(str(model_class))
             )
-        self.set_model(cast(BaseModel, model_class).load_from_disk(dirpath))
+        self.set_model(model_class.load_from_disk(dirpath))
 
     def _load_preprocessor(
         self,
-        processor_class: Union[data_processing.BaseDataProcessor, str],
+        processor_class: Optional[Union[Type[data_processing.BaseDataProcessor], str]],
         dirpath: str,
     ) -> None:
         """
@@ -559,21 +562,22 @@ class BaseDataLabeler(object):
                 "class in BaseDataProcessor.".format(str(processor_class))
             )
         self.set_preprocessor(
-            cast(data_processing.BaseDataProcessor, processor_class).load_from_disk(
-                dirpath
+            cast(
+                data_processing.BaseDataPreprocessor,
+                processor_class.load_from_disk(dirpath),
             )
         )
 
     def _load_postprocessor(
         self,
-        processor_class: Union[data_processing.BaseDataProcessor, str],
+        processor_class: Optional[Union[Type[data_processing.BaseDataProcessor], str]],
         dirpath: str,
     ) -> None:
         """
         Load the postprocessor for the data labeler.
 
         :param processor_class: class of model being loaded
-        :type processor_class: Union[data_processing.BaseDataProcessor, str]
+        :type processor_class: Union[Type[data_processing.BaseDataPostprocessor], str]
         :param dirpath: directory where the saved DataLabeler model exists.
         :type dirpath: str
         :return: None
@@ -591,8 +595,9 @@ class BaseDataLabeler(object):
                 )
             )
         self.set_postprocessor(
-            cast(data_processing.BaseDataProcessor, processor_class).load_from_disk(
-                dirpath
+            cast(
+                data_processing.BaseDataPostprocessor,
+                processor_class.load_from_disk(dirpath),
             )
         )
 

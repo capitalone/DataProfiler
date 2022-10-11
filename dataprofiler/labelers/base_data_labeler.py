@@ -289,7 +289,7 @@ class BaseDataLabeler(object):
         :param batch_size: batch size of prediction
         :type batch_size: int
         :param predict_options: optional parameters to allow for predict as a
-            dict, i.e.  dict(show_confidences=True)
+            dict, i.e. dict(show_confidences=True)
         :type predict_options: Dict[str, bool]
         :param error_on_mismatch: if true, errors instead of warns on parameter
             mismatches in pipeline
@@ -662,7 +662,7 @@ class BaseDataLabeler(object):
         postprocessor: data_processing.BaseDataPostprocessor,
     ) -> BaseDataLabeler:
         """
-        Load the data labeler from a its set  of components.
+        Load the data labeler from a its set of components.
 
         :param preprocessor: processor to set as the preprocessor
         :type preprocessor: data_processing.BaseDataPreprocessor
@@ -782,7 +782,7 @@ class TrainableDataLabeler(BaseDataLabeler):
         :param labels: Encoding or number of labels if refit is needed to new
             labels
         :type labels: Union[list, dict]
-        :param reset_weights:  Flag to determine whether or not to reset the
+        :param reset_weights: Flag to determine whether or not to reset the
             weights
         :type reset_weights: bool
         :param batch_size: Size of each batch sent to data labeler model
@@ -899,7 +899,7 @@ class TrainableDataLabeler(BaseDataLabeler):
         postprocessor: data_processing.BaseDataPostprocessor,
     ) -> TrainableDataLabeler:
         """
-        Load the data labeler from a its set  of components.
+        Load the data labeler from a its set of components.
 
         :param preprocessor: processor to set as the preprocessor
         :type preprocessor: data_processing.BaseDataPreprocessor

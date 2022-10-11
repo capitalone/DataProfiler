@@ -392,7 +392,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             history[metric_label] = model_results[i]
 
         if val_data:
-            f1, f1_report = self._validate_training(val_data)
+            f1, f1_report = self._validate_training(val_data)  # type: ignore
             history["f1_report"] = f1_report
 
             val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.NAN
@@ -419,10 +419,15 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         return history, f1, f1_report
 
     def _validate_training(
-        self, val_data, batch_size_test=32, verbose_log=True, verbose_keras=False
-    ):
+        self,
+        val_data: DataArray,
+        batch_size_test: int = 32,
+        verbose_log: bool = True,
+        verbose_keras: bool = False,
+    ) -> Union[Tuple[float, Dict], Tuple[None, None]]:
         """
         Validate the model on the test set and return the evaluation metrics.
+
         :param val_data: data generator for the validation
         :type val_data: iterator
         :param batch_size_test: Number of samples to process in testing

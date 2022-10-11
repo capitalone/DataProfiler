@@ -2958,7 +2958,7 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
         }
 
         processor = ColumnNameModelPostprocessor()
-        process_output = processor.process(data, labels=model_output)
+        process_output = processor.process(data, results=model_output)
         self.assertDictEqual(expected_output, process_output)
 
     def test_set_params(self):

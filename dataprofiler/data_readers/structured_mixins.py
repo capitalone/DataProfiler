@@ -25,12 +25,14 @@ class SpreadSheetDataMixin(object):
     :return: None
     """
 
-    def __init__(self, input_file_path: str, data: Any, options: Dict) -> None:
+    def __init__(
+        self, input_file_path: Optional[str], data: Any, options: Dict
+    ) -> None:
         """Initialize spreadsheet mixin object."""
         self._data_formats: Dict = dict()
         self._data_formats["dataframe"] = self._get_data_as_df
         self._original_df_dtypes: Optional[pd.Series]
-        self.input_file_path: str = input_file_path
+        self.input_file_path: Optional[str] = input_file_path
         if data is not None and isinstance(data, pd.DataFrame):
             self._original_df_dtypes = data.dtypes
         else:

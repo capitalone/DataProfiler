@@ -2,6 +2,7 @@
 import json
 import warnings
 from collections import OrderedDict
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -16,9 +17,14 @@ from .structured_mixins import SpreadSheetDataMixin
 class JSONData(SpreadSheetDataMixin, BaseData):
     """SpreadsheetData class to save and load spreadsheet data."""
 
-    data_type = "json"
+    data_type: Optional[str] = "json"
 
-    def __init__(self, input_file_path=None, data=None, options=None):
+    def __init__(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[Union[str, pd.DataFrame]] = None,
+        options: Optional[Dict] = None,
+    ):
         """
         Initialize Data class for loading datasets of type JSON.
 
@@ -66,30 +72,32 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         self._data_formats[
             "flattened_dataframe"
         ] = self._get_data_as_flattened_dataframe
-        self._selected_data_format = options.get("data_format", "flattened_dataframe")
-        self._payload_keys = options.get("payload_keys", ["data", "payload"])
+        self._selected_data_format: str = options.get(
+            "data_format", "flattened_dataframe"
+        )
+        self._payload_keys: List[str] = options.get("payload_keys", ["data", "payload"])
         if not isinstance(self._payload_keys, list):
             self._payload_keys = [self._payload_keys]
-        self._key_separator = options.get("key_separator", ".")
-        self._selected_keys = options.get("selected_keys", list())
-        self._metadata = None
+        self._key_separator: str = options.get("key_separator", ".")
+        self._selected_keys: Optional[List[str]] = options.get("selected_keys", list())
+        self._metadata: Optional[pd.DataFrame] = None
         if data is not None:
             self._load_data(data)
 
     @property
-    def selected_keys(self):
+    def selected_keys(self) -> Optional[List[str]]:
         """Return selected keys."""
         return self._selected_keys
 
     @property
-    def metadata(self):
+    def metadata(self) -> Optional[pd.DataFrame]:
         """Return a data frame that contains the metadata."""
         if self._metadata is None or self._metadata.empty:
             warnings.warn("No metadata was detected.")
         return self._metadata
 
     @property
-    def data_and_metadata(self):
+    def data_and_metadata(self) -> Optional[pd.DataFrame]:
         """Return a data frame that joins the data and the metadata."""
         data = self.data
         if self._metadata is not None and not self._metadata.empty:
@@ -227,13 +235,13 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
         return data
 
-    def _load_data_from_str(self, data_as_str):
+    def _load_data_from_str(self, data_as_str: str) -> List:
         """
         Load the data from a string.
 
         :param data_as_str: data in string format.
         :type data_as_str: str
-        :return:
+        :return: dict
         """
         try:
             data = json.loads(data_as_str)
@@ -246,7 +254,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             )
         return data
 
-    def _load_data_from_file(self, input_file_path):
+    def _load_data_from_file(self, input_file_path: str) -> List:
         """
         Load the data from a file.
 
@@ -268,7 +276,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 )
             return data
 
-    def _get_data_as_records(self, data):
+    def _get_data_as_records(self, data: List) -> List[str]:
         """
         Extract the data as a record format.
 
@@ -276,15 +284,16 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type data: list
         :return: dataframe in record format
         """
-        data = self._get_data_as_df(data)
-        data = data.to_dict(orient="records", into=OrderedDict)
-        for i, sample in enumerate(data):
-            data[i] = json.dumps(
+        _data: Union[pd.DataFrame, List]
+        _data = self._get_data_as_df(data)
+        _data = _data.to_dict(orient="records", into=OrderedDict)
+        for i, sample in enumerate(_data):
+            _data[i] = json.dumps(
                 self._convert_flat_to_nested_cols(sample), ensure_ascii=False
             )
-        return super(JSONData, self)._get_data_as_records(data)
+        return super(JSONData, self)._get_data_as_records(_data)
 
-    def _get_data_as_json(self, data):
+    def _get_data_as_json(self, data: List) -> List[str]:
         """
         Extract the data as a json format.
 
@@ -292,12 +301,13 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type data: list
         :return: dataframe in json format
         """
-        data = self._get_data_as_df(data)
-        data = data.to_json(orient="records")
-        char_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
-        return list(map("".join, zip(*[iter(data)] * char_per_line)))
+        _data: Union[pd.DataFrame, List]
+        _data = self._get_data_as_df(data)
+        _data = _data.to_json(orient="records")
+        char_per_line = min(len(_data), self.SAMPLES_PER_LINE_DEFAULT)
+        return list(map("".join, zip(*[iter(_data)] * char_per_line)))
 
-    def _get_data_as_df(self, data):
+    def _get_data_as_df(self, data: Union[pd.DataFrame, Dict, List]) -> pd.DataFrame:
         """
         Extract the data as pandas formats it.
 
@@ -316,7 +326,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         return data
 
     @classmethod
-    def _convert_flat_to_nested_cols(cls, dic, separator="."):
+    def _convert_flat_to_nested_cols(cls, dic: Dict, separator: str = ".") -> Dict:
         """
         Convert a flat dict to nested dict.
 
@@ -350,7 +360,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         return dic
 
     @classmethod
-    def is_match(cls, file_path, options=None):
+    def is_match(
+        cls, file_path: Union[str, StringIO], options: Optional[Dict] = None
+    ) -> bool:
         """
         Test whether first 1000 lines of file has valid JSON format or not.
 
@@ -402,7 +414,12 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         else:
             return False
 
-    def reload(self, input_file_path=None, data=None, options=None):
+    def reload(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[Union[str, pd.DataFrame]] = None,
+        options: Optional[Dict] = None,
+    ) -> None:
         """
         Reload the data class with a new dataset.
 
@@ -419,4 +436,4 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         """
         self._selected_keys = None
         super(JSONData, self).reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options)
+        self.__init__(self.input_file_path, data, options)  # type: ignore

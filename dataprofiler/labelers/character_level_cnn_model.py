@@ -671,7 +671,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
             history[metric_label] = model_results[i]
 
         if val_data:
-            f1, f1_report = self._validate_training(val_data)  # type: ignore
+            f1, f1_report = self._validate_training(val_data)
             history["f1_report"] = f1_report
 
             val_f1 = f1_report["weighted avg"]["f1-score"] if f1_report else np.NAN
@@ -703,7 +703,7 @@ class CharacterLevelCnnModel(BaseTrainableModel, metaclass=AutoSubRegistrationMe
         batch_size_test: int = 32,
         verbose_log: bool = True,
         verbose_keras: bool = False,
-    ) -> Union[Tuple[float, Dict], Tuple[None, None]]:
+    ) -> Tuple[float, Dict]:
         """
         Validate the model on the test set and return the evaluation metrics.
 

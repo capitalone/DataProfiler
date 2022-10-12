@@ -108,7 +108,7 @@ def precision_recall_fscore_support(
             false negatives and false positives.
         ``'macro'``:
             Calculate metrics for each label, and find their unweighted
-            mean. This does not take label imbalance into account.
+            mean.  This does not take label imbalance into account.
         ``'weighted'``:
             Calculate metrics for each label, and find their average weighted
             by support (the number of true instances for each label). This

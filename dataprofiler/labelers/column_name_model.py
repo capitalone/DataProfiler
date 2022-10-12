@@ -112,7 +112,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 and "label" not in value[0].keys()
             ):
                 errors.append(
-                    """`{}` is a required parameters that must be a list
+                    """`{}` is a required parameters that must  be a list
                     of dictionaries each with the following
                     two keys: 'attribute' and 'label'""".format(
                         param

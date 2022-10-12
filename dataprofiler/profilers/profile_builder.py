@@ -974,7 +974,7 @@ class BaseProfiler(object):
             try:
                 if data_labeler is None:
                     data_labeler = DataLabeler(  # type: ignore[assignment]
-                        labeler_type=cast(str, self._default_labeler_type),
+                        labeler_type=self._default_labeler_type,
                         dirpath=data_labeler_dirpath,
                         load_options=None,
                     )
@@ -2225,7 +2225,7 @@ class StructuredProfiler(BaseProfiler):
         """
         Calculate metrics needed for replicating null values.
 
-        The replication of null values occurs in capitalone/synthetic-data.
+        The replication of null values occurs in  in capitalone/synthetic-data.
 
         Required for running LDA based binary classifier
         where predicted class label indicates whether

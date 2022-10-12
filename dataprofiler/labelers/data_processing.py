@@ -36,7 +36,9 @@ Processor = TypeVar("Processor", bound="BaseDataProcessor")
 class AutoSubRegistrationMeta(abc.ABCMeta):
     """For registering subclasses."""
 
-    def __new__(cls, clsname: str, bases: Tuple[type, ...], attrs: Dict[str, object]):
+    def __new__(
+        cls, clsname: str, bases: Tuple[type, ...], attrs: Dict[str, object]
+    ) -> Any:
         """Create AutoSubRegistration object."""
         new_class: Any = super(AutoSubRegistrationMeta, cls).__new__(
             cls, clsname, bases, attrs
@@ -140,7 +142,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
             self._parameters[param] = kwargs[param]
 
     @abc.abstractmethod
-    def process(self, *args):
+    def process(self, *args: Any) -> Any:
         """Process data."""
         raise NotImplementedError()
 
@@ -197,7 +199,7 @@ class BaseDataPostprocessor(BaseDataProcessor):
     processor_type = "postprocessor"
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, **parameters):
+    def __init__(self, **parameters: Any) -> None:
         """Initialize BaseDataPostprocessor object."""
         super(BaseDataPostprocessor, self).__init__(**parameters)
 
@@ -441,7 +443,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         :type label_mapping: Union[dict, None]
         :param batch_size: Number of samples in the batch of data
         :type batch_size: int
-        :return batch_data: A dict containing  samples of size batch_size
+        :return batch_data: A dict containing samples of size batch_size
         :rtype batch_data: dicts
         """
         # get processor parameters
@@ -697,7 +699,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         :type label_mapping: Union[None, dict]
         :param batch_size: Number of samples in the batch of data
         :type batch_size: int
-        :return batch_data: A dict containing  samples of size batch_size
+        :return batch_data: A dict containing samples of size batch_size
         :rtype batch_data: dicts
         """
         num_dim = sum([dim > 1 for dim in data.shape])
@@ -865,7 +867,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
         :type label_mapping: Union[dict, None]
         :param batch_size: Number of samples in the batch of data
         :type batch_size: int
-        :return batch_data: A dict containing  samples of size batch_size
+        :return batch_data: A dict containing samples of size batch_size
         :rtype batch_data: dict
         """
         char_processor_gen = super().process(data, labels, label_mapping, batch_size)
@@ -1467,7 +1469,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         :type label_mapping: Union[dict, None]
         :param batch_size: Number of samples in the batch of data
         :type batch_size: int
-        :return batch_data: A dict containing  samples of size batch_size
+        :return batch_data: A dict containing samples of size batch_size
         :rtype batch_data: dict
         """
         if labels is not None:
@@ -2019,7 +2021,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
             ]
 
     @staticmethod
-    def split_prediction(results) -> None:
+    def split_prediction(results: Dict) -> None:
         """
         Split the prediction across votes.
 

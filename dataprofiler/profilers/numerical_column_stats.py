@@ -391,6 +391,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 other_profile.variance,
                 other_profile.match_count,
             ),
+            "psi": "implement_psi_here",
         }
         return differences
 

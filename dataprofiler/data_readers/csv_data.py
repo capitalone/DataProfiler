@@ -65,9 +65,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :return: None
         """
         options = self._check_and_return_options(options)
-        options = cast(Dict, options)
         BaseData.__init__(self, input_file_path, data, options)
-        SpreadSheetDataMixin.__init__(self, input_file_path, data, cast(Dict, options))
+        SpreadSheetDataMixin.__init__(self, input_file_path, data, options)
 
         # 'Private' properties
         #  _data_formats: dict containing data_formats (key) and function

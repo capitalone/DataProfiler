@@ -545,7 +545,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             )
         return data_utils.read_csv_df(
             data_buffered,
-            cast(str, self.delimiter),
+            self.delimiter,
             cast(Optional[int], self.header),
             self.selected_columns,
             read_in_string=True,

@@ -14,7 +14,7 @@ from .json_data import JSONData
 class AVROData(JSONData, BaseData):
     """AVROData class to save and load spreadsheet data."""
 
-    data_type: Optional[str] = "avro"
+    data_type: str = "avro"
 
     def __init__(
         self,

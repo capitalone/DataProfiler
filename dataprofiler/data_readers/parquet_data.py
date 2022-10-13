@@ -13,7 +13,7 @@ from .structured_mixins import SpreadSheetDataMixin
 class ParquetData(SpreadSheetDataMixin, BaseData):
     """SpreadsheetData class to save and load parquet data."""
 
-    data_type: Optional[str] = "parquet"
+    data_type: str = "parquet"
 
     def __init__(
         self,

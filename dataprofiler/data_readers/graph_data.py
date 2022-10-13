@@ -13,7 +13,7 @@ from .filepath_or_buffer import FileOrBufferHandler
 class GraphData(BaseData):
     """GraphData class to identify, read, and load graph data."""
 
-    data_type: Optional[str] = "graph"
+    data_type: str = "graph"
 
     def __init__(
         self,

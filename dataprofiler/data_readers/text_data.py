@@ -14,7 +14,7 @@ from .base_data import BaseData
 class TextData(BaseData):
     """TextData class to save and load text files."""
 
-    data_type: Optional[str] = "text"
+    data_type: str = "text"
 
     def __init__(
         self,

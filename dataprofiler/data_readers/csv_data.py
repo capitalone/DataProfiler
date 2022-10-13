@@ -20,7 +20,7 @@ from .structured_mixins import SpreadSheetDataMixin
 class CSVData(SpreadSheetDataMixin, BaseData):
     """SpreadsheetData class to save and load spreadsheet data."""
 
-    data_type: Optional[str] = "csv"
+    data_type: str = "csv"
 
     def __init__(
         self,

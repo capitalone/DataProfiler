@@ -17,7 +17,7 @@ from .structured_mixins import SpreadSheetDataMixin
 class JSONData(SpreadSheetDataMixin, BaseData):
     """SpreadsheetData class to save and load spreadsheet data."""
 
-    data_type: Optional[str] = "json"
+    data_type: str = "json"
 
     def __init__(
         self,

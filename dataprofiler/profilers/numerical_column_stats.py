@@ -349,6 +349,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                     continue
                 elif profile_key == "times":
                     continue
+                elif profile_key == "psi":
+                    continue
                 profile.pop(profile_key)
 
         return profile
@@ -391,7 +393,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 other_profile.variance,
                 other_profile.match_count,
             ),
-            "psi": "implement_psi_here",
+            "psi": self._calculate_psi(),
         }
         return differences
 
@@ -516,6 +518,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         results["conservative"]["p-value"] = float(conservative_p_val)
         results["welch"]["p-value"] = float(welch_p_val)
         return results
+
+    @staticmethod
+    def _calculate_psi():
+        raise NotImplementedError()
 
     def _update_variance(
         self, batch_mean: float, batch_var: float, batch_count: int

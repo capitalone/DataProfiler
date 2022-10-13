@@ -528,21 +528,24 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _calculate_psi(
         mean1: float,
         sum1: float,
-        histogram_bin_counts1: np.ndarray,
+        histogram1: np.ndarray,
         mean2: float,
         sum2: float,
-        histogram_bin_counts2: np.ndarray,
+        histogram2: np.ndarray,
     ) -> float:
-        # TODO: MUST ensure bins are the same for `other` as they are for `self`
-        # the code should not allow for PSI to run is `other` bins are not the same
-        # as `self` bins
+        if histogram1['bin_edges'] != histogram2['bin_edges']:
+            warnings.warn(
+                "Histogram `bin_edges` are not the same between `self` and `other_profile`",
+                RuntimeWarning,
+            )
+
         self_count = sum1 / mean1
         other_count = sum2 / mean2
 
         psi = 0
-        for iter_value, bin_count in enumerate(histogram_bin_counts1):
+        for iter_value, bin_count in enumerate(histogram1['bin_counts']):
             self_percent = bin_count / self_count
-            other_percent = histogram_bin_counts2[iter_value] / other_count
+            other_percent = histogram2['bin_counts'][iter_value] / other_count
             psi += (other_percent - self_percent) * np.log(other_percent / self_percent)
         return psi
 

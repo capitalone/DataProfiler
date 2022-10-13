@@ -347,9 +347,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                     continue
                 elif profile_key in calcs_dict_keys:
                     continue
-                elif profile_key == "times":
-                    continue
-                elif profile_key == "psi":
+                elif profile_key in ["times", "psi"]:
                     continue
                 profile.pop(profile_key)
 

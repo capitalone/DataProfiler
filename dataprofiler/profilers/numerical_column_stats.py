@@ -391,7 +391,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 other_profile.variance,
                 other_profile.match_count,
             ),
-            "psi": self._calculate_psi(),
+            "psi": self._calculate_psi(
+                self.mean,
+                self.sum,
+                self.histogram['bin_counts'],
+                other_profile.mean,
+                other_profile.sum,
+                other_profile.histogram['bin_counts'],
+            ),
         }
         return differences
 
@@ -518,8 +525,21 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return results
 
     @staticmethod
-    def _calculate_psi():
-        raise NotImplementedError()
+    def _calculate_psi(
+        mean1: float, sum1: float, histogram_bin_counts1: np.ndarray, mean2: float, sum2: float, histogram_bin_counts2: np.ndarray
+    ) -> float:
+        # TODO: MUST ensure bins are the same for `other` as they are for `self`
+        # the code should not allow for PSI to run is `other` bins are not the same
+        # as `self` bins
+        self_count = (sum1 / mean1)
+        other_count = (sum2 / mean2)
+
+        psi = 0
+        for iter_value, bin_count in enumerate(histogram_bin_counts1):
+            self_percent = (bin_count / self_count)
+            other_percent = (histogram_bin_counts2[iter_value] / other_count)
+            psi += (other_percent - self_percent) * np.log(other_percent / self_percent)
+        return psi
 
     def _update_variance(
         self, batch_mean: float, batch_var: float, batch_count: int

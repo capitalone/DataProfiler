@@ -533,11 +533,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         sum2: float,
         histogram2: np.ndarray,
     ) -> float:
-        if histogram1['bin_edges'] != histogram2['bin_edges']:
-            warnings.warn(
-                "Histogram `bin_edges` are not the same between `self` and `other_profile`",
-                RuntimeWarning,
-            )
 
         self_count = sum1 / mean1
         other_count = sum2 / mean2
@@ -1092,42 +1087,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self._stored_histogram["current_loss"] = histogram_loss
         self._stored_histogram["total_loss"] += histogram_loss
 
-    def _histogram_for_profile(
-        self, histogram_method: str
+    def _regenerate_histogram(
+        self,
+        bin_counts,
+        bin_edges,
+        proposed_bin_edges=[min(self.min, other.min), max(self.max, other.max)],
+        suggested_bin_count=num_bins_for_psi+1
     ) -> Tuple[Dict[str, np.ndarray], float]:
-        """
-        Convert the stored histogram into the presentable state.
-
-        Based on the suggested histogram bin count from numpy.histograms.
-        The bin count used is stored in 'suggested_bin_count' for each method.
-
-        :param histogram_method: method to use for determining the histogram
-            profile
-        :type histogram_method: str
-        :return: histogram bin edges and bin counts
-        :rtype: dict
-        """
-        bin_counts, bin_edges = (
-            self._stored_histogram["histogram"]["bin_counts"],
-            self._stored_histogram["histogram"]["bin_edges"],
-        )
-
-        current_bin_counts, suggested_bin_count = (
-            self.histogram_methods[histogram_method]["histogram"]["bin_counts"],
-            self.histogram_methods[histogram_method]["suggested_bin_count"],
-        )
-
-        # base case, no need to change if it is already correct
-        if not self._has_histogram or current_bin_counts is not None:
-            return (
-                self.histogram_methods[histogram_method]["histogram"],
-                self.histogram_methods[histogram_method]["total_loss"],
-            )
-        elif len(bin_counts) == suggested_bin_count:
-            return (
-                self._stored_histogram["histogram"],
-                self._stored_histogram["total_loss"],
-            )
 
         # create proper binning
         new_bin_counts = np.zeros((suggested_bin_count,))
@@ -1191,6 +1157,47 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 new_bin_id += 1
 
         return ({"bin_edges": new_bin_edges, "bin_counts": new_bin_counts}, hist_loss)
+
+    def _histogram_for_profile(
+        self, histogram_method: str
+    ) -> Tuple[Dict[str, np.ndarray], float]:
+        """
+        Convert the stored histogram into the presentable state.
+
+        Based on the suggested histogram bin count from numpy.histograms.
+        The bin count used is stored in 'suggested_bin_count' for each method.
+
+        :param histogram_method: method to use for determining the histogram
+            profile
+        :type histogram_method: str
+        :return: histogram bin edges and bin counts
+        :rtype: dict
+        """
+        bin_counts, bin_edges = (
+            self._stored_histogram["histogram"]["bin_counts"],
+            self._stored_histogram["histogram"]["bin_edges"],
+        )
+
+        current_bin_counts, suggested_bin_count = (
+            self.histogram_methods[histogram_method]["histogram"]["bin_counts"],
+            self.histogram_methods[histogram_method]["suggested_bin_count"],
+        )
+
+        # base case, no need to change if it is already correct
+        if not self._has_histogram or current_bin_counts is not None:
+            return (
+                self.histogram_methods[histogram_method]["histogram"],
+                self.histogram_methods[histogram_method]["total_loss"],
+            )
+        elif len(bin_counts) == suggested_bin_count:
+            return (
+                self._stored_histogram["histogram"],
+                self._stored_histogram["total_loss"],
+            )
+        
+        return self._regenerate_histogram(
+
+        )
 
     def _get_best_histogram_for_profile(self) -> Dict:
         """

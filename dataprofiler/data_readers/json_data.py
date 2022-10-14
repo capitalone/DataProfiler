@@ -1,5 +1,6 @@
 """Contains class to save and load json data."""
 import json
+import re
 import warnings
 from collections import OrderedDict
 from typing import Dict, List, Optional, Union
@@ -276,7 +277,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 )
             return data
 
-    def _get_data_as_records(self, data: List) -> List[str]:
+    def _get_data_as_records(self, data: Union[pd.DataFrame, Dict, List]) -> List[str]:
         """
         Extract the data as a record format.
 
@@ -284,16 +285,16 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type data: list
         :return: dataframe in record format
         """
-        _data: Union[pd.DataFrame, List]
-        _data = self._get_data_as_df(data)
-        _data = _data.to_dict(orient="records", into=OrderedDict)
-        for i, sample in enumerate(_data):
-            _data[i] = json.dumps(
+        data = self._get_data_as_df(data)
+        data = data.to_dict(orient="records", into=OrderedDict)
+        for i, sample in enumerate(data):
+            sample = self._convert_flat_to_nested_cols(sample)
+            data[i] = json.dumps(
                 self._convert_flat_to_nested_cols(sample), ensure_ascii=False
             )
-        return super(JSONData, self)._get_data_as_records(_data)
+        return super(JSONData, self)._get_data_as_records(data)
 
-    def _get_data_as_json(self, data: List) -> List[str]:
+    def _get_data_as_json(self, data: Union[pd.DataFrame, Dict, List]) -> List[str]:
         """
         Extract the data as a json format.
 
@@ -301,11 +302,10 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type data: list
         :return: dataframe in json format
         """
-        _data: Union[pd.DataFrame, List]
-        _data = self._get_data_as_df(data)
-        _data = _data.to_json(orient="records")
-        char_per_line = min(len(_data), self.SAMPLES_PER_LINE_DEFAULT)
-        return list(map("".join, zip(*[iter(_data)] * char_per_line)))
+        data = self._get_data_as_df(data)
+        data = data.to_json(orient="records")
+        char_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
+        return list(map("".join, zip(*[iter(data)] * char_per_line)))
 
     def _get_data_as_df(self, data: Union[pd.DataFrame, Dict, List]) -> pd.DataFrame:
         """
@@ -349,6 +349,8 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :return:
         """
         for key in list(dic.keys()):
+            if not isinstance(key, str):
+                continue
             if separator in key:
                 new_key, nested_key = key.split(separator, 1)
                 new_value = dic.get(new_key, {})
@@ -392,14 +394,16 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 return True
             except (json.JSONDecodeError, UnicodeDecodeError):
                 data_file.seek(0)
-
+            json_identifier_re = re.compile(r"(:|\[)")
             for k in range(1000):
                 total_line_count += 1
                 try:
                     raw_line = data_file.readline()
                     if not raw_line:
                         break
-                    if raw_line.find(":") >= 0:  # Ensure can be JSON
+                    if (
+                        json_identifier_re.search(raw_line) is not None
+                    ):  # Ensure can be JSON
                         json.loads(raw_line)  # Check load
                         valid_json_line_count += 1
                 except UnicodeDecodeError:

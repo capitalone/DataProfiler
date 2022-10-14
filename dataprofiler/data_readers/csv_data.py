@@ -197,7 +197,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         vocab = Counter(data_as_str)
         if "\n" in vocab:
             vocab.pop("\n")
-        for char in omitted + ([quotechar] if quotechar is not None else []):
+        omitted_list: list[str] = omitted
+        if quotechar is not None:
+            omitted_list = omitted + [quotechar]
+        for char in omitted_list:
             if char in vocab:
                 vocab.pop(char)
 

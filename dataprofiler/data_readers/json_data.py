@@ -282,7 +282,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         Extract the data as a record format.
 
         :param data: raw data
-        :type data: list
+        :type data: Union[pd.DataFrame, Dict, List])
         :return: dataframe in record format
         """
         data = self._get_data_as_df(data)
@@ -299,7 +299,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         Extract the data as a json format.
 
         :param data: raw data
-        :type data: list
+        :type data: Union[pd.DataFrame, Dict, List])
         :return: dataframe in json format
         """
         data = self._get_data_as_df(data)
@@ -312,7 +312,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         Extract the data as pandas formats it.
 
         :param data: raw data
-        :type data: list
+        :type data: Union[pd.DataFrame, Dict, List])
         :return: pandas dataframe
         """
         if isinstance(data, pd.DataFrame):

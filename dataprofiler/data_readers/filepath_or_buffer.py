@@ -2,8 +2,10 @@
 from io import BytesIO, StringIO, TextIOWrapper, open
 from typing import IO, Any, Optional, Type, Union, cast
 
+from typing_extensions import TypeGuard
 
-def is_stream_buffer(filepath_or_buffer: Any) -> bool:
+
+def is_stream_buffer(filepath_or_buffer: Any) -> TypeGuard[Union[StringIO, BytesIO]]:
     """
     Determine whether a given argument is a filepath or buffer.
 
@@ -27,10 +29,10 @@ class FileOrBufferHandler:
     def __init__(
         self,
         filepath_or_buffer: Union[str, StringIO, BytesIO],
-        open_method: str ="r",
-        encoding: Optional[str]=None,
-        seek_offset: Optional[int]=None,
-        seek_whence: int=0,
+        open_method: str = "r",
+        encoding: Optional[str] = None,
+        seek_offset: Optional[int] = None,
+        seek_whence: int = 0,
     ) -> None:
         """
         Initialize Context manager class.
@@ -51,7 +53,9 @@ class FileOrBufferHandler:
         self.seek_offset: Optional[int] = seek_offset
         self.seek_whence: int = seek_whence
         self._encoding: Optional[str] = encoding
-        self.original_type: Union[Type[str], Type[StringIO], Type[BytesIO], Type[IO]] = type(filepath_or_buffer)
+        self.original_type: Union[
+            Type[str], Type[StringIO], Type[BytesIO], Type[IO]
+        ] = type(filepath_or_buffer)
         self._is_wrapped: bool = False
 
     def __enter__(self) -> IO:
@@ -84,7 +88,9 @@ class FileOrBufferHandler:
         """Release resources."""
         # Need to detach buffer if wrapped (i.e. BytesIO opened with 'r')
         if self._is_wrapped:
-            self._filepath_or_buffer = cast(TextIOWrapper, self._filepath_or_buffer) # guaranteed by self._is_wrapped
+            self._filepath_or_buffer = cast(
+                TextIOWrapper, self._filepath_or_buffer
+            )  # guaranteed by self._is_wrapped
             wrapper = self._filepath_or_buffer
             self._filepath_or_buffer = wrapper.buffer
             wrapper.detach()
@@ -92,5 +98,7 @@ class FileOrBufferHandler:
         if isinstance(self._filepath_or_buffer, (StringIO, BytesIO)):
             self._filepath_or_buffer.seek(0)
         else:
-            self._filepath_or_buffer = cast(IO, self._filepath_or_buffer) # can't be str due to conversion in __enter__
+            self._filepath_or_buffer = cast(
+                IO, self._filepath_or_buffer
+            )  # can't be str due to conversion in __enter__
             self._filepath_or_buffer.close()

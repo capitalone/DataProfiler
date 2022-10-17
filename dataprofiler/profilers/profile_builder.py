@@ -1493,7 +1493,7 @@ class StructuredProfiler(BaseProfiler):
         self.row_is_null_count = 0
         self.hashed_row_dict: Dict = dict()
         self._profile: List[BaseCompiler] = []  # type: ignore[assignment]
-        self._col_name_to_idx: Dict[str, list] = defaultdict(list)
+        self._col_name_to_idx: Dict[Union[str, int], List[int]] = defaultdict(list)
         self.correlation_matrix: np.ndarray = None  # type: ignore[assignment]
         self.chi2_matrix: np.ndarray = None  # type: ignore[assignment]
 
@@ -1707,8 +1707,8 @@ class StructuredProfiler(BaseProfiler):
 
     @staticmethod
     def _get_and_validate_schema_mapping(
-        schema1: Dict[str, List[int]],
-        schema2: Dict[str, List[int]],
+        schema1: Dict[Union[str, int], List[int]],
+        schema2: Dict[Union[str, int], List[int]],
         strict: bool = False,
     ) -> Dict[int, int]:
         """

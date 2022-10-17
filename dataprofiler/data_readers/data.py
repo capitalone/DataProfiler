@@ -1,5 +1,6 @@
 """Contains factory class reading various kinds of data."""
 from __future__ import absolute_import, division
+
 from typing import Any, Dict, List, Optional
 
 from .. import dp_logging
@@ -26,7 +27,13 @@ class Data(object):
         dict(data_class=TextData, kwargs=dict()),
     ]
 
-    def __new__(cls, input_file_path: Optional[str]=None, data: Optional[Any]=None, data_type: Optional[str]=None, options: Optional[Dict]=None):
+    def __new__(
+        cls,
+        input_file_path: Optional[str] = None,
+        data: Optional[Any] = None,
+        data_type: Optional[str] = None,
+        options: Optional[Dict] = None,
+    ):
         """
         Create Factory Data object.
 

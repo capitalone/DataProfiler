@@ -26,7 +26,7 @@ from dataprofiler.profilers.profile_builder import StructuredColProfiler, Struct
 from . import utils
 
 
-@utils.require_module(["matplotlib", "seaborn"])  # type: ignore
+@utils.require_module(["matplotlib", "seaborn"])
 def plot_histograms(
     profiler: StructuredProfiler,
     column_names: List[Union[int,str]] = None,
@@ -142,7 +142,7 @@ def plot_histograms(
     return fig
 
 
-@utils.require_module(["matplotlib", "seaborn"])  # type: ignore
+@utils.require_module(["matplotlib", "seaborn"])
 def plot_col_histogram(
     data_type_profiler: Union[IntColumn, FloatColumn],
     ax: Axes = None,
@@ -180,7 +180,7 @@ def plot_col_histogram(
     return ax
 
 
-@utils.require_module(["matplotlib", "seaborn"])  # type: ignore
+@utils.require_module(["matplotlib", "seaborn"])
 def plot_missing_values_matrix(
     profiler: StructuredProfiler, ax: Axes = None, title: str = None
 ) -> plt.figure:
@@ -202,7 +202,7 @@ def plot_missing_values_matrix(
     return plot_col_missing_values(profiler.profile, ax=ax, title=title)
 
 
-@utils.require_module(["matplotlib", "seaborn"])  # type: ignore
+@utils.require_module(["matplotlib", "seaborn"])
 def plot_col_missing_values(
     col_profiler_list: List[StructuredColProfiler], ax: Axes = None, title: str = None
 ) -> plt.figure:

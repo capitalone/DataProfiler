@@ -12,11 +12,12 @@ test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 class TestNestedJSON(unittest.TestCase):
     def test_flat_to_nested_json(self):
-        dic = {"a.b": "ab", "a.c": "ac", "a.d.f": "adf", "b": "b"}
+        dic = {"a.b": "ab", "a.c": "ac", "a.d.f": "adf", "b": "b", 1: 3}
 
         converted_dic = json_data.JSONData._convert_flat_to_nested_cols(dic)
         self.assertTrue(
-            converted_dic == {"a": {"b": "ab", "c": "ac", "d": {"f": "adf"}}, "b": "b"}
+            converted_dic
+            == {"a": {"b": "ab", "c": "ac", "d": {"f": "adf"}}, "b": "b", 1: 3}
         )
 
 
@@ -55,6 +56,11 @@ class TestJSONDataClass(unittest.TestCase):
                 ),
                 encoding="utf-8",
                 count=14,
+            ),
+            dict(
+                path=os.path.join(test_dir, "json/simple-list.json"),
+                encoding="utf-8",
+                count=3,
             ),
         ]
 

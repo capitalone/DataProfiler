@@ -25,7 +25,7 @@ def warn_missing_module(graph_func: str, module_name: str) -> NoReturn:
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=3)
 
 
-def require_module(names: List[str]) -> F:
+def require_module(names: List[str]) -> Callable[[F], F]:
     """
     Check if a set of modules exists in sys.modules prior to running function.
 
@@ -52,4 +52,4 @@ def require_module(names: List[str]) -> F:
         new_f.__name__ = f.__name__
         return cast(F, new_f)
 
-    return cast(F, check_module)
+    return check_module

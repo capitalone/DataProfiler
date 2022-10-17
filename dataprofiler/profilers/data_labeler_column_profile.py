@@ -287,7 +287,9 @@ class DataLabelerColumn(BaseColumnProfiler):
         if not self.sample_size:
             return None
 
-        label_representation: Dict[str, float] = {key: 0 for key in self.possible_data_labels}
+        label_representation: Dict[str, float] = {
+            key: 0 for key in self.possible_data_labels
+        }
         total_votes = max(1, sum(list(self.rank_distribution.values())))
         for key in label_representation:
             label_representation[key] = self.rank_distribution[key] / total_votes

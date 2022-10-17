@@ -15,6 +15,7 @@ import numpy as np
 try:
     import matplotlib
     import matplotlib.patches
+    import matplotlib.pyplot as plt
     import seaborn as sns
 except ImportError:
     # don't require if using graphs will below recommend to install if not
@@ -109,7 +110,7 @@ def plot_histograms(
     n = len(inds_to_graph)
     cols = math.ceil(math.sqrt(n))
     rows = math.ceil(n / cols)
-    fig, axs = matplotlib.pyplot.subplots(rows, cols)
+    fig, axs = plt.subplots(rows, cols)
 
     # flatten axes for inputting graphs into the plot
     if not isinstance(axs, np.ndarray):
@@ -242,12 +243,12 @@ def plot_col_missing_values(
     # determine the colors for the plot, first color reserved for background of
     # each column, subsequent colors are for null values.
     nan_to_color = dict()
-    color_cycle = matplotlib.pyplot.rcParams["axes.prop_cycle"].by_key()["color"][1:]
+    color_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"][1:]
 
     # setup plot
     is_own_fig = False
     if ax is None:
-        fig = matplotlib.pyplot.figure()
+        fig = plt.figure()
         ax = fig.add_subplot(111)
         is_own_fig = True
     # in case user passed their own axes
@@ -283,7 +284,7 @@ def plot_col_missing_values(
                 nan_to_color[null_type] = color_cycle.pop(0)
                 # restart cycle if empty
                 if not len(color_cycle):
-                    color_cycle = matplotlib.pyplot.rcParams["axes.prop_cycle"].by_key()["color"][1:]
+                    color_cycle = plt.rcParams["axes.prop_cycle"].by_key()["color"][1:]
             nan_color = nan_to_color[null_type]
 
             # loop through contiguous patches to plot a single bar

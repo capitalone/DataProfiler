@@ -5,7 +5,7 @@ import abc
 import copy
 import inspect
 import warnings
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 
 from dataprofiler._typing import DataArray
 

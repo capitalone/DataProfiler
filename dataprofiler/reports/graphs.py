@@ -15,6 +15,7 @@ import numpy as np
 try:
     import matplotlib
     import matplotlib.patches
+    import matplotlib.pyplot as plt
     import seaborn as sns
 except ImportError:
     # don't require if using graphs will below recommend to install if not
@@ -69,7 +70,7 @@ def plot_histograms(
     if not column_names and not column_inds:
         inds_to_graph = list(range(len(profiler.profile)))
     elif not column_inds:
-        for column in cast(List[Union[str, int]], column_names):
+        for column in cast(List, column_names):
             col = column
             if isinstance(col, str):
                 col = col.lower()

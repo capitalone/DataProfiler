@@ -1,27 +1,37 @@
 """Contains functions for generating graph data report."""
 # !/usr/bin/env python3
+from __future__ import annotations
+
 import math
 import warnings
+from typing import TYPE_CHECKING, List, Union, cast
+
+if TYPE_CHECKING:
+    from dataprofiler.profilers.float_column_profile import FloatColumn
+    from dataprofiler.profilers.int_column_profile import IntColumn
 
 import numpy as np
-
-from typing import Union, List
 
 try:
     import matplotlib.patches
     import matplotlib.pyplot as plt
     import seaborn as sns
+    from matplotlib.axes import Axes
 except ImportError:
     # don't require if using graphs will below recommend to install if not
     # installed
     pass
 
-from ..profilers.profile_builder import StructuredColProfiler, StructuredProfiler
+from dataprofiler.profilers.profile_builder import StructuredColProfiler, StructuredProfiler
 from . import utils
 
 
-@utils.require_module(["matplotlib", "seaborn"])
-def plot_histograms(profiler: StructuredProfiler, column_names: List[Union[int,str]] = None, column_inds: List[int] = None) -> plt.figure:
+@utils.require_module(["matplotlib", "seaborn"])  # type: ignore
+def plot_histograms(
+    profiler: StructuredProfiler,
+    column_names: List[Union[int,str]] = None,
+    column_inds: List[int] = None,
+) -> plt.figure:
     """
     Plot the histograms of column names that are int or float columns.
 
@@ -41,8 +51,7 @@ def plot_histograms(profiler: StructuredProfiler, column_names: List[Union[int,s
             "both simultaneously"
         )
     elif column_names is not None and not (
-        isinstance(column_names, list)
-        and all(isinstance(x, (int, str)) for x in column_names)
+        isinstance(column_names, list) and all(isinstance(x, str) for x in column_names)
     ):
         raise ValueError(
             "`column_names` must be a list integers or strings "
@@ -61,7 +70,7 @@ def plot_histograms(profiler: StructuredProfiler, column_names: List[Union[int,s
     if not column_names and not column_inds:
         inds_to_graph = list(range(len(profiler.profile)))
     elif not column_inds:
-        for column in column_names:
+        for column in cast(List[str], column_names):
             col = column
             if isinstance(col, str):
                 col = col.lower()
@@ -75,7 +84,7 @@ def plot_histograms(profiler: StructuredProfiler, column_names: List[Union[int,s
     sorted(inds_to_graph)
 
     # get all columns which are of type [int, float]
-    def is_index_graphable_column(ind_to_graph) -> bool:
+    def is_index_graphable_column(ind_to_graph: int) -> bool:
         """
         Filter ind_to_graph.
 
@@ -133,8 +142,12 @@ def plot_histograms(profiler: StructuredProfiler, column_names: List[Union[int,s
     return fig
 
 
-@utils.require_module(["matplotlib", "seaborn"])
-def plot_col_histogram(data_type_profiler: Union[int, float], ax: matplotlib.axes.Axes=None, title: str=None) -> matplotlib.axes:
+@utils.require_module(["matplotlib", "seaborn"])  # type: ignore
+def plot_col_histogram(
+    data_type_profiler: Union[IntColumn, FloatColumn],
+    ax: Axes = None,
+    title: str = None,
+) -> Axes:
     """
     Take input of a Int or Float Column and plot the histogram.
 
@@ -167,8 +180,10 @@ def plot_col_histogram(data_type_profiler: Union[int, float], ax: matplotlib.axe
     return ax
 
 
-@utils.require_module(["matplotlib", "seaborn"])
-def plot_missing_values_matrix(profiler: StructuredProfiler, ax: matplotlib.axes.Axes=None, title: str=None) -> matplotlib.figure:
+@utils.require_module(["matplotlib", "seaborn"])  # type: ignore
+def plot_missing_values_matrix(
+    profiler: StructuredProfiler, ax: Axes = None, title: str = None
+) -> plt.figure:
     """
     Generate matrix of bar graphs for missing value locations in cols of struct dataset.
 
@@ -187,8 +202,10 @@ def plot_missing_values_matrix(profiler: StructuredProfiler, ax: matplotlib.axes
     return plot_col_missing_values(profiler.profile, ax=ax, title=title)
 
 
-@utils.require_module(["matplotlib", "seaborn"])
-def plot_col_missing_values(col_profiler_list: List[StructuredColProfiler], ax: matplotlib.axes.Axes=None, title: str=None) -> matplotlib.figure:
+@utils.require_module(["matplotlib", "seaborn"])  # type: ignore
+def plot_col_missing_values(
+    col_profiler_list: List[StructuredColProfiler], ax: Axes = None, title: str = None
+) -> plt.figure:
     """
     Generate bar graph of missing value locations within a col.
 

@@ -30,7 +30,7 @@ def plot_histograms(
     profiler: StructuredProfiler,
     column_names: List[Union[int,str]] = None,
     column_inds: List[int] = None,
-) -> matplotlib.pyplot.plt.figure:
+) -> matplotlib.pyplot.figure:
     """
     Plot the histograms of column names that are int or float columns.
 
@@ -182,7 +182,7 @@ def plot_col_histogram(
 @utils.require_module(["matplotlib", "seaborn"])
 def plot_missing_values_matrix(
     profiler: StructuredProfiler, ax: matplotlib.axes.Axes = None, title: str = None
-) -> matplotlib.pyplot.plt.figure:
+) -> matplotlib.pyplot.figure:
     """
     Generate matrix of bar graphs for missing value locations in cols of struct dataset.
 
@@ -204,7 +204,7 @@ def plot_missing_values_matrix(
 @utils.require_module(["matplotlib", "seaborn"])
 def plot_col_missing_values(
     col_profiler_list: List[StructuredColProfiler], ax: matplotlib.axes.Axes = None, title: str = None
-) -> matplotlib.pyplot.plt.figure:
+) -> matplotlib.pyplot.figure:
     """
     Generate bar graph of missing value locations within a col.
 

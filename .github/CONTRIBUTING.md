@@ -52,7 +52,7 @@ In short, when you submit code changes, your submissions are understood to be un
 We use GitHub issues to track public bugs. Report a bug by [opening a new issue](https://github.com/capitalone/DataProfiler/issues/new/choose); it's that easy!
 
 ## Write bug reports with detail, background, and sample code
-Detailed bug reports will make fixing the bug significatnly easier.
+Detailed bug reports will make fixing the bug significantly easier.
 
 **Great Bug Reports** tend to have:
 - General information of the working environment

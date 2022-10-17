@@ -2,8 +2,10 @@
 from io import BytesIO, StringIO, TextIOWrapper, open
 from typing import IO, Any, Optional, Type, Union, cast
 
+from typing_extensions import TypeGuard
 
-def is_stream_buffer(filepath_or_buffer: Any) -> bool:
+
+def is_stream_buffer(filepath_or_buffer: Any) -> TypeGuard[Union[StringIO, BytesIO]]:
     """
     Determine whether a given argument is a filepath or buffer.
 

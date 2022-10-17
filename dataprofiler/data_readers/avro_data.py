@@ -1,6 +1,6 @@
 """Contains class for saving and loading spreadsheet data."""
 from io import BytesIO, StringIO
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 import fastavro
 
@@ -92,18 +92,12 @@ class AVROData(JSONData, BaseData):
 
         # get current position of stream
         if data_utils.is_stream_buffer(file_path):
-            file_path = cast(
-                Union[StringIO, BytesIO], file_path
-            )  # guaranteed by is_stream_buffer
             starting_location = file_path.tell()
 
         is_valid_avro = fastavro.is_avro(file_path)
 
         # return to original position in stream
         if data_utils.is_stream_buffer(file_path):
-            file_path = cast(
-                Union[StringIO, BytesIO], file_path
-            )  # guaranteed by is_stream_buffer
             file_path.seek(starting_location, 0)
 
         return is_valid_avro

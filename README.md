@@ -38,6 +38,8 @@ For API documentation, visit the [documentation page](https://capitalone.github.
 
 If you have suggestions or find a bug, [please open an issue](https://github.com/capitalone/dataprofiler/issues/new/choose).
 
+If you want to contribute, visit the [contributing page](https://github.com/capitalone/dataprofiler/blob/main/.github/CONTRIBUTING.md).
+
 ------------------
 
 # Install
@@ -49,33 +51,6 @@ If you want to install the ml dependencies without generating reports use `DataP
 If the ML requirements are too strict (say, you don't want to install tensorflow), you can install a slimmer package with `DataProfiler[reports]`. The slimmer package disables the default sensitive data detection / entity recognition (labler)
 
 Install from pypi: `pip install DataProfiler`
-
-
-# Contribute
-If you want to install the dependencies for developing and updating the code base, be sure to run `pip install -r requirements-dev.txt`
-
-## Pre-Commit
-To install `pre-commit` hooks, run the following commands:
-
-```cli
-pre-commit install
-pre-commit run
-```
-
-If you want to run the `pre-commit` fresh over over all the files, run the following:
-```cli
-pre-commit run --all-files
-```
-
-## Testing
-Before running unit tests, make sure you install the testing dependencies with `pip3 install -r requirements-test.txt`.
-
-To execute unit tests, run the following
-```cli
-DATAPROFILER_SEED=0 python3 -m unittest discover -p "test*.py"
-```
-
-For more nuanced testing runs, check out more detailed documentation [here](https://capitalone.github.io/DataProfiler/docs/0.7.11/html/install.html#testing).
 
 ------------------
 

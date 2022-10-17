@@ -1,5 +1,6 @@
 """Contains factory class reading various kinds of data."""
 from __future__ import absolute_import, division
+from typing import Any, Dict, List, Optional
 
 from .. import dp_logging
 from .avro_data import AVROData
@@ -16,7 +17,7 @@ logger = dp_logging.get_child_logger(__name__)
 class Data(object):
     """Factory class for reading various kinds of data."""
 
-    data_classes = [
+    data_classes: List[Dict] = [
         dict(data_class=JSONData, kwargs=dict()),
         dict(data_class=GraphData, kwargs=dict()),
         dict(data_class=CSVData, kwargs=dict()),
@@ -25,7 +26,7 @@ class Data(object):
         dict(data_class=TextData, kwargs=dict()),
     ]
 
-    def __new__(cls, input_file_path=None, data=None, data_type=None, options=None):
+    def __new__(cls, input_file_path: Optional[str]=None, data: Optional[Any]=None, data_type: Optional[str]=None, options: Optional[Dict]=None):
         """
         Create Factory Data object.
 

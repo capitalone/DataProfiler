@@ -37,7 +37,7 @@ def require_module(names: List[str]) -> Callable[[F], F]:
     """
 
     def check_module(f: F) -> F:
-        def new_f(*args, **kwds):
+        def new_f(*args: Any, **kwds: Any) -> Any:
             for module_name in names:
                 if module_name not in sys.modules.keys():
                     # attempt to reload if missing

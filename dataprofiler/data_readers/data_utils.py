@@ -29,7 +29,8 @@ from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
 logger = dp_logging.get_child_logger(__name__)
 
-JSONType = Union[str, int, float, bool, None, List['JSONType'], Dict[str, 'JSONType']]
+JSONType = Union[str, int, float, bool, None, List["JSONType"], Dict[str, "JSONType"]]
+
 
 def data_generator(data_list: List[str]) -> Generator[str, None, None]:
     """
@@ -84,9 +85,7 @@ def convert_int_to_string(x: int) -> str:
         return str(x)
 
 
-def unicode_to_str(
-    data: JSONType, ignore_dicts: bool = False
-) -> JSONType:
+def unicode_to_str(data: JSONType, ignore_dicts: bool = False) -> JSONType:
     """
     Convert data to string representation if it is a unicode string.
 

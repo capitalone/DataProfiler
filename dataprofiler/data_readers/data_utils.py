@@ -218,7 +218,7 @@ def read_json(
     data_generator: Generator,
     selected_columns: Optional[List[str]] = None,
     read_in_string: bool = False,
-) -> List[Dict]:
+) -> List[JSONType]:
     """
     Return the lines of a json.
 
@@ -243,7 +243,7 @@ def read_json(
     :return: returns the lines of a json file
     :rtype: list(dict)
     """
-    lines = list()
+    lines: List[JSONType] = list()
     k = 0
     while True:
         try:
@@ -260,7 +260,7 @@ def read_json(
                 ),
                 ignore_dicts=True,
             )
-            lines.append(cast(Dict, obj))  # should always be Dict
+            lines.append(obj)
         except ValueError:
             pass
             # To ignore malformatted lines.

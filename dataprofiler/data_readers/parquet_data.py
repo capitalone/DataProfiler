@@ -1,6 +1,6 @@
 """Contains class to save and load parquet data."""
 from io import BytesIO, StringIO
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 import pyarrow.parquet as pq

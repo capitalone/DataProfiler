@@ -1785,7 +1785,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
             column_labels, sample = label_samples
 
             # get count of all labels in prediction
-            column_label_counter = Counter(column_labels[: len(str(sample))])
+            column_label_counter: Counter = Counter(column_labels[: len(str(sample))])
             column_label_counter.pop(ignore_value, None)
             modes = [
                 entity_id

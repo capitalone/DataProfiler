@@ -197,7 +197,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         vocab = Counter(data_as_str)
         if "\n" in vocab:
             vocab.pop("\n")
-        omitted_list: list[str] = omitted
+        omitted_list: List[str] = omitted
         if quotechar is not None:
             omitted_list = omitted + [quotechar]
         for char in omitted_list:
@@ -206,7 +206,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
         # Sort vocabulary by count
         ordered_vocab = []
-        sorted_keys = sorted(vocab, key=vocab.get, reverse=True)
+        sorted_keys = sorted(vocab, key=vocab.__getitem__, reverse=True)
         for c in sorted_keys:
             if c not in preferred:
                 ordered_vocab.append(c)
@@ -217,7 +217,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             sniffer.preferred = preferred
             try:
                 # NOTE: Pull the first element, the quote character
-                quotechar = sniffer._guess_quote_and_delimiter(
+                # ignoring type b/c error in getting this class's func
+                quotechar = sniffer._guess_quote_and_delimiter(  # type: ignore
                     data_as_str, ordered_vocab[:20]
                 )[0]
             except csv.Error:

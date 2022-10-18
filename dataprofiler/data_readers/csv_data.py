@@ -3,8 +3,10 @@ import csv
 import random
 import re
 from collections import Counter
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
+import pandas as pd
 from six import StringIO
 
 from . import data_utils
@@ -18,9 +20,14 @@ from .structured_mixins import SpreadSheetDataMixin
 class CSVData(SpreadSheetDataMixin, BaseData):
     """SpreadsheetData class to save and load spreadsheet data."""
 
-    data_type = "csv"
+    data_type: str = "csv"
 
-    def __init__(self, input_file_path=None, data=None, options=None):
+    def __init__(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[pd.DataFrame] = None,
+        options: Optional[Dict] = None,
+    ):
         """
         Initialize Data class for loading datasets of type CSV.
 
@@ -71,15 +78,15 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         #  _selected_columns: columns being selected from the entire dataset
         #  _header: any information pertaining to the file header.
         self._data_formats["records"] = self._get_data_as_records
-        self.SAMPLES_PER_LINE_DEFAULT = options.get("record_samples_per_line", 1)
-        self._selected_data_format = options.get("data_format", "dataframe")
-        self._delimiter = options.get("delimiter", None)
-        self._quotechar = options.get("quotechar", None)
-        self._selected_columns = options.get("selected_columns", list())
-        self._header = options.get("header", "auto")
-        self._checked_header = "header" in options and self._header != "auto"
-        self._default_delimiter = ","
-        self._default_quotechar = '"'
+        self.SAMPLES_PER_LINE_DEFAULT: int = options.get("record_samples_per_line", 1)
+        self._selected_data_format: str = options.get("data_format", "dataframe")
+        self._delimiter: Optional[str] = options.get("delimiter", None)
+        self._quotechar: Optional[str] = options.get("quotechar", None)
+        self._selected_columns: List[str] = options.get("selected_columns", list())
+        self._header: Optional[Union[str, int]] = options.get("header", "auto")
+        self._checked_header: bool = "header" in options and self._header != "auto"
+        self._default_delimiter: str = ","
+        self._default_quotechar: str = '"'
 
         if data is not None:
             self._load_data(data)
@@ -89,31 +96,32 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 self._quotechar = self._default_quotechar
 
     @property
-    def selected_columns(self):
+    def selected_columns(self) -> List[str]:
         """Return selected columns."""
         return self._selected_columns
 
     @property
-    def delimiter(self):
+    def delimiter(self) -> Optional[str]:
         """Return delimiter."""
         return self._delimiter
 
     @property
-    def quotechar(self):
+    def quotechar(self) -> Optional[str]:
         """Return quotechar."""
         return self._quotechar
 
     @property
-    def header(self):
+    def header(self) -> Optional[Union[str, int]]:
         """Return header."""
         return self._header
 
     @property
-    def is_structured(self):
+    def is_structured(self) -> bool:
         """Determine compatibility with StructuredProfiler."""
         return self.data_format == "dataframe"
 
-    def _check_and_return_options(self, options):
+    @staticmethod
+    def _check_and_return_options(options: Optional[Dict]) -> Dict:
         """
         Ensure options are valid inputs to the data reader.
 
@@ -121,7 +129,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         :type options: dict
         :return: None
         """
-        options = super()._check_and_return_options(options)
+        options = super(CSVData, CSVData)._check_and_return_options(options)
 
         if "header" in options:
             value = options["header"]
@@ -164,8 +172,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     @staticmethod
     def _guess_delimiter_and_quotechar(
-        data_as_str, quotechar=None, preferred=[",", "\t"], omitted=['"', "'"]
-    ):
+        data_as_str: str,
+        quotechar: Optional[str] = None,
+        preferred: List[str] = [",", "\t"],
+        omitted: List[str] = ['"', "'"],
+    ) -> Tuple[Optional[str], Optional[str]]:
         r"""
         Automatically check for what delimiter exists in a text document.
 
@@ -186,7 +197,10 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         vocab = Counter(data_as_str)
         if "\n" in vocab:
             vocab.pop("\n")
-        for char in omitted + [quotechar]:
+        omitted_list: list[str] = omitted
+        if quotechar is not None:
+            omitted_list = omitted + [quotechar]
+        for char in omitted_list:
             if char in vocab:
                 vocab.pop(char)
 
@@ -320,13 +334,13 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
     @staticmethod
     def _guess_header_row(
-        data_as_str,
-        suggested_delimiter=None,
-        suggested_quotechar=None,
-        diff_thresh=0.1,
-        none_thresh=0.5,
-        str_thresh=0.9,
-    ):
+        data_as_str: str,
+        suggested_delimiter: Optional[str] = None,
+        suggested_quotechar: Optional[str] = None,
+        diff_thresh: float = 0.1,
+        none_thresh: float = 0.5,
+        str_thresh: float = 0.9,
+    ) -> Optional[int]:
         r"""
         Attempt to select the best row for which a header would be valid.
 
@@ -359,7 +373,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             quotechar = '"'
 
         # Determine type for every cell
-        header_check_list = []
+        header_check_list: List[List[str]] = []
         only_string_flag = True  # Requires additional checks
         for row in data_as_str.split("\n"):
 
@@ -378,7 +392,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
         # Flags differences in types between each row (true/false)
         potential_header = header_check_list[0]
-        differences = []
+        differences: List[List[bool]] = []
         for i in range(0, len(header_check_list)):
             differences.append([])
 
@@ -517,7 +531,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
 
         return row_classic_header_ends
 
-    def _load_data_from_str(self, data_as_str):
+    def _load_data_from_str(self, data_as_str: str) -> pd.DataFrame:
         """Load the data into memory from the str."""
         delimiter, quotechar = None, None
         if not self._delimiter or not self._quotechar:
@@ -535,12 +549,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         return data_utils.read_csv_df(
             data_buffered,
             self.delimiter,
-            self.header,
+            cast(Optional[int], self.header),
             self.selected_columns,
             read_in_string=True,
         )
 
-    def _load_data_from_file(self, input_file_path):
+    def _load_data_from_file(self, input_file_path: str) -> pd.DataFrame:
         """Load the data into memory from the file."""
         data_as_str = data_utils.load_as_str_from_file(
             input_file_path, self.file_encoding
@@ -556,8 +570,11 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 self._quotechar = quotechar
 
             if self._header == "auto":
-                self._header = self._guess_header_row(
-                    data_as_str, self._delimiter, self._quotechar
+                self._header = cast(
+                    int,
+                    self._guess_header_row(
+                        data_as_str, self._delimiter, self._quotechar
+                    ),
                 )
                 self._checked_header = True
 
@@ -581,13 +598,13 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         return data_utils.read_csv_df(
             input_file_path,
             self.delimiter,
-            self.header,
+            cast(Optional[int], self.header),
             self.selected_columns,
             read_in_string=True,
-            encoding=self.file_encoding,
+            encoding=cast(str, self.file_encoding),
         )
 
-    def _get_data_as_records(self, data):
+    def _get_data_as_records(self, data: pd.DataFrame) -> List[str]:
         """Return data as records."""
         sep = self.delimiter if self.delimiter else self._default_delimiter
         quote = self.quotechar if self.quotechar else self._default_quotechar
@@ -596,7 +613,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         return super(CSVData, self)._get_data_as_records(data)
 
     @classmethod
-    def is_match(cls, file_path, options=None):
+    def is_match(cls, file_path: str, options: Optional[Dict] = None) -> bool:
         """
         Check if first 1000 lines of given file has valid delimited format.
 
@@ -716,7 +733,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         # Assume not a CSV
         return False
 
-    def reload(self, input_file_path=None, data=None, options=None):
+    def reload(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[pd.DataFrame] = None,
+        options: Optional[Dict] = None,
+    ):
         """
         Reload the data class with a new dataset.
 
@@ -737,4 +759,4 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             header=self.header, delimiter=self.delimiter, quotechar=self.quotechar
         )
         super(CSVData, self).reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options)
+        self.__init__(self.input_file_path, data, options)  # type: ignore

@@ -1,4 +1,8 @@
 """Contains class to save and load parquet data."""
+from io import BytesIO, StringIO
+from typing import Any, Dict, List, Optional, Union
+
+import pandas as pd
 import pyarrow.parquet as pq
 
 from . import data_utils
@@ -9,9 +13,14 @@ from .structured_mixins import SpreadSheetDataMixin
 class ParquetData(SpreadSheetDataMixin, BaseData):
     """SpreadsheetData class to save and load parquet data."""
 
-    data_type = "parquet"
+    data_type: str = "parquet"
 
-    def __init__(self, input_file_path=None, data=None, options=None):
+    def __init__(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Optional[Union[pd.DataFrame, str]] = None,
+        options: Optional[Dict] = None,
+    ):
         """
         Initialize Data class for loading datasets of type PARQUET.
 
@@ -50,28 +59,36 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         #  _selected_columns: columns being selected from the entire dataset
         self._data_formats["records"] = self._get_data_as_records
         self._data_formats["json"] = self._get_data_as_json
-        self._selected_data_format = options.get("data_format", "dataframe")
-        self._selected_columns = options.get("selected_columns", list())
+        self._selected_data_format: str = options.get("data_format", "dataframe")
+        self._selected_columns: List[str] = options.get("selected_columns", list())
 
         if data is not None:
             self._load_data(data)
 
     @property
-    def file_encoding(self):
+    def file_encoding(self) -> None:
         """Set file encoding to None since not detected for avro."""
         return None
 
+    @file_encoding.setter
+    def file_encoding(self, value: Any) -> None:
+        """Do nothing.
+
+        Required by mypy because the inherited self.file_encoding is read-write).
+        """
+        pass
+
     @property
-    def selected_columns(self):
+    def selected_columns(self) -> List[str]:
         """Return selected columns."""
         return self._selected_columns
 
     @property
-    def is_structured(self):
+    def is_structured(self) -> bool:
         """Determine compatibility with StructuredProfiler."""
         return self.data_format == "dataframe"
 
-    def _load_data_from_str(self, data_as_str):
+    def _load_data_from_str(self, data_as_str: str) -> pd.DataFrame:
         """Return data from string."""
         data_generator = data_utils.data_generator(data_as_str.splitlines())
         data, original_df_dtypes = data_utils.read_json_df(
@@ -80,7 +97,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         self._original_df_dtypes = original_df_dtypes
         return data
 
-    def _load_data_from_file(self, input_file_path):
+    def _load_data_from_file(self, input_file_path: str) -> pd.DataFrame:
         """Return data from file."""
         data, original_df_dtypes = data_utils.read_parquet_df(
             input_file_path, self.selected_columns, read_in_string=True
@@ -88,21 +105,23 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         self._original_df_dtypes = original_df_dtypes
         return data
 
-    def _get_data_as_records(self, data):
+    def _get_data_as_records(self, data: pd.DataFrame) -> List[str]:
         """Return data records."""
         # split into row samples separate by `\n`
         data = data.to_json(orient="records", lines=True)
         data = data.splitlines()
         return super(ParquetData, self)._get_data_as_records(data)
 
-    def _get_data_as_json(self, data):
+    def _get_data_as_json(self, data: pd.DataFrame) -> List[str]:
         """Return json data."""
         data = data.to_json(orient="records")
         chars_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
         return list(map("".join, zip(*[iter(data)] * chars_per_line)))
 
     @classmethod
-    def is_match(cls, file_path, options=None):
+    def is_match(
+        cls, file_path: Union[str, StringIO, BytesIO], options: Optional[Dict] = None
+    ) -> bool:
         """
         Test the given file to check if the file has valid Parquet format.
 
@@ -132,7 +151,12 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
 
         return is_valid_parquet
 
-    def reload(self, input_file_path=None, data=None, options=None):
+    def reload(
+        self,
+        input_file_path: Optional[str] = None,
+        data: Any = None,
+        options: Optional[Dict] = None,
+    ) -> None:
         """
         Reload the data class with a new dataset.
 
@@ -148,4 +172,4 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         :return: None
         """
         super(ParquetData, self).reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options)
+        self.__init__(self.input_file_path, data, options)  # type: ignore

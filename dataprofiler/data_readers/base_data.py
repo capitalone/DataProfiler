@@ -17,7 +17,7 @@ logger = dp_logging.get_child_logger(__name__)
 class BaseData(object):
     """Abstract class for data loading and saving."""
 
-    data_type: Optional[str] = None
+    data_type: str
     info: Optional[str] = None
 
     def __init__(

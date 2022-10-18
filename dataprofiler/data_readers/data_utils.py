@@ -90,7 +90,7 @@ def unicode_to_str(data: JSONType, ignore_dicts: bool = False) -> JSONType:
     Convert data to string representation if it is a unicode string.
 
     :param data: input data
-    :type data: str
+    :type data: JSONType
     :param ignore_dicts: if set, ignore the dictionary type processing
     :type ignore_dicts: boolean
     :return: string representation of data

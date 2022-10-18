@@ -51,7 +51,6 @@ class TextData(BaseData):
             raise ValueError("Input data type is not string.")
 
         options = self._check_and_return_options(options)
-        options = cast(Dict, options)
         super(TextData, self).__init__(input_file_path, data, options)
 
         # 'Private' properties

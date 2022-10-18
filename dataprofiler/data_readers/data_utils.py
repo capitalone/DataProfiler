@@ -29,6 +29,7 @@ from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
 logger = dp_logging.get_child_logger(__name__)
 
+JSONType = Union[str, int, float, bool, None, List['JSONType'], Dict[str, 'JSONType']]
 
 def data_generator(data_list: List[str]) -> Generator[str, None, None]:
     """
@@ -84,8 +85,8 @@ def convert_int_to_string(x: int) -> str:
 
 
 def unicode_to_str(
-    data: Union[str, List, Dict], ignore_dicts: bool = False
-) -> Union[str, List, Dict]:
+    data: JSONType, ignore_dicts: bool = False
+) -> JSONType:
     """
     Convert data to string representation if it is a unicode string.
 
@@ -106,7 +107,7 @@ def unicode_to_str(
     # if data is a dictionary
     if isinstance(data, dict) and not ignore_dicts:
         return {
-            unicode_to_str(key, ignore_dicts=True): unicode_to_str(
+            cast(str, unicode_to_str(key, ignore_dicts=True)): unicode_to_str(
                 value, ignore_dicts=True
             )
             for key, value in data.items()
@@ -116,7 +117,7 @@ def unicode_to_str(
 
 
 def json_to_dataframe(
-    json_lines: List[Dict],
+    json_lines: List[JSONType],
     selected_columns: Optional[List[str]] = None,
     read_in_string: bool = False,
 ) -> Tuple[pd.DataFrame, pd.Series]:
@@ -187,7 +188,7 @@ def read_json_df(
         each call as well as original dtypes of the dataframe columns.
     :rtype: typle(Iterator(pd.DataFrame), pd.Series(dtypes)
     """
-    lines: List[Dict] = list()
+    lines: List[JSONType] = list()
     k = 0
     while True:
         try:
@@ -204,7 +205,7 @@ def read_json_df(
                 ),
                 ignore_dicts=True,
             )
-            lines.append(cast(Dict, obj))
+            lines.append(obj)
         except ValueError:
             pass
             # To ignore malformatted lines.

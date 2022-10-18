@@ -25,11 +25,10 @@ import requests
 from chardet.universaldetector import UniversalDetector
 
 from .. import dp_logging
+from .._typing import JSONType
 from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
 logger = dp_logging.get_child_logger(__name__)
-
-JSONType = Union[str, int, float, bool, None, List["JSONType"], Dict[str, "JSONType"]]
 
 
 def data_generator(data_list: List[str]) -> Generator[str, None, None]:

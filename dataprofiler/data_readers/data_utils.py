@@ -123,7 +123,7 @@ def json_to_dataframe(
     Take list of json objects and return dataframe representing json list.
 
     :param json_lines: list of json objects
-    :type json_lines: list(dict)
+    :type json_lines: list(JSONType)
     :param selected_columns: a list of keys to be processed
     :type selected_columns: list(str)
     :param read_in_string: if True, all the values in dataframe will be

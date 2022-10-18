@@ -185,7 +185,7 @@ def read_json_df(
     :type read_in_string: bool
     :return: returns an iterator that returns a chunk of file as dataframe in
         each call as well as original dtypes of the dataframe columns.
-    :rtype: typle(pd.DataFrame, pd.Series(dtypes)
+    :rtype: typle(pd.DataFrame, pd.Series(dtypes))
     """
     lines: List[JSONType] = list()
     k = 0

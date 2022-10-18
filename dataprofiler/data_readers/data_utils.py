@@ -105,7 +105,7 @@ def unicode_to_str(data: JSONType, ignore_dicts: bool = False) -> JSONType:
     # if data is a dictionary
     if isinstance(data, dict) and not ignore_dicts:
         return {
-            cast(str, unicode_to_str(key, ignore_dicts=True)): unicode_to_str(
+            unicode_to_str(key, ignore_dicts=True): unicode_to_str(
                 value, ignore_dicts=True
             )
             for key, value in data.items()

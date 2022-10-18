@@ -5,4 +5,4 @@ import numpy as np
 import pandas as pd
 
 DataArray = Union[pd.DataFrame, pd.Series, np.ndarray]
-JSONType = Union[str, int, float, bool, None, List["JSONType"], Dict[str, "JSONType"]]
+JSONType = Union[str, int, float, bool, None, List, Dict]

@@ -1,7 +1,8 @@
 """Contains factory class reading various kinds of data."""
 from __future__ import absolute_import, division
 
-from typing import Any, Dict, List, Optional
+from io import BytesIO
+from typing import Any, Dict, List, Optional, Union, cast
 
 from .. import dp_logging
 from .avro_data import AVROData
@@ -29,7 +30,7 @@ class Data(object):
 
     def __new__(
         cls,
-        input_file_path: Optional[str] = None,
+        input_file_path: Optional[Union[str, BytesIO]] = None,
         data: Optional[Any] = None,
         data_type: Optional[str] = None,
         options: Optional[Dict] = None,
@@ -62,7 +63,7 @@ class Data(object):
             )
 
         if not options:
-            options = dict()
+            options = cast(Dict, dict())
 
         if is_valid_url(input_file_path):
             input_file_path = url_to_bytes(input_file_path, options)

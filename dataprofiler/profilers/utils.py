@@ -663,7 +663,7 @@ def get_memory_size(data: Union[list, np.ndarray, DataFrame], unit: str = "M") -
     :type unit: string
     :return: memory size of the input data
     """
-    unit_map = collections.defaultdict(B=0, K=1, M=2, G=3)
+    unit_map: Dict = collections.defaultdict(B=0, K=1, M=2, G=3)
     if unit not in unit_map:
         raise ValueError(
             "Currently only supports the "

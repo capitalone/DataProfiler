@@ -1,13 +1,13 @@
 """Contains functions for checking for installations/dependencies."""
 import sys
 import warnings
-from typing import Any, Callable, List, NoReturn, TypeVar, cast
+from typing import Any, Callable, List, TypeVar, cast
 
 # Generic type for the return of the function "require_module()"
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def warn_missing_module(graph_func: str, module_name: str) -> NoReturn:
+def warn_missing_module(graph_func: str, module_name: str) -> None:
     """
     Return a warning if a given graph module doesn't exist.
 

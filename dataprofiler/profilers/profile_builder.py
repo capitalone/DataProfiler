@@ -72,7 +72,7 @@ class StructuredColProfiler(object):
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
-        self.name: Optional[str] = None
+        self.name: Optional[Union[int, str]] = None
         self.options = options
         self._min_sample_size: int = min_sample_size
         self._sampling_ratio: float = sampling_ratio
@@ -257,7 +257,7 @@ class StructuredColProfiler(object):
 
         name = self.name
         if isinstance(self.name, np.integer):
-            name = int(name)
+            name = int(name)  # type: ignore
 
         unordered_profile.update(
             {
@@ -321,7 +321,7 @@ class StructuredColProfiler(object):
 
         name = self.name
         if isinstance(self.name, np.integer):
-            name = int(name)
+            name = int(name)  # type: ignore
 
         unordered_profile.update(
             {

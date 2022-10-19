@@ -22,14 +22,18 @@ except ImportError:
     # installed
     pass
 
-from dataprofiler.profilers.profile_builder import StructuredColProfiler, StructuredProfiler
+from dataprofiler.profilers.profile_builder import (
+    StructuredColProfiler,
+    StructuredProfiler,
+)
+
 from . import utils
 
 
 @utils.require_module(["matplotlib", "seaborn"])
 def plot_histograms(
     profiler: StructuredProfiler,
-    column_names: Optional[List[Union[int,str]]] = None,
+    column_names: Optional[List[Union[int, str]]] = None,
     column_inds: Optional[List[int]] = None,
 ) -> matplotlib.pyplot.figure:
     """
@@ -182,7 +186,9 @@ def plot_col_histogram(
 
 @utils.require_module(["matplotlib", "seaborn"])
 def plot_missing_values_matrix(
-    profiler: StructuredProfiler, ax: Optional[matplotlib.axes.Axes] = None, title: Optional[str] = None
+    profiler: StructuredProfiler,
+    ax: Optional[matplotlib.axes.Axes] = None,
+    title: Optional[str] = None,
 ) -> matplotlib.pyplot.figure:
     """
     Generate matrix of bar graphs for missing value locations in cols of struct dataset.
@@ -204,7 +210,9 @@ def plot_missing_values_matrix(
 
 @utils.require_module(["matplotlib", "seaborn"])
 def plot_col_missing_values(
-    col_profiler_list: List[StructuredColProfiler], ax: Optional[matplotlib.axes.Axes] = None, title: Optional[str] = None
+    col_profiler_list: List[StructuredColProfiler],
+    ax: Optional[matplotlib.axes.Axes] = None,
+    title: Optional[str] = None,
 ) -> matplotlib.pyplot.figure:
     """
     Generate bar graph of missing value locations within a col.

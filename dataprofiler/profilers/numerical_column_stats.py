@@ -369,6 +369,25 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
 
+        # conditionally regenerate bins for histogram to calculate PSI
+        # recommended bins for PSI is 10 or 20 bins.
+        # 1) check that `self` bin_counts are proper (i.e. 10 or 20)
+        # 2) next check `other_profile` is matching bins to `self`
+        if not len(self.histogram['bin_counts']) == (10 or 20):
+            histogram, hist_loss = self._regenerate_histogram(
+                    bin_counts=,
+                    bin_edges=,
+                    suggested_bin_count=,
+                )
+            self.histogram["histogram"] = histogram
+        if not other_profile.histogram['bin_counts'] == self.histogram['bin_counts']:
+            histogram, hist_loss = self._regenerate_histogram(
+                bin_counts=,
+                bin_edges=,
+                suggested_bin_count=self.histogram['bin_counts']
+            )
+            other_profile.histogram["histogram"] = histogram
+
         differences = {
             "min": utils.find_diff_of_numbers(self.min, other_profile.min),
             "max": utils.find_diff_of_numbers(self.max, other_profile.max),

@@ -373,18 +373,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         # recommended bins for PSI is 10 or 20 bins.
         # 1) check that `self` bin_counts are proper (i.e. 10 or 20)
         # 2) next check `other_profile` is matching bins to `self`
-        if not len(self.histogram['bin_counts']) == (10 or 20):
+        if not len(self.histogram["bin_counts"]) == (10 or 20):
             histogram, hist_loss = self._regenerate_histogram(
-                    bin_counts=self.histogram['bin_counts'],
-                    bin_edges=self.histogram['bin_edges'],
-                    suggested_bin_count=10,
-                )
+                bin_counts=self.histogram["bin_counts"],
+                bin_edges=self.histogram["bin_edges"],
+                suggested_bin_count=10,
+            )
             self.histogram["histogram"] = histogram
-        if not other_profile.histogram['bin_counts'] == self.histogram['bin_counts']:
+        if not other_profile.histogram["bin_counts"] == self.histogram["bin_counts"]:
             histogram, hist_loss = self._regenerate_histogram(
-                bin_counts=self.histogram['bin_counts'],
-                bin_edges=self.histogram['bin_edges'],
-                suggested_bin_count=self.histogram['bin_counts'],
+                bin_counts=self.histogram["bin_counts"],
+                bin_edges=self.histogram["bin_edges"],
+                suggested_bin_count=self.histogram["bin_counts"],
             )
             other_profile.histogram["histogram"] = histogram
 
@@ -557,10 +557,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         other_count = sum2 / mean2
 
         psi_list = list()
-        for iter_value, bin_count in enumerate(histogram1['bin_counts']):
+        for iter_value, bin_count in enumerate(histogram1["bin_counts"]):
             self_percent = bin_count / self_count
-            other_percent = histogram2['bin_counts'][iter_value] / other_count
-            psi_list.append((other_percent - self_percent) * np.log(other_percent / self_percent))
+            other_percent = histogram2["bin_counts"][iter_value] / other_count
+            psi_list.append(
+                (other_percent - self_percent) * np.log(other_percent / self_percent)
+            )
         return sum(psi_list)
 
     def _update_variance(
@@ -1107,10 +1109,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self._stored_histogram["total_loss"] += histogram_loss
 
     def _regenerate_histogram(
-        self,
-        bin_counts,
-        bin_edges,
-        suggested_bin_count
+        self, bin_counts, bin_edges, suggested_bin_count
     ) -> Tuple[Dict[str, np.ndarray], float]:
 
         # create proper binning
@@ -1216,7 +1215,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return self._regenerate_histogram(
             bin_counts=bin_counts,
             bin_edges=bin_edges,
-            suggested_bin_count=suggested_bin_count
+            suggested_bin_count=suggested_bin_count,
         )
 
     def _get_best_histogram_for_profile(self) -> Dict:

@@ -375,16 +375,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         # 2) next check `other_profile` is matching bins to `self`
         if not len(self.histogram['bin_counts']) == (10 or 20):
             histogram, hist_loss = self._regenerate_histogram(
-                    bin_counts=,
-                    bin_edges=,
-                    suggested_bin_count=,
+                    bin_counts=self.histogram['bin_counts'],
+                    bin_edges=self.histogram['bin_edges'],
+                    suggested_bin_count=10,
                 )
             self.histogram["histogram"] = histogram
         if not other_profile.histogram['bin_counts'] == self.histogram['bin_counts']:
             histogram, hist_loss = self._regenerate_histogram(
-                bin_counts=,
-                bin_edges=,
-                suggested_bin_count=self.histogram['bin_counts']
+                bin_counts=self.histogram['bin_counts'],
+                bin_edges=self.histogram['bin_edges'],
+                suggested_bin_count=self.histogram['bin_counts'],
             )
             other_profile.histogram["histogram"] = histogram
 
@@ -1212,7 +1212,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 self._stored_histogram["histogram"],
                 self._stored_histogram["total_loss"],
             )
-        
+
         return self._regenerate_histogram(
             bin_counts=bin_counts,
             bin_edges=bin_edges,

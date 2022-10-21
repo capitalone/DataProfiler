@@ -374,7 +374,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         # 1) check that `self` bin_counts are proper (i.e. 10 or 20)
         # 2) next check `other_profile` is matching bins to `self`
         self_bin_count = len(self._stored_histogram["histogram"]["bin_counts"])
-        if not self_bin_count == 10 and self_bin_count == 20:
+        if not self_bin_count == 10 and not self_bin_count == 20:
             histogram, hist_loss = self._regenerate_histogram(
                 bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                 bin_edges=self._stored_histogram["histogram"]["bin_edges"],
@@ -385,8 +385,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         if (
             other_profile._stored_histogram["histogram"]["bin_counts"]
-            == self._stored_histogram["histogram"]["bin_counts"]
-        ).all():
+            != self._stored_histogram["histogram"]["bin_counts"]
+        ):
             histogram, hist_loss = self._regenerate_histogram(
                 bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                 bin_edges=self._stored_histogram["histogram"]["bin_edges"],
@@ -570,7 +570,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         other_count = sum2 / mean2
 
         psi_list = list()
-        for iter_value, bin_count in enumerate(histogram1["bin_counts"]):  # BUG HERE
+        for iter_value, bin_count in enumerate(histogram1["bin_counts"]):
             self_percent = bin_count / self_count
             other_percent = histogram2["bin_counts"][iter_value] / other_count
             psi_list.append(

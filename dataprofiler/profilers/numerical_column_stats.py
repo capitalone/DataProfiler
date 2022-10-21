@@ -378,7 +378,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             histogram, hist_loss = self._regenerate_histogram(
                 bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                 bin_edges=self._stored_histogram["histogram"]["bin_edges"],
-                suggested_bin_count=20,
+                suggested_bin_count=10,
             )
             self._stored_histogram["histogram"]["bin_counts"] = histogram["bin_counts"]
             self._stored_histogram["histogram"]["bin_edges"] = histogram["bin_edges"]
@@ -569,14 +569,19 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self_count = sum1 / mean1
         other_count = sum2 / mean2
 
-        psi_list = list()
+        psi_list = 0
         for iter_value, bin_count in enumerate(histogram1["bin_counts"]):
+
             self_percent = bin_count / self_count
             other_percent = histogram2["bin_counts"][iter_value] / other_count
-            psi_list.append(
-                (other_percent - self_percent) * np.log(other_percent / self_percent)
-            )
-        return sum(psi_list)
+            if (self_percent == other_percent) and self_percent == 0:
+                continue
+
+            iter_psi = (other_percent - self_percent) * np.log(other_percent / self_percent)
+            if iter_psi and iter_psi != float('inf'):
+                psi_list += iter_psi
+
+        return psi_list
 
     def _update_variance(
         self, batch_mean: float, batch_var: float, batch_count: int

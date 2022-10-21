@@ -383,10 +383,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             self._stored_histogram["histogram"]["bin_counts"] = histogram["bin_counts"]
             self._stored_histogram["histogram"]["bin_edges"] = histogram["bin_edges"]
 
-        if (
-            not other_profile._stored_histogram["histogram"]["bin_counts"]
-            == self._stored_histogram["histogram"]["bin_counts"]
-        ):
+        if other_profile._stored_histogram["histogram"]["bin_counts"] == self._stored_histogram["histogram"]["bin_counts"]).all():
             histogram, hist_loss = self._regenerate_histogram(
                 bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                 bin_edges=self._stored_histogram["histogram"]["bin_edges"],

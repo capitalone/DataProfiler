@@ -373,11 +373,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         # recommended bins for PSI is 10 or 20 bins.
         # 1) check that `self` bin_counts are proper (i.e. 10 or 20)
         # 2) next check `other_profile` is matching bins to `self`
-        if not len(self._stored_histogram["histogram"]["bin_counts"]) == (10 or 20):
+        self_bin_count = len(self._stored_histogram["histogram"]["bin_counts"])
+        if not self_bin_count == 10 and self_bin_count == 20:
             histogram, hist_loss = self._regenerate_histogram(
                 bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                 bin_edges=self._stored_histogram["histogram"]["bin_edges"],
-                suggested_bin_count=10,
+                suggested_bin_count=20,
             )
             self._stored_histogram["histogram"]["bin_counts"] = histogram["bin_counts"]
             self._stored_histogram["histogram"]["bin_edges"] = histogram["bin_edges"]
@@ -389,7 +390,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             histogram, hist_loss = self._regenerate_histogram(
                 bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                 bin_edges=self._stored_histogram["histogram"]["bin_edges"],
-                suggested_bin_count=self._stored_histogram["histogram"]["bin_counts"],
+                suggested_bin_count=len(self._stored_histogram["histogram"]["bin_edges"]),
             )
             other_profile._stored_histogram["histogram"]["bin_counts"] = histogram[
                 "bin_counts"

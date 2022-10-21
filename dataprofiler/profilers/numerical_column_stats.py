@@ -390,7 +390,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             histogram, hist_loss = self._regenerate_histogram(
                 bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                 bin_edges=self._stored_histogram["histogram"]["bin_edges"],
-                suggested_bin_count=len(self._stored_histogram["histogram"]["bin_edges"]),
+                suggested_bin_count=len(
+                    self._stored_histogram["histogram"]["bin_edges"]
+                ),
             )
             other_profile._stored_histogram["histogram"]["bin_counts"] = histogram[
                 "bin_counts"

@@ -577,8 +577,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             if (self_percent == other_percent) and self_percent == 0:
                 continue
 
-            iter_psi = (other_percent - self_percent) * np.log(other_percent / self_percent)
-            if iter_psi and iter_psi != float('inf'):
+            iter_psi = (other_percent - self_percent) * np.log(
+                other_percent / self_percent
+            )
+            if iter_psi and iter_psi != float("inf"):
                 psi_list += iter_psi
 
         return psi_list

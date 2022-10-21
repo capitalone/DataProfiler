@@ -2,7 +2,7 @@
 
 MAJOR = 0
 MINOR = 8
-MICRO = 1
+MICRO = 2
 
 VERSION = "%d.%d.%d" % (MAJOR, MINOR, MICRO)
 

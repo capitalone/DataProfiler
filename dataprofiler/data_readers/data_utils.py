@@ -23,9 +23,10 @@ import pandas as pd
 import pyarrow.parquet as pq
 import requests
 from chardet.universaldetector import UniversalDetector
+from typing_extensions import TypeGuard
 
 from .. import dp_logging
-from .._typing import JSONType
+from .._typing import JSONType, Url
 from .filepath_or_buffer import FileOrBufferHandler, is_stream_buffer  # NOQA
 
 logger = dp_logging.get_child_logger(__name__)
@@ -160,7 +161,7 @@ def read_json_df(
     data_generator: Generator,
     selected_columns: Optional[List[str]] = None,
     read_in_string: bool = False,
-) -> Tuple[Iterator[pd.DataFrame], pd.Series]:
+) -> Tuple[pd.DataFrame, pd.Series]:
     """
     Return an iterator that returns a chunk of data as dataframe in each call.
 
@@ -184,7 +185,7 @@ def read_json_df(
     :type read_in_string: bool
     :return: returns an iterator that returns a chunk of file as dataframe in
         each call as well as original dtypes of the dataframe columns.
-    :rtype: typle(Iterator(pd.DataFrame), pd.Series(dtypes)
+    :rtype: tuple(pd.DataFrame, pd.Series(dtypes))
     """
     lines: List[JSONType] = list()
     k = 0
@@ -214,7 +215,7 @@ def read_json_df(
 
 
 def read_json(
-    data_generator: Generator,
+    data_generator: Iterator,
     selected_columns: Optional[List[str]] = None,
     read_in_string: bool = False,
 ) -> List[JSONType]:
@@ -505,7 +506,8 @@ def detect_cell_type(cell: str) -> str:
     else:
 
         try:
-            if dateutil.parser.parse(cell, fuzzy=False):
+            # need to ingore type bc https://github.com/python/mypy/issues/8878
+            if dateutil.parser.parse(cell, fuzzy=False):  # type:ignore
                 cell_type = "date"
         except (ValueError, OverflowError, TypeError):
             pass
@@ -675,7 +677,7 @@ def load_as_str_from_file(
     return data_as_str
 
 
-def is_valid_url(url_as_string: Any) -> bool:
+def is_valid_url(url_as_string: Any) -> TypeGuard[Url]:
     """
     Determine whether a given string is a valid URL.
 
@@ -692,7 +694,7 @@ def is_valid_url(url_as_string: Any) -> bool:
     return all([result.scheme, result.netloc])
 
 
-def url_to_bytes(url_as_string: str, options: Dict) -> BytesIO:
+def url_to_bytes(url_as_string: Url, options: Dict) -> BytesIO:
     """
     Read in URL and converts it to a byte stream.
 

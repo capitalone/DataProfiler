@@ -426,10 +426,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             "psi": self._calculate_psi(
                 self.mean,
                 self.sum,
-                self._stored_histogram["histogram"]["bin_counts"],
+                self._stored_histogram["histogram"],
                 other_profile.mean,
                 other_profile.sum,
-                other_profile._stored_histogram["histogram"]["bin_counts"],
+                other_profile._stored_histogram["histogram"],
             ),
         }
         return differences
@@ -570,7 +570,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         other_count = sum2 / mean2
 
         psi_list = list()
-        for iter_value, bin_count in enumerate(histogram1["bin_counts"]):
+        for iter_value, bin_count in enumerate(histogram1["bin_counts"]): # BUG HERE 
             self_percent = bin_count / self_count
             other_percent = histogram2["bin_counts"][iter_value] / other_count
             psi_list.append(

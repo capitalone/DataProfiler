@@ -426,10 +426,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             "psi": self._calculate_psi(
                 self.mean,
                 self.sum,
-                self.histogram["bin_counts"],
+                self._stored_histogram["histogram"]["bin_counts"],
                 other_profile.mean,
                 other_profile.sum,
-                other_profile.histogram["bin_counts"],
+                other_profile._stored_histogram["histogram"]["bin_counts"],
             ),
         }
         return differences

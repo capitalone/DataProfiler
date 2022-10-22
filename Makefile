@@ -1,4 +1,3 @@
-
 venv: requirements-dev.txt requirements-test.txt
 	python3 -m venv venv
 

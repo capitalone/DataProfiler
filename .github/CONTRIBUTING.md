@@ -9,6 +9,14 @@ First off, thanks for your input! We love to hear feedback from the community an
 ## We Develop with Github
 We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
+## Quick Setup
+To set up the development environment, run the following commands:
+```cli
+make
+source ./venv/bin/activate
+```
+This Makefile creates a Python virtual environment and installs all of the developer dependencies. Alternatively, follow the steps below.
+
 ## Dependencies
 To install the dependencies for developing and updating the code base, be sure to run `pip install -r requirements-dev.txt`
 

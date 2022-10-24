@@ -10,7 +10,7 @@ First off, thanks for your input! We love to hear feedback from the community an
 We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
 ## Quick Setup
-To set up the development environment, run the following commands:
+To set up the development environment, run the following commands in the root of the repo:
 ```cli
 make setup
 source ./venv/bin/activate

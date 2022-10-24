@@ -12,7 +12,7 @@ We use github to host code, to track issues and feature requests, as well as acc
 ## Quick Setup
 To set up the development environment, run the following commands:
 ```cli
-make
+make setup
 source ./venv/bin/activate
 ```
 This Makefile creates a Python virtual environment and installs all of the developer dependencies. Alternatively, follow the steps below.

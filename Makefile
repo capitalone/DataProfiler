@@ -1,9 +1,11 @@
 venv: requirements-dev.txt requirements-test.txt
-	python3 -m venv venv
+	python -m venv venv
 
 	. venv/bin/activate; \
-	pip3 install -r requirements-dev.txt; \
-	pip3 install -r requirements-test.txt
+	pip install -r requirements.txt
+	pip install -r requirements-dev.txt; \
+	pip install -r requirements-test.txt; \
+	pip install -e .
 
 	pre-commit install
 	pre-commit run

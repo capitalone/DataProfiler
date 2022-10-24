@@ -793,9 +793,10 @@ class TestNumericStatsMixin(unittest.TestCase):
             "stddev": np.sqrt(10 / 9) - np.sqrt(9 * 20 / 19),
             "t-test": {
                 "t-statistic": 0.3923009049186606,
-                "conservative": {"df": 9, "p-value": 0.7039643545772609},
+                "conservative": {"df": 9.0, "p-value": 0.7039643545772609},
                 "welch": {"df": 25.945257024943864, "p-value": 0.6980401261750298},
             },
+            "psi": "un_calculatable",
         }
 
         difference = other1.diff(other2)
@@ -836,6 +837,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                 "conservative": {"df": None, "p-value": None},
                 "welch": {"df": None, "p-value": None},
             },
+            "psi": "un_calculatable",
         }
         expected_var = expected_diff.pop("variance")
         expected_stddev = expected_diff.pop("stddev")
@@ -885,6 +887,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                 "conservative": {"df": None, "p-value": None},
                 "welch": {"df": None, "p-value": None},
             },
+            "psi": "un_calculatable",
         }
         expected_var = expected_diff.pop("variance")
         expected_stddev = expected_diff.pop("stddev")
@@ -933,6 +936,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                 "conservative": {"df": None, "p-value": None},
                 "welch": {"df": None, "p-value": None},
             },
+            "psi": "un_calculatable",
         }
         expected_var = expected_diff.pop("variance")
         expected_stddev = expected_diff.pop("stddev")
@@ -977,9 +981,10 @@ class TestNumericStatsMixin(unittest.TestCase):
             "stddev": np.sqrt(10 / 9) - np.sqrt(9 * 20 / 19),
             "t-test": {
                 "t-statistic": -3.138407239349285,
-                "conservative": {"df": 9, "p-value": 0.011958658754358975},
+                "conservative": {"df": 9.0, "p-value": 0.011958658754358975},
                 "welch": {"df": 25.945257024943864, "p-value": 0.004201616692122823},
             },
+            "psi": "un_calculatable",
         }
         difference = other1.diff(other2)
         self.assertDictEqual(expected_diff, difference)

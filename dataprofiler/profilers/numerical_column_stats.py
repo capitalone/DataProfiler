@@ -370,11 +370,20 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             )
 
         # conditionally regenerate bins for histogram to calculate PSI
-        # recommended bins for PSI is 10 or 20 bins.
-        # 1) check that `self` bin_counts are proper (i.e. 10 or 20)
-        # 2) next check `other_profile` is matching bins to `self`
-        self_bin_count = len(self._stored_histogram["histogram"]["bin_counts"])
-        if not self_bin_count == 10 and not self_bin_count == 20:
+        # recommended bins for PSI is 10 or 20 bins. And ensure `self`
+        # is not `None`. If `self._stored_histogram['histogram']['bin_counts']`
+        # is None, then histogram is not calculatable.
+        len_self_bin_counts = 0
+        self_bin_counts = self._stored_histogram["histogram"]["bin_counts"]
+        if self_bin_counts:
+            len_self_bin_counts = len(self_bin_counts)
+
+        # re-calculate `self` histogram
+        if (
+            not len_self_bin_counts == 10
+            and not len_self_bin_counts == 20
+            and self_bin_counts
+        ):
             histogram, hist_loss = self._regenerate_histogram(
                 bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                 bin_edges=self._stored_histogram["histogram"]["bin_edges"],
@@ -383,10 +392,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             self._stored_histogram["histogram"]["bin_counts"] = histogram["bin_counts"]
             self._stored_histogram["histogram"]["bin_edges"] = histogram["bin_edges"]
 
+        # re-calculate `other_profile` histogram
         if (
             other_profile._stored_histogram["histogram"]["bin_counts"]
             != self._stored_histogram["histogram"]["bin_counts"]
-        ):
+        ) and self_bin_counts:
             histogram, hist_loss = self._regenerate_histogram(
                 bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                 bin_edges=self._stored_histogram["histogram"]["bin_edges"],
@@ -423,15 +433,20 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 other_profile.variance,
                 other_profile.match_count,
             ),
-            "psi": self._calculate_psi(
+        }
+
+        # conditionally calculate PSI
+        differences["psi"] = "un_calculatable"
+        if self_bin_counts:
+            differences["psi"] = self._calculate_psi(
                 self.mean,
                 self.sum,
                 self._stored_histogram["histogram"],
                 other_profile.mean,
                 other_profile.sum,
                 other_profile._stored_histogram["histogram"],
-            ),
-        }
+            )
+
         return differences
 
     @property
@@ -569,7 +584,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self_count = sum1 / mean1
         other_count = sum2 / mean2
 
-        psi_list = 0
+        psi_value = 0
         for iter_value, bin_count in enumerate(histogram1["bin_counts"]):
 
             self_percent = bin_count / self_count
@@ -581,9 +596,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 other_percent / self_percent
             )
             if iter_psi and iter_psi != float("inf"):
-                psi_list += iter_psi
+                psi_value += iter_psi
 
-        return psi_list
+        return psi_value
 
     def _update_variance(
         self, batch_mean: float, batch_var: float, batch_count: int

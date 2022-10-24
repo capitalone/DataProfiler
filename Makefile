@@ -1,4 +1,4 @@
-venv: requirements-dev.txt requirements-test.txt
+venv: requirements.txt requirements-dev.txt requirements-test.txt
 	python -m venv venv
 
 	. venv/bin/activate; \

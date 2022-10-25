@@ -9,11 +9,11 @@ import numpy as np
 import pandas as pd
 from six import StringIO
 
+from .._typing import JSONType
 from . import data_utils
 from .base_data import BaseData
 from .filepath_or_buffer import FileOrBufferHandler
 from .structured_mixins import SpreadSheetDataMixin
-from .._typing import JSONType
 
 
 class JSONData(SpreadSheetDataMixin, BaseData):
@@ -112,7 +112,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         """Determine compatibility with StructuredProfiler."""
         return self.data_format in ["dataframe", "flattened_dataframe"]
 
-    def _find_data(self, json_data: JSONType, path: str="") -> List[Dict]:
+    def _find_data(self, json_data: JSONType, path: str = "") -> List[Dict]:
         """
         Find all the col headers/data in Json and return them as list.
 
@@ -169,7 +169,9 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 coalesced_list_of_dicts.append(item)
         return coalesced_list_of_dicts
 
-    def _get_data_as_flattened_dataframe(self, json_lines: List[JSONType]) -> pd.DataFrame:
+    def _get_data_as_flattened_dataframe(
+        self, json_lines: List[JSONType]
+    ) -> pd.DataFrame:
         """
         Load the data when in a JSON format from a data stream.
 

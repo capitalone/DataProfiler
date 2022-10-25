@@ -433,7 +433,7 @@ def detect_file_encoding(
         encoding = "utf-8"
 
     # Check if encoding can be used to decode without throwing an error
-    def _decode_is_valid(encoding):
+    def _decode_is_valid(encoding: Optional[str]) -> bool:
         try:
             with FileOrBufferHandler(file_path, encoding=encoding) as input_file:
                 input_file.read(1024 * 1024)

@@ -739,7 +739,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         input_file_path: Optional[str] = None,
         data: Optional[pd.DataFrame] = None,
         options: Optional[Dict] = None,
-    ):
+    ) -> None:
         """
         Reload the data class with a new dataset.
 

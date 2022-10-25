@@ -64,7 +64,7 @@ class BaseData(object):
         self._file_encoding: Optional[str] = options.get("encoding", None)
 
     @property
-    def data(self):
+    def data(self) -> Any:
         """Return data."""
         if self._data is None:
             self._load_data()
@@ -87,7 +87,7 @@ class BaseData(object):
         return self._selected_data_format
 
     @data_format.setter
-    def data_format(self, value: str):
+    def data_format(self, value: str) -> None:
         allowed_data_formats = list(self._data_formats.keys())
         if value.lower() not in allowed_data_formats:
             raise ValueError(

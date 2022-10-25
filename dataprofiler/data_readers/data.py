@@ -34,7 +34,7 @@ class Data(object):
         data: Optional[Any] = None,
         data_type: Optional[str] = None,
         options: Optional[Dict] = None,
-    ):
+    ) -> Any:
         """
         Create Factory Data object.
 

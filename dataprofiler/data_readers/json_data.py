@@ -13,6 +13,7 @@ from . import data_utils
 from .base_data import BaseData
 from .filepath_or_buffer import FileOrBufferHandler
 from .structured_mixins import SpreadSheetDataMixin
+from .._typing import JSONType
 
 
 class JSONData(SpreadSheetDataMixin, BaseData):
@@ -107,11 +108,11 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         return data
 
     @property
-    def is_structured(self):
+    def is_structured(self) -> bool:
         """Determine compatibility with StructuredProfiler."""
         return self.data_format in ["dataframe", "flattened_dataframe"]
 
-    def _find_data(self, json_data, path=""):
+    def _find_data(self, json_data: JSONType, path: str="") -> List[Dict]:
         """
         Find all the col headers/data in Json and return them as list.
 
@@ -124,7 +125,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         if path != "" and path[-len(self._key_separator) :] != self._key_separator:
             path = path + self._key_separator
 
-        list_of_dict = []
+        list_of_dict: List[Dict] = []
         if isinstance(json_data, dict):
             for key in json_data:
                 if isinstance(json_data[key], dict) or isinstance(json_data[key], list):
@@ -147,7 +148,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             ]
         return list_of_dict
 
-    def _coalesce_dicts(self, list_of_dicts):
+    def _coalesce_dicts(self, list_of_dicts: List[Dict]) -> List[Dict]:
         """
         Merge all the dictionaries into as few dictionaries as possible.
 
@@ -156,7 +157,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :type list_of_dicts: list(dict)
         :return: Coalesced list of dictionaries
         """
-        coalesced_list_of_dicts = [{}]
+        coalesced_list_of_dicts: List[Dict] = [{}]
         for item in list_of_dicts:
             found = False
             for dict_items in coalesced_list_of_dicts:
@@ -168,7 +169,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
                 coalesced_list_of_dicts.append(item)
         return coalesced_list_of_dicts
 
-    def _get_data_as_flattened_dataframe(self, json_lines):
+    def _get_data_as_flattened_dataframe(self, json_lines: List[JSONType]) -> pd.DataFrame:
         """
         Load the data when in a JSON format from a data stream.
 

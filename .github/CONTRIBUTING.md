@@ -24,7 +24,6 @@ To test the code, run `make test`.
 
 Alternatively, follow the steps below.
 
-
 ## Dependencies
 To install the dependencies for developing and updating the code base, be sure to run `pip install -r requirements-dev.txt`
 

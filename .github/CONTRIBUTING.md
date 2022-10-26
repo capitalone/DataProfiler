@@ -9,6 +9,21 @@ First off, thanks for your input! We love to hear feedback from the community an
 ## We Develop with Github
 We use github to host code, to track issues and feature requests, as well as accept pull requests.
 
+## Makefile Commands
+The Makefile at the root of the repo contains several useful commands.
+
+To setup a Python virtual environment, run the following commands:
+```cli
+make setup
+source ./venv/bin/activate
+```
+
+To format the code, run `make format`.
+
+To test the code, run `make test`.
+
+Alternatively, follow the steps below.
+
 ## Dependencies
 To install the dependencies for developing and updating the code base, be sure to run `pip install -r requirements-dev.txt`
 

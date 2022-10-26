@@ -2244,7 +2244,10 @@ class StructuredProfiler(BaseProfiler):
         ]._profiles[get_data_type(profile)]
 
         total_row_sum = np.asarray(
-            [get_data_type_profiler(profile).sum for profile in self._profile]
+            [
+                get_data_type_profiler(profile).sum if get_data_type(profile) else 0
+                for profile in self._profile
+            ]
         )
 
         if not isinstance(self._null_replication_metrics, dict):
@@ -2290,7 +2293,11 @@ class StructuredProfiler(BaseProfiler):
             sum_not_null = np.delete(total_row_sum, col_id) - sum_null
 
             mean_null = sum_null / null_count
-            mean_not_null = sum_not_null / true_count
+
+            if true_count == 0:
+                mean_not_null = sum_not_null
+            else:
+                mean_not_null = sum_not_null / true_count
 
             # Convert numpy arrays to lists (serializable)
             sum_null = sum_null.tolist()

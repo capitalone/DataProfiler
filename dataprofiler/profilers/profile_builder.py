@@ -2245,7 +2245,9 @@ class StructuredProfiler(BaseProfiler):
 
         total_row_sum = np.asarray(
             [
-                get_data_type_profiler(profile).sum if get_data_type(profile) else 0
+                get_data_type_profiler(profile).sum
+                if get_data_type(profile)
+                else np.nan
                 for profile in self._profile
             ]
         )

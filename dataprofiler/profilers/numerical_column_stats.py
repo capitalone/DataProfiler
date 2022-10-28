@@ -375,41 +375,51 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         # is None, then histogram is not calculatable.
         len_self_bin_counts = 0
         self_bin_counts = self._stored_histogram["histogram"]["bin_counts"]
-        if self_bin_counts.all() is not None and len(self_bin_counts) > 0:
-            len_self_bin_counts = len(self_bin_counts)
 
-        # re-calculate `self` histogram
-        if (
-            not len_self_bin_counts == 10
-            and not len_self_bin_counts == 20
-            and self_bin_counts.all() is not None
-        ):
-            histogram, hist_loss = self._regenerate_histogram(
-                bin_counts=self._stored_histogram["histogram"]["bin_counts"],
-                bin_edges=self._stored_histogram["histogram"]["bin_edges"],
-                suggested_bin_count=10,
-            )
-            self._stored_histogram["histogram"]["bin_counts"] = histogram["bin_counts"]
-            self._stored_histogram["histogram"]["bin_edges"] = histogram["bin_edges"]
+        try:
+            if self_bin_counts.all() is not None and len(self_bin_counts) > 0:
+                len_self_bin_counts = len(self_bin_counts)
 
-        # re-calculate `other_profile` histogram
-        # TODO: bug HERE with `median` recalculating
-        if (
-            other_profile._stored_histogram["histogram"]["bin_counts"].any()
-            != self._stored_histogram["histogram"]["bin_counts"].any()
-        ) and self_bin_counts.all() is not None:
-            histogram, hist_loss = self._regenerate_histogram(
-                bin_counts=other_profile._stored_histogram["histogram"]["bin_counts"],
-                bin_edges=other_profile._stored_histogram["histogram"]["bin_edges"],
-                suggested_bin_count=10,
-            )
+            # re-calculate `self` histogram
+            if (
+                not len_self_bin_counts == 10
+                and not len_self_bin_counts == 20
+                and self_bin_counts.all() is not None
+            ):
+                histogram, hist_loss = self._regenerate_histogram(
+                    bin_counts=self._stored_histogram["histogram"]["bin_counts"],
+                    bin_edges=self._stored_histogram["histogram"]["bin_edges"],
+                    suggested_bin_count=10,
+                )
+                self._stored_histogram["histogram"]["bin_counts"] = histogram[
+                    "bin_counts"
+                ]
+                self._stored_histogram["histogram"]["bin_edges"] = histogram[
+                    "bin_edges"
+                ]
 
-            other_profile._stored_histogram["histogram"]["bin_edges"] = histogram[
-                "bin_edges"
-            ]
-            other_profile._stored_histogram["histogram"]["bin_counts"] = histogram[
-                "bin_counts"
-            ]
+            # re-calculate `other_profile` histogram
+            # TODO: bug HERE with `median` recalculating
+            if (
+                other_profile._stored_histogram["histogram"]["bin_counts"].any()
+                != self._stored_histogram["histogram"]["bin_counts"].any()
+            ) and self_bin_counts.all() is not None:
+                histogram, hist_loss = self._regenerate_histogram(
+                    bin_counts=other_profile._stored_histogram["histogram"][
+                        "bin_counts"
+                    ],
+                    bin_edges=other_profile._stored_histogram["histogram"]["bin_edges"],
+                    suggested_bin_count=10,
+                )
+
+                other_profile._stored_histogram["histogram"]["bin_edges"] = histogram[
+                    "bin_edges"
+                ]
+                other_profile._stored_histogram["histogram"]["bin_counts"] = histogram[
+                    "bin_counts"
+                ]
+        except AttributeError:
+            pass
 
         differences = {
             "min": utils.find_diff_of_numbers(self.min, other_profile.min),
@@ -435,17 +445,20 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             ),
         }
 
-        # conditionally calculate PSI
-        differences["psi"] = "un_calculatable"
-        if self_bin_counts.all() is not None:
-            differences["psi"] = self._calculate_psi(
-                self.mean,
-                self.sum,
-                self._stored_histogram["histogram"],
-                other_profile.mean,
-                other_profile.sum,
-                other_profile._stored_histogram["histogram"],
-            )
+        try:
+            # conditionally calculate PSI
+            differences["psi"] = "un_calculatable"
+            if self_bin_counts.all() is not None:
+                differences["psi"] = self._calculate_psi(
+                    self.mean,
+                    self.sum,
+                    self._stored_histogram["histogram"],
+                    other_profile.mean,
+                    other_profile.sum,
+                    other_profile._stored_histogram["histogram"],
+                )
+        except AttributeError:
+            pass
 
         return differences
 

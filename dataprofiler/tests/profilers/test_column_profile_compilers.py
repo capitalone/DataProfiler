@@ -263,7 +263,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 },
                 "t-test": {
                     "t-statistic": -1.9674775073518591,
-                    "conservative": {"df": 1, "p-value": 0.29936264581081673},
+                    "conservative": {"df": 1.0, "p-value": 0.29936264581081673},
                     "welch": {"df": 1.0673824509440946, "p-value": 0.28696889329266506},
                 },
                 "psi": np.nan,
@@ -285,6 +285,10 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             expected_diff["statistics"].pop("median_absolute_deviation"),
             profile_diff["statistics"].pop("median_absolute_deviation"),
             places=2,
+        )
+        self.assertEqual(
+            np.isnan(expected_diff["statistics"].pop("psi")),
+            np.isnan(profile_diff["statistics"].pop("psi")),
         )
         self.assertDictEqual(expected_diff, profile_diff)
 

@@ -445,9 +445,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             ),
         }
 
+        differences["psi"] = "un_calculatable"
         try:
             # conditionally calculate PSI
-            differences["psi"] = "un_calculatable"
             if self_bin_counts.all() is not None:
                 differences["psi"] = self._calculate_psi(
                     self.mean,

@@ -1684,8 +1684,8 @@ class TestFloatColumn(unittest.TestCase):
             "sum": 3.5,
             "variance": profile1["variance"] - profile2["variance"],
             "median": 4.25,
-            "mode": [[2.5, 12.5, 5], [], [1, 15, 0.5, 0]],
-            "median_absolute_deviation": 2,
+            "mode": [[3.0, 5.0, 12.0], [], [1, 15, 0.5, 0]],
+            "median_absolute_deviation": 1.50,
             "precision": {
                 "min": 1,
                 "max": 1,
@@ -1701,6 +1701,7 @@ class TestFloatColumn(unittest.TestCase):
                 "conservative": {"df": 2, "p-value": 0.643676756587475},
                 "welch": {"df": 4.999127432888682, "p-value": 0.6128117908944144},
             },
+            "psi": 0.023973506037648404,
         }
         profile_diff = profiler1.diff(profiler2)
         try:

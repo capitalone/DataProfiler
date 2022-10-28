@@ -1053,14 +1053,15 @@ class TestIntColumn(unittest.TestCase):
             "stddev": -7.899494936611665,
             "sum": -4.0,
             "variance": -94.0,
-            "median": -4,
-            "mode": [[2, 6, 4], [], [1, 15]],
-            "median_absolute_deviation": -5,
+            "median": -3.80,
+            "mode": [[2.2, 4.2, 5.8], [], [1, 15]],
+            "median_absolute_deviation": -5.39,
             "t-test": {
                 "t-statistic": -0.5638091828819275,
-                "conservative": {"df": 1, "p-value": 0.6731699660830497},
+                "conservative": {"df": 1.0, "p-value": 0.6731699660830497},
                 "welch": {"df": 1.0547717074524683, "p-value": 0.6691886269547123},
             },
+            "psi": 0.0675775180180274,
         }
         profile_diff = profiler1.diff(profiler2)
         try:

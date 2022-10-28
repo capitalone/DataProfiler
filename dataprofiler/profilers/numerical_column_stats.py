@@ -369,10 +369,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
 
-        # conditionally regenerate bins for histogram to calculate PSI
-        # recommended bins for PSI is 10 or 20 bins. And ensure `self`
-        # is not `None`. If `self._stored_histogram['histogram']['bin_counts']`
-        # is None, then histogram is not calculatable.
         len_self_bin_counts = 0
         self_bin_counts = self._stored_histogram["histogram"]["bin_counts"]
 
@@ -443,22 +439,15 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 other_profile.variance,
                 other_profile.match_count,
             ),
+            "psi": self._calculate_psi(
+                self.mean,
+                self.sum,
+                self._stored_histogram["histogram"],
+                other_profile.mean,
+                other_profile.sum,
+                other_profile._stored_histogram["histogram"],
+            ),
         }
-
-        differences["psi"] = "un_calculatable"
-        try:
-            # conditionally calculate PSI
-            if self_bin_counts.all() is not None:
-                differences["psi"] = self._calculate_psi(
-                    self.mean,
-                    self.sum,
-                    self._stored_histogram["histogram"],
-                    other_profile.mean,
-                    other_profile.sum,
-                    other_profile._stored_histogram["histogram"],
-                )
-        except AttributeError:
-            pass
 
         return differences
 
@@ -592,11 +581,25 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         mean2: float,
         sum2: float,
         histogram2: np.ndarray,
-    ) -> float:
+    ) -> Optional[float]:
         self_count = sum1 / mean1
         other_count = sum2 / mean2
 
         psi_value = 0
+        invalid_stats = False
+
+        if isinstance(histogram1["bin_counts"], type(None)) or isinstance(
+            histogram1["bin_edges"], type(None)
+        ):
+            warnings.warn(
+                "No data available in the histograms for calculating `PSI`",
+                RuntimeWarning,
+            )
+            invalid_stats = True
+
+        if invalid_stats:
+            return None
+
         for iter_value, bin_count in enumerate(histogram1["bin_counts"]):
 
             self_percent = bin_count / self_count

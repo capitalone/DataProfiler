@@ -719,6 +719,7 @@ class TestNumericStatsMixin(unittest.TestCase):
         options.min.is_enabled = False
         options.histogram_and_quantiles.is_enabled = False
         options.variance.is_enabled = False
+        options.psi.is_enabled = False
 
         num_profiler = NumericStatsMixin(options=options)
 

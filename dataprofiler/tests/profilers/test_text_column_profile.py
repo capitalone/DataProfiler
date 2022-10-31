@@ -577,9 +577,9 @@ class TestTextColumnProfiler(unittest.TestCase):
             "max": -1.0,
             "sum": -9.0,
             "mean": profile1["mean"] - profile2["mean"],
-            "median": -2.33,
-            "mode": [[1.17], [], [2, 4]],
-            "median_absolute_deviation": -0.48,
+            "median": -2.5,
+            "mode": [[1], [], [2, 4]],
+            "median_absolute_deviation": -0.5,
             "variance": profile1["variance"] - profile2["variance"],
             "stddev": profile1["stddev"] - profiler2["stddev"],
             "vocab": utils.find_diff_of_lists_and_sets(
@@ -587,10 +587,10 @@ class TestTextColumnProfiler(unittest.TestCase):
             ),
             "t-test": {
                 "t-statistic": -1.9339958714826413,
-                "conservative": {"df": 8, "p-value": 0.08916903961929257},
+                "conservative": {"df": 8.0, "p-value": 0.08916903961929257},
                 "welch": {"df": 15.761400272034564, "p-value": 0.07127621949432528},
             },
-            "psi": 0.5849189876352178,
+            "psi": 0.5872603324276139,
         }
 
         profile_diff = profiler1.diff(profiler2)
@@ -608,4 +608,5 @@ class TestTextColumnProfiler(unittest.TestCase):
             profile_diff.pop("median_absolute_deviation"),
             places=2,
         )
+        self.maxDiff = None
         self.assertDictEqual(expected_diff, profile_diff)

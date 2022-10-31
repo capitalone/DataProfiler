@@ -164,17 +164,17 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 "max": 10.0,
                 "sum": 12.0,
                 "mean": 2.0,
-                "median": -0.22,
-                "mode": [[-1.06, 0.83, 2.72, 14.06], [], [5, -1]],
-                "median_absolute_deviation": -1.30,
+                "median": -0.5,
+                "mode": [[-2, 15, 1, 2], [], [5, -1]],
+                "median_absolute_deviation": -1,
                 "variance": 38.666666666666664,
                 "stddev": 3.285085839971525,
                 "t-test": {
                     "t-statistic": 0.4155260166386663,
-                    "conservative": {"df": 1, "p-value": 0.749287157907667},
+                    "conservative": {"df": 1.0, "p-value": 0.749287157907667},
                     "welch": {"df": 3.6288111187629117, "p-value": 0.7011367179395704},
                 },
-                "psi": 0.17328679513998632,
+                "psi": 0.34657359027997264,
             },
         }
         profile_diff = compiler1.diff(compiler2)
@@ -194,6 +194,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             profile_diff["statistics"].pop("median_absolute_deviation"),
             places=2,
         )
+        self.maxDiff = None
         self.assertDictEqual(expected_diff, profile_diff)
 
         # Test different compilers
@@ -248,8 +249,8 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 "sum": -20.0,
                 "mean": -10.0,
                 "median": -10,
-                "mode": [[-1.78, -0.89, 0.89, 1.78], [], [5, 15]],
-                "median_absolute_deviation": -3.66,
+                "mode": [[-2.0, -1.0, 1.0, 2.0], [], [5, 15]],
+                "median_absolute_deviation": -3.5,
                 "variance": -46.666666666666664,
                 "stddev": data1.astype(int).std() - data2.astype(int).std(),
                 "precision": {
@@ -263,7 +264,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 },
                 "t-test": {
                     "t-statistic": -1.9674775073518591,
-                    "conservative": {"df": 1, "p-value": 0.29936264581081673},
+                    "conservative": {"df": 1.0, "p-value": 0.29936264581081673},
                     "welch": {"df": 1.0673824509440946, "p-value": 0.28696889329266506},
                 },
                 "psi": np.nan,
@@ -286,10 +287,11 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             profile_diff["statistics"].pop("median_absolute_deviation"),
             places=2,
         )
-        self.assertEqual(
-            np.isnan(expected_diff["statistics"].pop("psi")),
-            np.isnan(profile_diff["statistics"].pop("psi")),
+        np.testing.assert_array_equal(
+            expected_diff["statistics"].pop("psi"),
+            profile_diff["statistics"].pop("psi"),
         )
+        self.maxDiff = None
         self.assertDictEqual(expected_diff, profile_diff)
 
         # Test disabling all columns in one compiler

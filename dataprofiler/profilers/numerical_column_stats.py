@@ -369,10 +369,17 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
 
-        len_self_bin_counts = 0
         self_bin_counts = self._stored_histogram["histogram"]["bin_counts"]
+        regen_histogram = False
 
-        try:
+        if isinstance(self_bin_counts, np.ndarray):
+            regen_histogram = True
+
+        new_self_histogram = {"bin_counts": None, "bin_edges": None}
+        new_other_histogram = {"bin_counts": None, "bin_edges": None}
+
+        if regen_histogram:
+            len_self_bin_counts = 0
             if self_bin_counts.all() is not None and len(self_bin_counts) > 0:
                 len_self_bin_counts = len(self_bin_counts)
 
@@ -381,36 +388,32 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 histogram, hist_loss = self._regenerate_histogram(
                     bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                     bin_edges=self._stored_histogram["histogram"]["bin_edges"],
-                    suggested_bin_count=9,
+                    suggested_bin_count=10,
                 )
-                self._stored_histogram["histogram"]["bin_counts"] = histogram[
-                    "bin_counts"
-                ]
-                self._stored_histogram["histogram"]["bin_edges"] = histogram[
-                    "bin_edges"
-                ]
+                new_self_histogram["bin_counts"] = histogram["bin_counts"]
+                new_self_histogram["bin_edges"] = histogram["bin_edges"]
 
-            # re-calculate `other_profile` histogram
+            # conditionally re-calculate `other_profile` histogram
+
+            both_profiles_bin_edges_equal = (
+                other_profile._stored_histogram["histogram"]["bin_edges"]
+                == self._stored_histogram["histogram"]["bin_edges"]
+            ).all() == 0
+
             if (
-                other_profile._stored_histogram["histogram"]["bin_counts"].any()
-                != self._stored_histogram["histogram"]["bin_counts"].any()
-            ) and self_bin_counts.all() is not None:
+                both_profiles_bin_edges_equal
+                and histogram["bin_edges"].all() is not None
+            ):
                 histogram, hist_loss = self._regenerate_histogram(
                     bin_counts=other_profile._stored_histogram["histogram"][
                         "bin_counts"
                     ],
                     bin_edges=other_profile._stored_histogram["histogram"]["bin_edges"],
-                    suggested_bin_count=9,
+                    suggested_bin_count=10,
                 )
 
-                other_profile._stored_histogram["histogram"]["bin_edges"] = histogram[
-                    "bin_edges"
-                ]
-                other_profile._stored_histogram["histogram"]["bin_counts"] = histogram[
-                    "bin_counts"
-                ]
-        except AttributeError:
-            pass
+                new_other_histogram["bin_edges"] = histogram["bin_edges"]
+                new_other_histogram["bin_counts"] = histogram["bin_counts"]
 
         differences = {
             "min": utils.find_diff_of_numbers(self.min, other_profile.min),
@@ -437,13 +440,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             "psi": self._calculate_psi(
                 self.mean,
                 self.sum,
-                self._stored_histogram["histogram"],
+                new_self_histogram,
                 other_profile.mean,
                 other_profile.sum,
-                other_profile._stored_histogram["histogram"],
+                new_other_histogram,
             ),
         }
-
         return differences
 
     @property
@@ -583,11 +585,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         psi_value = 0
         invalid_stats = False
 
-        if isinstance(histogram1["bin_counts"], type(None)) or isinstance(
+        if isinstance(histogram2["bin_edges"], type(None)) or isinstance(
             histogram1["bin_edges"], type(None)
         ):
             warnings.warn(
-                "No data available in the histograms for calculating `PSI`",
+                "No edges available in at least one histogram for calculating `PSI`",
                 RuntimeWarning,
             )
             invalid_stats = True

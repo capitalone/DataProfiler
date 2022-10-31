@@ -2056,6 +2056,13 @@ class TestStructuredProfiler(unittest.TestCase):
         profile_options.set(
             {
                 "*.null_values": {
+                    "": NO_FLAG,
+                    "nan": re.IGNORECASE,
+                    "none": re.IGNORECASE,
+                    "null": re.IGNORECASE,
+                    "  *": NO_FLAG,
+                    "--*": NO_FLAG,
+                    "__*": NO_FLAG,
                     "9" * 7: NO_FLAG,
                 },
                 "*.null_replication_metrics.is_enabled": True,

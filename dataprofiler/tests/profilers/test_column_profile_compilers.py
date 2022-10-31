@@ -249,7 +249,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 "mean": -10.0,
                 "median": -10,
                 "mode": [[-1.8, -1.0, 1.0, 1.8], [], [5, 15]],
-                "median_absolute_deviation": -3.60,
+                "median_absolute_deviation": -3.595,
                 "variance": -46.666666666666664,
                 "stddev": data1.astype(int).std() - data2.astype(int).std(),
                 "precision": {
@@ -263,7 +263,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 },
                 "t-test": {
                     "t-statistic": -1.9674775073518591,
-                    "conservative": {"df": 1.0, "p-value": 0.29936264581081673},
+                    "conservative": {"df": 1, "p-value": 0.29936264581081673},
                     "welch": {"df": 1.0673824509440946, "p-value": 0.28696889329266506},
                 },
                 "psi": np.nan,

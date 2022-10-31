@@ -1683,7 +1683,7 @@ class TestFloatColumn(unittest.TestCase):
             "stddev": profile1["stddev"] - profile2["stddev"],
             "sum": 3.5,
             "variance": profile1["variance"] - profile2["variance"],
-            "median": 4.25,
+            "median": 4.52,
             "mode": [[3.0, 5.0, 12.0], [], [1, 15, 0.5, 0]],
             "median_absolute_deviation": 1.50,
             "precision": {

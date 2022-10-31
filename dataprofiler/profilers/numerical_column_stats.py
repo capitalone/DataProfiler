@@ -377,11 +377,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 len_self_bin_counts = len(self_bin_counts)
 
             # re-calculate `self` histogram
-            if (
-                not len_self_bin_counts == 10
-                and not len_self_bin_counts == 20
-                and self_bin_counts.all() is not None
-            ):
+            if not len_self_bin_counts == 10 and self_bin_counts.all() is not None:
                 histogram, hist_loss = self._regenerate_histogram(
                     bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                     bin_edges=self._stored_histogram["histogram"]["bin_edges"],

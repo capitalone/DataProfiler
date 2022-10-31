@@ -1054,7 +1054,7 @@ class TestIntColumn(unittest.TestCase):
             "sum": -4.0,
             "variance": -94.0,
             "median": -4.0,
-            "mode": [[2.2, 4.2, 5.8], [], [1, 15]],
+            "mode": [[2.22, 4.0, 5.78], [], [1, 15]],
             "median_absolute_deviation": -5.39,
             "t-test": {
                 "t-statistic": -0.5638091828819275,

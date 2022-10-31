@@ -578,7 +578,7 @@ class TestTextColumnProfiler(unittest.TestCase):
             "sum": -9.0,
             "mean": profile1["mean"] - profile2["mean"],
             "median": -2.33,
-            "mode": [[1.15], [], [2, 4]],
+            "mode": [[1.17], [], [2, 4]],
             "median_absolute_deviation": -0.48,
             "variance": profile1["variance"] - profile2["variance"],
             "stddev": profile1["stddev"] - profiler2["stddev"],

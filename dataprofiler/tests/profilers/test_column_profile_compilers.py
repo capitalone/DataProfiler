@@ -165,7 +165,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 "sum": 12.0,
                 "mean": 2.0,
                 "median": -0.22,
-                "mode": [[-1.15, 0.55, 2.25, 14.15], [], [5, -1]],
+                "mode": [[-1.06, 0.83, 2.72, 14.06], [], [5, -1]],
                 "median_absolute_deviation": -1.30,
                 "variance": 38.666666666666664,
                 "stddev": 3.285085839971525,
@@ -249,7 +249,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 "mean": -10.0,
                 "median": -10,
                 "mode": [[-1.78, -0.89, 0.89, 1.78], [], [5, 15]],
-                "median_absolute_deviation": -3.595,
+                "median_absolute_deviation": -3.66,
                 "variance": -46.666666666666664,
                 "stddev": data1.astype(int).std() - data2.astype(int).std(),
                 "precision": {

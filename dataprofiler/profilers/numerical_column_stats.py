@@ -370,10 +370,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             )
 
         self_bin_counts = self._stored_histogram["histogram"]["bin_counts"]
+        self_bin_edges = self._stored_histogram["histogram"]["bin_edges"]
         regen_histogram = False
         num_psi_bins = 10
 
-        if isinstance(self_bin_counts, np.ndarray):
+        if isinstance(self_bin_counts, np.ndarray) and isinstance(
+            self_bin_edges, np.ndarray
+        ):
             regen_histogram = True
 
         new_self_histogram = {"bin_counts": None, "bin_edges": None}
@@ -381,14 +384,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         if regen_histogram:
             len_self_bin_counts = 0
-            if self_bin_counts.all() is not None and len(self_bin_counts) > 0:
+            if len(self_bin_counts) > 0:
                 len_self_bin_counts = len(self_bin_counts)
 
             # re-calculate `self` histogram
-            if (
-                not len_self_bin_counts == num_psi_bins
-                and self_bin_counts.all() is not None
-            ):
+            if not len_self_bin_counts == num_psi_bins:
                 histogram, hist_loss = self._regenerate_histogram(
                     bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                     bin_edges=self._stored_histogram["histogram"]["bin_edges"],
@@ -404,10 +404,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 == self._stored_histogram["histogram"]["bin_edges"]
             ).all() == 0
 
-            if (
-                both_profiles_bin_edges_equal
-                and histogram["bin_edges"].all() is not None
-            ):
+            if both_profiles_bin_edges_equal:
                 histogram, hist_loss = self._regenerate_histogram(
                     bin_counts=other_profile._stored_histogram["histogram"][
                         "bin_counts"

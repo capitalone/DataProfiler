@@ -453,11 +453,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 other_profile.match_count,
             ),
             "psi": self._calculate_psi(
-                self.mean,
-                self.sum,
+                self.match_count,
                 new_self_histogram,
-                other_profile.mean,
-                other_profile.sum,
+                other_profile.match_count,
                 new_other_histogram,
             ),
         }
@@ -587,16 +585,34 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @staticmethod
     def _calculate_psi(
-        mean1: float,
-        sum1: float,
+        self_match_count: int,
         histogram1: np.ndarray,
-        mean2: float,
-        sum2: float,
+        other_match_count: int,
         histogram2: np.ndarray,
     ) -> Optional[float]:
-        self_count = sum1 / mean1
-        other_count = sum2 / mean2
+        """
+        Calculate PSI (Population Stability Index).
 
+        ```
+        PSI = SUM((other_pcnt - self_pcnt) * ln(other_pcnt / self_pcnt))
+        ```
+
+        PSI Breakpoint Thresholds:
+            - PSI < 0.1: no significant population change
+            - 0.1 < PSI < 0.2: moderate population change
+            - PSI >= 0.2: significant population change
+
+        :param self_match_count: self.match_count
+        :type self_match_count: int
+        :param histogram1: self._stored_histogram["histogram"]
+        :type histogram1: np.ndarray
+        :param self_match_count: other_profile.match_count
+        :type self_match_count: int
+        :param histogram2: other_profile._stored_histogram["histogram"]
+        :type histogram2: np.ndarray
+        :return: psi_value
+        :rtype: optional[float]
+        """
         psi_value = 0
         invalid_stats = False
 
@@ -614,8 +630,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         for iter_value, bin_count in enumerate(histogram1["bin_counts"]):
 
-            self_percent = bin_count / self_count
-            other_percent = histogram2["bin_counts"][iter_value] / other_count
+            self_percent = bin_count / self_match_count
+            other_percent = histogram2["bin_counts"][iter_value] / other_match_count
             if (self_percent == other_percent) and self_percent == 0:
                 continue
 

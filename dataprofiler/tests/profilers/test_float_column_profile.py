@@ -1725,7 +1725,6 @@ class TestFloatColumn(unittest.TestCase):
             profile_diff.pop("median_absolute_deviation"),
             places=2,
         )
-        self.maxDiff = None
         self.assertDictEqual(expected_diff, profile_diff)
 
         # Assert type error is properly called
@@ -1735,7 +1734,3 @@ class TestFloatColumn(unittest.TestCase):
             str(exc.exception),
             "Unsupported operand type(s) for diff: 'FloatColumn' and" " 'str'",
         )
-
-
-test_diff = TestFloatColumn()
-test_diff.test_diff()

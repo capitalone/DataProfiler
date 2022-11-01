@@ -608,5 +608,4 @@ class TestTextColumnProfiler(unittest.TestCase):
             profile_diff.pop("median_absolute_deviation"),
             places=2,
         )
-        self.maxDiff = None
         self.assertDictEqual(expected_diff, profile_diff)

@@ -194,7 +194,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             profile_diff["statistics"].pop("median_absolute_deviation"),
             places=2,
         )
-        self.maxDiff = None
         self.assertDictEqual(expected_diff, profile_diff)
 
         # Test different compilers

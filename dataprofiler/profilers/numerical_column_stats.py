@@ -373,6 +373,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         new_other_histogram = {"bin_counts": None, "bin_edges": None}
         regenerate_histogram = False
         num_psi_bins = 10
+        min_min_edge = min(
+            self._stored_histogram["histogram"]["bin_edges"][0],
+            other_profile._stored_histogram["histogram"]["bin_edges"][0],
+        )
+        max_max_edge = max(
+            self._stored_histogram["histogram"]["bin_edges"][-1],
+            other_profile._stored_histogram["histogram"]["bin_edges"][-1],
+        )
 
         if isinstance(
             self._stored_histogram["histogram"]["bin_counts"], np.ndarray
@@ -392,6 +400,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                     bin_counts=self._stored_histogram["histogram"]["bin_counts"],
                     bin_edges=self._stored_histogram["histogram"]["bin_edges"],
                     suggested_bin_count=num_psi_bins,
+                    options={
+                        "min_edge": min_min_edge,
+                        "max_edge": max_max_edge,
+                    },
                 )
                 new_self_histogram["bin_counts"] = histogram["bin_counts"]
                 new_self_histogram["bin_edges"] = histogram["bin_edges"]
@@ -417,6 +429,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                     ],
                     bin_edges=other_profile._stored_histogram["histogram"]["bin_edges"],
                     suggested_bin_count=num_psi_bins,
+                    options={
+                        "min_edge": min_min_edge,
+                        "max_edge": max_max_edge,
+                    },
                 )
 
                 new_other_histogram["bin_edges"] = histogram["bin_edges"]
@@ -1187,7 +1203,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self._stored_histogram["total_loss"] += histogram_loss
 
     def _regenerate_histogram(
-        self, bin_counts, bin_edges, suggested_bin_count
+        self, bin_counts, bin_edges, suggested_bin_count, options=None
     ) -> Tuple[Dict[str, np.ndarray], float]:
 
         # create proper binning
@@ -1195,6 +1211,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         new_bin_edges = np.linspace(
             bin_edges[0], bin_edges[-1], suggested_bin_count + 1
         )
+        if options:
+            new_bin_edges = np.linspace(
+                options["min_edge"], options["max_edge"], suggested_bin_count + 1
+            )
 
         # allocate bin_counts
         new_bin_id = 0

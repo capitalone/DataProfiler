@@ -1061,7 +1061,7 @@ class TestIntColumn(unittest.TestCase):
                 "conservative": {"df": 1.0, "p-value": 0.6731699660830497},
                 "welch": {"df": 1.0547717074524683, "p-value": 0.6691886269547123},
             },
-            "psi": 0.1351550360360548,
+            "psi": 0.0675775180180274,
         }
         profile_diff = profiler1.diff(profiler2)
         try:

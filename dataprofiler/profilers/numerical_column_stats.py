@@ -382,9 +382,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             other_profile._stored_histogram["histogram"]["bin_edges"][-1],
         )
 
-        if isinstance(
-            self._stored_histogram["histogram"]["bin_counts"], np.ndarray
-        ) and isinstance(self._stored_histogram["histogram"]["bin_edges"], np.ndarray):
+        if (
+            isinstance(self._stored_histogram["histogram"]["bin_counts"], np.ndarray)
+            and isinstance(self._stored_histogram["histogram"]["bin_edges"], np.ndarray)
+            and isinstance(other_profile._["histogram"]["bin_counts"], np.ndarray)
+            and isinstance(other_profile._["histogram"]["bin_edges"], np.ndarray)
+        ):
             regenerate_histogram = True
 
         if regenerate_histogram:

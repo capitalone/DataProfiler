@@ -369,23 +369,22 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
 
-        self_bin_counts = self._stored_histogram["histogram"]["bin_counts"]
-        self_bin_edges = self._stored_histogram["histogram"]["bin_edges"]
-        regen_histogram = False
-        num_psi_bins = 10
-
-        if isinstance(self_bin_counts, np.ndarray) and isinstance(
-            self_bin_edges, np.ndarray
-        ):
-            regen_histogram = True
-
         new_self_histogram = {"bin_counts": None, "bin_edges": None}
         new_other_histogram = {"bin_counts": None, "bin_edges": None}
+        regenerate_histogram = False
+        num_psi_bins = 10
 
-        if regen_histogram:
+        if isinstance(
+            self._stored_histogram["histogram"]["bin_counts"], np.ndarray
+        ) and isinstance(self._stored_histogram["histogram"]["bin_edges"], np.ndarray):
+            regenerate_histogram = True
+
+        if regenerate_histogram:
             len_self_bin_counts = 0
-            if len(self_bin_counts) > 0:
-                len_self_bin_counts = len(self_bin_counts)
+            if len(self._stored_histogram["histogram"]["bin_counts"]) > 0:
+                len_self_bin_counts = len(
+                    self._stored_histogram["histogram"]["bin_counts"]
+                )
 
             # re-calculate `self` histogram
             if not len_self_bin_counts == num_psi_bins:

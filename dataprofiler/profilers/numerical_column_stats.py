@@ -397,8 +397,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 new_self_histogram["bin_counts"] = histogram["bin_counts"]
                 new_self_histogram["bin_edges"] = histogram["bin_edges"]
 
-            # conditionally re-calculate `other_profile` histogram
-
+            # re-calculate `other_profile` histogram
             both_profiles_bin_edges_equal = (
                 other_profile._stored_histogram["histogram"]["bin_edges"]
                 == self._stored_histogram["histogram"]["bin_edges"]

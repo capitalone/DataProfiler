@@ -2077,17 +2077,9 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertTrue("null_replication_metrics" in report["data_stats"][0])
         column = report["data_stats"][0]["null_replication_metrics"]
 
-        self.assertTrue(len(column["class_prior"]) == 2)
-        self.assertTrue(len(column["class_sum"]) == 2)
-        self.assertTrue(len(column["class_mean"]) == 2)
-
         np.testing.assert_array_almost_equal([0, 1], column["class_prior"])
-
-        np.testing.assert_array_almost_equal([0], column["class_sum"][0])
-        np.testing.assert_array_almost_equal([18], column["class_sum"][1])
-
-        np.testing.assert_array_almost_equal([0], column["class_mean"][0])
-        np.testing.assert_array_almost_equal([9], column["class_mean"][1])
+        np.testing.assert_array_almost_equal([[0], [18]], column["class_sum"])
+        np.testing.assert_array_almost_equal([[0], [9]], column["class_mean"])
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):

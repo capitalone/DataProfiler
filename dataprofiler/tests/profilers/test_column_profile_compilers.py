@@ -290,7 +290,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             expected_diff["statistics"].pop("psi"),
             profile_diff["statistics"].pop("psi"),
         )
-        self.maxDiff = None
         self.assertDictEqual(expected_diff, profile_diff)
 
         # Test disabling all columns in one compiler

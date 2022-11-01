@@ -103,7 +103,7 @@ class StructuredColProfiler(object):
         }
         if options:
             if options.null_values is not None:
-                self._null_values = options.null_values
+                self._null_values = options.null_values.copy()
             if column_index is not None and options.column_null_values is not None:
                 self._null_values.update(
                     options.column_null_values.get(column_index, {})
@@ -2522,7 +2522,11 @@ class StructuredProfiler(BaseProfiler):
                     min_true_samples = self._profile[prof_idx]._min_true_samples
                 try:
                     null_values = self._profile[prof_idx]._null_values
-                    null_values.update(self.options.column_null_values.get(col_idx, {}))
+                    if self.options.column_null_values:
+                        null_values.update(
+                            self.options.column_null_values.get(col_idx, {})
+                        )
+
                     multi_process_dict[col_idx] = pool.apply_async(
                         self._profile[prof_idx].clean_data_and_get_base_stats,
                         (
@@ -2562,8 +2566,13 @@ class StructuredProfiler(BaseProfiler):
                     prof_idx = col_idx_to_prof_idx[col_idx]
                     if min_true_samples is None:
                         min_true_samples = self._profile[prof_idx]._min_true_samples
+
                     null_values = self._profile[prof_idx]._null_values
-                    null_values.update(self.options.column_null_values.get(col_idx, {}))
+                    if self.options.column_null_values:
+                        null_values.update(
+                            self.options.column_null_values.get(col_idx, {})
+                        )
+
                     clean_sampled_dict[prof_idx], base_stats = self._profile[
                         prof_idx
                     ].clean_data_and_get_base_stats(
@@ -2581,8 +2590,11 @@ class StructuredProfiler(BaseProfiler):
                 prof_idx = col_idx_to_prof_idx[col_idx]
                 if min_true_samples is None:
                     min_true_samples = self._profile[prof_idx]._min_true_samples
+
                 null_values = self._profile[prof_idx]._null_values
-                null_values.update(self.options.column_null_values.get(col_idx, {}))
+                if self.options.column_null_values:
+                    null_values.update(self.options.column_null_values.get(col_idx, {}))
+
                 clean_sampled_dict[prof_idx], base_stats = self._profile[
                     prof_idx
                 ].clean_data_and_get_base_stats(

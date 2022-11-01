@@ -1192,9 +1192,7 @@ class StructuredOptions(BaseOption):
         self.null_replication_metrics = BooleanOption(is_enabled=False)
         # Non-Option variables
         self.null_values = null_values
-        self.column_null_values = (
-            column_null_values if column_null_values is not None else {}
-        )
+        self.column_null_values = column_null_values
 
     @property
     def enabled_profiles(self) -> List[str]:
@@ -1272,7 +1270,7 @@ class StructuredOptions(BaseOption):
         if self.column_null_values is not None and not (
             isinstance(self.column_null_values, dict)
             and all(
-                isinstance(key, (int, str))
+                isinstance(key, int)
                 and isinstance(value, dict)
                 and all(
                     isinstance(k, str) and (isinstance(v, re.RegexFlag) or v == 0)

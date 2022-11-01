@@ -590,7 +590,7 @@ class TestTextColumnProfiler(unittest.TestCase):
                 "conservative": {"df": 8.0, "p-value": 0.08916903961929257},
                 "welch": {"df": 15.761400272034564, "p-value": 0.07127621949432528},
             },
-            "psi": 0.5872603324276139,
+            "psi": 0.7211391539728152,
         }
 
         profile_diff = profiler1.diff(profiler2)

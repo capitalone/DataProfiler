@@ -1701,7 +1701,7 @@ class TestFloatColumn(unittest.TestCase):
                 "conservative": {"df": 2.0, "p-value": 0.643676756587475},
                 "welch": {"df": 4.999127432888682, "p-value": 0.6128117908944144},
             },
-            "psi": 0.36186109612778544,
+            "psi": 0,
         }
         profile_diff = profiler1.diff(profiler2)
         try:

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import copy
 import re
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 import numpy as np
 import pandas as pd
@@ -285,7 +285,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return subset_precision
 
     @classmethod
-    def _is_each_row_float(cls, df_series: pd.Series) -> List[bool]:
+    def _is_each_row_float(cls, df_series: pd.Series) -> pd.Series[bool]:
         """
         Determine if each value in a dataframe is a float.
 
@@ -297,7 +297,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         :param df_series: series of values to evaluate
         :type df_series: pandas.core.series.Series
         :return: is_float_col
-        :rtype: list
+        :rtype: pandas.Series[bool]
         """
         if len(df_series) == 0:
             return list()

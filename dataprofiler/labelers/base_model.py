@@ -21,7 +21,7 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
             cls, clsname, bases, attrs
         )
         new_class._register_subclass()
-        return new_class
+        return cast(AutoSubRegistrationMeta, new_class)
 
 
 class BaseModel(object, metaclass=abc.ABCMeta):

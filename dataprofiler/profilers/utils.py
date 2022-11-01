@@ -25,6 +25,7 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    cast,
 )
 
 import numpy as np
@@ -236,7 +237,7 @@ def suggest_pool_size(data_size: int = None, cols: int = None) -> Optional[int]:
     if cols is not None:
         suggested_pool_size = min(suggested_pool_size, cols)
 
-    return suggested_pool_size
+    return int(suggested_pool_size)
 
 
 def generate_pool(
@@ -332,11 +333,11 @@ def biased_skew(df_series: Series) -> float:
     """
     n = len(df_series)
     if n < 1:
-        return np.nan
+        return float(np.nan)
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        return np.nan
+        return cast(float, np.nan)
 
     diffs = df_series - mean
     squared_diffs = diffs**2
@@ -370,11 +371,11 @@ def biased_kurt(df_series: Series) -> float:
     """
     n = len(df_series)
     if n < 1:
-        return np.nan
+        return cast(float, np.nan)
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        return np.nan
+        return cast(float, np.nan)
 
     diffs = df_series - mean
     squared_diffs = diffs**2

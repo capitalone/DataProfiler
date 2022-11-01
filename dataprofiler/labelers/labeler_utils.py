@@ -79,7 +79,7 @@ def evaluate_accuracy(
     predicted_entities_in_index: List[List[int]],
     true_entities_in_index: List[List[int]],
     num_labels: int,
-    entity_rev_dict: Dict,
+    entity_rev_dict: Dict[int, Any],
     verbose: bool = True,
     omitted_labels: Tuple[str, ...] = ("PAD", "UNKNOWN"),
     confusion_matrix_file: str = None,
@@ -125,6 +125,7 @@ def evaluate_accuracy(
     true_labels_flatten = np.hstack(true_labels_padded)  # type: ignore
     predicted_labels_flatten = np.hstack(predicted_entities_in_index)
 
+    all_labels: List[str] = []
     if entity_rev_dict:
         all_labels = [entity_rev_dict[key] for key in sorted(entity_rev_dict.keys())]
 

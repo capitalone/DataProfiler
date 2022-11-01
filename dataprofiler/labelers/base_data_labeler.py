@@ -463,7 +463,7 @@ class BaseDataLabeler(object):
             load_options = {}
 
         with open(os.path.join(dirpath, "data_labeler_parameters.json")) as fp:
-            params = json.load(fp)
+            params: Dict[str, Dict] = json.load(fp)
 
         if "model_class" in load_options:
             model_class = load_options.get("model_class")
@@ -677,7 +677,7 @@ class BaseDataLabeler(object):
         data_labeler.set_preprocessor(preprocessor)
         data_labeler.set_model(model)
         data_labeler.set_postprocessor(postprocessor)
-        return data_labeler
+        return cast(BaseDataLabeler, data_labeler)
 
     def _save_model(self, dirpath: str) -> None:
         """
@@ -914,4 +914,4 @@ class TrainableDataLabeler(BaseDataLabeler):
         data_labeler.set_preprocessor(preprocessor)
         data_labeler.set_model(model)
         data_labeler.set_postprocessor(postprocessor)
-        return data_labeler
+        return cast(TrainableDataLabeler, data_labeler)

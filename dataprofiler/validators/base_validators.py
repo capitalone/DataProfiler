@@ -20,7 +20,7 @@ def is_in_range(x: Union[float, int], config: dict) -> bool:
     :returns: bool
     """
     try:
-        return config["start"] <= float(x) <= config["end"]
+        return float(config["start"]) <= float(x) <= float(config["end"])
     except Exception:
         raise TypeError("Value is not a float")
 

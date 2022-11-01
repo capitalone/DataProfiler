@@ -267,6 +267,7 @@ class BaseColumnPrimitiveTypeProfiler(
         # Number of values that match the column type. eg. how many floats match
         # in the float column
         self.match_count: int = 0
+        self.sample_size: int  # inherited from BaseColumnProfiler
 
     def _update_column_base_properties(self, profile: Dict) -> None:
         """

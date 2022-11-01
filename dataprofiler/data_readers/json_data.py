@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from six import StringIO
 
+from .._typing import JSONType
 from . import data_utils
 from .base_data import BaseData
 from .filepath_or_buffer import FileOrBufferHandler
@@ -236,36 +237,38 @@ class JSONData(SpreadSheetDataMixin, BaseData):
 
         return data
 
-    def _load_data_from_str(self, data_as_str: str) -> List:
+    def _load_data_from_str(self, data_as_str: str) -> JSONType:
         """
         Load the data from a string.
 
         :param data_as_str: data in string format.
         :type data_as_str: str
-        :return: dict
+        :return: JSONType
         """
+        data: JSONType
         try:
             data = json.loads(data_as_str)
         except json.JSONDecodeError:
-            data = data_utils.data_generator(data_as_str.splitlines())
+            data_generator = data_utils.data_generator(data_as_str.splitlines())
             data = data_utils.read_json(
-                data_generator=data,
+                data_generator=data_generator,
                 selected_columns=self.selected_keys,
                 read_in_string=False,
             )
         return data
 
-    def _load_data_from_file(self, input_file_path: str) -> List:
+    def _load_data_from_file(self, input_file_path: str) -> JSONType:
         """
         Load the data from a file.
 
         :param input_file_path: file path to file being loaded.
         :type input_file_path: str
-        :return:
+        :return: JSONType
         """
         with FileOrBufferHandler(
             input_file_path, "r", encoding=self.file_encoding
         ) as input_file:
+            data: JSONType
             try:
                 data = json.load(input_file)
             except (json.JSONDecodeError, UnicodeDecodeError):

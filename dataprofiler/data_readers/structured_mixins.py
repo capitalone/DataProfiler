@@ -72,7 +72,7 @@ class SpreadSheetDataMixin(object):
     def _get_data_as_records(self, data: Any) -> List[str]:
         """Return data records."""
         records_per_line = min(len(data), self.SAMPLES_PER_LINE_DEFAULT)
-        data = [
+        data_ = [
             str(
                 "\n".join(data[i * records_per_line : (i + 1) * records_per_line])
                 .encode("UTF-8")
@@ -80,4 +80,4 @@ class SpreadSheetDataMixin(object):
             )
             for i in range((len(data) + records_per_line - 1) // records_per_line)
         ]
-        return data
+        return data_

@@ -174,7 +174,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                     "conservative": {"df": 1.0, "p-value": 0.749287157907667},
                     "welch": {"df": 3.6288111187629117, "p-value": 0.7011367179395704},
                 },
-                "psi": 0.34657359027997264,
+                "psi": 0.17328679513998632,
             },
         }
         profile_diff = compiler1.diff(compiler2)
@@ -266,7 +266,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                     "conservative": {"df": 1.0, "p-value": 0.29936264581081673},
                     "welch": {"df": 1.0673824509440946, "p-value": 0.28696889329266506},
                 },
-                "psi": np.nan,
+                "psi": 0,
             },
         }
         profile_diff = compiler1.diff(compiler2)
@@ -285,10 +285,6 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             expected_diff["statistics"].pop("median_absolute_deviation"),
             profile_diff["statistics"].pop("median_absolute_deviation"),
             places=2,
-        )
-        np.testing.assert_array_equal(
-            expected_diff["statistics"].pop("psi"),
-            profile_diff["statistics"].pop("psi"),
         )
         self.assertDictEqual(expected_diff, profile_diff)
 
@@ -744,3 +740,7 @@ class TestUnstructuredCompiler(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+test_diff = TestBaseProfileCompilerClass()
+test_diff.test_diff_primitive_compilers()

@@ -2296,9 +2296,8 @@ class StructuredProfiler(BaseProfiler):
 
             mean_null = sum_null / null_count
 
-            if true_count == 0:
-                mean_not_null = sum_not_null
-            else:
+            mean_not_null = np.array(np.nan)
+            if true_count:
                 mean_not_null = sum_not_null / true_count
 
             # Convert numpy arrays to lists (serializable)

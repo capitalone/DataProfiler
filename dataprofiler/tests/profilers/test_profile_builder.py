@@ -2049,7 +2049,7 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal([12 / 2, 6 / 2], column["class_mean"][1])
 
     def test_column_level_invalid_values(self):
-        data = pd.DataFrame([[1, 2], [9999999, 3], [4, 5]])
+        data = pd.DataFrame([[1, 1], [9999999, 2], [3, 3]])
 
         NO_FLAG = 0
         profile_options = dp.ProfilerOptions()
@@ -2078,9 +2078,9 @@ class TestStructuredProfiler(unittest.TestCase):
         profiler = dp.StructuredProfiler(data, options=profile_options)
         report = profiler.report()
 
-        np.testing.assert_array_equal(["4"], report["data_stats"][0]["samples"])
+        np.testing.assert_array_equal(["3"], report["data_stats"][0]["samples"])
         np.testing.assert_array_equal(
-            ["2", "3"], sorted(report["data_stats"][1]["samples"])
+            ["1", "2"], sorted(report["data_stats"][1]["samples"])
         )
 
 

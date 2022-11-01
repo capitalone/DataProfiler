@@ -2296,8 +2296,10 @@ class StructuredProfiler(BaseProfiler):
 
             mean_null = sum_null / null_count
 
-            mean_not_null = np.array(np.nan)
-            if true_count:
+            if true_count == 0:
+                sum_not_null = np.full(len(data.columns) - 1, np.nan)
+                mean_not_null = np.full(len(data.columns) - 1, np.nan)
+            else:
                 mean_not_null = sum_not_null / true_count
 
             # Convert numpy arrays to lists (serializable)
@@ -2392,8 +2394,10 @@ class StructuredProfiler(BaseProfiler):
 
             mean_null = sum_null / null_count
 
-            mean_not_null = np.array(np.nan)
-            if true_count:
+            if true_count == 0:
+                sum_not_null = np.full(len(self._profile) - 1, np.nan)
+                mean_not_null = np.full(len(self._profile) - 1, np.nan)
+            else:
                 mean_not_null = sum_not_null / true_count
 
             # Convert numpy arrays to lists (serializable)

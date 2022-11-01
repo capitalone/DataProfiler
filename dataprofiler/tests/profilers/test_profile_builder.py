@@ -2078,8 +2078,8 @@ class TestStructuredProfiler(unittest.TestCase):
         column = report["data_stats"][0]["null_replication_metrics"]
 
         np.testing.assert_array_almost_equal([0, 1], column["class_prior"])
-        np.testing.assert_array_almost_equal([[0], [18]], column["class_sum"])
-        np.testing.assert_array_almost_equal([[0], [9]], column["class_mean"])
+        np.testing.assert_array_almost_equal([[np.nan], [18]], column["class_sum"])
+        np.testing.assert_array_almost_equal([[np.nan], [9]], column["class_mean"])
 
 
 class TestStructuredColProfilerClass(unittest.TestCase):

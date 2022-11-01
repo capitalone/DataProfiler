@@ -397,6 +397,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 new_self_histogram["bin_counts"] = histogram["bin_counts"]
                 new_self_histogram["bin_edges"] = histogram["bin_edges"]
 
+            if len_self_bin_counts == num_psi_bins:
+                new_self_histogram["bin_counts"] = self._stored_histogram["histogram"][
+                    "bin_counts"
+                ]
+                new_self_histogram["bin_edges"] = self._stored_histogram["histogram"][
+                    "bin_edges"
+                ]
+
             # re-calculate `other_profile` histogram
             both_profiles_bin_edges_equal = (
                 other_profile._stored_histogram["histogram"]["bin_edges"]
@@ -414,6 +422,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
                 new_other_histogram["bin_edges"] = histogram["bin_edges"]
                 new_other_histogram["bin_counts"] = histogram["bin_counts"]
+
+            if not both_profiles_bin_edges_equal:
+                new_other_histogram["bin_edges"] = other_profile._stored_histogram[
+                    "histogram"
+                ]["bin_edges"]
+                new_other_histogram["bin_counts"] = other_profile._stored_histogram[
+                    "histogram"
+                ]["bin_counts"]
 
         differences = {
             "min": utils.find_diff_of_numbers(self.min, other_profile.min),

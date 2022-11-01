@@ -1142,12 +1142,18 @@ class TextProfilerOptions(BaseInspectorOptions):
 class StructuredOptions(BaseOption):
     """For configuring options for structured profiler."""
 
-    def __init__(self, null_values: Dict = None) -> None:
+    def __init__(
+        self,
+        null_values: Dict[str, Union[re.RegexFlag, int]] = None,
+        column_null_values: Dict[int, Dict[str, Union[re.RegexFlag, int]]] = None,
+    ) -> None:
         """
         Construct the StructuredOptions object with default values.
 
         :param null_values: null values we input.
-        :vartype null_values: Union[None, dict]
+        :vartype null_values: Dict[str, Union[re.RegexFlag, int]]
+        :param column_null_values: column level null values we input.
+        :vartype column_null_values: Dict[int, Dict[str, Union[re.RegexFlag, int]]]
         :ivar int: option set for int profiling.
         :vartype int: IntOptions
         :ivar float: option set for float profiling.
@@ -1186,14 +1192,18 @@ class StructuredOptions(BaseOption):
         self.null_replication_metrics = BooleanOption(is_enabled=False)
         # Non-Option variables
         self.null_values = null_values
+        self.column_null_values = (
+            column_null_values if column_null_values is not None else {}
+        )
 
     @property
     def enabled_profiles(self) -> List[str]:
         """Return a list of the enabled profilers for columns."""
         enabled_profiles = list()
-        # null_values does not have is_enabled
+        # null_values and column_null_values do not have is_enabled
         properties = self.properties
         properties.pop("null_values")
+        properties.pop("column_null_values")
         for key, value in properties.items():
             if value.is_enabled:
                 enabled_profiles.append(key)
@@ -1230,6 +1240,7 @@ class StructuredOptions(BaseOption):
         )
         properties = self.properties
         properties.pop("null_values")
+        properties.pop("column_null_values")
         for column in properties:
             if not isinstance(self.properties[column], prop_check[column]):
                 errors.append(
@@ -1255,6 +1266,26 @@ class StructuredOptions(BaseOption):
                 "{}.null_values must be either None or "
                 "a dictionary that contains keys of type str "
                 "and values == 0 or are instances of "
+                "a re.RegexFlag".format(variable_path)
+            )
+
+        if self.column_null_values is not None and not (
+            isinstance(self.column_null_values, dict)
+            and all(
+                isinstance(key, (int, str))
+                and isinstance(value, dict)
+                and all(
+                    isinstance(k, str) and (isinstance(v, re.RegexFlag) or v == 0)
+                    for k, v in value.items()
+                )
+                for key, value in self.column_null_values.items()
+            )
+        ):
+            errors.append(
+                "{}.column_null_values must be either None or a "
+                "dictionary that contains columns of type int or str "
+                "and values of dictionaries that contains keys "
+                "of type str and values == 0 or are instances of "
                 "a re.RegexFlag".format(variable_path)
             )
 

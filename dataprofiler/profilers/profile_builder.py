@@ -53,6 +53,7 @@ class StructuredColProfiler(object):
         min_true_samples: int = 0,
         sample_ids: np.ndarray = None,
         pool: Pool = None,
+        column_index: int = None,
         options: StructuredOptions = None,
     ) -> None:
         """
@@ -69,6 +70,8 @@ class StructuredColProfiler(object):
         :type sample_ids: list(list)
         :param pool: pool utilized for multiprocessing
         :type pool: multiprocessing.Pool
+        :param column_index: index of the given column
+        :type column_index: int
         :param options: Options for the structured profiler.
         :type options: StructuredOptions Object
         """
@@ -101,9 +104,12 @@ class StructuredColProfiler(object):
         if options:
             if options.null_values is not None:
                 self._null_values = options.null_values
+            if column_index is not None and options.column_null_values is not None:
+                self._null_values.update(
+                    options.column_null_values.get(column_index, {})
+                )
 
         if df_series is not None and len(df_series) > 0:
-
             if not sample_size:
                 sample_size = self._get_sample_size(df_series)
             if sample_size < len(df_series):
@@ -497,7 +503,7 @@ class StructuredColProfiler(object):
         :param null_values: Dictionary mapping null values to regex flag where
             the key represents the null value to remove from the data and the
             flag represents the regex flag to apply
-        :type null_values: dict[str, re.FLAG]
+        :type null_values: Dict[str, Union[re.RegexFlag, int]]
         :param min_true_samples: Minimum number of samples required for the
             profiler
         :type min_true_samples: int
@@ -2393,7 +2399,10 @@ class StructuredProfiler(BaseProfiler):
         return merged_properties
 
     def _update_profile_from_chunk(
-        self, data: pd.DataFrame, sample_size: int, min_true_samples: int = None
+        self,
+        data: Union[List, pd.Series, pd.DataFrame],
+        sample_size: int,
+        min_true_samples: int = None,
     ) -> None:
         """
         Iterate over the columns of a dataset and identify its parameters.
@@ -2472,6 +2481,7 @@ class StructuredProfiler(BaseProfiler):
                         sample_size=sample_size,
                         min_true_samples=min_true_samples,  # type: ignore
                         sample_ids=sample_ids,  # type: ignore
+                        column_index=col_idx,
                         options=self.options,
                     )
                 )
@@ -2512,6 +2522,7 @@ class StructuredProfiler(BaseProfiler):
                     min_true_samples = self._profile[prof_idx]._min_true_samples
                 try:
                     null_values = self._profile[prof_idx]._null_values
+                    null_values.update(self.options.column_null_values.get(col_idx, {}))
                     multi_process_dict[col_idx] = pool.apply_async(
                         self._profile[prof_idx].clean_data_and_get_base_stats,
                         (
@@ -2552,6 +2563,7 @@ class StructuredProfiler(BaseProfiler):
                     if min_true_samples is None:
                         min_true_samples = self._profile[prof_idx]._min_true_samples
                     null_values = self._profile[prof_idx]._null_values
+                    null_values.update(self.options.column_null_values.get(col_idx, {}))
                     clean_sampled_dict[prof_idx], base_stats = self._profile[
                         prof_idx
                     ].clean_data_and_get_base_stats(
@@ -2570,6 +2582,7 @@ class StructuredProfiler(BaseProfiler):
                 if min_true_samples is None:
                     min_true_samples = self._profile[prof_idx]._min_true_samples
                 null_values = self._profile[prof_idx]._null_values
+                null_values.update(self.options.column_null_values.get(col_idx, {}))
                 clean_sampled_dict[prof_idx], base_stats = self._profile[
                     prof_idx
                 ].clean_data_and_get_base_stats(

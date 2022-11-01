@@ -1280,9 +1280,9 @@ class StructuredOptions(BaseOption):
             )
         ):
             errors.append(
-                "{}.column_null_values must be either None or a "
-                "dictionary that contains columns of type int or str "
-                "and values of dictionaries that contains keys "
+                "{}.column_null_values must be either None or "
+                "a dictionary that contains keys of type int "
+                "that map to dictionaries that contains keys "
                 "of type str and values == 0 or are instances of "
                 "a re.RegexFlag".format(variable_path)
             )

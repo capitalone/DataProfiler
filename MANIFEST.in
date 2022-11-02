@@ -12,6 +12,3 @@ recursive-include dataprofiler *.parq
 recursive-include dataprofiler *.parquet
 recursive-include dataprofiler *.py
 recursive-include dataprofiler *.txt
-recursive-include examples *.ipynb
-recursive-include examples *.md
-recursive-include examples *.png

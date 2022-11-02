@@ -391,6 +391,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 other_profile.variance,
                 other_profile.match_count,
             ),
+            "psi": self._calculate_psi(
+                self.match_count,
+                self._stored_histogram["histogram"],
+                other_profile.match_count,
+                other_profile._stored_histogram["histogram"],
+            ),
         }
         return differences
 
@@ -515,6 +521,144 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         results["conservative"]["p-value"] = float(conservative_p_val)
         results["welch"]["p-value"] = float(welch_p_val)
         return results
+
+    def _preprocess_for_calculate_psi(
+        self,
+        self_histogram,
+        other_histogram,
+    ):
+        new_self_histogram = {"bin_counts": None, "bin_edges": None}
+        new_other_histogram = {"bin_counts": None, "bin_edges": None}
+        regenerate_histogram = False
+        num_psi_bins = 10
+
+        if (
+            isinstance(self_histogram["bin_counts"], np.ndarray)
+            and isinstance(self_histogram["bin_edges"], np.ndarray)
+            and isinstance(other_histogram["bin_counts"], np.ndarray)
+            and isinstance(other_histogram["bin_edges"], np.ndarray)
+        ):
+            regenerate_histogram = True
+            min_min_edge = min(
+                self_histogram["bin_edges"][0],
+                other_histogram["bin_edges"][0],
+            )
+            max_max_edge = max(
+                self_histogram["bin_edges"][-1],
+                other_histogram["bin_edges"][-1],
+            )
+
+        if regenerate_histogram:
+            new_self_histogram["bin_counts"] = self_histogram["bin_counts"]
+            new_self_histogram["bin_edges"] = self_histogram["bin_edges"]
+            new_other_histogram["bin_edges"] = other_histogram["bin_edges"]
+            new_other_histogram["bin_counts"] = other_histogram["bin_counts"]
+
+            len_self_bin_counts = 0
+            if len(self_histogram["bin_counts"]) > 0:
+                len_self_bin_counts = len(self_histogram["bin_counts"])
+
+            # re-calculate `self` histogram
+            if not len_self_bin_counts == num_psi_bins:
+                histogram, hist_loss = self._regenerate_histogram(
+                    bin_counts=self_histogram["bin_counts"],
+                    bin_edges=self_histogram["bin_edges"],
+                    suggested_bin_count=num_psi_bins,
+                    options={
+                        "min_edge": min_min_edge,
+                        "max_edge": max_max_edge,
+                    },
+                )
+                new_self_histogram["bin_counts"] = histogram["bin_counts"]
+                new_self_histogram["bin_edges"] = histogram["bin_edges"]
+
+            # re-calculate `other_profile` histogram
+            histogram_edges_not_equal = False
+            all_array_values_equal = (
+                other_histogram["bin_edges"] == self_histogram["bin_edges"]
+            ).all()
+            if not all_array_values_equal:
+                histogram_edges_not_equal = True
+
+            if histogram_edges_not_equal:
+                histogram, hist_loss = self._regenerate_histogram(
+                    bin_counts=other_histogram["bin_counts"],
+                    bin_edges=other_histogram["bin_edges"],
+                    suggested_bin_count=num_psi_bins,
+                    options={
+                        "min_edge": min_min_edge,
+                        "max_edge": max_max_edge,
+                    },
+                )
+
+                new_other_histogram["bin_edges"] = histogram["bin_edges"]
+                new_other_histogram["bin_counts"] = histogram["bin_counts"]
+
+        return new_self_histogram, new_other_histogram
+
+    def _calculate_psi(
+        self,
+        self_match_count: int,
+        self_histogram: np.ndarray,
+        other_match_count: int,
+        other_histogram: np.ndarray,
+    ) -> Optional[float]:
+        """
+        Calculate PSI (Population Stability Index).
+
+        ```
+        PSI = SUM((other_pcnt - self_pcnt) * ln(other_pcnt / self_pcnt))
+        ```
+
+        PSI Breakpoint Thresholds:
+            - PSI < 0.1: no significant population change
+            - 0.1 < PSI < 0.2: moderate population change
+            - PSI >= 0.2: significant population change
+
+        :param self_match_count: self.match_count
+        :type self_match_count: int
+        :param self_histogram: self._stored_histogram["histogram"]
+        :type self_histogram: np.ndarray
+        :param self_match_count: other_profile.match_count
+        :type self_match_count: int
+        :param other_histogram: other_profile._stored_histogram["histogram"]
+        :type other_histogram: np.ndarray
+        :return: psi_value
+        :rtype: optional[float]
+        """
+        psi_value = 0
+
+        new_self_histogram, new_other_histogram = self._preprocess_for_calculate_psi(
+            self_histogram=self_histogram,
+            other_histogram=other_histogram,
+        )
+
+        if isinstance(new_other_histogram["bin_edges"], type(None)) or isinstance(
+            new_self_histogram["bin_edges"], type(None)
+        ):
+            warnings.warn(
+                "No edges available in at least one histogram for calculating `PSI`",
+                RuntimeWarning,
+            )
+            return None
+
+        bin_count: int = 0  # required typing by mypy
+        for iter_value, bin_count in enumerate(new_self_histogram["bin_counts"]):
+
+            self_percent = bin_count / self_match_count
+            other_percent = (
+                new_other_histogram["bin_counts"][iter_value] / other_match_count
+            )
+            if (self_percent == other_percent) and self_percent == 0:
+                continue
+
+            iter_psi = (other_percent - self_percent) * np.log(
+                other_percent / self_percent
+            )
+            if iter_psi and iter_psi != float("inf"):
+                psi_value += iter_psi
+
+        return psi_value
 
     def _update_variance(
         self, batch_mean: float, batch_var: float, batch_count: int
@@ -1059,48 +1203,19 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self._stored_histogram["current_loss"] = histogram_loss
         self._stored_histogram["total_loss"] += histogram_loss
 
-    def _histogram_for_profile(
-        self, histogram_method: str
+    def _regenerate_histogram(
+        self, bin_counts, bin_edges, suggested_bin_count, options=None
     ) -> Tuple[Dict[str, np.ndarray], float]:
-        """
-        Convert the stored histogram into the presentable state.
-
-        Based on the suggested histogram bin count from numpy.histograms.
-        The bin count used is stored in 'suggested_bin_count' for each method.
-
-        :param histogram_method: method to use for determining the histogram
-            profile
-        :type histogram_method: str
-        :return: histogram bin edges and bin counts
-        :rtype: dict
-        """
-        bin_counts, bin_edges = (
-            self._stored_histogram["histogram"]["bin_counts"],
-            self._stored_histogram["histogram"]["bin_edges"],
-        )
-
-        current_bin_counts, suggested_bin_count = (
-            self.histogram_methods[histogram_method]["histogram"]["bin_counts"],
-            self.histogram_methods[histogram_method]["suggested_bin_count"],
-        )
-
-        # base case, no need to change if it is already correct
-        if not self._has_histogram or current_bin_counts is not None:
-            return (
-                self.histogram_methods[histogram_method]["histogram"],
-                self.histogram_methods[histogram_method]["total_loss"],
-            )
-        elif len(bin_counts) == suggested_bin_count:
-            return (
-                self._stored_histogram["histogram"],
-                self._stored_histogram["total_loss"],
-            )
 
         # create proper binning
         new_bin_counts = np.zeros((suggested_bin_count,))
         new_bin_edges = np.linspace(
             bin_edges[0], bin_edges[-1], suggested_bin_count + 1
         )
+        if options:
+            new_bin_edges = np.linspace(
+                options["min_edge"], options["max_edge"], suggested_bin_count + 1
+            )
 
         # allocate bin_counts
         new_bin_id = 0
@@ -1158,6 +1273,49 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 new_bin_id += 1
 
         return ({"bin_edges": new_bin_edges, "bin_counts": new_bin_counts}, hist_loss)
+
+    def _histogram_for_profile(
+        self, histogram_method: str
+    ) -> Tuple[Dict[str, np.ndarray], float]:
+        """
+        Convert the stored histogram into the presentable state.
+
+        Based on the suggested histogram bin count from numpy.histograms.
+        The bin count used is stored in 'suggested_bin_count' for each method.
+
+        :param histogram_method: method to use for determining the histogram
+            profile
+        :type histogram_method: str
+        :return: histogram bin edges and bin counts
+        :rtype: dict
+        """
+        bin_counts, bin_edges = (
+            self._stored_histogram["histogram"]["bin_counts"],
+            self._stored_histogram["histogram"]["bin_edges"],
+        )
+
+        current_bin_counts, suggested_bin_count = (
+            self.histogram_methods[histogram_method]["histogram"]["bin_counts"],
+            self.histogram_methods[histogram_method]["suggested_bin_count"],
+        )
+
+        # base case, no need to change if it is already correct
+        if not self._has_histogram or current_bin_counts is not None:
+            return (
+                self.histogram_methods[histogram_method]["histogram"],
+                self.histogram_methods[histogram_method]["total_loss"],
+            )
+        elif len(bin_counts) == suggested_bin_count:
+            return (
+                self._stored_histogram["histogram"],
+                self._stored_histogram["total_loss"],
+            )
+
+        return self._regenerate_histogram(
+            bin_counts=bin_counts,
+            bin_edges=bin_edges,
+            suggested_bin_count=suggested_bin_count,
+        )
 
     def _get_best_histogram_for_profile(self) -> Dict:
         """

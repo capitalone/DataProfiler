@@ -522,9 +522,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         results["welch"]["p-value"] = float(welch_p_val)
         return results
 
-    @classmethod
     def _preprocess_for_calculate_psi(
-        cls,
+        self,
         self_histogram,
         other_histogram,
     ):
@@ -561,7 +560,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
             # re-calculate `self` histogram
             if not len_self_bin_counts == num_psi_bins:
-                histogram, hist_loss = cls._regenerate_histogram(
+                histogram, hist_loss = self._regenerate_histogram(
                     bin_counts=self_histogram["bin_counts"],
                     bin_edges=self_histogram["bin_edges"],
                     suggested_bin_count=num_psi_bins,
@@ -582,7 +581,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 histogram_edges_not_equal = True
 
             if histogram_edges_not_equal:
-                histogram, hist_loss = cls._regenerate_histogram(
+                histogram, hist_loss = self._regenerate_histogram(
                     bin_counts=other_histogram["bin_counts"],
                     bin_edges=other_histogram["bin_edges"],
                     suggested_bin_count=num_psi_bins,
@@ -597,9 +596,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         return new_self_histogram, new_other_histogram
 
-    @classmethod
     def _calculate_psi(
-        cls,
+        self,
         self_match_count: int,
         self_histogram: np.ndarray,
         other_match_count: int,
@@ -630,7 +628,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         """
         psi_value = 0
 
-        new_self_histogram, new_other_histogram = cls._preprocess_for_calculate_psi(
+        new_self_histogram, new_other_histogram = self._preprocess_for_calculate_psi(
             self_histogram=self_histogram,
             other_histogram=other_histogram,
         )

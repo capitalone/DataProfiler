@@ -369,91 +369,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
 
-        new_self_histogram = {"bin_counts": None, "bin_edges": None}
-        new_other_histogram = {"bin_counts": None, "bin_edges": None}
-        regenerate_histogram = False
-        num_psi_bins = 10
-
-        if (
-            isinstance(self._stored_histogram["histogram"]["bin_counts"], np.ndarray)
-            and isinstance(self._stored_histogram["histogram"]["bin_edges"], np.ndarray)
-            and isinstance(
-                other_profile._stored_histogram["histogram"]["bin_counts"], np.ndarray
-            )
-            and isinstance(
-                other_profile._stored_histogram["histogram"]["bin_edges"], np.ndarray
-            )
-        ):
-            regenerate_histogram = True
-            min_min_edge = min(
-                self._stored_histogram["histogram"]["bin_edges"][0],
-                other_profile._stored_histogram["histogram"]["bin_edges"][0],
-            )
-            max_max_edge = max(
-                self._stored_histogram["histogram"]["bin_edges"][-1],
-                other_profile._stored_histogram["histogram"]["bin_edges"][-1],
-            )
-
-        if regenerate_histogram:
-
-            new_self_histogram["bin_counts"] = self._stored_histogram["histogram"][
-                "bin_counts"
-            ]
-            new_self_histogram["bin_edges"] = self._stored_histogram["histogram"][
-                "bin_edges"
-            ]
-            new_other_histogram["bin_edges"] = other_profile._stored_histogram[
-                "histogram"
-            ]["bin_edges"]
-            new_other_histogram["bin_counts"] = other_profile._stored_histogram[
-                "histogram"
-            ]["bin_counts"]
-
-            len_self_bin_counts = 0
-            if len(self._stored_histogram["histogram"]["bin_counts"]) > 0:
-                len_self_bin_counts = len(
-                    self._stored_histogram["histogram"]["bin_counts"]
-                )
-
-            # re-calculate `self` histogram
-            if not len_self_bin_counts == num_psi_bins:
-                histogram, hist_loss = self._regenerate_histogram(
-                    bin_counts=self._stored_histogram["histogram"]["bin_counts"],
-                    bin_edges=self._stored_histogram["histogram"]["bin_edges"],
-                    suggested_bin_count=num_psi_bins,
-                    options={
-                        "min_edge": min_min_edge,
-                        "max_edge": max_max_edge,
-                    },
-                )
-                new_self_histogram["bin_counts"] = histogram["bin_counts"]
-                new_self_histogram["bin_edges"] = histogram["bin_edges"]
-
-            # re-calculate `other_profile` histogram
-            histogram_edges_not_equal = False
-            all_array_values_equal = (
-                other_profile._stored_histogram["histogram"]["bin_edges"]
-                == self._stored_histogram["histogram"]["bin_edges"]
-            ).all()
-            if not all_array_values_equal:
-                histogram_edges_not_equal = True
-
-            if histogram_edges_not_equal:
-                histogram, hist_loss = self._regenerate_histogram(
-                    bin_counts=other_profile._stored_histogram["histogram"][
-                        "bin_counts"
-                    ],
-                    bin_edges=other_profile._stored_histogram["histogram"]["bin_edges"],
-                    suggested_bin_count=num_psi_bins,
-                    options={
-                        "min_edge": min_min_edge,
-                        "max_edge": max_max_edge,
-                    },
-                )
-
-                new_other_histogram["bin_edges"] = histogram["bin_edges"]
-                new_other_histogram["bin_counts"] = histogram["bin_counts"]
-
         differences = {
             "min": utils.find_diff_of_numbers(self.min, other_profile.min),
             "max": utils.find_diff_of_numbers(self.max, other_profile.max),
@@ -478,9 +393,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             ),
             "psi": self._calculate_psi(
                 self.match_count,
-                new_self_histogram,
+                self._stored_histogram["histogram"],
                 other_profile.match_count,
-                new_other_histogram,
+                other_profile._stored_histogram["histogram"],
             ),
         }
         return differences
@@ -607,12 +522,88 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         results["welch"]["p-value"] = float(welch_p_val)
         return results
 
-    @staticmethod
+    @classmethod
+    def _preprocess_for_calculate_psi(
+        cls,
+        self_histogram,
+        other_histogram,
+    ):
+        new_self_histogram = {"bin_counts": None, "bin_edges": None}
+        new_other_histogram = {"bin_counts": None, "bin_edges": None}
+        regenerate_histogram = False
+        num_psi_bins = 10
+
+        if (
+            isinstance(self_histogram["bin_counts"], np.ndarray)
+            and isinstance(self_histogram["bin_edges"], np.ndarray)
+            and isinstance(other_histogram["bin_counts"], np.ndarray)
+            and isinstance(other_histogram["bin_edges"], np.ndarray)
+        ):
+            regenerate_histogram = True
+            min_min_edge = min(
+                self_histogram["bin_edges"][0],
+                other_histogram["bin_edges"][0],
+            )
+            max_max_edge = max(
+                self_histogram["bin_edges"][-1],
+                other_histogram["bin_edges"][-1],
+            )
+
+        if regenerate_histogram:
+            new_self_histogram["bin_counts"] = self_histogram["bin_counts"]
+            new_self_histogram["bin_edges"] = self_histogram["bin_edges"]
+            new_other_histogram["bin_edges"] = other_histogram["bin_edges"]
+            new_other_histogram["bin_counts"] = other_histogram["bin_counts"]
+
+            len_self_bin_counts = 0
+            if len(self_histogram["bin_counts"]) > 0:
+                len_self_bin_counts = len(self_histogram["bin_counts"])
+
+            # re-calculate `self` histogram
+            if not len_self_bin_counts == num_psi_bins:
+                histogram, hist_loss = cls._regenerate_histogram(
+                    bin_counts=self_histogram["bin_counts"],
+                    bin_edges=self_histogram["bin_edges"],
+                    suggested_bin_count=num_psi_bins,
+                    options={
+                        "min_edge": min_min_edge,
+                        "max_edge": max_max_edge,
+                    },
+                )
+                new_self_histogram["bin_counts"] = histogram["bin_counts"]
+                new_self_histogram["bin_edges"] = histogram["bin_edges"]
+
+            # re-calculate `other_profile` histogram
+            histogram_edges_not_equal = False
+            all_array_values_equal = (
+                other_histogram["bin_edges"] == self_histogram["bin_edges"]
+            ).all()
+            if not all_array_values_equal:
+                histogram_edges_not_equal = True
+
+            if histogram_edges_not_equal:
+                histogram, hist_loss = cls._regenerate_histogram(
+                    bin_counts=other_histogram["bin_counts"],
+                    bin_edges=other_histogram["bin_edges"],
+                    suggested_bin_count=num_psi_bins,
+                    options={
+                        "min_edge": min_min_edge,
+                        "max_edge": max_max_edge,
+                    },
+                )
+
+                new_other_histogram["bin_edges"] = histogram["bin_edges"]
+                new_other_histogram["bin_counts"] = histogram["bin_counts"]
+
+        return new_self_histogram, new_other_histogram
+
+    @classmethod
     def _calculate_psi(
+        cls,
         self_match_count: int,
-        histogram1: np.ndarray,
+        self_histogram: np.ndarray,
         other_match_count: int,
-        histogram2: np.ndarray,
+        other_histogram: np.ndarray,
     ) -> Optional[float]:
         """
         Calculate PSI (Population Stability Index).
@@ -628,19 +619,24 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         :param self_match_count: self.match_count
         :type self_match_count: int
-        :param histogram1: self._stored_histogram["histogram"]
-        :type histogram1: np.ndarray
+        :param self_histogram: self._stored_histogram["histogram"]
+        :type self_histogram: np.ndarray
         :param self_match_count: other_profile.match_count
         :type self_match_count: int
-        :param histogram2: other_profile._stored_histogram["histogram"]
-        :type histogram2: np.ndarray
+        :param other_histogram: other_profile._stored_histogram["histogram"]
+        :type other_histogram: np.ndarray
         :return: psi_value
         :rtype: optional[float]
         """
         psi_value = 0
 
-        if isinstance(histogram2["bin_edges"], type(None)) or isinstance(
-            histogram1["bin_edges"], type(None)
+        new_self_histogram, new_other_histogram = cls._preprocess_for_calculate_psi(
+            self_histogram=self_histogram,
+            other_histogram=other_histogram,
+        )
+
+        if isinstance(new_other_histogram["bin_edges"], type(None)) or isinstance(
+            new_self_histogram["bin_edges"], type(None)
         ):
             warnings.warn(
                 "No edges available in at least one histogram for calculating `PSI`",
@@ -648,10 +644,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             )
             return None
 
-        for iter_value, bin_count in enumerate(histogram1["bin_counts"]):
+        bin_count: int = 0  # required typing by mypy
+        for iter_value, bin_count in enumerate(new_self_histogram["bin_counts"]):
 
             self_percent = bin_count / self_match_count
-            other_percent = histogram2["bin_counts"][iter_value] / other_match_count
+            other_percent = (
+                new_other_histogram["bin_counts"][iter_value] / other_match_count
+            )
             if (self_percent == other_percent) and self_percent == 0:
                 continue
 

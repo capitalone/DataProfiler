@@ -740,7 +740,3 @@ class TestUnstructuredCompiler(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-test_diff = TestBaseProfileCompilerClass()
-test_diff.test_diff_primitive_compilers()

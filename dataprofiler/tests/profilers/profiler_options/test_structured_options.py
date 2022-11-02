@@ -89,7 +89,7 @@ class TestStructuredOptions(TestBaseOption):
 
         for test_dict in ({0: {"a": 0}}, {0: {"a": re.IGNORECASE}}, None):
             option.set({"column_null_values": test_dict})
-            self.assertEqual(test_dict, option.null_values)
+            self.assertEqual(test_dict, option.column_null_values)
 
     def test_validate_helper(self):
         # Valid cases should return [] while invalid cases
@@ -277,7 +277,7 @@ class TestStructuredOptions(TestBaseOption):
         option.set({"column_null_values": 1})
         self.assertEqual(expected_error, option._validate_helper())
         # Test 0 works for option set
-        option.set({"column_null_values": {0: {{"a": 0}}}})
+        option.set({"column_null_values": {0: {"a": 0}}})
         self.assertEqual([], option._validate_helper())
         # Test a regex flag works for option set
         option.set({"column_null_values": {0: {"a": re.IGNORECASE}}})

@@ -1,8 +1,5 @@
 include *.txt
 include CODEOWNERS
-include Makefile
-include pylintrc
-include tox.ini
 recursive-include dataprofiler *.avro
 recursive-include dataprofiler *.csv
 recursive-include dataprofiler *.html

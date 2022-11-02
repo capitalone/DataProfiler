@@ -171,9 +171,10 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 "stddev": 3.285085839971525,
                 "t-test": {
                     "t-statistic": 0.4155260166386663,
-                    "conservative": {"df": 1, "p-value": 0.749287157907667},
+                    "conservative": {"df": 1.0, "p-value": 0.749287157907667},
                     "welch": {"df": 3.6288111187629117, "p-value": 0.7011367179395704},
                 },
+                "psi": 0.17328679513998632,
             },
         }
         profile_diff = compiler1.diff(compiler2)
@@ -247,7 +248,7 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 "sum": -20.0,
                 "mean": -10.0,
                 "median": -10,
-                "mode": [[-2, -1, 1, 2], [], [5, 15]],
+                "mode": [[-2.0, -1.0, 1.0, 2.0], [], [5, 15]],
                 "median_absolute_deviation": -3.5,
                 "variance": -46.666666666666664,
                 "stddev": data1.astype(int).std() - data2.astype(int).std(),
@@ -262,9 +263,10 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 },
                 "t-test": {
                     "t-statistic": -1.9674775073518591,
-                    "conservative": {"df": 1, "p-value": 0.29936264581081673},
+                    "conservative": {"df": 1.0, "p-value": 0.29936264581081673},
                     "welch": {"df": 1.0673824509440946, "p-value": 0.28696889329266506},
                 },
+                "psi": 0,
             },
         }
         profile_diff = compiler1.diff(compiler2)

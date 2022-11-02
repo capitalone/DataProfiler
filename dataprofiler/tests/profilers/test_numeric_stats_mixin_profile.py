@@ -796,6 +796,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                 "conservative": {"df": 9, "p-value": 0.7039643545772609},
                 "welch": {"df": 25.945257024943864, "p-value": 0.6980401261750298},
             },
+            "psi": None,
         }
 
         difference = other1.diff(other2)
@@ -836,6 +837,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                 "conservative": {"df": None, "p-value": None},
                 "welch": {"df": None, "p-value": None},
             },
+            "psi": None,
         }
         expected_var = expected_diff.pop("variance")
         expected_stddev = expected_diff.pop("stddev")
@@ -885,6 +887,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                 "conservative": {"df": None, "p-value": None},
                 "welch": {"df": None, "p-value": None},
             },
+            "psi": None,
         }
         expected_var = expected_diff.pop("variance")
         expected_stddev = expected_diff.pop("stddev")
@@ -933,6 +936,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                 "conservative": {"df": None, "p-value": None},
                 "welch": {"df": None, "p-value": None},
             },
+            "psi": None,
         }
         expected_var = expected_diff.pop("variance")
         expected_stddev = expected_diff.pop("stddev")
@@ -980,6 +984,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                 "conservative": {"df": 9, "p-value": 0.011958658754358975},
                 "welch": {"df": 25.945257024943864, "p-value": 0.004201616692122823},
             },
+            "psi": None,
         }
         difference = other1.diff(other2)
         self.assertDictEqual(expected_diff, difference)

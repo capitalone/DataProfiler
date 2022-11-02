@@ -7,8 +7,11 @@ import operator
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
-from numpy.lib.histograms import _get_outer_edges  # type: ignore
-from numpy.lib.histograms import _hist_bin_selectors, _unsigned_subtract
+from numpy.lib.histograms import (  # type: ignore
+    _get_outer_edges,
+    _hist_bin_selectors,
+    _unsigned_subtract,
+)
 
 
 def _get_bin_edges(

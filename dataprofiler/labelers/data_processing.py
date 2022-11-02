@@ -26,6 +26,7 @@ from typing import (
 )
 
 import numpy as np
+import numpy.typing as npt
 import pkg_resources
 
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
@@ -1416,7 +1417,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         return params
 
     def convert_to_unstructured_format(
-        self, data: np.ndarray, labels: Optional[List[str]]
+        self, data: np.ndarray, labels: Optional[Union[List[str], npt.NDArray[np.str_]]]
     ) -> Tuple[str, Optional[List[Tuple[int, int, str]]]]:
         """
         Convert data samples list to StructCharPreprocessor required input data format.
@@ -1424,7 +1425,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         :param data: list of strings
         :type data: numpy.ndarray
         :param labels: labels for each input character
-        :type labels: list
+        :type labels: Union[list, numpy.ndarray]
         :return: data in the following format
                  text="<SAMPLE><SEPARATOR><SAMPLE>...",
                  entities=[(start=<INT>, end=<INT>, label="<LABEL>"),
@@ -1507,7 +1508,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         # with rework, can be tuned to be batches > size 1
         for ind in range(len(data)):
             batch_data: np.ndarray = data[ind : ind + 1]
-            batch_labels: Optional[List[str]] = (
+            batch_labels: Optional[npt.NDArray[np.str_]] = (
                 None if labels is None else labels[ind : ind + 1]
             )
             (

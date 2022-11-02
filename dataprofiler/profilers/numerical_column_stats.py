@@ -428,7 +428,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         :rtype: float
         """
         if not self._has_histogram or not self._median_is_enabled:
-            return cast(float, np.nan)
+            return np.nan
         return self._get_percentile([50])[0]
 
     @property
@@ -444,7 +444,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def stddev(self) -> float:
         """Return stddev value."""
         if self.match_count == 0:
-            return cast(float, np.nan)
+            return np.nan
         return cast(float, np.sqrt(self.variance))
 
     @property
@@ -707,7 +707,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         elif match_count2 < 1:
             return biased_variance1
         elif np.isnan(biased_variance1) or np.isnan(biased_variance2):
-            return cast(float, np.nan)
+            return np.nan
 
         curr_count = match_count1
         delta = mean2 - mean1
@@ -730,7 +730,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "False in ProfilerOptions.",
                 RuntimeWarning,
             )
-            return cast(float, np.nan)
+            return np.nan
 
         variance = match_count / (match_count - 1) * biased_variance
         return variance
@@ -765,7 +765,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         elif match_count2 < 1:
             return biased_skewness1
         elif np.isnan(biased_skewness1) or np.isnan(biased_skewness2):
-            return cast(float, np.nan)
+            return np.nan
 
         delta = mean2 - mean1
         N = match_count1 + match_count2
@@ -809,7 +809,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "False in ProfilerOptions.",
                 RuntimeWarning,
             )
-            return cast(float, np.nan)
+            return np.nan
 
         skewness: float = (
             np.sqrt(match_count * (match_count - 1))
@@ -852,7 +852,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         elif match_count2 < 1:
             return biased_kurtosis1
         elif np.isnan(biased_kurtosis1) or np.isnan(biased_kurtosis2):
-            return cast(float, np.nan)
+            return np.nan
 
         delta = mean2 - mean1
         N = match_count1 + match_count2
@@ -906,7 +906,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "False in ProfilerOptions.",
                 RuntimeWarning,
             )
-            return cast(float, np.nan)
+            return np.nan
 
         kurtosis = (
             (match_count - 1)
@@ -1087,7 +1087,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         if not hist_to_array:
             hist_to_array = [[]]
 
-        array_flatten = np.concatenate(
+        array_flatten: np.ndarray = np.concatenate(
             (
                 hist_to_array
                 + [[bin_edges[-2]] * int(bin_counts[-1] / 2)]
@@ -1453,7 +1453,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         :return: median absolute deviation
         """
         if not self._has_histogram or not self._median_abs_dev_is_enabled:
-            return cast(float, np.nan)
+            return np.nan
 
         bin_counts = self._stored_histogram["histogram"]["bin_counts"]
         bin_edges = self._stored_histogram["histogram"]["bin_edges"]
@@ -1492,11 +1492,21 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             np.append([True], np.diff(bin_edges_impose) > 1e-14)
         ]
 
-        bin_counts_impose_pos: float = np.interp(
-            bin_edges_impose, bin_edges_pos, np.cumsum(np.append([0], bin_counts_pos))
+        bin_counts_impose_pos: float = cast(
+            float,
+            np.interp(
+                bin_edges_impose,
+                bin_edges_pos,
+                np.cumsum(np.append([0], bin_counts_pos)),
+            ),
         )
-        bin_counts_impose_neg: float = np.interp(
-            bin_edges_impose, bin_edges_neg, np.cumsum(np.append([0], bin_counts_neg))
+        bin_counts_impose_neg: float = cast(
+            float,
+            np.interp(
+                bin_edges_impose,
+                bin_edges_neg,
+                np.cumsum(np.append([0], bin_counts_neg)),
+            ),
         )
         bin_counts_impose = bin_counts_impose_pos + bin_counts_impose_neg
 

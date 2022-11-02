@@ -44,4 +44,4 @@ repos:
         exclude: (^dataprofiler/tests/|^resources/|^examples|venv*/)
         language_version: python3
         additional_dependencies: ['types-setuptools', 'types-python-dateutil',
-        'types-requests', 'types-chardet', 'types-six']
+        'types-requests', 'types-chardet', 'types-six', 'numpy']

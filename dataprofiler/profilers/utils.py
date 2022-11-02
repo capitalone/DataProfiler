@@ -25,7 +25,6 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
-    cast,
 )
 
 import numpy as np
@@ -337,7 +336,7 @@ def biased_skew(df_series: Series) -> float:
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        return cast(float, np.nan)
+        return np.nan
 
     diffs = df_series - mean
     squared_diffs = diffs**2
@@ -371,11 +370,11 @@ def biased_kurt(df_series: Series) -> float:
     """
     n = len(df_series)
     if n < 1:
-        return cast(float, np.nan)
+        return np.nan
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):
-        return cast(float, np.nan)
+        return np.nan
 
     diffs = df_series - mean
     squared_diffs = diffs**2

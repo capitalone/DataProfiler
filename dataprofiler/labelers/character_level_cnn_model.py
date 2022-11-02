@@ -58,7 +58,7 @@ def create_glove_char(n_dims: int, source_file: str = None) -> None:
     embd_table = build_embd_dictionary(source_file)
     embd_words: List[str]
     embd_matrix: List[np.ndarray]
-    embd_words, embd_matrix = [
+    embd_words, embd_matrix = [  # type: ignore
         np.asarray(ls) if i > 0 else list(ls)  # type: ignore
         for i, ls in enumerate(zip(*embd_table.items()))
     ]

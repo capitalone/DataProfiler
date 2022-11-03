@@ -79,7 +79,7 @@ def evaluate_accuracy(
     predicted_entities_in_index: List[List[int]],
     true_entities_in_index: List[List[int]],
     num_labels: int,
-    entity_rev_dict: Dict[int, Any],
+    entity_rev_dict: Dict[int, str],
     verbose: bool = True,
     omitted_labels: Tuple[str, ...] = ("PAD", "UNKNOWN"),
     confusion_matrix_file: str = None,

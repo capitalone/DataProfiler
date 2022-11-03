@@ -45,3 +45,13 @@ repos:
         language_version: python3
         additional_dependencies: ['types-setuptools', 'types-python-dateutil',
         'types-requests', 'types-chardet', 'types-six', 'numpy']
+  # Check-manifest: ensures required non-Python files are included in MANIFEST.in
+  # https://github.com/mgedmin/check-manifest/blob/master/.pre-commit-hooks.yaml
+  - repo: https://github.com/mgedmin/check-manifest
+    rev: "0.48"
+    hooks:
+      - id: check-manifest
+        additional_dependencies: ['h5py', 'wheel', 'future', 'numpy', 'pandas',
+        'python-dateutil', 'pytz', 'six', 'pyarrow', 'chardet', 'fastavro',
+        'python-snappy', 'charset-normalizer', 'psutil', 'scipy', 'requests',
+        'networkx','typing-extensions']

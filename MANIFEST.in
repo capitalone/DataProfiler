@@ -1,0 +1,17 @@
+include *.txt
+include CODEOWNERS
+recursive-include dataprofiler *.avro
+recursive-include dataprofiler *.csv
+recursive-include dataprofiler *.html
+recursive-include dataprofiler *.json
+recursive-include dataprofiler *.md
+recursive-include dataprofiler *.parq
+recursive-include dataprofiler *.parquet
+recursive-include dataprofiler *.py
+recursive-include dataprofiler *.txt
+
+recursive-include resources *.json
+recursive-include resources *.pb
+recursive-include resources *.py
+
+recursive-include dataprofiler/labelers/embeddings/ *.txt

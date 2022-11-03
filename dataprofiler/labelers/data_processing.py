@@ -1425,11 +1425,12 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         :param data: list of strings
         :type data: numpy.ndarray
         :param labels: labels for each input character
-        :type labels: Union[list, numpy.ndarray]
+        :type labels: Optional[Union[List[str], npt.NDArray[np.str_]]]
         :return: data in the following format
                  text="<SAMPLE><SEPARATOR><SAMPLE>...",
                  entities=[(start=<INT>, end=<INT>, label="<LABEL>"),
                                   ...(num_samples in data)])
+        :rtype: Tuple[str, Optional[List[Tuple[int, int, str]]]]
         """
         separator: str = self._parameters["flatten_separator"]
         default_label: str = self._parameters["default_label"]
@@ -1508,7 +1509,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         # with rework, can be tuned to be batches > size 1
         for ind in range(len(data)):
             batch_data: np.ndarray = data[ind : ind + 1]
-            batch_labels: Optional[npt.NDArray[np.str_]] = (
+            batch_labels: Optional[Union[npt.NDArray[np.str_], List[str]]] = (
                 None if labels is None else labels[ind : ind + 1]
             )
             (

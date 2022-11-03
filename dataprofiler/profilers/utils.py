@@ -332,7 +332,7 @@ def biased_skew(df_series: Series) -> float:
     """
     n = len(df_series)
     if n < 1:
-        return float(np.nan)
+        return np.nan
 
     mean = sum(df_series) / n
     if np.isinf(mean) or np.isnan(mean):

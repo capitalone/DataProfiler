@@ -548,7 +548,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                     PSI cannot be performed.""",
                     RuntimeWarning,
                 )
-                return None
+                return self_histogram, other_histogram
 
             regenerate_histogram = True
             min_min_edge = min(

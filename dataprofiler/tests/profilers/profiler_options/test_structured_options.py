@@ -9,7 +9,7 @@ from dataprofiler.tests.profilers.profiler_options.test_base_option import (
 class TestStructuredOptions(TestBaseOption):
 
     option_class = StructuredOptions
-    other_keys = ["null_values"]
+    other_keys = ["null_values", "column_null_values"]
     boolean_keys = [
         "int",
         "float",
@@ -83,22 +83,13 @@ class TestStructuredOptions(TestBaseOption):
             with self.assertRaisesRegex(AttributeError, expected_error):
                 option.set({"{}.is_enabled".format(key): True})
 
-        expected_error = (
-            "{}.null_values must be either None or "
-            "a dictionary that contains keys of str type "
-            "and values == 0 or are instances of "
-            "a re.RegexFlag".format(optpth)
-        )
+        for test_dict in ({"a": 0}, {"a": re.IGNORECASE}, None):
+            option.set({"null_values": test_dict})
+            self.assertEqual(test_dict, option.null_values)
 
-        test_dict = {"a": 0}
-        option.set({"null_values": test_dict})
-        self.assertEqual({"a": 0}, option.null_values)
-        test_dict = {"a": re.IGNORECASE}
-        option.set({"null_values": test_dict})
-        self.assertEqual({"a": 2}, option.null_values)
-        test_dict = None
-        option.set({"null_values": test_dict})
-        self.assertEqual(None, option.null_values)
+        for test_dict in ({0: {"a": 0}}, {0: {"a": re.IGNORECASE}}, None):
+            option.set({"column_null_values": test_dict})
+            self.assertEqual(test_dict, option.column_null_values)
 
     def test_validate_helper(self):
         # Valid cases should return [] while invalid cases
@@ -266,9 +257,39 @@ class TestStructuredOptions(TestBaseOption):
         option.set({"null_values": None})
         self.assertEqual([], option._validate_helper())
 
+        expected_error = [
+            "{}.column_null_values must be either None or "
+            "a dictionary that contains keys of type int "
+            "that map to dictionaries that contains keys "
+            "of type str and values == 0 or are instances of "
+            "a re.RegexFlag".format(optpth)
+        ]
+        # Test column key is not an int
+        option.set({"column_null_values": {"a": {"a": 0}}})
+        self.assertEqual(expected_error, option._validate_helper())
+        # Test key is not a str
+        option.set({"column_null_values": {0: {0: 0}}})
+        self.assertEqual(expected_error, option._validate_helper())
+        # Test value is not correct type (0 or regex)
+        option.set({"column_null_values": {0: {"a": 1}}})
+        self.assertEqual(expected_error, option._validate_helper())
+        # Test variable is not correct variable type
+        option.set({"column_null_values": 1})
+        self.assertEqual(expected_error, option._validate_helper())
+        # Test 0 works for option set
+        option.set({"column_null_values": {0: {"a": 0}}})
+        self.assertEqual([], option._validate_helper())
+        # Test a regex flag works for option set
+        option.set({"column_null_values": {0: {"a": re.IGNORECASE}}})
+        self.assertEqual([], option._validate_helper())
+        # Test None works for option set
+        option.set({"column_null_values": None})
+        self.assertEqual([], option._validate_helper())
+
     def test_enabled_profilers(self):
         options = self.get_options()
         self.assertNotIn("null_values", options.enabled_profiles)
+        self.assertNotIn("column_null_values", options.enabled_profiles)
 
         # All Columns Enabled
         for key in self.boolean_keys:

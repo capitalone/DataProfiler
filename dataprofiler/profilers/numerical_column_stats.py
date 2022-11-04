@@ -544,11 +544,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 and len(other_histogram["bin_counts"]) <= 1
             ):
                 warnings.warn(
-                    """Data were essentially the same with less than or equal to one bin.
-                    PSI cannot be performed.""",
+                    """Data were essentially the same and less
+                    than or equal to one bin. PSI cannot be performed.""",
                     RuntimeWarning,
                 )
-                return self_histogram, other_histogram
+                return new_self_histogram, new_other_histogram
 
             regenerate_histogram = True
             min_min_edge = min(

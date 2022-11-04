@@ -59,7 +59,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self.sum: Union[int, float] = 0
         self._biased_variance: float = np.nan
         self._biased_skewness: Union[float, np.float64] = np.nan
-        self._biased_kurtosis: float = np.nan
+        self._biased_kurtosis: Union[float, np.float64] = np.nan
         self._median_is_enabled: bool = True
         self._median_abs_dev_is_enabled: bool = True
         self.max_histogram_bin: int = 100000
@@ -458,7 +458,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         )
 
     @property
-    def kurtosis(self) -> float:
+    def kurtosis(self) -> Union[float, np.float64]:
         """Return kurtosis value."""
         return (
             self._biased_kurtosis
@@ -824,16 +824,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @staticmethod
     def _merge_biased_kurtosis(
         match_count1: int,
-        biased_kurtosis1: float,
+        biased_kurtosis1: Union[float, np.float64],
         biased_skewness1: Union[float, np.float64],
         biased_variance1: float,
         mean1: float,
         match_count2: int,
-        biased_kurtosis2: float,
+        biased_kurtosis2: Union[float, np.float64],
         biased_skewness2: Union[float, np.float64],
         biased_variance2: float,
         mean2: float,
-    ) -> float:
+    ) -> Union[float, np.float64]:
         """
         Calculate the combined kurtosis of two sets of data.
 
@@ -865,8 +865,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         if not M2:
             return 0
 
-        M3_1 = biased_skewness1 * np.sqrt(M2_1**3) / np.sqrt(match_count1)
-        M3_2 = biased_skewness2 * np.sqrt(M2_2**3) / np.sqrt(match_count2)
+        M3_1: np.float64 = biased_skewness1 * np.sqrt(M2_1**3) / np.sqrt(match_count1)
+        M3_2: np.float64 = biased_skewness2 * np.sqrt(M2_2**3) / np.sqrt(match_count2)
         M4_1 = (biased_kurtosis1 + 3) * M2_1**2 / match_count1
         M4_2 = (biased_kurtosis2 + 3) * M2_2**2 / match_count2
 
@@ -889,11 +889,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         fourth_term = 4 * delta * (match_count1 * M3_2 - match_count2 * M3_1) / N
         M4 = first_term + second_term + third_term + fourth_term
 
-        biased_kurtosis: float = N * M4 / M2**2 - 3
+        biased_kurtosis: np.float64 = N * M4 / M2**2 - 3
         return biased_kurtosis
 
     @staticmethod
-    def _correct_bias_kurtosis(match_count: int, biased_kurtosis: float) -> float:
+    def _correct_bias_kurtosis(
+        match_count: int, biased_kurtosis: Union[float, np.float64]
+    ) -> Union[float, np.float64]:
         """
         Apply bias correction to kurtosis.
 

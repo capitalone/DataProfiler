@@ -537,6 +537,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             and isinstance(other_histogram["bin_counts"], np.ndarray)
             and isinstance(other_histogram["bin_edges"], np.ndarray)
         ):
+
+            if (
+                len(self_histogram["bin_counts"]) <= 1
+                and len(other_histogram["bin_counts"]) <= 1
+            ):
+                warnings.warn(
+                    """Data were essentially the same with less than or equal to one bin.
+                    PSI cannot be performed.""",
+                    RuntimeWarning,
+                )
+                return None
+
             regenerate_histogram = True
             min_min_edge = min(
                 self_histogram["bin_edges"][0],
@@ -548,7 +560,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             )
 
         if regenerate_histogram:
-            # THIS IS WEIRD
             new_self_histogram["bin_counts"] = self_histogram["bin_counts"]
             new_self_histogram["bin_edges"] = self_histogram["bin_edges"]
             new_other_histogram["bin_edges"] = other_histogram["bin_edges"]
@@ -628,17 +639,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         """
         psi_value = 0
 
-        if (
-            len(self_histogram["bin_counts"]) <= 1
-            and len(other_histogram["bin_counts"]) <= 1
-        ):
-            warnings.warn(
-                """Data were essentially the same with less than or equal to one bin.
-                PSI cannot be performed.""",
-                RuntimeWarning,
-            )
-            return None
-
         new_self_histogram, new_other_histogram = self._preprocess_for_calculate_psi(
             self_histogram=self_histogram,
             other_histogram=other_histogram,
@@ -657,7 +657,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         for iter_value, bin_count in enumerate(new_self_histogram["bin_counts"]):
 
             self_percent = bin_count / self_match_count
-            # TODO: bug arising here
             other_percent = (
                 new_other_histogram["bin_counts"][iter_value] / other_match_count
             )

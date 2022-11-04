@@ -628,6 +628,17 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         """
         psi_value = 0
 
+        if (
+            len(self_histogram["bin_counts"]) <= 1
+            and len(other_histogram["bin_counts"]) <= 1
+        ):
+            warnings.warn(
+                """Data were essentially the same with less than or equal to one bin.
+                PSI cannot be performed.""",
+                RuntimeWarning,
+            )
+            return None
+
         new_self_histogram, new_other_histogram = self._preprocess_for_calculate_psi(
             self_histogram=self_histogram,
             other_histogram=other_histogram,

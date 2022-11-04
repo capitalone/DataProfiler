@@ -22,7 +22,3 @@ class TestStructDiff(unittest.TestCase):
         profile2 = Profiler(df2)
 
         data_split_differences = profile1.diff(profile2)
-
-
-test_diff = TestStructDiff()
-test_diff.test_diff()

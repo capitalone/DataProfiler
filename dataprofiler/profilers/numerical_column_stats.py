@@ -950,13 +950,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         ) / 2
         return cast(List[float], mode.tolist())
 
-    def _estimate_stats_from_histogram(self) -> float:
+    def _estimate_stats_from_histogram(self) -> np.float64:
         # test estimated mean and var
         bin_counts = self._stored_histogram["histogram"]["bin_counts"]
         bin_edges = self._stored_histogram["histogram"]["bin_edges"]
         mids = 0.5 * (bin_edges[1:] + bin_edges[:-1])
         mean = np.average(mids, weights=bin_counts)
-        var: float = np.average((mids - mean) ** 2, weights=bin_counts)
+        var: np.float64 = np.average((mids - mean) ** 2, weights=bin_counts)
         return var
 
     def _total_histogram_bin_variance(

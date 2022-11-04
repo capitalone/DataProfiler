@@ -123,6 +123,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             "num_zeros": NumericStatsMixin._get_num_zeros,
             "num_negatives": NumericStatsMixin._get_num_negatives,
         }
+        self.match_count: int  # needed for mypy
 
         self._filter_properties_w_options(self.__calculations, options)
 
@@ -405,7 +406,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         """Return mean value."""
         if self.match_count == 0:
             return 0
-        return float(self.sum) / float(self.match_count)
+        return float(self.sum) / self.match_count
 
     @property
     def mode(self) -> List[float]:

@@ -796,7 +796,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @staticmethod
     def _correct_bias_skewness(
         match_count: int, biased_skewness: Union[float, np.float64]
-    ) -> float:
+    ) -> Union[float, np.float64]:
         """
         Apply bias correction to skewness.
 
@@ -814,7 +814,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             )
             return np.nan
 
-        skewness: float = (
+        skewness: np.float64 = (
             np.sqrt(match_count * (match_count - 1))
             * biased_skewness
             / (match_count - 2)

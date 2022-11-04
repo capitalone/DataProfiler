@@ -2081,6 +2081,19 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal([[np.nan], [18]], column["class_sum"])
         np.testing.assert_array_almost_equal([[np.nan], [9]], column["class_mean"])
 
+        # Test with all null in a row
+        data_4 = pd.DataFrame([[10, 10], [9999999, 9999999]])
+
+        profiler = dp.StructuredProfiler(data_4, options=profile_options)
+        report = profiler.report()
+
+        self.assertTrue("null_replication_metrics" in report["data_stats"][0])
+        column = report["data_stats"][0]["null_replication_metrics"]
+
+        np.testing.assert_array_almost_equal([0.5, 0.5], column["class_prior"])
+        np.testing.assert_array_almost_equal([[10], [0]], column["class_sum"])
+        np.testing.assert_array_almost_equal([[10], [0]], column["class_mean"])
+
     def test_column_level_invalid_values(self):
         data = pd.DataFrame([[1, 1], [9999999, 2], [3, 3]])
 

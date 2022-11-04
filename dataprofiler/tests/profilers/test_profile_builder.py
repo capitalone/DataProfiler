@@ -2048,6 +2048,39 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal([17 / 8, 48 / 8], column["class_mean"][0])
         np.testing.assert_array_almost_equal([12 / 2, 6 / 2], column["class_mean"][1])
 
+        # Test with all null in a column
+        data_3 = pd.DataFrame([[9999999, 9], [9999999, 9]])
+
+        NO_FLAG = 0
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "*.null_values": {
+                    "": NO_FLAG,
+                    "nan": re.IGNORECASE,
+                    "none": re.IGNORECASE,
+                    "null": re.IGNORECASE,
+                    "  *": NO_FLAG,
+                    "--*": NO_FLAG,
+                    "__*": NO_FLAG,
+                    "9" * 7: NO_FLAG,
+                },
+                "*.null_replication_metrics.is_enabled": True,
+                "data_labeler.is_enabled": False,
+                "multiprocess.is_enabled": False,
+            }
+        )
+
+        profiler = dp.StructuredProfiler(data_3, options=profile_options)
+        report = profiler.report()
+
+        self.assertTrue("null_replication_metrics" in report["data_stats"][0])
+        column = report["data_stats"][0]["null_replication_metrics"]
+
+        np.testing.assert_array_almost_equal([0, 1], column["class_prior"])
+        np.testing.assert_array_almost_equal([[np.nan], [18]], column["class_sum"])
+        np.testing.assert_array_almost_equal([[np.nan], [9]], column["class_mean"])
+
     def test_column_level_invalid_values(self):
         data = pd.DataFrame([[1, 1], [9999999, 2], [3, 3]])
 

@@ -368,7 +368,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "Unsupported operand type(s) for diff: '{}' "
                 "and '{}'".format(cls.__name__, other_profile.__class__.__name__)
             )
-
         differences = {
             "min": utils.find_diff_of_numbers(self.min, other_profile.min),
             "max": utils.find_diff_of_numbers(self.max, other_profile.max),
@@ -549,6 +548,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             )
 
         if regenerate_histogram:
+            # THIS IS WEIRD
             new_self_histogram["bin_counts"] = self_histogram["bin_counts"]
             new_self_histogram["bin_edges"] = self_histogram["bin_edges"]
             new_other_histogram["bin_edges"] = other_histogram["bin_edges"]
@@ -646,10 +646,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         for iter_value, bin_count in enumerate(new_self_histogram["bin_counts"]):
 
             self_percent = bin_count / self_match_count
+            # TODO: bug arising here
             other_percent = (
                 new_other_histogram["bin_counts"][iter_value] / other_match_count
             )
-            if (self_percent == other_percent) and self_percent == 0:
+            if self_percent == 0:
                 continue
 
             iter_psi = (other_percent - self_percent) * np.log(

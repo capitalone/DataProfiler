@@ -2081,6 +2081,41 @@ class TestStructuredProfiler(unittest.TestCase):
         np.testing.assert_array_almost_equal([[np.nan], [18]], column["class_sum"])
         np.testing.assert_array_almost_equal([[np.nan], [9]], column["class_mean"])
 
+    def test_column_level_invalid_values(self):
+        data = pd.DataFrame([[1, 1], [9999999, 2], [3, 3]])
+
+        NO_FLAG = 0
+        profile_options = dp.ProfilerOptions()
+        profile_options.set(
+            {
+                "*.null_values": {
+                    "": NO_FLAG,
+                    "nan": re.IGNORECASE,
+                    "none": re.IGNORECASE,
+                    "null": re.IGNORECASE,
+                    "  *": NO_FLAG,
+                    "--*": NO_FLAG,
+                    "__*": NO_FLAG,
+                    "9" * 7: NO_FLAG,
+                },
+                "*.column_null_values": {
+                    0: {"1": NO_FLAG},
+                    1: {"3": NO_FLAG},
+                },
+                "*.null_replication_metrics.is_enabled": True,
+                "data_labeler.is_enabled": False,
+                "multiprocess.is_enabled": False,
+            }
+        )
+
+        profiler = dp.StructuredProfiler(data, options=profile_options)
+        report = profiler.report()
+
+        np.testing.assert_array_equal(["3"], report["data_stats"][0]["samples"])
+        np.testing.assert_array_equal(
+            ["1", "2"], sorted(report["data_stats"][1]["samples"])
+        )
+
 
 class TestStructuredColProfilerClass(unittest.TestCase):
     def setUp(self):

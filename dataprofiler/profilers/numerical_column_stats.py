@@ -526,6 +526,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self,
         self_histogram,
         other_histogram,
+        min_min_edge,
+        max_max_edge,
     ):
         new_self_histogram = {"bin_counts": None, "bin_edges": None}
         new_other_histogram = {"bin_counts": None, "bin_edges": None}
@@ -538,27 +540,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             and isinstance(other_histogram["bin_counts"], np.ndarray)
             and isinstance(other_histogram["bin_edges"], np.ndarray)
         ):
-
-            if (
-                len(self_histogram["bin_counts"]) <= 1
-                and len(other_histogram["bin_counts"]) <= 1
-            ):
-                warnings.warn(
-                    """Data were essentially the same and less
-                    than or equal to one bin. PSI cannot be performed.""",
-                    RuntimeWarning,
-                )
-                return new_self_histogram, new_other_histogram
-
             regenerate_histogram = True
-            min_min_edge = min(
-                self_histogram["bin_edges"][0],
-                other_histogram["bin_edges"][0],
-            )
-            max_max_edge = max(
-                self_histogram["bin_edges"][-1],
-                other_histogram["bin_edges"][-1],
-            )
 
         if regenerate_histogram:
             new_self_histogram["bin_counts"] = self_histogram["bin_counts"]
@@ -640,9 +622,30 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         """
         psi_value = 0
 
+        # calculate the min of the first edge and
+        # the max of the last edge between two arrays
+        min_min_edge = min(
+            self_histogram["bin_edges"][0],
+            other_histogram["bin_edges"][0],
+        )
+        max_max_edge = max(
+            self_histogram["bin_edges"][-1],
+            other_histogram["bin_edges"][-1],
+        )
+
+        if min_min_edge == max_max_edge:
+            warnings.warn(
+                """Data were essentially the same and less
+                than or equal to one bin. PSI cannot be performed.""",
+                RuntimeWarning,
+            )
+            return 0
+
         new_self_histogram, new_other_histogram = self._preprocess_for_calculate_psi(
             self_histogram=self_histogram,
             other_histogram=other_histogram,
+            min_min_edge=min_min_edge,
+            max_max_edge=max_max_edge,
         )
 
         if isinstance(new_other_histogram["bin_edges"], type(None)) or isinstance(

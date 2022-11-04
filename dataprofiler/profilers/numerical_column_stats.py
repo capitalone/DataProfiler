@@ -58,7 +58,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self._top_k_modes: int = 5  # By default, return at max 5 modes
         self.sum: Union[int, float] = 0
         self._biased_variance: float = np.nan
-        self._biased_skewness: float = np.nan
+        self._biased_skewness: Union[float, np.float64] = np.nan
         self._biased_kurtosis: float = np.nan
         self._median_is_enabled: bool = True
         self._median_abs_dev_is_enabled: bool = True
@@ -449,7 +449,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return cast(float, np.sqrt(self.variance))
 
     @property
-    def skewness(self) -> float:
+    def skewness(self) -> Union[float, np.float64]:
         """Return skewness value."""
         return (
             self._biased_skewness
@@ -739,14 +739,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @staticmethod
     def _merge_biased_skewness(
         match_count1: int,
-        biased_skewness1: float,
+        biased_skewness1: Union[float, np.float64],
         biased_variance1: float,
         mean1: float,
         match_count2: int,
-        biased_skewness2: float,
+        biased_skewness2: Union[float, np.float64],
         biased_variance2: float,
         mean2: float,
-    ) -> float:
+    ) -> Union[float, np.float64]:
         """
         Calculate the combined skewness of two data chunks.
 
@@ -790,11 +790,13 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         third_term = 3 * delta * (match_count1 * M2_2 - match_count2 * M2_1) / N
         M3 = first_term + second_term + third_term
 
-        biased_skewness: float = np.sqrt(N) * M3 / np.sqrt(M2**3)
+        biased_skewness: np.float64 = np.sqrt(N) * M3 / np.sqrt(M2**3)
         return biased_skewness
 
     @staticmethod
-    def _correct_bias_skewness(match_count: int, biased_skewness: float) -> float:
+    def _correct_bias_skewness(
+        match_count: int, biased_skewness: Union[float, np.float64]
+    ) -> float:
         """
         Apply bias correction to skewness.
 
@@ -823,12 +825,12 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _merge_biased_kurtosis(
         match_count1: int,
         biased_kurtosis1: float,
-        biased_skewness1: float,
+        biased_skewness1: Union[float, np.float64],
         biased_variance1: float,
         mean1: float,
         match_count2: int,
         biased_kurtosis2: float,
-        biased_skewness2: float,
+        biased_skewness2: Union[float, np.float64],
         biased_variance2: float,
         mean2: float,
     ) -> float:

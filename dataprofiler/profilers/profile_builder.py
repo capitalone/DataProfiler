@@ -2240,7 +2240,7 @@ class StructuredProfiler(BaseProfiler):
         :param clean_samples: input cleaned dataset
         :type clean_samples: dict
         """
-        data: pd.DataFrame = pd.DataFrame(clean_samples)
+        data = pd.DataFrame(clean_samples)
 
         # If the last row is all null, then add rows to the data DataFrame
         max_null_index = max(

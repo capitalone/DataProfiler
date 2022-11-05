@@ -644,6 +644,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             other_histogram=other_histogram,
         )
 
+        if new_self_histogram == 0 and new_other_histogram == 0:
+            return 0
+
         if isinstance(new_other_histogram["bin_edges"], type(None)) or isinstance(
             new_self_histogram["bin_edges"], type(None)
         ):
@@ -652,9 +655,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 RuntimeWarning,
             )
             return None
-
-        if new_self_histogram == 0 and new_other_histogram == 0:
-            return 0
 
         bin_count: int = 0  # required typing by mypy
         for iter_value, bin_count in enumerate(new_self_histogram["bin_counts"]):

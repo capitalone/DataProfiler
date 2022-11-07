@@ -25,6 +25,7 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    overload,
 )
 
 import numpy as np
@@ -412,7 +413,19 @@ class Subtractable(Protocol):
 T = TypeVar("T", bound=Subtractable)
 
 
+@overload
+def find_diff_of_numbers(
+    stat1: Union[float, np.float64], stat2: Union[float, np.float64]
+) -> Any:
+    ...
+
+
+@overload
 def find_diff_of_numbers(stat1: Optional[T], stat2: Optional[T]) -> Any:
+    ...
+
+
+def find_diff_of_numbers(stat1, stat2):
     """
     Find the difference between two stats.
 

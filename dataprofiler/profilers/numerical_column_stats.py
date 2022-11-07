@@ -9,6 +9,7 @@ import warnings
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import scipy.stats
 from future.utils import with_metaclass
@@ -378,7 +379,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             "median": utils.find_diff_of_numbers(self.median, other_profile.median),
             "mode": utils.find_diff_of_lists_and_sets(self.mode, other_profile.mode),
             "median_absolute_deviation": utils.find_diff_of_numbers(
-                self.median_abs_deviation, other_profile.median_abs_deviation
+                self.median_abs_deviation,
+                other_profile.median_abs_deviation,
             ),
             "variance": utils.find_diff_of_numbers(
                 self.variance, other_profile.variance
@@ -409,7 +411,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return float(self.sum) / self.match_count
 
     @property
-    def mode(self) -> List[float]:
+    def mode(self) -> Union[List[float], List[np.float64]]:
         """
         Find an estimate for the mode[s] of the data.
 
@@ -442,11 +444,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         )
 
     @property
-    def stddev(self) -> float:
+    def stddev(self) -> Union[float, np.float64]:
         """Return stddev value."""
         if self.match_count == 0:
             return np.nan
-        return cast(float, np.sqrt(self.variance))
+        return cast(np.float64, np.sqrt(self.variance))
 
     @property
     def skewness(self) -> Union[float, np.float64]:
@@ -934,7 +936,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         )
         return kurtosis
 
-    def _estimate_mode_from_histogram(self) -> List[float]:
+    def _estimate_mode_from_histogram(self) -> Union[List[float], List[np.float64]]:
         """
         Estimate the mode of the current data using the histogram.
 
@@ -966,7 +968,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         mode = (
             bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]  # type: ignore
         ) / 2
-        return cast(List[float], mode.tolist())
+        return cast(Union[List[float], List[np.float64]], mode.tolist())
 
     def _estimate_stats_from_histogram(self) -> np.float64:
         # test estimated mean and var
@@ -1458,7 +1460,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return [bin_counts_pos, bin_edges_pos], [bin_counts_neg, bin_edges_neg]
 
     @property
-    def median_abs_deviation(self) -> float:
+    def median_abs_deviation(self) -> Union[float, np.float64]:
         """
         Get median absolute deviation estimated from the histogram of the data.
 
@@ -1511,29 +1513,25 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             np.append([True], np.diff(bin_edges_impose) > 1e-14)
         ]
 
-        bin_counts_impose_pos: float = cast(
-            float,
-            np.interp(
-                bin_edges_impose,
-                bin_edges_pos,
-                np.cumsum(np.append([0], bin_counts_pos)),
-            ),
+        bin_counts_impose_pos: npt.NDArray[np.float64] = np.interp(
+            bin_edges_impose,
+            bin_edges_pos,
+            np.cumsum(np.append([0], bin_counts_pos)),
         )
-        bin_counts_impose_neg: float = cast(
-            float,
-            np.interp(
-                bin_edges_impose,
-                bin_edges_neg,
-                np.cumsum(np.append([0], bin_counts_neg)),
-            ),
+        bin_counts_impose_neg: npt.NDArray[np.float64] = np.interp(
+            bin_edges_impose,
+            bin_edges_neg,
+            np.cumsum(np.append([0], bin_counts_neg)),
         )
-        bin_counts_impose = bin_counts_impose_pos + bin_counts_impose_neg
+        bin_counts_impose: npt.NDArray[np.float64] = (
+            bin_counts_impose_pos + bin_counts_impose_neg
+        )
 
         median_inds = np.abs(bin_counts_impose - 0.5) < 1e-10
         if np.sum(median_inds) > 1:
-            return cast(float, np.mean(bin_edges_impose[median_inds]))
+            return cast(np.float64, np.mean(bin_edges_impose[median_inds]))
 
-        return cast(float, np.interp(0.5, bin_counts_impose, bin_edges_impose))
+        return cast(np.float64, np.interp(0.5, bin_counts_impose, bin_edges_impose))
 
     def _get_quantiles(self) -> None:
         """

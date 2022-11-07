@@ -663,7 +663,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             other_percent = (
                 new_other_histogram["bin_counts"][iter_value] / other_match_count
             )
-            if self_percent == 0:
+            if (self_percent == other_percent) and self_percent == 0:
                 continue
 
             iter_psi = (other_percent - self_percent) * np.log(

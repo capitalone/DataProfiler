@@ -633,9 +633,6 @@ class TestTextColumnProfiler(unittest.TestCase):
             "median_absolute_deviation": "unchanged",
             "variance": "unchanged",
             "stddev": "unchanged",
-            "vocab": utils.find_diff_of_lists_and_sets(
-                profile1["vocab"], profile2["vocab"]
-            ),
             "t-test": {
                 "t-statistic": None,
                 "conservative": {"df": None, "p-value": None},

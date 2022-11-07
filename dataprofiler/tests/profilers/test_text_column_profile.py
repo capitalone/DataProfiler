@@ -609,3 +609,41 @@ class TestTextColumnProfiler(unittest.TestCase):
             places=2,
         )
         self.assertDictEqual(expected_diff, profile_diff)
+
+        # re-create `diamond.csv` categorical column
+        df = pd.Series(["D", "I", "F", "H", "G"]).apply(str)
+
+        df2 = pd.Series(["D", "I", "F", "H", "G"]).apply(str)
+
+        profiler1 = TextColumn(df.name)
+        profiler1.update(df)
+        profile1 = profiler1.profile
+
+        profiler2 = TextColumn(df2.name)
+        profiler2.update(df2)
+        profile2 = profiler2.profile
+
+        expected_diff = {
+            "min": "unchanged",
+            "max": "unchanged",
+            "sum": "unchanged",
+            "mean": "unchanged",
+            "median": "unchanged",
+            "mode": "unchanged",
+            "median_absolute_deviation": "unchanged",
+            "variance": "unchanged",
+            "stddev": "unchanged",
+            "vocab": utils.find_diff_of_lists_and_sets(
+                profile1["vocab"], profile2["vocab"]
+            ),
+            "t-test": {
+                "t-statistic": None,
+                "conservative": {"df": None, "p-value": None},
+                "welch": {"df": None, "p-value": None},
+            },
+            "psi": 0,
+            "vocab": "unchanged",
+        }
+
+        profile_diff = profiler1.diff(profiler2)
+        self.assertDictEqual(expected_diff, profile_diff)

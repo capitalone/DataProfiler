@@ -1857,7 +1857,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             return a == b
 
     @staticmethod
-    def np_type_to_type(val: Any) -> Union[int, float, Any]:
+    def np_type_to_type(val: Any) -> Any:
         """
         Convert numpy variables to base python type variables.
 

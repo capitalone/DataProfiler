@@ -2287,7 +2287,11 @@ class StructuredProfiler(BaseProfiler):
             # Partition data based on whether target column value is null or not
             # Calculate sum, mean of each partition without including current column
             # in calculation
-            sum_null = data.iloc[null_indices, data.columns != col_id].sum().to_numpy()
+            sum_null = (
+                data.loc[data.index.intersection(null_indices), data.columns != col_id]
+                .sum()
+                .to_numpy()
+            )
 
             # Add old sum_null if exists
             if col_id in self._null_replication_metrics:

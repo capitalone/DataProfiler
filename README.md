@@ -493,9 +493,9 @@ Note that if merged profiles had overlapping integer indices, when null rows are
 
 ### Profiler Differences
 For finding the change between profiles with the same schema we can utilize the
-profile's `diff` function. The diff will provide overall file and sampling
+profile's `diff` function. The `diff` will provide overall file and sampling
 differences as well as detailed differences of the data's statistics. For
-example, numerical columns have a t-test applied to evaluate similarity.
+example, numerical columns have both t-test to evaluate similarity and PSI (Population Stability Index) to quantify column distribution shift.
 More information is described in the Profiler section of the [Github Pages](
 https://capitalone.github.io/DataProfiler/).
 

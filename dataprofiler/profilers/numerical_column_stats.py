@@ -555,11 +555,6 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             )
 
             if min_min_edge == max_max_edge:
-                warnings.warn(
-                    """Data were essentially the same and less
-                    than or equal to one bin. PSI cannot be performed.""",
-                    RuntimeWarning,
-                )
                 return 0, 0
 
         if regenerate_histogram:

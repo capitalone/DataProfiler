@@ -2240,20 +2240,7 @@ class StructuredProfiler(BaseProfiler):
         :param clean_samples: input cleaned dataset
         :type clean_samples: dict
         """
-        data = pd.DataFrame(clean_samples)
-
-        # If the last row is all null, then add rows to the data DataFrame
-        max_null_index = max(
-            [max(i) for i in getattr(self._profile[0], "null_types_index").values()],
-            default=0,
-        )
-        if max_null_index > data.index.max():
-            data.loc[max_null_index] = {}
-
-        # Fill in missing rows with NaN and convert types to numeric
-        data = data.reindex(range(data.index.max() + 1), fill_value=np.nan).apply(
-            pd.to_numeric, errors="coerce"
-        )
+        data = pd.DataFrame(clean_samples).apply(pd.to_numeric, errors="coerce")
 
         get_data_type = lambda profile: profile.profiles[  # NOQA: E731
             "data_type_profile"
@@ -2300,7 +2287,11 @@ class StructuredProfiler(BaseProfiler):
             # Partition data based on whether target column value is null or not
             # Calculate sum, mean of each partition without including current column
             # in calculation
-            sum_null = data.iloc[null_indices, data.columns != col_id].sum().to_numpy()
+            sum_null = (
+                data.loc[data.index.intersection(null_indices), data.columns != col_id]
+                .sum()
+                .to_numpy()
+            )
 
             # Add old sum_null if exists
             if col_id in self._null_replication_metrics:

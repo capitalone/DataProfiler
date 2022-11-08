@@ -411,7 +411,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return float(self.sum) / self.match_count
 
     @property
-    def mode(self) -> Union[List[float], List[np.float64]]:
+    def mode(self) -> List[float]:
         """
         Find an estimate for the mode[s] of the data.
 
@@ -936,7 +936,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         )
         return kurtosis
 
-    def _estimate_mode_from_histogram(self) -> Union[List[float], List[np.float64]]:
+    def _estimate_mode_from_histogram(self) -> List[float]:
         """
         Estimate the mode of the current data using the histogram.
 
@@ -965,10 +965,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 count += 1
         highest_idxs = np.array(highest_idxs)  # type: ignore
 
-        mode = (
+        mode: npt.NDArray[np.float64] = (
             bin_edges[highest_idxs] + bin_edges[highest_idxs + 1]  # type: ignore
         ) / 2
-        return cast(Union[List[float], List[np.float64]], mode.tolist())
+        return cast(List[float], mode.tolist())
 
     def _estimate_stats_from_histogram(self) -> np.float64:
         # test estimated mean and var

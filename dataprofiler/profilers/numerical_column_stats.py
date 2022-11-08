@@ -407,7 +407,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def mean(self) -> float:
         """Return mean value."""
         if self.match_count == 0:
-            return 0
+            return 0.0
         return float(self.sum) / self.match_count
 
     @property
@@ -643,7 +643,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         )
 
         if new_self_histogram == 0 and new_other_histogram == 0:
-            return 0
+            return 0.0
 
         if isinstance(new_other_histogram["bin_edges"], type(None)) or isinstance(
             new_self_histogram["bin_edges"], type(None)
@@ -874,7 +874,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         M2_2 = match_count2 * biased_variance2
         M2 = M2_1 + M2_2 + delta**2 * match_count1 * match_count2 / N
         if not M2:
-            return 0
+            return 0.0
 
         M3_1: np.float64 = biased_skewness1 * np.sqrt(M2_1**3) / np.sqrt(match_count1)
         M3_2: np.float64 = biased_skewness2 * np.sqrt(M2_2**3) / np.sqrt(match_count2)
@@ -1489,7 +1489,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         # if all bin edges are positive or negative (no break point),
         # the median value is actually 0
         if len(bin_counts_pos) == 0 or len(bin_counts_neg) == 0:
-            return 0
+            return 0.0
 
         # otherwise, superimpose the two histogram and interpolate
         # the median at cumsum count 0.5

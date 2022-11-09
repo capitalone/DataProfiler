@@ -1,3 +1,5 @@
+global-exclude .DS_Store
+
 include *.txt
 include CODEOWNERS
 recursive-include dataprofiler *.avro

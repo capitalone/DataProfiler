@@ -20,8 +20,8 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
         new_class: Any = super(AutoSubRegistrationMeta, cls).__new__(
             cls, clsname, bases, attrs
         )
-        new_class._register_subclass() #type: ignore
-        return new_class
+        new_class._register_subclass()
+        return cast(AutoSubRegistrationMeta, new_class)
 
 
 class BaseModel(object, metaclass=abc.ABCMeta):

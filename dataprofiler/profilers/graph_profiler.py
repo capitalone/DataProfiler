@@ -4,7 +4,7 @@ from __future__ import annotations
 import pickle
 from collections import defaultdict
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 import networkx as nx
 import numpy as np
@@ -330,12 +330,12 @@ class GraphProfiler(object):
     @BaseColumnProfiler._timeit(name="num_nodes")
     def _get_num_nodes(self, graph: nx.Graph) -> int:
         """Compute the number of nodes."""
-        return graph.number_of_nodes()
+        return cast(int, graph.number_of_nodes())
 
     @BaseColumnProfiler._timeit(name="num_edges")
     def _get_num_edges(self, graph: nx.Graph) -> int:
         """Compute the number of edges."""
-        return graph.number_of_edges()
+        return cast(int, graph.number_of_edges())
 
     @BaseColumnProfiler._timeit(name="categorical_attributes")
     def _get_categorical_attributes(self, graph: nx.Graph) -> List[str]:
@@ -362,7 +362,7 @@ class GraphProfiler(object):
             nx.connected_components(graph), key=len, reverse=True
         )
         largest_component: nx.Graph = graph.subgraph(graph_connected_components[0])
-        return largest_component.size()
+        return cast(int, largest_component.size())
 
     @BaseColumnProfiler._timeit(name="continuous_distribution")
     def _get_continuous_distribution(

@@ -94,7 +94,7 @@ class AVROData(JSONData, BaseData):
         if data_utils.is_stream_buffer(file_path):
             starting_location = file_path.tell()
 
-        is_valid_avro = fastavro.is_avro(file_path)
+        is_valid_avro: bool = fastavro.is_avro(file_path)
 
         # return to original position in stream
         if data_utils.is_stream_buffer(file_path):

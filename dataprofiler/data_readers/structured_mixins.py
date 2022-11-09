@@ -1,6 +1,6 @@
 """Contains mixin data class for loading datasets of tye SpreadSheet."""
 from logging import Logger
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
 import pandas as pd
 
@@ -80,4 +80,4 @@ class SpreadSheetDataMixin(object):
             )
             for i in range((len(data) + records_per_line - 1) // records_per_line)
         ]
-        return data
+        return cast(List[str], data)

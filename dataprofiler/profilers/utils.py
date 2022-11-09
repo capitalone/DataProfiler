@@ -25,6 +25,7 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    overload,
 )
 
 import numpy as np
@@ -236,7 +237,7 @@ def suggest_pool_size(data_size: int = None, cols: int = None) -> Optional[int]:
     if cols is not None:
         suggested_pool_size = min(suggested_pool_size, cols)
 
-    return suggested_pool_size
+    return int(suggested_pool_size)
 
 
 def generate_pool(
@@ -412,7 +413,19 @@ class Subtractable(Protocol):
 T = TypeVar("T", bound=Subtractable)
 
 
+@overload
+def find_diff_of_numbers(
+    stat1: Union[float, np.float64], stat2: Union[float, np.float64]
+) -> Any:
+    ...
+
+
+@overload
 def find_diff_of_numbers(stat1: Optional[T], stat2: Optional[T]) -> Any:
+    ...
+
+
+def find_diff_of_numbers(stat1, stat2):
     """
     Find the difference between two stats.
 

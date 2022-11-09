@@ -5,9 +5,11 @@ import abc
 import copy
 import inspect
 import warnings
-from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union, cast
 
 from dataprofiler._typing import DataArray
+
+T = TypeVar("T", bound="BaseModel")
 
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
@@ -15,13 +17,14 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
 
     def __new__(
         cls, clsname: str, bases: Tuple[type, ...], attrs: Dict[str, object]
-    ) -> AutoSubRegistrationMeta:
+    ) -> type[T]:
         """Create auto registration object and return new class."""
-        new_class: Any = super(AutoSubRegistrationMeta, cls).__new__(
-            cls, clsname, bases, attrs
+        new_class = cast(
+            Type[T],
+            super(AutoSubRegistrationMeta, cls).__new__(cls, clsname, bases, attrs),
         )
         new_class._register_subclass()
-        return cast(AutoSubRegistrationMeta, new_class)
+        return new_class
 
 
 class BaseModel(object, metaclass=abc.ABCMeta):

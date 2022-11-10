@@ -1,3 +1,0 @@
-{
-    "path": "../../feature_branch/examples/intro_data_profiler.ipynb"
-}

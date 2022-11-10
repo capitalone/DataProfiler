@@ -1,3 +1,0 @@
-{
-    "path": "../../feature_branch/examples/merge_profile_list.ipynb"
-}

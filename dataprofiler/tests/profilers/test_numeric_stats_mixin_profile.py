@@ -996,3 +996,106 @@ class TestNumericStatsMixin(unittest.TestCase):
             str(exc.exception),
             "Unsupported operand type(s) for diff: 'TestColumnWProps' and" " 'str'",
         )
+
+        # PSI same distribution test
+        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1.match_count = 55
+        other1._stored_histogram = {
+            "total_loss": 0,
+            "current_loss": 0,
+            "suggested_bin_count": 10,
+            "histogram": {
+                "bin_counts": np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+                "bin_edges": np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+            },
+        }
+
+        other2.match_count = 550
+        other2._stored_histogram = {
+            "total_loss": 0,
+            "current_loss": 0,
+            "suggested_bin_count": 10,
+            "histogram": {
+                "bin_counts": np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) * 10,
+                "bin_edges": np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+            },
+        }
+
+        expected_psi_value = 0
+        psi_value = other1._calculate_psi(
+            self_match_count=other1.match_count,
+            self_histogram=other1._stored_histogram["histogram"],
+            other_match_count=other2.match_count,
+            other_histogram=other2._stored_histogram["histogram"],
+        )
+        self.assertEquals(expected_psi_value, psi_value)
+
+        # PSI min_min_edge == max_max_edge
+        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1.match_count = 10
+        other1._stored_histogram = {
+            "total_loss": 0,
+            "current_loss": 0,
+            "suggested_bin_count": 10,
+            "histogram": {"bin_counts": np.array([10]), "bin_edges": np.array([1, 1])},
+        }
+
+        other2.match_count = 20
+        other2._stored_histogram = {
+            "total_loss": 0,
+            "current_loss": 0,
+            "suggested_bin_count": 10,
+            "histogram": {"bin_counts": np.array([20]), "bin_edges": np.array([1, 1])},
+        }
+
+        expected_psi_value = 0
+        psi_value = other1._calculate_psi(
+            self_match_count=other1.match_count,
+            self_histogram=other1._stored_histogram["histogram"],
+            other_match_count=other2.match_count,
+            other_histogram=other2._stored_histogram["histogram"],
+        )
+        self.assertEquals(expected_psi_value, psi_value)
+
+        # PSI regen other / not self
+        other1, other2 = TestColumnWProps(), TestColumnWProps()
+        other1.match_count = 55
+        other1._stored_histogram = {
+            "total_loss": 0,
+            "current_loss": 0,
+            "suggested_bin_count": 10,
+            "histogram": {
+                "bin_counts": np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+                "bin_edges": np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+            },
+        }
+
+        other2.match_count = 20
+        other2._stored_histogram = {
+            "total_loss": 0,
+            "current_loss": 0,
+            "suggested_bin_count": 10,
+            "histogram": {
+                "bin_counts": np.array([5, 5, 10]),
+                "bin_edges": np.array([1, 3, 5, 7]),
+            },
+        }
+
+        expected_psi_value = 0.6617899380349177
+        psi_value = other1._calculate_psi(
+            self_match_count=other1.match_count,
+            self_histogram=other1._stored_histogram["histogram"],
+            other_match_count=other2.match_count,
+            other_histogram=other2._stored_histogram["histogram"],
+        )
+        self.assertEquals(expected_psi_value, psi_value)
+
+        # PSI regen self / not other
+        expected_psi_value = 0.6617899380349177
+        psi_value = other1._calculate_psi(
+            self_match_count=other2.match_count,
+            self_histogram=other2._stored_histogram["histogram"],
+            other_match_count=other1.match_count,
+            other_histogram=other1._stored_histogram["histogram"],
+        )
+        self.assertEquals(expected_psi_value, psi_value)

@@ -563,12 +563,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             new_other_histogram["bin_edges"] = other_histogram["bin_edges"]
             new_other_histogram["bin_counts"] = other_histogram["bin_counts"]
 
-            len_self_bin_counts = 0
-            if len(self_histogram["bin_counts"]) > 0:
-                len_self_bin_counts = len(self_histogram["bin_counts"])
+            len_self_bin_counts = len(self_histogram["bin_counts"])
 
             # re-calculate `self` histogram
-            if not len_self_bin_counts == num_psi_bins:
+            if len_self_bin_counts != num_psi_bins:
                 histogram, hist_loss = self._regenerate_histogram(
                     bin_counts=self_histogram["bin_counts"],
                     bin_edges=self_histogram["bin_edges"],

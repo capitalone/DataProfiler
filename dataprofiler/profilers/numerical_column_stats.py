@@ -581,9 +581,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
             # re-calculate `other_profile` histogram
             histogram_edges_not_equal = False
-            all_array_values_equal = (
-                other_histogram["bin_edges"] == self_histogram["bin_edges"]
-            ).all()
+            all_array_values_equal = np.array_equal(
+                other_histogram["bin_edges"], self_histogram["bin_edges"]
+            )
             if not all_array_values_equal:
                 histogram_edges_not_equal = True
 

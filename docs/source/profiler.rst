@@ -146,6 +146,11 @@ between them. Create the difference report like this:
     diff_report = profile1.diff(profile2)
     print(diff_report)
     
+The `.diff()` operation is available between two profiles, although there are different
+outputs depending on the type of profile being differenced. For example, for numerical
+column profiles (e.g. integers and floats), `.diff()` returns `t-test` and `PSI`(Popoulation
+Stability Index) for understanding distributional changes.
+
 The difference report contains a dictionary that mirrors the profile report. 
 Each data type has its own difference:
 

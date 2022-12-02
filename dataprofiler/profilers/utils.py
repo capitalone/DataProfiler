@@ -48,7 +48,7 @@ def recursive_dict_update(d: Dict, update_d: Dict) -> Dict:
     """
     for k, v in update_d.items():
         if isinstance(v, collections.abc.Mapping) and isinstance(
-            d.get(k, None), collections.Mapping
+            d.get(k, None), collections.abc.Mapping
         ):
             d[k] = recursive_dict_update(d.get(k, {}), cast(Dict, v))
         else:

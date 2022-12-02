@@ -259,7 +259,9 @@ class StructuredColProfiler(object):
                 comp_diff = self.profiles[key].diff(
                     other_profile.profiles[key], options=options
                 )
-                utils.dict_merge(unordered_profile, comp_diff)
+                unordered_profile = utils.recursive_dict_update(
+                    unordered_profile, comp_diff
+                )
 
         name = self.name
         if isinstance(self.name, np.integer):
@@ -323,7 +325,9 @@ class StructuredColProfiler(object):
         """Return profile."""
         unordered_profile: Dict = dict()
         for profile in self.profiles.values():
-            utils.dict_merge(unordered_profile, profile.report(remove_disabled_flag))
+            unordered_profile = utils.recursive_dict_update(
+                unordered_profile, profile.report(remove_disabled_flag)
+            )
 
         name = self.name
         if isinstance(self.name, np.integer):

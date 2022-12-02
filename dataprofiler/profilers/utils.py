@@ -25,6 +25,7 @@ from typing import (
     Tuple,
     TypeVar,
     Union,
+    cast,
     overload,
 )
 
@@ -37,43 +38,22 @@ from typing_extensions import Protocol
 from dataprofiler import profilers, settings
 
 
-def dict_merge(dct: Dict, merge_dct: Dict) -> None:
-    # Recursive dictionary merge
-    # Copyright (C) 2016 Paul Durivage <pauldurivage+github@gmail.com>
-    #
-    # This program is free software: you can redistribute it and/or modify
-    # it under the terms of the GNU General Public License as published by
-    # the Free Software Foundation, either version 3 of the License, or
-    # (at your option) any later version.
-    #
-    # This program is distributed in the hope that it will be useful,
-    # but WITHOUT ANY WARRANTY; without even the implied warranty of
-    # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    # GNU General Public License for more details.
-    #
-    # You should have received a copy of the GNU General Public License
-    # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+def recursive_dict_update(d: Dict, update_d: Dict) -> Dict:
     """
-    Merge dict recursively.
+    Recurisve updates nested dictionaries. Updating d with update_d.
 
-    Inspired by :meth:``dict.update()``, instead of updating only
-    top-level keys, dict_merge recurses down into dicts nested
-    to an arbitrary depth, updating keys. The ``merge_dct`` is
-    merged into ``dct``.
-
-    :param dct: dict onto which the merge is executed
-    :param merge_dct: dct merged into dct
+    :param d: dict which gets updated with update_d
+    :param update_d: dict to update d with
     :return: None
     """
-    for k in merge_dct.keys():
-        if (
-            k in dct
-            and isinstance(dct[k], dict)
-            and isinstance(merge_dct[k], collections.abc.Mapping)
+    for k, v in update_d.items():
+        if isinstance(v, collections.abc.Mapping) and isinstance(
+            d.get(k, None), collections.Mapping
         ):
-            dict_merge(dct[k], merge_dct[k])
+            d[k] = recursive_dict_update(d.get(k, {}), cast(Dict, v))
         else:
-            dct[k] = merge_dct[k]
+            d[k] = v
+    return d
 
 
 class KeyDict(collections.defaultdict):

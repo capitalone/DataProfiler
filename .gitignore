@@ -19,7 +19,7 @@ dataprofiler/labelers/embeddings/glove-reduced-64D.txt
 *.pkl
 *.whl
 *.egg
-.DS_Store
+**/.DS_Store
 
 test/__pycache__/
 

@@ -40,11 +40,11 @@ from dataprofiler import profilers, settings
 
 def recursive_dict_update(d: Dict, update_d: Dict) -> Dict:
     """
-    Recurisve updates nested dictionaries. Updating d with update_d.
+    Recursive updates nested dictionaries. Updating d with update_d.
 
     :param d: dict which gets updated with update_d
     :param update_d: dict to update d with
-    :return: None
+    :return: updated dict
     """
     for k, v in update_d.items():
         if isinstance(v, collections.abc.Mapping) and isinstance(

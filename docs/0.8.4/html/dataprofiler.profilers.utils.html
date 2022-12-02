@@ -222,22 +222,18 @@
 <span id="utils"></span><h1>Utils<a class="headerlink" href="#module-dataprofiler.profilers.utils" title="Permalink to this headline">¶</a></h1>
 <p>Contains functions for profilers.</p>
 <dl class="py function">
-<dt class="sig sig-object py" id="dataprofiler.profilers.utils.dict_merge">
-<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">dict_merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_dct</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dataprofiler.profilers.utils.dict_merge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Merge dict recursively.</p>
-<p>Inspired by :meth:<code class="docutils literal notranslate"><span class="pre">dict.update()</span></code>, instead of updating only
-top-level keys, dict_merge recurses down into dicts nested
-to an arbitrary depth, updating keys. The <code class="docutils literal notranslate"><span class="pre">merge_dct</span></code> is
-merged into <code class="docutils literal notranslate"><span class="pre">dct</span></code>.</p>
+<dt class="sig sig-object py" id="dataprofiler.profilers.utils.recursive_dict_update">
+<span class="sig-prename descclassname"><span class="pre">dataprofiler.profilers.utils.</span></span><span class="sig-name descname"><span class="pre">recursive_dict_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_d</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#dataprofiler.profilers.utils.recursive_dict_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursive updates nested dictionaries. Updating d with update_d.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dct</strong> – dict onto which the merge is executed</p></li>
-<li><p><strong>merge_dct</strong> – dct merged into dct</p></li>
+<li><p><strong>d</strong> – dict which gets updated with update_d</p></li>
+<li><p><strong>update_d</strong> – dict to update d with</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>None</p>
+<dd class="field-even"><p>updated dict</p>
 </dd>
 </dl>
 </dd></dl>

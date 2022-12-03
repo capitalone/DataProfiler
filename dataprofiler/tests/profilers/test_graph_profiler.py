@@ -1,8 +1,5 @@
-from __future__ import print_function
-
 import os
 import unittest
-from cgi import test
 from collections import defaultdict
 from io import BytesIO
 from unittest import mock

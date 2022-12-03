@@ -6,16 +6,15 @@ import abc
 import copy
 import re
 import warnings
-from typing import Dict, List, Optional, Set, Union
 
 from ..labelers.base_data_labeler import BaseDataLabeler
 
 
-class BaseOption(object):
+class BaseOption:
     """For configuring options."""
 
     @property
-    def properties(self) -> Dict[str, BooleanOption]:
+    def properties(self) -> dict[str, BooleanOption]:
         """
         Return a copy of the option properties.
 
@@ -24,7 +23,7 @@ class BaseOption(object):
         """
         return copy.deepcopy(self.__dict__)
 
-    def _set_helper(self, options: Dict[str, bool], variable_path: str) -> None:
+    def _set_helper(self, options: dict[str, bool], variable_path: str) -> None:
         """
         Set all the options.
 
@@ -89,10 +88,10 @@ class BaseOption(object):
             else:
                 error_path = variable_path if variable_path else self.__class__.__name__
                 raise AttributeError(
-                    "type object '{}' has no attribute '{}'".format(error_path, option)
+                    f"type object '{error_path}' has no attribute '{option}'"
                 )
 
-    def set(self, options: Dict[str, bool]) -> None:
+    def set(self, options: dict[str, bool]) -> None:
         """
         Set all the options.
 
@@ -109,7 +108,7 @@ class BaseOption(object):
         self._set_helper(options, variable_path="")
 
     @abc.abstractmethod
-    def _validate_helper(self, variable_path: str = "") -> List[str]:
+    def _validate_helper(self, variable_path: str = "") -> list[str]:
         """
         Validate the options don't cause errors and return possible errors.
 
@@ -120,7 +119,7 @@ class BaseOption(object):
         """
         raise NotImplementedError()
 
-    def validate(self, raise_error: bool = True) -> Optional[List[str]]:
+    def validate(self, raise_error: bool = True) -> list[str] | None:
         """
         Validate the options do not conflict and cause errors.
 
@@ -163,7 +162,7 @@ class BooleanOption(BaseOption):
         """
         self.is_enabled = is_enabled
 
-    def _validate_helper(self, variable_path: str = "BooleanOption") -> List[str]:
+    def _validate_helper(self, variable_path: str = "BooleanOption") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -175,9 +174,9 @@ class BooleanOption(BaseOption):
         if not isinstance(variable_path, str):
             raise ValueError("The variable path must be a string.")
 
-        errors: List[str] = []
+        errors: list[str] = []
         if not isinstance(self.is_enabled, bool):
-            errors = ["{}.is_enabled must be a Boolean.".format(variable_path)]
+            errors = [f"{variable_path}.is_enabled must be a Boolean."]
         return errors
 
 
@@ -187,7 +186,7 @@ class HistogramOption(BooleanOption):
     def __init__(
         self,
         is_enabled: bool = True,
-        bin_count_or_method: Union[str, int, List[str]] = "auto",
+        bin_count_or_method: str | int | list[str] = "auto",
     ) -> None:
         """
         Initialize Options for histograms.
@@ -201,7 +200,7 @@ class HistogramOption(BooleanOption):
         self.bin_count_or_method = bin_count_or_method
         super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path: str = "HistogramOption") -> List[str]:
+    def _validate_helper(self, variable_path: str = "HistogramOption") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -248,7 +247,7 @@ class ModeOption(BooleanOption):
         self.top_k_modes = max_k_modes
         super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path: str = "ModeOption") -> List[str]:
+    def _validate_helper(self, variable_path: str = "ModeOption") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -283,7 +282,7 @@ class BaseInspectorOptions(BooleanOption):
 
     def _validate_helper(
         self, variable_path: str = "BaseInspectorOptions"
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -427,17 +426,17 @@ class NumericalOptions(BaseInspectorOptions):
         self.histogram_and_quantiles.is_enabled = value
 
     @property
-    def properties(self) -> Dict[str, BooleanOption]:
+    def properties(self) -> dict[str, BooleanOption]:
         """
         Include is_enabled.
 
             is_enabled: Turns on or off the column.
         """
-        props: Dict = super().properties
+        props: dict = super().properties
         props["is_numeric_stats_enabled"] = self.is_numeric_stats_enabled
         return props
 
-    def _validate_helper(self, variable_path: str = "NumericalOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "NumericalOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -466,9 +465,7 @@ class NumericalOptions(BaseInspectorOptions):
             "num_negatives",
         ]:
             if not isinstance(self.properties[item], BooleanOption):
-                errors.append(
-                    "{}.{} must be a BooleanOption.".format(variable_path, item)
-                )
+                errors.append(f"{variable_path}.{item} must be a BooleanOption.")
             else:
                 errors += self.properties[item]._validate_helper(
                     variable_path=variable_path + "." + item
@@ -577,7 +574,7 @@ class IntOptions(NumericalOptions):
         """
         NumericalOptions.__init__(self)
 
-    def _validate_helper(self, variable_path: str = "IntOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "IntOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -606,7 +603,7 @@ class PrecisionOptions(BooleanOption):
         self.sample_ratio = sample_ratio
         super().__init__(is_enabled=is_enabled)
 
-    def _validate_helper(self, variable_path: str = "PrecisionOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "PrecisionOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -620,7 +617,7 @@ class PrecisionOptions(BooleanOption):
             if not isinstance(self.sample_ratio, float) and not isinstance(
                 self.sample_ratio, int
             ):
-                errors.append("{}.sample_ratio must be a float.".format(variable_path))
+                errors.append(f"{variable_path}.sample_ratio must be a float.")
             if (
                 isinstance(self.sample_ratio, float)
                 or isinstance(self.sample_ratio, int)
@@ -675,7 +672,7 @@ class FloatOptions(NumericalOptions):
         NumericalOptions.__init__(self)
         self.precision = PrecisionOptions(is_enabled=True)
 
-    def _validate_helper(self, variable_path: str = "FloatOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "FloatOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -686,9 +683,7 @@ class FloatOptions(NumericalOptions):
         """
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.precision, PrecisionOptions):
-            errors.append(
-                "{}.precision must be a PrecisionOptions.".format(variable_path)
-            )
+            errors.append(f"{variable_path}.precision must be a PrecisionOptions.")
         errors += self.precision._validate_helper(variable_path + ".precision")
         return errors
 
@@ -738,7 +733,7 @@ class TextOptions(NumericalOptions):
         self.num_zeros = BooleanOption(is_enabled=False)
         self.num_negatives = BooleanOption(is_enabled=False)
 
-    def _validate_helper(self, variable_path: str = "TextOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "TextOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -752,7 +747,7 @@ class TextOptions(NumericalOptions):
         """
         errors = super()._validate_helper(variable_path=variable_path)
         if not isinstance(self.vocab, BooleanOption):
-            errors.append("{}.vocab must be a BooleanOption.".format(variable_path))
+            errors.append(f"{variable_path}.vocab must be a BooleanOption.")
         errors += self.vocab._validate_helper(variable_path + ".vocab")
 
         if self.properties["num_zeros"].is_enabled:
@@ -832,7 +827,7 @@ class DateTimeOptions(BaseInspectorOptions):
         """
         BaseInspectorOptions.__init__(self)
 
-    def _validate_helper(self, variable_path: str = "DateTimeOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "DateTimeOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -856,7 +851,7 @@ class OrderOptions(BaseInspectorOptions):
         """
         BaseInspectorOptions.__init__(self)
 
-    def _validate_helper(self, variable_path: str = "OrderOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "OrderOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -883,7 +878,7 @@ class CategoricalOptions(BaseInspectorOptions):
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
 
-    def _validate_helper(self, variable_path: str = "CategoricalOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -906,7 +901,7 @@ class CategoricalOptions(BaseInspectorOptions):
 class CorrelationOptions(BaseInspectorOptions):
     """For configuring options for Correlation between Columns."""
 
-    def __init__(self, is_enabled: bool = False, columns: List[str] = None) -> None:
+    def __init__(self, is_enabled: bool = False, columns: list[str] = None) -> None:
         """
         Initialize options for the Correlation between Columns.
 
@@ -918,7 +913,7 @@ class CorrelationOptions(BaseInspectorOptions):
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.columns = columns
 
-    def _validate_helper(self, variable_path: str = "CorrelationOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "CorrelationOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -959,11 +954,11 @@ class DataLabelerOptions(BaseInspectorOptions):
         :vartype max_sample_size: BaseDataLabeler
         """
         BaseInspectorOptions.__init__(self)
-        self.data_labeler_dirpath: Optional[str] = None
-        self.max_sample_size: Optional[int] = None
-        self.data_labeler_object: Optional[BaseDataLabeler] = None
+        self.data_labeler_dirpath: str | None = None
+        self.max_sample_size: int | None = None
+        self.data_labeler_object: BaseDataLabeler | None = None
 
-    def __deepcopy__(self, memo: Dict) -> DataLabelerOptions:
+    def __deepcopy__(self, memo: dict) -> DataLabelerOptions:
         """
         Override deepcopy for data labeler object.
 
@@ -983,7 +978,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         return result
 
     @property
-    def properties(self) -> Dict:
+    def properties(self) -> dict:
         """
         Return a copy of the option properties.
 
@@ -998,7 +993,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         props["data_labeler_object"] = self.data_labeler_object
         return props
 
-    def _validate_helper(self, variable_path: str = "DataLabelerOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "DataLabelerOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1012,9 +1007,7 @@ class DataLabelerOptions(BaseInspectorOptions):
         if self.data_labeler_dirpath is not None and not isinstance(
             self.data_labeler_dirpath, str
         ):
-            errors.append(
-                "{}.data_labeler_dirpath must be a string.".format(variable_path)
-            )
+            errors.append(f"{variable_path}.data_labeler_dirpath must be a string.")
 
         if self.data_labeler_object is not None and not isinstance(
             self.data_labeler_object, BaseDataLabeler
@@ -1035,13 +1028,9 @@ class DataLabelerOptions(BaseInspectorOptions):
         if self.max_sample_size is not None and not isinstance(
             self.max_sample_size, int
         ):
-            errors.append(
-                "{}.max_sample_size must be an integer.".format(variable_path)
-            )
+            errors.append(f"{variable_path}.max_sample_size must be an integer.")
         elif self.max_sample_size is not None and self.max_sample_size <= 0:
-            errors.append(
-                "{}.max_sample_size must be greater than 0.".format(variable_path)
-            )
+            errors.append(f"{variable_path}.max_sample_size must be greater than 0.")
         return errors
 
 
@@ -1052,7 +1041,7 @@ class TextProfilerOptions(BaseInspectorOptions):
         self,
         is_enabled: bool = True,
         is_case_sensitive: bool = True,
-        stop_words: Set[str] = None,
+        stop_words: set[str] = None,
         top_k_chars: int = None,
         top_k_words: int = None,
     ) -> None:
@@ -1082,7 +1071,7 @@ class TextProfilerOptions(BaseInspectorOptions):
         self.vocab = BooleanOption(is_enabled=True)
         self.words = BooleanOption(is_enabled=True)
 
-    def _validate_helper(self, variable_path: str = "TextProfilerOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "TextProfilerOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1097,9 +1086,7 @@ class TextProfilerOptions(BaseInspectorOptions):
         errors = super()._validate_helper(variable_path=variable_path)
 
         if not isinstance(self.is_case_sensitive, bool):
-            errors.append(
-                "{}.is_case_sensitive must be a Boolean.".format(variable_path)
-            )
+            errors.append(f"{variable_path}.is_case_sensitive must be a Boolean.")
 
         if self.stop_words is not None and (
             not isinstance(self.stop_words, list)
@@ -1144,8 +1131,8 @@ class StructuredOptions(BaseOption):
 
     def __init__(
         self,
-        null_values: Dict[str, Union[re.RegexFlag, int]] = None,
-        column_null_values: Dict[int, Dict[str, Union[re.RegexFlag, int]]] = None,
+        null_values: dict[str, re.RegexFlag | int] = None,
+        column_null_values: dict[int, dict[str, re.RegexFlag | int]] = None,
     ) -> None:
         """
         Construct the StructuredOptions object with default values.
@@ -1195,7 +1182,7 @@ class StructuredOptions(BaseOption):
         self.column_null_values = column_null_values
 
     @property
-    def enabled_profiles(self) -> List[str]:
+    def enabled_profiles(self) -> list[str]:
         """Return a list of the enabled profilers for columns."""
         enabled_profiles = list()
         # null_values and column_null_values do not have is_enabled
@@ -1207,7 +1194,7 @@ class StructuredOptions(BaseOption):
                 enabled_profiles.append(key)
         return enabled_profiles
 
-    def _validate_helper(self, variable_path: str = "StructuredOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "StructuredOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1317,7 +1304,7 @@ class UnstructuredOptions(BaseOption):
         self.data_labeler = DataLabelerOptions()
 
     @property
-    def enabled_profiles(self) -> List[str]:
+    def enabled_profiles(self) -> list[str]:
         """Return a list of the enabled profilers."""
         enabled_profiles = list()
         for key, value in self.properties.items():
@@ -1325,7 +1312,7 @@ class UnstructuredOptions(BaseOption):
                 enabled_profiles.append(key)
         return enabled_profiles
 
-    def _validate_helper(self, variable_path: str = "UnstructuredOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "UnstructuredOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1394,7 +1381,7 @@ class ProfilerOptions(BaseOption):
         self.set({"*.float.is_numeric_stats_enabled": False})
         self.set({"structured_options.text.is_numeric_stats_enabled": False})
 
-    def _validate_helper(self, variable_path: str = "ProfilerOptions") -> List[str]:
+    def _validate_helper(self, variable_path: str = "ProfilerOptions") -> list[str]:
         """
         Validate the options do not conflict and cause errors.
 
@@ -1431,7 +1418,7 @@ class ProfilerOptions(BaseOption):
 
         return errors
 
-    def set(self, options: Dict[str, bool]) -> None:
+    def set(self, options: dict[str, bool]) -> None:
         """
         Overwrite BaseOption.set.
 

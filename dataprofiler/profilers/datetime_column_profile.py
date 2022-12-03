@@ -4,7 +4,6 @@ from __future__ import annotations
 import datetime
 import re
 import warnings
-from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -53,7 +52,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         r"(\d{1,2})(" + "|".join(_day_suffixes) + ")"
     )
 
-    def __init__(self, name: Optional[str], options: DateTimeOptions = None) -> None:
+    def __init__(self, name: str | None, options: DateTimeOptions = None) -> None:
         """
         Initialize it and the column base properties.
 
@@ -67,13 +66,13 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
                 "DateTimeColumn parameter 'options' must be of " "type DateTimeOptions."
             )
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
-        self.date_formats: List[str] = []
+        self.date_formats: list[str] = []
         self.min = None
         self.max = None
         self._dt_obj_min = None  # datetime obj of min
         self._dt_obj_max = None  # datetime obj of max
 
-        self.__calculations: Dict = {}
+        self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
 
     def __add__(self, other: DateTimeColumn) -> DateTimeColumn:
@@ -120,7 +119,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         )
         return merged_profile
 
-    def report(self, remove_disabled_flag: bool = False) -> Dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """
         Return report.
 
@@ -133,7 +132,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         return self.profile
 
     @property
-    def profile(self) -> Dict:
+    def profile(self) -> dict:
         """Return the profile of the column."""
         profile = dict(
             min=self.min,
@@ -145,7 +144,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         return profile
 
     @property
-    def data_type_ratio(self) -> Optional[float]:
+    def data_type_ratio(self) -> float | None:
         """
         Calculate the ratio of samples which match this data type.
 
@@ -156,7 +155,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             return float(self.match_count) / self.sample_size
         return None
 
-    def diff(self, other_profile: DateTimeColumn, options: Dict = None) -> Dict:
+    def diff(self, other_profile: DateTimeColumn, options: dict = None) -> dict:
         """
         Generate differences between max, min, and formats of two DateTime cols.
 
@@ -180,9 +179,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         return differences
 
     @staticmethod
-    def _validate_datetime(
-        date: str, date_format: str
-    ) -> Union[datetime.datetime, float]:
+    def _validate_datetime(date: str, date_format: str) -> datetime.datetime | float:
         """
         Check to see if a string contains a certain date format.
 
@@ -193,16 +190,16 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :return: either the str converted into a date format, or Nan
         """
         try:
-            converted_date: Union[
-                datetime.datetime, float
-            ] = datetime.datetime.strptime(date, date_format)
+            converted_date: (datetime.datetime | float) = datetime.datetime.strptime(
+                date, date_format
+            )
         except (ValueError, TypeError):
             converted_date = np.nan
 
         return converted_date
 
     @staticmethod
-    def _replace_day_suffix(date: str, pattern: re.Pattern) -> Union[str, float]:
+    def _replace_day_suffix(date: str, pattern: re.Pattern) -> str | float:
         """
         Check the date for a suffix after the day. Remove suffix if present.
 
@@ -213,13 +210,13 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :return: either the date string passed in, or Nan
         """
         try:
-            new_date: Union[str, float] = pattern.sub(r"\1", date)
+            new_date: str | float = pattern.sub(r"\1", date)
         except (TypeError):
             new_date = np.nan
         return new_date
 
     @classmethod
-    def _get_datetime_profile(cls, df_series: pd.Series) -> Dict:
+    def _get_datetime_profile(cls, df_series: pd.Series) -> dict:
         """
         Determine for each val in a col its format and if it's a datetime.
 
@@ -230,8 +227,8 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         :return: parameters for datetime columns
         :rtype: dict
         """
-        profile: Dict = dict()
-        activated_date_formats: List = list()
+        profile: dict = dict()
+        activated_date_formats: list = list()
         len_df = len(df_series)
 
         is_row_datetime = pd.Series(np.full((len(df_series)), False))
@@ -345,8 +342,8 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
     def _update_datetime(
         self,
         df_series: pd.DataFrame,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         """
         Calculate the datetime properties for the profile.
@@ -390,7 +387,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
 
         subset_properties.update(profile)
 
-    def _update_helper(self, df_series: pd.Series, profile: Dict) -> None:
+    def _update_helper(self, df_series: pd.Series, profile: dict) -> None:
         """
         Update the column profile properties.
 
@@ -417,7 +414,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         profile = {"sample_size": len(df_series), "match_count": 0}
         if self._is_subset_datetime_column(df_series):
             self._update_datetime(df_series, {}, profile)
-            super(DateTimeColumn, self)._perform_property_calcs(
+            super()._perform_property_calcs(
                 self.__calculations,
                 df_series=df_series,
                 prev_dependent_properties={},

@@ -11,19 +11,7 @@ import random
 import types
 import warnings
 from collections import Counter
-from typing import (
-    Any,
-    Dict,
-    Generator,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Any, Generator, Iterable, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -38,12 +26,10 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
     """For registering subclasses."""
 
     def __new__(
-        cls, clsname: str, bases: Tuple[type, ...], attrs: Dict[str, object]
+        cls, clsname: str, bases: tuple[type, ...], attrs: dict[str, object]
     ) -> Any:
         """Create AutoSubRegistration object."""
-        new_class: Any = super(AutoSubRegistrationMeta, cls).__new__(
-            cls, clsname, bases, attrs
-        )
+        new_class: Any = super().__new__(cls, clsname, bases, attrs)
         new_class._register_subclass()
         return new_class
 
@@ -52,7 +38,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
     """Abstract Data processing class."""
 
     processor_type: str = None  # type: ignore[assignment]
-    __subclasses: Dict[str, Type[BaseDataProcessor]] = {}
+    __subclasses: dict[str, type[BaseDataProcessor]] = {}
 
     def __init__(self, **parameters: Any) -> None:
         """Initialize BaseDataProcessor object."""
@@ -68,7 +54,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
             ] = cls
 
     @classmethod
-    def get_class(cls: Type[Processor], class_name: str) -> Optional[Type[Processor]]:
+    def get_class(cls: type[Processor], class_name: str) -> type[Processor] | None:
         """Get class of BaseDataProcessor object."""
         return cls._BaseDataProcessor__subclasses.get(  # type: ignore
             class_name.lower(), None
@@ -111,7 +97,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         """
         raise NotImplementedError()
 
-    def get_parameters(self, param_list: List[str] = None) -> Dict:
+    def get_parameters(self, param_list: list[str] = None) -> dict:
         """
         Return a dict of parameters from the model given a list.
 
@@ -148,7 +134,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @classmethod
-    def load_from_disk(cls: Type[Processor], dirpath: str) -> Processor:
+    def load_from_disk(cls: type[Processor], dirpath: str) -> Processor:
         """Load data processor from a given path on disk."""
         with open(os.path.join(dirpath, cls.processor_type + "_parameters.json")) as fp:
             parameters = json.load(fp)
@@ -180,16 +166,16 @@ class BaseDataPreprocessor(BaseDataProcessor):
 
     def __init__(self, **parameters: Any) -> None:
         """Initialize BaseDataPreprocessor object."""
-        super(BaseDataPreprocessor, self).__init__(**parameters)
+        super().__init__(**parameters)
 
     @abc.abstractmethod
     def process(  # type: ignore
         self,
         data: np.ndarray,
         labels: np.ndarray = None,
-        label_mapping: Dict[str, int] = None,
+        label_mapping: dict[str, int] = None,
         batch_size: int = 32,
-    ) -> Generator[Union[Tuple[np.ndarray, np.ndarray], np.ndarray], None, None]:
+    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
         """Preprocess data."""
         raise NotImplementedError()
 
@@ -202,15 +188,15 @@ class BaseDataPostprocessor(BaseDataProcessor):
 
     def __init__(self, **parameters: Any) -> None:
         """Initialize BaseDataPostprocessor object."""
-        super(BaseDataPostprocessor, self).__init__(**parameters)
+        super().__init__(**parameters)
 
     @abc.abstractmethod
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        results: Dict,
-        label_mapping: Dict[str, int],
-    ) -> Dict:
+        results: dict,
+        label_mapping: dict[str, int],
+    ) -> dict:
         """Postprocess data."""
         raise NotImplementedError()
 
@@ -220,9 +206,9 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
 
     def __init__(self) -> None:
         """Initialize the DirectPassPreprocessor class."""
-        super(DirectPassPreprocessor, self).__init__()
+        super().__init__()
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -258,9 +244,9 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
         self,
         data: np.ndarray,
         labels: np.ndarray = None,
-        label_mapping: Dict[str, int] = None,
+        label_mapping: dict[str, int] = None,
         batch_size: int = 32,
-    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray] | np.ndarray:
         """Preprocess data."""
         if labels is not None:
             return data, labels
@@ -312,7 +298,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             **kwargs,
         )
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -342,7 +328,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             if param == "max_length" and (not isinstance(value, int) or value < 1):
                 errors.append("`max_length` must be an int > 0")
             elif param in ["default_label", "pad_label"] and not isinstance(value, str):
-                errors.append("`{}` must be a string.".format(param))
+                errors.append(f"`{param}` must be a string.")
             elif param == "flatten_split" and (
                 not isinstance(value, (int, float))
                 or value < 0
@@ -353,9 +339,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
             elif param == "flatten_separator" and not isinstance(value, str):
                 errors.append("`flatten_separator` must be a str")
             elif param == "is_separate_at_max_len" and not isinstance(value, bool):
-                errors.append("`{}` must be a bool".format(param))
+                errors.append(f"`{param}` must be a bool")
             elif param not in allowed_parameters:
-                errors.append("{} is not an accepted parameter.".format(param))
+                errors.append(f"{param} is not an accepted parameter.")
 
         if errors:
             raise ValueError("\n".join(errors))
@@ -391,7 +377,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         sentence: str,
         start_ind: int,
         min_ind: int = 0,
-        separators: Tuple[str, ...] = (" ", "\n", ",", "\t", "\r", "\x00", "\x01", ";"),
+        separators: tuple[str, ...] = (" ", "\n", ",", "\t", "\r", "\x00", "\x01", ";"),
     ) -> int:
         """
         Find nearest separator before the start_ind and return the index.
@@ -424,9 +410,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         default_label: str,
         pad_label: str,
         labels: Iterable = None,
-        label_mapping: Dict[str, int] = None,
+        label_mapping: dict[str, int] = None,
         batch_size: int = 32,
-    ) -> Generator[Dict[str, List], None, None]:
+    ) -> Generator[dict[str, list], None, None]:
         """
         Flatten batches of data.
 
@@ -461,7 +447,7 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         # Create list of vectors for samples
         flattened_entities = []
         flattened_sample = []
-        batch_data: Dict[str, List] = (
+        batch_data: dict[str, list] = (
             {"samples": []} if labels is None else {"samples": [], "labels": []}
         )
 
@@ -686,9 +672,9 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         self,
         data: np.ndarray,
         labels: np.ndarray = None,
-        label_mapping: Dict[str, int] = None,
+        label_mapping: dict[str, int] = None,
         batch_size: int = 32,
-    ) -> Generator[Union[Tuple[np.ndarray, np.ndarray], np.ndarray], None, None]:
+    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
         """
         Flatten batches of data.
 
@@ -765,7 +751,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
 
     def __init__(
         self,
-        encoding_map: Dict[str, int] = None,
+        encoding_map: dict[str, int] = None,
         max_length: int = 5000,
         default_label: str = "UNKNOWN",
         pad_label: str = "PAD",
@@ -807,7 +793,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
             is_separate_at_max_len=is_separate_at_max_len,
         )
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -843,9 +829,9 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
                     )
                     if all(are_dict_keys_str) or all(are_dict_values_int):
                         continue
-                errors.append("`{}` must be a dict[str, int]".format(param))
+                errors.append(f"`{param}` must be a dict[str, int]")
             elif param not in allowed_parameters:
-                errors.append("{} is not an accepted parameter.".format(param))
+                errors.append(f"{param} is not an accepted parameter.")
 
         if errors:
             raise ValueError("\n".join(errors))
@@ -854,9 +840,9 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
         self,
         data: np.ndarray,
         labels: np.ndarray = None,
-        label_mapping: Dict[str, int] = None,
+        label_mapping: dict[str, int] = None,
         batch_size: int = 32,
-    ) -> Generator[Union[Tuple[np.ndarray, np.ndarray], np.ndarray], None, None]:
+    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
         """
         Process structured data for being processed by CharacterLevelCnnModel.
 
@@ -905,7 +891,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
         flatten_separator: str = " ",
         use_word_level_argmax: bool = False,
         output_format: str = "character_argmax",
-        separators: Tuple[str, ...] = (" ", ",", ";", "'", '"', ":", "\n", "\t", "."),
+        separators: tuple[str, ...] = (" ", ",", ";", "'", '"', ":", "\n", "\t", "."),
         word_level_min_percent: float = 0.75,
     ) -> None:
         """
@@ -943,7 +929,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
             word_level_min_percent=word_level_min_percent,
         )
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -975,7 +961,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
                 "pad_label",
                 "flatten_separator",
             ] and not isinstance(value, str):
-                errors.append("`{}` must be a string.".format(param))
+                errors.append(f"`{param}` must be a string.")
             if param == "use_word_level_argmax" and not isinstance(value, bool):
                 errors.append("`use_word_level_argmax` must be a bool")
             elif param == "output_format" and (
@@ -1001,7 +987,7 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
                     "`word_level_min_percent` must be a float or int " ">= 0 and <= 1"
                 )
             elif param not in allowed_parameters:
-                errors.append("{} is not an accepted parameter.".format(param))
+                errors.append(f"{param} is not an accepted parameter.")
 
         if errors:
             raise ValueError("\n".join(errors))
@@ -1044,10 +1030,10 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
     def _word_level_argmax(
         self,
         data: np.ndarray,
-        predictions: List,
-        label_mapping: Dict[str, int],
+        predictions: list,
+        label_mapping: dict[str, int],
         default_label: str,
-    ) -> List[List]:
+    ) -> list[list]:
         """
         Convert char level predictions to word level predictions.
 
@@ -1143,11 +1129,11 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
     @staticmethod
     def convert_to_NER_format(
-        predictions: List[List],
-        label_mapping: Dict[str, int],
+        predictions: list[list],
+        label_mapping: dict[str, int],
         default_label: str,
         pad_label: str,
-    ) -> List[List]:
+    ) -> list[list]:
         """
         Convert word level predictions to specified format.
 
@@ -1208,8 +1194,8 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
 
     @staticmethod
     def match_sentence_lengths(
-        data: np.ndarray, results: Dict, flatten_separator: str, inplace: bool = True
-    ) -> Dict:
+        data: np.ndarray, results: dict, flatten_separator: str, inplace: bool = True
+    ) -> dict:
         """
         Convert results from model into same ragged data shapes as original data.
 
@@ -1286,9 +1272,9 @@ class CharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMeta
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        results: Dict,
-        label_mapping: Dict[str, int],
-    ) -> Dict:
+        results: dict,
+        label_mapping: dict[str, int],
+    ) -> dict:
         """
         Conduct processing on data given predictions, label_mapping, and default_label.
 
@@ -1359,7 +1345,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
             is_separate_at_max_len=is_separate_at_max_len,
         )
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -1404,7 +1390,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         )
         print(help_str)
 
-    def get_parameters(self, param_list: List[str] = None) -> Dict:
+    def get_parameters(self, param_list: list[str] = None) -> dict:
         """
         Return a dict of parameters from the model given a list.
 
@@ -1417,8 +1403,8 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         return params
 
     def convert_to_unstructured_format(
-        self, data: np.ndarray, labels: Optional[Union[List[str], npt.NDArray[np.str_]]]
-    ) -> Tuple[str, Optional[List[Tuple[int, int, str]]]]:
+        self, data: np.ndarray, labels: list[str] | npt.NDArray[np.str_] | None
+    ) -> tuple[str, list[tuple[int, int, str]] | None]:
         """
         Convert data samples list to StructCharPreprocessor required input data format.
 
@@ -1457,9 +1443,9 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         self,
         data: np.ndarray,
         labels: np.ndarray = None,
-        label_mapping: Dict[str, int] = None,
+        label_mapping: dict[str, int] = None,
         batch_size: int = 32,
-    ) -> Generator[Union[Tuple[np.ndarray, np.ndarray], np.ndarray], None, None]:
+    ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
         """
         Process structured data for being processed by CharacterLevelCnnModel.
 
@@ -1501,15 +1487,15 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
             labels = labels.reshape(-1)
 
         # convert structured to unstructured format
-        unstructured_data: List[Union[List, str]] = [[]] * len(data)
-        unstructured_labels: Optional[List[List]] = (
+        unstructured_data: list[list | str] = [[]] * len(data)
+        unstructured_labels: list[list] | None = (
             None if labels is None else [[]] * len(data)
         )
 
         # with rework, can be tuned to be batches > size 1
         for ind in range(len(data)):
             batch_data: np.ndarray = data[ind : ind + 1]
-            batch_labels: Optional[Union[npt.NDArray[np.str_], List[str]]] = (
+            batch_labels: npt.NDArray[np.str_] | list[str] | None = (
                 None if labels is None else labels[ind : ind + 1]
             )
             (
@@ -1539,7 +1525,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
         pad_label: str = "PAD",
         flatten_separator: str = "\x01" * 5,
         is_pred_labels: bool = True,
-        random_state: Union[random.Random, int, List, Tuple] = None,
+        random_state: random.Random | int | list | tuple | None = None,
     ) -> None:
         """
         Initialize the StructCharPostprocessor class.
@@ -1607,7 +1593,7 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
             return False
         return True
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate params set in processor and raise error if issues exist.
 
@@ -1632,13 +1618,13 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
                 "pad_label",
                 "flatten_separator",
             ] and not isinstance(value, str):
-                errors.append("`{}` must be a string.".format(param))
+                errors.append(f"`{param}` must be a string.")
             if param in ["is_pred_labels"] and not isinstance(value, bool):
-                errors.append("`{}` must be a boolean.".format(param))
+                errors.append(f"`{param}` must be a boolean.")
             if param == "random_state" and not isinstance(value, random.Random):
-                errors.append("`{}` must be a random.Random.".format(param))
+                errors.append(f"`{param}` must be a random.Random.")
             elif param not in allowed_parameters:
-                errors.append("{} is not an accepted parameter.".format(param))
+                errors.append(f"{param} is not an accepted parameter.")
 
         if errors:
             raise ValueError("\n".join(errors))
@@ -1672,8 +1658,8 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
 
     @staticmethod
     def match_sentence_lengths(
-        data: np.ndarray, results: Dict, flatten_separator: str, inplace: bool = True
-    ) -> Dict:
+        data: np.ndarray, results: dict, flatten_separator: str, inplace: bool = True
+    ) -> dict:
         """
         Convert results from model into same ragged data shapes as original data.
 
@@ -1750,11 +1736,11 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
     def convert_to_structured_analysis(
         self,
         sentences: np.ndarray,
-        results: Dict,
-        label_mapping: Dict[str, int],
+        results: dict,
+        label_mapping: dict[str, int],
         default_label: str,
         pad_label: str,
-    ) -> Dict:
+    ) -> dict:
         """
         Convert unstructured results to a structured column analysis.
 
@@ -1817,9 +1803,9 @@ class StructCharPostprocessor(BaseDataPostprocessor, metaclass=AutoSubRegistrati
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        results: Dict,
-        label_mapping: Dict[str, int],
-    ) -> Dict:
+        results: dict,
+        label_mapping: dict[str, int],
+    ) -> dict:
         """
         Postprocess CharacterLevelCnnModel results when given structured data.
 
@@ -1881,8 +1867,8 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
     def __init__(
         self,
         aggregation_func: str = "split",
-        priority_order: Union[List, np.ndarray] = None,
-        random_state: Union[random.Random, int, List, Tuple] = None,
+        priority_order: list | np.ndarray | None = None,
+        random_state: random.Random | int | list | tuple | None = None,
     ) -> None:
         """
         Initialize the RegexPostProcessor class.
@@ -1923,7 +1909,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
 
         super().__init__(**parameters)
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate params set in the processor and raise error if issues exist.
 
@@ -1946,7 +1932,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
             value = parameters[param]
             if param == "aggregation_func":
                 if not isinstance(value, str):
-                    errors.append("`{}` must be a string.".format(param))
+                    errors.append(f"`{param}` must be a string.")
                 elif value.lower() not in ["split", "priority", "random"]:
                     errors.append(
                         "`{}` must be a one of ['split', 'priority', "
@@ -1967,11 +1953,11 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
                         "priority.".format(param)
                     )
                 elif value is not None and not isinstance(value, (list, np.ndarray)):
-                    errors.append("`{}` must be a list or numpy.ndarray.".format(param))
+                    errors.append(f"`{param}` must be a list or numpy.ndarray.")
             elif param == "random_state" and not isinstance(value, random.Random):
-                errors.append("`{}` must be a random.Random.".format(param))
+                errors.append(f"`{param}` must be a random.Random.")
             elif param not in allowed_parameters:
-                errors.append("{} is not an accepted parameter.".format(param))
+                errors.append(f"{param} is not an accepted parameter.")
 
         if errors:
             raise ValueError("\n".join(errors))
@@ -2004,7 +1990,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
         print(help_str)
 
     @staticmethod
-    def priority_prediction(results: Dict, entity_priority_order: np.ndarray) -> None:
+    def priority_prediction(results: dict, entity_priority_order: np.ndarray) -> None:
         """
         Use priority of regex to give entity determination.
 
@@ -2023,7 +2009,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
             ]
 
     @staticmethod
-    def split_prediction(results: Dict) -> None:
+    def split_prediction(results: dict) -> None:
         """
         Split the prediction across votes.
 
@@ -2039,9 +2025,9 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        results: Dict,
-        label_mapping: Dict[str, int],
-    ) -> Dict:
+        results: dict,
+        label_mapping: dict[str, int],
+    ) -> dict:
         """Preprocess data."""
         aggregation_func = self._parameters["aggregation_func"]
         aggregation_func = aggregation_func.lower()
@@ -2062,7 +2048,7 @@ class RegexPostProcessor(BaseDataPostprocessor, metaclass=AutoSubRegistrationMet
             self.priority_prediction(results, priority_order)
         else:
             raise ValueError(
-                "`{}` is not a valid aggregation function".format(aggregation_func)
+                f"`{aggregation_func}` is not a valid aggregation function"
             )
 
         return results
@@ -2089,7 +2075,7 @@ class StructRegexPostProcessor(
     """Subclass of BaseDataPostprocessor for postprocessing struct regex data."""
 
     def __init__(
-        self, random_state: Union[random.Random, int, List, Tuple] = None
+        self, random_state: random.Random | int | list | tuple | None = None
     ) -> None:
         """
         Initialize the RegexPostProcessor class.
@@ -2104,7 +2090,7 @@ class StructRegexPostProcessor(
             random_state=random_state
         )
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate parameters set in processor and raise an error if any issues exist.
 
@@ -2125,7 +2111,7 @@ class StructRegexPostProcessor(
         errors = []
         for param in kwargs:
             if param not in allowed_parameters:
-                errors.append("{} is not an accepted parameter.".format(param))
+                errors.append(f"{param} is not an accepted parameter.")
         if errors:
             raise ValueError("\n".join(errors))
         self._parameters["regex_processor"].set_params(**kwargs)
@@ -2177,9 +2163,9 @@ class StructRegexPostProcessor(
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        results: Dict,
-        label_mapping: Dict[str, int],
-    ) -> Dict:
+        results: dict,
+        label_mapping: dict[str, int],
+    ) -> dict:
         """Preprocess data."""
         # predictions come from regex_processor in the split format which
         # still is in a 3d format [samples x characters x labels]
@@ -2214,7 +2200,7 @@ class ColumnNameModelPostprocessor(
         """Initialize the ColumnNameModelPostProcessor class."""
         super().__init__()
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate params set in the processor and raise error if issues exist.
 
@@ -2237,7 +2223,7 @@ class ColumnNameModelPostprocessor(
 
         for param in parameters:
             if param not in allowed_parameters:
-                errors.append("`{}` is not a permited parameter.".format(param))
+                errors.append(f"`{param}` is not a permited parameter.")
 
         if errors:
             raise ValueError("\n".join(errors))
@@ -2270,8 +2256,8 @@ class ColumnNameModelPostprocessor(
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        results: Dict,
-        label_mapping: Dict[str, int] = None,
-    ) -> Dict:
+        results: dict,
+        label_mapping: dict[str, int] = None,
+    ) -> dict:
         """Preprocess data."""
         return results

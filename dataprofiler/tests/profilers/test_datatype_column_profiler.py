@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import unittest
 
@@ -22,7 +20,7 @@ class TestColumnDataTypeProfiler(AbstractTestColumnProfiler, unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestColumnDataTypeProfiler, cls).setUpClass()
+        super().setUpClass()
 
 
 if __name__ == "__main__":

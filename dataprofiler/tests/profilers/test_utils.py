@@ -1,4 +1,3 @@
-import os
 import unittest
 from datetime import datetime
 from unittest import mock
@@ -331,7 +330,8 @@ class TestShuffleInChunks(unittest.TestCase):
         # wrong unit input
         with self.assertRaisesRegex(
             ValueError,
-            "Currently only supports the memory size unit " "in \['B', 'K', 'M', 'G'\]",
+            "Currently only supports the memory size unit "
+            r"in \['B', 'K', 'M', 'G'\]",
         ):
             utils.get_memory_size([], unit="wrong_unit")
 

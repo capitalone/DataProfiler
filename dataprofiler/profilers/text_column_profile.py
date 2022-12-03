@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import itertools
-from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -22,7 +21,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     type = "text"
 
-    def __init__(self, name: Optional[str], options: TextOptions = None) -> None:
+    def __init__(self, name: str | None, options: TextOptions = None) -> None:
         """
         Initialize column base properties and itself.
 
@@ -37,7 +36,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             )
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
-        self.vocab: List = list()
+        self.vocab: list = list()
         self.__calculations = {"vocab": TextColumn._update_vocab}
         self._filter_properties_w_options(self.__calculations, options)
 
@@ -67,7 +66,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             merged_profile._update_vocab(other.vocab)
         return merged_profile
 
-    def report(self, remove_disabled_flag: bool = False) -> Dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """Report profile attribute of class; potentially pop val from self.profile."""
         calcs_dict_keys = self._TextColumn__calculations.keys()
         profile = self.profile
@@ -83,7 +82,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return profile
 
     @property
-    def profile(self) -> Dict:
+    def profile(self) -> dict:
         """
         Return the profile of the column.
 
@@ -97,7 +96,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         profile.update(dict(vocab=self.vocab))
         return profile
 
-    def diff(self, other_profile: TextColumn, options: Dict = None) -> Dict:
+    def diff(self, other_profile: TextColumn, options: dict = None) -> dict:
         """
         Find the differences for text columns.
 
@@ -113,7 +112,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return differences
 
     @property
-    def data_type_ratio(self) -> Optional[float]:
+    def data_type_ratio(self) -> float | None:
         """
         Calculate the ratio of samples which match this data type.
 
@@ -128,9 +127,9 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
     @BaseColumnProfiler._timeit(name="vocab")
     def _update_vocab(
         self,
-        data: Union[List, np.ndarray, pd.DataFrame],
-        prev_dependent_properties: Dict = None,
-        subset_properties: Dict = None,
+        data: list | np.ndarray | pd.DataFrame,
+        prev_dependent_properties: dict = None,
+        subset_properties: dict = None,
     ) -> None:
         """
         Find the unique vocabulary used in the text column.
@@ -148,7 +147,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         data_flat = list(itertools.chain(*data))
         self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: Dict) -> None:
+    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null parameters.
 

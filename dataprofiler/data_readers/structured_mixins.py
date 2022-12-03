@@ -9,7 +9,7 @@ from .. import dp_logging
 logger: Logger = dp_logging.get_child_logger(__name__)
 
 
-class SpreadSheetDataMixin(object):
+class SpreadSheetDataMixin:
     """
     Mixin data class for loading datasets of type SpreadSheet.
 

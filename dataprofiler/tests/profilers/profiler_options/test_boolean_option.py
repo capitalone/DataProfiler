@@ -57,7 +57,7 @@ class TestBooleanOption(TestBaseOption):
 
         # Option is_enabled is not a boolean
         option = self.get_options(is_enabled="Hello World")
-        expected_error = ["{}.is_enabled must be a Boolean.".format(optpth)]
+        expected_error = [f"{optpth}.is_enabled must be a Boolean."]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 
     def test_validate(self):
@@ -69,7 +69,7 @@ class TestBooleanOption(TestBaseOption):
 
         # Option is_enabled is not a boolean
         option = self.get_options(is_enabled="Hello World")
-        expected_error = "{}.is_enabled must be a Boolean.".format(optpth)
+        expected_error = f"{optpth}.is_enabled must be a Boolean."
         with self.assertRaisesRegex(ValueError, expected_error):
             option.validate(raise_error=True)
 

@@ -1,5 +1,3 @@
-import re
-
 from dataprofiler.profilers.profiler_options import HistogramOption
 
 from .test_boolean_option import TestBooleanOption
@@ -71,11 +69,11 @@ class TestHistogramOption(TestBooleanOption):
             option.set({"bin_count_or_method.is_enabled": True})
 
     def test_validate_helper(self):
-        super(TestHistogramOption, self).test_validate_helper()
+        super().test_validate_helper()
 
     def test_validate(self):
 
-        super(TestHistogramOption, self).test_validate()
+        super().test_validate()
 
         params_to_check = [
             # non errors
@@ -143,12 +141,12 @@ class TestHistogramOption(TestBooleanOption):
                     self.assertListEqual(
                         expected_errors,
                         validate_errors,
-                        msg="Errored for prop: {}, value: {}.".format(prop, value),
+                        msg=f"Errored for prop: {prop}, value: {value}.",
                     )
                 else:
                     self.assertIsNone(
                         validate_errors,
-                        msg="Errored for prop: {}, value: {}.".format(prop, value),
+                        msg=f"Errored for prop: {prop}, value: {value}.",
                     )
 
         # this time testing raising an error

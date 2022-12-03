@@ -6,7 +6,6 @@ import json
 import os
 import re
 import sys
-from typing import Dict
 
 import numpy as np
 
@@ -21,7 +20,7 @@ logger = dp_logging.get_child_logger(__name__)
 class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     """Class for regex data labeling model."""
 
-    def __init__(self, label_mapping: Dict[str, int], parameters: Dict = None) -> None:
+    def __init__(self, label_mapping: dict[str, int], parameters: dict = None) -> None:
         r"""
         Initialize Regex Model.
 
@@ -68,7 +67,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         self._validate_parameters(parameters)
         self._parameters = parameters
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         r"""
         Validate the parameters sent in.
 
@@ -120,14 +119,10 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 or "start" not in value
                 or "end" not in value
             ):
-                errors.append(
-                    "`{}` must be a dict with keys 'start' and 'end'".format(param)
-                )
+                errors.append(f"`{param}` must be a dict with keys 'start' and 'end'")
             elif param == "regex_patterns":
                 if not isinstance(value, dict):
-                    errors.append(
-                        "`{}` must be a dict of regex pattern lists.".format(param)
-                    )
+                    errors.append(f"`{param}` must be a dict of regex pattern lists.")
                     continue
                 for key in value:
                     if key not in self.label_mapping:
@@ -156,11 +151,11 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                                         " pattern: {}".format(key, i, str(e))
                                     )
             elif param == "ignore_case" and not isinstance(parameters[param], bool):
-                errors.append("`{}` must be a bool.".format(param))
+                errors.append(f"`{param}` must be a bool.")
             elif param == "default_label" and not isinstance(parameters[param], str):
-                errors.append("`{}` must be a string.".format(param))
+                errors.append(f"`{param}` must be a string.")
             elif param not in list_of_necessary_params:
-                errors.append("`{}` is not an accepted parameter.".format(param))
+                errors.append(f"`{param}` is not an accepted parameter.")
         if errors:
             raise ValueError("\n".join(errors))
 
@@ -175,7 +170,6 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def reset_weights(self) -> None:
         """Reset weights."""
-        pass
 
     def predict(
         self,
@@ -183,7 +177,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         batch_size: int = None,
         show_confidences: bool = False,
         verbose: bool = True,
-    ) -> Dict:
+    ) -> dict:
         """
         Apply the regex patterns (within regex_model) to the input_string.
 
@@ -250,11 +244,11 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                         pred[indices[0] : indices[1], entity_id] = 1
             if verbose:
                 sys.stdout.flush()
-                sys.stdout.write("\rData Samples Processed: {:d}   ".format(i + 1))
+                sys.stdout.write(f"\rData Samples Processed: {i + 1:d}   ")
             predictions[i] = pred
 
         if verbose:
-            logger.info("\rData Samples Processed: {:d}   ".format(i + 1))
+            logger.info(f"\rData Samples Processed: {i + 1:d}   ")
 
         # Trim array size to number of samples
         if len(predictions) > i + 1:
@@ -280,12 +274,12 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         """
         # load parameters
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
-        with open(model_param_dirpath, "r") as fp:
+        with open(model_param_dirpath) as fp:
             parameters = json.load(fp)
 
         # load label_mapping
         labels_dirpath = os.path.join(dirpath, "label_mapping.json")
-        with open(labels_dirpath, "r") as fp:
+        with open(labels_dirpath) as fp:
             label_mapping = json.load(fp)
 
         loaded_model = cls(label_mapping, parameters)

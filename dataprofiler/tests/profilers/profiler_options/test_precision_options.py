@@ -52,21 +52,17 @@ class TestPrecisionOptions(TestBooleanOption):
 
         # Option sample_ratio cannot be a string, must be a float
         option = self.get_options(sample_ratio="Hello World")
-        expected_error = ["{}.sample_ratio must be a float.".format(optpth)]
+        expected_error = [f"{optpth}.sample_ratio must be a float."]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 
         # Option sample_ratio must be between 0 and 1
         option = self.get_options(sample_ratio=1.1)
-        expected_error = [
-            "{}.sample_ratio must be a float between 0 and 1.".format(optpth)
-        ]
+        expected_error = [f"{optpth}.sample_ratio must be a float between 0 and 1."]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 
         # Option sample_ratio must be between 0 and 1
         option = self.get_options(sample_ratio=-0.1)
-        expected_error = [
-            "{}.sample_ratio must be a float between 0 and 1.".format(optpth)
-        ]
+        expected_error = [f"{optpth}.sample_ratio must be a float between 0 and 1."]
         self.assertSetEqual(set(expected_error), set(option._validate_helper()))
 
     def test_validate(self):

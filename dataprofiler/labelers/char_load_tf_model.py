@@ -7,7 +7,7 @@ import os
 import sys
 import time
 from collections import defaultdict
-from typing import Dict, List, Optional, Tuple, Union, cast
+from typing import cast
 
 import numpy as np
 import tensorflow as tf
@@ -31,7 +31,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
     requires_zero_mapping = False
 
     def __init__(
-        self, model_path: str, label_mapping: Dict[str, int], parameters: Dict = None
+        self, model_path: str, label_mapping: dict[str, int], parameters: dict = None
     ) -> None:
         """
         Initialize Loadable TF Model.
@@ -82,7 +82,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             return False
         return True
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate the parameters sent in.
 
@@ -118,9 +118,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         if errors:
             raise ValueError("\n".join(errors))
 
-    def set_label_mapping(
-        self, label_mapping: Union[List[str], Dict[str, int]]
-    ) -> None:
+    def set_label_mapping(self, label_mapping: list[str] | dict[str, int]) -> None:
         """
         Set the labels for the model.
 
@@ -198,12 +196,12 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         """
         # load parameters
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
-        with open(model_param_dirpath, "r") as fp:
+        with open(model_param_dirpath) as fp:
             parameters = json.load(fp)
 
         # load label_mapping
         labels_dirpath = os.path.join(dirpath, "label_mapping.json")
-        with open(labels_dirpath, "r") as fp:
+        with open(labels_dirpath) as fp:
             label_mapping = json.load(fp)
 
         # use f1 score metric
@@ -333,10 +331,10 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         val_data: DataArray = None,
         batch_size: int = None,
         epochs: int = None,
-        label_mapping: Dict[str, int] = None,
+        label_mapping: dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
-    ) -> Tuple[Dict, Optional[float], Dict]:
+    ) -> tuple[dict, float | None, dict]:
         """
         Train the current model with the training data and validation data.
 
@@ -367,9 +365,9 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
             if reset_weights:
                 self.reset_weights()
 
-        history: Dict = defaultdict()
-        f1: Optional[float] = None
-        f1_report: Dict = {}
+        history: dict = defaultdict()
+        f1: float | None = None
+        f1_report: dict = {}
 
         self._model.reset_metrics()
         softmax_output_layer_name = self._model.outputs[0].name.split("/")[0]
@@ -424,7 +422,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         batch_size_test: int = 32,
         verbose_log: bool = True,
         verbose_keras: bool = False,
-    ) -> Union[Tuple[float, Dict], Tuple[None, None]]:
+    ) -> tuple[float, dict] | tuple[None, None]:
         """
         Validate the model on the test set and return the evaluation metrics.
 
@@ -482,7 +480,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         batch_size: int = 32,
         show_confidences: bool = False,
         verbose: bool = True,
-    ) -> Dict:
+    ) -> dict:
         """
         Run model and get predictions.
 
@@ -507,8 +505,8 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
                 "predict."
             )
         # Pre-allocate space for predictions
-        confidences: List = []
-        predictions: List = []
+        confidences: list = []
+        predictions: list = []
 
         # Run model with batching
         allocation_index = 0
@@ -556,7 +554,7 @@ class CharLoadTFModel(BaseTrainableModel, metaclass=AutoSubRegistrationMeta):
         self._model.summary()
         print("\nModel Parameters:")
         for key, value in self._parameters.items():
-            print("{}: {}".format(key, value))
+            print(f"{key}: {value}")
         print("\nModel Label Mapping:")
         for key, value in self.label_mapping.items():
-            print("{}: {}".format(key, value))
+            print(f"{key}: {value}")

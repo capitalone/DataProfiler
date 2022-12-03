@@ -1,5 +1,5 @@
 """Contains functions and classes for handling filepaths and buffers."""
-from io import BytesIO, StringIO, TextIOWrapper, open
+from io import BytesIO, StringIO, TextIOWrapper
 from typing import IO, Any, Optional, Type, Union, cast
 
 from typing_extensions import TypeGuard

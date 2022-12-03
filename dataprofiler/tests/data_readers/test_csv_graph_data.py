@@ -1,6 +1,6 @@
 import os
 import unittest
-from io import BytesIO, StringIO, TextIOWrapper
+from io import BytesIO, StringIO
 
 import networkx as nx
 
@@ -86,7 +86,7 @@ class TestGraphDataClass(unittest.TestCase):
         for input_file in cls.input_file_names_pos:
             # add StringIO
             buffer_info = input_file.copy()
-            with open(input_file["path"], "r", encoding=input_file["encoding"]) as fp:
+            with open(input_file["path"], encoding=input_file["encoding"]) as fp:
                 buffer_info["path"] = StringIO(fp.read())
             cls.buffer_list.append(buffer_info)
 

@@ -5,7 +5,6 @@ import itertools
 import string
 import warnings
 from collections import Counter, defaultdict
-from typing import Dict, List, Optional, Union
 
 from numpy import ndarray
 from pandas import DataFrame, Series
@@ -14,14 +13,12 @@ from . import BaseColumnProfiler, utils
 from .profiler_options import TextProfilerOptions
 
 
-class TextProfiler(object):
+class TextProfiler:
     """Profiles text data."""
 
     type = "text"
 
-    def __init__(
-        self, name: Optional[str], options: TextProfilerOptions = None
-    ) -> None:
+    def __init__(self, name: str | None, options: TextProfilerOptions = None) -> None:
         """
         Initialize TextProfiler object.
 
@@ -30,12 +27,12 @@ class TextProfiler(object):
         :param options: Options for the Text Profiler
         :type options: TextProfilerOptions
         """
-        self.name: Optional[str] = name
+        self.name: str | None = name
         self.sample_size: int = 0
-        self.times: Dict = defaultdict(float)
+        self.times: dict = defaultdict(float)
         self.vocab_count: Counter = Counter()
         self.word_count: Counter = Counter()
-        self.metadata: Dict = dict()
+        self.metadata: dict = dict()
 
         # TODO: Add line length
         # self.line_length = {'max': None, 'min': None,...} #numeric stats mixin?
@@ -537,9 +534,7 @@ class TextProfiler(object):
         if self.name == other.name:
             merged_profile.name = self.name
         else:
-            raise ValueError(
-                "Text names unmatched: {} != {}".format(self.name, other.name)
-            )
+            raise ValueError(f"Text names unmatched: {self.name} != {other.name}")
 
         merged_profile.times = defaultdict(
             float,
@@ -582,7 +577,7 @@ class TextProfiler(object):
 
         return merged_profile
 
-    def diff(self, other_profile: TextProfiler, options: Dict = None) -> Dict:
+    def diff(self, other_profile: TextProfiler, options: dict = None) -> dict:
         """
         Find the differences for two unstructured text profiles.
 
@@ -613,7 +608,7 @@ class TextProfiler(object):
             other_words = [each_string.lower() for each_string in other_words]
             other_word_count = {k.lower(): v for k, v in other_word_count.items()}
 
-        diff: Dict = {}
+        diff: dict = {}
         diff["vocab"] = utils.find_diff_of_lists_and_sets(
             list(self.vocab_count.keys()), list(other_profile.vocab_count.keys())
         )
@@ -631,7 +626,7 @@ class TextProfiler(object):
 
         return diff
 
-    def report(self, remove_disabled_flag: bool = False) -> Dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """Report profile attribute of class; potentially pop val from self.profile."""
         calcs_dict_keys = self._TextProfiler__calculations.keys()  # type: ignore
         profile = self.profile
@@ -650,7 +645,7 @@ class TextProfiler(object):
         return profile
 
     @property
-    def profile(self) -> Dict:
+    def profile(self) -> dict:
         """
         Return the profile of the column.
 
@@ -669,9 +664,9 @@ class TextProfiler(object):
     @BaseColumnProfiler._timeit(name="vocab")
     def _update_vocab(
         self,
-        data: Union[List, ndarray, DataFrame],
-        prev_dependent_properties: Dict = None,
-        subset_properties: Dict = None,
+        data: list | ndarray | DataFrame,
+        prev_dependent_properties: dict = None,
+        subset_properties: dict = None,
     ) -> None:
         """
         Find the vocabulary counts used in the text samples.
@@ -692,9 +687,9 @@ class TextProfiler(object):
     @BaseColumnProfiler._timeit(name="words")
     def _update_words(
         self,
-        data: Union[List, ndarray, DataFrame],
-        prev_dependent_properties: Dict = None,
-        subset_properties: Dict = None,
+        data: list | ndarray | DataFrame,
+        prev_dependent_properties: dict = None,
+        subset_properties: dict = None,
     ) -> None:
         """
         Find unique words and word count used in the text samples.
@@ -722,7 +717,7 @@ class TextProfiler(object):
             if w and w.lower() not in self._stop_words:
                 self.word_count.update({w: c})
 
-    def _update_helper(self, data: Series, profile: Dict) -> None:
+    def _update_helper(self, data: Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null parameters.
 

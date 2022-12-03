@@ -2,7 +2,6 @@
 import json
 import re
 import urllib
-from builtins import next
 from collections import OrderedDict
 from io import BytesIO, StringIO, TextIOWrapper
 from typing import (
@@ -41,8 +40,7 @@ def data_generator(data_list: List[str]) -> Generator[str, None, None]:
     :return: item from the list
     :rtype: generator
     """
-    for item in data_list:
-        yield item
+    yield from data_list
 
 
 def generator_on_file(

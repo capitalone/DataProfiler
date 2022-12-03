@@ -71,7 +71,7 @@ class TestTextDataClass(unittest.TestCase):
         for input_file in cls.input_file_names:
             # add StringIO
             buffer_info = input_file.copy()
-            with open(input_file["path"], "r", encoding=input_file["encoding"]) as fp:
+            with open(input_file["path"], encoding=input_file["encoding"]) as fp:
                 buffer_info["path"] = StringIO(fp.read())
             cls.buffer_list.append(buffer_info)
 

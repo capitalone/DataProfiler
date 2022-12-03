@@ -277,7 +277,7 @@ class TestDataLabeler(unittest.TestCase):
         invalid_data = ["string", 1, None, dict()]
         print("\nInvalid Data Checks:")
         for data in invalid_data:
-            print("\tChecking data format: {}".format(str(type(data))))
+            print(f"\tChecking data format: {str(type(data))}")
             _invalid_check(data)
 
         # cannot predict dict
@@ -289,7 +289,7 @@ class TestDataLabeler(unittest.TestCase):
     def test_valid_fit_data_formats(self, *mocks):
         def _valid_check(data):
             try:
-                print("\tChecking data format: {}".format(str(type(data))))
+                print(f"\tChecking data format: {str(type(data))}")
                 data = UnstructuredDataLabeler._check_and_return_valid_data_format(
                     data, fit_or_predict="fit"
                 )
@@ -314,7 +314,7 @@ class TestDataLabeler(unittest.TestCase):
     def test_valid_predict_data_formats(self, *mocks):
         def _valid_check(data):
             try:
-                print("\tChecking data format: {}".format(str(type(data))))
+                print(f"\tChecking data format: {str(type(data))}")
                 data = UnstructuredDataLabeler._check_and_return_valid_data_format(
                     data, fit_or_predict="predict"
                 )

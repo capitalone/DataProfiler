@@ -319,14 +319,14 @@ def classification_report(
     if target_names is not None and len(labels) != len(target_names):
         if labels_given:
             warnings.warn(
-                "labels size, {0}, does not match size of target_names, {1}".format(
+                "labels size, {}, does not match size of target_names, {}".format(
                     len(labels), len(target_names)
                 )
             )
         else:
             raise ValueError(
-                "Number of classes, {0}, does not match size of "
-                "target_names, {1}. Try specifying the labels "
+                "Number of classes, {}, does not match size of "
+                "target_names, {}. Try specifying the labels "
                 "parameter".format(len(labels), len(target_names))
             )
     if target_names is None:

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable
 
 import numpy as np
 
@@ -27,7 +27,7 @@ logger = dp_logging.get_child_logger(__name__)
 class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     """Class for column name data labeling model."""
 
-    def __init__(self, label_mapping: Dict[str, int], parameters: Dict = None) -> None:
+    def __init__(self, label_mapping: dict[str, int], parameters: dict = None) -> None:
         """Initialize function for ColumnNameModel.
 
         :param parameters: Contains all the appropriate parameters for the model.
@@ -50,7 +50,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         self._validate_parameters(parameters)
         self._parameters = parameters
 
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         r"""
         Validate the parameters sent in.
 
@@ -120,7 +120,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 )
             elif param == "include_label" and not isinstance(value, bool):
                 errors.append(
-                    "`{}` is a required parameter that must be a boolean.".format(param)
+                    f"`{param}` is a required parameter that must be a boolean."
                 )
             elif param == "negative_threshold_config" and (
                 not isinstance(value, int)
@@ -135,10 +135,10 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
                 value is None or not isinstance(value, int)
             ):
                 errors.append(
-                    "`{}` is a required parameter that must be a boolean.".format(param)
+                    f"`{param}` is a required parameter that must be a boolean."
                 )
             elif param not in list_of_accepted_parameters:
-                errors.append("`{}` is not an accepted parameter.".format(param))
+                errors.append(f"`{param}` is not an accepted parameter.")
 
         if errors:
             raise ValueError("\n".join(errors))
@@ -150,7 +150,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
     def _compare_negative(
         self,
         list_of_column_names: DataArray,
-        check_values_dict: Dict,
+        check_values_dict: dict,
         negative_threshold: float,
     ) -> DataArray:
         """Filter out column name examples that are false positives."""
@@ -179,17 +179,16 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def reset_weights(self) -> None:
         """Reset weights function."""
-        pass
 
     @require_module(["rapidfuzz"])
     def _model(
         self,
-        list_of_column_names: List[str],
-        check_values_dict: List[Dict],
+        list_of_column_names: list[str],
+        check_values_dict: list[dict],
         processor: Callable,
         scorer: Callable,
         include_label: bool = False,
-    ) -> List:
+    ) -> list:
         scores = []
 
         check_values_list = [dict["attribute"] for dict in check_values_dict]
@@ -213,7 +212,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         batch_size: int = None,
         show_confidences: bool = False,
         verbose: bool = True,
-    ) -> Dict:
+    ) -> dict:
         """
         Apply the `process.cdist` for similarity score on input list of strings.
 
@@ -285,12 +284,12 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
         """
         # load parameters
         model_param_dirpath = os.path.join(dirpath, "model_parameters.json")
-        with open(model_param_dirpath, "r") as fp:
+        with open(model_param_dirpath) as fp:
             parameters = json.load(fp)
 
         # load label_mapping
         labels_dirpath = os.path.join(dirpath, "label_mapping.json")
-        with open(labels_dirpath, "r") as fp:
+        with open(labels_dirpath) as fp:
             label_mapping = json.load(fp)
 
         loaded_model = cls(label_mapping, parameters)

@@ -1,6 +1,4 @@
 """Contains class for saving and loading text files."""
-from __future__ import unicode_literals  # at top of module
-from __future__ import print_function
 
 from io import StringIO
 from typing import Dict, List, Optional, Union, cast
@@ -51,7 +49,7 @@ class TextData(BaseData):
             raise ValueError("Input data type is not string.")
 
         options = self._check_and_return_options(options)
-        super(TextData, self).__init__(input_file_path, data, options)
+        super().__init__(input_file_path, data, options)
 
         # 'Private' properties
         #  _data_formats: dict containing data_formats (key) and function
@@ -152,5 +150,5 @@ class TextData(BaseData):
         :type options: dict
         :return: None
         """
-        super(TextData, self).reload(input_file_path, data, options)
+        super().reload(input_file_path, data, options)
         self.__init__(self.input_file_path, data, options)  # type: ignore

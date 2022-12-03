@@ -1,5 +1,4 @@
 """Contains factory class reading various kinds of data."""
-from __future__ import absolute_import, division
 
 from io import BytesIO
 from typing import Any, Dict, List, Optional, Union, cast
@@ -16,7 +15,7 @@ from .text_data import TextData
 logger = dp_logging.get_child_logger(__name__)
 
 
-class Data(object):
+class Data:
     """Factory class for reading various kinds of data."""
 
     data_classes: List[Dict] = [

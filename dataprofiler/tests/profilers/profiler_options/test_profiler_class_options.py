@@ -77,7 +77,7 @@ class TestProfilerOptions(TestBaseOption):
                 "has no attribute 'is_enabled'".format(key)
             )
             with self.assertRaisesRegex(AttributeError, expected_error):
-                option.set({"{}.text.is_enabled.is_enabled".format(key): True})
+                option.set({f"{key}.text.is_enabled.is_enabled": True})
 
     def test_validate_helper(self):
         # Valid cases should return [] while invalid cases
@@ -95,7 +95,7 @@ class TestProfilerOptions(TestBaseOption):
 
         # Option is_enabled is not a boolean
         for key in self.keys:
-            option.set({"{}.text.is_enabled".format(key): "Hello World"})
+            option.set({f"{key}.text.is_enabled": "Hello World"})
         expected_error = [
             "{}.{}.text.is_enabled must be a " "Boolean.".format(optpth, key)
             for key in self.keys
@@ -112,8 +112,8 @@ class TestProfilerOptions(TestBaseOption):
         option.structured_options = ProfilerOptions()
         option.unstructured_options = ProfilerOptions()
         expected_error = [
-            "{}.structured_options must be a StructuredOptions.".format(optpth),
-            "{}.unstructured_options must be an UnstructuredOptions.".format(optpth),
+            f"{optpth}.structured_options must be a StructuredOptions.",
+            f"{optpth}.unstructured_options must be an UnstructuredOptions.",
         ]
         self.assertEqual(expected_error, option._validate_helper())
 
@@ -128,7 +128,7 @@ class TestProfilerOptions(TestBaseOption):
 
         # Option is_enabled is not a boolean
         for key in self.keys:
-            option.set({"{}.text.is_enabled".format(key): "Hello World"})
+            option.set({f"{key}.text.is_enabled": "Hello World"})
         expected_error = [
             "{}.{}.text.is_enabled must be a " "Boolean.".format(optpth, key)
             for key in self.keys
@@ -150,8 +150,8 @@ class TestProfilerOptions(TestBaseOption):
         option.structured_options = ProfilerOptions()
         option.unstructured_options = ProfilerOptions()
         expected_error = [
-            "{}.structured_options must be a StructuredOptions.".format(optpth),
-            "{}.unstructured_options must be an UnstructuredOptions.".format(optpth),
+            f"{optpth}.structured_options must be a StructuredOptions.",
+            f"{optpth}.unstructured_options must be an UnstructuredOptions.",
         ]
         with self.assertRaisesRegex(ValueError, "\n".join(expected_error)):
             option.validate()

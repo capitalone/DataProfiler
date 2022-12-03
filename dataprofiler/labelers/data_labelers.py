@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-from typing import Dict, Union
 
 import pandas as pd
 import pkg_resources
@@ -16,7 +15,7 @@ default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
 def train_structured_labeler(
-    data: Union[None, pd.DataFrame],
+    data: None | pd.DataFrame,
     default_label: int = None,
     save_dirpath: str = None,
     epochs: int = 2,
@@ -87,7 +86,7 @@ class StructuredDataLabeler(BaseDataLabeler):
     _default_model_loc: str = "structured_model"
 
 
-class DataLabeler(object):
+class DataLabeler:
     """Wrapper class for choosing between structured and unstructured labeler."""
 
     labeler_classes = dict(
@@ -99,7 +98,7 @@ class DataLabeler(object):
         cls,
         labeler_type: str,
         dirpath: str = None,
-        load_options: Dict = None,
+        load_options: dict = None,
         trainable: bool = False,
     ) -> BaseDataLabeler:
         """
@@ -148,7 +147,7 @@ class DataLabeler(object):
 
     @classmethod
     def load_from_disk(
-        cls, dirpath: str, load_options: Dict = None, trainable: bool = False
+        cls, dirpath: str, load_options: dict = None, trainable: bool = False
     ) -> BaseDataLabeler:
         """
         Load the data labeler from a saved location on disk.

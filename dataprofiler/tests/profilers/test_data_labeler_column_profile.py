@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import unittest
 from collections import defaultdict
 from unittest import mock
@@ -50,8 +48,7 @@ class TestDataLabelerColumnProfiler(unittest.TestCase):
             self.assertEqual(["a", "b"], profiler.possible_data_labels)
             self.assertEqual(None, profiler.data_label)
             self.assertEqual(None, profiler.avg_predictions)
-            six.assertCountEqual(
-                self,
+            self.assertCountEqual(
                 ["data_label", "avg_predictions", "data_label_representation", "times"],
                 list(profiler.profile.keys()),
             )

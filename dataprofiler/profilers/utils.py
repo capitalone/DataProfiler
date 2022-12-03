@@ -13,21 +13,7 @@ import warnings
 from abc import abstractmethod
 from itertools import islice
 from multiprocessing.pool import Pool
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Generator,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    TypeVar,
-    Union,
-    cast,
-    overload,
-)
+from typing import Any, Callable, Dict, Generator, Iterator, TypeVar, cast, overload
 
 import numpy as np
 import psutil
@@ -38,7 +24,7 @@ from typing_extensions import Protocol
 from dataprofiler import profilers, settings
 
 
-def recursive_dict_update(d: Dict, update_d: Dict) -> Dict:
+def recursive_dict_update(d: dict, update_d: dict) -> dict:
     """
     Recursive updates nested dictionaries. Updating d with update_d.
 
@@ -70,7 +56,7 @@ class KeyDict(collections.defaultdict):
         return key
 
 
-def _combine_unique_sets(a: List, b: List) -> List:
+def _combine_unique_sets(a: list, b: list) -> list:
     """
     Unify two lists.
 
@@ -78,7 +64,7 @@ def _combine_unique_sets(a: List, b: List) -> List:
     :type b: list
     :rtype: list
     """
-    combined_list: Set = set()
+    combined_list: set = set()
     if not a and not b:
         combined_list = set()
     elif not a:
@@ -92,7 +78,7 @@ def _combine_unique_sets(a: List, b: List) -> List:
 
 def shuffle_in_chunks(
     data_length: int, chunk_size: int
-) -> Generator[List[int], None, Any]:
+) -> Generator[list[int], None, Any]:
     """
     Create shuffled indexes in chunks.
 
@@ -158,9 +144,9 @@ def warn_on_profile(col_profile: str, e: Exception) -> None:
     import warnings
 
     warning_msg = "\n\n!!! WARNING Partial Profiler Failure !!!\n\n"
-    warning_msg += "Profiling Type: {}".format(col_profile)
-    warning_msg += "\nException: {}".format(type(e).__name__)
-    warning_msg += "\nMessage: {}".format(e)
+    warning_msg += f"Profiling Type: {col_profile}"
+    warning_msg += f"\nException: {type(e).__name__}"
+    warning_msg += f"\nMessage: {e}"
     # This is considered a major error
     if type(e).__name__ == "ValueError":
         raise ValueError(e)
@@ -170,7 +156,7 @@ def warn_on_profile(col_profile: str, e: Exception) -> None:
     warnings.warn(warning_msg, RuntimeWarning, stacklevel=2)
 
 
-def partition(data: List, chunk_size: int) -> Generator[List, None, Any]:
+def partition(data: list, chunk_size: int) -> Generator[list, None, Any]:
     """
     Create a generator which returns data in specified chunk size.
 
@@ -183,7 +169,7 @@ def partition(data: List, chunk_size: int) -> Generator[List, None, Any]:
         yield data[idx : idx + chunk_size]
 
 
-def suggest_pool_size(data_size: int = None, cols: int = None) -> Optional[int]:
+def suggest_pool_size(data_size: int = None, cols: int = None) -> int | None:
     """
     Suggest the pool size based on resources.
 
@@ -224,7 +210,7 @@ def generate_pool(
     max_pool_size: int = None,
     data_size: int = None,
     cols: int = None,
-) -> Tuple[Optional[Pool], Optional[int]]:
+) -> tuple[Pool | None, int | None]:
     """
     Generate a multiprocessing pool to allocate functions too.
 
@@ -259,16 +245,14 @@ def generate_pool(
     return pool, max_pool_size
 
 
-def overlap(
-    x1: Union[int, Any], x2: Union[int, Any], y1: Union[int, Any], y2: Union[int, Any]
-) -> bool:
+def overlap(x1: int | Any, x2: int | Any, y1: int | Any, y2: int | Any) -> bool:
     """Return True iff [x1:x2] overlaps with [y1:y2]."""
     if not all(isinstance(i, int) for i in [x1, x2, y1, y2]):
         return False
     return (y1 <= x1 <= y2) or (y1 <= x2 <= y2) or (x1 <= y1 <= x2) or (x1 <= y2 <= x2)
 
 
-def add_nested_dictionaries(first_dict: Dict, second_dict: Dict) -> Dict:
+def add_nested_dictionaries(first_dict: dict, second_dict: dict) -> dict:
     """
     Merge two dictionaries together and add values together.
 
@@ -278,7 +262,7 @@ def add_nested_dictionaries(first_dict: Dict, second_dict: Dict) -> Dict:
     :type second_dict: dict
     :return: merged dictionary
     """
-    merged_dict: Dict = {}
+    merged_dict: dict = {}
     if isinstance(first_dict, collections.defaultdict):
         merged_dict = collections.defaultdict(first_dict.default_factory)
 
@@ -382,26 +366,22 @@ class Subtractable(Protocol):
     @abstractmethod
     def __eq__(self: object, other: object) -> bool:
         """Compare two objects."""
-        pass
 
     @abstractmethod
     def __sub__(self: T, other: T) -> Any:
         """Compare two subtractables."""
-        pass
 
 
 T = TypeVar("T", bound=Subtractable)
 
 
 @overload
-def find_diff_of_numbers(
-    stat1: Union[float, np.float64], stat2: Union[float, np.float64]
-) -> Any:
+def find_diff_of_numbers(stat1: float | np.float64, stat2: float | np.float64) -> Any:
     ...
 
 
 @overload
-def find_diff_of_numbers(stat1: Optional[T], stat2: Optional[T]) -> Any:
+def find_diff_of_numbers(stat1: T | None, stat2: T | None) -> Any:
     ...
 
 
@@ -428,8 +408,8 @@ def find_diff_of_numbers(stat1, stat2):
 
 
 def find_diff_of_strings_and_bools(
-    stat1: Union[str, bool, None], stat2: Union[str, bool, None]
-) -> Union[List[Union[str, bool, None]], str]:
+    stat1: str | bool | None, stat2: str | bool | None
+) -> list[str | bool | None] | str:
     """
     Find the difference between two stats.
 
@@ -448,8 +428,8 @@ def find_diff_of_strings_and_bools(
 
 
 def find_diff_of_lists_and_sets(
-    stat1: Union[List, Set, None], stat2: Union[List, Set, None]
-) -> Union[List[Union[List, Set, None]], str]:
+    stat1: list | set | None, stat2: list | set | None
+) -> list[list | set | None] | str:
     """
     Find the difference between two stats.
 
@@ -484,8 +464,8 @@ def find_diff_of_lists_and_sets(
 
 
 def find_diff_of_dates(
-    stat1: Optional[datetime.datetime], stat2: Optional[datetime.datetime]
-) -> Union[List, str, None]:
+    stat1: datetime.datetime | None, stat2: datetime.datetime | None
+) -> list | str | None:
     """
     Find the difference between two dates.
 
@@ -507,7 +487,7 @@ def find_diff_of_dates(
     """
     # We can use find_diff_of_numbers since datetime objects
     # can be compared and subtracted naturally
-    diff: Union[datetime.timedelta, List, str] = find_diff_of_numbers(stat1, stat2)
+    diff: datetime.timedelta | list | str = find_diff_of_numbers(stat1, stat2)
     if isinstance(diff, str):
         return diff
     if isinstance(diff, list):
@@ -519,9 +499,7 @@ def find_diff_of_dates(
     return "-" + str(abs(diff))
 
 
-def find_diff_of_dicts(
-    dict1: Optional[Dict], dict2: Optional[Dict]
-) -> Union[Dict, str]:
+def find_diff_of_dicts(dict1: dict | None, dict2: dict | None) -> dict | str:
     """
     Find the difference between two dicts.
 
@@ -540,7 +518,7 @@ def find_diff_of_dicts(
     dict1 = dict1 or {}
     dict2 = dict2 or {}
 
-    diff: Dict = {}
+    diff: dict = {}
     for key, value1 in dict1.items():
         value2 = dict2.get(key, None)
         if isinstance(value1, list):
@@ -567,8 +545,8 @@ def find_diff_of_dicts(
 
 
 def find_diff_of_matrices(
-    matrix1: Optional[np.ndarray], matrix2: Optional[np.ndarray]
-) -> Optional[Union[np.ndarray, str]]:
+    matrix1: np.ndarray | None, matrix2: np.ndarray | None
+) -> np.ndarray | str | None:
     """
     Find the difference between two matrices.
 
@@ -593,8 +571,8 @@ def find_diff_of_matrices(
 
 
 def find_diff_of_dicts_with_diff_keys(
-    dict1: Optional[Dict], dict2: Optional[Dict]
-) -> Union[List[Dict], str]:
+    dict1: dict | None, dict2: dict | None
+) -> list[dict] | str:
     """
     Find the difference between two dicts.
 
@@ -613,9 +591,9 @@ def find_diff_of_dicts_with_diff_keys(
     dict1 = dict1 or {}
     dict2 = dict2 or {}
 
-    diff_1: Dict = {}
-    diff_shared: Dict = {}
-    diff_2: Dict = {}
+    diff_1: dict = {}
+    diff_shared: dict = {}
+    diff_2: dict = {}
     for key, value1 in dict1.items():
         if key in dict2:
             value2 = dict2[key]
@@ -646,7 +624,7 @@ def find_diff_of_dicts_with_diff_keys(
     return diff
 
 
-def get_memory_size(data: Union[list, np.ndarray, DataFrame], unit: str = "M") -> float:
+def get_memory_size(data: list | np.ndarray | DataFrame, unit: str = "M") -> float:
     """
     Get memory size of the input data.
 
@@ -656,7 +634,7 @@ def get_memory_size(data: Union[list, np.ndarray, DataFrame], unit: str = "M") -
     :type unit: string
     :return: memory size of the input data
     """
-    unit_map: Dict = collections.defaultdict(B=0, K=1, M=2, G=3)
+    unit_map: dict = collections.defaultdict(B=0, K=1, M=2, G=3)
     if unit not in unit_map:
         raise ValueError(
             "Currently only supports the "
@@ -702,8 +680,8 @@ def method_timeit(method: Callable = None, name: str = None) -> Callable:
 
 
 def perform_chi_squared_test_for_homogeneity(
-    categories1: Dict, sample_size1: int, categories2: dict, sample_size2: int
-) -> Dict[str, Optional[Union[int, float]]]:
+    categories1: dict, sample_size1: int, categories2: dict, sample_size2: int
+) -> dict[str, int | float | None]:
     """
     Perform a Chi Squared test for homogeneity between two groups.
 
@@ -718,7 +696,7 @@ def perform_chi_squared_test_for_homogeneity(
     :return: Results of the chi squared test
     :rtype: dict
     """
-    results: Dict[str, Optional[Union[int, float]]] = {
+    results: dict[str, int | float | None] = {
         "chi2-statistic": None,
         "df": None,
         "p-value": None,
@@ -768,7 +746,7 @@ def perform_chi_squared_test_for_homogeneity(
     return results
 
 
-def chunk(lst: List, size: int) -> Iterator[Tuple]:
+def chunk(lst: list, size: int) -> Iterator[tuple]:
     """
     Chunk things out.
 
@@ -803,7 +781,7 @@ def merge(
 
 
 def merge_profile_list(
-    list_of_profiles: List[profilers.profile_builder.BaseProfiler],
+    list_of_profiles: list[profilers.profile_builder.BaseProfiler],
     pool_count: int = 5,
 ) -> profilers.profile_builder.BaseProfiler:
     """Merge list of profiles into a single profile.

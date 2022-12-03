@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """Build model for dataset by identifying col type along with its respective params."""
-from __future__ import annotations, division, print_function
+from __future__ import annotations
 
 import abc
 import copy
 import itertools
 import warnings
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, List, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -26,7 +26,7 @@ class abstractstaticmethod(staticmethod):
 
     def __init__(self, function: Callable) -> None:
         """Initialize abstract static method."""
-        super(abstractstaticmethod, self).__init__(function)
+        super().__init__(function)
         function.__isabstractmethod__ = True  # type: ignore
 
     __isabstractmethod__ = True
@@ -40,7 +40,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     Has Subclasses itself.
     """
 
-    type: Optional[str] = None
+    type: str | None = None
 
     def __init__(self, options: NumericalOptions = None) -> None:
         """
@@ -54,18 +54,18 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "NumericalStatsMixin parameter 'options' must be "
                 "of type NumericalOptions."
             )
-        self.min: Union[int, float, None] = None
-        self.max: Union[int, float, None] = None
+        self.min: int | float | None = None
+        self.max: int | float | None = None
         self._top_k_modes: int = 5  # By default, return at max 5 modes
-        self.sum: Union[int, float] = 0
+        self.sum: int | float = 0
         self._biased_variance: float = np.nan
-        self._biased_skewness: Union[float, np.float64] = np.nan
-        self._biased_kurtosis: Union[float, np.float64] = np.nan
+        self._biased_skewness: float | np.float64 = np.nan
+        self._biased_kurtosis: float | np.float64 = np.nan
         self._median_is_enabled: bool = True
         self._median_abs_dev_is_enabled: bool = True
         self.max_histogram_bin: int = 100000
         self.min_histogram_bin: int = 1000
-        self.histogram_bin_method_names: List[str] = [
+        self.histogram_bin_method_names: list[str] = [
             "auto",
             "fd",
             "doane",
@@ -74,8 +74,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             "sturges",
             "sqrt",
         ]
-        self.histogram_selection: Optional[str] = None
-        self.user_set_histogram_bin: Optional[int] = None
+        self.histogram_selection: str | None = None
+        self.user_set_histogram_bin: int | None = None
         self.bias_correction: bool = True  # By default, we correct for bias
         self._mode_is_enabled: bool = True
         self.num_zeros: int = 0
@@ -94,14 +94,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             elif isinstance(bin_count_or_method, int):
                 self.user_set_histogram_bin = bin_count_or_method
                 self.histogram_bin_method_names = ["custom"]
-        self.histogram_methods: Dict = {}
-        self._stored_histogram: Dict = {
+        self.histogram_methods: dict = {}
+        self._stored_histogram: dict = {
             "total_loss": 0,
             "current_loss": 0,
             "suggested_bin_count": self.min_histogram_bin,
             "histogram": {"bin_counts": None, "bin_edges": None},
         }
-        self._batch_history: List = []
+        self._batch_history: list = []
         for method in self.histogram_bin_method_names:
             self.histogram_methods[method] = {
                 "total_loss": 0,
@@ -110,7 +110,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
         num_quantiles: int = 1000  # TODO: add to options
-        self.quantiles: Union[List[float], Dict] = {
+        self.quantiles: list[float] | dict = {
             bin_num: None for bin_num in range(num_quantiles - 1)
         }
         self.__calculations = {
@@ -130,11 +130,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     def __getattribute__(self, name: str) -> Any:
         """Return computed attribute value."""
-        return super(NumericStatsMixin, self).__getattribute__(name)
+        return super().__getattribute__(name)
 
     def __getitem__(self, item: str) -> Any:
         """Return indexed item."""
-        return super(NumericStatsMixin, self).__getitem__(item)
+        return super().__getitem__(item)
 
     @property
     def _has_histogram(self) -> bool:
@@ -295,7 +295,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             other1._median_abs_dev_is_enabled and other2._median_abs_dev_is_enabled
         )
 
-    def profile(self) -> Dict:
+    def profile(self) -> dict:
         """
         Return profile of the column.
 
@@ -322,7 +322,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         return profile
 
-    def report(self, remove_disabled_flag: bool = False) -> Dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """
         Call the profile and remove the disabled columns from profile's report.
 
@@ -355,7 +355,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         return profile
 
-    def diff(self, other_profile: NumericStatsMixin, options: Dict = None) -> Dict:
+    def diff(self, other_profile: NumericStatsMixin, options: dict = None) -> dict:
         """
         Find the differences for several numerical stats.
 
@@ -411,7 +411,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return float(self.sum) / self.match_count
 
     @property
-    def mode(self) -> List[float]:
+    def mode(self) -> list[float]:
         """
         Find an estimate for the mode[s] of the data.
 
@@ -444,14 +444,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         )
 
     @property
-    def stddev(self) -> Union[float, np.float64]:
+    def stddev(self) -> float | np.float64:
         """Return stddev value."""
         if self.match_count == 0:
             return np.nan
         return cast(np.float64, np.sqrt(self.variance))
 
     @property
-    def skewness(self) -> Union[float, np.float64]:
+    def skewness(self) -> float | np.float64:
         """Return skewness value."""
         return (
             self._biased_skewness
@@ -460,7 +460,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         )
 
     @property
-    def kurtosis(self) -> Union[float, np.float64]:
+    def kurtosis(self) -> float | np.float64:
         """Return kurtosis value."""
         return (
             self._biased_kurtosis
@@ -471,8 +471,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @staticmethod
     def _perform_t_test(
         mean1: float, var1: float, n1: int, mean2: float, var2: float, n2: int
-    ) -> Dict:
-        results: Dict = {
+    ) -> dict:
+        results: dict = {
             "t-statistic": None,
             "conservative": {"df": None, "p-value": None},
             "welch": {"df": None, "p-value": None},
@@ -609,7 +609,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         self_histogram: np.ndarray,
         other_match_count: int,
         other_histogram: np.ndarray,
-    ) -> Optional[float]:
+    ) -> float | None:
         """
         Calculate PSI (Population Stability Index).
 
@@ -748,14 +748,14 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @staticmethod
     def _merge_biased_skewness(
         match_count1: int,
-        biased_skewness1: Union[float, np.float64],
+        biased_skewness1: float | np.float64,
         biased_variance1: float,
         mean1: float,
         match_count2: int,
-        biased_skewness2: Union[float, np.float64],
+        biased_skewness2: float | np.float64,
         biased_variance2: float,
         mean2: float,
-    ) -> Union[float, np.float64]:
+    ) -> float | np.float64:
         """
         Calculate the combined skewness of two data chunks.
 
@@ -804,8 +804,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @staticmethod
     def _correct_bias_skewness(
-        match_count: int, biased_skewness: Union[float, np.float64]
-    ) -> Union[float, np.float64]:
+        match_count: int, biased_skewness: float | np.float64
+    ) -> float | np.float64:
         """
         Apply bias correction to skewness.
 
@@ -833,16 +833,16 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @staticmethod
     def _merge_biased_kurtosis(
         match_count1: int,
-        biased_kurtosis1: Union[float, np.float64],
-        biased_skewness1: Union[float, np.float64],
+        biased_kurtosis1: float | np.float64,
+        biased_skewness1: float | np.float64,
         biased_variance1: float,
         mean1: float,
         match_count2: int,
-        biased_kurtosis2: Union[float, np.float64],
-        biased_skewness2: Union[float, np.float64],
+        biased_kurtosis2: float | np.float64,
+        biased_skewness2: float | np.float64,
         biased_variance2: float,
         mean2: float,
-    ) -> Union[float, np.float64]:
+    ) -> float | np.float64:
         """
         Calculate the combined kurtosis of two sets of data.
 
@@ -903,8 +903,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @staticmethod
     def _correct_bias_kurtosis(
-        match_count: int, biased_kurtosis: Union[float, np.float64]
-    ) -> Union[float, np.float64]:
+        match_count: int, biased_kurtosis: float | np.float64
+    ) -> float | np.float64:
         """
         Apply bias correction to kurtosis.
 
@@ -929,7 +929,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         )
         return kurtosis
 
-    def _estimate_mode_from_histogram(self) -> List[float]:
+    def _estimate_mode_from_histogram(self) -> list[float]:
         """
         Estimate the mode of the current data using the histogram.
 
@@ -973,7 +973,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return var
 
     def _total_histogram_bin_variance(
-        self, input_array: Union[np.ndarray, pd.Series]
+        self, input_array: np.ndarray | pd.Series
     ) -> float:
         # calculate total variance over all bins of a histogram
         bin_counts = self._stored_histogram["histogram"]["bin_counts"]
@@ -992,7 +992,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             sum_var += bin_var
         return sum_var
 
-    def _histogram_bin_error(self, input_array: Union[np.ndarray, pd.Series]) -> float:
+    def _histogram_bin_error(self, input_array: np.ndarray | pd.Series) -> float:
         """
         Calculate error of each value from bin of the histogram it falls within.
 
@@ -1102,11 +1102,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             hist_to_array = [[]]
 
         array_flatten: np.ndarray = np.concatenate(
-            (
-                hist_to_array
-                + [[bin_edges[-2]] * int(bin_counts[-1] / 2)]
-                + [[bin_edges[-1]] * (bin_counts[-1] - int(bin_counts[-1] / 2))]
-            )
+            hist_to_array
+            + [[bin_edges[-2]] * int(bin_counts[-1] / 2)]
+            + [[bin_edges[-1]] * (bin_counts[-1] - int(bin_counts[-1] / 2))]
         )
 
         # If we know they are integers, we can limit the data to be as such
@@ -1117,8 +1115,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return array_flatten
 
     def _get_histogram(
-        self, values: Union[np.ndarray, pd.Series]
-    ) -> Tuple[np.ndarray, np.ndarray]:
+        self, values: np.ndarray | pd.Series
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
         Calculate stored histogram the suggested bin counts for each histogram method.
 
@@ -1171,7 +1169,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             bin_counts, bin_edges = np.histogram(values, bins=n_equal_bins)
         return bin_counts, bin_edges
 
-    def _merge_histogram(self, values: Union[np.ndarray, pd.Series]) -> None:
+    def _merge_histogram(self, values: np.ndarray | pd.Series) -> None:
         # values is the current array of values,
         # that needs to be updated to the accumulated histogram
         combined_values = np.concatenate([values, self._histogram_to_array()])
@@ -1219,7 +1217,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     def _regenerate_histogram(
         self, bin_counts, bin_edges, suggested_bin_count, options=None
-    ) -> Tuple[Dict[str, np.ndarray], float]:
+    ) -> tuple[dict[str, np.ndarray], float]:
 
         # create proper binning
         new_bin_counts = np.zeros((suggested_bin_count,))
@@ -1290,7 +1288,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     def _histogram_for_profile(
         self, histogram_method: str
-    ) -> Tuple[Dict[str, np.ndarray], float]:
+    ) -> tuple[dict[str, np.ndarray], float]:
         """
         Convert the stored histogram into the presentable state.
 
@@ -1331,7 +1329,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             suggested_bin_count=suggested_bin_count,
         )
 
-    def _get_best_histogram_for_profile(self) -> Dict:
+    def _get_best_histogram_for_profile(self) -> dict:
         """
         Convert the stored histogram into the presentable state.
 
@@ -1354,9 +1352,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         return cast(Dict, self.histogram_methods[self.histogram_selection]["histogram"])
 
-    def _get_percentile(
-        self, percentiles: Union[np.ndarray, List[float]]
-    ) -> List[float]:
+    def _get_percentile(self, percentiles: np.ndarray | list[float]) -> list[float]:
         """
         Get value for the number where the given percentage of values fall below it.
 
@@ -1397,7 +1393,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     @staticmethod
     def _fold_histogram(
         bin_counts: np.ndarray, bin_edges: np.ndarray, value: float
-    ) -> Tuple[List[Union[np.ndarray, List]], List[Union[np.ndarray, List]]]:
+    ) -> tuple[list[np.ndarray | list], list[np.ndarray | list]]:
         """
         Offset histogram by given value, then fold the histogram at break point.
 
@@ -1453,7 +1449,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return [bin_counts_pos, bin_edges_pos], [bin_counts_neg, bin_edges_neg]
 
     @property
-    def median_abs_deviation(self) -> Union[float, np.float64]:
+    def median_abs_deviation(self) -> float | np.float64:
         """
         Get median absolute deviation estimated from the histogram of the data.
 
@@ -1535,7 +1531,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         percentiles: np.ndarray = np.linspace(0, 100, len(self.quantiles) + 2)[1:-1]
         self.quantiles = self._get_percentile(percentiles=percentiles)
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: Dict) -> None:
+    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
         """
         Update base numerical profile properties w/ clean dataset and known null params.
 
@@ -1556,7 +1552,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         }
         subset_properties = copy.deepcopy(profile)
         df_series_clean = df_series_clean.astype(float)
-        super(NumericStatsMixin, self)._perform_property_calcs(
+        super()._perform_property_calcs(
             self.__calculations,
             df_series=df_series_clean,
             prev_dependent_properties=prev_dependent_properties,
@@ -1570,8 +1566,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _get_min(
         self,
         df_series: pd.Series,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         min_value = df_series.min()
         self.min = min_value if not self.min else min(self.min, min_value)
@@ -1581,8 +1577,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _get_max(
         self,
         df_series: pd.Series,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         max_value = df_series.max()
         self.max = max_value if not self.max else max(self.max, max_value)
@@ -1592,8 +1588,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _get_sum(
         self,
         df_series: pd.Series,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         if np.isinf(self.sum) or (np.isnan(self.sum) and self.match_count > 0):
             return
@@ -1614,8 +1610,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _get_variance(
         self,
         df_series: pd.Series,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         if np.isinf(self._biased_variance) or (
             np.isnan(self._biased_variance) and self.match_count > 0
@@ -1644,8 +1640,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _get_skewness(
         self,
         df_series: pd.Series,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         """
         Compute and update skewness of current dataset given new chunk.
@@ -1688,8 +1684,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _get_kurtosis(
         self,
         df_series: pd.Series,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         """
         Compute and update kurtosis of current dataset given new chunk.
@@ -1735,8 +1731,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _get_histogram_and_quantiles(
         self,
         df_series: pd.Series,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         try:
             self._update_histogram(df_series)
@@ -1753,8 +1749,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _get_num_zeros(
         self,
         df_series: pd.Series,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         """
         Get the count of zeros in the numerical column.
@@ -1775,8 +1771,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     def _get_num_negatives(
         self,
         df_series: pd.Series,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         """
         Get the count of negative numbers in the numerical column.

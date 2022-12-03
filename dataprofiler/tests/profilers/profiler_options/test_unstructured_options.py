@@ -54,9 +54,9 @@ class TestUnstructuredOptions(TestBaseOption):
 
         # Enable and Disable Options
         for key in self.keys:
-            option.set({"{}.is_enabled".format(key): False})
+            option.set({f"{key}.is_enabled": False})
             self.assertFalse(option.properties[key].is_enabled)
-            option.set({"{}.is_enabled".format(key): True})
+            option.set({f"{key}.is_enabled": True})
             self.assertTrue(option.properties[key].is_enabled)
 
         # Set text options

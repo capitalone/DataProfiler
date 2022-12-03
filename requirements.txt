@@ -15,4 +15,4 @@ psutil>=4.0.0
 scipy>=1.4.1
 requests==2.27.1
 networkx==2.5.1
-typing-extensions>=4.4.0
+typing-extensions>=3.10.0.2

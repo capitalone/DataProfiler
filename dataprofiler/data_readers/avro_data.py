@@ -58,7 +58,6 @@ class AVROData(JSONData, BaseData):
 
         Required by mypy because the inherited self.file_encoding is read-write.
         """
-        pass
 
     def _load_data_from_file(self, input_file_path: str) -> List:
         """Load data from file."""

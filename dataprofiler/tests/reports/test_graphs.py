@@ -268,6 +268,7 @@ class TestPlotMissingValuesMatrix(unittest.TestCase):
         )
 
         profiler = dp.StructuredProfiler(data, options=self.options)
+
         fig = graphs.plot_missing_values_matrix(profiler)
         self.assertIsInstance(fig, plt.Figure)
         self.assertEqual(1, len(fig.axes))

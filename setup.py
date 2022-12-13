@@ -30,7 +30,7 @@ with open(path.join(here, "requirements-ml.txt"), encoding="utf-8") as f:
 with open(path.join(here, "requirements-reports.txt"), encoding="utf-8") as f:
     reports_packages = f.read().splitlines()
 
-resource_dir = "resources/"
+resource_dir = "resources"
 default_labeler_files = [
     (d, [os.path.join(d, f) for f in files]) for d, _, files in os.walk(resource_dir)
 ]

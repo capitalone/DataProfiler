@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import unittest
 from unittest import mock
 
@@ -444,8 +442,8 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
             col_pro_compilers.BaseCompiler()
 
     def test_update_match_are_abstract(self):
-        six.assertCountEqual(
-            self, {"report"}, col_pro_compilers.BaseCompiler.__abstractmethods__
+        self.assertCountEqual(
+            {"report"}, col_pro_compilers.BaseCompiler.__abstractmethods__
         )
 
 

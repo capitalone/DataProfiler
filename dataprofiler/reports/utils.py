@@ -17,8 +17,8 @@ def warn_missing_module(graph_func: str, module_name: str) -> None:
     :type module_name: str
     """
     warning_msg = "\n\n!!! WARNING Graphing Failure !!!\n\n"
-    warning_msg += "Graph Function: {}".format(graph_func)
-    warning_msg += "\nMissing Module: {}".format(module_name)
+    warning_msg += f"Graph Function: {graph_func}"
+    warning_msg += f"\nMissing Module: {module_name}"
     warning_msg += "\n\nFor report errors, try installing "
     warning_msg += "the extra reports requirements via:\n\n"
     warning_msg += "$ pip install dataprofiler[reports] --user\n\n"

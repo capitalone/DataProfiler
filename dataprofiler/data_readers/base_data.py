@@ -14,7 +14,7 @@ from . import data_utils
 logger = dp_logging.get_child_logger(__name__)
 
 
-class BaseData(object):
+class BaseData:
     """Abstract class for data loading and saving."""
 
     data_type: str

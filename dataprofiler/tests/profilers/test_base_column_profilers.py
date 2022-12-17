@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import os
 import unittest
 from unittest.mock import MagicMock, patch
@@ -100,7 +98,7 @@ class TestBaseColumnProfileClass(unittest.TestCase):
 
         self.assertEqual(
             str(exc.exception),
-            "Column names unmatched: {} != {}".format(profile1.name, profile2.name),
+            f"Column names unmatched: {profile1.name} != {profile2.name}",
         )
 
     def test_time_it(self):
@@ -165,7 +163,7 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
         a = [1, 2, 3]
         b = [3, 1, 4, -1]
         c = utils._combine_unique_sets(a, b)
-        six.assertCountEqual(self, [1, 2, 3, 4, -1], c)
+        self.assertCountEqual([1, 2, 3, 4, -1], c)
 
     def test__init__(self):
         self.assertEqual(0, self.b_profile.name)
@@ -184,8 +182,7 @@ class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
         self.assertDictEqual(metadata, self.b_profile.metadata)
 
     def test_update_match_are_abstract(self):
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             {"_update_helper", "update", "report", "profile"},
             BaseColumnPrimitiveTypeProfiler.__abstractmethods__,
         )
@@ -229,7 +226,7 @@ def get_object_path(obj):
     return ".".join(["data_profiler.profilers.profile_builder", obj.__name__])
 
 
-class AbstractTestColumnProfiler(object):
+class AbstractTestColumnProfiler:
 
     column_profiler = None
 
@@ -309,5 +306,5 @@ class AbstractTestColumnProfiler(object):
         profile = self.column_profiler(self.aws_dataset["datetime"])
         report = profile.profile
 
-        six.assertCountEqual(self, self.profile_types, report.keys())
+        self.assertCountEqual(self.profile_types, report.keys())
         self._delete_profiler_mocks()

@@ -28,7 +28,7 @@ class TestTextOptions(TestNumericalOptions):
 
         # Check to make sure num_zeros/num_negatives is False as a TextOption
         for key in ["num_zeros", "num_negatives"]:
-            skey = "{}.is_enabled".format(key)
+            skey = f"{key}.is_enabled"
             expected_error = (
                 "{}.{} should always be disabled, "
                 "{}.is_enabled = False".format(optpth, key, key)
@@ -48,7 +48,7 @@ class TestTextOptions(TestNumericalOptions):
 
         # Disable All Numeric Stats but cheeck num_zeros and num_negatives
         # will not affect is_numeric_stats_enabled
-        options.set({"{}.is_enabled".format(key): False for key in self.numeric_keys})
+        options.set({f"{key}.is_enabled": False for key in self.numeric_keys})
         options.set({"num_zeros.is_enabled": True})
         self.assertFalse(options.is_numeric_stats_enabled)
         options.set({"num_negatives.is_enabled": True})

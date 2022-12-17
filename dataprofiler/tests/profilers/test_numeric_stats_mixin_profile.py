@@ -1028,7 +1028,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             other_match_count=other2.match_count,
             other_histogram=other2._stored_histogram["histogram"],
         )
-        self.assertEquals(expected_psi_value, psi_value)
+        self.assertEqual(expected_psi_value, psi_value)
 
         # PSI min_min_edge == max_max_edge
         other1, other2 = TestColumnWProps(), TestColumnWProps()
@@ -1055,7 +1055,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             other_match_count=other2.match_count,
             other_histogram=other2._stored_histogram["histogram"],
         )
-        self.assertEquals(expected_psi_value, psi_value)
+        self.assertEqual(expected_psi_value, psi_value)
 
         # PSI regen other / not self
         other1, other2 = TestColumnWProps(), TestColumnWProps()
@@ -1088,7 +1088,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             other_match_count=other2.match_count,
             other_histogram=other2._stored_histogram["histogram"],
         )
-        self.assertEquals(expected_psi_value, psi_value)
+        self.assertEqual(expected_psi_value, psi_value)
 
         # PSI regen self / not other
         expected_psi_value = 0.6617899380349177
@@ -1098,4 +1098,4 @@ class TestNumericStatsMixin(unittest.TestCase):
             other_match_count=other1.match_count,
             other_histogram=other1._stored_histogram["histogram"],
         )
-        self.assertEquals(expected_psi_value, psi_value)
+        self.assertEqual(expected_psi_value, psi_value)

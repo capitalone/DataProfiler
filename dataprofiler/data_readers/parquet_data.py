@@ -110,7 +110,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         # split into row samples separate by `\n`
         data = data.to_json(orient="records", lines=True)
         data = data.splitlines()
-        return super(ParquetData, self)._get_data_as_records(data)
+        return super()._get_data_as_records(data)
 
     def _get_data_as_json(self, data: pd.DataFrame) -> List[str]:
         """Return json data."""
@@ -171,5 +171,5 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         :type options: dict
         :return: None
         """
-        super(ParquetData, self).reload(input_file_path, data, options)
+        super().reload(input_file_path, data, options)
         self.__init__(self.input_file_path, data, options)  # type: ignore

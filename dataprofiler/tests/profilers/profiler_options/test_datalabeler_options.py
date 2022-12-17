@@ -52,18 +52,18 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         # Test invalid dirpath
         options = self.get_options()
         options.set({"data_labeler_dirpath": 0})
-        expected_error = "{}.data_labeler_dirpath must be a string.".format(optpth)
+        expected_error = f"{optpth}.data_labeler_dirpath must be a string."
         self.assertEqual([expected_error], options._validate_helper())
 
         # Test invalid sample size
         options = self.get_options()
         options.set({"max_sample_size": ""})
-        expected_error = "{}.max_sample_size must be an integer.".format(optpth)
+        expected_error = f"{optpth}.max_sample_size must be an integer."
         self.assertEqual([expected_error], options._validate_helper())
 
         # Test max sample size less than or equal to 0
         options = self.get_options()
-        expected_error = "{}.max_sample_size must be greater than 0.".format(optpth)
+        expected_error = f"{optpth}.max_sample_size must be greater than 0."
         options.set({"max_sample_size": 0})
         self.assertEqual([expected_error], options._validate_helper())
         options.set({"max_sample_size": -1})
@@ -102,7 +102,7 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         # Test invalid dirpath
         options = self.get_options()
         options.set({"data_labeler_dirpath": 0})
-        expected_error = "{}.data_labeler_dirpath must be a string.".format(optpth)
+        expected_error = f"{optpth}.data_labeler_dirpath must be a string."
         self.assertEqual([expected_error], options.validate(raise_error=False))
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)
@@ -110,14 +110,14 @@ class TestDataLabelerOptions(TestBaseInspectorOptions):
         # Test invalid sample size
         options = self.get_options()
         options.set({"max_sample_size": ""})
-        expected_error = "{}.max_sample_size must be an integer.".format(optpth)
+        expected_error = f"{optpth}.max_sample_size must be an integer."
         self.assertEqual([expected_error], options.validate(raise_error=False))
         with self.assertRaisesRegex(ValueError, expected_error):
             options.validate(raise_error=True)
 
         # Test max sample size less than or equal to 0
         options = self.get_options()
-        expected_error = "{}.max_sample_size must be greater than 0.".format(optpth)
+        expected_error = f"{optpth}.max_sample_size must be greater than 0."
         options.set({"max_sample_size": 0})
         self.assertEqual([expected_error], options.validate(raise_error=False))
         with self.assertRaisesRegex(ValueError, expected_error):

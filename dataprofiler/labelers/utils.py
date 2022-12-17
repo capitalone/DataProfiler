@@ -14,8 +14,8 @@ def warn_missing_module(labeler_function: str, module_name: str) -> None:
     :type module_name: str
     """
     warning_msg = "\n\n!!! WARNING Labeler Failure !!!\n\n"
-    warning_msg += "Labeler Function: {}".format(labeler_function)
-    warning_msg += "\nMissing Module: {}".format(module_name)
+    warning_msg += f"Labeler Function: {labeler_function}"
+    warning_msg += f"\nMissing Module: {module_name}"
     warning_msg += "\n\nFor labeler errors, try installing "
     warning_msg += "the extra labeler requirements via:\n\n"
     warning_msg += "$ pip install -r requirements-ml.txt\n\n"

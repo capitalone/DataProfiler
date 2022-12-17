@@ -5,7 +5,7 @@ import abc
 import copy
 import inspect
 import warnings
-from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union, cast
+from typing import Any, Type, TypeVar, cast
 
 from dataprofiler._typing import DataArray
 
@@ -16,27 +16,27 @@ class AutoSubRegistrationMeta(abc.ABCMeta):
     """For registering subclasses."""
 
     def __new__(
-        cls, clsname: str, bases: Tuple[type, ...], attrs: Dict[str, object]
+        cls, clsname: str, bases: tuple[type, ...], attrs: dict[str, object]
     ) -> type[T]:
         """Create auto registration object and return new class."""
         new_class = cast(
             Type[T],
-            super(AutoSubRegistrationMeta, cls).__new__(cls, clsname, bases, attrs),
+            super().__new__(cls, clsname, bases, attrs),
         )
         new_class._register_subclass()
         return new_class
 
 
-class BaseModel(object, metaclass=abc.ABCMeta):
+class BaseModel(metaclass=abc.ABCMeta):
     """For labeling data."""
 
-    _BaseModel__subclasses: Dict[str, Type[BaseModel]] = {}
+    _BaseModel__subclasses: dict[str, type[BaseModel]] = {}
     __metaclass__ = abc.ABCMeta
 
     # boolean if the label mapping requires the mapping for index 0 reserved
     requires_zero_mapping: bool = False
 
-    def __init__(self, label_mapping: Union[List, Dict], parameters: Dict) -> None:
+    def __init__(self, label_mapping: list | dict, parameters: dict) -> None:
         """
         Initialize Base Model.
 
@@ -52,8 +52,8 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         # initialize class
         self._model: Any = None
         self._validate_parameters(parameters)
-        self._parameters: Dict = parameters
-        self._label_mapping: Dict[str, int] = None  # type: ignore
+        self._parameters: dict = parameters
+        self._label_mapping: dict[str, int] = None  # type: ignore
 
         self.set_label_mapping(label_mapping)
 
@@ -91,12 +91,12 @@ class BaseModel(object, metaclass=abc.ABCMeta):
             cls._BaseModel__subclasses[cls.__name__.lower()] = cls
 
     @property
-    def label_mapping(self) -> Dict[str, int]:
+    def label_mapping(self) -> dict[str, int]:
         """Return mapping of labels to their encoded values."""
         return copy.deepcopy(self._label_mapping)
 
     @property
-    def reverse_label_mapping(self) -> Dict[int, str]:
+    def reverse_label_mapping(self) -> dict[int, str]:
         """
         Return reversed order of current labels.
 
@@ -105,7 +105,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         return {v: k for k, v in self.label_mapping.items()}
 
     @property
-    def labels(self) -> List[str]:
+    def labels(self) -> list[str]:
         """
         Retrieve the label.
 
@@ -120,8 +120,8 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
     @staticmethod
     def _convert_labels_to_label_mapping(
-        labels: Union[List[str], Dict[str, int]], requires_zero_mapping: bool
-    ) -> Dict:
+        labels: list[str] | dict[str, int], requires_zero_mapping: bool
+    ) -> dict:
         """
         Convert the new labels set to be in an encoding dict if not already.
 
@@ -145,7 +145,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         return max(self.label_mapping.values()) + 1
 
     @classmethod
-    def get_class(cls, class_name: str) -> Optional[Type[BaseModel]]:
+    def get_class(cls, class_name: str) -> type[BaseModel] | None:
         """Get subclasses."""
         # Import possible internal models
         from .character_level_cnn_model import CharacterLevelCnnModel  # NOQA
@@ -154,7 +154,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
 
         return cls._BaseModel__subclasses.get(class_name.lower(), None)
 
-    def get_parameters(self, param_list: List[str] = None) -> Dict:
+    def get_parameters(self, param_list: list[str] = None) -> dict:
         """
         Return a dict of parameters from the model given a list.
 
@@ -224,9 +224,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
             same_as, max_label_ind + 1  # type: ignore
         )
 
-    def set_label_mapping(
-        self, label_mapping: Union[List[str], Dict[str, int]]
-    ) -> None:
+    def set_label_mapping(self, label_mapping: list[str] | dict[str, int]) -> None:
         """
         Set the labels for the model.
 
@@ -255,7 +253,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _validate_parameters(self, parameters: Dict) -> None:
+    def _validate_parameters(self, parameters: dict) -> None:
         """
         Validate the parameters sent in.
 
@@ -322,7 +320,7 @@ class BaseModel(object, metaclass=abc.ABCMeta):
         batch_size: int,
         show_confidences: bool,
         verbose: bool,
-    ) -> Dict:
+    ) -> dict:
         """
         Predict the data with the current model.
 
@@ -374,10 +372,10 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         val_data: DataArray,
         batch_size: int = None,
         epochs: int = None,
-        label_mapping: Dict[str, int] = None,
+        label_mapping: dict[str, int] = None,
         reset_weights: bool = False,
         verbose: bool = True,
-    ) -> Tuple[Dict, Optional[float], Dict]:
+    ) -> tuple[dict, float | None, dict]:
         """
         Train the current model with the training data and validation data.
 

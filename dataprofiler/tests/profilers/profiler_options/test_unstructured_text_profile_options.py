@@ -79,7 +79,7 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
                 option.set({prop: value})
                 self.assertEqual(value, getattr(option, prop), msg=prop)
             else:
-                prop_enable = "{}.is_enabled".format(prop)
+                prop_enable = f"{prop}.is_enabled"
                 option.set({prop_enable: value})
                 self.assertEqual(value, option.properties[prop].is_enabled, msg=prop)
 
@@ -120,11 +120,11 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
             option.set({"vocab.is_enabled.other_props": True})
 
     def test_validate_helper(self):
-        super(TestTextProfilerOptions, self).test_validate_helper()
+        super().test_validate_helper()
 
     def test_validate(self):
 
-        super(TestTextProfilerOptions, self).test_validate()
+        super().test_validate()
 
         params_to_check = [
             # non errors
@@ -213,12 +213,12 @@ class TestTextProfilerOptions(TestBaseInspectorOptions):
                     self.assertListEqual(
                         expected_errors,
                         validate_errors,
-                        msg="Errored for prop: {}, value: {}.".format(prop, value),
+                        msg=f"Errored for prop: {prop}, value: {value}.",
                     )
                 else:
                     self.assertIsNone(
                         validate_errors,
-                        msg="Errored for prop: {}, value: {}.".format(prop, value),
+                        msg=f"Errored for prop: {prop}, value: {value}.",
                     )
 
         # this time testing raising an error

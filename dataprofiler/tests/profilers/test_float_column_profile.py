@@ -203,7 +203,7 @@ class TestFloatColumn(unittest.TestCase):
             self.assertEqual(
                 min_expected_precision,
                 precision["min"],
-                msg="Errored for: {}".format(sample[0]),
+                msg=f"Errored for: {sample[0]}",
             )
 
     def test_profiled_min(self):

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import datetime
 import unittest
 import warnings
@@ -103,16 +101,16 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
         datetime_profile = DateTimeColumn(df_all.name)
         datetime_profile.update(df_all)
 
-        six.assertCountEqual(self, date_formats_all, set(datetime_profile.date_formats))
+        self.assertCountEqual(date_formats_all, set(datetime_profile.date_formats))
 
         # Test chunks
         datetime_profile = DateTimeColumn(df_1.name)
         datetime_profile.update(df_1)
 
-        six.assertCountEqual(self, date_formats_1, set(datetime_profile.date_formats))
+        self.assertCountEqual(date_formats_1, set(datetime_profile.date_formats))
 
         datetime_profile.update(df_2)
-        six.assertCountEqual(self, date_formats_all, datetime_profile.date_formats)
+        self.assertCountEqual(date_formats_all, datetime_profile.date_formats)
 
     def test_profiled_min(self):
         def date_linspace(start, end, steps):

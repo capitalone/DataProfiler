@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 from operator import itemgetter
-from typing import Dict, List, Optional
 
 from pandas import DataFrame, Series
 
@@ -27,7 +26,7 @@ class CategoricalColumn(BaseColumnProfiler):
     # Default value that determines if a given col is categorical or not.
     _CATEGORICAL_THRESHOLD_DEFAULT = 0.2
 
-    def __init__(self, name: Optional[str], options: CategoricalOptions = None) -> None:
+    def __init__(self, name: str | None, options: CategoricalOptions = None) -> None:
         """
         Initialize column base properties and itself.
 
@@ -39,11 +38,11 @@ class CategoricalColumn(BaseColumnProfiler):
                 "CategoricalColumn parameter 'options' must be of"
                 " type CategoricalOptions."
             )
-        super(CategoricalColumn, self).__init__(name)
-        self._categories: Dict[str, int] = defaultdict(int)
-        self.__calculations: Dict = {}
+        super().__init__(name)
+        self._categories: dict[str, int] = defaultdict(int)
+        self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
-        self._top_k_categories: Optional[int] = None
+        self._top_k_categories: int | None = None
         if options:
             self._top_k_categories = options.top_k_categories
 
@@ -73,7 +72,7 @@ class CategoricalColumn(BaseColumnProfiler):
         )
         return merged_profile
 
-    def diff(self, other_profile: CategoricalColumn, options: Dict = None) -> Dict:
+    def diff(self, other_profile: CategoricalColumn, options: dict = None) -> dict:
         """
         Find the differences for CategoricalColumns.
 
@@ -82,7 +81,7 @@ class CategoricalColumn(BaseColumnProfiler):
         :return: the CategoricalColumn differences
         :rtype: dict
         """
-        differences: Dict = super().diff(other_profile, options)
+        differences: dict = super().diff(other_profile, options)
 
         differences["categorical"] = utils.find_diff_of_strings_and_bools(
             self.is_match, other_profile.is_match
@@ -137,7 +136,7 @@ class CategoricalColumn(BaseColumnProfiler):
 
         return differences
 
-    def report(self, remove_disabled_flag: bool = False) -> Dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """
         Return report.
 
@@ -150,14 +149,14 @@ class CategoricalColumn(BaseColumnProfiler):
         return self.profile
 
     @property
-    def profile(self) -> Dict:
+    def profile(self) -> dict:
         """
         Return the profile of the column.
 
         For categorical_count, it will display the top k categories most
         frequently occurred in descending order.
         """
-        profile: Dict = dict(
+        profile: dict = dict(
             categorical=self.is_match,
             statistics=dict(
                 [
@@ -179,12 +178,12 @@ class CategoricalColumn(BaseColumnProfiler):
         return profile
 
     @property
-    def categories(self) -> List[str]:
+    def categories(self) -> list[str]:
         """Return categories."""
         return list(self._categories.keys())
 
     @property
-    def categorical_counts(self) -> Dict[str, int]:
+    def categorical_counts(self) -> dict[str, int]:
         """Return counts of each category."""
         return self._categories.copy()
 
@@ -214,8 +213,8 @@ class CategoricalColumn(BaseColumnProfiler):
     def _update_categories(
         self,
         df_series: DataFrame,
-        prev_dependent_properties: Dict = None,
-        subset_properties: Dict = None,
+        prev_dependent_properties: dict = None,
+        subset_properties: dict = None,
     ) -> None:
         """
         Check whether column corresponds to category type.
@@ -237,7 +236,7 @@ class CategoricalColumn(BaseColumnProfiler):
             self._categories, category_count
         )
 
-    def _update_helper(self, df_series_clean: Series, profile: Dict) -> None:
+    def _update_helper(self, df_series_clean: Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known profile.
 
@@ -276,7 +275,7 @@ class CategoricalColumn(BaseColumnProfiler):
         return self
 
     @property
-    def gini_impurity(self) -> Optional[float]:
+    def gini_impurity(self) -> float | None:
         """
         Return Gini Impurity.
 
@@ -299,7 +298,7 @@ class CategoricalColumn(BaseColumnProfiler):
         return gini_sum
 
     @property
-    def unalikeability(self) -> Optional[float]:
+    def unalikeability(self) -> float | None:
         """
         Return Unlikeability.
 

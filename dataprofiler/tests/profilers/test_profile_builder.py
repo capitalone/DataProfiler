@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import json
 import logging
 import os
@@ -971,7 +969,7 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2999, profile.sample_size)
         self.assertEqual(col_schema_info.sample_size, col_schema_info.match_count)
         self.assertEqual(2, profile.null_count)
-        six.assertCountEqual(self, ["nan"], profile.null_types)
+        self.assertCountEqual(["nan"], profile.null_types)
         self.assertEqual(["%m/%d/%y %H:%M"], col_schema_info["date_formats"])
 
     def test_correct_integer_column_detection_src(self):
@@ -2160,15 +2158,13 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         )
 
         data_types = ["int", "float", "datetime", "text"]
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             data_types,
             list(src_profile.profiles["data_type_profile"]._profiles.keys()),
         )
 
         stats_types = ["category", "order"]
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             stats_types,
             list(src_profile.profiles["data_stats_profile"]._profiles.keys()),
         )
@@ -2372,8 +2368,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         )
 
     def test_update_match_are_abstract(self):
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             {"profile", "_update_helper", "report", "update"},
             dp.profilers.BaseColumnProfiler.__abstractmethods__,
         )

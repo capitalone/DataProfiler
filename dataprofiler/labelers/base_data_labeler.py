@@ -5,7 +5,7 @@ import json
 import os
 import sys
 import warnings
-from typing import Dict, List, Optional, Type, Union, cast
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -20,12 +20,12 @@ from .base_model import BaseModel
 default_labeler_dir = pkg_resources.resource_filename("resources", "labelers")
 
 
-class BaseDataLabeler(object):
+class BaseDataLabeler:
     """Parent class for data labeler objects."""
 
     _default_model_loc: str = None  # type: ignore
 
-    def __init__(self, dirpath: str = None, load_options: Dict = None) -> None:
+    def __init__(self, dirpath: str = None, load_options: dict = None) -> None:
         """
         Initialize DataLabeler class.
 
@@ -99,7 +99,7 @@ class BaseDataLabeler(object):
         self._postprocessor.help()
 
     @property
-    def label_mapping(self) -> Dict:
+    def label_mapping(self) -> dict:
         """
         Retrieve the label encodings.
 
@@ -108,7 +108,7 @@ class BaseDataLabeler(object):
         return self._model.label_mapping
 
     @property
-    def reverse_label_mapping(self) -> Dict:
+    def reverse_label_mapping(self) -> dict:
         """
         Retrieve the index to label encoding.
 
@@ -117,7 +117,7 @@ class BaseDataLabeler(object):
         return self._model.reverse_label_mapping
 
     @property
-    def labels(self) -> List[str]:
+    def labels(self) -> list[str]:
         """
         Retrieve the label.
 
@@ -126,7 +126,7 @@ class BaseDataLabeler(object):
         return self._model.labels
 
     @property
-    def preprocessor(self) -> Optional[data_processing.BaseDataPreprocessor]:
+    def preprocessor(self) -> data_processing.BaseDataPreprocessor | None:
         """
         Retrieve the data preprocessor.
 
@@ -144,7 +144,7 @@ class BaseDataLabeler(object):
         return self._model
 
     @property
-    def postprocessor(self) -> Optional[data_processing.BaseDataPostprocessor]:
+    def postprocessor(self) -> data_processing.BaseDataPostprocessor | None:
         """
         Retrieve the data postprocessor.
 
@@ -187,7 +187,7 @@ class BaseDataLabeler(object):
         else:
             return np.reshape(data, -1)
 
-    def set_params(self, params: Dict) -> None:
+    def set_params(self, params: dict) -> None:
         """
         Allow user to set parameters of pipeline components.
 
@@ -262,7 +262,7 @@ class BaseDataLabeler(object):
         """
         self._model.add_label(label, same_as)
 
-    def set_labels(self, labels: Union[List, Dict]) -> None:
+    def set_labels(self, labels: list | dict) -> None:
         """
         Set the labels for the data labeler.
 
@@ -277,10 +277,10 @@ class BaseDataLabeler(object):
         self,
         data: DataArray,
         batch_size: int = 32,
-        predict_options: Dict[str, bool] = None,
+        predict_options: dict[str, bool] = None,
         error_on_mismatch: bool = False,
         verbose: bool = True,
-    ) -> Dict:
+    ) -> dict:
         """
         Predict labels of input data based with the data labeler model.
 
@@ -389,8 +389,8 @@ class BaseDataLabeler(object):
         messages = []
 
         def get_parameter_overlap_mismatches(
-            param_dict1: Dict, param_dict2: Dict
-        ) -> List[str]:
+            param_dict1: dict, param_dict2: dict
+        ) -> list[str]:
             """
             Get mismatching parameters in dictionary if same key exists.
 
@@ -447,7 +447,7 @@ class BaseDataLabeler(object):
             warnings.warn("\n".join(messages), category=RuntimeWarning)
 
     @staticmethod
-    def _load_parameters(dirpath: str, load_options: Dict = None) -> Dict[str, Dict]:
+    def _load_parameters(dirpath: str, load_options: dict = None) -> dict[str, dict]:
         """
         Load the data labeler parameters.
 
@@ -463,7 +463,7 @@ class BaseDataLabeler(object):
             load_options = {}
 
         with open(os.path.join(dirpath, "data_labeler_parameters.json")) as fp:
-            params: Dict[str, Dict] = json.load(fp)
+            params: dict[str, dict] = json.load(fp)
 
         if "model_class" in load_options:
             model_class = load_options.get("model_class")
@@ -512,7 +512,7 @@ class BaseDataLabeler(object):
         return params
 
     def _load_model(
-        self, model_class: Optional[Union[Type[BaseModel], str]], dirpath: str
+        self, model_class: type[BaseModel] | str | None, dirpath: str
     ) -> None:
         """
         Load the data labeler model.
@@ -539,7 +539,7 @@ class BaseDataLabeler(object):
 
     def _load_preprocessor(
         self,
-        processor_class: Optional[Union[Type[data_processing.BaseDataProcessor], str]],
+        processor_class: type[data_processing.BaseDataProcessor] | str | None,
         dirpath: str,
     ) -> None:
         """
@@ -570,7 +570,7 @@ class BaseDataLabeler(object):
 
     def _load_postprocessor(
         self,
-        processor_class: Optional[Union[Type[data_processing.BaseDataProcessor], str]],
+        processor_class: type[data_processing.BaseDataProcessor] | str | None,
         dirpath: str,
     ) -> None:
         """
@@ -601,7 +601,7 @@ class BaseDataLabeler(object):
             )
         )
 
-    def _load_data_labeler(self, dirpath: str, load_options: Dict = None) -> None:
+    def _load_data_labeler(self, dirpath: str, load_options: dict = None) -> None:
         """
         Load and initializes the data data labeler in the given path.
 
@@ -640,7 +640,7 @@ class BaseDataLabeler(object):
         return cls(os.path.join(default_labeler_dir, name))
 
     @classmethod
-    def load_from_disk(cls, dirpath: str, load_options: Dict = None) -> BaseDataLabeler:
+    def load_from_disk(cls, dirpath: str, load_options: dict = None) -> BaseDataLabeler:
         """
         Load the data labeler from a saved location on disk.
 
@@ -763,12 +763,12 @@ class TrainableDataLabeler(BaseDataLabeler):
         x: DataArray,
         y: DataArray,
         validation_split: float = 0.2,
-        labels: Union[List, Dict] = None,
+        labels: list | dict | None = None,
         reset_weights: bool = False,
         batch_size: int = 32,
         epochs: int = 1,
         error_on_mismatch: bool = False,
-    ) -> List:
+    ) -> list:
         """
         Fit the data labeler model for the dataset.
 

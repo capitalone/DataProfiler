@@ -4,7 +4,6 @@ import random
 import re
 import unittest
 from io import StringIO
-from typing import OrderedDict
 from unittest import mock
 
 import numpy as np
@@ -2995,7 +2994,7 @@ class TestColumnNameModelPostprocessor(unittest.TestCase):
 
         # assert parameters saved
         mock_open.assert_called_with("test/test_parameters.json", "w")
-        self.assertEquals(json.dumps(test_parameters), mock_file.getvalue())
+        self.assertEqual(json.dumps(test_parameters), mock_file.getvalue())
 
         # close mocks
         StringIO.close(mock_file)

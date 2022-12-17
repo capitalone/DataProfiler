@@ -41,7 +41,7 @@ class TestBaseInspectorOptions(TestBooleanOption):
         self.assertFalse(options.is_prop_enabled("is_enabled"))
 
         # Check is prop enabled for invalid property
-        expected_error = 'Property "Hello World" does not exist in {}.'.format(optpth)
+        expected_error = f'Property "Hello World" does not exist in {optpth}.'
         with self.assertRaisesRegex(AttributeError, expected_error):
             options.is_prop_enabled("Hello World")
 

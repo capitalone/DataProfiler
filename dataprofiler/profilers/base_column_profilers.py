@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """Contains parent column profiler class."""
 
-from __future__ import annotations, division, print_function
+from __future__ import annotations
 
 import abc
 import warnings
 from collections import defaultdict
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
@@ -29,23 +29,23 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
     _SAMPLING_RATIO = 0.20
     _MIN_SAMPLING_COUNT = 500
 
-    def __init__(self, name: Optional[str]) -> None:
+    def __init__(self, name: str | None) -> None:
         """
         Initialize base class properties for the subclass.
 
         :param name: Name of the dataset
         :type name: String
         """
-        self.name: Optional[str] = name
+        self.name: str | None = name
         self.col_index = np.nan
         self.sample_size: int = 0
-        self.metadata: Dict = dict()
-        self.times: Dict = defaultdict(float)
+        self.metadata: dict = dict()
+        self.times: dict = defaultdict(float)
         self.thread_safe: bool = True
 
     # TODO: Not needed for data labeling
     @staticmethod
-    def _combine_unique_sets(a: List, b: List) -> List:
+    def _combine_unique_sets(a: list, b: list) -> list:
         """
         Unify two lists.
 
@@ -53,7 +53,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         :type b: list
         :rtype: list
         """
-        combined_list: Set = set()
+        combined_list: set = set()
         if not a and not b:
             combined_list = set()
         elif not a:
@@ -80,7 +80,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @staticmethod
     def _filter_properties_w_options(
-        calculations: Dict, options: Optional[BaseInspectorOptions]
+        calculations: dict, options: BaseInspectorOptions | None
     ) -> None:
         """
         Cycle through the calculations and turns off the ones that are disabled.
@@ -96,10 +96,10 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     def _perform_property_calcs(
         self,
-        calculations: Dict,
+        calculations: dict,
         df_series: pd.DataFrame,
-        prev_dependent_properties: Dict,
-        subset_properties: Dict,
+        prev_dependent_properties: dict,
+        subset_properties: dict,
     ) -> None:
         """
         Cycle through the properties of the columns and calculate them.
@@ -123,7 +123,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @staticmethod
     def _merge_calculations(
-        merged_profile_calcs: Dict, profile1_calcs: Dict, profile2_calcs: Dict
+        merged_profile_calcs: dict, profile1_calcs: dict, profile2_calcs: dict
     ) -> None:
         """
         Merge the calculations of two profiles to the lowest common denominator.
@@ -171,15 +171,13 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         if other1.name == other2.name:
             self.name = other1.name
         else:
-            raise ValueError(
-                "Column names unmatched: {} != {}".format(other1.name, other2.name)
-            )
+            raise ValueError(f"Column names unmatched: {other1.name} != {other2.name}")
 
         self.times = utils.add_nested_dictionaries(other1.times, other2.times)
 
         self.sample_size = other1.sample_size + other2.sample_size
 
-    def diff(self, other_profile: BaseColumnProfiler, options: Dict = None) -> Dict:
+    def diff(self, other_profile: BaseColumnProfiler, options: dict = None) -> dict:
         """
         Find the differences for columns.
 
@@ -196,7 +194,7 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
             )
         return {}
 
-    def _update_column_base_properties(self, profile: Dict) -> None:
+    def _update_column_base_properties(self, profile: dict) -> None:
         """
         Update the base properties with the base schema.
 
@@ -215,11 +213,11 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         integrate with current setup.
         """
         if not hasattr(self, item):
-            raise ValueError("The property '{} does not exist.".format(item))
+            raise ValueError(f"The property '{item} does not exist.")
         return getattr(self, item)
 
     @abc.abstractmethod
-    def _update_helper(self, df_series_clean: pd.DataFrame, profile: Dict) -> None:
+    def _update_helper(self, df_series_clean: pd.DataFrame, profile: dict) -> None:
         """Help update the profile."""
         raise NotImplementedError()
 
@@ -235,12 +233,12 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @property
     @abc.abstractmethod
-    def profile(self) -> Dict:
+    def profile(self) -> dict:
         """Return the profile of the column."""
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def report(self, remove_disabled_flag: bool = False) -> Dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """
         Return report.
 
@@ -256,7 +254,7 @@ class BaseColumnPrimitiveTypeProfiler(
 ):
     """Abstract class for profiling primative data type for col of data."""
 
-    def __init__(self, name: Optional[str]) -> None:
+    def __init__(self, name: str | None) -> None:
         """
         Initialize base class properties for the subclass.
 
@@ -269,7 +267,7 @@ class BaseColumnPrimitiveTypeProfiler(
         self.match_count: int = 0
         self.sample_size: int  # inherited from BaseColumnProfiler
 
-    def _update_column_base_properties(self, profile: Dict) -> None:
+    def _update_column_base_properties(self, profile: dict) -> None:
         """
         Update the base properties with the base schema.
 

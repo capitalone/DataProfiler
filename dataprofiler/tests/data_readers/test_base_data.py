@@ -1,11 +1,7 @@
-from __future__ import absolute_import, print_function
-
 import locale
 import os
-import sys
 import unittest
 from io import BytesIO, StringIO
-from unittest import mock
 
 from dataprofiler.data_readers.base_data import BaseData
 

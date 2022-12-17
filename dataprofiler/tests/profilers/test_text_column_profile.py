@@ -54,19 +54,19 @@ class TestTextColumnProfiler(unittest.TestCase):
         text_profiler.update(df1)
 
         unique_vocab = dict.fromkeys("".join(df1.tolist())).keys()
-        six.assertCountEqual(self, unique_vocab, text_profiler.vocab)
-        six.assertCountEqual(self, set(text_profiler.vocab), text_profiler.vocab)
+        self.assertCountEqual(unique_vocab, text_profiler.vocab)
+        self.assertCountEqual(set(text_profiler.vocab), text_profiler.vocab)
 
         text_profiler.update(df2)
         df = pd.concat([df1, df2])
         unique_vocab = dict.fromkeys("".join(df.tolist())).keys()
-        six.assertCountEqual(self, unique_vocab, text_profiler.vocab)
-        six.assertCountEqual(self, set(text_profiler.vocab), text_profiler.vocab)
+        self.assertCountEqual(unique_vocab, text_profiler.vocab)
+        self.assertCountEqual(set(text_profiler.vocab), text_profiler.vocab)
 
         text_profiler.update(df3)
         df = pd.concat([df1, df2, df3])
         unique_vocab = dict.fromkeys("".join(df.tolist())).keys()
-        six.assertCountEqual(self, unique_vocab, text_profiler.vocab)
+        self.assertCountEqual(unique_vocab, text_profiler.vocab)
 
     def test_profiled_str_numerics(self):
         """

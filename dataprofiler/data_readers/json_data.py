@@ -3,11 +3,11 @@ import json
 import re
 import warnings
 from collections import OrderedDict
+from io import StringIO
 from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pandas as pd
-from six import StringIO
 
 from .._typing import JSONType
 from . import data_utils
@@ -295,7 +295,7 @@ class JSONData(SpreadSheetDataMixin, BaseData):
             data[i] = json.dumps(
                 self._convert_flat_to_nested_cols(sample), ensure_ascii=False
             )
-        return super(JSONData, self)._get_data_as_records(data)
+        return super()._get_data_as_records(data)
 
     def _get_data_as_json(self, data: Union[pd.DataFrame, Dict, List]) -> List[str]:
         """
@@ -442,5 +442,5 @@ class JSONData(SpreadSheetDataMixin, BaseData):
         :return: None
         """
         self._selected_keys = None
-        super(JSONData, self).reload(input_file_path, data, options)
+        super().reload(input_file_path, data, options)
         self.__init__(self.input_file_path, data, options)  # type: ignore

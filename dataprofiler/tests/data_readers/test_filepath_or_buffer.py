@@ -1,6 +1,6 @@
 import os
 import unittest
-from io import BytesIO, StringIO, TextIOWrapper, open
+from io import BytesIO, StringIO, TextIOWrapper
 
 from dataprofiler.data_readers.filepath_or_buffer import FileOrBufferHandler
 
@@ -30,7 +30,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
         for input_file in self.input_file_names:
             with FileOrBufferHandler(
                 input_file["path"], "r"
-            ) as filepath_or_buffer, open(input_file["path"], "r") as input_file_check:
+            ) as filepath_or_buffer, open(input_file["path"]) as input_file_check:
 
                 # check first 100 lines
                 for i in range(0, 100):
@@ -47,10 +47,10 @@ class TestFilepathOrBuffer(unittest.TestCase):
         to open()
         """
         for input_file in self.input_file_names:
-            with open(input_file["path"], "r") as fp:
+            with open(input_file["path"]) as fp:
                 stream = StringIO(fp.read())
             with FileOrBufferHandler(stream) as filepath_or_buffer, open(
-                input_file["path"], "r"
+                input_file["path"]
             ) as input_file_check:
 
                 # check first 100 lines
@@ -134,7 +134,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
         with FileOrBufferHandler(
             file_name, "r", encoding=file_encoding
         ) as filepath_or_buffer, open(
-            file_name, "r", encoding=file_encoding
+            file_name, encoding=file_encoding
         ) as input_file_check:
 
             # check first 100 lines
@@ -157,7 +157,7 @@ class TestFilepathOrBuffer(unittest.TestCase):
         )
         with self.assertRaisesRegex(AttributeError, msg):
             with FileOrBufferHandler(file_name, "r") as filepath_or_buffer, open(
-                file_name, "r"
+                file_name
             ) as input_file_check:
                 filepath_or_buffer.readline(),
                 input_file_check.readline()

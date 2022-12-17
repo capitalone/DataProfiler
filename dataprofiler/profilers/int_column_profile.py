@@ -1,8 +1,6 @@
 """Int profile analysis for individual col within structured profiling."""
 from __future__ import annotations
 
-from typing import Dict, List, Optional
-
 import numpy as np
 import pandas as pd
 
@@ -20,7 +18,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
     type = "int"
 
-    def __init__(self, name: Optional[str], options: IntOptions = None) -> None:
+    def __init__(self, name: str | None, options: IntOptions = None) -> None:
         """
         Initialize column base properties and itself.
 
@@ -35,7 +33,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
             )
         NumericStatsMixin.__init__(self, options)
         BaseColumnPrimitiveTypeProfiler.__init__(self, name)
-        self.__calculations: Dict = {}
+        self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
 
     def __add__(self, other: IntColumn) -> IntColumn:
@@ -62,7 +60,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         )
         return merged_profile
 
-    def report(self, remove_disabled_flag: bool = False) -> Dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """
         Return the report.
 
@@ -73,7 +71,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return self.profile
 
     @property
-    def profile(self) -> Dict:
+    def profile(self) -> dict:
         """
         Return the profile of the column.
 
@@ -82,7 +80,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return NumericStatsMixin.profile(self)
 
     @property
-    def data_type_ratio(self) -> Optional[float]:
+    def data_type_ratio(self) -> float | None:
         """
         Calculate the ratio of samples which match this data type.
 
@@ -94,7 +92,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
         return None
 
     @classmethod
-    def _is_each_row_int(cls, df_series: pd.Series) -> List[bool]:
+    def _is_each_row_int(cls, df_series: pd.Series) -> list[bool]:
         """
         Return true if given is numerical and int values.
 
@@ -115,7 +113,7 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
 
         return [NumericStatsMixin.is_int(x) for x in df_series]
 
-    def _update_helper(self, df_series_clean: pd.Series, profile: Dict) -> None:
+    def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null params.
 

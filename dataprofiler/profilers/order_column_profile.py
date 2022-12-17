@@ -1,7 +1,7 @@
 """Index profile analysis for individual col within structured profiling."""
 from __future__ import annotations
 
-from typing import Dict, Optional, Tuple, cast
+from typing import cast
 
 from pandas import DataFrame, Series
 
@@ -18,7 +18,7 @@ class OrderColumn(BaseColumnProfiler):
 
     type = "order"
 
-    def __init__(self, name: Optional[str], options: OrderOptions = None) -> None:
+    def __init__(self, name: str | None, options: OrderOptions = None) -> None:
         """
         Initialize column base properties and self.
 
@@ -31,13 +31,13 @@ class OrderColumn(BaseColumnProfiler):
             raise ValueError(
                 "OrderColumn parameter 'options' must be of type" " OrderOptions."
             )
-        self.order: Optional[str] = None
-        self._last_value: Optional[int] = None
-        self._first_value: Optional[int] = None
-        self._piecewise: Optional[bool] = False
-        self.__calculations: Dict = {}
+        self.order: str | None = None
+        self._last_value: int | None = None
+        self._first_value: int | None = None
+        self._piecewise: bool | None = False
+        self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
-        super(OrderColumn, self).__init__(name)
+        super().__init__(name)
 
     @staticmethod
     def _is_intersecting(
@@ -115,7 +115,7 @@ class OrderColumn(BaseColumnProfiler):
         first_value2: int,
         last_value2: int,
         piecewise2: bool,
-    ) -> Tuple[str, int, int, bool]:
+    ) -> tuple[str, int, int, bool]:
         """
         Add the order of two datasets together.
 
@@ -156,8 +156,8 @@ class OrderColumn(BaseColumnProfiler):
 
         # Default initialization
         order = "random"
-        first_value: Optional[int] = None
-        last_value: Optional[int] = None
+        first_value: int | None = None
+        last_value: int | None = None
 
         if order1 == "random" or order2 == "random":
             order = "random"
@@ -260,7 +260,7 @@ class OrderColumn(BaseColumnProfiler):
         )
         return merged_profile
 
-    def report(self, remove_disabled_flag: bool = False) -> Dict:
+    def report(self, remove_disabled_flag: bool = False) -> dict:
         """
         Private abstract method for returning report.
 
@@ -271,7 +271,7 @@ class OrderColumn(BaseColumnProfiler):
         return self.profile
 
     @property
-    def profile(self) -> Dict:
+    def profile(self) -> dict:
         """
         Property for profile. Returns the profile of the column.
 
@@ -279,7 +279,7 @@ class OrderColumn(BaseColumnProfiler):
         """
         return dict(order=self.order, times=self.times)
 
-    def diff(self, other_profile: OrderColumn, options: Dict = None) -> Dict:
+    def diff(self, other_profile: OrderColumn, options: dict = None) -> dict:
         """
         Generate the differences between the orders of two OrderColumns.
 
@@ -297,7 +297,7 @@ class OrderColumn(BaseColumnProfiler):
         return differences
 
     @BaseColumnProfiler._timeit(name="order")
-    def _get_data_order(self, df_series: Series) -> Tuple[str, float, float]:
+    def _get_data_order(self, df_series: Series) -> tuple[str, float, float]:
         """
         Retrieve the order profile of a given data series.
 
@@ -339,8 +339,8 @@ class OrderColumn(BaseColumnProfiler):
     def _update_order(
         self,
         df_series: DataFrame,
-        prev_dependent_properties: Dict = None,
-        subset_properties: Dict = None,
+        prev_dependent_properties: dict = None,
+        subset_properties: dict = None,
     ) -> None:
         """
         Update order profile with order info attained from new dataset.
@@ -380,7 +380,7 @@ class OrderColumn(BaseColumnProfiler):
             piecewise2=False,
         )
 
-    def _update_helper(self, df_series_clean: Series, profile: Dict) -> None:
+    def _update_helper(self, df_series_clean: Series, profile: dict) -> None:
         """
         Update col profile properties with clean dataset and its known null parameters.
 

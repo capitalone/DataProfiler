@@ -48,7 +48,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
 
         # Enable and Disable Options
         for key in self.keys:
-            skey = "{}.is_enabled".format(key)
+            skey = f"{key}.is_enabled"
             for enabled in [True, False]:
                 options._set_helper({skey: enabled}, "")
                 self.assertEqual(enabled, options.properties[key].is_enabled)
@@ -59,7 +59,7 @@ class TestNumericalOptions(TestBaseInspectorOptions):
 
         # Enable and Disable Options
         for key in self.keys:
-            skey = "{}.is_enabled".format(key)
+            skey = f"{key}.is_enabled"
             for enabled in [True, False]:
                 options.set({skey: enabled})
                 self.assertEqual(enabled, options.properties[key].is_enabled)
@@ -71,8 +71,8 @@ class TestNumericalOptions(TestBaseInspectorOptions):
 
         # Set BooleanOptions' is_enabled to a non-boolean value
         for key in self.keys:
-            skey = "{}.is_enabled".format(key)
-            expected_error = "{}.{}.is_enabled must be a Boolean.".format(optpth, key)
+            skey = f"{key}.is_enabled"
+            expected_error = f"{optpth}.{key}.is_enabled must be a Boolean."
             default_bool = options.properties[key].is_enabled
             options.set({skey: "Hello World"})
             self.assertIn(expected_error, options._validate_helper())
@@ -207,8 +207,8 @@ class TestNumericalOptions(TestBaseInspectorOptions):
 
         # Set BooleanOptions' is_enabled to a non-boolean value
         for key in self.keys:
-            skey = "{}.is_enabled".format(key)
-            expected_error = "{}.{}.is_enabled must be a Boolean.".format(optpth, key)
+            skey = f"{key}.is_enabled"
+            expected_error = f"{optpth}.{key}.is_enabled must be a Boolean."
             default_bool = options.properties[key].is_enabled
             options.set({skey: "Hello World"})
             with self.assertRaisesRegex(ValueError, expected_error):
@@ -335,12 +335,12 @@ class TestNumericalOptions(TestBaseInspectorOptions):
         options = self.get_options()
 
         # Disable All Numeric Stats
-        options.set({"{}.is_enabled".format(key): False for key in self.numeric_keys})
+        options.set({f"{key}.is_enabled": False for key in self.numeric_keys})
         self.assertFalse(options.is_numeric_stats_enabled)
 
         # Enable Only One Numeric Stat
         for key in self.numeric_keys:
-            skey = "{}.is_enabled".format(key)
+            skey = f"{key}.is_enabled"
             options.set({skey: True})
             self.assertTrue(options.is_numeric_stats_enabled)
             options.set({skey: False})

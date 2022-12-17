@@ -46,7 +46,7 @@ class TestCategoricalColumn(unittest.TestCase):
             "groucho-eu",
             "groucho-sydney",
         }
-        six.assertCountEqual(self, categories, profile.categories)
+        self.assertCountEqual(categories, profile.categories)
 
     def test_timeit_profile(self):
         dataset = self.aws_dataset["host"].dropna()
@@ -228,7 +228,7 @@ class TestCategoricalColumn(unittest.TestCase):
         }
 
         self.assertEqual(2120, profile.sample_size)
-        six.assertCountEqual(self, categories, profile.categories)
+        self.assertCountEqual(categories, profile.categories)
 
     def test_categorical_mapping(self):
 
@@ -279,8 +279,8 @@ class TestCategoricalColumn(unittest.TestCase):
         num_null_types = 1
         num_nan_count = 1
         categories = df1.apply(str).unique().tolist()
-        six.assertCountEqual(
-            self, categories, cat_profiler.categories + column_profile.null_types
+        self.assertCountEqual(
+            categories, cat_profiler.categories + column_profile.null_types
         )
         self.assertEqual(num_null_types, len(column_profile.null_types))
         self.assertEqual(num_nan_count, len(column_profile.null_types_index["nan"]))
@@ -293,8 +293,8 @@ class TestCategoricalColumn(unittest.TestCase):
         cat_profiler = column_profile.profiles["data_stats_profile"]._profiles[
             "category"
         ]
-        six.assertCountEqual(
-            self, categories, cat_profiler.categories + column_profile.null_types
+        self.assertCountEqual(
+            categories, cat_profiler.categories + column_profile.null_types
         )
         self.assertEqual(num_null_types, len(column_profile.null_types))
         self.assertEqual(num_nan_count, len(column_profile.null_types_index["nan"]))
@@ -320,8 +320,8 @@ class TestCategoricalColumn(unittest.TestCase):
         cat_profiler = column_profile.profiles["data_stats_profile"]._profiles[
             "category"
         ]
-        six.assertCountEqual(
-            self, categories, cat_profiler.categories + column_profile.null_types
+        self.assertCountEqual(
+            categories, cat_profiler.categories + column_profile.null_types
         )
         self.assertEqual(num_null_types, len(column_profile.null_types))
         self.assertEqual(num_nan_count, len(column_profile.null_types_index["nan"]))

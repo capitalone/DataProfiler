@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 """Build model for dataset by identifying col type along with its respective params."""
-from __future__ import annotations, division, print_function
+from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, Optional, Union
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import dask as dd
     import pandas as pd
 
 
-def is_in_range(x: Union[float, int], config: dict) -> bool:
+def is_in_range(x: float | int, config: dict) -> bool:
     """
     Check to see x is in the range of the config.
 
@@ -43,12 +43,12 @@ class Validator:
 
     def __init__(self) -> None:
         """Initialize Validator object."""
-        self.config: Optional[Dict] = None
-        self.report: Optional[Dict] = None
+        self.config: dict | None = None
+        self.report: dict | None = None
         self.validation_run: bool = False
-        self.validation_report: Dict = dict()
+        self.validation_report: dict = dict()
 
-    def validate(self, data: Union[pd.DataFrame, dd.DataFrame], config: dict) -> None:
+    def validate(self, data: pd.DataFrame | dd.DataFrame, config: dict) -> None:
         """
         Validate a data set.
 

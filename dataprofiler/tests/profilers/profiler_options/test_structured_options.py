@@ -41,9 +41,9 @@ class TestStructuredOptions(TestBaseOption):
         optpth = self.get_options_path()
         # Enable and Disable Option
         for key in self.boolean_keys:
-            option._set_helper({"{}.is_enabled".format(key): False}, "")
+            option._set_helper({f"{key}.is_enabled": False}, "")
             self.assertFalse(option.properties[key].is_enabled)
-            option._set_helper({"{}.is_enabled".format(key): True}, "")
+            option._set_helper({f"{key}.is_enabled": True}, "")
             self.assertTrue(option.properties[key].is_enabled)
 
         # Treat is_enabled as a BooleanOption
@@ -53,7 +53,7 @@ class TestStructuredOptions(TestBaseOption):
                 "'is_enabled'".format(key)
             )
             with self.assertRaisesRegex(AttributeError, expected_error):
-                option._set_helper({"{}.is_enabled.is_enabled".format(key): True}, "")
+                option._set_helper({f"{key}.is_enabled.is_enabled": True}, "")
 
     def test_set(self):
         super().test_set()
@@ -62,9 +62,9 @@ class TestStructuredOptions(TestBaseOption):
 
         # Enable and Disable Options
         for key in self.boolean_keys:
-            option.set({"{}.is_enabled".format(key): False})
+            option.set({f"{key}.is_enabled": False})
             self.assertFalse(option.properties[key].is_enabled)
-            option.set({"{}.is_enabled".format(key): True})
+            option.set({f"{key}.is_enabled": True})
             self.assertTrue(option.properties[key].is_enabled)
 
         # Treat is_enabled as a BooleanOption
@@ -74,14 +74,14 @@ class TestStructuredOptions(TestBaseOption):
                 "'is_enabled'".format(key)
             )
             with self.assertRaisesRegex(AttributeError, expected_error):
-                option.set({"{}.is_enabled.is_enabled".format(key): True})
+                option.set({f"{key}.is_enabled.is_enabled": True})
 
         for key in self.other_keys:
             expected_error = "type object '{}' has no attribute " "'is_enabled'".format(
                 key
             )
             with self.assertRaisesRegex(AttributeError, expected_error):
-                option.set({"{}.is_enabled".format(key): True})
+                option.set({f"{key}.is_enabled": True})
 
         for test_dict in ({"a": 0}, {"a": re.IGNORECASE}, None):
             option.set({"null_values": test_dict})
@@ -115,10 +115,9 @@ class TestStructuredOptions(TestBaseOption):
 
         # Option is_enabled is not a boolean
         for key in self.boolean_keys:
-            option.set({"{}.is_enabled".format(key): "Hello World"})
+            option.set({f"{key}.is_enabled": "Hello World"})
         expected_error = [
-            "{}.{}.is_enabled must be a Boolean.".format(optpth, key)
-            for key in self.boolean_keys
+            f"{optpth}.{key}.is_enabled must be a Boolean." for key in self.boolean_keys
         ]
         expected_error = set(expected_error)
         # Verify expected errors are a subset of all errors
@@ -149,13 +148,9 @@ class TestStructuredOptions(TestBaseOption):
             elif key == "datetime":
                 ckey = "DateTime"
             if key == "multiprocess" or key == "chi2_homogeneity":
-                expected_error.add(
-                    "{}.{} must be a(n) BooleanOption.".format(optpth, key, ckey)
-                )
+                expected_error.add(f"{optpth}.{key} must be a(n) BooleanOption.")
             else:
-                expected_error.add(
-                    "{}.{} must be a(n) {}Options.".format(optpth, key, ckey)
-                )
+                expected_error.add(f"{optpth}.{key} must be a(n) {ckey}Options.")
         self.assertSetEqual(expected_error, set(option._validate_helper()))
 
     def test_validate(self):
@@ -178,11 +173,10 @@ class TestStructuredOptions(TestBaseOption):
 
         # Option is_enabled is not a boolean
         for key in self.boolean_keys:
-            option.set({"{}.is_enabled".format(key): "Hello World"})
+            option.set({f"{key}.is_enabled": "Hello World"})
 
         expected_error = [
-            "{}.{}.is_enabled must be a Boolean.".format(optpth, key)
-            for key in self.boolean_keys
+            f"{optpth}.{key}.is_enabled must be a Boolean." for key in self.boolean_keys
         ]
         expected_error = set(expected_error)
         # Verify expected errors are a subset of all errors
@@ -218,13 +212,9 @@ class TestStructuredOptions(TestBaseOption):
             elif key == "datetime":
                 ckey = "DateTime"
             if key == "multiprocess" or key == "chi2_homogeneity":
-                expected_error.add(
-                    "{}.{} must be a(n) BooleanOption.".format(optpth, key, ckey)
-                )
+                expected_error.add(f"{optpth}.{key} must be a(n) BooleanOption.")
             else:
-                expected_error.add(
-                    "{}.{} must be a(n) {}Options.".format(optpth, key, ckey)
-                )
+                expected_error.add(f"{optpth}.{key} must be a(n) {ckey}Options.")
         # Verify expected errors are a subset of all errors
         self.assertSetEqual(expected_error, set(option.validate(raise_error=False)))
         with self.assertRaises(ValueError) as cm:
@@ -293,19 +283,19 @@ class TestStructuredOptions(TestBaseOption):
 
         # All Columns Enabled
         for key in self.boolean_keys:
-            options.set({"{}.is_enabled".format(key): True})
+            options.set({f"{key}.is_enabled": True})
         self.assertSetEqual(set(self.boolean_keys), set(options.enabled_profiles))
 
         # No Columns Enabled
         for key in self.boolean_keys:
-            options.set({"{}.is_enabled".format(key): False})
+            options.set({f"{key}.is_enabled": False})
         self.assertEqual([], options.enabled_profiles)
 
         # One Column Enabled
         for key in self.boolean_keys:
-            options.set({"{}.is_enabled".format(key): True})
-            self.assertSetEqual(set([key]), set(options.enabled_profiles))
-            options.set({"{}.is_enabled".format(key): False})
+            options.set({f"{key}.is_enabled": True})
+            self.assertSetEqual({key}, set(options.enabled_profiles))
+            options.set({f"{key}.is_enabled": False})
 
     def test_eq(self):
         super().test_eq()

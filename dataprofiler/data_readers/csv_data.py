@@ -3,11 +3,11 @@ import csv
 import random
 import re
 from collections import Counter
+from io import StringIO
 from typing import Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 import pandas as pd
-from six import StringIO
 
 from . import data_utils
 from .avro_data import AVROData
@@ -443,11 +443,9 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             # Determine percent of string, uppercase string or none in row,
             # must be ABOVE threshold
             rstr = float(
-                (
-                    header_check_list[i].count("str")
-                    + header_check_list[i].count("upstr")
-                    + header_check_list[i].count("none")
-                )
+                header_check_list[i].count("str")
+                + header_check_list[i].count("upstr")
+                + header_check_list[i].count("none")
             )
             rstr /= float(len(header_check_list[i]))
 
@@ -611,7 +609,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         quote = self.quotechar if self.quotechar else self._default_quotechar
         data = data.to_csv(sep=sep, quotechar=quote, index=False)
         data = data.splitlines()
-        return super(CSVData, self)._get_data_as_records(data)
+        return super()._get_data_as_records(data)
 
     @classmethod
     def is_match(cls, file_path: str, options: Optional[Dict] = None) -> bool:
@@ -759,5 +757,5 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         options.update(
             header=self.header, delimiter=self.delimiter, quotechar=self.quotechar
         )
-        super(CSVData, self).reload(input_file_path, data, options)
+        super().reload(input_file_path, data, options)
         self.__init__(self.input_file_path, data, options)  # type: ignore

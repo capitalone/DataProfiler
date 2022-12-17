@@ -13,13 +13,22 @@ import warnings
 from abc import abstractmethod
 from itertools import islice
 from multiprocessing.pool import Pool
-from typing import Any, Callable, Dict, Generator, Iterator, TypeVar, cast, overload
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generator,
+    Iterator,
+    Protocol,
+    TypeVar,
+    cast,
+    overload,
+)
 
 import numpy as np
 import psutil
 import scipy
 from pandas import DataFrame, Series
-from typing_extensions import Protocol
 
 from dataprofiler import profilers, settings
 

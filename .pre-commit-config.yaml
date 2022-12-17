@@ -60,7 +60,7 @@ repos:
     rev: v3.3.0
     hooks:
       - id: pyupgrade
-        args: ["--py37-plus"]
+        args: ["--py38-plus"]
   # Autoflake - cleanup unused variables and imports
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.0.0

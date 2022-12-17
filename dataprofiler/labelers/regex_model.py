@@ -170,6 +170,7 @@ class RegexModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def reset_weights(self) -> None:
         """Reset weights."""
+        pass
 
     def predict(
         self,

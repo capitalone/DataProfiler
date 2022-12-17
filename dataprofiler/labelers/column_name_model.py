@@ -179,6 +179,7 @@ class ColumnNameModel(BaseModel, metaclass=AutoSubRegistrationMeta):
 
     def reset_weights(self) -> None:
         """Reset weights function."""
+        pass
 
     @require_module(["rapidfuzz"])
     def _model(

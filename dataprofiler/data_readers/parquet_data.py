@@ -76,6 +76,7 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
 
         Required by mypy because the inherited self.file_encoding is read-write).
         """
+        pass
 
     @property
     def selected_columns(self) -> List[str]:

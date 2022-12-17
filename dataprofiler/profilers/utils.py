@@ -366,10 +366,12 @@ class Subtractable(Protocol):
     @abstractmethod
     def __eq__(self: object, other: object) -> bool:
         """Compare two objects."""
+        pass
 
     @abstractmethod
     def __sub__(self: T, other: T) -> Any:
         """Compare two subtractables."""
+        pass
 
 
 T = TypeVar("T", bound=Subtractable)

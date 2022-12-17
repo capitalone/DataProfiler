@@ -68,3 +68,4 @@ repos:
       - id: autoflake
         args:
           - "--in-place"
+          - "--ignore-pass-statements"

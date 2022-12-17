@@ -6,7 +6,6 @@ from unittest import mock
 
 import numpy as np
 import pandas as pd
-import six
 
 from dataprofiler.profilers import TextColumn, utils
 from dataprofiler.profilers.profiler_options import TextOptions

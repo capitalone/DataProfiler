@@ -5,7 +5,6 @@ from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
-import six
 
 from dataprofiler.profilers import CategoricalColumn
 from dataprofiler.profilers.profile_builder import StructuredColProfiler

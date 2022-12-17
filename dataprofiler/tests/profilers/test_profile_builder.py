@@ -10,7 +10,6 @@ from unittest import mock
 import networkx as nx
 import numpy as np
 import pandas as pd
-import six
 
 import dataprofiler as dp
 from dataprofiler import StructuredDataLabeler, UnstructuredDataLabeler

@@ -1788,10 +1788,10 @@ class TestStructuredProfiler(unittest.TestCase):
                 "encoding": "unchanged",
                 "correlation_matrix": np.array(
                     [[1.11022302e-16, 3.13803955e-02], [3.13803955e-02, 0.00000000e00]],
-                    dtype=np.float,
+                    dtype=float,
                 ),
                 "chi2_matrix": np.array(
-                    [[0.0, -0.04475479], [-0.04475479, 0.0]], dtype=np.float
+                    [[0.0, -0.04475479], [-0.04475479, 0.0]], dtype=float
                 ),
                 "profile_schema": [{}, {"a": "unchanged", "b": "unchanged"}, {}],
             },

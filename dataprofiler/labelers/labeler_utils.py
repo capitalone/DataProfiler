@@ -435,7 +435,7 @@ class FBetaScore(tf.keras.metrics.Metric):
         return {**base_config, **config}
 
     def reset_state(self) -> None:
-        """Reset states."""
+        """Reset state."""
         reset_value = tf.zeros(self.init_shape, dtype=self.dtype)
         tf.keras.backend.batch_set_value([(v, reset_value) for v in self.variables])
 

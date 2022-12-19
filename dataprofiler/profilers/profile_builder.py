@@ -570,7 +570,7 @@ class StructuredColProfiler:
             )
 
         na_columns: dict = dict()
-        true_sample_list = set()
+        true_sample_set = set()
         total_sample_size = 0
         query = "|".join(null_values.keys())
         regex = f"^(?:{(query)})$"
@@ -584,7 +584,7 @@ class StructuredColProfiler:
             matches = df_subset.str.match(regex, flags=re.IGNORECASE)
 
             # Split series into None samples and true samples
-            true_sample_list.update(df_subset[~matches].index)
+            true_sample_set.update(df_subset[~matches].index)
 
             # Iterate over all the Nones
             for index, cell in df_subset[matches].items():
@@ -593,7 +593,7 @@ class StructuredColProfiler:
             # Ensure minimum number of true samples met
             # and if total_sample_size >= sample size, exit
             if (
-                len(true_sample_list) >= min_true_samples
+                len(true_sample_set) >= min_true_samples
                 and total_sample_size >= sample_size
             ):
                 break
@@ -603,8 +603,11 @@ class StructuredColProfiler:
             sample_ind_generator.close()
 
         # If min_true_samples exists, sort
-        if min_true_samples > 0 or sample_ids is None:
-            true_sample_list = sorted(true_sample_list)  # type: ignore[assignment]
+        true_sample_list = (
+            sorted(true_sample_set)
+            if min_true_samples > 0 or sample_ids is None
+            else list(true_sample_set)
+        )
 
         # Split out true values for later utilization
         df_series = df_series.loc[true_sample_list]

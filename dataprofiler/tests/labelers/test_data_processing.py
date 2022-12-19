@@ -2807,9 +2807,7 @@ class TestRegexPostProcessor(unittest.TestCase):
 
         # second random
         random_state = random.Random(1)
-        expected_output = dict(
-            pred=np.array([np.array([1, 2, 2, 1]), np.array([1, 1, 2])])
-        )
+        expected_output = dict(pred=([np.array([1, 2, 2, 1]), np.array([1, 1, 2])]))
         processor = RegexPostProcessor(
             aggregation_func="random", random_state=random_state
         )

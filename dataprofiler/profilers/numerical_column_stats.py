@@ -816,8 +816,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         """
         if np.isnan(biased_skewness) or match_count < 3:
             warnings.warn(
-                "Insufficient match count to correct bias in skewness. Bias correction"
-                "can be manually disabled by setting bias_correction.is_enabled to"
+                "Insufficient match count to correct bias in skewness. Bias correction "
+                "can be manually disabled by setting bias_correction.is_enabled to "
                 "False in ProfilerOptions.",
                 RuntimeWarning,
             )
@@ -915,8 +915,8 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         """
         if np.isnan(biased_kurtosis) or match_count < 4:
             warnings.warn(
-                "Insufficient match count to correct bias in kurtosis. Bias correction"
-                "can be manually disabled by setting bias_correction.is_enabled to"
+                "Insufficient match count to correct bias in kurtosis. Bias correction "
+                "can be manually disabled by setting bias_correction.is_enabled to "
                 "False in ProfilerOptions.",
                 RuntimeWarning,
             )

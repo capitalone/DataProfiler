@@ -351,6 +351,6 @@ def plot_col_missing_values(
         ax.set_title(title)
 
     if is_own_fig:
-        fig.set_tight_layout(True)
+        fig.set_layout_engine("tight")
 
     return fig

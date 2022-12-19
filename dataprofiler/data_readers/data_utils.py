@@ -441,12 +441,12 @@ def detect_file_encoding(
 
     if not _decode_is_valid(encoding):
         try:
-            from charset_normalizer import CharsetNormalizerMatches as CnM
+            from charset_normalizer import from_bytes
 
             # Try with small sample
             with FileOrBufferHandler(file_path, "rb") as input_file:
                 raw_data = input_file.read(10000)
-                result = CnM.from_bytes(
+                result = from_bytes(
                     raw_data,
                     steps=5,
                     chunk_size=512,
@@ -465,7 +465,7 @@ def detect_file_encoding(
             if not _decode_is_valid(encoding):
                 with FileOrBufferHandler(file_path, "rb") as input_file:
                     raw_data = input_file.read(max_lines * buffer_size)
-                    result = CnM.from_bytes(
+                    result = from_bytes(
                         raw_data,
                         steps=max_lines,
                         chunk_size=buffer_size,

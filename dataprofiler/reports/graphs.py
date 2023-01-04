@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, List, Union, cast
 if TYPE_CHECKING:
     from ..profilers.float_column_profile import FloatColumn
     from ..profilers.int_column_profile import IntColumn
-    from ..profilers.column_profile_compilers import ColumnPrimitiveTypeProfileCompiler
 
 import numpy as np
 
@@ -23,6 +22,7 @@ except ImportError:
     # installed
     pass
 
+from ..profilers.column_profile_compilers import ColumnPrimitiveTypeProfileCompiler
 from ..profilers.profile_builder import StructuredColProfiler, StructuredProfiler
 from . import utils
 

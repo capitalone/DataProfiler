@@ -11,7 +11,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 from multiprocessing.pool import Pool
-from typing import Any, Generator, Optional, cast
+from typing import Any, Generator, List, Optional, cast
 
 import networkx as nx
 import numpy as np
@@ -1821,7 +1821,7 @@ class StructuredProfiler(BaseProfiler):
 
         :return: list[StructuredColProfiler]
         """
-        return cast(list[StructuredColProfiler], super().profile)
+        return cast(List[StructuredColProfiler], super().profile)
 
     def report(self, report_options: dict = None) -> dict:
         """Return a report."""

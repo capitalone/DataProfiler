@@ -1,22 +1,23 @@
 """Contains helper functions for generating report."""
+from __future__ import annotations
+
 import math
-from typing import Dict, List
 
 import numpy as np
 
 
 def calculate_quantiles(
-    num_quantile_groups: int, quantiles: Dict[int, int]
-) -> Dict[int, int]:
+    num_quantile_groups: int, quantiles: dict[int, int]
+) -> dict[int, int]:
     """
     Calculate and return quantiles.
 
     :param num_quantile_groups: number of quantile groups
     :type num_quantile_groups: int
     :param quantiles: original quantiles
-    :type quantiles: Dict[int, int]
+    :type quantiles: dict[int, int]
     :returns: calculated quantiles
-    :rtype: Dict[int, int]
+    :rtype: dict[int, int]
     """
     len_quant = len(quantiles)
     if not (num_quantile_groups and 0 < num_quantile_groups <= (len_quant + 1)):
@@ -36,7 +37,7 @@ def calculate_quantiles(
     return quantiles
 
 
-def flat_dict(od: Dict, separator: str = "_", key: str = "") -> Dict:
+def flat_dict(od: dict, separator: str = "_", key: str = "") -> dict:
     """
     Flatten nested dictionary.
 
@@ -63,7 +64,7 @@ def flat_dict(od: Dict, separator: str = "_", key: str = "") -> Dict:
     )
 
 
-def _clean_profile_schema(value: Dict) -> Dict:
+def _clean_profile_schema(value: dict) -> dict:
     """
     Clean schemas in profile.
 
@@ -86,8 +87,8 @@ def _clean_profile_schema(value: Dict) -> Dict:
 
 
 def _prepare_report(
-    report: Dict, output_format: str = None, omit_keys: List[str] = None
-) -> Dict:
+    report: dict, output_format: str | None = None, omit_keys: list[str] | None = None
+) -> dict:
     """
     Prepare report dictionary for users upon request.
 
@@ -118,7 +119,7 @@ def _prepare_report(
     if omit_keys is None:
         omit_keys = []
 
-    fmt_report: Dict = {}
+    fmt_report: dict = {}
     max_str_len = 50
     max_array_len = 5
 

@@ -12,7 +12,6 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import scipy.stats
-from future.utils import with_metaclass
 
 from . import histogram_utils, utils
 from .base_column_profilers import BaseColumnProfiler
@@ -32,7 +31,7 @@ class abstractstaticmethod(staticmethod):
     __isabstractmethod__ = True
 
 
-class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
+class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
     """
     Abstract numerical column profile subclass of BaseColumnProfiler.
 
@@ -134,7 +133,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     def __getitem__(self, item: str) -> Any:
         """Return indexed item."""
-        return super().__getitem__(item)
+        return super().__getitem__(item)  # type: ignore
 
     @property
     def _has_histogram(self) -> bool:
@@ -142,7 +141,9 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
     @BaseColumnProfiler._timeit(name="histogram_and_quantiles")
     def _add_helper_merge_profile_histograms(
-        self, other1: BaseColumnProfiler, other2: BaseColumnProfiler
+        self,
+        other1: NumericStatsMixin,
+        other2: NumericStatsMixin,
     ) -> None:
         """
         Add histogram of two profiles together.
@@ -198,7 +199,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         self._get_quantiles()
 
-    def _add_helper(self, other1: NumericStatsMixin, other2: NumericStatsMixin) -> None:
+    def _add_helper(
+        self,
+        other1: NumericStatsMixin,
+        other2: NumericStatsMixin,
+    ) -> None:
         """
         Help merge profiles.
 
@@ -355,7 +360,11 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
         return profile
 
-    def diff(self, other_profile: NumericStatsMixin, options: dict = None) -> dict:
+    def diff(
+        self,
+        other_profile: NumericStatsMixin,
+        options: dict = None,
+    ) -> dict:
         """
         Find the differences for several numerical stats.
 
@@ -671,7 +680,10 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         return psi_value
 
     def _update_variance(
-        self, batch_mean: float, batch_var: float, batch_count: int
+        self,
+        batch_mean: float,
+        batch_var: float,
+        batch_count: int,
     ) -> float:
         """
         Calculate combined biased variance of the current values and new dataset.
@@ -1552,7 +1564,7 @@ class NumericStatsMixin(with_metaclass(abc.ABCMeta, object)):  # type: ignore
         }
         subset_properties = copy.deepcopy(profile)
         df_series_clean = df_series_clean.astype(float)
-        super()._perform_property_calcs(
+        super()._perform_property_calcs(  # type: ignore
             self.__calculations,
             df_series=df_series_clean,
             prev_dependent_properties=prev_dependent_properties,

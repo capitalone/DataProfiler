@@ -3,8 +3,6 @@
 from io import StringIO
 from typing import Dict, List, Optional, Union, cast
 
-from past.builtins import basestring
-
 from . import data_utils
 from .base_data import BaseData
 
@@ -87,11 +85,7 @@ class TextData(BaseData):
 
     def _get_data_as_text(self, data: Union[str, List[str]]) -> List[str]:
         """Return data as text."""
-        if (
-            isinstance(data, list)
-            and len(data)
-            and isinstance(data[0], (str, basestring))
-        ):
+        if isinstance(data, list) and len(data) and isinstance(data[0], str):
             data = "".join(data)
         elif not isinstance(data, str) and data:
             raise ValueError(

@@ -7,8 +7,9 @@ import warnings
 from typing import TYPE_CHECKING, List, Union, cast
 
 if TYPE_CHECKING:
-    from dataprofiler.profilers.float_column_profile import FloatColumn
-    from dataprofiler.profilers.int_column_profile import IntColumn
+    from ..profilers.float_column_profile import FloatColumn
+    from ..profilers.int_column_profile import IntColumn
+    from ..profilers.column_profile_compilers import ColumnPrimitiveTypeProfileCompiler
 
 import numpy as np
 
@@ -22,11 +23,7 @@ except ImportError:
     # installed
     pass
 
-from dataprofiler.profilers.profile_builder import (
-    StructuredColProfiler,
-    StructuredProfiler,
-)
-
+from ..profilers.profile_builder import StructuredColProfiler, StructuredProfiler
 from . import utils
 
 
@@ -69,10 +66,11 @@ def plot_histograms(
             "column indexes in the profiler"
         )
 
+    profile_list: list[StructuredColProfiler] = profiler.profile
     # get all inds to graph, raise error if user specified doesn't exist
     inds_to_graph = column_inds if column_inds else []
     if not column_names and not column_inds:
-        inds_to_graph = list(range(len(profiler.profile)))
+        inds_to_graph = list(range(len(profile_list)))
     elif not column_inds:
         for column in cast(List[Union[str, int]], column_names):
             col = column
@@ -95,9 +93,11 @@ def plot_histograms(
         Return false if there is a data type that is not a int or float,
         otherwise true.
         """
-        col_profiler = profiler.profile[ind_to_graph]
+        col_profiler = profile_list[ind_to_graph]
         data_compiler = col_profiler.profiles["data_type_profile"]
-        if data_compiler.selected_data_type not in ["int", "float"]:
+        if cast(
+            ColumnPrimitiveTypeProfileCompiler, data_compiler
+        ).selected_data_type not in ["int", "float"]:
             return False
         return True
 
@@ -123,9 +123,11 @@ def plot_histograms(
 
     # graph the plots
     for col_ind, ax in zip(inds_to_graph, axs):
-        col_profiler = profiler.profile[col_ind]
+        col_profiler = profile_list[col_ind]
         data_compiler = col_profiler.profiles["data_type_profile"]
-        data_type = data_compiler.selected_data_type
+        data_type = cast(
+            ColumnPrimitiveTypeProfileCompiler, data_compiler
+        ).selected_data_type
         data_type_profiler = data_compiler._profiles[data_type]
         ax = plot_col_histogram(
             data_type_profiler, ax=ax, title=str(data_type_profiler.name)

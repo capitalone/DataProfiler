@@ -97,7 +97,7 @@ class BaseDataProcessor(metaclass=abc.ABCMeta):
         """
         raise NotImplementedError()
 
-    def get_parameters(self, param_list: list[str] = None) -> dict:
+    def get_parameters(self, param_list: list[str] | None = None) -> dict:
         """
         Return a dict of parameters from the model given a list.
 
@@ -172,8 +172,8 @@ class BaseDataPreprocessor(BaseDataProcessor):
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        labels: np.ndarray = None,
-        label_mapping: dict[str, int] = None,
+        labels: np.ndarray | None = None,
+        label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
     ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
         """Preprocess data."""
@@ -243,8 +243,8 @@ class DirectPassPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistration
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        labels: np.ndarray = None,
-        label_mapping: dict[str, int] = None,
+        labels: np.ndarray | None = None,
+        label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
     ) -> tuple[np.ndarray, np.ndarray] | np.ndarray:
         """Preprocess data."""
@@ -409,8 +409,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
         max_length: int,
         default_label: str,
         pad_label: str,
-        labels: Iterable = None,
-        label_mapping: dict[str, int] = None,
+        labels: Iterable | None = None,
+        label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
     ) -> Generator[dict[str, list], None, None]:
         """
@@ -671,8 +671,8 @@ class CharPreprocessor(BaseDataPreprocessor, metaclass=AutoSubRegistrationMeta):
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        labels: np.ndarray = None,
-        label_mapping: dict[str, int] = None,
+        labels: np.ndarray | None = None,
+        label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
     ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
         """
@@ -751,7 +751,7 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
 
     def __init__(
         self,
-        encoding_map: dict[str, int] = None,
+        encoding_map: dict[str, int] | None = None,
         max_length: int = 5000,
         default_label: str = "UNKNOWN",
         pad_label: str = "PAD",
@@ -839,8 +839,8 @@ class CharEncodedPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMet
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        labels: np.ndarray = None,
-        label_mapping: dict[str, int] = None,
+        labels: np.ndarray | None = None,
+        label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
     ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
         """
@@ -1390,7 +1390,7 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
         )
         print(help_str)
 
-    def get_parameters(self, param_list: list[str] = None) -> dict:
+    def get_parameters(self, param_list: list[str] | None = None) -> dict:
         """
         Return a dict of parameters from the model given a list.
 
@@ -1442,8 +1442,8 @@ class StructCharPreprocessor(CharPreprocessor, metaclass=AutoSubRegistrationMeta
     def process(  # type: ignore
         self,
         data: np.ndarray,
-        labels: np.ndarray = None,
-        label_mapping: dict[str, int] = None,
+        labels: np.ndarray | None = None,
+        label_mapping: dict[str, int] | None = None,
         batch_size: int = 32,
     ) -> Generator[tuple[np.ndarray, np.ndarray] | np.ndarray, None, None]:
         """
@@ -2257,7 +2257,7 @@ class ColumnNameModelPostprocessor(
         self,
         data: np.ndarray,
         results: dict,
-        label_mapping: dict[str, int] = None,
+        label_mapping: dict[str, int] | None = None,
     ) -> dict:
         """Preprocess data."""
         return results

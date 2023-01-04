@@ -1,12 +1,14 @@
 """Contains functions for classification."""
+from __future__ import annotations
+
 import warnings
-from typing import Dict, List, Optional, Set, Tuple, Union, cast
+from typing import cast
 
 import numpy as np
 import sklearn.metrics._classification
 
 
-def convert_confusion_matrix_to_MCM(conf_matrix: Union[List, np.ndarray]) -> np.ndarray:
+def convert_confusion_matrix_to_MCM(conf_matrix: list | np.ndarray) -> np.ndarray:
     """
     Convert a confusion matrix into the MCM format.
 
@@ -55,12 +57,12 @@ def convert_confusion_matrix_to_MCM(conf_matrix: Union[List, np.ndarray]) -> np.
 def precision_recall_fscore_support(
     MCM: np.ndarray,
     beta: float = 1.0,
-    labels: np.ndarray = None,
-    pos_label: Union[str, int] = 1,
-    average: str = None,
-    warn_for: Union[Tuple[str, ...], Set[str]] = ("precision", "recall", "f-score"),
-    sample_weight: np.ndarray = None,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Optional[np.ndarray]]:
+    labels: np.ndarray | None = None,
+    pos_label: str | int = 1,
+    average: str | None = None,
+    warn_for: tuple[str, ...] | set[str] = ("precision", "recall", "f-score"),
+    sample_weight: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray | None]:
     """
     Perform same functionality as recision_recall_fscore_support function.
 
@@ -224,12 +226,12 @@ def precision_recall_fscore_support(
 
 def classification_report(
     conf_matrix: np.ndarray,
-    labels: Union[List, np.ndarray] = None,
-    target_names: List[str] = None,
-    sample_weight: np.ndarray = None,
+    labels: list | np.ndarray | None = None,
+    target_names: list[str] | None = None,
+    sample_weight: np.ndarray | None = None,
     digits: int = 2,
     output_dict: bool = False,
-) -> Union[str, Dict]:
+) -> str | dict:
     """
     Build a text report showing the main classification metrics.
 
@@ -345,12 +347,12 @@ def classification_report(
     rows = zip(target_names, p, r, f1, cast(np.ndarray, s))
 
     if y_type.startswith("multilabel"):
-        average_options: Tuple[str, ...] = ("micro", "macro", "weighted", "samples")
+        average_options: tuple[str, ...] = ("micro", "macro", "weighted", "samples")
     else:
         average_options = ("micro", "macro", "weighted")
 
     if output_dict:
-        report_dict: Dict = {label[0]: label[1:] for label in rows}
+        report_dict: dict = {label[0]: label[1:] for label in rows}
         for label, scores in report_dict.items():
             report_dict[label] = dict(zip(headers, [i.item() for i in scores]))
     else:

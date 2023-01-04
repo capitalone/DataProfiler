@@ -11,7 +11,7 @@ import warnings
 from collections import OrderedDict, defaultdict
 from datetime import datetime
 from multiprocessing.pool import Pool
-from typing import Any, Generator, cast
+from typing import Any, Generator, Optional, cast
 
 import networkx as nx
 import numpy as np
@@ -367,16 +367,16 @@ class StructuredColProfiler:
             "samples",
             "statistics",
         ]
-        profile: dict = OrderedDict()  # type: ignore[no-redef]
+        report: OrderedDict = OrderedDict()
         if "data_label_profile" not in self.profiles:
             dict_order.remove("data_label")
         for key in dict_order:
             try:
-                profile[key] = unordered_profile[key]
+                report[key] = unordered_profile[key]  # type: ignore
             except KeyError:
-                profile[key] = None
+                report[key] = None  # type: ignore
 
-        return profile
+        return report
 
     @property
     def profile(self) -> dict:
@@ -493,7 +493,7 @@ class StructuredColProfiler:
         sample_size: int,
         null_values: dict[str, re.RegexFlag | int] = None,
         min_true_samples: int = None,
-        sample_ids: np.ndarray = None,
+        sample_ids: np.ndarray | list[list[int]] | None = None,
     ) -> tuple[pd.Series, dict]:
         """
         Identify null characters and return them in a dictionary.
@@ -805,11 +805,11 @@ class BaseProfiler:
         return max(int(self._sampling_ratio * len_data), self._min_sample_size)
 
     @property
-    def profile(self) -> BaseCompiler:
+    def profile(self) -> BaseCompiler | list[StructuredColProfiler]:
         """
         Return the stored profiles for the given profiler.
 
-        :return: BaseCompiler
+        :return: BaseCompiler | list[StructuredColProfiler]
         """
         return self._profile
 
@@ -944,11 +944,12 @@ class BaseProfiler:
 
         # get all profiles, unstructured is a single profile and hence needs to
         # be in a list, whereas structured is already a list
-        profilers = [self._profile]
+        profilers: list[BaseCompiler] | list[StructuredColProfiler] = [self._profile]
         if isinstance(self, StructuredProfiler):
             profilers = self._profile
 
         # Remove data labelers for all columns
+        profiler: BaseCompiler | None | StructuredColProfiler
         for profiler in profilers:
 
             # profiles stored differently in Struct/Unstruct, this unifies
@@ -956,8 +957,11 @@ class BaseProfiler:
             # unstructured: _profile is a compiler
             # structured: StructuredColProfiler.profiles['data_label_profile']
             if isinstance(self, StructuredProfiler):
-                profiler = profiler.profiles.get("data_label_profile", None)
+                profiler = cast(StructuredColProfiler, profiler).profiles.get(
+                    "data_label_profile", None
+                )
 
+            profiler = cast(Optional[BaseCompiler], profiler)
             if profiler and use_data_labeler and data_labeler is None:
                 data_labeler = profiler._profiles["data_labeler"].data_labeler
 
@@ -1000,7 +1004,7 @@ class BaseProfiler:
 
         # get all profiles, unstructured is a single profile and hence needs to
         # be in a list, whereas structured is already a list
-        profilers = [self._profile]
+        profilers: list[BaseCompiler] | list[StructuredColProfiler] = [self._profile]
         if isinstance(self, StructuredProfiler):
             profilers = self._profile
 
@@ -1014,8 +1018,11 @@ class BaseProfiler:
                 # unstructured: _profile is a compiler
                 # structured: StructuredColProfiler.profiles['data_label_profile']
                 if isinstance(self, StructuredProfiler):
-                    profiler = profiler.profiles["data_label_profile"]
+                    profiler = cast(StructuredColProfiler, profiler).profiles[
+                        "data_label_profile"
+                    ]
 
+                profiler = cast(BaseCompiler, profiler)
                 data_labeler_profile = profiler._profiles["data_labeler"]
                 data_labeler_profile.data_labeler = data_labeler
 
@@ -1241,6 +1248,15 @@ class UnstructuredProfiler(BaseProfiler):
         self.sample = base_stats["sample"]
         self._empty_line_count += base_stats["empty_line_count"]
         self.memory_size += base_stats["memory_size"]
+
+    @property
+    def profile(self) -> BaseCompiler:
+        """
+        Return the stored profiles for the given profiler.
+
+        :return: BaseCompiler
+        """
+        return cast(BaseCompiler, super().profile)
 
     def report(self, report_options: dict = None) -> dict:
         """
@@ -1504,7 +1520,7 @@ class StructuredProfiler(BaseProfiler):
         self.row_has_null_count = 0
         self.row_is_null_count = 0
         self.hashed_row_dict: dict = dict()
-        self._profile: list[BaseCompiler] = []  # type: ignore[assignment]
+        self._profile: list[StructuredColProfiler] = []  # type: ignore[assignment]
         self._col_name_to_idx: dict[str | int, list[int]] = defaultdict(list)
         self.correlation_matrix: np.ndarray = None  # type: ignore[assignment]
         self.chi2_matrix: np.ndarray = None  # type: ignore[assignment]
@@ -1715,7 +1731,14 @@ class StructuredProfiler(BaseProfiler):
     @property
     def _min_sampled_from_batch(self) -> int:
         """Return number of rows that were completely sampled in most recent batch."""
-        return min([col._last_batch_size for col in self._profile], default=0)
+        return min(
+            [
+                col._last_batch_size
+                for col in self._profile
+                if col._last_batch_size is not None
+            ],
+            default=0,
+        )
 
     @staticmethod
     def _get_and_validate_schema_mapping(
@@ -1790,6 +1813,15 @@ class StructuredProfiler(BaseProfiler):
                 schema_mapping[schema1_col_ind] = schema2_col_ind
 
         return schema_mapping
+
+    @property
+    def profile(self) -> list[StructuredColProfiler]:
+        """
+        Return the stored profiles for the given profiler.
+
+        :return: list[StructuredColProfiler]
+        """
+        return cast(list[StructuredColProfiler], super().profile)
 
     def report(self, report_options: dict = None) -> dict:
         """Return a report."""
@@ -1968,9 +2000,10 @@ class StructuredProfiler(BaseProfiler):
             ]
         clean_column_ids = []
         for idx in column_ids:
-            data_type = (
-                self._profile[idx].profiles["data_type_profile"].selected_data_type
-            )
+            data_type = cast(
+                ColumnPrimitiveTypeProfileCompiler,
+                self._profile[idx].profiles["data_type_profile"],
+            ).selected_data_type
             if data_type not in ["int", "float"]:
                 clean_samples.pop(idx)
             else:
@@ -2108,7 +2141,9 @@ class StructuredProfiler(BaseProfiler):
         for id in range(len(self._profile)):
             compiler = self._profile[id]
             data_type_compiler = compiler.profiles["data_type_profile"]
-            data_type = data_type_compiler.selected_data_type
+            data_type = cast(
+                ColumnPrimitiveTypeProfileCompiler, data_type_compiler
+            ).selected_data_type
             if data_type in ["int", "float"]:
                 data_type_profiler = data_type_compiler._profiles[data_type]
                 # Finding dependent values of previous, existing data

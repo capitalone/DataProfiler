@@ -5,7 +5,7 @@ import abc
 import copy
 import inspect
 import warnings
-from typing import Any, Type, TypeVar, cast
+from typing import Any, Callable, Type, TypeVar, cast
 
 from dataprofiler._typing import DataArray
 
@@ -14,6 +14,8 @@ T = TypeVar("T", bound="BaseModel")
 
 class AutoSubRegistrationMeta(abc.ABCMeta):
     """For registering subclasses."""
+
+    _register_subclass: Callable[[type[AutoSubRegistrationMeta]], None]
 
     def __new__(
         cls, clsname: str, bases: tuple[type, ...], attrs: dict[str, object]
@@ -93,7 +95,9 @@ class BaseModel(metaclass=abc.ABCMeta):
     @property
     def label_mapping(self) -> dict[str, int]:
         """Return mapping of labels to their encoded values."""
-        return copy.deepcopy(self._label_mapping)
+        if self._label_mapping:
+            return copy.deepcopy(self._label_mapping)
+        return {}
 
     @property
     def reverse_label_mapping(self) -> dict[int, str]:
@@ -154,7 +158,7 @@ class BaseModel(metaclass=abc.ABCMeta):
 
         return cls._BaseModel__subclasses.get(class_name.lower(), None)
 
-    def get_parameters(self, param_list: list[str] = None) -> dict:
+    def get_parameters(self, param_list: list[str] | None = None) -> dict:
         """
         Return a dict of parameters from the model given a list.
 
@@ -189,7 +193,7 @@ class BaseModel(metaclass=abc.ABCMeta):
         for param in kwargs:
             self._parameters[param] = kwargs[param]
 
-    def add_label(self, label: str, same_as: str = None) -> None:
+    def add_label(self, label: str, same_as: str | None = None) -> None:
         """
         Add a label to the data labeler.
 
@@ -370,9 +374,9 @@ class BaseTrainableModel(BaseModel, metaclass=abc.ABCMeta):
         self,
         train_data: DataArray,
         val_data: DataArray,
-        batch_size: int = None,
-        epochs: int = None,
-        label_mapping: dict[str, int] = None,
+        batch_size: int | None = None,
+        epochs: int | None = None,
+        label_mapping: dict[str, int] | None = None,
         reset_weights: bool = False,
         verbose: bool = True,
     ) -> tuple[dict, float | None, dict]:

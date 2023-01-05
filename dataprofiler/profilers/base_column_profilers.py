@@ -10,14 +10,13 @@ from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
-from future.utils import with_metaclass
 
 from dataprofiler.profilers.profiler_options import BaseInspectorOptions
 
 from . import utils
 
 
-class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
+class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
     """Abstract class for profiling a column of data."""
 
     col_type = None
@@ -250,7 +249,8 @@ class BaseColumnProfiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
 
 
 class BaseColumnPrimitiveTypeProfiler(
-    with_metaclass(abc.ABCMeta, BaseColumnProfiler)  # type: ignore
+    BaseColumnProfiler,
+    metaclass=abc.ABCMeta,  # type: ignore
 ):
     """Abstract class for profiling primative data type for col of data."""
 
@@ -278,7 +278,7 @@ class BaseColumnPrimitiveTypeProfiler(
         self.match_count += profile.pop("match_count")
         BaseColumnProfiler._update_column_base_properties(self, profile)
 
-    def _add_helper(
+    def _add_helper(  # type: ignore[override]
         self,
         other1: BaseColumnPrimitiveTypeProfiler,
         other2: BaseColumnPrimitiveTypeProfiler,

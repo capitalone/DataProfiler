@@ -5,7 +5,6 @@ import abc
 from collections import OrderedDict
 from multiprocessing.pool import Pool
 
-from future.utils import with_metaclass
 from pandas import Series
 
 from . import utils
@@ -21,7 +20,7 @@ from .unstructured_labeler_profile import UnstructuredLabelerProfile
 from .unstructured_text_profile import TextProfiler
 
 
-class BaseCompiler(with_metaclass(abc.ABCMeta, object)):  # type: ignore
+class BaseCompiler(metaclass=abc.ABCMeta):  # type: ignore
     """Abstract class for generating a report."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.

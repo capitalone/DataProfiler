@@ -12,7 +12,7 @@ from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import TextOptions
 
 
-class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):
+class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: ignore
     """
     Text column profile subclass of BaseColumnProfiler.
 

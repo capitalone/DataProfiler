@@ -65,7 +65,12 @@ pip install -r feature_branch/requirements-ml.txt
 pip install -r feature_branch/requirements-reports.txt
 ```
 
-5. And finally, from the root of `DataProfiler`, run the following commands to generate the sphinx documentation:
+5. Then install the pre-commit hooks by running the following:
+```bash
+pre-commit install
+```
+
+6. And finally, from the root of `DataProfiler`, run the following commands to generate the sphinx documentation:
 ```bash
 cd docs/
 python update_documentation.py

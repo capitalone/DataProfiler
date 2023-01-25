@@ -20,7 +20,7 @@ These scenarios provide a practical example of how expectations can be used in r
 cd examples/great_expectations/ # cd to great expectations examples
 python3 -m venv venv # create venv
 source venv/bin/activate # activate venv
-pip install git+https://github.com/great-expectations/great_expectations.git@develop#egg=capitalone-dataprofiler-expectations\&subdirectory=contrib/capitalone_dataprofiler_expectations/ # install data profiler expectation package
+pip install git+https://github.com/micdavis/great_expectations.git@develop#egg=capitalone-dataprofiler-expectations\&subdirectory=contrib/capitalone_dataprofiler_expectations/ # install data profiler expectation package
 great_expectations init # init great expectations
 python -m ipykernel install --name=venv # create a new kernel to use in jupyter notebook
 ```

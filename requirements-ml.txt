@@ -1,7 +1,7 @@
 scikit-learn>=0.23.2
 keras>=2.4.3
 rapidfuzz>=2.6.1
-tensorflow-gpu>=2.6.4; sys.platform == 'linux'
+tensorflow-gpu <= 2.11; sys.platform == 'linux'
 tensorflow>=2.6.4; sys_platform == 'darwin' and platform_machine != 'arm64'
 tensorflow-macos>=2.6.4; sys_platform == 'darwin' and platform_machine == 'arm64'
 tqdm>=4.0.0

@@ -13,7 +13,7 @@ repos:
   # The setup.cfg holds the compatible config for use with black
   # https://github.com/psf/black/blob/master/docs/compatible_configs.md#isort
   - repo: https://github.com/timothycrosley/isort
-    rev: 5.10.1
+    rev: 5.12.0
     hooks:
       - id: isort
         language_version: python3

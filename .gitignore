@@ -49,7 +49,10 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# great expectations examples
 examples/great_expectations/great_expectations/
+examples/great_expectations/data/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

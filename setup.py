@@ -22,7 +22,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 
     for line in f:
         LONG_DESCRIPTION += line
-        if "<p>" in line or tag_found:
+        if '<p text-align="left">' in line or tag_found:
             tag_found = True
             tag_to_replace += line
         if "</p>" in line and tag_found:

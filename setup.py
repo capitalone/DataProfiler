@@ -16,7 +16,19 @@ here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
-    LONG_DESCRIPTION = f.read()
+    tag_to_replace = ""
+    tag_found = False
+    tag_replacement = '<img alt="DataProfiler Logo" src="https://github.com/capitalone/DataProfiler/raw/gh-pages/docs/source/_static/images/DataProfilerLogoLightThemeLong.png"> \n'
+    LONG_DESCRIPTION = ""
+
+    for line in f:
+        LONG_DESCRIPTION += line
+        if "<picture>" in line or tag_found:
+            tag_found = True
+            tag_to_replace += line
+        if "</picture>" in line and tag_found:
+            tag_found = False
+    LONG_DESCRIPTION = LONG_DESCRIPTION.replace(tag_to_replace, tag_replacement)
 
 # Get the install_requirements from requirements.txt
 with open(path.join(here, "requirements.txt"), encoding="utf-8") as f:

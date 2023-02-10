@@ -18,7 +18,8 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, "README.md"), encoding="utf-8") as f:
     tag_to_replace = ""
     tag_found = False
-    tag_replacement = '<img alt="DataProfiler Logo" src="https://github.com/capitalone/DataProfiler/raw/gh-pages/docs/source/_static/images/DataProfilerLogoLightThemeLong.png"> \n'
+    tag_replacement = """<img alt="DataProfiler Logo" src="https://github.com/capitalone/DataProfiler
+    /raw/gh-pages/docs/source/_static/images/DataProfilerLogoLightThemeLong.png"> \n"""
     LONG_DESCRIPTION = ""
 
     for line in f:

@@ -1845,7 +1845,6 @@ class TestStructuredProfiler(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(expected_corr_mat, diff_corr_mat)
         np.testing.assert_array_almost_equal(expected_chi2_mat, diff_chi2_mat)
-        self.maxDiff = None
         self.assertDictEqual(expected_diff, diff)
 
         diff = profile1.diff(profile2, options={"output_format": "serializable"})

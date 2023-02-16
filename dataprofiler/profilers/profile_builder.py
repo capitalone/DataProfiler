@@ -306,6 +306,7 @@ class StructuredColProfiler:
             "categorical",
             "order",
             "statistics",
+            "chi2-test",
         ]
         profile = OrderedDict()
         if (

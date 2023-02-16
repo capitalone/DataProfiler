@@ -2592,6 +2592,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                 "null_types_index": [{"nan": {1, 5}}, {}, {}],
                 "data_type_representation": {"all_data_types": "unchanged"},
             },
+            "chi2-test": None,
         }
 
         self.assertDictEqual(expected_diff, dict(profile1.diff(profile2)))

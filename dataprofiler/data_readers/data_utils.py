@@ -711,6 +711,7 @@ def url_to_bytes(url_as_string: Url, options: Dict) -> BytesIO:
 
     try:
         with requests.get(url_as_string, stream=True, verify=verify_ssl) as url:
+            url = cast(requests.Response, url)
             url.raise_for_status()
             if (
                 "Content-length" in url.headers

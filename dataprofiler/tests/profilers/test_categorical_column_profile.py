@@ -617,11 +617,11 @@ class TestCategoricalColumn(unittest.TestCase):
                 "gini_impurity": -0.16326530612244894,
                 "unalikeability": -0.19047619047619047,
                 "categorical_count": {"y": 1, "n": 1, "maybe": [None, 2]},
-            },
-            "chi2-test": {
-                "chi2-statistic": 82 / 35,
-                "df": 2,
-                "p-value": 0.3099238764710244,
+                "chi2-test": {
+                    "chi2-statistic": 82 / 35,
+                    "df": 2,
+                    "p-value": 0.3099238764710244,
+                },
             },
         }
 

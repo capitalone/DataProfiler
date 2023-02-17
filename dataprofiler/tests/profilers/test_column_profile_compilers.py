@@ -325,11 +325,11 @@ class TestBaseProfileCompilerClass(unittest.TestCase):
                 "gini_impurity": 0.06944444444444448,
                 "unalikeability": 0.16666666666666663,
                 "categorical_count": {"9": -1, "1": [1, None], "10": [None, 1]},
-            },
-            "chi2-test": {
-                "chi2-statistic": 2.1,
-                "df": 2,
-                "p-value": 0.3499377491111554,
+                "chi2-test": {
+                    "chi2-statistic": 2.1,
+                    "df": 2,
+                    "p-value": 0.3499377491111554,
+                },
             },
         }
         self.assertDictEqual(expected_diff, compiler1.diff(compiler2))

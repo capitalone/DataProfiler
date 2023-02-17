@@ -1813,7 +1813,6 @@ class TestStructuredProfiler(unittest.TestCase):
                         "null_types_index": [{}, {}, {"nan": {2}}],
                         "data_type_representation": {"all_data_types": "unchanged"},
                     },
-                    "chi2-test": None,
                 },
                 {
                     "column_name": "b",
@@ -1832,7 +1831,6 @@ class TestStructuredProfiler(unittest.TestCase):
                         "null_types_index": [{}, {}, {"nan": {2}}],
                         "data_type_representation": {"all_data_types": "unchanged"},
                     },
-                    "chi2-test": None,
                 },
             ],
         }
@@ -1902,6 +1900,29 @@ class TestStructuredProfiler(unittest.TestCase):
         }
 
         self.assertDictEqual(expected_diff, profile1.diff(profile2))
+
+    @mock.patch("dataprofiler.profilers.profile_builder.DataLabeler")
+    @mock.patch(
+        "dataprofiler.profilers.data_labeler_column_profile.DataLabelerColumn.update"
+    )
+    def test_diff_categorical_chi2_test(self, *mocks):
+        """Ensuring that chi2-test is bubbled up to the top
+        when running the top level profiler."""
+        df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
+        df_categorical2 = pd.Series(["y", "maybe", "y", "y", "n", "n", "maybe"])
+
+        profile1 = dp.StructuredProfiler(df_categorical)
+        profile2 = dp.StructuredProfiler(df_categorical2)
+
+        diff = profile1.diff(profile2)
+        expected_chi2_test_dict = {
+            "chi2-statistic": 2.342857142857143,
+            "df": 2,
+            "p-value": 0.3099238764710244,
+        }
+        self.assertDictEqual(
+            expected_chi2_test_dict, diff["data_stats"][0]["statistics"]["chi2-test"]
+        )
 
     @mock.patch(
         "dataprofiler.profilers.data_labeler_column_profile." "DataLabelerColumn.update"
@@ -2591,7 +2612,6 @@ class TestStructuredColProfilerClass(unittest.TestCase):
                 "null_types_index": [{"nan": {1, 5}}, {}, {}],
                 "data_type_representation": {"all_data_types": "unchanged"},
             },
-            "chi2-test": None,
         }
 
         self.assertDictEqual(expected_diff, dict(profile1.diff(profile2)))

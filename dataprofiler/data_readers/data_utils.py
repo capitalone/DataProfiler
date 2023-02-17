@@ -711,10 +711,10 @@ def url_to_bytes(url_as_string: Url, options: Dict) -> BytesIO:
 
     try:
         with requests.get(url_as_string, stream=True, verify=verify_ssl) as url:
-            url.raise_for_status()
+            url.raise_for_status()  # type: ignore
             if (
-                "Content-length" in url.headers
-                and int(url.headers["Content-length"]) >= 1024**3
+                "Content-length" in url.headers  # type: ignore
+                and int(url.headers["Content-length"]) >= 1024**3  # type: ignore
             ):
 
                 raise ValueError(
@@ -724,7 +724,7 @@ def url_to_bytes(url_as_string: Url, options: Dict) -> BytesIO:
             total_bytes = 0
             c_size = 8192
 
-            for chunk in url.iter_content(chunk_size=c_size):
+            for chunk in url.iter_content(chunk_size=c_size):  # type: ignore
                 stream.write(chunk)
                 total_bytes += c_size
 

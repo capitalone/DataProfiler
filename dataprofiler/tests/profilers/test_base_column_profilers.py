@@ -2,8 +2,11 @@ import os
 import unittest
 from unittest.mock import MagicMock, patch
 
+from collections import defaultdict
+
 import numpy as np
 import pandas as pd
+import json
 
 from dataprofiler.profilers import utils
 from dataprofiler.profilers.base_column_profilers import (
@@ -140,6 +143,28 @@ class TestBaseColumnProfileClass(unittest.TestCase):
             # Can set name of key
             test_time3(profile1)
             self.assertTrue("SetName" in profile1.times)
+
+    def test_to_dict(self):
+        with patch.multiple(BaseColumnProfiler, __abstractmethods__=set()):
+            profile = BaseColumnProfiler(name="0")
+
+        serialiable = profile.to_dict()
+        exepcted = {
+            "name": "0",
+            "col_index": np.nan,
+            "sample_size": 0,
+            "metadata": dict(),
+            "times": defaultdict(),
+            "thread_safe": True
+        }
+
+        self.assertEqual(serialiable, exepcted)
+
+        try:
+            json.dumps(serialiable)
+        except Exception as e:
+            self.fail(str(e))
+
 
 
 class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):

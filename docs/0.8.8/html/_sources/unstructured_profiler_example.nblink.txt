@@ -1,3 +1,0 @@
-{
-    "path": "../../feature_branch/examples/unstructured_profilers.ipynb"
-}

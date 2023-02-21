@@ -149,7 +149,7 @@ between them. Create the difference report like this:
 The `.diff()` operation is available between two profiles, although there are different
 outputs depending on the type of profile being differenced. For example, for numerical
 column profiles (e.g. integers and floats), two valuable calculations that 
-`.diff()` returns are `t-test` and `psi` (Popoulation Stability Index) 
+`.diff()` returns are `t-test`, `chi2-test`, and `psi` (Popoulation Stability Index)
 for understanding distributional changes.
 
 The difference report contains a dictionary that mirrors the profile report. 

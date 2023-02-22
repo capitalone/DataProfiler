@@ -249,8 +249,7 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
 
     def to_dict(self) -> dict:
         """
-        Creates serializable dict of this object. Output can
-            be serialized with JSON.dumps()
+        Create serializable dict of this object.
 
         :return: dict
         """
@@ -260,7 +259,7 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
             "sample_size": self.sample_size,
             "metadata": self.metadata,
             "times": self.times,
-            "thread_safe": self.thread_safe
+            "thread_safe": self.thread_safe,
         }
 
 

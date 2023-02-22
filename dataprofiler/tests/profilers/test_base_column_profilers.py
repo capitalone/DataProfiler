@@ -1,12 +1,11 @@
+import json
 import os
 import unittest
-from unittest.mock import MagicMock, patch
-
 from collections import defaultdict
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
-import json
 
 from dataprofiler.profilers import utils
 from dataprofiler.profilers.base_column_profilers import (
@@ -155,7 +154,7 @@ class TestBaseColumnProfileClass(unittest.TestCase):
             "sample_size": 0,
             "metadata": dict(),
             "times": defaultdict(),
-            "thread_safe": True
+            "thread_safe": True,
         }
 
         self.assertEqual(serialiable, exepcted)
@@ -164,7 +163,6 @@ class TestBaseColumnProfileClass(unittest.TestCase):
             json.dumps(serialiable)
         except Exception as e:
             self.fail(str(e))
-
 
 
 class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):

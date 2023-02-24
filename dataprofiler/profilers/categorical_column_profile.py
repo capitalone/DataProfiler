@@ -324,3 +324,18 @@ class CategoricalColumn(BaseColumnProfiler):
             ) * self._categories[category]
         unalike: float = unalike_sum / (self.sample_size**2 - self.sample_size)
         return unalike
+
+    def to_dict(self) -> dict:
+        """
+        Create serializable dict of this object.
+
+        :return: dict
+        """
+        categorical_dict = {
+            "type": self.type,
+            "_categories": self._categories,
+            "__calculations": self.__calculations,
+            "_top_k_categories": self._top_k_categories,
+        }
+        categorical_dict.update(super().to_dict())
+        return categorical_dict

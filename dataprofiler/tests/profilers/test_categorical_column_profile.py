@@ -1,3 +1,4 @@
+import json
 import os
 import unittest
 from collections import defaultdict
@@ -701,6 +702,71 @@ class TestCategoricalColumn(unittest.TestCase):
         profile = CategoricalColumn(df_series.name, options)
         profile.update(df_series)
         self.assertEqual(len(profile.profile["statistics"]["categorical_count"]), 4)
+
+    def test_to_dict(self):
+        profile = CategoricalColumn("0")
+
+        serialiable = profile.to_dict()
+        exepcted = {
+            "name": "0",
+            "col_index": np.nan,
+            "sample_size": 0,
+            "metadata": dict(),
+            "times": defaultdict(),
+            "thread_safe": True,
+            "type": "category",
+            "_categories": defaultdict(int),
+            "__calculations": dict(),
+            "_top_k_categories": None,
+        }
+
+        self.assertEqual(serialiable, exepcted)
+
+        try:
+            json.dumps(serialiable)
+        except Exception as e:
+            self.fail(str(e))
+
+    def test_to_dict_after_update(self):
+        df_categorical = pd.Series(
+            [
+                "a",
+                "a",
+                "a",
+                "b",
+                "b",
+                "b",
+                "b",
+                "c",
+                "c",
+                "c",
+                "c",
+                "c",
+            ]
+        )
+        profile = CategoricalColumn(df_categorical.name)
+        profile.update(df_categorical)
+
+        serialiable = profile.to_dict()
+        exepcted = {
+            "name": profile.name,
+            "col_index": profile.col_index,
+            "sample_size": profile.sample_size,
+            "metadata": profile.metadata,
+            "times": profile.times,
+            "thread_safe": profile.thread_safe,
+            "type": profile.type,
+            "_categories": profile._categories,
+            "__calculations": {},
+            "_top_k_categories": profile._top_k_categories,
+        }
+
+        self.assertEqual(serialiable, exepcted)
+
+        try:
+            json.dumps(serialiable)
+        except Exception as e:
+            self.fail(str(e))
 
 
 class TestCategoricalSentence(unittest.TestCase):

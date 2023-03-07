@@ -1,8 +1,5 @@
-pass
 import os
 import unittest
-
-pass
 from unittest.mock import MagicMock, patch
 
 import numpy as np

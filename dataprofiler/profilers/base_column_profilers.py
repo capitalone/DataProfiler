@@ -247,21 +247,6 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         """
         raise NotImplementedError()
 
-    def to_dict(self) -> dict:
-        """
-        Create serializable dict of this object.
-
-        :return: dict
-        """
-        return {
-            "name": self.name,
-            "col_index": self.col_index,
-            "sample_size": self.sample_size,
-            "metadata": self.metadata,
-            "times": self.times,
-            "thread_safe": self.thread_safe,
-        }
-
 
 class BaseColumnPrimitiveTypeProfiler(
     BaseColumnProfiler,

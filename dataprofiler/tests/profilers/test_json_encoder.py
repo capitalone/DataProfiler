@@ -17,7 +17,7 @@ class TestJsonEncoder(unittest.TestCase):
             profile = BaseColumnProfiler(name="0")
 
         serialized = json.dumps(profile, cls=ProfileEncoder)
-        exepcted = json.loads(
+        expected = json.loads(
             json.dumps(
                 {
                     "name": "0",
@@ -30,7 +30,7 @@ class TestJsonEncoder(unittest.TestCase):
             )
         )
 
-        self.assertEqual(json.loads(serialized), exepcted)
+        self.assertEqual(json.loads(serialized), expected)
 
     def test_encode_categorical_column_profiler(self):
         profile = CategoricalColumn("0")
@@ -73,7 +73,7 @@ class TestJsonEncoder(unittest.TestCase):
         profile.update(df_categorical)
 
         serialized = json.dumps(profile, cls=ProfileEncoder)
-        exepcted = json.dumps(
+        expected = json.dumps(
             {
                 "name": profile.name,
                 "col_index": profile.col_index,
@@ -87,4 +87,4 @@ class TestJsonEncoder(unittest.TestCase):
             }
         )
 
-        self.assertEqual(json.loads(serialized), json.loads(exepcted))
+        self.assertEqual(json.loads(serialized), json.loads(expected))

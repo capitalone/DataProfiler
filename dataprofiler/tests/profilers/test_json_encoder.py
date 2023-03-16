@@ -17,20 +17,18 @@ class TestJsonEncoder(unittest.TestCase):
             profile = BaseColumnProfiler(name="0")
 
         serialized = json.dumps(profile, cls=ProfileEncoder)
-        expected = json.loads(
-            json.dumps(
-                {
-                    "name": "0",
-                    "col_index": np.nan,
-                    "sample_size": 0,
-                    "metadata": dict(),
-                    "times": defaultdict(),
-                    "thread_safe": True,
-                }
-            )
+        expected = json.dumps(
+            {
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 0,
+                "metadata": dict(),
+                "times": defaultdict(),
+                "thread_safe": True,
+            }
         )
 
-        self.assertEqual(json.loads(serialized), expected)
+        self.assertEqual(serialized, expected)
 
     def test_encode_categorical_column_profiler(self):
         profile = CategoricalColumn("0")
@@ -50,7 +48,7 @@ class TestJsonEncoder(unittest.TestCase):
             }
         )
 
-        self.assertEqual(json.loads(serialized), json.loads(expected))
+        self.assertEqual(serialized, expected)
 
     def test_encode_categorical_column_profiler_after_update(self):
         df_categorical = pd.Series(
@@ -70,21 +68,25 @@ class TestJsonEncoder(unittest.TestCase):
             ]
         )
         profile = CategoricalColumn(df_categorical.name)
-        profile.update(df_categorical)
 
-        serialized = json.dumps(profile, cls=ProfileEncoder)
+        with patch("time.time", side_effect=lambda: 0.0):
+            profile.update(df_categorical)
+
+        serialized = json.dumps(profile, cls=ProfileEncoder, sort_keys=True)
+
         expected = json.dumps(
             {
-                "name": profile.name,
-                "col_index": profile.col_index,
-                "sample_size": profile.sample_size,
-                "metadata": profile.metadata,
-                "times": profile.times,
-                "thread_safe": profile.thread_safe,
-                "_categories": profile._categories,
                 "_CategoricalColumn__calculations": {},
-                "_top_k_categories": profile._top_k_categories,
-            }
+                "_categories": {"a": 3, "b": 4, "c": 5},
+                "_top_k_categories": None,
+                "col_index": np.nan,
+                "metadata": {},
+                "name": None,
+                "sample_size": 12,
+                "thread_safe": True,
+                "times": {"categories": 0.0},
+            },
+            sort_keys=True,
         )
 
-        self.assertEqual(json.loads(serialized), json.loads(expected))
+        self.assertEqual(serialized, expected)

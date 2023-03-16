@@ -72,21 +72,20 @@ class TestJsonEncoder(unittest.TestCase):
         with patch("time.time", side_effect=lambda: 0.0):
             profile.update(df_categorical)
 
-        serialized = json.dumps(profile, cls=ProfileEncoder, sort_keys=True)
+        serialized = json.dumps(profile, cls=ProfileEncoder)
 
         expected = json.dumps(
             {
-                "_CategoricalColumn__calculations": {},
-                "_categories": {"a": 3, "b": 4, "c": 5},
-                "_top_k_categories": None,
-                "col_index": np.nan,
-                "metadata": {},
                 "name": None,
+                "col_index": np.nan,
                 "sample_size": 12,
-                "thread_safe": True,
+                "metadata": {},
                 "times": {"categories": 0.0},
+                "thread_safe": True,
+                "_categories": {"c": 5, "b": 4, "a": 3},
+                "_CategoricalColumn__calculations": {},
+                "_top_k_categories": None,
             },
-            sort_keys=True,
         )
 
         self.assertEqual(serialized, expected)

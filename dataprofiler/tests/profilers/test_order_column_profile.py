@@ -1,10 +1,14 @@
+import json
 import unittest
 from collections import defaultdict
 from unittest import mock
+from unittest.mock import patch
 
+import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import OrderColumn
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 
 from .. import test_utils
 
@@ -355,3 +359,51 @@ class TestOrderColumn(unittest.TestCase):
 
         diff = profiler.diff(profiler3)
         self.assertEqual(["ascending", "random"], diff["order"])
+
+    def test_json_encode(self):
+        profile = OrderColumn("0")
+
+        serialized = json.dumps(profile, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "order": None,
+                "_last_value": None,
+                "_first_value": None,
+                "_piecewise": False,
+                "_OrderColumn__calculations": dict(),
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 0,
+                "metadata": dict(),
+                "times": defaultdict(),
+                "thread_safe": True,
+            }
+        )
+
+        self.assertEqual(serialized, expected)
+
+    def test_json_encode_after_update(self):
+        profile = OrderColumn("0")
+
+        df_order = pd.Series(["za", "z", "c", "a"])
+        with patch("time.time", side_effect=lambda: 0.0):
+            profile.update(df_order)
+
+        serialized = json.dumps(profile, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "order": "descending",
+                "_last_value": "a",
+                "_first_value": "za",
+                "_piecewise": False,
+                "_OrderColumn__calculations": dict(),
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 4,
+                "metadata": dict(),
+                "times": {"order": 0.0},
+                "thread_safe": True,
+            }
+        )
+
+        self.assertEqual(serialized, expected)

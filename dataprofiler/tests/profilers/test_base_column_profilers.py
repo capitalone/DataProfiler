@@ -1,5 +1,7 @@
+import json
 import os
 import unittest
+from collections import defaultdict
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -10,6 +12,7 @@ from dataprofiler.profilers.base_column_profilers import (
     BaseColumnPrimitiveTypeProfiler,
     BaseColumnProfiler,
 )
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.tests.profilers import utils as test_utils
 
 
@@ -140,6 +143,24 @@ class TestBaseColumnProfileClass(unittest.TestCase):
             # Can set name of key
             test_time3(profile1)
             self.assertTrue("SetName" in profile1.times)
+
+    def test_json_encode(self):
+        with patch.multiple(BaseColumnProfiler, __abstractmethods__=set()):
+            profile = BaseColumnProfiler(name="0")
+
+        serialized = json.dumps(profile, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 0,
+                "metadata": dict(),
+                "times": defaultdict(),
+                "thread_safe": True,
+            }
+        )
+
+        self.assertEqual(serialized, expected)
 
 
 class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):

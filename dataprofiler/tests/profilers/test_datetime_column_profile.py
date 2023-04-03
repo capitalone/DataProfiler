@@ -1,13 +1,16 @@
 import datetime
+import json
 import unittest
 import warnings
 from collections import defaultdict
 from unittest import mock
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import DateTimeColumn
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import DateTimeOptions
 
 from .. import test_utils
@@ -429,3 +432,65 @@ class TestDateTimeColumnProfiler(unittest.TestCase):
             str(exc.exception),
             "Unsupported operand type(s) for diff: " "'DateTimeColumn' and 'str'",
         )
+
+    def test_json_encode(self):
+        profile = DateTimeColumn("0")
+
+        serialized = json.dumps(profile, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 0,
+                "metadata": dict(),
+                "times": defaultdict(),
+                "thread_safe": True,
+                "match_count": 0,
+                "date_formats": [],
+                "min": None,
+                "max": None,
+                "_dt_obj_min": None,
+                "_dt_obj_max": None,
+                "_DateTimeColumn__calculations": dict(),
+            }
+        )
+
+        self.assertEqual(serialized, expected)
+
+    def test_json_encode_after_update(self):
+        data = [2.5, 12.5, "2013-03-10 15:43:30", 5, "03/10/13 15:43", "Mar 11, 2013"]
+        df = pd.Series(data).apply(str)
+        profiler = DateTimeColumn("0")
+
+        expected_date_formats = [
+            "%Y-%m-%d %H:%M:%S",
+            "%b %d, %Y",
+            "%m/%d/%y %H:%M",
+        ]
+        with patch.object(
+            profiler, "_combine_unique_sets", return_value=expected_date_formats
+        ):
+            with patch("time.time", return_value=0.0):
+                profiler.update(df)
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 6,
+                "metadata": dict(),
+                "times": defaultdict(float, {"datetime": 0.0}),
+                "thread_safe": True,
+                "match_count": 3,
+                "date_formats": expected_date_formats,
+                "min": "03/10/13 15:43",
+                "max": "Mar 11, 2013",
+                "_dt_obj_min": "2013-03-10T15:43:00",
+                "_dt_obj_max": "2013-03-11T00:00:00",
+                "_DateTimeColumn__calculations": dict(),
+            }
+        )
+
+        self.assertEqual(serialized, expected)

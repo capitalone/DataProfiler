@@ -1109,6 +1109,8 @@ class TestNumericStatsMixin(unittest.TestCase):
         create=True,
     )
     def test_json_encode(self):
+        self.maxDiff = None
+
         mixin = NumericStatsMixin()
 
         # Copy of NumericalStatsMixin code to test serialization of dicts

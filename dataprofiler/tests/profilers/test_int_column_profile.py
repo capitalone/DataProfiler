@@ -1174,3 +1174,139 @@ class TestIntColumn(unittest.TestCase):
         )
 
         self.assertEqual(serialized, expected)
+
+    def test_json_encode_after_update(self):
+        data = np.array([0, 1, 2])
+        df = pd.Series(data).apply(str)
+
+        profiler = IntColumn("0")
+        profiler.update(df)
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        # Copy of NumericalStatsMixin code to test serialization of dicts
+        expected_histogram_bin_method_names = [
+            "auto",
+            "fd",
+            "doane",
+            "scott",
+            "rice",
+            "sturges",
+            "sqrt",
+        ]
+        expected_min_histogram_bin = 1000
+        expected_historam_methods = {}
+        for method in expected_histogram_bin_method_names:
+            expected_historam_methods[method] = {
+                "total_loss": 0,
+                "current_loss": 0,
+                "suggested_bin_count": expected_min_histogram_bin,
+                "histogram": {"bin_counts": None, "bin_edges": None},
+            }
+
+        expected = json.dumps(
+            {
+                "min": 0.0,
+                "max": 2.0,
+                "_top_k_modes": 5,
+                "sum": 3.0,
+                "_biased_variance": 0.6666666666666666,
+                "_biased_skewness": 0.0,
+                "_biased_kurtosis": -1.5,
+                "_median_is_enabled": True,
+                "_median_abs_dev_is_enabled": True,
+                "max_histogram_bin": 100000,
+                "min_histogram_bin": 1000,
+                "histogram_bin_method_names": [
+                    "auto",
+                    "fd",
+                    "doane",
+                    "scott",
+                    "rice",
+                    "sturges",
+                    "sqrt",
+                ],
+                "histogram_selection": None,
+                "user_set_histogram_bin": None,
+                "bias_correction": True,
+                "_mode_is_enabled": True,
+                "num_zeros": 1,
+                "num_negatives": 0,
+                "histogram_methods": {
+                    "auto": {
+                        "total_loss": 0,
+                        "current_loss": 0,
+                        "suggested_bin_count": 3,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    },
+                    "fd": {
+                        "total_loss": 0,
+                        "current_loss": 0,
+                        "suggested_bin_count": 2,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    },
+                    "doane": {
+                        "total_loss": 0,
+                        "current_loss": 0,
+                        "suggested_bin_count": 3,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    },
+                    "scott": {
+                        "total_loss": 0,
+                        "current_loss": 0,
+                        "suggested_bin_count": 2,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    },
+                    "rice": {
+                        "total_loss": 0,
+                        "current_loss": 0,
+                        "suggested_bin_count": 3,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    },
+                    "sturges": {
+                        "total_loss": 0,
+                        "current_loss": 0,
+                        "suggested_bin_count": 3,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    },
+                    "sqrt": {
+                        "total_loss": 0,
+                        "current_loss": 0,
+                        "suggested_bin_count": 2,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    },
+                },
+                "_stored_histogram": {
+                    "total_loss": 2.9999999999995596e-06,
+                    "current_loss": 2.9999999999995596e-06,
+                    "suggested_bin_count": 1000,
+                    "histogram": {
+                        "bin_counts": [1] + [0] * 499 + [1] + [0] * 498 + [1]
+                    },
+                },
+                "_batch_history": [],
+                "quantiles": {bin_num: None for bin_num in range(999)},
+                "_NumericStatsMixin__calculations": {
+                    "min": "_get_min",
+                    "max": "_get_max",
+                    "sum": "_get_sum",
+                    "variance": "_get_variance",
+                    "skewness": "_get_skewness",
+                    "kurtosis": "_get_kurtosis",
+                    "histogram_and_quantiles": "_get_histogram_and_quantiles",
+                    "num_zeros": "_get_num_zeros",
+                    "num_negatives": "_get_num_negatives",
+                },
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 11,
+                "metadata": dict(),
+                "times": defaultdict(),
+                "thread_safe": True,
+                "match_count": 0,
+                "_IntColumn__calculations": {},
+            }
+        )
+
+        with open("serialized.txt", "w") as s:
+            json.dump(json.loads(serialized), s, indent=2)

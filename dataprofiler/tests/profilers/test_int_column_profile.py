@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import IntColumn
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import IntOptions
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -1094,3 +1095,82 @@ class TestIntColumn(unittest.TestCase):
             str(exc.exception),
             "Unsupported operand type(s) for diff: 'IntColumn' and" " 'str'",
         )
+
+    def test_json_encode(self):
+        profiler = IntColumn("0")
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        # Copy of NumericalStatsMixin code to test serialization of dicts
+        expected_histogram_bin_method_names = [
+            "auto",
+            "fd",
+            "doane",
+            "scott",
+            "rice",
+            "sturges",
+            "sqrt",
+        ]
+        expected_min_histogram_bin = 1000
+        expected_historam_methods = {}
+        for method in expected_histogram_bin_method_names:
+            expected_historam_methods[method] = {
+                "total_loss": 0,
+                "current_loss": 0,
+                "suggested_bin_count": expected_min_histogram_bin,
+                "histogram": {"bin_counts": None, "bin_edges": None},
+            }
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "min": None,
+                "max": None,
+                "_top_k_modes": 5,
+                "sum": 0,
+                "_biased_variance": np.nan,
+                "_biased_skewness": np.nan,
+                "_biased_kurtosis": np.nan,
+                "_median_is_enabled": True,
+                "_median_abs_dev_is_enabled": True,
+                "max_histogram_bin": 100000,
+                "min_histogram_bin": expected_min_histogram_bin,
+                "histogram_bin_method_names": expected_histogram_bin_method_names,
+                "histogram_selection": None,
+                "user_set_histogram_bin": None,
+                "bias_correction": True,
+                "_mode_is_enabled": True,
+                "num_zeros": 0,
+                "num_negatives": 0,
+                "histogram_methods": expected_historam_methods,
+                "_stored_histogram": {
+                    "total_loss": 0,
+                    "current_loss": 0,
+                    "suggested_bin_count": 1000,
+                    "histogram": {"bin_counts": None, "bin_edges": None},
+                },
+                "_batch_history": [],
+                "quantiles": {bin_num: None for bin_num in range(999)},
+                "_NumericStatsMixin__calculations": {
+                    "min": "_get_min",
+                    "max": "_get_max",
+                    "sum": "_get_sum",
+                    "variance": "_get_variance",
+                    "skewness": "_get_skewness",
+                    "kurtosis": "_get_kurtosis",
+                    "histogram_and_quantiles": "_get_histogram_and_quantiles",
+                    "num_zeros": "_get_num_zeros",
+                    "num_negatives": "_get_num_negatives",
+                },
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 0,
+                "metadata": dict(),
+                "times": defaultdict(),
+                "thread_safe": True,
+                "match_count": 0,
+                "_IntColumn__calculations": {},
+            }
+        )
+
+        self.assertEqual(serialized, expected)

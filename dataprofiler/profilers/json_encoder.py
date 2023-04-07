@@ -29,6 +29,8 @@ class ProfileEncoder(json.JSONEncoder):
             return to_serialize.__dict__
         elif isinstance(to_serialize, np.integer):
             return int(to_serialize)
+        elif isinstance(to_serialize, np.ndarray):
+            return to_serialize.tolist()
         elif isinstance(to_serialize, pd.Timestamp):
             return to_serialize.isoformat()
         elif callable(to_serialize):

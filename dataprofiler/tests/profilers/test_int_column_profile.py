@@ -1180,9 +1180,9 @@ class TestIntColumn(unittest.TestCase):
         data = np.array([0, 5, 10])
         df = pd.Series(data).apply(str)
 
-        options = IntOptions()
-        options.histogram_and_quantiles.bin_count_or_method = 5
-        profiler = IntColumn("0", options)
+        int_options = IntOptions()
+        int_options.histogram_and_quantiles.bin_count_or_method = 5
+        profiler = IntColumn("0", int_options)
 
         mocked_quantiles = [0.25, 0.50, 0.75]
         with mock.patch.object(

@@ -2,7 +2,7 @@
 
 MAJOR = 0
 MINOR = 8
-MICRO = 8
+MICRO = 9
 POST = None  # otherwise None
 
 VERSION = "%d.%d.%d" % (MAJOR, MINOR, MICRO)

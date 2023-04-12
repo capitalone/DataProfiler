@@ -1184,17 +1184,15 @@ class TestIntColumn(unittest.TestCase):
         options.histogram_and_quantiles.bin_count_or_method = 5
         profiler = IntColumn("0", options)
 
+        mocked_quantiles = [0.25, 0.50, 0.75]
         with mock.patch.object(
-            profiler, "_get_percentile", side_effect=lambda percentiles: percentiles
+            profiler, "_get_percentile", return_value=mocked_quantiles
         ):
             # Mock out complex _get_percentile function.
             # Only need to test valid serialization of np.ndarry.
             profiler.update(df)
 
         serialized = json.dumps(profiler, cls=ProfileEncoder)
-
-        # Copy of NumericalStatsMixin code to test serialization of dicts
-        expected_quantiles = np.linspace(0, 100, 999 + 2)[1:-1].tolist()
 
         expected = json.dumps(
             {
@@ -1254,7 +1252,7 @@ class TestIntColumn(unittest.TestCase):
                         "num_negatives": 0,
                     }
                 ],
-                "quantiles": expected_quantiles,
+                "quantiles": mocked_quantiles,
                 "_NumericStatsMixin__calculations": {
                     "min": "_get_min",
                     "max": "_get_max",

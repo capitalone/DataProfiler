@@ -46,23 +46,8 @@ def random_floats(rng, min_value=-1e6, max_value=1e6, sig_figs=3, num_rows=1):
     return round(rng.random(min_value, max_value, (num_rows,)), sig_figs)
 
 
-def random_text(rng, categories=None, num_rows=1):
-
-    if categories is None:
-        chars = string.ascii_uppercase + string.ascii_lowercase + \
-                string.digits + " " + string.punctuation
-
-    text_list = []
-
-    for _ in range(num_rows):
-        length = rng.integers(256, 1000)
-        text_entry = "".join(rng.choice(chars, (length,)))
-        text_list.append(text_entry)
-
-    return np.array(text_list)
-
-
-def random_string(rng, categories=None, num_rows=1):
+def random_string(rng, categories=None, num_rows=1,
+                  str_len_min=1, str_len_max=256):
 
     if categories is None:
         chars = list(string.ascii_uppercase + string.ascii_lowercase + \
@@ -70,7 +55,7 @@ def random_string(rng, categories=None, num_rows=1):
     string_list = []
 
     for _ in range(num_rows):
-        length = rng.integers(1, 256)
+        length = rng.integers(str_len_min, str_len_max)
         string_entry = "".join(rng.choice(chars, (length,)))
         string_list.append(string_entry)
 
@@ -157,7 +142,8 @@ def generate_dataset_by_class(rng, classes_to_generate=None,
     if "categorical" in classes_to_generate:
         dataset.append(random_categorical(rng, num_rows=dataset_length))
     if "text" in classes_to_generate:
-        dataset.append(random_string(rng, num_rows=dataset_length))
+        dataset.append(random_string(rng, num_rows=dataset_length,
+                                     str_len_min=256, str_len_max=1000))
     if "ordered" in classes_to_generate:
         dataset.append(get_ordered_column(num_rows=dataset_length))
 

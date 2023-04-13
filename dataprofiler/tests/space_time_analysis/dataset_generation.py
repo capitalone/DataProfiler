@@ -3,7 +3,24 @@ import string
 import numpy as np
 import pandas as pd
 
-import dataprofiler as dp
+try:
+    import sys
+
+    sys.path.insert(0, "../../..")
+    import dataprofiler as dp
+except ImportError:
+    import dataprofiler as dp
+
+
+def convert_data_to_df(np_data, path=None):
+    # convert array into dataframe
+    dataframe = pd.DataFrame(np_data)
+
+    # save the dataframe as a csv file
+    if path:
+        dataframe.to_csv(path)
+        print(f"Created {path}!")
+    return dataframe
 
 
 def random_integers(rng, min_value=-1e6, max_value=1e6, num_rows=1):
@@ -117,57 +134,36 @@ def get_ordered_column(start=0, num_rows=1, **kwarg):
     return np.array(list(range(start, num_rows)))
 
 
-def convert_data_to_csv(np_data, path="test.csv"):
-    # convert array into dataframe
-    dataframe = pd.DataFrame(np_data)
+def generate_dataset_by_class(rng, classes_to_generate=None,
+                              dataset_length=100000, path=None):
+    possible_classes = ["text", "string", "categorical", "integer", "float",
+                        "ordered", "datetime"]
+    if classes_to_generate is None:
+        classes_to_generate = possible_classes
 
-    # save the dataframe as a csv file
-    dataframe.to_csv(path)
-    print(f"Created {path}!")
-
-
-if __name__ == "__main__":
-    rng = np.random.default_rng(seed=42)
-    for dataset_length in [100, 1000, 100000]:
-        # Type 1
-        data_list = []
-        int_data = random_integers(rng, num_rows=dataset_length)
-        data_list.append(int_data)
-        convert_data_to_csv(int_data, f"output_data/int_{dataset_length}.csv")
-        float_data = random_integers(rng, num_rows=dataset_length)
-        data_list.append(float_data)
-        convert_data_to_csv(float_data, f"output_data/float_{dataset_length}.csv")
-        datetime_data = random_datetimes(
+    dataset = []
+    if "integer" in classes_to_generate:
+        dataset.append(random_integers(rng, num_rows=dataset_length))
+    if "float" in classes_to_generate:
+        dataset.append(random_integers(rng, num_rows=dataset_length))
+    if "datetime" in classes_to_generate:
+        dataset.append(random_datetimes(
             rng,
             date_format_list=dp.profilers.DateTimeColumn._date_formats,
             num_rows=dataset_length
-        )
-        data_list.append(datetime_data)
-        convert_data_to_csv(datetime_data, f"output_data/datetime_{dataset_length}.csv")
-        string_data = random_string(rng, num_rows=dataset_length)
-        data_list.append(string_data)
-        convert_data_to_csv(string_data, f"output_data/string_{dataset_length}.csv")
-        cat_data = random_categorical(rng, num_rows=dataset_length)
-        data_list.append(cat_data)
-        convert_data_to_csv(cat_data, f"output_data/cat_{dataset_length}.csv")
-        ordered_data = get_ordered_column(num_rows=dataset_length)
-        data_list.append(ordered_data)
-        convert_data_to_csv(ordered_data, f"output_data/ordered_{dataset_length}.csv")
+        ))
+    if "string" in classes_to_generate:
+        dataset.append(random_string(rng, num_rows=dataset_length))
+    if "categorical" in classes_to_generate:
+        dataset.append(random_categorical(rng, num_rows=dataset_length))
+    if "text" in classes_to_generate:
+        dataset.append(random_string(rng, num_rows=dataset_length))
+    if "ordered" in classes_to_generate:
+        dataset.append(get_ordered_column(num_rows=dataset_length))
 
-        #Type 2
-        index = 0
-        while index < len(data_list):
-            pointer = index + 1
-            while pointer < len(data_list):
-                mixed_class_data = np.column_stack((data_list[index], data_list[pointer]))
-                convert_data_to_csv(
-                    mixed_class_data,
-                    f"output_data/mixed_class_data_{index}_{pointer}_{dataset_length}.csv"
-                )
-                pointer += 1
-            index += 1
+    for cl in classes_to_generate:
+        if cl not in possible_classes:
+            print(f"Class: {cl} is not in possible class list and is not "
+                  f"included in the dataset")
 
-
-
-
-
+    return convert_data_to_df(dataset, path)

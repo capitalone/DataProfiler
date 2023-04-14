@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import unittest
@@ -9,6 +10,7 @@ import pandas as pd
 
 from dataprofiler.profilers import NumericStatsMixin
 from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import NumericalOptions
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -1099,3 +1101,78 @@ class TestNumericStatsMixin(unittest.TestCase):
             other_histogram=other1._stored_histogram["histogram"],
         )
         self.assertEqual(expected_psi_value, psi_value)
+
+    @mock.patch.multiple(
+        NumericStatsMixin,
+        __abstractmethods__=set(),
+        _filter_properties_w_options=mock.MagicMock(return_value=None),
+        create=True,
+    )
+    def test_json_encode(self):
+        mixin = NumericStatsMixin()
+
+        # Copy of NumericalStatsMixin code to test serialization of dicts
+        expected_histogram_bin_method_names = [
+            "auto",
+            "fd",
+            "doane",
+            "scott",
+            "rice",
+            "sturges",
+            "sqrt",
+        ]
+        expected_min_histogram_bin = 1000
+        expected_historam_methods = {}
+        for method in expected_histogram_bin_method_names:
+            expected_historam_methods[method] = {
+                "total_loss": 0,
+                "current_loss": 0,
+                "suggested_bin_count": expected_min_histogram_bin,
+                "histogram": {"bin_counts": None, "bin_edges": None},
+            }
+
+        serialized = json.dumps(mixin, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "min": None,
+                "max": None,
+                "_top_k_modes": 5,
+                "sum": 0,
+                "_biased_variance": np.nan,
+                "_biased_skewness": np.nan,
+                "_biased_kurtosis": np.nan,
+                "_median_is_enabled": True,
+                "_median_abs_dev_is_enabled": True,
+                "max_histogram_bin": 100000,
+                "min_histogram_bin": expected_min_histogram_bin,
+                "histogram_bin_method_names": expected_histogram_bin_method_names,
+                "histogram_selection": None,
+                "user_set_histogram_bin": None,
+                "bias_correction": True,
+                "_mode_is_enabled": True,
+                "num_zeros": 0,
+                "num_negatives": 0,
+                "histogram_methods": expected_historam_methods,
+                "_stored_histogram": {
+                    "total_loss": 0,
+                    "current_loss": 0,
+                    "suggested_bin_count": 1000,
+                    "histogram": {"bin_counts": None, "bin_edges": None},
+                },
+                "_batch_history": [],
+                "quantiles": {bin_num: None for bin_num in range(999)},
+                "_NumericStatsMixin__calculations": {
+                    "min": "_get_min",
+                    "max": "_get_max",
+                    "sum": "_get_sum",
+                    "variance": "_get_variance",
+                    "skewness": "_get_skewness",
+                    "kurtosis": "_get_kurtosis",
+                    "histogram_and_quantiles": "_get_histogram_and_quantiles",
+                    "num_zeros": "_get_num_zeros",
+                    "num_negatives": "_get_num_negatives",
+                },
+            }
+        )
+
+        self.assertEqual(serialized, expected)

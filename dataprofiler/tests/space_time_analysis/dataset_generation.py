@@ -4,6 +4,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 from numpy.random import Generator
+
 try:
     import sys
 
@@ -13,14 +14,35 @@ except ImportError:
     import dataprofiler as dp
 
 
-def convert_data_to_df(np_data: np.array, path: str=None) -> pd.DataFrame:
+def nan_injection(rng: Generator, df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Inject NAN values into a dataset based on percentage global (PERCENT_TO_NAN)
+
+    :param rng: the np rng object used to generate random values
+    :type rng: numpy Generator
+    :param df: DataFrame that is to be injected with NAN values
+    :type df: pandas.DataFrame
+    :return: New DataFrame with injected NAN values
+    """
+    samples_to_nan = int(len(df) * PERCENT_TO_NAN / 100)
+    for col_name in df:
+        ind_to_nan = rng.choice(list(df.index), samples_to_nan)
+        df[col_name][ind_to_nan] = "None"
+    return df
+
+
+def convert_data_to_df(
+    np_data: np.array, path: str = None, index=False
+) -> pd.DataFrame:
     """
     Converts np array to a pandas dataframe
 
     :param np_data: np array to be converted
     :type np_data: numpy array
     :param path: path to output a csv of the dataframe generated
-    :type path: str
+    :type path: str, None, optional
+    :param index: whether to include index in output to csv
+    :type path: bool, optional
     :return: a pandas dataframe
     """
     # convert array into dataframe
@@ -28,73 +50,88 @@ def convert_data_to_df(np_data: np.array, path: str=None) -> pd.DataFrame:
 
     # save the dataframe as a csv file
     if path:
-        dataframe.to_csv(path)
+        dataframe.to_csv(path, index=index)
         print(f"Created {path}!")
     return dataframe
 
 
-def random_integers(rng: Generator, min_value: int=-1e6, max_value: int=1e6,
-                    num_rows: int=1) -> np.array:
+def random_integers(
+    rng: Generator, min_value: int = -1e6, max_value: int = 1e6, num_rows: int = 1
+) -> np.array:
     """
     Randomly generates an array of integers between a min and max value
 
     :param rng: the np rng object used to generate random values
     :type rng: numpy Generator
     :param min_value: the minimum integer that can be returned
-    :type min_value: int
+    :type min_value: int, optional
     :param max_value: the maximum integer that can be returned
-    :type max_value: int
+    :type max_value: int, optional
     :param num_rows: the number of rows in np array generated
-    :type num_rows: int
+    :type num_rows: int, optional
 
     :return: np array of integers
     """
     return rng.integers(min_value, max_value, (num_rows,))
 
 
-def random_floats(rng: Generator, min_value: int=-1e6, max_value: int=1e6,
-                  sig_figs: int=3, num_rows: int=1) -> np.array:
+def random_floats(
+    rng: Generator,
+    min_value: int = -1e6,
+    max_value: int = 1e6,
+    sig_figs: int = 3,
+    num_rows: int = 1,
+) -> np.array:
     """
     Randomly generates an array of floats between a min and max value
 
     :param rng: the np rng object used to generate random values
     :type rng: numpy Generator
     :param min_value: the minimum float that can be returned
-    :type min_value: int
+    :type min_value: int, optional
     :param max_value: the maximum float that can be returned
-    :type max_value: int
+    :type max_value: int, optional
     :param sig_figs: restricts float to a number of sig_figs after decimal
-    :type sig_figs: int
+    :type sig_figs: int, optional
     :param num_rows: the number of rows in np array generated
-    :type num_rows: int
+    :type num_rows: int, optional
 
     :return: np array of floats
     """
-    return round(rng.random(min_value, max_value, (num_rows,)), sig_figs)
+    return np.around(rng.uniform(min_value, max_value, num_rows), sig_figs)
 
 
-def random_string(rng: Generator, categories: List[str]=None, num_rows: int=1,
-                  str_len_min: int=1, str_len_max: int=256) -> np.array:
+def random_string(
+    rng: Generator,
+    chars: List[str] = None,
+    num_rows: int = 1,
+    str_len_min: int = 1,
+    str_len_max: int = 256,
+) -> np.array:
     """
     Randomly generates an array of strings with length between a min and max value
 
     :param rng: the np rng object used to generate random values
     :type rng: numpy Generator
-    :param categories: a list of values that are allowed in a string or None
-    :type categories: List[str], None
+    :param chars: a list of values that are allowed in a string or None
+    :type chars: List[str], None
     :param num_rows: the number of rows in np array generated
-    :type num_rows: int
+    :type num_rows: int, optional
     :param str_len_min: the minimum length a string can be
-    :type str_len_min: int
+    :type str_len_min: int, optional
     :param str_len_max: the maximum length a string can be
-    :type str_len_max: int
-
+    :type str_len_max: int, optional
 
     :return: numpy array of strings
     """
-    if categories is None:
-        chars = list(string.ascii_uppercase + string.ascii_lowercase + \
-                string.digits + " " + string.punctuation)
+    if chars is None:
+        chars = list(
+            string.ascii_uppercase
+            + string.ascii_lowercase
+            + string.digits
+            + " "
+            + string.punctuation
+        )
     string_list = []
 
     for _ in range(num_rows):
@@ -105,8 +142,9 @@ def random_string(rng: Generator, categories: List[str]=None, num_rows: int=1,
     return np.array(string_list)
 
 
-def generate_datetime(rng: Generator, date_format: str, start_date: str=None,
-                      end_date: str=None) -> str:
+def generate_datetime(
+    rng: Generator, date_format: str, start_date: str = None, end_date: str = None
+) -> str:
     """
     Generate datetime given the random_state, date_format, and start/end dates.
 
@@ -114,13 +152,13 @@ def generate_datetime(rng: Generator, date_format: str, start_date: str=None,
     :type rng: numpy Generator
     :param date_format: the format that the generated datatime will follow,
         defaults to None
-    :type date_format: str, optional
+    :type date_format: str, None, optional
     :param start_date: the earliest date that datetimes can be generated at,
         defaults to None
-    :type start_date: pd.Timestamp, optional
+    :type start_date: pd.Timestamp, None, optional
     :param start_date: the latest date that datetimes can be generated at,
         defaults to None
-    :type start_date: pd.Timestamp, optional
+    :type start_date: pd.Timestamp, None, optional
 
     :return: generated datetime
     :rtype: str
@@ -137,9 +175,13 @@ def generate_datetime(rng: Generator, date_format: str, start_date: str=None,
     return ptime.strftime(date_format)
 
 
-def random_datetimes(rng: Generator, date_format_list: str=None,
-                     start_date: str=None, end_date: str=None,
-                     num_rows: int=1) -> np.array:
+def random_datetimes(
+    rng: Generator,
+    date_format_list: str = None,
+    start_date: str = None,
+    end_date: str = None,
+    num_rows: int = 1,
+) -> np.array:
     """
     Generate datetime given the random_state, date_format, and start/end dates.
 
@@ -147,13 +189,13 @@ def random_datetimes(rng: Generator, date_format_list: str=None,
     :type rng: numpy Generator
     :param date_format: the format that the generated datatime will follow,
         defaults to None
-    :type date_format: str, optional
+    :type date_format: str, None, optional
     :param start_date: the earliest date that datetimes can be generated at,
         defaults to None
-    :type start_date: pd.Timestamp, optional
+    :type start_date: pd.Timestamp, None, optional
     :param start_date: the latest date that datetimes can be generated at,
         defaults to None
-    :type start_date: pd.Timestamp, optional
+    :type start_date: pd.Timestamp, None, optional
 
     :return: array of generated datetimes
     :rtype: numpy array
@@ -164,24 +206,26 @@ def random_datetimes(rng: Generator, date_format_list: str=None,
 
     for _ in range(num_rows):
         date_format = rng.choice(date_format_list)
-        datetime = generate_datetime(rng, date_format=date_format,
-                                     start_date=start_date, end_date=end_date)
+        datetime = generate_datetime(
+            rng, date_format=date_format, start_date=start_date, end_date=end_date
+        )
         date_list.append(datetime)
 
     return np.array(date_list)
 
 
-def random_categorical(rng: Generator, categories: List[str]=None,
-                       num_rows: int=1) -> np.array:
+def random_categorical(
+    rng: Generator, categories: List[str] = None, num_rows: int = 1
+) -> np.array:
     """
     Randomly generates an array of categorical chosen out of categories
 
     :param rng: the np rng object used to generate random values
     :type rng: numpy Generator
     :param categories: a list of values that are allowed in a categorical or None
-    :type categories: string, None
+    :type categories: string, None, optional
     :param num_rows: the number of rows in np array generated
-    :type num_rows: int
+    :type num_rows: int, optional
 
     :return: np array of categories
     """
@@ -191,66 +235,116 @@ def random_categorical(rng: Generator, categories: List[str]=None,
     return rng.choice(categories, (num_rows,))
 
 
-def get_ordered_column(start: int=0, num_rows: int=1, **kwarg):
+def get_ordered_column(start: int = 0, num_rows: int = 1, **kwarg) -> np.array:
     """
     Generates an array of ordered integers
 
     :param start: integer that the ordered list should start at
-    :type str_len_min: int
+    :type str_len_min: int, optional
     :param num_rows: the number of rows in np array generated
-    :type num_rows: int
+    :type num_rows: int, optional
 
     :return: np array of ordered integers
     """
-    return np.array(list(range(start, num_rows)))
+    return np.arange(start, start + num_rows)
 
 
-def generate_dataset_by_class(rng: Generator, classes_to_generate: List[str]=None,
-                              dataset_length: int=100000,
-                              path: str=None) -> pd.DataFrame:
+def random_text(
+    rng: Generator,
+    chars: str = None,
+    num_rows: int = 1,
+    str_len_min: int = 256,
+    str_len_max: int = 1000,
+) -> np.array:
+    """
+    Randomly generates an array of text with length between a min and max value
+
+    :param rng: the np rng object used to generate random values
+    :type rng: numpy Generator
+    :param chars: a list of values that are allowed in a string or None
+    :type chars: List[str], None
+    :param num_rows: the number of rows in np array generated
+    :type num_rows: int, optional
+    :param str_len_min: the minimum length a string can be (must be larger than 256)
+    :type str_len_min: int, optional
+    :param str_len_max: the maximum length a string can be
+    :type str_len_max: int, optional
+
+    :return: numpy array of text
+    """
+    if str_len_min < 256:
+        raise ValueError(
+            f"str_len_min must be > 256. " f"Value provided: {str_len_min}."
+        )
+
+    return random_string(rng, chars, num_rows, str_len_min, str_len_max)
+
+
+def generate_dataset_by_class(
+    rng: Generator,
+    classes_to_generate: List[str] = None,
+    dataset_length: int = 100000,
+    path: str = None,
+) -> pd.DataFrame:
     """
     Randomly a dataset with a mixture of different data classes
 
     :param rng: the np rng object used to generate random values
     :type rng: numpy Generator
     :param classes_to_generate: Classes of data to be included in the dataset
-    :type classes_to_generate: List[str] or None
+    :type classes_to_generate: List[str], None, optional
     :param dataset_length: length of the dataset generated
-    :type dataset_length: int
+    :type dataset_length: int, optional
     :param path: path to output a csv of the dataframe generated
-    :type path: str
+    :type path: str, None, optional
 
     :return: pandas DataFrame
     """
-    possible_classes = ["text", "string", "categorical", "integer", "float",
-                        "ordered", "datetime"]
+    gen_funcs = {
+        "integer": random_integers,
+        "float": random_floats,
+        "categorical": random_categorical,
+        "ordered": get_ordered_column,
+        "text": random_text,
+        "datetime": random_datetimes,
+        "string": random_string,
+    }
+
     if classes_to_generate is None:
-        classes_to_generate = possible_classes
+        classes_to_generate = gen_funcs.keys()
 
     dataset = []
-    if "integer" in classes_to_generate:
-        dataset.append(random_integers(rng, num_rows=dataset_length))
-    if "float" in classes_to_generate:
-        dataset.append(random_integers(rng, num_rows=dataset_length))
-    if "datetime" in classes_to_generate:
-        dataset.append(random_datetimes(
-            rng,
-            date_format_list=dp.profilers.DateTimeColumn._date_formats,
-            num_rows=dataset_length
-        ))
-    if "string" in classes_to_generate:
-        dataset.append(random_string(rng, num_rows=dataset_length))
-    if "categorical" in classes_to_generate:
-        dataset.append(random_categorical(rng, num_rows=dataset_length))
-    if "text" in classes_to_generate:
-        dataset.append(random_string(rng, num_rows=dataset_length,
-                                     str_len_min=256, str_len_max=1000))
-    if "ordered" in classes_to_generate:
-        dataset.append(get_ordered_column(num_rows=dataset_length))
-
     for cl in classes_to_generate:
-        if cl not in possible_classes:
-            print(f"Class: {cl} is not in possible class list and is not "
-                  f"included in the dataset")
+        if cl in ["ordered"]:
+            dataset.append(gen_funcs[cl](num_rows=dataset_length))
+        elif cl in gen_funcs.keys():
+            dataset.append(gen_funcs[cl](rng, num_rows=dataset_length))
+
+        else:
+            print(
+                f"Class: {cl} is not in possible class list and is not "
+                f"included in the dataset"
+            )
 
     return convert_data_to_df(dataset, path)
+
+
+if __name__ == "__main__":
+    # Params
+    random_seed = 0
+    GENERATED_DATASET_SIZE = 100000
+    rng = np.random.default_rng(seed=random_seed)
+    CLASSES_TO_GENERATE = None
+    output_path = (
+        f"data/seed_{random_seed}_"
+        f"{'all' if CLASSES_TO_GENERATE is None else CLASSES_TO_GENERATE}_"
+        f"size_{GENERATED_DATASET_SIZE}.csv"
+    )
+
+    # Generate dataset
+    data = generate_dataset_by_class(
+        rng,
+        classes_to_generate=CLASSES_TO_GENERATE,
+        dataset_length=GENERATED_DATASET_SIZE,
+        path=output_path,
+    )

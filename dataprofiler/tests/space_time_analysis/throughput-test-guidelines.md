@@ -15,9 +15,9 @@ the script was ran.
   * `structured_profile_times.json`: dict of total time, time to merge, and
       runtimes for each of the profiled functions within the library
   * `structured_profile_times.csv`: a flattened table of the above json
-  * `profile_space_analysis.bin`: a bin file that contains information on the 
+  * `profile_space_analysis.bin`: a bin file that contains information on the
       spatial analysis of running the dp.Profiler function
-  * `merge_space_analysis.bin`: a bin file that contains information on the 
+  * `merge_space_analysis.bin`: a bin file that contains information on the
       spatial analysis of merging two profiles together
 
 Total time and merge time can be used for comparing the overall runtime changes,
@@ -29,7 +29,7 @@ For example running:
 ```console
 python3 -m memray flamegraph profile_space_analysis.bin -o profile_space_analysis.html
 ```
-Gives a html formatted flamegraph that displays the distribution of space allocated by 
+Gives a html formatted flamegraph that displays the distribution of space allocated by
 function calls involved in the dp.Profiler
 
 The script can be run as follows:

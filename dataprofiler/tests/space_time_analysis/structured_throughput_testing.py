@@ -6,11 +6,10 @@ import time
 from collections import defaultdict
 from typing import List
 
-
+import memray
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import memray
 
 try:
     import sys
@@ -20,9 +19,9 @@ try:
 except ImportError:
     import dataprofiler as dp
 
-from dataprofiler import StructuredProfiler
-
 from dataset_generation import generate_dataset_by_class
+
+from dataprofiler import StructuredProfiler
 
 # suppress TF warnings
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
@@ -53,21 +52,6 @@ sample_sizes = [100, 1000, 5000, 7500, int(1e5)]
 ################################################################################
 
 
-def nan_injection(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Inject NAN values into a dataset based on percentage global (PERCENT_TO_NAN)
-
-    :param df: DataFrame that is to be injected with NAN values
-    :type df: pandas.DataFrame
-    :return: New DataFrame with injected NAN values
-    """
-    samples_to_nan = int(len(df) * PERCENT_TO_NAN / 100)
-    for col_name in df:
-        ind_to_nan = random.sample(list(df.index), samples_to_nan)
-        df[col_name][ind_to_nan] = "None"
-    return df
-
-
 def dp_profile_space_analysis(data: pd.DataFrame, path: str) -> StructuredProfiler:
     """
     Generate memray bin file of the space analysis of dp.Profiler function
@@ -81,9 +65,7 @@ def dp_profile_space_analysis(data: pd.DataFrame, path: str) -> StructuredProfil
     if PERCENT_TO_NAN:
         nan_injection(df)
     with memray.Tracker(path):
-        profile = dp.Profiler(data,
-                              options=options,
-                              samples_per_update=len(data))
+        profile = dp.Profiler(data, options=options, samples_per_update=len(data))
     return profile
 
 
@@ -101,7 +83,9 @@ def dp_merge_space_analysis(profile: StructuredProfiler, path: str):
         _ = profile + profile
 
 
-def dp_time_analysis(sample_sizes: List, data: pd.DataFrame, path: str="structured_profiler_times.json"):
+def dp_time_analysis(
+    sample_sizes: List, data: pd.DataFrame, path: str = "structured_profiler_times.json"
+):
     """
     Run time analysis for profile and merge functionality
 
@@ -110,7 +94,7 @@ def dp_time_analysis(sample_sizes: List, data: pd.DataFrame, path: str="structur
     :param data: DataFrame to be used for time analysis
     :type data: pandas DataFrame
     :param path: Path to output json file with all time analysis info
-    :type path: string
+    :type path: string, optional
     """
     # [0] allows model to be initialized and added to labeler
     sample_sizes = [0] + sample_sizes
@@ -129,8 +113,7 @@ def dp_time_analysis(sample_sizes: List, data: pd.DataFrame, path: str="structur
         if ALLOW_SUBSAMPLING:
             profiler = dp.Profiler(df, options=options)
         else:
-            profiler = dp.Profiler(df, samples_per_update=len(df),
-                                   options=options)
+            profiler = dp.Profiler(df, samples_per_update=len(df), options=options)
         total_time = time.time() - start_time
 
         # get overall time for merging profiles
@@ -192,8 +175,7 @@ def dp_time_analysis(sample_sizes: List, data: pd.DataFrame, path: str="structur
 
     # only works if columns all have unique names
     times_table = (
-        pd.json_normalize(profile_times).set_index(
-            ["name", "sample_size"]).sort_index()
+        pd.json_normalize(profile_times).set_index(["name", "sample_size"]).sort_index()
     )
 
     # save json and times table
@@ -205,22 +187,21 @@ def dp_time_analysis(sample_sizes: List, data: pd.DataFrame, path: str="structur
 if __name__ == "__main__":
 
     # set seed
-    random.seed(0)
-    np.random.seed(0)
-    dp.set_seed(0)
-    rng = np.random.default_rng(seed=0)
+    random_seed = 0
+    random.seed(random_seed)
+    np.random.seed(random_seed)
+    dp.set_seed(random_seed)
+    rng = np.random.default_rng(seed=random_seed)
     # load data]
     if not DATASET_PATH:
-        data = generate_dataset_by_class(rng,
-                                         dataset_length=GENERATED_DATASET_SIZE)
+        data = generate_dataset_by_class(rng, dataset_length=GENERATED_DATASET_SIZE)
     else:
         data = dp.Data(DATASET_PATH)
 
     if TIME_ANALYSIS:
-        dp_time_analysis(sample_sizes, data,
-                         path="structured_profiler_times.json")
+        dp_time_analysis(sample_sizes, data, path="structured_profiler_times.json")
     if SPACE_ANALYSIS:
-        profile = dp_profile_space_analysis(data=data,
-                                            path="profile_space_analysis.bin")
-        dp_merge_space_analysis(profile=profile,
-                                path="merge_space_analysis.bin")
+        profile = dp_profile_space_analysis(
+            data=data, path="profile_space_analysis.bin"
+        )
+        dp_merge_space_analysis(profile=profile, path="merge_space_analysis.bin")

@@ -1,6 +1,6 @@
 import copy
 import string
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 import pandas as pd
@@ -40,7 +40,7 @@ def nan_injection(
 
 
 def convert_data_to_df(
-    np_data: np.array, path: str = None, index=False
+    np_data: np.array, path: Optional[str] = None, index: bool = False
 ) -> pd.DataFrame:
     """
     Converts np array to a pandas dataframe
@@ -111,7 +111,7 @@ def random_floats(
 
 def random_string(
     rng: Generator,
-    chars: List[str] = None,
+    chars: Optional[List[str]] = None,
     num_rows: int = 1,
     str_len_min: int = 1,
     str_len_max: int = 256,
@@ -151,7 +151,10 @@ def random_string(
 
 
 def generate_datetime(
-    rng: Generator, date_format: str, start_date: str = None, end_date: str = None
+    rng: Generator,
+    date_format: str,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
 ) -> str:
     """
     Generate datetime given the random_state, date_format, and start/end dates.
@@ -185,9 +188,9 @@ def generate_datetime(
 
 def random_datetimes(
     rng: Generator,
-    date_format_list: str = None,
-    start_date: str = None,
-    end_date: str = None,
+    date_format_list: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
     num_rows: int = 1,
 ) -> np.array:
     """
@@ -223,7 +226,7 @@ def random_datetimes(
 
 
 def random_categorical(
-    rng: Generator, categories: List[str] = None, num_rows: int = 1
+    rng: Generator, categories: Optional[List[str]] = None, num_rows: int = 1
 ) -> np.array:
     """
     Randomly generates an array of categorical chosen out of categories
@@ -259,7 +262,7 @@ def get_ordered_column(start: int = 0, num_rows: int = 1, **kwarg) -> np.array:
 
 def random_text(
     rng: Generator,
-    chars: str = None,
+    chars: Optional[str] = None,
     num_rows: int = 1,
     str_len_min: int = 256,
     str_len_max: int = 1000,
@@ -290,9 +293,9 @@ def random_text(
 
 def generate_dataset_by_class(
     rng: Generator,
-    columns_to_generate: List[dict] = None,
+    columns_to_generate: Optional[List[dict]] = None,
     dataset_length: int = 100000,
-    path: str = None,
+    path: Optional[str] = None,
 ) -> pd.DataFrame:
     """
     Randomly a dataset with a mixture of different data classes

@@ -4,7 +4,7 @@ import json
 import random
 import time
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import memray
 import numpy as np
@@ -28,7 +28,10 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 
 def dp_profile_space_analysis(
-    data: pd.DataFrame, path: str, options: Dict = None, percent_to_nan: float = 0.0
+    data: pd.DataFrame,
+    path: str,
+    options: Optional[Dict] = None,
+    percent_to_nan: float = 0.0,
 ) -> StructuredProfiler:
     """
     Generate memray bin file of the space analysis of dp.Profiler function
@@ -71,7 +74,7 @@ def dp_time_analysis(
     path: str = "structured_profiler_times.json",
     percent_to_nan: float = 0.0,
     allow_subsampling: bool = True,
-    options: Dict = None,
+    options: Optional[Dict] = None,
 ):
     """
     Run time analysis for profile and merge functionality
@@ -143,8 +146,8 @@ def dp_time_analysis(
                 "total_time": total_time,
                 "column": compiler_times,
                 "merge": merge_time,
-                "percent_to_nan": PERCENT_TO_NAN,
-                "allow_subsampling": ALLOW_SUBSAMPLING,
+                "percent_to_nan": percent_to_nan,
+                "allow_subsampling": allow_subsampling,
                 "is_data_labeler": options.structured_options.data_labeler.is_enabled,
                 "is_multiprocessing": options.structured_options.multiprocess.is_enabled,
             }
@@ -159,8 +162,8 @@ def dp_time_analysis(
                     "total_time": total_time,
                     "column": profiler.times,
                     "merge": merge_time,
-                    "percent_to_nan": PERCENT_TO_NAN,
-                    "allow_subsampling": ALLOW_SUBSAMPLING,
+                    "percent_to_nan": percent_to_nan,
+                    "allow_subsampling": allow_subsampling,
                     "is_data_labeler": options.structured_options.data_labeler.is_enabled,
                     "is_multiprocessing": options.structured_options.multiprocess.is_enabled,
                 }

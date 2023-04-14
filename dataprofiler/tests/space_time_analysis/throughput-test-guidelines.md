@@ -50,7 +50,6 @@ conditions affect profiling speed. The parameters are as follows:
   * PERCENT_TO_NAN:            percentage of data in each column to set as NaN (0 - 100)
   * sample_sizes:              list of dataset sizes to evaluate
   * DATASET_PATH:              path to a pre-existing dataset for analysis
-  * GENERATED_DATASET_SIZE:    size of dataset to be generated for analysis if DATASET_PATH is None
 
 
 ### Generated Dataset Details

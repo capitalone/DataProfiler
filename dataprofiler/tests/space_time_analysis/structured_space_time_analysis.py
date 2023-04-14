@@ -97,10 +97,18 @@ def dp_time_analysis(
         # setup time dict
 
         print(f"Evaluating sample size: {sample_size}")
-        df = data.sample(sample_size, replace=True).reset_index(drop=True)
+        replace = False
+        if sample_size > len(data):
+            replace = True
+
+        df = (
+            data.sample(sample_size, replace=replace)
+            .sort_index()
+            .reset_index(drop=True)
+        )
 
         if percent_to_nan:
-            nan_injection(df)
+            df = nan_injection(df)
 
         # time profiling
         start_time = time.time()
@@ -193,10 +201,7 @@ if __name__ == "__main__":
     PERCENT_TO_NAN = 0.0  # Value must be between 0 and 100
 
     # If set to None new dataset is generated.
-    DATASET_PATH = None
-
-    # Specify dataset size to generated if path is not set
-    GENERATED_DATASET_SIZE = 100  # Default=100000 if None
+    DATASET_PATH = "./data/time_structured_profiler.csv"
 
     TIME_ANALYSIS = True
     SPACE_ANALYSIS = True
@@ -212,7 +217,7 @@ if __name__ == "__main__":
     rng = np.random.default_rng(seed=random_seed)
     # load data]
     if not DATASET_PATH:
-        data = generate_dataset_by_class(rng, dataset_length=GENERATED_DATASET_SIZE)
+        data = generate_dataset_by_class(rng, dataset_length=max(sample_sizes))
     else:
         data = dp.Data(DATASET_PATH)
 

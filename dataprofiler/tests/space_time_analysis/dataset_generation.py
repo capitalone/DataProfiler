@@ -1,3 +1,4 @@
+import copy
 import string
 from typing import List
 
@@ -282,7 +283,7 @@ def random_text(
 
 def generate_dataset_by_class(
     rng: Generator,
-    classes_to_generate: List[str] = None,
+    columns_to_generate: List[dict] = None,
     dataset_length: int = 100000,
     path: str = None,
 ) -> pd.DataFrame:
@@ -291,8 +292,8 @@ def generate_dataset_by_class(
 
     :param rng: the np rng object used to generate random values
     :type rng: numpy Generator
-    :param classes_to_generate: Classes of data to be included in the dataset
-    :type classes_to_generate: List[str], None, optional
+    :param columns_to_generate: Classes of data to be included in the dataset
+    :type columns_to_generate: List[dict], None, optional
     :param dataset_length: length of the dataset generated
     :type dataset_length: int, optional
     :param path: path to output a csv of the dataframe generated
@@ -310,21 +311,28 @@ def generate_dataset_by_class(
         "string": random_string,
     }
 
-    if classes_to_generate is None:
-        classes_to_generate = gen_funcs.keys()
+    if columns_to_generate is None:
+        columns_to_generate = [
+            dict(
+                name="datetime", date_format_list=None, start_date=None, end_date=None
+            ),
+            dict(name="integer", min_value=-1e6, max_value=1e6),
+            dict(name="float", min_value=-1e6, max_value=1e6, sig_figs=3),
+            dict(name="categorical", categories=None),
+            dict(name="ordered", start=0),
+            dict(name="text", chars=None, str_len_min=256, str_len_max=1000),
+            dict(name="string", chars=None, str_len_min=1, str_len_max=256),
+        ]
 
     dataset = []
-    for cl in classes_to_generate:
-        if cl in ["ordered"]:
-            dataset.append(gen_funcs[cl](num_rows=dataset_length))
-        elif cl in gen_funcs.keys():
-            dataset.append(gen_funcs[cl](rng, num_rows=dataset_length))
+    for col in columns_to_generate:
+        _col = copy.deepcopy(col)
+        col_generator = _col.pop("name")
+        if col_generator not in gen_funcs:
+            assert ValueError(f"generator: {col_generator} is not a valid generator.")
 
-        else:
-            print(
-                f"Class: {cl} is not in possible class list and is not "
-                f"included in the dataset"
-            )
+        col_generator_function = gen_funcs.get(col_generator)
+        dataset.append(col_generator_function(**_col, num_rows=dataset_length, rng=rng))
 
     return convert_data_to_df(dataset, path)
 
@@ -337,14 +345,14 @@ if __name__ == "__main__":
     CLASSES_TO_GENERATE = None
     output_path = (
         f"data/seed_{random_seed}_"
-        f"{'all' if CLASSES_TO_GENERATE is None else CLASSES_TO_GENERATE}_"
+        f"{'all' if CLASSES_TO_GENERATE is None else 'subset'}_"
         f"size_{GENERATED_DATASET_SIZE}.csv"
     )
 
     # Generate dataset
     data = generate_dataset_by_class(
         rng,
-        classes_to_generate=CLASSES_TO_GENERATE,
+        columns_to_generate=CLASSES_TO_GENERATE,
         dataset_length=GENERATED_DATASET_SIZE,
         path=output_path,
     )

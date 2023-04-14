@@ -15,7 +15,9 @@ except ImportError:
     import dataprofiler as dp
 
 
-def nan_injection(rng: Generator, df: pd.DataFrame) -> pd.DataFrame:
+def nan_injection(
+    rng: Generator, df: pd.DataFrame, percent_to_nan: float = 0.0
+) -> pd.DataFrame:
     """
     Inject NAN values into a dataset based on percentage global (PERCENT_TO_NAN)
 
@@ -23,9 +25,14 @@ def nan_injection(rng: Generator, df: pd.DataFrame) -> pd.DataFrame:
     :type rng: numpy Generator
     :param df: DataFrame that is to be injected with NAN values
     :type df: pandas.DataFrame
+    :param df: DataFrame that is to be injected with NAN values
+    :type df: pandas.DataFrame
+    :param percent_to_nan: Percentage of dataset that needs to be nan values
+    :type percent_to_nan: float, optional
+
     :return: New DataFrame with injected NAN values
     """
-    samples_to_nan = int(len(df) * PERCENT_TO_NAN / 100)
+    samples_to_nan = int(len(df) * percent_to_nan / 100)
     for col_name in df:
         ind_to_nan = rng.choice(list(df.index), samples_to_nan)
         df[col_name][ind_to_nan] = "None"
@@ -313,26 +320,24 @@ def generate_dataset_by_class(
 
     if columns_to_generate is None:
         columns_to_generate = [
-            dict(
-                name="datetime", date_format_list=None, start_date=None, end_date=None
-            ),
-            dict(name="integer", min_value=-1e6, max_value=1e6),
-            dict(name="float", min_value=-1e6, max_value=1e6, sig_figs=3),
-            dict(name="categorical", categories=None),
-            dict(name="ordered", start=0),
-            dict(name="text", chars=None, str_len_min=256, str_len_max=1000),
-            dict(name="string", chars=None, str_len_min=1, str_len_max=256),
+            dict(generator="datetime"),
+            dict(generator="integer"),
+            dict(generator="float"),
+            dict(generator="categorical"),
+            dict(generator="ordered"),
+            dict(generator="text"),
+            dict(generator="string"),
         ]
 
     dataset = []
     for col in columns_to_generate:
-        _col = copy.deepcopy(col)
-        col_generator = _col.pop("name")
+        col_ = copy.deepcopy(col)
+        col_generator = col_.pop("generator")
         if col_generator not in gen_funcs:
-            assert ValueError(f"generator: {col_generator} is not a valid generator.")
+            raise ValueError(f"generator: {col_generator} is not a valid generator.")
 
         col_generator_function = gen_funcs.get(col_generator)
-        dataset.append(col_generator_function(**_col, num_rows=dataset_length, rng=rng))
+        dataset.append(col_generator_function(**col_, num_rows=dataset_length, rng=rng))
 
     return convert_data_to_df(dataset, path)
 
@@ -342,7 +347,17 @@ if __name__ == "__main__":
     random_seed = 0
     GENERATED_DATASET_SIZE = 100000
     rng = np.random.default_rng(seed=random_seed)
-    CLASSES_TO_GENERATE = None
+    CLASSES_TO_GENERATE = [
+        dict(
+            generator="datetime", date_format_list=None, start_date=None, end_date=None
+        ),
+        dict(generator="integer", min_value=-1e6, max_value=1e6),
+        dict(generator="float", min_value=-1e6, max_value=1e6, sig_figs=3),
+        dict(generator="categorical", categories=None),
+        dict(generator="ordered", start=0),
+        dict(generator="text", chars=None, str_len_min=256, str_len_max=1000),
+        dict(generator="string", chars=None, str_len_min=1, str_len_max=256),
+    ]
     output_path = (
         f"data/seed_{random_seed}_"
         f"{'all' if CLASSES_TO_GENERATE is None else 'subset'}_"

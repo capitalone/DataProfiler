@@ -109,8 +109,8 @@ class Validator:
 
                 if df_type == "dask":
 
-                    def apply_with_config(x: Any, config: dict) -> bool:
-                        return cast(bool, apply_type(x, config))
+                    def apply_with_config(x: Any) -> bool:
+                        return cast(bool, apply_type(x, sub_value))
 
                     temp_results = df_series.map(
                         apply_with_config, meta=(iter_key, "bool")

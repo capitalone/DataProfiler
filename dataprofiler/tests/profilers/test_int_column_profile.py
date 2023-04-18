@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import IntColumn
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import IntOptions
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -1094,3 +1095,194 @@ class TestIntColumn(unittest.TestCase):
             str(exc.exception),
             "Unsupported operand type(s) for diff: 'IntColumn' and" " 'str'",
         )
+
+    def test_json_encode(self):
+        profiler = IntColumn("0")
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        # Copy of NumericalStatsMixin code to test serialization of dicts
+        expected_histogram_bin_method_names = [
+            "auto",
+            "fd",
+            "doane",
+            "scott",
+            "rice",
+            "sturges",
+            "sqrt",
+        ]
+        expected_min_histogram_bin = 1000
+        expected_historam_methods = {}
+        for method in expected_histogram_bin_method_names:
+            expected_historam_methods[method] = {
+                "total_loss": 0,
+                "current_loss": 0,
+                "suggested_bin_count": expected_min_histogram_bin,
+                "histogram": {"bin_counts": None, "bin_edges": None},
+            }
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+        expected = json.dumps(
+            {
+                "min": None,
+                "max": None,
+                "_top_k_modes": 5,
+                "sum": 0,
+                "_biased_variance": np.nan,
+                "_biased_skewness": np.nan,
+                "_biased_kurtosis": np.nan,
+                "_median_is_enabled": True,
+                "_median_abs_dev_is_enabled": True,
+                "max_histogram_bin": 100000,
+                "min_histogram_bin": expected_min_histogram_bin,
+                "histogram_bin_method_names": expected_histogram_bin_method_names,
+                "histogram_selection": None,
+                "user_set_histogram_bin": None,
+                "bias_correction": True,
+                "_mode_is_enabled": True,
+                "num_zeros": 0,
+                "num_negatives": 0,
+                "histogram_methods": expected_historam_methods,
+                "_stored_histogram": {
+                    "total_loss": 0,
+                    "current_loss": 0,
+                    "suggested_bin_count": 1000,
+                    "histogram": {"bin_counts": None, "bin_edges": None},
+                },
+                "_batch_history": [],
+                "quantiles": {bin_num: None for bin_num in range(999)},
+                "_NumericStatsMixin__calculations": {
+                    "min": "_get_min",
+                    "max": "_get_max",
+                    "sum": "_get_sum",
+                    "variance": "_get_variance",
+                    "skewness": "_get_skewness",
+                    "kurtosis": "_get_kurtosis",
+                    "histogram_and_quantiles": "_get_histogram_and_quantiles",
+                    "num_zeros": "_get_num_zeros",
+                    "num_negatives": "_get_num_negatives",
+                },
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 0,
+                "metadata": dict(),
+                "times": defaultdict(),
+                "thread_safe": True,
+                "match_count": 0,
+                "_IntColumn__calculations": {},
+            }
+        )
+
+        self.assertEqual(serialized, expected)
+
+    @mock.patch("time.time", return_value=0.0)
+    def test_json_encode_after_update(self, time):
+        data = np.array([0, 5, 10])
+        df = pd.Series(data).apply(str)
+
+        int_options = IntOptions()
+        int_options.histogram_and_quantiles.bin_count_or_method = 5
+        profiler = IntColumn("0", int_options)
+
+        mocked_quantiles = [0.25, 0.50, 0.75]
+        with mock.patch.object(
+            profiler, "_get_percentile", return_value=mocked_quantiles
+        ):
+            # Mock out complex _get_percentile function.
+            # Only need to test valid serialization of np.ndarry.
+            profiler.update(df)
+
+        serialized = json.dumps(profiler, cls=ProfileEncoder)
+
+        expected = json.dumps(
+            {
+                "min": 0.0,
+                "max": 10.0,
+                "_top_k_modes": 5,
+                "sum": 15.0,
+                "_biased_variance": 16.666666666666668,
+                "_biased_skewness": 0.0,
+                "_biased_kurtosis": -1.5,
+                "_median_is_enabled": True,
+                "_median_abs_dev_is_enabled": True,
+                "max_histogram_bin": 100000,
+                "min_histogram_bin": 1000,
+                "histogram_bin_method_names": ["custom"],
+                "histogram_selection": None,
+                "user_set_histogram_bin": None,
+                "bias_correction": True,
+                "_mode_is_enabled": True,
+                "num_zeros": 1,
+                "num_negatives": 0,
+                "histogram_selection": None,
+                "user_set_histogram_bin": 5,
+                "bias_correction": True,
+                "_mode_is_enabled": True,
+                "num_zeros": 1,
+                "num_negatives": 0,
+                "histogram_methods": {
+                    "custom": {
+                        "total_loss": 0,
+                        "current_loss": 0,
+                        "suggested_bin_count": 5,
+                        "histogram": {"bin_counts": None, "bin_edges": None},
+                    }
+                },
+                "_stored_histogram": {
+                    "total_loss": 2.0,
+                    "current_loss": 2.0,
+                    "suggested_bin_count": 1000,
+                    "histogram": {
+                        "bin_counts": [1, 0, 1, 0, 1],
+                        "bin_edges": [0.0, 2.0, 4.0, 6.0, 8.0, 10.0],
+                    },
+                },
+                "_batch_history": [
+                    {
+                        "match_count": 3,
+                        "sample_size": 3,
+                        "min": 0.0,
+                        "max": 10.0,
+                        "sum": 15.0,
+                        "biased_variance": 16.666666666666668,
+                        "mean": 5.0,
+                        "biased_skewness": 0.0,
+                        "biased_kurtosis": -1.5,
+                        "num_zeros": 1,
+                        "num_negatives": 0,
+                    }
+                ],
+                "quantiles": mocked_quantiles,
+                "_NumericStatsMixin__calculations": {
+                    "min": "_get_min",
+                    "max": "_get_max",
+                    "sum": "_get_sum",
+                    "variance": "_get_variance",
+                    "skewness": "_get_skewness",
+                    "kurtosis": "_get_kurtosis",
+                    "histogram_and_quantiles": "_get_histogram_and_quantiles",
+                    "num_zeros": "_get_num_zeros",
+                    "num_negatives": "_get_num_negatives",
+                },
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 3,
+                "metadata": dict(),
+                "times": {
+                    "min": 0.0,
+                    "max": 0.0,
+                    "sum": 0.0,
+                    "variance": 0.0,
+                    "skewness": 0.0,
+                    "kurtosis": 0.0,
+                    "histogram_and_quantiles": 0.0,
+                    "num_zeros": 0.0,
+                    "num_negatives": 0.0,
+                },
+                "thread_safe": True,
+                "match_count": 3,
+                "_IntColumn__calculations": {},
+            }
+        )
+
+        self.assertEqual(serialized, expected)

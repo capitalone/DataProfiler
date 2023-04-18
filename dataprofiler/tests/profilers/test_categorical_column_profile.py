@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import CategoricalColumn
+from dataprofiler.profilers.json_decoder import decode_column_profiler
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profile_builder import StructuredColProfiler
 from dataprofiler.profilers.profiler_options import CategoricalOptions
@@ -768,6 +769,33 @@ class TestCategoricalColumn(unittest.TestCase):
         )
 
         self.assertEqual(serialized, expected)
+
+    def test_json_encode(self):
+        serialized_json = json.dumps(
+            {
+                "class": "CategoricalColumn",
+                "data": {
+                    "name": "0",
+                    "col_index": np.nan,
+                    "sample_size": 0,
+                    "metadata": dict(),
+                    "times": defaultdict(),
+                    "thread_safe": True,
+                    "_categories": defaultdict(int),
+                    "_CategoricalColumn__calculations": dict(),
+                    "_top_k_categories": None,
+                },
+            }
+        )
+
+        deserialized = decode_column_profiler(serialized_json)
+
+        exepcted = CategoricalColumn("0")
+
+        print(deserialized.__dict__)
+        print(exepcted.__dict__)
+
+        # TODO: find way to compare profiles
 
 
 class TestCategoricalSentence(unittest.TestCase):

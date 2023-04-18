@@ -2,14 +2,14 @@
 """Build model for dataset by identifying col type along with its respective params."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 if TYPE_CHECKING:
     import dask as dd
     import pandas as pd
 
 
-def is_in_range(x: float | int, config: dict) -> bool:
+def is_in_range(x: str | int | float, config: dict) -> bool:
     """
     Check to see x is in the range of the config.
 
@@ -25,7 +25,7 @@ def is_in_range(x: float | int, config: dict) -> bool:
         raise TypeError("Value is not a float")
 
 
-def is_in_list(x: str, config: dict) -> bool:
+def is_in_list(x: str | int | float, config: dict) -> bool:
     """
     Check to see x is in the config list.
 
@@ -103,11 +103,17 @@ class Validator:
 
                 if sub_key not in ["range", "list"]:
                     raise TypeError("Range and list only acceptable key values.")
-                apply_type = is_in_range if sub_key == "range" else is_in_list
+                apply_type: Callable[[str | int | float, dict], bool] = (
+                    is_in_range if sub_key == "range" else is_in_list
+                )
 
                 if df_type == "dask":
-                    temp_results = df_series.apply(
-                        apply_type, meta=(iter_key, "bool"), args=(sub_value,)
+
+                    def apply_with_config(x: Any) -> bool:
+                        return cast(bool, apply_type(x, sub_value))
+
+                    temp_results = df_series.map(
+                        apply_with_config, meta=(iter_key, "bool")
                     )
                     temp_results = temp_results.compute()
                     # Dask evaluates this to be an nd array so we have to

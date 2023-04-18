@@ -22,14 +22,19 @@ def get_column_profiler_class(class_name: str) -> BaseColumnProfiler:
         raise ValueError(f"Invalid profiler class {class_name} " f"failed to load.")
 
 
-def decode_categorical_column(to_decode: dict):
+def load_column_profile(serialized_json: dict) -> BaseColumnProfiler:
     """
-    Specify how CategoricalColumn should be deserialized.
+    Construct subclass of BaseColumnProfiler given a serialzed_json.
 
-    :param to_decode: an object to be deserialized
-    :type to_serialize: a dictionary resullting from json.loads()
-    :return: CategoricalColumn object
+    :param serialized_json: JSON represenation of column profiler that was
+        serialized using the custom encoder in proilers.json_encoder
+    :type serialized_json: a dict that was created by calling json.loads on
+        a JSON representation using the custom encoder
+    :return: subclass of BaseColumnProfiler that has been deserialiszed from
+        JSON
     """
-    decoded = CategoricalColumn(to_decode["name"])
-    for attr, value in to_decode.items():
-        decoded.__setattr__(attr, value)
+    column_profiler = get_column_profiler_class(serialized_json["class"])
+    for attr, value in serialized_json["data"].items():
+        column_profiler.__setattr__(attr, value)
+
+    return column_profiler

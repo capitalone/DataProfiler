@@ -366,17 +366,20 @@ class TestOrderColumn(unittest.TestCase):
         serialized = json.dumps(profile, cls=ProfileEncoder)
         expected = json.dumps(
             {
-                "order": None,
-                "_last_value": None,
-                "_first_value": None,
-                "_piecewise": False,
-                "_OrderColumn__calculations": dict(),
-                "name": "0",
-                "col_index": np.nan,
-                "sample_size": 0,
-                "metadata": dict(),
-                "times": defaultdict(),
-                "thread_safe": True,
+                "class": "OrderColumn",
+                "data": {
+                    "order": None,
+                    "_last_value": None,
+                    "_first_value": None,
+                    "_piecewise": False,
+                    "_OrderColumn__calculations": dict(),
+                    "name": "0",
+                    "col_index": np.nan,
+                    "sample_size": 0,
+                    "metadata": dict(),
+                    "times": defaultdict(),
+                    "thread_safe": True,
+                },
             }
         )
 
@@ -392,17 +395,20 @@ class TestOrderColumn(unittest.TestCase):
         serialized = json.dumps(profile, cls=ProfileEncoder)
         expected = json.dumps(
             {
-                "order": "descending",
-                "_last_value": "a",
-                "_first_value": "za",
-                "_piecewise": False,
-                "_OrderColumn__calculations": dict(),
-                "name": "0",
-                "col_index": np.nan,
-                "sample_size": 4,
-                "metadata": dict(),
-                "times": {"order": 0.0},
-                "thread_safe": True,
+                "class": "OrderColumn",
+                "data": {
+                    "order": "descending",
+                    "_last_value": "a",
+                    "_first_value": "za",
+                    "_piecewise": False,
+                    "_OrderColumn__calculations": dict(),
+                    "name": "0",
+                    "col_index": np.nan,
+                    "sample_size": 4,
+                    "metadata": dict(),
+                    "times": {"order": 0.0},
+                    "thread_safe": True,
+                },
             }
         )
 

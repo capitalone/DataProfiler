@@ -151,12 +151,15 @@ class TestBaseColumnProfileClass(unittest.TestCase):
         serialized = json.dumps(profile, cls=ProfileEncoder)
         expected = json.dumps(
             {
-                "name": "0",
-                "col_index": np.nan,
-                "sample_size": 0,
-                "metadata": dict(),
-                "times": defaultdict(),
-                "thread_safe": True,
+                "class": "BaseColumnProfiler",
+                "data": {
+                    "name": "0",
+                    "col_index": np.nan,
+                    "sample_size": 0,
+                    "metadata": dict(),
+                    "times": defaultdict(),
+                    "thread_safe": True,
+                },
             }
         )
 

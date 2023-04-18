@@ -1,5 +1,7 @@
 """Contains methods to decode components of a Profiler."""
 
+import json
+
 from .base_column_profilers import BaseColumnProfiler
 from .categorical_column_profile import CategoricalColumn
 
@@ -24,7 +26,7 @@ def get_column_profiler_class(class_name: str) -> BaseColumnProfiler:
 
 def load_column_profile(serialized_json: dict) -> BaseColumnProfiler:
     """
-    Construct subclass of BaseColumnProfiler given a serialzed_json.
+    Construct subclass of BaseColumnProfiler given a serialized JSON.
 
     :param serialized_json: JSON represenation of column profiler that was
         serialized using the custom encoder in proilers.json_encoder
@@ -38,3 +40,16 @@ def load_column_profile(serialized_json: dict) -> BaseColumnProfiler:
         column_profiler.__setattr__(attr, value)
 
     return column_profiler
+
+
+def decode_column_profiler(serialized: str) -> BaseColumnProfiler:
+    """
+    Construct subclass of BaseColumnProfiler given a serialized JSON.
+
+    :param serialized: JSON represenation of column profiler that was
+        serialized using the custom encoder in proilers.json_encoder
+    :type serialized: a JSON str serialized using the custom decoder
+    :return: subclass of BaseColumnProfiler that has been deserialiszed from
+        JSON
+    """
+    return load_column_profile(json.loads(serialized))

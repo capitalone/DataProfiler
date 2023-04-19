@@ -789,13 +789,9 @@ class TestCategoricalColumn(unittest.TestCase):
         )
 
         deserialized = decode_column_profiler(serialized_json)
-
         exepcted = CategoricalColumn("0")
 
-        print(deserialized.__dict__)
-        print(exepcted.__dict__)
-
-        # TODO: find way to compare profiles
+        test_utils.assert_profiles_equal(deserialized, exepcted)
 
 
 class TestCategoricalSentence(unittest.TestCase):

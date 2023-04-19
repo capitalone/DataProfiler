@@ -28,6 +28,16 @@ def load_column_profile(serialized_json: dict) -> BaseColumnProfiler:
     """
     Construct subclass of BaseColumnProfiler given a serialized JSON.
 
+    Exepcted format of serialzied_json (see json_encoder):
+        {
+            "class": <str name of class that was serialized>
+            "data": {
+                <attr1>: <value1>
+                <attr2>: <value2>
+                ...
+            }
+        }
+
     :param serialized_json: JSON represenation of column profiler that was
         serialized using the custom encoder in proilers.json_encoder
     :type serialized_json: a dict that was created by calling json.loads on

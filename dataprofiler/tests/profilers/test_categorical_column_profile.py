@@ -793,6 +793,50 @@ class TestCategoricalColumn(unittest.TestCase):
 
         test_utils.assert_profiles_equal(deserialized, exepcted)
 
+    def test_json_decode_after_update(self):
+        # Actual deserialization
+        serialized = json.dumps(
+            {
+                "class": "CategoricalColumn",
+                "data": {
+                    "name": None,
+                    "col_index": np.nan,
+                    "sample_size": 12,
+                    "metadata": {},
+                    "times": {"categories": 0.0},
+                    "thread_safe": True,
+                    "_categories": {"c": 5, "b": 4, "a": 3},
+                    "_CategoricalColumn__calculations": {},
+                    "_top_k_categories": None,
+                },
+            }
+        )
+        deserialized = decode_column_profiler(serialized)
+
+        # Build expected CategoricalColumn
+        df_categorical = pd.Series(
+            [
+                "a",
+                "a",
+                "a",
+                "b",
+                "b",
+                "b",
+                "b",
+                "c",
+                "c",
+                "c",
+                "c",
+                "c",
+            ]
+        )
+        profile = CategoricalColumn(df_categorical.name)
+
+        with patch("time.time", side_effect=lambda: 0.0):
+            profile.update(df_categorical)
+
+        test_utils.assert_profiles_equal(deserialized, profile)
+
 
 class TestCategoricalSentence(unittest.TestCase):
     def setUp(self):

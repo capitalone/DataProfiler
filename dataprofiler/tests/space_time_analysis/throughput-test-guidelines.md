@@ -119,27 +119,27 @@ directory. To generate flamegraphs from all the generated `.bin` files:
 When running these space/time analyses, you can include the following format in your Pull Request description for
 validation of improvement:
 ```
-Space Analysis:
 - <1st dataset size>
   - Profile
     - Pre change
-        - Total: <Total space taken in flame graph>
-        - Line specific (Line number/s): <Space taken by soon-to-be-changed line in flame graph>
+        - Total space allocated: <Total space taken in flame graph>
+        - Line specific space allocated (Line number/s): <Space taken by soon-to-be-changed line in flame graph>
+        - Profile runtime: <from time report text file>
     - Post change
-        - Total: <Total space taken in flame graph>
-        - Line specific (Line number/s): <Space taken by changed line in flame graph>
+        - Total space allocated: <Total space taken in flame graph>
+        - Line specific space allocated (Line number/s): <Space taken by soon-to-be-changed line in flame graph>
+        - Profile runtime: <from time report text file>
   - Merge
     - Pre change
-        - Total: <Total space taken in flame graph>
-        - Line specific (Line number/s): <Space taken by soon-to-be-changed line in flame graph>
+        - Total space allocated: <Total space taken in flame graph>
+        - Line specific space allocated (Line number/s): <Space taken by soon-to-be-changed line in flame graph>
+        - Merge runtime: <from time report text file>
     - Post change
-        - Total: <Total space taken in flame graph>
-        - Line specific (Line number/s): <Space taken by changed line in flame graph>
+        - Total space allocated: <Total space taken in flame graph>
+        - Line specific space allocated (Line number/s): <Space taken by changed line in flame graph>
+        - Merge runtime: <from time report text file>
 - <2nd dataset size>
 ...
-
-Time Analysis:
-<Copy/paste from text file reports in "./time_analysis">
 ```
 
 # Unstructured Dataset Throughput Evaluation

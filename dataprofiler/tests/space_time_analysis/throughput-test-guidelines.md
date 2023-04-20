@@ -107,12 +107,18 @@ data.to_csv('data/time_structured_profiler.csv', index=False)
 # Reporting findings to github
 
 
-### Obtaining space flamegraphs
-After running `structured_space_time_analysis.py` script there will be `.bin` files created in the `./space_analysis`
-directory. To generate flamegraphs from all the generated `.bin` files:
-```console
-./create_flamegraphs.sh
-```
+### Obtaining outputs
+- Run `python structured_spect_time_analysis.py`
+- This will output:
+  - `.bin` files in the `./space_analysis` folder:
+    - To generate readable flamegraph reports run:
+    ```console
+    ./create_flamegraph.sh
+    ```
+  - Text files in the `./time_analysis` folder
+
+- *Note: Above steps will need be run before and after the proposed changes.
+This will provide an accurate comparison of time and space measurements*
 
 
 ### Attaching report to PR

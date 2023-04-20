@@ -104,6 +104,44 @@ data = data[~data.isna().any(axis=1)].reset_index(drop=True)
 data.to_csv('data/time_structured_profiler.csv', index=False)
 ```
 
+# Reporting findings to github
+
+
+### Obtaining space flamegraphs
+After running `structured_space_time_analysis.py` script there will be `.bin` files created in the `./space_analysis`
+directory. To generate flamegraphs from all the generated `.bin` files:
+```console
+./create_flamegraphs.sh
+```
+
+
+### Attaching report to PR
+When running these space/time analyses, you can include the following format in your Pull Request description for
+validation of improvement:
+```
+Space Analysis:
+- <1st dataset size>
+  - Profile
+    - Pre change
+        - Total: <Total space taken in flame graph>
+        - Line specific (Line number/s): <Space taken by soon-to-be-changed line in flame graph>
+    - Post change
+        - Total: <Total space taken in flame graph>
+        - Line specific (Line number/s): <Space taken by changed line in flame graph>
+  - Merge
+    - Pre change
+        - Total: <Total space taken in flame graph>
+        - Line specific (Line number/s): <Space taken by soon-to-be-changed line in flame graph>
+    - Post change
+        - Total: <Total space taken in flame graph>
+        - Line specific (Line number/s): <Space taken by changed line in flame graph>
+- <2nd dataset size>
+...
+
+Time Analysis:
+<Copy/paste from text file reports in "./time_analysis">
+```
+
 # Unstructured Dataset Throughput Evaluation
 
 TBD

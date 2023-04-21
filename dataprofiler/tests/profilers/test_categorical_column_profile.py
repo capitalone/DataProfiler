@@ -770,12 +770,13 @@ class TestCategoricalColumn(unittest.TestCase):
 
         self.assertEqual(serialized, expected)
 
-    def test_json_encode(self):
+    def test_json_decode(self):
+        fake_profile_name = None
         serialized_json = json.dumps(
             {
                 "class": "CategoricalColumn",
                 "data": {
-                    "name": "0",
+                    "name": fake_profile_name,
                     "col_index": np.nan,
                     "sample_size": 0,
                     "metadata": dict(),
@@ -789,17 +790,18 @@ class TestCategoricalColumn(unittest.TestCase):
         )
 
         deserialized = decode_column_profiler(serialized_json)
-        exepcted = CategoricalColumn("0")
+        exepcted = CategoricalColumn(fake_profile_name)
 
         test_utils.assert_profiles_equal(deserialized, exepcted)
 
     def test_json_decode_after_update(self):
+        fake_profile_name = "Fake profile name"
         # Actual deserialization
         serialized = json.dumps(
             {
                 "class": "CategoricalColumn",
                 "data": {
-                    "name": None,
+                    "name": fake_profile_name,
                     "col_index": np.nan,
                     "sample_size": 12,
                     "metadata": {},
@@ -830,7 +832,7 @@ class TestCategoricalColumn(unittest.TestCase):
                 "c",
             ]
         )
-        profile = CategoricalColumn(df_categorical.name)
+        profile = CategoricalColumn(fake_profile_name)
 
         with patch("time.time", side_effect=lambda: 0.0):
             profile.update(df_categorical)

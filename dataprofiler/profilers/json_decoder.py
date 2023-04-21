@@ -18,10 +18,13 @@ def get_column_profiler_class(class_name: str) -> BaseColumnProfiler:
     :type class_name: str representing name of class
     :return: subclass of BaseColumnProfiler object
     """
-    if class_name == CategoricalColumn.__name__:
-        return CategoricalColumn(None)
-    else:
+    profiles = {CategoricalColumn.__name__: CategoricalColumn}
+
+    profile_class = profiles.get(class_name)
+    if profile_class is None:
         raise ValueError(f"Invalid profiler class {class_name} " f"failed to load.")
+    else:
+        return profile_class(None)
 
 
 def load_column_profile(serialized_json: dict) -> BaseColumnProfiler:

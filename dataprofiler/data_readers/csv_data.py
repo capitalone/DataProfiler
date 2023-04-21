@@ -1,4 +1,4 @@
-"""Contains class that saves and loads speradsheet data."""
+"""Contains class that saves and loads spreadsheet data."""
 import csv
 import random
 import re

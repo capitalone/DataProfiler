@@ -40,7 +40,10 @@ def nan_injection(
 
 
 def convert_data_to_df(
-    np_data: np.array, path: Optional[str] = None, index: bool = False
+    np_data: np.array,
+    path: Optional[str] = None,
+    index: bool = False,
+    column_names: Optional[List[str]] = None,
 ) -> pd.DataFrame:
     """
     Converts np array to a pandas dataframe
@@ -51,11 +54,14 @@ def convert_data_to_df(
     :type path: str, None, optional
     :param index: whether to include index in output to csv
     :type path: bool, optional
+    :param column_names: The names of the columns of a dataset
+    :type path: List, None, optional
     :return: a pandas dataframe
     """
     # convert array into dataframe
-    dataframe = pd.DataFrame(np_data)
-
+    if not column_names:
+        column_names = [x for x in range(len(np_data))]
+    dataframe = pd.DataFrame.from_dict(dict(zip(column_names, np_data)))
     # save the dataframe as a csv file
     if path:
         dataframe.to_csv(path, index=index)
@@ -341,7 +347,6 @@ def generate_dataset_by_class(
 
         col_generator_function = gen_funcs.get(col_generator)
         dataset.append(col_generator_function(**col_, num_rows=dataset_length, rng=rng))
-
     return convert_data_to_df(dataset, path)
 
 

@@ -1,4 +1,5 @@
 import copy
+import json
 import string
 from typing import List, Optional
 
@@ -13,6 +14,17 @@ try:
     import dataprofiler as dp
 except ImportError:
     import dataprofiler as dp
+
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
 
 
 def nan_injection(

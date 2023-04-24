@@ -144,7 +144,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: i
         :type subset_properties: dict
         :return: None
         """
-        data_flat = list(itertools.chain(*data))
+        data_flat = set(itertools.chain(*data))
         self.vocab = utils._combine_unique_sets(self.vocab, data_flat)
 
     def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:

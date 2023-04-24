@@ -20,7 +20,7 @@ try:
 except ImportError:
     import dataprofiler as dp
 
-from dataset_generation import NpEncoder, generate_dataset_by_class, nan_injection
+from dataset_generation import NumpyEncoder, generate_dataset_by_class, nan_injection
 
 from dataprofiler import StructuredProfiler
 
@@ -236,7 +236,7 @@ def dp_space_time_analysis(
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
         with open(path, "w") as fp:
-            json.dump(profile_times, fp, indent=4, cls=NpEncoder)
+            json.dump(profile_times, fp, indent=4, cls=NumpyEncoder)
         times_table.to_csv(path)
 
 

@@ -10,6 +10,7 @@ import memray
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from numpy.random import Generator
 
 try:
     import sys
@@ -19,7 +20,7 @@ try:
 except ImportError:
     import dataprofiler as dp
 
-from dataset_generation import generate_dataset_by_class
+from dataset_generation import generate_dataset_by_class, nan_injection
 
 from dataprofiler import StructuredProfiler
 
@@ -65,6 +66,7 @@ def dp_merge_space_analysis(profile: StructuredProfiler, path: str):
 
 
 def dp_space_time_analysis(
+    rng: Generator,
     sample_sizes: List,
     data: pd.DataFrame,
     path: str = "./time_analysis/structured_profiler_times.json",
@@ -77,6 +79,8 @@ def dp_space_time_analysis(
     """
     Run time analysis for profile and merge functionality
 
+    :param rng: the np rng object used to generate random values
+    :type rng: numpy Generator
     :param sample_sizes: List of sample sizes of dataset to be analyzed
     :type sample_sizes: list
     :param data: DataFrame to be used for time analysis
@@ -107,21 +111,24 @@ def dp_space_time_analysis(
         if sample_size > len(data):
             replace = True
 
-        df = (
+        sample_data = (
             data.sample(sample_size, replace=replace)
             .sort_index()
             .reset_index(drop=True)
         )
 
         if percent_to_nan:
-            df = nan_injection(df)
+            sample_data = nan_injection(rng, sample_data)
         if time_analysis:
             # time profiling
             start_time = time.time()
             if allow_subsampling:
-                profiler = dp.Profiler(df, options=options)
+                profiler = dp.Profiler(sample_data, options=options)
             else:
-                profiler = dp.Profiler(df, samples_per_update=len(df), options=options)
+                print(f"Length of dataset {len(sample_data)}")
+                profiler = dp.Profiler(
+                    sample_data, samples_per_update=len(sample_data), options=options
+                )
             total_time = time.time() - start_time
 
             # get overall time for merging profiles
@@ -174,6 +181,9 @@ def dp_space_time_analysis(
             time_report_path = os.path.join(
                 os.path.dirname(path), f"time_report_{sample_size}.txt"
             )
+            if not os.path.exists(os.path.dirname(time_report_path)):
+                os.makedirs(os.path.dirname(time_report_path))
+
             with open(time_report_path, "a") as f:
                 f.write(f"COMPLETE sample size: {sample_size} \n")
                 print(f"COMPLETE sample size: {sample_size}")
@@ -188,7 +198,7 @@ def dp_space_time_analysis(
             if not os.path.exists("./space_analysis/"):
                 os.makedirs("./space_analysis/")
             profile = dp_profile_space_analysis(
-                data=df,
+                data=sample_data,
                 path=f"./space_analysis/profile_space_analysis_{sample_size}.bin",
                 options=options,
             )
@@ -234,44 +244,51 @@ if __name__ == "__main__":
     ################################################################################
     ######################## set any optional changes here #########################
     ################################################################################
-    options = dp.ProfilerOptions()
+    OPTIONS = dp.ProfilerOptions()
 
     # these two options default to True if commented out
-    options.structured_options.multiprocess.is_enabled = False
-    options.structured_options.data_labeler.is_enabled = False
+    OPTIONS.structured_options.multiprocess.is_enabled = False
+    OPTIONS.structured_options.data_labeler.is_enabled = False
 
     # parameter alteration
-    ALLOW_SUBSAMPLING = True  # profiler to subsample the dataset if large
+    ALLOW_SUBSAMPLING = False  # profiler to subsample the dataset if large
     PERCENT_TO_NAN = 0.0  # Value must be between 0 and 100
 
     # If set to None new dataset is generated.
-    DATASET_PATH = "./data/time_structured_profiler.csv"
+    DATASET_PATH = None
 
     TIME_ANALYSIS = True
     SPACE_ANALYSIS = True
-    sample_sizes = [100, 1000, 5000, 7500, int(1e5)]
+    SAMPLE_SIZES = [100, 1000, 5000, 7500, int(1e5)]
 
     # set seed
-    random_seed = 0
+    RANDOM_SEED = 0
     ################################################################################
 
-    random.seed(random_seed)
-    np.random.seed(random_seed)
-    dp.set_seed(random_seed)
-    rng = np.random.default_rng(seed=random_seed)
+    random.seed(RANDOM_SEED)
+    np.random.seed(RANDOM_SEED)
+    dp.set_seed(RANDOM_SEED)
+    _rng = np.random.default_rng(seed=RANDOM_SEED)
 
     # Generate and load data
     if not DATASET_PATH:
-        data = generate_dataset_by_class(rng, dataset_length=max(sample_sizes))
+        _full_dataset = generate_dataset_by_class(
+            _rng,
+            dataset_length=max(SAMPLE_SIZES),
+            path="./data/all_data_class_100000.csv",
+        )
+        print(f"Dataset of size {max(SAMPLE_SIZES)} created.")
     else:
-        data = dp.Data(DATASET_PATH)
+        full_dataset = dp.Data(DATASET_PATH)
 
     dp_space_time_analysis(
-        sample_sizes,
-        data,
+        _rng,
+        SAMPLE_SIZES,
+        _full_dataset,
         path="./time_analysis/structured_profiler_times.json",
         percent_to_nan=PERCENT_TO_NAN,
-        options=options,
+        options=OPTIONS,
+        allow_subsampling=ALLOW_SUBSAMPLING,
         time_analysis=TIME_ANALYSIS,
         space_analysis=SPACE_ANALYSIS,
     )

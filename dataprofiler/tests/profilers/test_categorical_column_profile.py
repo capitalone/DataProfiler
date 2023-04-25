@@ -710,15 +710,18 @@ class TestCategoricalColumn(unittest.TestCase):
         serialized = json.dumps(profile, cls=ProfileEncoder)
         expected = json.dumps(
             {
-                "name": "0",
-                "col_index": np.nan,
-                "sample_size": 0,
-                "metadata": dict(),
-                "times": defaultdict(),
-                "thread_safe": True,
-                "_categories": defaultdict(int),
-                "_CategoricalColumn__calculations": dict(),
-                "_top_k_categories": None,
+                "class": "CategoricalColumn",
+                "data": {
+                    "name": "0",
+                    "col_index": np.nan,
+                    "sample_size": 0,
+                    "metadata": dict(),
+                    "times": defaultdict(),
+                    "thread_safe": True,
+                    "_categories": defaultdict(int),
+                    "_CategoricalColumn__calculations": dict(),
+                    "_top_k_categories": None,
+                },
             }
         )
 
@@ -749,16 +752,19 @@ class TestCategoricalColumn(unittest.TestCase):
         serialized = json.dumps(profile, cls=ProfileEncoder)
         expected = json.dumps(
             {
-                "name": None,
-                "col_index": np.nan,
-                "sample_size": 12,
-                "metadata": {},
-                "times": {"categories": 0.0},
-                "thread_safe": True,
-                "_categories": {"c": 5, "b": 4, "a": 3},
-                "_CategoricalColumn__calculations": {},
-                "_top_k_categories": None,
-            },
+                "class": "CategoricalColumn",
+                "data": {
+                    "name": None,
+                    "col_index": np.nan,
+                    "sample_size": 12,
+                    "metadata": {},
+                    "times": {"categories": 0.0},
+                    "thread_safe": True,
+                    "_categories": {"c": 5, "b": 4, "a": 3},
+                    "_CategoricalColumn__calculations": {},
+                    "_top_k_categories": None,
+                },
+            }
         )
 
         self.assertEqual(serialized, expected)

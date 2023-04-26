@@ -279,7 +279,7 @@ if __name__ == "__main__":
         )
         print(f"Dataset of size {max(SAMPLE_SIZES)} created.")
     else:
-        full_dataset = dp.Data(DATASET_PATH)
+        _full_dataset = dp.Data(DATASET_PATH)
 
     dp_space_time_analysis(
         _rng,

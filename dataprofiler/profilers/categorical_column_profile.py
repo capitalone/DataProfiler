@@ -215,18 +215,22 @@ class CategoricalColumn(BaseColumnProfiler):
         return is_match
 
     def check_stop_condition_is_met(self, data: DataFrame) -> bool:
-        """Return value stop_condition_is_met provided the new data being added
+        """Return value stop_condition_is_met provided the new data being added.
+
         :param data: Dataframe currently being processed by categorical profiler
         :type data: DataFrame
         :return: boolean for stop conditions
         """
         if not self._stop_condition_is_met:
             total_categories = len(self._categories) + len(data.value_counts())
-            if (self.max_sample_size_to_check_stop_condition and
-                len(data) >= self.max_sample_size_to_check_stop_condition and
-                self.stop_condition_unique_value_ratio and
-                total_categories/len(data) >= self.stop_condition_unique_value_ratio):
-                    self._stop_condition_is_met = True
+            if (
+                self.max_sample_size_to_check_stop_condition
+                and len(data) >= self.max_sample_size_to_check_stop_condition
+                and self.stop_condition_unique_value_ratio
+                and total_categories / len(data)
+                >= self.stop_condition_unique_value_ratio
+            ):
+                self._stop_condition_is_met = True
         return self._stop_condition_is_met
 
     @BaseColumnProfiler._timeit(name="categories")

@@ -43,9 +43,12 @@ class CategoricalColumn(BaseColumnProfiler):
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
         self._top_k_categories: int | None = None
+
+        # Conditions to stop categorical profiling
         self.max_sample_size_to_check_stop_condition = None
         self.stop_condition_unique_value_ratio = None
         self._stop_condition_is_met = False
+
         if options:
             self._top_k_categories = options.top_k_categories
 
@@ -214,24 +217,21 @@ class CategoricalColumn(BaseColumnProfiler):
             is_match = True
         return is_match
 
-    def check_stop_condition_is_met(self, data: DataFrame) -> bool:
-        """Return value stop_condition_is_met provided the new data being added.
+    def update_stop_condition(self, data: DataFrame):
+        """Return value stop_condition_is_met given stop conditions.
 
         :param data: Dataframe currently being processed by categorical profiler
         :type data: DataFrame
         :return: boolean for stop conditions
         """
-        if not self._stop_condition_is_met:
-            total_categories = len(self._categories) + len(data.value_counts())
-            if (
-                self.max_sample_size_to_check_stop_condition
-                and len(data) >= self.max_sample_size_to_check_stop_condition
-                and self.stop_condition_unique_value_ratio
-                and total_categories / len(data)
-                >= self.stop_condition_unique_value_ratio
-            ):
-                self._stop_condition_is_met = True
-        return self._stop_condition_is_met
+        if (
+            self.max_sample_size_to_check_stop_condition
+            and len(data) >= self.max_sample_size_to_check_stop_condition
+            and self.stop_condition_unique_value_ratio
+            and len(self._categories) / len(data)
+            >= self.stop_condition_unique_value_ratio
+        ):
+            self._stop_condition_is_met = True
 
     @BaseColumnProfiler._timeit(name="categories")
     def _update_categories(
@@ -255,15 +255,11 @@ class CategoricalColumn(BaseColumnProfiler):
         :type df_series: pandas.DataFrame
         :return: None
         """
-        if not self.check_stop_condition_is_met(df_series):
-            category_count = df_series.value_counts(dropna=False).to_dict()
-            # If condition for limiting profile calculations
-
-            self._categories = utils.add_nested_dictionaries(
-                self._categories, category_count
-            )
-        else:
-            self._categories = {}
+        category_count = df_series.value_counts(dropna=False).to_dict()
+        self._categories = utils.add_nested_dictionaries(
+            self._categories, category_count
+        )
+        self.update_stop_condition(df_series)
 
     def _update_helper(self, df_series_clean: Series, profile: dict) -> None:
         """
@@ -286,7 +282,9 @@ class CategoricalColumn(BaseColumnProfiler):
         :return: updated CategoricalColumn
         :rtype: CategoricalColumn
         """
-        if len(df_series) == 0:
+        # If condition for limiting profile calculations
+        if len(df_series) == 0 or self._stop_condition_is_met:
+            self._categories = {}
             return self
 
         profile = dict(sample_size=len(df_series))

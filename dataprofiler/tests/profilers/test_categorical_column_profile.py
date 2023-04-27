@@ -50,6 +50,43 @@ class TestCategoricalColumn(unittest.TestCase):
         }
         self.assertCountEqual(categories, profile.categories)
 
+    def test_stop_condition_is_met_initially(self):
+        dataset = self.aws_dataset["host"].dropna()
+        profile = CategoricalColumn(dataset.name)
+        profile.max_sample_size_to_check_stop_condition = 200
+        profile.stop_condition_unique_value_ratio = 0
+        profile.update(dataset)
+
+        self.assertTrue(profile._stop_condition_is_met)
+        self.assertEqual(profile.categories, [])
+        self.assertEqual(profile.unique_count, None)
+        self.assertEqual(profile.unique_ratio, None)
+
+    def test_stop_condition_is_met_after_initial_profile(self):
+        dataset = self.aws_dataset["host"].dropna()
+        profile = CategoricalColumn(dataset.name)
+        profile.max_sample_size_to_check_stop_condition = len(dataset.value_counts())
+        profile.stop_condition_unique_value_ratio = (
+            len(dataset.value_counts()) + 1
+        ) / len(dataset)
+        profile.update(dataset)
+        self.assertFalse(profile._stop_condition_is_met)
+        self.assertEqual(profile.categories.sort(), list(set(dataset.values)).sort())
+        self.assertEqual(profile.unique_count, len(dataset.value_counts()))
+        self.assertEqual(
+            profile.unique_ratio, len(dataset.value_counts()) / len(dataset)
+        )
+
+        dataset.loc[len(dataset.index)] = "Testing past ratio"
+        profile.update(dataset)
+
+        self.assertTrue(profile._stop_condition_is_met)
+        self.assertEqual(profile.categories, [])
+        self.assertEqual(profile.unique_count, (len(dataset.value_counts())) - 1)
+        self.assertEqual(
+            profile.unique_ratio, (len(dataset.value_counts()) - 1) / len(dataset)
+        )
+
     def test_timeit_profile(self):
         dataset = self.aws_dataset["host"].dropna()
         profile = CategoricalColumn(dataset.name)

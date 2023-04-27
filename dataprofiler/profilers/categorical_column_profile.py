@@ -49,6 +49,8 @@ class CategoricalColumn(BaseColumnProfiler):
         self.stop_condition_unique_value_ratio = None
         self._stop_condition_is_met = False
 
+        self._unique_ratio = 0.0
+        self._unique_count = 0.0
         if options:
             self._top_k_categories = options.top_k_categories
 
@@ -104,7 +106,7 @@ class CategoricalColumn(BaseColumnProfiler):
                 (
                     "unique_ratio",
                     utils.find_diff_of_numbers(
-                        self.unique_ratio, other_profile.unique_ratio
+                        self._unique_ratio, other_profile.unique_ratio
                     ),
                 ),
             ]
@@ -168,8 +170,8 @@ class CategoricalColumn(BaseColumnProfiler):
             categorical=self.is_match,
             statistics=dict(
                 [
-                    ("unique_count", len(self.categories)),
-                    ("unique_ratio", self.unique_ratio),
+                    ("unique_count", self._unique_count),
+                    ("unique_ratio", self._unique_ratio),
                 ]
             ),
             times=self.times,
@@ -198,10 +200,24 @@ class CategoricalColumn(BaseColumnProfiler):
     @property
     def unique_ratio(self) -> float:
         """Return ratio of unique categories to sample_size."""
+        if self._stop_condition_is_met:
+            return self._unique_ratio
+
         unique_ratio = 1.0
         if self.sample_size:
             unique_ratio = len(self.categories) / self.sample_size
-        return unique_ratio
+        self._unique_ratio = unique_ratio
+        return self._unique_ratio
+
+    @property
+    def unique_count(self) -> float:
+        """Return ratio of unique categories to sample_size."""
+        if self._stop_condition_is_met:
+            return self._unique_count
+
+        self._unique_count = len(self.categories)
+
+        return self._unique_count
 
     @property
     def is_match(self) -> bool:
@@ -225,9 +241,9 @@ class CategoricalColumn(BaseColumnProfiler):
         :return: boolean for stop conditions
         """
         if (
-            self.max_sample_size_to_check_stop_condition
+            self.max_sample_size_to_check_stop_condition is not None
             and len(data) >= self.max_sample_size_to_check_stop_condition
-            and self.stop_condition_unique_value_ratio
+            and self.stop_condition_unique_value_ratio is not None
             and len(self._categories) / len(data)
             >= self.stop_condition_unique_value_ratio
         ):
@@ -260,6 +276,8 @@ class CategoricalColumn(BaseColumnProfiler):
             self._categories, category_count
         )
         self.update_stop_condition(df_series)
+        if self._stop_condition_is_met:
+            self._categories = {}
 
     def _update_helper(self, df_series_clean: Series, profile: dict) -> None:
         """
@@ -283,8 +301,7 @@ class CategoricalColumn(BaseColumnProfiler):
         :rtype: CategoricalColumn
         """
         # If condition for limiting profile calculations
-        if len(df_series) == 0 or self._stop_condition_is_met:
-            self._categories = {}
+        if len(df_series) == 0:
             return self
 
         profile = dict(sample_size=len(df_series))

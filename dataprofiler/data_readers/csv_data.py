@@ -597,7 +597,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             cast(Optional[int], self.header),
             self.selected_columns,
             read_in_string=True,
-            encoding=cast(str, self.file_encoding),
+            encoding=self.file_encoding,
         )
 
     def _get_data_as_records(self, data: pd.DataFrame) -> List[str]:

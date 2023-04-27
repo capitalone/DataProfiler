@@ -569,11 +569,8 @@ class CSVData(SpreadSheetDataMixin, BaseData):
                 self._quotechar = quotechar
 
             if self._header == "auto":
-                self._header = cast(
-                    int,
-                    self._guess_header_row(
-                        data_as_str, self._delimiter, self._quotechar
-                    ),
+                self._header = self._guess_header_row(
+                    data_as_str, self._delimiter, self._quotechar
                 )
                 self._checked_header = True
 

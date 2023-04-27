@@ -26,7 +26,7 @@ class ProfileEncoder(json.JSONEncoder):
                 numerical_column_stats.NumericStatsMixin,
             ),
         ):
-            return to_serialize.__dict__
+            return {"class": type(to_serialize).__name__, "data": to_serialize.__dict__}
         elif isinstance(to_serialize, np.integer):
             return int(to_serialize)
         elif isinstance(to_serialize, np.ndarray):

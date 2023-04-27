@@ -1,7 +1,7 @@
 """Contains factory class reading various kinds of data."""
 
 from io import BytesIO
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict, List, Optional, Union
 
 from .. import dp_logging
 from .avro_data import AVROData
@@ -62,7 +62,7 @@ class Data:
             )
 
         if not options:
-            options = cast(Dict, dict())
+            options = dict()
 
         if is_valid_url(input_file_path):
             input_file_path = url_to_bytes(input_file_path, options)

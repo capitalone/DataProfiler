@@ -59,8 +59,8 @@ class TestCategoricalColumn(unittest.TestCase):
 
         self.assertTrue(profile._stop_condition_is_met)
         self.assertEqual(profile.categories, [])
-        self.assertEqual(profile.unique_count, None)
-        self.assertEqual(profile.unique_ratio, None)
+        self.assertEqual(profile.unique_count, 0.0)
+        self.assertEqual(profile.unique_ratio, 0.0)
 
     def test_stop_condition_is_met_after_initial_profile(self):
         dataset = self.aws_dataset["host"].dropna()
@@ -748,18 +748,20 @@ class TestCategoricalColumn(unittest.TestCase):
         serialized = json.dumps(profile, cls=ProfileEncoder)
         expected = json.dumps(
             {
-                "class": "CategoricalColumn",
-                "data": {
-                    "name": "0",
-                    "col_index": np.nan,
-                    "sample_size": 0,
-                    "metadata": dict(),
-                    "times": defaultdict(),
-                    "thread_safe": True,
-                    "_categories": defaultdict(int),
-                    "_CategoricalColumn__calculations": dict(),
-                    "_top_k_categories": None,
-                },
+                "name": "0",
+                "col_index": np.nan,
+                "sample_size": 0,
+                "metadata": dict(),
+                "times": defaultdict(),
+                "thread_safe": True,
+                "_categories": defaultdict(int),
+                "_CategoricalColumn__calculations": dict(),
+                "_top_k_categories": None,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": None,
+                "_stop_condition_is_met": False,
+                "_unique_ratio": 0.0,
+                "_unique_count": 0.0,
             }
         )
 
@@ -790,19 +792,21 @@ class TestCategoricalColumn(unittest.TestCase):
         serialized = json.dumps(profile, cls=ProfileEncoder)
         expected = json.dumps(
             {
-                "class": "CategoricalColumn",
-                "data": {
-                    "name": None,
-                    "col_index": np.nan,
-                    "sample_size": 12,
-                    "metadata": {},
-                    "times": {"categories": 0.0},
-                    "thread_safe": True,
-                    "_categories": {"c": 5, "b": 4, "a": 3},
-                    "_CategoricalColumn__calculations": {},
-                    "_top_k_categories": None,
-                },
-            }
+                "name": None,
+                "col_index": np.nan,
+                "sample_size": 12,
+                "metadata": {},
+                "times": {"categories": 0.0},
+                "thread_safe": True,
+                "_categories": {"c": 5, "b": 4, "a": 3},
+                "_CategoricalColumn__calculations": {},
+                "_top_k_categories": None,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": None,
+                "_stop_condition_is_met": False,
+                "_unique_ratio": 0.0,
+                "_unique_count": 0.0
+            },
         )
 
         self.assertEqual(serialized, expected)

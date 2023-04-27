@@ -100,13 +100,13 @@ class CategoricalColumn(BaseColumnProfiler):
                 (
                     "unique_count",
                     utils.find_diff_of_numbers(
-                        len(self.categories), len(other_profile.categories)
+                        self.unique_count, other_profile.unique_count
                     ),
                 ),
                 (
                     "unique_ratio",
                     utils.find_diff_of_numbers(
-                        self._unique_ratio, other_profile.unique_ratio
+                        self.unique_ratio, other_profile.unique_ratio
                     ),
                 ),
             ]
@@ -170,8 +170,8 @@ class CategoricalColumn(BaseColumnProfiler):
             categorical=self.is_match,
             statistics=dict(
                 [
-                    ("unique_count", self._unique_count),
-                    ("unique_ratio", self._unique_ratio),
+                    ("unique_count", self.unique_count),
+                    ("unique_ratio", self.unique_ratio),
                 ]
             ),
             times=self.times,

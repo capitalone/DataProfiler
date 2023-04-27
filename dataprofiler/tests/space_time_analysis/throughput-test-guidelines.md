@@ -7,18 +7,20 @@ testing mechanism for both structured and unstructured datasets.
 
 # Structured Dataset Throughput Evaluation
 
-The test script `structured_throughput_testing.py` has been provided to simplify
+The test script `structured_space_time_analysis.py` has been provided to simplify
 the throughput testing procedure. Simply running the script will provide a
 printed output as well as four files and saved to the working directory of where
 the script was ran.
 
-  * `structured_profile_times.json`: dict of total time, time to merge, and
+  * `time_analysis/structured_profile_times.json`: dict of total time, time to merge, and
       runtimes for each of the profiled functions within the library
-  * `structured_profile_times.csv`: a flattened table of the above json
-  * `profile_space_analysis.bin`: a bin file that contains information on the
+  * `time_analysis/structured_profile_times.csv`: a flattened table of the above json
+  * `space_analysis/profile_space_analysis_*.bin`: a bin files that contain information on the
       spatial analysis of running the dp.Profiler function
-  * `merge_space_analysis.bin`: a bin file that contains information on the
+  * `space_analysis/merge_space_analysis_*.bin`: a bin files that contain information on the
       spatial analysis of merging two profiles together
+  * `time_analysis/time_report_*.txt`: a text file that shows the total time taken for
+      profiling and merging a dataset
 
 Total time and merge time can be used for comparing the overall runtime changes,
 whereas the individual function times can detail bottlenecks or speed changes as
@@ -27,14 +29,14 @@ a result of alterations to a property's calculation.
 The spatial analysis `bin` files can be viewed in different report formats with memray.
 For example running:
 ```console
-python3 -m memray flamegraph profile_space_analysis.bin -o profile_space_analysis.html
+python3 -m memray flamegraph profile_space_analysis*.bin -o profile_space_analysis.html
 ```
 Gives a html formatted flamegraph that displays the distribution of space allocated by
 function calls involved in the dp.Profiler
 
 The script can be run as follows:
 ```console
-python structured_throughput_testing.py
+python structured_space_time_analysis.py
 ```
 
 ### Tunable parameters
@@ -108,12 +110,12 @@ data.to_csv('data/time_structured_profiler.csv', index=False)
 
 
 ### Obtaining outputs
-- Run `python structured_spect_time_analysis.py`
+- Run `python structured_space_time_analysis.py`
 - This will output:
   - `.bin` files in the `./space_analysis` folder:
     - To generate readable flamegraph reports run:
     ```console
-    ./create_flamegraph.sh
+    ./create_flamegraphs.sh
     ```
   - Text files in the `./time_analysis` folder
 

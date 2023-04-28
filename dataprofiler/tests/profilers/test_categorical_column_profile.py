@@ -772,48 +772,16 @@ class TestCategoricalColumn(unittest.TestCase):
 
     def test_json_decode(self):
         fake_profile_name = None
-        serialized_json = json.dumps(
-            {
-                "class": "CategoricalColumn",
-                "data": {
-                    "name": fake_profile_name,
-                    "col_index": np.nan,
-                    "sample_size": 0,
-                    "metadata": dict(),
-                    "times": defaultdict(),
-                    "thread_safe": True,
-                    "_categories": defaultdict(int),
-                    "_CategoricalColumn__calculations": dict(),
-                    "_top_k_categories": None,
-                },
-            }
-        )
+        expected_profile = CategoricalColumn(fake_profile_name)
 
-        deserialized = decode_column_profiler(serialized_json)
-        exepcted = CategoricalColumn(fake_profile_name)
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = decode_column_profiler(serialized)
 
-        test_utils.assert_profiles_equal(deserialized, exepcted)
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
 
     def test_json_decode_after_update(self):
         fake_profile_name = "Fake profile name"
         # Actual deserialization
-        serialized = json.dumps(
-            {
-                "class": "CategoricalColumn",
-                "data": {
-                    "name": fake_profile_name,
-                    "col_index": np.nan,
-                    "sample_size": 12,
-                    "metadata": {},
-                    "times": {"categories": 0.0},
-                    "thread_safe": True,
-                    "_categories": {"c": 5, "b": 4, "a": 3},
-                    "_CategoricalColumn__calculations": {},
-                    "_top_k_categories": None,
-                },
-            }
-        )
-        deserialized = decode_column_profiler(serialized)
 
         # Build expected CategoricalColumn
         df_categorical = pd.Series(
@@ -832,12 +800,15 @@ class TestCategoricalColumn(unittest.TestCase):
                 "c",
             ]
         )
-        profile = CategoricalColumn(fake_profile_name)
+        expected_profile = CategoricalColumn(fake_profile_name)
 
         with patch("time.time", side_effect=lambda: 0.0):
-            profile.update(df_categorical)
+            expected_profile.update(df_categorical)
 
-        test_utils.assert_profiles_equal(deserialized, profile)
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = decode_column_profiler(serialized)
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
 
 
 class TestCategoricalSentence(unittest.TestCase):

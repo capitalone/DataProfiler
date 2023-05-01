@@ -45,8 +45,8 @@ class CategoricalColumn(BaseColumnProfiler):
         self._top_k_categories: int | None = None
 
         # Conditions to stop categorical profiling
-        self.max_sample_size_to_check_stop_condition = 100
-        self.stop_condition_unique_value_ratio = .10
+        self.max_sample_size_to_check_stop_condition = None
+        self.stop_condition_unique_value_ratio = None
         self._stop_condition_is_met = False
 
         self._stopped_at_unique_ratio = 0.0
@@ -71,9 +71,10 @@ class CategoricalColumn(BaseColumnProfiler):
             )
 
         merged_profile = CategoricalColumn(None)
-        merged_profile._categories = utils.add_nested_dictionaries(
-            self._categories, other._categories
-        )
+        if not (self._stop_condition_is_met or other._stop_condition_is_met):
+            merged_profile._categories = utils.add_nested_dictionaries(
+                self._categories, other._categories
+            )
         BaseColumnProfiler._add_helper(merged_profile, self, other)
         self._merge_calculations(
             merged_profile.__calculations, self.__calculations, other.__calculations

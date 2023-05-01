@@ -761,8 +761,8 @@ class TestCategoricalColumn(unittest.TestCase):
                     "max_sample_size_to_check_stop_condition": None,
                     "stop_condition_unique_value_ratio": None,
                     "_stop_condition_is_met": False,
-                    "_unique_ratio": 0.0,
-                    "_unique_count": 0.0,
+                    "_stopped_at_unique_ratio": 0.0,
+                    "_stopped_at_unique_count": 0.0,
                 }
             }
         )
@@ -809,8 +809,8 @@ class TestCategoricalColumn(unittest.TestCase):
                     "max_sample_size_to_check_stop_condition": None,
                     "stop_condition_unique_value_ratio": None,
                     "_stop_condition_is_met": False,
-                    "_unique_ratio": 0.0,
-                    "_unique_count": 0.0
+                    "_stopped_at_unique_ratio": 0.0,
+                    "_stopped_at_unique_count": 0.0,
                 },
             }
         )

@@ -23,6 +23,7 @@ except ImportError:
 from dataset_generation import NumpyEncoder, generate_dataset_by_class, nan_injection
 
 from dataprofiler import StructuredProfiler
+from dataprofiler.data_readers.csv_data import CSVData
 
 # suppress TF warnings
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
@@ -279,7 +280,7 @@ if __name__ == "__main__":
         )
         print(f"Dataset of size {max(SAMPLE_SIZES)} created.")
     else:
-        _full_dataset = dp.Data(DATASET_PATH)
+        _full_dataset = CSVData(DATASET_PATH)
 
     dp_space_time_analysis(
         _rng,

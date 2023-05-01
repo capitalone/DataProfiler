@@ -83,8 +83,32 @@ class CategoricalColumn(BaseColumnProfiler):
                 merged_profile.__calculations, self.__calculations, other.__calculations
             )
 
+            # Transfer stop condition variables of 1st profile object to merged profile
+            # if they are not None else set to 2nd profile
+            if self.max_sample_size_to_check_stop_condition is not None:
+                merged_profile.max_sample_size_to_check_stop_condition = (
+                    self.max_sample_size_to_check_stop_condition
+                )
+            else:
+                merged_profile.max_sample_size_to_check_stop_condition = (
+                    other.max_sample_size_to_check_stop_condition
+                )
+            if self.stop_condition_unique_value_ratio is not None:
+                merged_profile.stop_condition_unique_value_ratio = (
+                    self.stop_condition_unique_value_ratio
+                )
+            else:
+                merged_profile.stop_condition_unique_value_ratio = (
+                    other.stop_condition_unique_value_ratio
+                )
+
+            # 1st and 2nd profile values should be same so no need for conditonal set
+            merged_profile._stop_condition_is_met = self._stop_condition_is_met
+            merged_profile._stopped_at_unique_ratio = self._stopped_at_unique_ratio
+            merged_profile._stopped_at_unique_count = self._stopped_at_unique_count
+
             # Check merged profile w/ stop condition
-            if self._check_stop_condition_is_met(
+            if merged_profile._check_stop_condition_is_met(
                 merged_profile.sample_size, merged_profile.unique_ratio
             ):
                 merged_profile._stopped_at_unique_ratio = merged_profile.unique_ratio

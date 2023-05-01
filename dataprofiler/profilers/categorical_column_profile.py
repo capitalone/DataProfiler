@@ -45,12 +45,12 @@ class CategoricalColumn(BaseColumnProfiler):
         self._top_k_categories: int | None = None
 
         # Conditions to stop categorical profiling
-        self.max_sample_size_to_check_stop_condition = None
-        self.stop_condition_unique_value_ratio = None
+        self.max_sample_size_to_check_stop_condition = 100
+        self.stop_condition_unique_value_ratio = .10
         self._stop_condition_is_met = False
 
-        self._unique_ratio = 0.0
-        self._unique_count = 0.0
+        self._stopped_at_unique_ratio = 0.0
+        self._stopped_at_unique_count = 0.0
         if options:
             self._top_k_categories = options.top_k_categories
 
@@ -200,24 +200,20 @@ class CategoricalColumn(BaseColumnProfiler):
     @property
     def unique_ratio(self) -> float:
         """Return ratio of unique categories to sample_size."""
-        if self._stop_condition_is_met:
-            return self._unique_ratio
-
         unique_ratio = 1.0
+        if self._stop_condition_is_met:
+            return self._stopped_at_unique_ratio
+
         if self.sample_size:
-            unique_ratio = len(self.categories) / self.sample_size
-        self._unique_ratio = unique_ratio
-        return self._unique_ratio
+            return len(self.categories) / self.sample_size
 
     @property
     def unique_count(self) -> float:
         """Return ratio of unique categories to sample_size."""
         if self._stop_condition_is_met:
-            return self._unique_count
+            return self._stopped_at_unique_count
 
-        self._unique_count = len(self.categories)
-
-        return self._unique_count
+        return len(self.categories)
 
     @property
     def is_match(self) -> bool:
@@ -240,14 +236,19 @@ class CategoricalColumn(BaseColumnProfiler):
         :type data: DataFrame
         :return: boolean for stop conditions
         """
+        merged_unique_count = len(self._categories)
+        merged_sample_size = (self.sample_size + len(data))
+        merged_unique_ratio = merged_unique_count / merged_sample_size
+
         if (
-            self.max_sample_size_to_check_stop_condition is not None
-            and len(data) >= self.max_sample_size_to_check_stop_condition
-            and self.stop_condition_unique_value_ratio is not None
-            and len(self._categories) / len(data)
-            >= self.stop_condition_unique_value_ratio
+                self.max_sample_size_to_check_stop_condition is not None
+                and self.stop_condition_unique_value_ratio is not None
+                and merged_sample_size >= self.max_sample_size_to_check_stop_condition
+                and merged_unique_ratio >= self.stop_condition_unique_value_ratio
         ):
             self._stop_condition_is_met = True
+            self._stopped_at_unique_ratio = merged_unique_ratio
+            self._stopped_at_unique_count = merged_unique_count
 
     @BaseColumnProfiler._timeit(name="categories")
     def _update_categories(
@@ -301,7 +302,7 @@ class CategoricalColumn(BaseColumnProfiler):
         :rtype: CategoricalColumn
         """
         # If condition for limiting profile calculations
-        if len(df_series) == 0:
+        if len(df_series) == 0 or self._stop_condition_is_met:
             return self
 
         profile = dict(sample_size=len(df_series))

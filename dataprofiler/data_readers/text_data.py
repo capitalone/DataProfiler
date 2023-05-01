@@ -145,4 +145,4 @@ class TextData(BaseData):
         :return: None
         """
         super().reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options)  # type: ignore
+        TextData.__init__(self, self.input_file_path, data, options)

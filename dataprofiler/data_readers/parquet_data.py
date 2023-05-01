@@ -172,4 +172,4 @@ class ParquetData(SpreadSheetDataMixin, BaseData):
         :return: None
         """
         super().reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options)  # type: ignore
+        ParquetData.__init__(self, self.input_file_path, data, options)

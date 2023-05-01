@@ -755,4 +755,4 @@ class CSVData(SpreadSheetDataMixin, BaseData):
             header=self.header, delimiter=self.delimiter, quotechar=self.quotechar
         )
         super().reload(input_file_path, data, options)
-        self.__init__(self.input_file_path, data, options)  # type: ignore
+        CSVData.__init__(self, self.input_file_path, data, options)

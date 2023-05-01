@@ -71,14 +71,44 @@ class CategoricalColumn(BaseColumnProfiler):
             )
 
         merged_profile = CategoricalColumn(None)
+
+        # If both profiles have not met stop condition
         if not (self._stop_condition_is_met or other._stop_condition_is_met):
             merged_profile._categories = utils.add_nested_dictionaries(
                 self._categories, other._categories
             )
-        BaseColumnProfiler._add_helper(merged_profile, self, other)
-        self._merge_calculations(
-            merged_profile.__calculations, self.__calculations, other.__calculations
-        )
+
+            BaseColumnProfiler._add_helper(merged_profile, self, other)
+            self._merge_calculations(
+                merged_profile.__calculations, self.__calculations, other.__calculations
+            )
+
+            # Check merged profile w/ stop condition
+            if self._check_stop_condition_is_met(
+                merged_profile.sample_size, merged_profile.unique_ratio
+            ):
+                merged_profile._stopped_at_unique_ratio = merged_profile.unique_ratio
+                merged_profile._stopped_at_unique_count = merged_profile.unique_count
+                merged_profile._categories = {}
+                merged_profile._stop_condition_is_met = True
+
+        else:
+            # If either profile has hit stop condition, remove categories dict
+            merged_profile._stopped_at_unique_ratio = max(
+                self.unique_ratio, other.unique_ratio
+            )
+            merged_profile._stopped_at_unique_count = max(
+                self.unique_count, other.unique_count
+            )
+            merged_profile.times = (
+                self.times
+                if self.times["categories"] >= other.times["categories"]
+                else other.times
+            )
+            merged_profile.sample_size = self.sample_size + other.sample_size
+            merged_profile._categories = {}
+            merged_profile._stop_condition_is_met = True
+
         return merged_profile
 
     def diff(self, other_profile: CategoricalColumn, options: dict = None) -> dict:
@@ -201,12 +231,12 @@ class CategoricalColumn(BaseColumnProfiler):
     @property
     def unique_ratio(self) -> float:
         """Return ratio of unique categories to sample_size."""
-        unique_ratio = 1.0
         if self._stop_condition_is_met:
             return self._stopped_at_unique_ratio
 
         if self.sample_size:
             return len(self.categories) / self.sample_size
+        return 0
 
     @property
     def unique_count(self) -> float:
@@ -230,6 +260,25 @@ class CategoricalColumn(BaseColumnProfiler):
             is_match = True
         return is_match
 
+    def _check_stop_condition_is_met(self, sample_size: int, unqiue_ratio: float):
+        """Return boolean given stop conditions.
+
+        :param sample_size: Number of samples to check the stop condition
+        :type sample_size: int
+        :param unqiue_ratio: Ratio of unique values to full sample size to
+            check stop condition
+        :type unqiue_ratio: float
+        :return: boolean for stop conditions
+        """
+        if (
+            self.max_sample_size_to_check_stop_condition is not None
+            and self.stop_condition_unique_value_ratio is not None
+            and sample_size >= self.max_sample_size_to_check_stop_condition
+            and unqiue_ratio >= self.stop_condition_unique_value_ratio
+        ):
+            return True
+        return False
+
     def update_stop_condition(self, data: DataFrame):
         """Return value stop_condition_is_met given stop conditions.
 
@@ -238,16 +287,13 @@ class CategoricalColumn(BaseColumnProfiler):
         :return: boolean for stop conditions
         """
         merged_unique_count = len(self._categories)
-        merged_sample_size = (self.sample_size + len(data))
+        merged_sample_size = self.sample_size + len(data)
         merged_unique_ratio = merged_unique_count / merged_sample_size
 
-        if (
-                self.max_sample_size_to_check_stop_condition is not None
-                and self.stop_condition_unique_value_ratio is not None
-                and merged_sample_size >= self.max_sample_size_to_check_stop_condition
-                and merged_unique_ratio >= self.stop_condition_unique_value_ratio
-        ):
-            self._stop_condition_is_met = True
+        self._stop_condition_is_met = self._check_stop_condition_is_met(
+            merged_sample_size, merged_unique_ratio
+        )
+        if self._stop_condition_is_met:
             self._stopped_at_unique_ratio = merged_unique_ratio
             self._stopped_at_unique_count = merged_unique_count
 

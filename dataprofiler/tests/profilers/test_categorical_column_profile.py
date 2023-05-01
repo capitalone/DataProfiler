@@ -614,6 +614,44 @@ class TestCategoricalColumn(unittest.TestCase):
         }
         self.assertCountEqual(report_count, expected_dict)
 
+        # Setting up of profile with stop condition not yet met
+        profile_w_stop_cond_1 = CategoricalColumn("merge_stop_condition_test")
+        profile_w_stop_cond_1.max_sample_size_to_check_stop_condition = 12
+        profile_w_stop_cond_1.stop_condition_unique_value_ratio = 0
+        profile_w_stop_cond_1.update(df1)
+
+        self.assertFalse(profile_w_stop_cond_1._stop_condition_is_met)
+
+        # Setting up of profile without stop condition met
+        profile_w_stop_cond_2 = CategoricalColumn("merge_stop_condition_test")
+        profile_w_stop_cond_2.max_sample_size_to_check_stop_condition = 12
+        profile_w_stop_cond_2.stop_condition_unique_value_ratio = 0
+        profile_w_stop_cond_2.update(df2)
+
+        self.assertFalse(profile_w_stop_cond_1._stop_condition_is_met)
+
+        # Merge profiles w/o condition met
+        merged_stop_cond_profile_1 = profile_w_stop_cond_1 + profile_w_stop_cond_2
+
+        # Test whether merge caused stop condition to be hit
+        self.assertTrue(merged_stop_cond_profile_1._stop_condition_is_met)
+        self.assertEqual([], merged_stop_cond_profile_1.categories)
+        self.assertEqual(16, merged_stop_cond_profile_1.unique_count)
+        self.assertEqual((16 / 22), merged_stop_cond_profile_1.unique_ratio)
+        self.assertEqual(22, merged_stop_cond_profile_1.sample_size)
+
+        # Merge profile w/ and w/o condition met
+        merged_stop_cond_profile_2 = merged_stop_cond_profile_1 + profile_w_stop_cond_2
+
+        # Test whether merged profile stays persistently with condition met
+        self.assertTrue(merged_stop_cond_profile_2._stop_condition_is_met)
+        self.assertEqual([], merged_stop_cond_profile_2.categories)
+        self.assertEqual(16, merged_stop_cond_profile_2.unique_count)
+        self.assertEqual(
+            profile_w_stop_cond_2.unique_ratio, merged_stop_cond_profile_2.unique_ratio
+        )
+        self.assertEqual(33, merged_stop_cond_profile_2.sample_size)
+
     def test_gini_impurity(self):
         # Normal test
         df_categorical = pd.Series(["y", "y", "y", "y", "n", "n", "n"])
@@ -763,7 +801,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "_stop_condition_is_met": False,
                     "_stopped_at_unique_ratio": 0.0,
                     "_stopped_at_unique_count": 0.0,
-                }
+                },
             }
         )
 
@@ -795,8 +833,7 @@ class TestCategoricalColumn(unittest.TestCase):
         expected = json.dumps(
             {
                 "class": "CategoricalColumn",
-                "data":
-                {
+                "data": {
                     "name": None,
                     "col_index": np.nan,
                     "sample_size": 12,

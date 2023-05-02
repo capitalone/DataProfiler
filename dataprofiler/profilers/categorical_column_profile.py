@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from operator import itemgetter
+from typing import cast
 
 from pandas import DataFrame, Series
 
@@ -49,8 +50,8 @@ class CategoricalColumn(BaseColumnProfiler):
         self.stop_condition_unique_value_ratio = None
         self._stop_condition_is_met = False
 
-        self._stopped_at_unique_ratio = 0.0
-        self._stopped_at_unique_count = 0.0
+        self._stopped_at_unique_ratio: float | None = None
+        self._stopped_at_unique_count: int | None = None
         if options:
             self._top_k_categories = options.top_k_categories
 
@@ -73,14 +74,13 @@ class CategoricalColumn(BaseColumnProfiler):
         merged_profile = CategoricalColumn(None)
         BaseColumnProfiler._add_helper(merged_profile, self, other)
 
+        self._merge_calculations(
+            merged_profile.__calculations, self.__calculations, other.__calculations
+        )
         # If both profiles have not met stop condition
         if not (self._stop_condition_is_met or other._stop_condition_is_met):
             merged_profile._categories = utils.add_nested_dictionaries(
                 self._categories, other._categories
-            )
-
-            self._merge_calculations(
-                merged_profile.__calculations, self.__calculations, other.__calculations
             )
 
             # Transfer stop condition variables of 1st profile object to merged profile
@@ -248,17 +248,17 @@ class CategoricalColumn(BaseColumnProfiler):
     def unique_ratio(self) -> float:
         """Return ratio of unique categories to sample_size."""
         if self._stop_condition_is_met:
-            return self._stopped_at_unique_ratio
+            return cast(float, self._stopped_at_unique_ratio)
 
         if self.sample_size:
             return len(self.categories) / self.sample_size
         return 0
 
     @property
-    def unique_count(self) -> float:
+    def unique_count(self) -> int:
         """Return ratio of unique categories to sample_size."""
         if self._stop_condition_is_met:
-            return self._stopped_at_unique_count
+            return cast(int, self._stopped_at_unique_count)
 
         return len(self.categories)
 

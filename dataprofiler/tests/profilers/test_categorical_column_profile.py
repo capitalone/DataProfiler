@@ -648,10 +648,10 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual([], merged_stop_cond_profile_2.categories)
         self.assertEqual(16, merged_stop_cond_profile_2.unique_count)
         self.assertEqual(
-            merged_stop_cond_profile_1.unique_ratio, merged_stop_cond_profile_2.unique_ratio
+            merged_stop_cond_profile_1.unique_ratio,
+            merged_stop_cond_profile_2.unique_ratio,
         )
         self.assertEqual(22, merged_stop_cond_profile_2.sample_size)
-
 
         # Merge profile w/ and w/o condition met (ensure operator communitivity)
         merged_stop_cond_profile_3 = profile_w_stop_cond_2 + merged_stop_cond_profile_1
@@ -659,18 +659,17 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual([], merged_stop_cond_profile_3.categories)
         self.assertEqual(16, merged_stop_cond_profile_3.unique_count)
         self.assertEqual(
-            merged_stop_cond_profile_1.unique_ratio, merged_stop_cond_profile_2.unique_ratio
+            merged_stop_cond_profile_1.unique_ratio,
+            merged_stop_cond_profile_2.unique_ratio,
         )
         self.assertEqual(22, merged_stop_cond_profile_2.sample_size)
 
         # Ensure successful merge without stop condition met
-        profile_w_stop_cond_1.stop_condition_unique_value_ratio = .99
+        profile_w_stop_cond_1.stop_condition_unique_value_ratio = 0.99
         merge_stop_conditions_not_met = profile_w_stop_cond_1 + profile_w_stop_cond_1
         self.assertFalse(merge_stop_conditions_not_met._stop_condition_is_met)
-        self.assertEqual(0.0, merge_stop_conditions_not_met._stopped_at_unique_count)
-        self.assertEqual(0.0, merge_stop_conditions_not_met._stopped_at_unique_ratio)
-
-
+        self.assertIsNone(merge_stop_conditions_not_met._stopped_at_unique_count)
+        self.assertIsNone(merge_stop_conditions_not_met._stopped_at_unique_ratio)
 
     def test_gini_impurity(self):
         # Normal test

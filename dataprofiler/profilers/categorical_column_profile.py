@@ -71,6 +71,7 @@ class CategoricalColumn(BaseColumnProfiler):
             )
 
         merged_profile = CategoricalColumn(None)
+        BaseColumnProfiler._add_helper(merged_profile, self, other)
 
         # If both profiles have not met stop condition
         if not (self._stop_condition_is_met or other._stop_condition_is_met):
@@ -78,22 +79,18 @@ class CategoricalColumn(BaseColumnProfiler):
                 self._categories, other._categories
             )
 
-            BaseColumnProfiler._add_helper(merged_profile, self, other)
             self._merge_calculations(
                 merged_profile.__calculations, self.__calculations, other.__calculations
             )
 
             # Transfer stop condition variables of 1st profile object to merged profile
             # if they are not None else set to 2nd profile
-            if self.max_sample_size_to_check_stop_condition is not None:
+            profile1_product = self.sample_size * self.unique_ratio
+            profile2_product = other.sample_size * other.unique_ratio
+            if profile1_product > profile2_product:
                 merged_profile.max_sample_size_to_check_stop_condition = (
                     self.max_sample_size_to_check_stop_condition
                 )
-            else:
-                merged_profile.max_sample_size_to_check_stop_condition = (
-                    other.max_sample_size_to_check_stop_condition
-                )
-            if self.stop_condition_unique_value_ratio is not None:
                 merged_profile.stop_condition_unique_value_ratio = (
                     self.stop_condition_unique_value_ratio
                 )
@@ -101,11 +98,9 @@ class CategoricalColumn(BaseColumnProfiler):
                 merged_profile.stop_condition_unique_value_ratio = (
                     other.stop_condition_unique_value_ratio
                 )
-
-            # 1st and 2nd profile values should be same so no need for conditonal set
-            merged_profile._stop_condition_is_met = self._stop_condition_is_met
-            merged_profile._stopped_at_unique_ratio = self._stopped_at_unique_ratio
-            merged_profile._stopped_at_unique_count = self._stopped_at_unique_count
+                merged_profile.max_sample_size_to_check_stop_condition = (
+                    other.max_sample_size_to_check_stop_condition
+                )
 
             # Check merged profile w/ stop condition
             if merged_profile._check_stop_condition_is_met(
@@ -117,19 +112,16 @@ class CategoricalColumn(BaseColumnProfiler):
                 merged_profile._stop_condition_is_met = True
 
         else:
+            if self.sample_size > other.sample_size:
+                merged_profile._stopped_at_unique_ratio = self.unique_ratio
+                merged_profile._stopped_at_unique_count = self.unique_count
+                merged_profile.sample_size = self.sample_size
+            else:
+                merged_profile._stopped_at_unique_ratio = other.unique_ratio
+                merged_profile._stopped_at_unique_count = other.unique_count
+                merged_profile.sample_size = other.sample_size
+
             # If either profile has hit stop condition, remove categories dict
-            merged_profile._stopped_at_unique_ratio = max(
-                self.unique_ratio, other.unique_ratio
-            )
-            merged_profile._stopped_at_unique_count = max(
-                self.unique_count, other.unique_count
-            )
-            merged_profile.times = (
-                self.times
-                if self.times["categories"] >= other.times["categories"]
-                else other.times
-            )
-            merged_profile.sample_size = self.sample_size + other.sample_size
             merged_profile._categories = {}
             merged_profile._stop_condition_is_met = True
 
@@ -303,7 +295,7 @@ class CategoricalColumn(BaseColumnProfiler):
             return True
         return False
 
-    def update_stop_condition(self, data: DataFrame):
+    def _update_stop_condition(self, data: DataFrame):
         """Return value stop_condition_is_met given stop conditions.
 
         :param data: Dataframe currently being processed by categorical profiler
@@ -347,7 +339,7 @@ class CategoricalColumn(BaseColumnProfiler):
         self._categories = utils.add_nested_dictionaries(
             self._categories, category_count
         )
-        self.update_stop_condition(df_series)
+        self._update_stop_condition(df_series)
         if self._stop_condition_is_met:
             self._categories = {}
 

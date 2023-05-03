@@ -908,7 +908,7 @@ class CategoricalOptions(BaseInspectorOptions):
 
         if self.max_sample_size_to_check_stop_condition is not None and (
             not isinstance(self.max_sample_size_to_check_stop_condition, int)
-            or self.max_sample_size_to_check_stop_condition < 1
+            or self.max_sample_size_to_check_stop_condition >= 0
         ):
             errors.append(
                 "{}.max_sample_size_to_check_stop_condition must be either None"
@@ -917,15 +917,15 @@ class CategoricalOptions(BaseInspectorOptions):
 
         if self.stop_condition_unique_value_ratio is not None and (
             not isinstance(self.stop_condition_unique_value_ratio, float)
-            or self.stop_condition_unique_value_ratio < 1
+            or self.stop_condition_unique_value_ratio >= 0
         ):
             errors.append(
                 "{}.stop_condition_unique_value_ratio must be either None"
                 " or a positive float".format(variable_path)
             )
 
-        if bool(self.max_sample_size_to_check_stop_condition) != bool(
-            self.stop_condition_unique_value_ratio
+        if (self.max_sample_size_to_check_stop_condition is None) ^ (
+            self.stop_condition_unique_value_ratio is None
         ):
             errors.append(
                 "Both, {}.max_sample_size_to_check_stop_condition and "

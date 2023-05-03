@@ -150,7 +150,7 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
             [expected_max_sample_size_type_error], options._validate_helper()
         )
 
-        # These ones should throw a max_sample_size_type_error
+        # These ones should throw a unique_ratio_type_error
         expected_unique_value_ratio_type_error = (
             "{}.stop_condition_unique_value_ratio must be either None"
             " or a float between 0 and 1".format(optpth)
@@ -171,7 +171,7 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
             [expected_unique_value_ratio_type_error], options._validate_helper()
         )
         options = self.get_options(
-            stop_condition_unique_value_ratio=-2.0,
+            stop_condition_unique_value_ratio=-0.7,
             max_sample_size_to_check_stop_condition=20,
         )
         self.assertEqual(

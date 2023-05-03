@@ -866,7 +866,13 @@ class OrderOptions(BaseInspectorOptions):
 class CategoricalOptions(BaseInspectorOptions):
     """For configuring options Categorical Column."""
 
-    def __init__(self, is_enabled: bool = True, top_k_categories: int = None) -> None:
+    def __init__(
+        self,
+        is_enabled: bool = True,
+        top_k_categories: int = None,
+        max_sample_size_to_check_stop_condition: int = None,
+        stop_condition_unique_value_ratio: float = None,
+    ) -> None:
         """
         Initialize options for the Categorical Column.
 
@@ -877,6 +883,10 @@ class CategoricalOptions(BaseInspectorOptions):
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
+        self.max_sample_size_to_check_stop_condition = (
+            max_sample_size_to_check_stop_condition
+        )
+        self.stop_condition_unique_value_ratio = stop_condition_unique_value_ratio
 
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
@@ -895,6 +905,34 @@ class CategoricalOptions(BaseInspectorOptions):
                 "{}.top_k_categories must be either None"
                 " or a positive integer".format(variable_path)
             )
+
+        if self.max_sample_size_to_check_stop_condition is not None and (
+            not isinstance(self.max_sample_size_to_check_stop_condition, int)
+            or self.max_sample_size_to_check_stop_condition < 1
+        ):
+            errors.append(
+                "{}.max_sample_size_to_check_stop_condition must be either None"
+                " or a positive integer".format(variable_path)
+            )
+
+        if self.stop_condition_unique_value_ratio is not None and (
+            not isinstance(self.stop_condition_unique_value_ratio, float)
+            or self.stop_condition_unique_value_ratio < 1
+        ):
+            errors.append(
+                "{}.stop_condition_unique_value_ratio must be either None"
+                " or a positive float".format(variable_path)
+            )
+
+        if bool(self.max_sample_size_to_check_stop_condition) != bool(
+            self.stop_condition_unique_value_ratio
+        ):
+            errors.append(
+                "Both, {}.max_sample_size_to_check_stop_condition and "
+                "{}.stop_condition_unique_value_ratio, options either need to be "
+                "set or not set.".format(variable_path, variable_path)
+            )
+
         return errors
 
 

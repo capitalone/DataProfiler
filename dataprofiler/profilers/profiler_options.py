@@ -870,8 +870,8 @@ class CategoricalOptions(BaseInspectorOptions):
         self,
         is_enabled: bool = True,
         top_k_categories: int = None,
-        max_sample_size_to_check_stop_condition: int = None,
-        stop_condition_unique_value_ratio: float = None,
+        max_sample_size_to_check_stop_condition: int | None = None,
+        stop_condition_unique_value_ratio: float | None = None,
     ) -> None:
         """
         Initialize options for the Categorical Column.

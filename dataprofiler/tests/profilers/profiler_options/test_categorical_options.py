@@ -11,15 +11,66 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
     def test_init(self):
         option = self.get_options()
         self.assertDictEqual(
-            {"is_enabled": True, "top_k_categories": None}, option.properties
+            {
+                "is_enabled": True,
+                "top_k_categories": None,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": None,
+            },
+            option.properties,
         )
         option = self.get_options(is_enabled=False)
         self.assertDictEqual(
-            {"is_enabled": False, "top_k_categories": None}, option.properties
+            {
+                "is_enabled": False,
+                "top_k_categories": None,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": None,
+            },
+            option.properties,
         )
         option = self.get_options(top_k_categories=2)
         self.assertDictEqual(
-            {"is_enabled": True, "top_k_categories": 2}, option.properties
+            {
+                "is_enabled": True,
+                "top_k_categories": 2,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": None,
+            },
+            option.properties,
+        )
+        option = self.get_options(max_sample_size_to_check_stop_condition=20)
+        self.assertDictEqual(
+            {
+                "is_enabled": True,
+                "top_k_categories": None,
+                "max_sample_size_to_check_stop_condition": 20,
+                "stop_condition_unique_value_ratio": None,
+            },
+            option.properties,
+        )
+        option = self.get_options(stop_condition_unique_value_ratio=2)
+        self.assertDictEqual(
+            {
+                "is_enabled": True,
+                "top_k_categories": None,
+                "max_sample_size_to_check_stop_condition": None,
+                "stop_condition_unique_value_ratio": 2,
+            },
+            option.properties,
+        )
+        option = self.get_options(
+            max_sample_size_to_check_stop_condition=20,
+            stop_condition_unique_value_ratio=2,
+        )
+        self.assertDictEqual(
+            {
+                "is_enabled": True,
+                "top_k_categories": None,
+                "max_sample_size_to_check_stop_condition": 20,
+                "stop_condition_unique_value_ratio": 2,
+            },
+            option.properties,
         )
 
     def test_set_helper(self):
@@ -32,6 +83,8 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
         params_to_check = [
             dict(prop="is_enabled", value_list=[False, True]),
             dict(prop="top_k_categories", value_list=[None, 3]),
+            dict(prop="max_sample_size_to_check_stop_condition", value_list=[None, 20]),
+            dict(prop="stop_condition_unique_value_ratio", value_list=[None, 2]),
         ]
 
         # this code can be abstracted to limit code everywhere else
@@ -55,22 +108,79 @@ class TestCategoricalOptions(TestBaseInspectorOptions):
     def test_validate_helper(self):
         super().test_validate_helper()
         optpth = self.get_options_path()
-        # These ones should throw an error
-        expected_error = (
+
+        # These ones should throw a top_k_error
+        expected_top_k_error = (
             "{}.top_k_categories must be either None"
             " or a positive integer".format(optpth)
         )
+
         options = self.get_options(top_k_categories=-2)
-        self.assertEqual([expected_error], options._validate_helper())
+        self.assertEqual([expected_top_k_error], options._validate_helper())
         options = self.get_options(top_k_categories="E")
-        self.assertEqual([expected_error], options._validate_helper())
+        self.assertEqual([expected_top_k_error], options._validate_helper())
         options = self.get_options(top_k_categories=2.0)
-        self.assertEqual([expected_error], options._validate_helper())
+        self.assertEqual([expected_top_k_error], options._validate_helper())
+
+        # These ones should throw a max_sample_size_type_error
+        expected_max_sample_size_type_error = (
+            "{}.max_sample_size_to_check_stop_condition must be either None"
+            " or a positive integer".format(optpth)
+        )
+
+        options = self.get_options(max_sample_size_to_check_stop_condition=-2)
+        self.assertEqual(
+            [expected_max_sample_size_type_error], options._validate_helper()
+        )
+        options = self.get_options(max_sample_size_to_check_stop_condition="E")
+        self.assertEqual(
+            [expected_max_sample_size_type_error], options._validate_helper()
+        )
+        options = self.get_options(max_sample_size_to_check_stop_condition=2.0)
+        self.assertEqual(
+            [expected_max_sample_size_type_error], options._validate_helper()
+        )
+
+        # These ones should throw a max_sample_size_type_error
+        expected_unique_value_ratio_type_error = (
+            "{}.stop_condition_unique_value_ratio must be either None"
+            " or a positive float".format(optpth)
+        )
+
+        options = self.get_options(stop_condition_unique_value_ratio=2)
+        self.assertEqual(
+            [expected_unique_value_ratio_type_error], options._validate_helper()
+        )
+        options = self.get_options(stop_condition_unique_value_ratio="E")
+        self.assertEqual(
+            [expected_unique_value_ratio_type_error], options._validate_helper()
+        )
+        options = self.get_options(max_sample_size_to_check_stop_condition=-2.0)
+        self.assertEqual(
+            [expected_unique_value_ratio_type_error], options._validate_helper()
+        )
+
+        # These ones should throw a stop_condition_error
+        expected_stop_condition_error = (
+            "Both, max_sample_size_to_check_stop_condition and "
+            "stop_condition_unique_value_ratio, options either need to be "
+            "set or not set."
+        )
+
+        options = self.get_options(max_sample_size_to_check_stop_condition=20)
+        self.assertEqual([expected_stop_condition_error], options._validate_helper())
+        options = self.get_options(stop_condition_unique_value_ratio=2.0)
+        self.assertEqual([expected_stop_condition_error], options._validate_helper())
+
         # These ones should not
-        expected_error = ""
         options = self.get_options(top_k_categories=6)
         self.assertEqual([], options._validate_helper())
         options = self.get_options(top_k_categories=None)
+        self.assertEqual([], options._validate_helper())
+        options = self.get_options(
+            max_sample_size_to_check_stop_condition=20,
+            stop_condition_unique_value_ration=2.0,
+        )
         self.assertEqual([], options._validate_helper())
 
     def test_validate(self):

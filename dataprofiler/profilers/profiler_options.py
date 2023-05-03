@@ -918,10 +918,11 @@ class CategoricalOptions(BaseInspectorOptions):
         if self.stop_condition_unique_value_ratio is not None and (
             not isinstance(self.stop_condition_unique_value_ratio, float)
             or self.stop_condition_unique_value_ratio < 0
+            or self.stop_condition_unique_value_ratio > 1.0
         ):
             errors.append(
                 "{}.stop_condition_unique_value_ratio must be either None"
-                " or a non-negative float".format(variable_path)
+                " or a float between 0 and 1".format(variable_path)
             )
 
         if (self.max_sample_size_to_check_stop_condition is None) ^ (

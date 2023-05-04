@@ -798,6 +798,20 @@ class TestCategoricalColumn(unittest.TestCase):
         profile.update(df_series)
         self.assertEqual(len(profile.profile["statistics"]["categorical_count"]), 4)
 
+    def test_categorical_stop_condition_options_set(self):
+        # Test if categorical conditions is not set
+        options = CategoricalOptions()
+        profile = CategoricalColumn("test_unset")
+        self.assertIsNone(profile.stop_condition_unique_value_ratio)
+        self.assertIsNone(profile.max_sample_size_to_check_stop_condition)
+
+        # Test if categorical conditions is set
+        options.stop_condition_unique_value_ratio = 0.20
+        options.max_sample_size_to_check_stop_condition = 100
+        profile = CategoricalColumn("test_set", options=options)
+        self.assertEqual(0.20, profile.stop_condition_unique_value_ratio)
+        self.assertEqual(100, profile.max_sample_size_to_check_stop_condition)
+
     def test_json_encode(self):
         profile = CategoricalColumn("0")
 

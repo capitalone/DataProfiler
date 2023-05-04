@@ -54,6 +54,12 @@ class CategoricalColumn(BaseColumnProfiler):
         self._stopped_at_unique_count: int | None = None
         if options:
             self._top_k_categories = options.top_k_categories
+            self.stop_condition_unique_value_ratio = (
+                options.stop_condition_unique_value_ratio
+            )
+            self.max_sample_size_to_check_stop_condition = (
+                options.max_sample_size_to_check_stop_condition
+            )
 
     def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """

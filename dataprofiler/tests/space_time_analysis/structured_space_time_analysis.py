@@ -286,15 +286,15 @@ if __name__ == "__main__":
 
     # Generate and load data
     if not os.path.exists(_dataset_path):
-        _ = generate_dataset_by_class(
+        _full_dataset = generate_dataset_by_class(
             _rng,
             dataset_length=max(SAMPLE_SIZES),
             path=_dataset_path,
             columns_to_generate=COLUMNS_TO_GENERATE,
         )
         print(f"Dataset of size {max(SAMPLE_SIZES)} created.")
-
-    _full_dataset = CSVData(_dataset_path, options=dict(encoding="utf-8"))
+    else:
+        _full_dataset = CSVData(_dataset_path, options=dict(encoding="utf-8"))
 
     dp_space_time_analysis(
         _rng,

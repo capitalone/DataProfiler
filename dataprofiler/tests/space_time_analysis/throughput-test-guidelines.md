@@ -50,8 +50,8 @@ conditions affect profiling speed. The parameters are as follows:
   * data_labeler               turns on or off the data labeler (True / False)
   * ALLOW_SUBSAMPLING:         turns on or off subsampling for large data (True / False)
   * PERCENT_TO_NAN:            percentage of data in each column to set as NaN (0 - 100)
-  * sample_sizes:              list of dataset sizes to evaluate
-  * DATASET_PATH:              path to a pre-existing dataset for analysis
+  * SAMPLE_SIZES:              list of dataset sizes to evaluate
+  * COLUMNS_TO_GENERATE:       dictionary of dataset classes to be generated
 
 
 ### Generated Dataset Details

@@ -456,7 +456,7 @@ def detect_file_encoding(
                     preemptive_behaviour=True,
                     explain=False,
                 )
-            best_result = results.best()
+                best_result = results.best()
             if best_result:
                 encoding = best_result.encoding
 
@@ -474,7 +474,7 @@ def detect_file_encoding(
                         preemptive_behaviour=True,
                         explain=False,
                     )
-                best_result = results.best()
+                    best_result = results.best()
                 if best_result:
                     encoding = best_result.encoding
 

@@ -61,6 +61,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(profile.categories, [])
         self.assertEqual(profile.unique_ratio, 0.1)
         self.assertEqual(profile.unique_count, 4)
+        self.assertFalse(profile.is_match)
 
     def test_stop_condition_is_met_after_initial_profile(self):
         dataset = pd.Series(["a"] * 10 + ["b"] * 10 + ["c"] * 10 + ["d"] * 10)
@@ -78,6 +79,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual([], profile.categories)
         self.assertEqual(5, profile.unique_count)
         self.assertEqual((5 / 81), profile.unique_ratio)
+        self.assertFalse(profile.is_match)
 
         profile.update(dataset)
         self.assertTrue(profile._stop_condition_is_met)
@@ -85,6 +87,7 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertEqual(5, profile.unique_count)
         self.assertEqual((5 / 81), profile.unique_ratio)
         self.assertEqual(81, profile.sample_size)
+        self.assertFalse(profile.is_match)
 
     def test_timeit_profile(self):
         dataset = self.aws_dataset["host"].dropna()

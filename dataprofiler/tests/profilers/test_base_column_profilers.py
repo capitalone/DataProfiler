@@ -12,6 +12,7 @@ from dataprofiler.profilers.base_column_profilers import (
     BaseColumnPrimitiveTypeProfiler,
     BaseColumnProfiler,
 )
+from dataprofiler.profilers.json_decoder import decode_column_profiler
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.tests.profilers import utils as test_utils
 
@@ -165,6 +166,28 @@ class TestBaseColumnProfileClass(unittest.TestCase):
 
         self.assertEqual(serialized, expected)
 
+    @patch.multiple(BaseColumnProfiler, __abstractmethods__=set())
+    def test_json_decode(self):
+        fake_profile_name = None
+        serialized_json = json.dumps(
+            {
+                "class": "BaseColumnProfiler",
+                "data": {
+                    "name": fake_profile_name,
+                    "col_index": np.nan,
+                    "sample_size": 0,
+                    "metadata": dict(),
+                    "times": defaultdict(float),
+                    "thread_safe": True,
+                },
+            }
+        )
+
+        deserialized = decode_column_profiler(serialized_json)
+        expected = BaseColumnProfiler(fake_profile_name)
+
+        test_utils.assert_profiles_equal(deserialized, expected)
+
 
 class TestBaseColumnPrimitiveTypeProfileClass(unittest.TestCase):
     @classmethod
@@ -250,7 +273,6 @@ def get_object_path(obj):
 
 
 class AbstractTestColumnProfiler:
-
     column_profiler = None
 
     def setUp(self):

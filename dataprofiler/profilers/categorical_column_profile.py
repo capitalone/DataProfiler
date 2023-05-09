@@ -271,6 +271,9 @@ class CategoricalColumn(BaseColumnProfiler):
     @property
     def is_match(self) -> bool:
         """Return true if column is categorical."""
+        if self._stop_condition_is_met:
+            return False
+
         is_match = False
         unique = len(self._categories)
         if unique <= self._MAXIMUM_UNIQUE_VALUES_TO_CLASSIFY_AS_CATEGORICAL:

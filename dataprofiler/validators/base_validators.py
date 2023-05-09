@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Callable, cast
 
 if TYPE_CHECKING:
-    import dask as dd
+    import dask.dataframe as dd
     import pandas as pd
 
 

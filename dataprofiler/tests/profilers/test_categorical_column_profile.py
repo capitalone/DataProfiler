@@ -673,9 +673,12 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertFalse(merge_stop_conditions_not_met._stop_condition_is_met)
         self.assertIsNone(merge_stop_conditions_not_met._stopped_at_unique_count)
         self.assertIsNone(merge_stop_conditions_not_met._stopped_at_unique_ratio)
-        self.assertEqual(0.99, merge_stop_conditions_not_met.stop_condition_unique_value_ratio)
-        self.assertEqual(12, merge_stop_conditions_not_met.max_sample_size_to_check_stop_condition)
-
+        self.assertEqual(
+            0.99, merge_stop_conditions_not_met.stop_condition_unique_value_ratio
+        )
+        self.assertEqual(
+            12, merge_stop_conditions_not_met.max_sample_size_to_check_stop_condition
+        )
 
     def test_gini_impurity(self):
         # Normal test

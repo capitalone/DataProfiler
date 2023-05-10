@@ -250,6 +250,7 @@ def get_object_path(obj):
 
 
 class AbstractTestColumnProfiler:
+
     column_profiler = None
 
     def setUp(self):

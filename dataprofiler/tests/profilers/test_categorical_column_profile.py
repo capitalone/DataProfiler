@@ -620,7 +620,7 @@ class TestCategoricalColumn(unittest.TestCase):
         # Setting up of profile with stop condition not yet met
         profile_w_stop_cond_1 = CategoricalColumn("merge_stop_condition_test")
         profile_w_stop_cond_1.max_sample_size_to_check_stop_condition = 12
-        profile_w_stop_cond_1.stop_condition_unique_value_ratio = 0
+        profile_w_stop_cond_1.stop_condition_unique_value_ratio = 0.0002
         profile_w_stop_cond_1.update(df1)
 
         self.assertFalse(profile_w_stop_cond_1._stop_condition_is_met)
@@ -628,7 +628,7 @@ class TestCategoricalColumn(unittest.TestCase):
         # Setting up of profile without stop condition met
         profile_w_stop_cond_2 = CategoricalColumn("merge_stop_condition_test")
         profile_w_stop_cond_2.max_sample_size_to_check_stop_condition = 12
-        profile_w_stop_cond_2.stop_condition_unique_value_ratio = 0
+        profile_w_stop_cond_2.stop_condition_unique_value_ratio = 0.0001
         profile_w_stop_cond_2.update(df2)
 
         self.assertFalse(profile_w_stop_cond_1._stop_condition_is_met)
@@ -673,6 +673,9 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertFalse(merge_stop_conditions_not_met._stop_condition_is_met)
         self.assertIsNone(merge_stop_conditions_not_met._stopped_at_unique_count)
         self.assertIsNone(merge_stop_conditions_not_met._stopped_at_unique_ratio)
+        self.assertEqual(0.99, merge_stop_conditions_not_met.stop_condition_unique_value_ratio)
+        self.assertEqual(12, merge_stop_conditions_not_met.max_sample_size_to_check_stop_condition)
+
 
     def test_gini_impurity(self):
         # Normal test

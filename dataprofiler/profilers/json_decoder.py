@@ -20,15 +20,13 @@ def get_column_profiler_class(class_name: str) -> BaseColumnProfiler:
     """
     profiles = {
         CategoricalColumn.__name__: CategoricalColumn,
-        BaseColumnProfiler.__name__: BaseColumnProfiler,
     }
 
     profile_class = profiles.get(class_name)
     if profile_class is None:
         raise ValueError(f"Invalid profiler class {class_name} " f"failed to load.")
-    else:
-        profiler: BaseColumnProfiler = profile_class(None)
-        return profiler
+    profiler: BaseColumnProfiler = profile_class(None)
+    return profiler
 
 
 def load_column_profile(serialized_json: dict) -> BaseColumnProfiler:

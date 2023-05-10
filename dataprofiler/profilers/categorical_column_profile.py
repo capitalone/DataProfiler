@@ -93,7 +93,7 @@ class CategoricalColumn(BaseColumnProfiler):
             # if they are not None else set to 2nd profile
             profile1_product = self.sample_size * self.unique_ratio
             profile2_product = other.sample_size * other.unique_ratio
-            if profile1_product > profile2_product:
+            if profile1_product < profile2_product:
                 merged_profile.max_sample_size_to_check_stop_condition = (
                     self.max_sample_size_to_check_stop_condition
                 )

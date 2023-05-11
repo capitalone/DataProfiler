@@ -6,7 +6,7 @@ import abc
 import copy
 import itertools
 import warnings
-from typing import Any, Callable, Dict, List, cast, Tuple
+from typing import Any, Callable, Dict, List, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -76,6 +76,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         self.histogram_selection: str | None = None
         self.user_set_histogram_bin: int | None = None
         self.bias_correction: bool = True  # By default, we correct for bias
+        self._mode_is_enabled: bool = True
         self.num_zeros: int = 0
         self.num_negatives: int = 0
         if options:
@@ -191,22 +192,29 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
 
-        # calculate the min of the first edge and
-        # the max of the last edge between two arrays
-        global_min_of_histogram_edges = min(
-            other1._stored_histogram["histogram"]["bin_edges"][0],
-            other2._stored_histogram["histogram"]["bin_edges"][0],
-        )
-        global_max_of_histogram_edges = max(
-            other1._stored_histogram["histogram"]["bin_edges"][-1],
-            other2._stored_histogram["histogram"]["bin_edges"][-1],
-        )
+        # calculate the min of the first edge and the max of the last edge
+        # between two arrays
+        if not (other1.min is None or other2.min is None):
+            global_min_of_histogram_edges = min(other1.min, other2.min)
+        else:
+            global_min_of_histogram_edges = min(
+                other1._stored_histogram["histogram"]["bin_edges"][0],
+                other2._stored_histogram["histogram"]["bin_edges"][0],
+            )
 
+        if not (other1.max is None or other2.max is None):
+            global_max_of_histogram_edges = max(other1.max, other2.max)
+        else:
+            global_max_of_histogram_edges = max(
+                other1._stored_histogram["histogram"]["bin_edges"][-1],
+                other2._stored_histogram["histogram"]["bin_edges"][-1],
+            )
 
         # Generate new bin edges
         ideal_bin_edges = np.linspace(
-            global_min_of_histogram_edges, global_max_of_histogram_edges,
-            ideal_count_of_bins + 1
+            global_min_of_histogram_edges,
+            global_max_of_histogram_edges,
+            ideal_count_of_bins + 1,
         )
 
         # Initialize new count by bin object for population
@@ -215,24 +223,31 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         # Generate new histograms
         _, histogram_loss_1 = self._assimilate_histogram(
             other1._stored_histogram["histogram"]["bin_counts"],
-            other1._stored_histogram["histogram"]["bin_edges"], new_entity_count_by_bin,
-            ideal_bin_edges, ideal_count_of_bins
+            other1._stored_histogram["histogram"]["bin_edges"],
+            new_entity_count_by_bin,
+            ideal_bin_edges,
+            ideal_count_of_bins,
         )
 
         # Ensure loss is calculated on second run of regenerate
         _, histogram_loss_2 = self._assimilate_histogram(
             other2._stored_histogram["histogram"]["bin_counts"],
-            other2._stored_histogram["histogram"]["bin_edges"], new_entity_count_by_bin,
-            ideal_bin_edges, ideal_count_of_bins
+            other2._stored_histogram["histogram"]["bin_edges"],
+            new_entity_count_by_bin,
+            ideal_bin_edges,
+            ideal_count_of_bins,
         )
-        entity_count_1 = sum(other1._stored_histogram["histogram"]["bin_counts"])
-        entity_count_2 = sum(other2._stored_histogram["histogram"]["bin_counts"])
-
-
-        calculated_loss = (((histogram_loss_1 * entity_count_1) +
-                           (histogram_loss_2 * entity_count_2)) /
-                           (entity_count_1 + entity_count_2))
-
+        try:
+            calculated_loss = (
+                (histogram_loss_1 * other1.sample_size)
+                + (histogram_loss_2 * other2.sample_size)
+            ) / (other1.sample_size + other2.sample_size)
+        except AttributeError:
+            sample_size_1 = sum(other1._stored_histogram["histogram"]["bin_counts"])
+            sample_size_2 = sum(other2._stored_histogram["histogram"]["bin_counts"])
+            calculated_loss = (
+                (histogram_loss_1 * sample_size_1) + (histogram_loss_2 * sample_size_2)
+            ) / (sample_size_1 + sample_size_2)
 
         self._stored_histogram["histogram"]["bin_counts"] = new_entity_count_by_bin
         self._stored_histogram["histogram"]["bin_edges"] = ideal_bin_edges
@@ -240,13 +255,13 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         self._stored_histogram["histogram"]["current_loss"] = calculated_loss
         self._stored_histogram["histogram"]["total_loss"] = calculated_loss
 
-        for method in self.histogram_bin_method_names:
-            self.histogram_methods[method]["suggested_bin_count"] = \
-                histogram_utils.get_suggested_bins(self, method)
+        if self.user_set_histogram_bin is None:
+            for method in self.histogram_bin_method_names:
+                self.histogram_methods[method][
+                    "suggested_bin_count"
+                ] = histogram_utils.get_suggested_bins(self, method)
 
         self._get_quantiles()
-
-
 
     def _add_helper(
         self,
@@ -281,15 +296,6 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                 other2._biased_variance,
                 other2.mean,
             )
-        if "histogram_and_quantiles" in self.__calculations.keys():
-            if other1._has_histogram and other2._has_histogram:
-                self._add_helper_merge_profile_histograms(other1, other2)
-            elif not other2._has_histogram:
-                self.histogram_methods = other1.histogram_methods
-                self.quantiles = other1.quantiles
-            else:
-                self.histogram_methods = other2.histogram_methods
-                self.quantiles = other2.quantiles
         if "min" in self.__calculations.keys():
             if other1.min is not None and other2.min is not None:
                 self.min = min(other1.min, other2.min)
@@ -335,6 +341,16 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
         if "num_negatives" in self.__calculations.keys():
             self.num_negatives = other1.num_negatives + other2.num_negatives
+
+        if "histogram_and_quantiles" in self.__calculations.keys():
+            if other1._has_histogram and other2._has_histogram:
+                self._add_helper_merge_profile_histograms(other1, other2)
+            elif not other2._has_histogram:
+                self.histogram_methods = other1.histogram_methods
+                self.quantiles = other1.quantiles
+            else:
+                self.histogram_methods = other2.histogram_methods
+                self.quantiles = other2.quantiles
 
         # Merge max k mode count
         self._top_k_modes = max(other1._top_k_modes, other2._top_k_modes)
@@ -1289,15 +1305,24 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             new_bin_edges = np.linspace(
                 options["min_edge"], options["max_edge"], suggested_bin_count + 1
             )
-        return self._assimilate_histogram(entity_count_by_bin, bin_edges, new_bin_counts, new_bin_edges,
-                                   suggested_bin_count)
+        return self._assimilate_histogram(
+            entity_count_by_bin,
+            bin_edges,
+            new_bin_counts,
+            new_bin_edges,
+            suggested_bin_count,
+        )
+
     def _assimilate_histogram(
-                self, entity_count_by_bin: List[float],
-                bin_edges: List[Tuple[float]],
-                new_entity_count_by_bin: List[float],
-                new_bin_edges: List[Tuple[float]], suggested_bin_count: int):
+        self,
+        entity_count_by_bin: np.ndarray,
+        bin_edges: np.ndarray,
+        new_entity_count_by_bin: np.ndarray,
+        new_bin_edges: np.ndarray,
+        suggested_bin_count: int,
+    ) -> tuple[dict[str, np.ndarray[Any, Any]], float]:
         """
-        Assimilates a histogram into another histogram using specifications
+        Assimilates a histogram into another histogram using specifications.
 
         :param entity_count_by_bin: the breakdown of number of entities within a
             given histogram bin (to be assimilated)
@@ -1367,8 +1392,10 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
                 # increment bin id to the right bin
                 new_bin_id += 1
-
-        return ({"bin_edges": new_bin_edges, "bin_counts": new_entity_count_by_bin}, hist_loss)
+        return (
+            {"bin_edges": new_bin_edges, "bin_counts": new_entity_count_by_bin},
+            hist_loss,
+        )
 
     def _histogram_for_profile(
         self, histogram_method: str
@@ -1471,10 +1498,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             percentiles / 100, cumsum_bin_counts, bin_edges
         )
         if median_value:
-            try:
-                quantiles[percentiles == 50] = median_value
-            except:
-                pass
+            quantiles[percentiles == 50] = median_value
         return cast(List[float], quantiles.tolist())
 
     @staticmethod

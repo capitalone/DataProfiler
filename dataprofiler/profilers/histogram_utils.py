@@ -42,16 +42,32 @@ def rework_hist_bin_doane(profile):
     -------
     h : An estimate of the optimal bin width for the given data.
     """
-    dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
-    minimum = profile._stored_histogram["histogram"]["bin_edges"][0]
-    maximum = profile._stored_histogram["histogram"]["bin_edges"][-1]
-    if dataset_size> 2:
-        sg1 = np.sqrt(6.0 * (dataset_size - 2) / ((dataset_size + 1.0) * (dataset_size + 3)))
+    try:
+        dataset_size = profile.match_count
+    except AttributeError:
+        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+
+    minimum = (
+        profile.min
+        if profile.min is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][0]
+    )
+
+    maximum = (
+        profile.max
+        if profile.max is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][-1]
+    )
+    if dataset_size > 2:
+        sg1 = np.sqrt(
+            6.0 * (dataset_size - 2) / ((dataset_size + 1.0) * (dataset_size + 3))
+        )
         sigma = profile.stddev
         if sigma > 0.0:
-            g1 = profile.skewness
-            return rework_ptp(maximum, minimum) / (1.0 + np.log2(dataset_size) +
-                                    np.log2(1.0 + np.absolute(g1) / sg1))
+            g1 = profile._biased_skewness
+            return rework_ptp(maximum, minimum) / (
+                1.0 + np.log2(dataset_size) + np.log2(1.0 + np.absolute(g1) / sg1)
+            )
     return 0.0
 
 
@@ -75,11 +91,23 @@ def rework_hist_bin_rice(profile):
     -------
     h : An estimate of the optimal bin width for the given data.
     """
-    dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
-    minimum = profile._stored_histogram["histogram"]["bin_edges"][0]
-    maximum = profile._stored_histogram["histogram"]["bin_edges"][-1]
-    return (rework_ptp(maximum, minimum) /
-            (2.0 * dataset_size ** (1.0 / 3)))
+    try:
+        dataset_size = profile.match_count
+    except AttributeError:
+        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+
+    minimum = (
+        profile.min
+        if profile.min is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][0]
+    )
+
+    maximum = (
+        profile.max
+        if profile.max is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][-1]
+    )
+    return rework_ptp(maximum, minimum) / (2.0 * dataset_size ** (1.0 / 3))
 
 
 def rework_hist_bin_sturges(profile):
@@ -101,9 +129,22 @@ def rework_hist_bin_sturges(profile):
     -------
     h : An estimate of the optimal bin width for the given data.
     """
-    dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
-    minimum = profile._stored_histogram["histogram"]["bin_edges"][0]
-    maximum = profile._stored_histogram["histogram"]["bin_edges"][-1]
+    try:
+        dataset_size = profile.match_count
+    except AttributeError:
+        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+
+    minimum = (
+        profile.min
+        if profile.min is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][0]
+    )
+
+    maximum = (
+        profile.max
+        if profile.max is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][-1]
+    )
     return rework_ptp(maximum, minimum) / (np.log2(dataset_size) + 1.0)
 
 
@@ -124,15 +165,28 @@ def rework_hist_bin_sqrt(profile):
     -------
     h : An estimate of the optimal bin width for the given data.
     """
-    dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
-    minimum = profile._stored_histogram["histogram"]["bin_edges"][0]
-    maximum = profile._stored_histogram["histogram"]["bin_edges"][-1]
+    try:
+        dataset_size = profile.match_count
+    except AttributeError:
+        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+
+    minimum = (
+        profile.min
+        if profile.min is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][0]
+    )
+
+    maximum = (
+        profile.max
+        if profile.max is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][-1]
+    )
     return rework_ptp(maximum, minimum) / np.sqrt(dataset_size)
 
 
 def rework_hist_bin_fd(profile):
     """
-    The Freedman-Diaconis histogram bin estimator.
+    Execute Freedman-Diaconis histogram binning.
 
     The Freedman-Diaconis rule uses interquartile range (IQR) to
     estimate binwidth. It is considered a variation of the Scott rule
@@ -156,14 +210,18 @@ def rework_hist_bin_fd(profile):
     h : An estimate of the optimal bin width for the given data.
     """
     iqr = np.subtract(profile._get_percentile([75]), profile._get_percentile([25]))
-    dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+    try:
+        dataset_size = profile.match_count
+    except AttributeError:
+        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
     return 2.0 * iqr * dataset_size ** (-1.0 / 3.0)
 
 
 def rework_hist_bin_auto(profile):
     """
-    Histogram bin estimator that uses the minimum width of the
-    Freedman-Diaconis and Sturges estimators if the FD bin width is non-zero.
+    Histogram bin estimator that uses Freedman-Diaconis and Sturges estimators.
+
+    Chooses the minimum width of the estimators if the FD bin width is non-zero.
     If the bin width from the FD estimator is 0, the Sturges estimator is used.
 
     The FD estimator is usually the most robust method, but its width
@@ -221,9 +279,12 @@ def rework_hist_bin_scott(profile):
     -------
     h : An estimate of the optimal bin width for the given data.
     """
-    dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+    try:
+        dataset_size = profile.match_count
+    except AttributeError:
+        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
     std = profile.stddev
-    return (24.0 * np.pi**0.5 / dataset_size)**(1.0 / 3.0) * std
+    return (24.0 * np.pi**0.5 / dataset_size) ** (1.0 / 3.0) * std
 
 
 def _get_bin_edges(
@@ -305,16 +366,19 @@ def _get_bin_edges(
 
 
 def get_suggested_bins(profile, bin_method):
+    """Get ideal binning for the specified calculation method."""
     # parse the overloaded bins argument
+
     rework_hist_bin_selectors = {
-        'auto': rework_hist_bin_auto,
-        # 'doane': _hist_bin_doane,   ???
-        'fd': rework_hist_bin_fd,
-        'rice': rework_hist_bin_rice,
-        'scott': rework_hist_bin_scott,
-        'sqrt': rework_hist_bin_sqrt,
-        'sturges': rework_hist_bin_sturges
+        "auto": rework_hist_bin_auto,
+        "doane": rework_hist_bin_doane,
+        "fd": rework_hist_bin_fd,
+        "rice": rework_hist_bin_rice,
+        "scott": rework_hist_bin_scott,
+        "sqrt": rework_hist_bin_sqrt,
+        "sturges": rework_hist_bin_sturges,
     }
+
     n_equal_bins = None
     if isinstance(bin_method, str):
         bin_name = bin_method
@@ -323,19 +387,29 @@ def get_suggested_bins(profile, bin_method):
     if bin_name not in _hist_bin_selectors:
         raise ValueError(f"{bin_name!r} is not a valid estimator for `bins`")
 
-    dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
-    minimum = profile._stored_histogram["histogram"]["bin_edges"][0]
-    maximum = profile._stored_histogram["histogram"]["bin_edges"][-1]
+    try:
+        dataset_size = profile.match_count
+    except AttributeError:
+        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+
+    minimum = (
+        profile.min
+        if profile.min is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][0]
+    )
+    maximum = (
+        profile.max
+        if profile.max is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][-1]
+    )
 
     if dataset_size == 0:
         n_equal_bins = 1
     else:
         # Do not call selectors on empty arrays
         width = rework_hist_bin_selectors[bin_name](profile)
-        if width:
-            n_equal_bins = int(
-                np.ceil(_unsigned_subtract(maximum, minimum) / width)
-            )
+        if width and not np.isnan(width):
+            n_equal_bins = int(np.ceil(_unsigned_subtract(maximum, minimum) / width))
         else:
             # Width can be zero for some estimators, e.g. FD when
             # the IQR of the data is zero.

@@ -318,6 +318,14 @@ class DataLabelerColumn(BaseColumnProfiler):
         """
         return self.profile
 
+    def parse(self, json):
+        """
+        Parse.
+
+        :param json: json str
+        :type json: str
+        """
+
     def diff(self, other_profile: DataLabelerColumn, options: dict = None) -> dict:
         """
         Generate differences between the orders of two DataLabeler columns.

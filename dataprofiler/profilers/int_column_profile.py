@@ -70,6 +70,14 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: ig
         """
         return self.profile
 
+    def parse(self, json):
+        """
+        Parse.
+
+        :param json: json str
+        :type json: str
+        """
+
     @property
     def profile(self) -> dict:
         """

@@ -150,6 +150,36 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         return self.profile
 
+    def parse(self, json):
+        """
+        Parse.
+
+        :param json: json str
+        :type json: str
+        """
+        calculations_key = "_" + json["class"] + "__calculations"
+        _calcs = json["data"].pop(calculations_key)
+
+        for metric in _calcs:
+            _calcs[metric] = self.convert_calcs(_calcs[metric])
+
+        self.__setattr__(calculations_key, _calcs)
+
+        for attr, value in json.items():
+            self.__setattr__(attr, value)
+
+    def convert_calcs(self, function):
+        """
+        Convert calc.
+
+        :param function: function
+        :type function: str
+        """
+        if not hasattr(self, function):
+            raise Exception()
+        else:
+            return self.__getattribute__(function)
+
     @property
     def profile(self) -> dict:
         """

@@ -247,6 +247,16 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         """
         raise NotImplementedError()
 
+    @abc.abstractmethod
+    def parse(self, json):
+        """
+        Parse.
+
+        :param json: json str
+        :type json: str
+        """
+        return NotImplementedError()
+
 
 class BaseColumnPrimitiveTypeProfiler(
     BaseColumnProfiler,

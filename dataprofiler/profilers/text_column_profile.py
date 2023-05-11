@@ -81,6 +81,14 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: i
 
         return profile
 
+    def parse(self, json):
+        """
+        Parse.
+
+        :param json: json str
+        :type json: str
+        """
+
     @property
     def profile(self) -> dict:
         """

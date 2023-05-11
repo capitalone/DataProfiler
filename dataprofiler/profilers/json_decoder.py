@@ -51,9 +51,7 @@ def load_column_profile(serialized_json: dict) -> BaseColumnProfiler:
         JSON
     """
     column_profiler = get_column_profiler_class(serialized_json["class"])
-    for attr, value in serialized_json["data"].items():
-        column_profiler.__setattr__(attr, value)
-
+    column_profiler.parse(serialized_json)
     return column_profiler
 
 

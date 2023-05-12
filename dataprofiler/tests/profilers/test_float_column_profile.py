@@ -9,7 +9,11 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import FloatColumn
+from dataprofiler.profilers.json_decoder import load_column_profile
+from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import FloatOptions
+
+from . import utils as test_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -1734,3 +1738,28 @@ class TestFloatColumn(unittest.TestCase):
             str(exc.exception),
             "Unsupported operand type(s) for diff: 'FloatColumn' and" " 'str'",
         )
+
+    def test_json_decode(self):
+        fake_profile_name = "Fake profile name"
+        # Actual deserialization
+
+        # Build expected CategoricalColumn
+        df_categorical = pd.Series(
+            [
+                1.2,
+                1.4,
+                5.232,
+                8.4234,
+                2.32,
+                5.1,
+            ]
+        ).apply(str)
+        expected_profile = FloatColumn(fake_profile_name)
+
+        with mock.patch("time.time", side_effect=lambda: 0.0):
+            expected_profile.update(df_categorical)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(serialized)
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)

@@ -155,14 +155,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: 
 
         return profile
 
-    def parse(self, json):
-        """
-        Parse.
-
-        :param json: json str
-        :type json: str
-        """
-
     @property
     def profile(self) -> dict:
         """

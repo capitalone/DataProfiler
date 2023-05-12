@@ -247,15 +247,20 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         """
         raise NotImplementedError()
 
-    @abc.abstractmethod
-    def parse(self, json):
+    def parse(self, data):
         """
-        Parse.
+        Parse attribute from dictionary into self.
 
-        :param json: json str
-        :type json: str
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
         """
-        return NotImplementedError()
+        for attr, value in data.items():
+            if "__calculations" in attr:
+                for metric, function in value.items():
+                    if not hasattr(self, function):
+                        raise Exception()
+                    value[metric] = self.__getattribute__(function)
+            self.__setattr__(attr, value)
 
 
 class BaseColumnPrimitiveTypeProfiler(

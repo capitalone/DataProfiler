@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import CategoricalColumn
-from dataprofiler.profilers.json_decoder import decode_column_profiler
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profile_builder import StructuredColProfiler
 from dataprofiler.profilers.profiler_options import CategoricalOptions
@@ -806,7 +806,7 @@ class TestCategoricalColumn(unittest.TestCase):
             expected_profile.update(df_categorical)
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
-        deserialized = decode_column_profiler(serialized)
+        deserialized = load_column_profile(serialized)
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 

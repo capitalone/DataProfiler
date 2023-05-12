@@ -14,8 +14,8 @@ from numpy.lib.histograms import (  # type: ignore
 )
 
 
-def rework_ptp(maximum, minimum):
-    """Peak-to-peak value of x.
+def _ptp(maximum, minimum):
+    """Peak-to-peak using minimum and maximum value of a dataset.
 
     This implementation avoids the problem of signed integer arrays having a
     peak-to-peak value that cannot be represented with the array's data type.
@@ -24,9 +24,9 @@ def rework_ptp(maximum, minimum):
     return np.subtract(maximum, minimum)
 
 
-def rework_hist_bin_doane(profile):
+def _hist_bin_doane_from_profile(profile):
     """
-    Doane's histogram bin estimator.
+    Doane's histogram bin estimator reworked to use profiles.
 
     Improved version of Sturges' formula which works better for
     non-normal data. See
@@ -34,13 +34,12 @@ def rework_hist_bin_doane(profile):
 
     Parameters
     ----------
-    x : array_like
-        Input data that is to be histogrammed, trimmed to range. May not
-        be empty.
+    profile : NumericStatsMixin
+        Input data's data profile that is to be histogrammed
 
     Returns
     -------
-    h : An estimate of the optimal bin width for the given data.
+    An estimate of the optimal bin width for the given data.
     """
     try:
         dataset_size = profile.match_count
@@ -65,15 +64,15 @@ def rework_hist_bin_doane(profile):
         sigma = profile.stddev
         if sigma > 0.0:
             g1 = profile._biased_skewness
-            return rework_ptp(maximum, minimum) / (
+            return _ptp(maximum, minimum) / (
                 1.0 + np.log2(dataset_size) + np.log2(1.0 + np.absolute(g1) / sg1)
             )
     return 0.0
 
 
-def rework_hist_bin_rice(profile):
+def _hist_bin_rice_from_profile(profile):
     """
-    Rice histogram bin estimator.
+    Rice histogram bin estimator reworked to use profiles.
 
     Another simple estimator with no normality assumption. It has better
     performance for large data than Sturges, but tends to overestimate
@@ -83,13 +82,12 @@ def rework_hist_bin_rice(profile):
 
     Parameters
     ----------
-    x : array_like
-        Input data that is to be histogrammed, trimmed to range. May not
-        be empty.
+    profile : NumericStatsMixin
+        Input data's data profile that is to be histogrammed
 
     Returns
     -------
-    h : An estimate of the optimal bin width for the given data.
+    An estimate of the optimal bin width for the given data.
     """
     try:
         dataset_size = profile.match_count
@@ -107,12 +105,12 @@ def rework_hist_bin_rice(profile):
         if profile.max is not None
         else profile._stored_histogram["histogram"]["bin_edges"][-1]
     )
-    return rework_ptp(maximum, minimum) / (2.0 * dataset_size ** (1.0 / 3))
+    return _ptp(maximum, minimum) / (2.0 * dataset_size ** (1.0 / 3))
 
 
-def rework_hist_bin_sturges(profile):
+def _hist_bin_sturges_from_profile(profile):
     """
-    Sturges histogram bin estimator.
+    Sturges histogram bin estimator reworked to use profiles.
 
     A very simplistic estimator based on the assumption of normality of
     the data. This estimator has poor performance for non-normal data,
@@ -121,13 +119,12 @@ def rework_hist_bin_sturges(profile):
 
     Parameters
     ----------
-    x : array_like
-        Input data that is to be histogrammed, trimmed to range. May not
-        be empty.
+    profile : NumericStatsMixin
+        Input data's data profile that is to be histogrammed
 
     Returns
     -------
-    h : An estimate of the optimal bin width for the given data.
+    An estimate of the optimal bin width for the given data.
     """
     try:
         dataset_size = profile.match_count
@@ -145,25 +142,24 @@ def rework_hist_bin_sturges(profile):
         if profile.max is not None
         else profile._stored_histogram["histogram"]["bin_edges"][-1]
     )
-    return rework_ptp(maximum, minimum) / (np.log2(dataset_size) + 1.0)
+    return _ptp(maximum, minimum) / (np.log2(dataset_size) + 1.0)
 
 
-def rework_hist_bin_sqrt(profile):
+def _hist_bin_sqrt_from_profile(profile):
     """
-    Square root histogram bin estimator.
+    Square root histogram bin estimator reworked to use profiles.
 
     Bin width is inversely proportional to the data size. Used by many
     programs for its simplicity.
 
     Parameters
     ----------
-    x : array_like
-        Input data that is to be histogrammed, trimmed to range. May not
-        be empty.
+    profile : NumericStatsMixin
+        Input data's data profile that is to be histogrammed
 
     Returns
     -------
-    h : An estimate of the optimal bin width for the given data.
+    An estimate of the optimal bin width for the given data.
     """
     try:
         dataset_size = profile.match_count
@@ -181,12 +177,12 @@ def rework_hist_bin_sqrt(profile):
         if profile.max is not None
         else profile._stored_histogram["histogram"]["bin_edges"][-1]
     )
-    return rework_ptp(maximum, minimum) / np.sqrt(dataset_size)
+    return _ptp(maximum, minimum) / np.sqrt(dataset_size)
 
 
-def rework_hist_bin_fd(profile):
+def _hist_bin_fd_from_profile(profile):
     """
-    Execute Freedman-Diaconis histogram binning.
+    Execute Freedman-Diaconis histogram binning reworked to use profiles.
 
     The Freedman-Diaconis rule uses interquartile range (IQR) to
     estimate binwidth. It is considered a variation of the Scott rule
@@ -201,13 +197,12 @@ def rework_hist_bin_fd(profile):
 
     Parameters
     ----------
-    x : array_like
-        Input data that is to be histogrammed, trimmed to range. May not
-        be empty.
+    profile : NumericStatsMixin
+        Input data's data profile that is to be histogrammed
 
     Returns
     -------
-    h : An estimate of the optimal bin width for the given data.
+    An estimate of the optimal bin width for the given data.
     """
     iqr = np.subtract(profile._get_percentile([75]), profile._get_percentile([25]))
     try:
@@ -217,7 +212,7 @@ def rework_hist_bin_fd(profile):
     return 2.0 * iqr * dataset_size ** (-1.0 / 3.0)
 
 
-def rework_hist_bin_auto(profile):
+def _hist_bin_auto_from_profile(profile):
     """
     Histogram bin estimator that uses Freedman-Diaconis and Sturges estimators.
 
@@ -240,20 +235,19 @@ def rework_hist_bin_auto(profile):
 
     Parameters
     ----------
-    x : array_like
-        Input data that is to be histogrammed, trimmed to range. May not
-        be empty.
+    profile : NumericStatsMixin
+        Input data's data profile that is to be histogrammed
 
     Returns
     -------
-    h : An estimate of the optimal bin width for the given data.
+    An estimate of the optimal bin width for the given data.
 
     See Also
     --------
     _hist_bin_fd, _hist_bin_sturges
     """
-    fd_bw = rework_hist_bin_fd(profile)
-    sturges_bw = rework_hist_bin_sturges(profile)
+    fd_bw = _hist_bin_fd_from_profile(profile)
+    sturges_bw = _hist_bin_sturges_from_profile(profile)
     if fd_bw:
         return min(fd_bw, sturges_bw)
     else:
@@ -261,9 +255,9 @@ def rework_hist_bin_auto(profile):
         return sturges_bw
 
 
-def rework_hist_bin_scott(profile):
+def _hist_bin_scott_from_profile(profile):
     """
-    Scott histogram bin estimator.
+    Scott histogram bin estimator reworked to use profiles.
 
     The binwidth is proportional to the standard deviation of the data
     and inversely proportional to the cube root of data size
@@ -271,9 +265,8 @@ def rework_hist_bin_scott(profile):
 
     Parameters
     ----------
-    x : array_like
-        Input data that is to be histogrammed, trimmed to range. May not
-        be empty.
+    profile : NumericStatsMixin
+        Input data's data profile that is to be histogrammed
 
     Returns
     -------
@@ -365,27 +358,33 @@ def _get_bin_edges(
     return bin_edges, n_equal_bins
 
 
-def get_suggested_bins(profile, bin_method):
-    """Get ideal binning for the specified calculation method."""
+def calculate_bins_from_profile(profile, bin_method):
+    """
+    Compute the bins used internally by `histogram`.
+
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
+    :param bin_method: the method used to calculate bins based on the profile given
+    :type bin_method: string
+
+    :return: ideal number of bins for a particular histograom calulcation method
+    """
     # parse the overloaded bins argument
 
     rework_hist_bin_selectors = {
-        "auto": rework_hist_bin_auto,
-        "doane": rework_hist_bin_doane,
-        "fd": rework_hist_bin_fd,
-        "rice": rework_hist_bin_rice,
-        "scott": rework_hist_bin_scott,
-        "sqrt": rework_hist_bin_sqrt,
-        "sturges": rework_hist_bin_sturges,
+        "auto": _hist_bin_auto_from_profile,
+        "doane": _hist_bin_doane_from_profile,
+        "fd": _hist_bin_fd_from_profile,
+        "rice": _hist_bin_rice_from_profile,
+        "scott": _hist_bin_scott_from_profile,
+        "sqrt": _hist_bin_sqrt_from_profile,
+        "sturges": _hist_bin_sturges_from_profile,
     }
 
-    n_equal_bins = None
-    if isinstance(bin_method, str):
-        bin_name = bin_method
     # if `bins` is a string for an automatic method,
     # this will replace it with the number of bins calculated
-    if bin_name not in _hist_bin_selectors:
-        raise ValueError(f"{bin_name!r} is not a valid estimator for `bins`")
+    if bin_method not in _hist_bin_selectors:
+        raise ValueError(f"{bin_method!r} is not a valid estimator for `bins`")
 
     try:
         dataset_size = profile.match_count
@@ -407,7 +406,7 @@ def get_suggested_bins(profile, bin_method):
         n_equal_bins = 1
     else:
         # Do not call selectors on empty arrays
-        width = rework_hist_bin_selectors[bin_name](profile)
+        width = rework_hist_bin_selectors[bin_method](profile)
         if width and not np.isnan(width):
             n_equal_bins = int(np.ceil(_unsigned_subtract(maximum, minimum) / width))
         else:

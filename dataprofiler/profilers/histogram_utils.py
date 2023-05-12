@@ -20,6 +20,8 @@ def _ptp(maximum, minimum):
     This implementation avoids the problem of signed integer arrays having a
     peak-to-peak value that cannot be represented with the array's data type.
     This function returns an unsigned value for signed integer arrays.
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
     """
     return np.subtract(maximum, minimum)
 
@@ -31,6 +33,8 @@ def _hist_bin_doane_from_profile(profile):
     Improved version of Sturges' formula which works better for
     non-normal data. See
     stats.stackexchange.com/questions/55134/doanes-formula-for-histogram-binning
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
     Parameters
     ----------
@@ -79,6 +83,8 @@ def _hist_bin_rice_from_profile(profile):
     the number of bins. The number of bins is proportional to the cube
     root of data size (asymptotically optimal). The estimate depends
     only on size of the data.
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
     Parameters
     ----------
@@ -116,6 +122,8 @@ def _hist_bin_sturges_from_profile(profile):
     the data. This estimator has poor performance for non-normal data,
     which becomes especially obvious for large data sets. The estimate
     depends only on size of the data.
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
     Parameters
     ----------
@@ -151,6 +159,8 @@ def _hist_bin_sqrt_from_profile(profile):
 
     Bin width is inversely proportional to the data size. Used by many
     programs for its simplicity.
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
     Parameters
     ----------
@@ -194,6 +204,8 @@ def _hist_bin_fd_from_profile(profile):
     If the IQR is 0, this function returns 0 for the bin width.
     Binwidth is inversely proportional to the cube root of data size
     (asymptotically optimal).
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
     Parameters
     ----------
@@ -225,13 +237,8 @@ def _hist_bin_auto_from_profile(profile):
     and is the default in the R language. This method gives good off-the-shelf
     behaviour.
 
-    .. versionchanged:: 1.15.0
-    If there is limited variance the IQR can be 0, which results in the
-    FD bin width being 0 too. This is not a valid bin width, so
-    ``np.histogram_bin_edges`` chooses 1 bin instead, which may not be optimal.
-    If the IQR is 0, it's unlikely any variance-based estimators will be of
-    use, so we revert to the Sturges estimator, which only uses the size of the
-    dataset in its calculation.
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
     Parameters
     ----------
@@ -262,6 +269,9 @@ def _hist_bin_scott_from_profile(profile):
     The binwidth is proportional to the standard deviation of the data
     and inversely proportional to the cube root of data size
     (asymptotically optimal).
+
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
     Parameters
     ----------

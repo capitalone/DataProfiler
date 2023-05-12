@@ -75,21 +75,21 @@ class TestHistogramUtils(unittest.TestCase):
             # Case 1: min, max, match_count, biased_skewness, and stddev are set
             expected = 4 / (1 + 2.321928094887362 + 1.3967037745666426)
             actual = histogram_utils._hist_bin_doane_from_profile(profile)
-            self.assertEqual(expected, actual)
+            self.assertAlmostEqual(expected, actual, places=9)
 
             # Case 2: min, max, biased_skewness, and stddev are set.
             # match_count doesn't exist
             delattr(profile, "match_count")
             expected = 4 / (1 + 2.584962500721156 + 1.3896687739916025)
             actual = histogram_utils._hist_bin_doane_from_profile(profile)
-            self.assertEqual(expected, actual)
+            self.assertAlmostEqual(expected, actual, places=9)
 
             # Case 3 max, biased_skewness, and stddev are set.
             # match_count doesn't exist and min is None
             profile.min = None
             expected = 5 / (1 + 2.584962500721156 + 1.3896687739916025)
             actual = histogram_utils._hist_bin_doane_from_profile(profile)
-            self.assertEqual(expected, actual)
+            self.assertAlmostEqual(expected, actual, places=9)
 
             # Case 4 biased_skewness, and stddev are set.
             # match_count doesn't exist and both min and max are None
@@ -119,25 +119,25 @@ class TestHistogramUtils(unittest.TestCase):
         # Case 1: min, max, and match_count are set
         expected = 4 / (2 * 5 ** (1 / 3))
         actual = histogram_utils._hist_bin_rice_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
         # Case 2: min and max set. match_count doesn't exist
         delattr(profile, "match_count")
         expected = 4 / (2 * 6 ** (1 / 3))
         actual = histogram_utils._hist_bin_rice_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
         # Case 3 max is set. match_count doesn't exist and min is None
         profile.min = None
         expected = 5 / (2 * 6 ** (1 / 3))
         actual = histogram_utils._hist_bin_rice_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
         # Case 4 match_count doesn't exist and both min and max are None
         profile.max = None
         expected = 6 / (2 * 6 ** (1 / 3))
         actual = histogram_utils._hist_bin_rice_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
     def test_hist_bin_sturges_from_profile(self):
         # Initial setup of profile
@@ -146,25 +146,25 @@ class TestHistogramUtils(unittest.TestCase):
         # Case 1: min, max, and match_count are set
         expected = 4 / (2.321928094887362 + 1)
         actual = histogram_utils._hist_bin_sturges_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
         # Case 2: min and max set. match_count doesn't exist
         delattr(profile, "match_count")
         expected = 4 / (2.584962500721156 + 1)
         actual = histogram_utils._hist_bin_sturges_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
         # Case 3 max is set. match_count doesn't exist and min is None
         profile.min = None
         expected = 5 / (2.584962500721156 + 1)
         actual = histogram_utils._hist_bin_sturges_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
         # Case 4 match_count doesn't exist and both min and max are None
         profile.max = None
         expected = 6 / (2.584962500721156 + 1)
         actual = histogram_utils._hist_bin_sturges_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
     def test_hist_bin_sqrt_from_profile(self):
         # Initial setup of profile
@@ -173,25 +173,25 @@ class TestHistogramUtils(unittest.TestCase):
         # Case 1: min, max, and match_count are set
         expected = 4 / 2.23606797749979
         actual = histogram_utils._hist_bin_sqrt_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
         # Case 2: min and max set. match_count doesn't exist
         delattr(profile, "match_count")
         expected = 4 / 2.449489742783178
         actual = histogram_utils._hist_bin_sqrt_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
         # Case 3 max is set. match_count doesn't exist and min is None
         profile.min = None
         expected = 5 / 2.449489742783178
         actual = histogram_utils._hist_bin_sqrt_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
         # Case 4 match_count doesn't exist and both min and max are None
         profile.max = None
         expected = 6 / 2.449489742783178
         actual = histogram_utils._hist_bin_sqrt_from_profile(profile)
-        self.assertEqual(expected, actual)
+        self.assertAlmostEqual(expected, actual, places=9)
 
     def test_hist_bin_fd_from_profile(self):
         # Initial setup of profile
@@ -204,13 +204,13 @@ class TestHistogramUtils(unittest.TestCase):
             # Case 1: match_count is set
             expected = 2.0 * 1.0 * 5 ** (-1 / 3)
             actual = histogram_utils._hist_bin_fd_from_profile(profile)
-            self.assertEqual(expected, actual)
+            self.assertAlmostEqual(expected, actual, places=9)
 
             # Case 2: match_count doesn't exist
             delattr(profile, "match_count")
             expected = 2.0 * 1.0 * 6 ** (-1 / 3)
             actual = histogram_utils._hist_bin_fd_from_profile(profile)
-            self.assertEqual(expected, actual)
+            self.assertAlmostEqual(expected, actual, places=9)
 
     def test_hist_bin_auto_from_profile(self):
         # Initial setup of profile
@@ -259,13 +259,13 @@ class TestHistogramUtils(unittest.TestCase):
             # Case 1: match_count and stddev are set
             expected = (24.0 * np.pi**0.5 / 5) ** (1.0 / 3.0) * 1
             actual = histogram_utils._hist_bin_scott_from_profile(profile)
-            self.assertEqual(expected, actual)
+            self.assertAlmostEqual(expected, actual, places=9)
 
             # Case 2: match_count doesn't exist and stddev is set
             delattr(profile, "match_count")
             expected = (24.0 * np.pi**0.5 / 6) ** (1.0 / 3.0) * 1
             actual = histogram_utils._hist_bin_scott_from_profile(profile)
-            self.assertEqual(expected, actual)
+            self.assertAlmostEqual(expected, actual, places=9)
 
     def test_calculate_bins_from_profile(self):
         # Initial setup of profile

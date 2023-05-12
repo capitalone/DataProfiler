@@ -131,14 +131,6 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         """
         return self.profile
 
-    def parse(self, json):
-        """
-        Parse.
-
-        :param json: json str
-        :type json: str
-        """
-
     @property
     def profile(self) -> dict:
         """Return the profile of the column."""

@@ -259,7 +259,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             for method in self.histogram_bin_method_names:
                 self.histogram_methods[method][
                     "suggested_bin_count"
-                ] = histogram_utils.calculate_bins_from_profile(self, method)
+                ] = histogram_utils._calculate_bins_from_profile(self, method)
 
         self._get_quantiles()
 

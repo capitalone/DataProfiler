@@ -26,7 +26,7 @@ def _ptp(maximum, minimum):
     return np.subtract(maximum, minimum)
 
 
-def _hist_bin_doane_from_profile(profile):
+def _calc_doane_bin_width_from_profile(profile):
     """
     Doane's histogram bin estimator reworked to use profiles.
 
@@ -74,7 +74,7 @@ def _hist_bin_doane_from_profile(profile):
     return 0.0
 
 
-def _hist_bin_rice_from_profile(profile):
+def _calc_rice_bin_width_from_profile(profile):
     """
     Rice histogram bin estimator reworked to use profiles.
 
@@ -114,7 +114,7 @@ def _hist_bin_rice_from_profile(profile):
     return _ptp(maximum, minimum) / (2.0 * dataset_size ** (1.0 / 3))
 
 
-def _hist_bin_sturges_from_profile(profile):
+def _calc_sturges_bin_width_from_profile(profile):
     """
     Sturges histogram bin estimator reworked to use profiles.
 
@@ -153,7 +153,7 @@ def _hist_bin_sturges_from_profile(profile):
     return _ptp(maximum, minimum) / (np.log2(dataset_size) + 1.0)
 
 
-def _hist_bin_sqrt_from_profile(profile):
+def _calc_sqrt_bin_width_from_profile(profile):
     """
     Square root histogram bin estimator reworked to use profiles.
 
@@ -190,7 +190,7 @@ def _hist_bin_sqrt_from_profile(profile):
     return _ptp(maximum, minimum) / np.sqrt(dataset_size)
 
 
-def _hist_bin_fd_from_profile(profile):
+def _calc_fd_bin_width_from_profile(profile):
     """
     Execute Freedman-Diaconis histogram binning reworked to use profiles.
 
@@ -224,7 +224,7 @@ def _hist_bin_fd_from_profile(profile):
     return 2.0 * iqr * dataset_size ** (-1.0 / 3.0)
 
 
-def _hist_bin_auto_from_profile(profile):
+def _calc_auto_bin_width_from_profile(profile):
     """
     Histogram bin estimator that uses Freedman-Diaconis and Sturges estimators.
 
@@ -253,8 +253,8 @@ def _hist_bin_auto_from_profile(profile):
     --------
     _hist_bin_fd, _hist_bin_sturges
     """
-    fd_bw = _hist_bin_fd_from_profile(profile)
-    sturges_bw = _hist_bin_sturges_from_profile(profile)
+    fd_bw = _calc_fd_bin_width_from_profile(profile)
+    sturges_bw = _calc_sturges_bin_width_from_profile(profile)
     if fd_bw:
         return min(fd_bw, sturges_bw)
     else:
@@ -262,7 +262,7 @@ def _hist_bin_auto_from_profile(profile):
         return sturges_bw
 
 
-def _hist_bin_scott_from_profile(profile):
+def _calc_scott_bin_width_from_profile(profile):
     """
     Scott histogram bin estimator reworked to use profiles.
 
@@ -288,6 +288,17 @@ def _hist_bin_scott_from_profile(profile):
         dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
     std = profile.stddev
     return (24.0 * np.pi**0.5 / dataset_size) ** (1.0 / 3.0) * std
+
+
+_hist_bin_width_selectors_for_profile = {
+    "auto": _calc_auto_bin_width_from_profile,
+    "doane": _calc_doane_bin_width_from_profile,
+    "fd": _calc_fd_bin_width_from_profile,
+    "rice": _calc_rice_bin_width_from_profile,
+    "scott": _calc_scott_bin_width_from_profile,
+    "sqrt": _calc_sqrt_bin_width_from_profile,
+    "sturges": _calc_sturges_bin_width_from_profile,
+}
 
 
 def _get_bin_edges(
@@ -368,7 +379,7 @@ def _get_bin_edges(
     return bin_edges, n_equal_bins
 
 
-def calculate_bins_from_profile(profile, bin_method):
+def _calculate_bins_from_profile(profile, bin_method):
     """
     Compute the bins used internally by `histogram`.
 
@@ -379,21 +390,9 @@ def calculate_bins_from_profile(profile, bin_method):
 
     :return: ideal number of bins for a particular histograom calulcation method
     """
-    # parse the overloaded bins argument
-
-    rework_hist_bin_selectors = {
-        "auto": _hist_bin_auto_from_profile,
-        "doane": _hist_bin_doane_from_profile,
-        "fd": _hist_bin_fd_from_profile,
-        "rice": _hist_bin_rice_from_profile,
-        "scott": _hist_bin_scott_from_profile,
-        "sqrt": _hist_bin_sqrt_from_profile,
-        "sturges": _hist_bin_sturges_from_profile,
-    }
-
     # if `bins` is a string for an automatic method,
     # this will replace it with the number of bins calculated
-    if bin_method not in _hist_bin_selectors:
+    if bin_method not in _hist_bin_width_selectors_for_profile:
         raise ValueError(f"{bin_method!r} is not a valid estimator for `bins`")
 
     try:
@@ -416,7 +415,7 @@ def calculate_bins_from_profile(profile, bin_method):
         n_equal_bins = 1
     else:
         # Do not call selectors on empty arrays
-        width = rework_hist_bin_selectors[bin_method](profile)
+        width = _hist_bin_width_selectors_for_profile[bin_method](profile)
         if width and not np.isnan(width):
             n_equal_bins = int(np.ceil(_unsigned_subtract(maximum, minimum) / width))
         else:

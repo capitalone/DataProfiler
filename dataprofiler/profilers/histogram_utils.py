@@ -14,6 +14,54 @@ from numpy.lib.histograms import (  # type: ignore
 )
 
 
+def _get_maximum_from_profile(profile):
+    """
+    Get the maximum of a dataset from a profile.
+
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
+
+    :return: dataset maximum
+    """
+    return (
+        profile.max
+        if profile.max is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][-1]
+    )
+
+
+def _get_minimum_from_profile(profile):
+    """
+    Get the minimum of a dataset from a profile.
+
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
+
+    :return: dataset minimum
+    """
+    return (
+        profile.min
+        if profile.min is not None
+        else profile._stored_histogram["histogram"]["bin_edges"][0]
+    )
+
+
+def _get_dataset_size_from_profile(profile):
+    """
+    Get the dataset size from a profile.
+
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
+
+    :return: dataset size
+    """
+    try:
+        dataset_size = profile.match_count
+    except AttributeError:
+        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+    return dataset_size
+
+
 def _ptp(maximum, minimum):
     """Peak-to-peak using minimum and maximum value of a dataset.
 
@@ -45,22 +93,10 @@ def _calc_doane_bin_width_from_profile(profile):
     -------
     An estimate of the optimal bin width for the given data.
     """
-    try:
-        dataset_size = profile.match_count
-    except AttributeError:
-        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+    dataset_size = _get_dataset_size_from_profile(profile)
+    minimum = _get_minimum_from_profile(profile)
+    maximum = _get_maximum_from_profile(profile)
 
-    minimum = (
-        profile.min
-        if profile.min is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][0]
-    )
-
-    maximum = (
-        profile.max
-        if profile.max is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][-1]
-    )
     if dataset_size > 2:
         sg1 = np.sqrt(
             6.0 * (dataset_size - 2) / ((dataset_size + 1.0) * (dataset_size + 3))
@@ -95,22 +131,10 @@ def _calc_rice_bin_width_from_profile(profile):
     -------
     An estimate of the optimal bin width for the given data.
     """
-    try:
-        dataset_size = profile.match_count
-    except AttributeError:
-        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+    dataset_size = _get_dataset_size_from_profile(profile)
+    minimum = _get_minimum_from_profile(profile)
+    maximum = _get_maximum_from_profile(profile)
 
-    minimum = (
-        profile.min
-        if profile.min is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][0]
-    )
-
-    maximum = (
-        profile.max
-        if profile.max is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][-1]
-    )
     return _ptp(maximum, minimum) / (2.0 * dataset_size ** (1.0 / 3))
 
 
@@ -134,22 +158,10 @@ def _calc_sturges_bin_width_from_profile(profile):
     -------
     An estimate of the optimal bin width for the given data.
     """
-    try:
-        dataset_size = profile.match_count
-    except AttributeError:
-        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+    dataset_size = _get_dataset_size_from_profile(profile)
+    minimum = _get_minimum_from_profile(profile)
+    maximum = _get_maximum_from_profile(profile)
 
-    minimum = (
-        profile.min
-        if profile.min is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][0]
-    )
-
-    maximum = (
-        profile.max
-        if profile.max is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][-1]
-    )
     return _ptp(maximum, minimum) / (np.log2(dataset_size) + 1.0)
 
 
@@ -171,22 +183,10 @@ def _calc_sqrt_bin_width_from_profile(profile):
     -------
     An estimate of the optimal bin width for the given data.
     """
-    try:
-        dataset_size = profile.match_count
-    except AttributeError:
-        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+    dataset_size = _get_dataset_size_from_profile(profile)
+    minimum = _get_minimum_from_profile(profile)
+    maximum = _get_maximum_from_profile(profile)
 
-    minimum = (
-        profile.min
-        if profile.min is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][0]
-    )
-
-    maximum = (
-        profile.max
-        if profile.max is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][-1]
-    )
     return _ptp(maximum, minimum) / np.sqrt(dataset_size)
 
 
@@ -217,10 +217,8 @@ def _calc_fd_bin_width_from_profile(profile):
     An estimate of the optimal bin width for the given data.
     """
     iqr = np.subtract(profile._get_percentile([75]), profile._get_percentile([25]))
-    try:
-        dataset_size = profile.match_count
-    except AttributeError:
-        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+    dataset_size = _get_dataset_size_from_profile(profile)
+
     return 2.0 * iqr * dataset_size ** (-1.0 / 3.0)
 
 
@@ -282,11 +280,9 @@ def _calc_scott_bin_width_from_profile(profile):
     -------
     h : An estimate of the optimal bin width for the given data.
     """
-    try:
-        dataset_size = profile.match_count
-    except AttributeError:
-        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
+    dataset_size = _get_dataset_size_from_profile(profile)
     std = profile.stddev
+
     return (24.0 * np.pi**0.5 / dataset_size) ** (1.0 / 3.0) * std
 
 
@@ -395,21 +391,9 @@ def _calculate_bins_from_profile(profile, bin_method):
     if bin_method not in _hist_bin_width_selectors_for_profile:
         raise ValueError(f"{bin_method!r} is not a valid estimator for `bins`")
 
-    try:
-        dataset_size = profile.match_count
-    except AttributeError:
-        dataset_size = sum(profile._stored_histogram["histogram"]["bin_counts"])
-
-    minimum = (
-        profile.min
-        if profile.min is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][0]
-    )
-    maximum = (
-        profile.max
-        if profile.max is not None
-        else profile._stored_histogram["histogram"]["bin_edges"][-1]
-    )
+    dataset_size = _get_dataset_size_from_profile(profile)
+    minimum = _get_minimum_from_profile(profile)
+    maximum = _get_maximum_from_profile(profile)
 
     if dataset_size == 0:
         n_equal_bins = 1
@@ -417,7 +401,7 @@ def _calculate_bins_from_profile(profile, bin_method):
         # Do not call selectors on empty arrays
         width = _hist_bin_width_selectors_for_profile[bin_method](profile)
         if width and not np.isnan(width):
-            n_equal_bins = int(np.ceil(_unsigned_subtract(maximum, minimum) / width))
+            n_equal_bins = int(np.ceil(_ptp(maximum, minimum) / width))
         else:
             # Width can be zero for some estimators, e.g. FD when
             # the IQR of the data is zero.

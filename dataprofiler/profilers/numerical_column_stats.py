@@ -194,21 +194,23 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
         # calculate the min of the first edge and the max of the last edge
         # between two arrays
-        if not (other1.min is None or other2.min is None):
-            global_min_of_histogram_edges = min(other1.min, other2.min)
-        else:
-            global_min_of_histogram_edges = min(
+        global_min_of_histogram_edges = (
+            float(self.min)
+            if self.min is not None
+            else min(
                 other1._stored_histogram["histogram"]["bin_edges"][0],
                 other2._stored_histogram["histogram"]["bin_edges"][0],
             )
+        )
 
-        if not (other1.max is None or other2.max is None):
-            global_max_of_histogram_edges = max(other1.max, other2.max)
-        else:
-            global_max_of_histogram_edges = max(
+        global_max_of_histogram_edges = (
+            float(self.max)
+            if self.max is not None
+            else max(
                 other1._stored_histogram["histogram"]["bin_edges"][-1],
                 other2._stored_histogram["histogram"]["bin_edges"][-1],
             )
+        )
 
         # Generate new bin edges
         ideal_bin_edges = np.linspace(

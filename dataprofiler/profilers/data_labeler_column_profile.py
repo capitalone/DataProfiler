@@ -318,7 +318,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         """
         return self.profile
 
-    def diff(self, other_profile: DataLabelerColumn, options: dict = None) -> dict:
+    def diff(self, other_profile: BaseColumnProfiler, options: dict = None) -> dict:
         """
         Generate differences between the orders of two DataLabeler columns.
 
@@ -326,7 +326,9 @@ class DataLabelerColumn(BaseColumnProfiler):
         appropriate output formats
         :rtype: dict
         """
+        # Make sure other_profile's type matches this class
         differences = super().diff(other_profile, options)
+        other_profile = cast(DataLabelerColumn, other_profile)
 
         self_labels = None
         if self.sample_size:

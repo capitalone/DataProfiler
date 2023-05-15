@@ -317,6 +317,9 @@ def _calculate_bins_from_profile(profile, bin_method):
     """
     Compute the bins used internally by `histogram`.
 
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
+
     :param profile: Input data's data profile that is to be histogrammed
     :type profile: NumericStatsMixin
     :param bin_method: the method used to calculate bins based on the profile given

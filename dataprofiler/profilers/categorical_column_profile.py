@@ -151,7 +151,7 @@ class CategoricalColumn(BaseColumnProfiler):
         return self.profile
 
     @classmethod
-    def json_to_object(cls, data):
+    def load_from_dict(cls, data):
         """
         Parse attribute from json dictionary into self.
 
@@ -162,7 +162,7 @@ class CategoricalColumn(BaseColumnProfiler):
         :rtype: CategoricalColumn
         """
         value = data.pop("_categories")
-        profile = super().json_to_object(data)
+        profile = super().load_from_dict(data)
         setattr(profile, "_categories", defaultdict(int, value))
         return profile
 

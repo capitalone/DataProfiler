@@ -248,7 +248,7 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         raise NotImplementedError()
 
     @classmethod
-    def json_to_object(cls, data) -> BaseColumnProfiler:
+    def load_from_dict(cls, data) -> BaseColumnProfiler:
         """
         Parse attribute from json dictionary into self.
 

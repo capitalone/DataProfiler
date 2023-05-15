@@ -9,6 +9,7 @@ import numpy as np
 import dataprofiler as dp
 from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
 from dataprofiler.profilers.profile_builder import BaseProfiler
+from dataprofiler.profilers.utils import find_diff_of_dicts
 
 
 def set_seed(seed=None):
@@ -181,31 +182,16 @@ def assert_profiles_equal(actual, expected):
     actual_dict = actual.__dict__
     expected_dict = expected.__dict__
 
-    if len(actual_dict) != len(expected_dict):
-        raise AssertionError(
-            f"Number of attributes in actual profile ({len(actual_dict)}) != number of attributes in expected profile ({len(expected_dict)})"
-        )
+    assert len(actual_dict.keys()) == len(expected_dict.keys())
 
-    for actual_attr, actual_value in actual_dict.items():
-        if actual_attr not in expected_dict:
-            raise AssertionError(
-                f"Attribute: {actual_attr}, found in actual profile but not in expected profile."
-            )
-
-        expected_value = expected_dict[actual_attr]
-        if not (
-            isinstance(expected_value, type(actual_value))
-            or isinstance(actual_value, type(expected_value))
-        ):
-            raise AssertionError(
-                f"Profile value types unmatched for attribute: {actual_attr}; actual ({actual_value}) != expected ({expected_value})"
-            )
+    for actual_value, expected_value in zip(
+        actual_dict.values(), expected_dict.values()
+    ):
+        assert type(actual_value) == type(expected_value)
 
         if isinstance(actual_value, (BaseProfiler, BaseColumnProfiler)):
             assert_profiles_equal(actual_value, expected_value)
         elif isinstance(actual_value, numbers.Number):
             np.testing.assert_equal(actual_value, expected_value)
-        elif actual_value != expected_value:
-            raise AssertionError(
-                f"Profile values unmatched for attribute: {actual_attr}; {actual_value} != {expected_value}"
-            )
+        else:
+            assert actual_value == expected_value

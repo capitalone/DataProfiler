@@ -233,7 +233,6 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertCountEqual(categories, profile.categories)
 
     def test_categorical_mapping(self):
-
         df1 = pd.Series(
             [
                 "abcd",
@@ -809,6 +808,19 @@ class TestCategoricalColumn(unittest.TestCase):
         deserialized = load_column_profile(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_categorical = pd.Series(
+            [
+                "a",  # add existing
+                "d",  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        deserialized.update(df_categorical)
+
+        assert deserialized.sample_size == 14
+        assert deserialized.categorical_counts == {"c": 5, "b": 4, "a": 4, "d": 1}
 
 
 class TestCategoricalSentence(unittest.TestCase):

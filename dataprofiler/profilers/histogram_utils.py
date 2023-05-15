@@ -1,7 +1,12 @@
 """
 Histogram-related functions.
 
-https://github.com/numpy/numpy/blob/v1.19.0/numpy/lib/histograms.py
+As noted below, this file contains methodolgies and functions derived from
+https://github.com/numpy/numpy/tree/main
+
+As required by the licensing agreement:
+https://github.com/numpy/numpy/blob/main/LICENSE.txt
+This is our acknowledgement of the repositories contributions
 """
 import operator
 from typing import List, Optional, Tuple, Union
@@ -62,14 +67,18 @@ def _get_dataset_size_from_profile(profile):
     return dataset_size
 
 
-def _ptp(maximum, minimum):
+def _ptp(maximum: float, minimum: float):
     """Peak-to-peak using minimum and maximum value of a dataset.
 
-    This implementation avoids the problem of signed integer arrays having a
-    peak-to-peak value that cannot be represented with the array's data type.
-    This function returns an unsigned value for signed integer arrays.
     Function follows the numpy implementation within:
     https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
+
+    :param maximum: The maximium of a dataset for peak-to-peak analysis
+    :type maximum: float
+    :param minimum: The minimum of a dataset for peak-to-peak analysis
+    :type minimum: float
+
+    :return: the difference between the maximum and minimum
     """
     return np.subtract(maximum, minimum)
 
@@ -78,20 +87,13 @@ def _calc_doane_bin_width_from_profile(profile):
     """
     Doane's histogram bin estimator reworked to use profiles.
 
-    Improved version of Sturges' formula which works better for
-    non-normal data. See
-    stats.stackexchange.com/questions/55134/doanes-formula-for-histogram-binning
     Function follows the numpy implementation within:
     https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
-    Parameters
-    ----------
-    profile : NumericStatsMixin
-        Input data's data profile that is to be histogrammed
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
 
-    Returns
-    -------
-    An estimate of the optimal bin width for the given data.
+    :return: An estimate of the optimal bin width for the given data.
     """
     dataset_size = _get_dataset_size_from_profile(profile)
     minimum = _get_minimum_from_profile(profile)
@@ -114,22 +116,13 @@ def _calc_rice_bin_width_from_profile(profile):
     """
     Rice histogram bin estimator reworked to use profiles.
 
-    Another simple estimator with no normality assumption. It has better
-    performance for large data than Sturges, but tends to overestimate
-    the number of bins. The number of bins is proportional to the cube
-    root of data size (asymptotically optimal). The estimate depends
-    only on size of the data.
     Function follows the numpy implementation within:
     https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
-    Parameters
-    ----------
-    profile : NumericStatsMixin
-        Input data's data profile that is to be histogrammed
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
 
-    Returns
-    -------
-    An estimate of the optimal bin width for the given data.
+    :return: An estimate of the optimal bin width for the given data.
     """
     dataset_size = _get_dataset_size_from_profile(profile)
     minimum = _get_minimum_from_profile(profile)
@@ -142,21 +135,13 @@ def _calc_sturges_bin_width_from_profile(profile):
     """
     Sturges histogram bin estimator reworked to use profiles.
 
-    A very simplistic estimator based on the assumption of normality of
-    the data. This estimator has poor performance for non-normal data,
-    which becomes especially obvious for large data sets. The estimate
-    depends only on size of the data.
     Function follows the numpy implementation within:
     https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
-    Parameters
-    ----------
-    profile : NumericStatsMixin
-        Input data's data profile that is to be histogrammed
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
 
-    Returns
-    -------
-    An estimate of the optimal bin width for the given data.
+    :return: An estimate of the optimal bin width for the given data.
     """
     dataset_size = _get_dataset_size_from_profile(profile)
     minimum = _get_minimum_from_profile(profile)
@@ -169,19 +154,13 @@ def _calc_sqrt_bin_width_from_profile(profile):
     """
     Square root histogram bin estimator reworked to use profiles.
 
-    Bin width is inversely proportional to the data size. Used by many
-    programs for its simplicity.
     Function follows the numpy implementation within:
     https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
-    Parameters
-    ----------
-    profile : NumericStatsMixin
-        Input data's data profile that is to be histogrammed
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
 
-    Returns
-    -------
-    An estimate of the optimal bin width for the given data.
+    :return: An estimate of the optimal bin width for the given data.
     """
     dataset_size = _get_dataset_size_from_profile(profile)
     minimum = _get_minimum_from_profile(profile)
@@ -194,27 +173,13 @@ def _calc_fd_bin_width_from_profile(profile):
     """
     Execute Freedman-Diaconis histogram binning reworked to use profiles.
 
-    The Freedman-Diaconis rule uses interquartile range (IQR) to
-    estimate binwidth. It is considered a variation of the Scott rule
-    with more robustness as the IQR is less affected by outliers than
-    the standard deviation. However, the IQR depends on fewer points
-    than the standard deviation, so it is less accurate, especially for
-    long tailed distributions.
-
-    If the IQR is 0, this function returns 0 for the bin width.
-    Binwidth is inversely proportional to the cube root of data size
-    (asymptotically optimal).
     Function follows the numpy implementation within:
     https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
-    Parameters
-    ----------
-    profile : NumericStatsMixin
-        Input data's data profile that is to be histogrammed
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
 
-    Returns
-    -------
-    An estimate of the optimal bin width for the given data.
+    :return: An estimate of the optimal bin width for the given data.
     """
     iqr = np.subtract(profile._get_percentile([75]), profile._get_percentile([25]))
     dataset_size = _get_dataset_size_from_profile(profile)
@@ -226,30 +191,13 @@ def _calc_auto_bin_width_from_profile(profile):
     """
     Histogram bin estimator that uses Freedman-Diaconis and Sturges estimators.
 
-    Chooses the minimum width of the estimators if the FD bin width is non-zero.
-    If the bin width from the FD estimator is 0, the Sturges estimator is used.
-
-    The FD estimator is usually the most robust method, but its width
-    estimate tends to be too large for small `x` and bad for data with limited
-    variance. The Sturges estimator is quite good for small (<1000) datasets
-    and is the default in the R language. This method gives good off-the-shelf
-    behaviour.
-
     Function follows the numpy implementation within:
     https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
-    Parameters
-    ----------
-    profile : NumericStatsMixin
-        Input data's data profile that is to be histogrammed
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
 
-    Returns
-    -------
-    An estimate of the optimal bin width for the given data.
-
-    See Also
-    --------
-    _hist_bin_fd, _hist_bin_sturges
+    :return: An estimate of the optimal bin width for the given data.
     """
     fd_bw = _calc_fd_bin_width_from_profile(profile)
     sturges_bw = _calc_sturges_bin_width_from_profile(profile)
@@ -264,21 +212,13 @@ def _calc_scott_bin_width_from_profile(profile):
     """
     Scott histogram bin estimator reworked to use profiles.
 
-    The binwidth is proportional to the standard deviation of the data
-    and inversely proportional to the cube root of data size
-    (asymptotically optimal).
-
     Function follows the numpy implementation within:
     https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
 
-    Parameters
-    ----------
-    profile : NumericStatsMixin
-        Input data's data profile that is to be histogrammed
+    :param profile: Input data's data profile that is to be histogrammed
+    :type profile: NumericStatsMixin
 
-    Returns
-    -------
-    h : An estimate of the optimal bin width for the given data.
+    :return: An estimate of the optimal bin width for the given data.
     """
     dataset_size = _get_dataset_size_from_profile(profile)
     std = profile.stddev
@@ -306,20 +246,19 @@ def _get_bin_edges(
     """
     Compute the bins used internally by `histogram`.
 
-    Parameters
-    ==========
-    a : ndarray
-        Ravelled data array
-    bins, range
-        Forwarded arguments from `histogram`.
-    weights : ndarray, optional
-        Ravelled weights array, or None
-    Returns
-    =======
-    bin_edges : ndarray
-        Array of bin edges
-    uniform_bins : (Number, Number, int):
-        The upper bound, lowerbound, and number of bins, used in the optimized
+    Function follows the numpy implementation within:
+    https://github.com/numpy/numpy/blob/main/numpy/lib/histograms.py
+
+    :param a: Ravelled data array
+    :type a: ndarray
+    :param bins: Forwarded arguments from `histogram`
+    :type bins: str, int, List, or None
+    :param range: Forwarded arguments from `histogram`
+    :type range: Tuple[int, int] or None
+    :param weights: Ravelled weights array
+    :type weights: ndarray or None
+
+    :return: The upper bound, lowerbound, and number of bins, used in the optimized
         implementation of `histogram` that works on uniform bins.
     """
     # parse the overloaded bins argument

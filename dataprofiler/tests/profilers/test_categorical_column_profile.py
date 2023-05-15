@@ -747,7 +747,7 @@ class TestCategoricalColumn(unittest.TestCase):
         )
         profile = CategoricalColumn(df_categorical.name)
 
-        with patch("time.time", side_effect=lambda: 0.0):
+        with test_utils.mock_timeit():
             profile.update(df_categorical)
 
         serialized = json.dumps(profile, cls=ProfileEncoder)
@@ -775,7 +775,7 @@ class TestCategoricalColumn(unittest.TestCase):
         expected_profile = CategoricalColumn(fake_profile_name)
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
-        deserialized = decode_column_profiler(serialized)
+        deserialized = load_column_profile(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
@@ -802,11 +802,11 @@ class TestCategoricalColumn(unittest.TestCase):
         )
         expected_profile = CategoricalColumn(fake_profile_name)
 
-        with patch("time.time", side_effect=lambda: 0.0):
+        with test_utils.mock_timeit():
             expected_profile.update(df_categorical)
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
-        deserialized = load_column_profile(serialized)
+        deserialized = load_column_profile(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 

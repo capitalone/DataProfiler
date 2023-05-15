@@ -247,20 +247,29 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         """
         raise NotImplementedError()
 
-    def parse(self, data):
+    @classmethod
+    def parse(cls: type[BaseColumnProfiler], data) -> BaseColumnProfiler:
         """
         Parse attribute from dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseColumnProfiler
         """
+        profile = cls(data["name"])
         for attr, value in data.items():
             if "__calculations" in attr:
                 for metric, function in value.items():
-                    if not hasattr(self, function):
-                        raise Exception()
-                    value[metric] = self.__getattribute__(function)
-            self.__setattr__(attr, value)
+                    if not hasattr(profile, function):
+                        raise AttributeError(
+                            f"Object {type(profile)} has no attribute {function}."
+                        )
+                    value[metric] = getattr(profile, function)
+            setattr(profile, attr, value)
+
+        return profile
 
 
 class BaseColumnPrimitiveTypeProfiler(

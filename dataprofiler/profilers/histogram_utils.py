@@ -325,7 +325,7 @@ def _calculate_bins_from_profile(profile, bin_method):
     :param bin_method: the method used to calculate bins based on the profile given
     :type bin_method: string
 
-    :return: ideal number of bins for a particular histograom calulcation method
+    :return: ideal number of bins for a particular histogram calcuation method
     """
     # if `bins` is a string for an automatic method,
     # this will replace it with the number of bins calculated

@@ -9,11 +9,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import FloatColumn
-from dataprofiler.profilers.json_decoder import load_column_profile
-from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import FloatOptions
-
-from . import utils as test_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 

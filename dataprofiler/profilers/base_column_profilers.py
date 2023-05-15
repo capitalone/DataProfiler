@@ -248,9 +248,9 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         raise NotImplementedError()
 
     @classmethod
-    def parse(cls, data) -> BaseColumnProfiler:
+    def json_to_object(cls, data) -> BaseColumnProfiler:
         """
-        Parse attribute from dictionary into self.
+        Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]

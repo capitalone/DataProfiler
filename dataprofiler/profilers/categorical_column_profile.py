@@ -151,9 +151,9 @@ class CategoricalColumn(BaseColumnProfiler):
         return self.profile
 
     @classmethod
-    def parse(cls, data):
+    def json_to_object(cls, data):
         """
-        Parse attribute from dictionary into self.
+        Parse attribute from json dictionary into self.
 
         :param data: dictionary with attributes and values.
         :type data: dict[string, Any]

@@ -1,12 +1,11 @@
 """
 Histogram-related functions.
 
-As noted below, this file contains methodolgies and functions derived from
+As noted below, this file contains modified versions of code from:
 https://github.com/numpy/numpy/tree/main
 
-As required by the licensing agreement:
+A copy of the license for numpy is available here:
 https://github.com/numpy/numpy/blob/main/LICENSE.txt
-This is our acknowledgement of the repositories contributions
 """
 import operator
 from typing import List, Optional, Tuple, Union

@@ -1338,7 +1338,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         :type from_hist_bin_edges: List[Tuple[float]]
         :param from_hist_entity_count_per_bin: the breakdown of number of
             entities within a given histogram bin (assimilated to)
-        :type dest_hist_entity_count_by_bin: List[float]
+        :type dest_hist_entity_count_per_bin: List[float]
         :param dest_hist_bin_edges: List of value ranges for histogram bins
             (assimilated to)
         :type dest_hist_bin_edges: List[Tuple[float]]

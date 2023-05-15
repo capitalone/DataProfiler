@@ -162,7 +162,7 @@ class CategoricalColumn(BaseColumnProfiler):
         :rtype: CategoricalColumn
         """
         value = data.pop("_categories")
-        profile = super().parse(data)
+        profile = super().json_to_object(data)
         setattr(profile, "_categories", defaultdict(int, value))
         return profile
 

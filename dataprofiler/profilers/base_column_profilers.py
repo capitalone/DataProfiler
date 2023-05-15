@@ -248,7 +248,7 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         raise NotImplementedError()
 
     @classmethod
-    def parse(cls: type[BaseColumnProfiler], data) -> BaseColumnProfiler:
+    def parse(cls, data) -> BaseColumnProfiler:
         """
         Parse attribute from dictionary into self.
 
@@ -259,6 +259,10 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         :rtype: BaseColumnProfiler
         """
         profile = cls(data["name"])
+
+        time_vals = data.pop("times")
+        setattr(profile, "times", defaultdict(float, time_vals))
+
         for attr, value in data.items():
             if "__calculations" in attr:
                 for metric, function in value.items():

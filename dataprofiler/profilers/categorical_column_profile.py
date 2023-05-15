@@ -150,6 +150,22 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         return self.profile
 
+    @classmethod
+    def parse(cls, data):
+        """
+        Parse attribute from dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: CategoricalColumn
+        """
+        value = data.pop("_categories")
+        profile = super().parse(data)
+        setattr(profile, "_categories", defaultdict(int, value))
+        return profile
+
     @property
     def profile(self) -> dict:
         """

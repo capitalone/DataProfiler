@@ -166,37 +166,46 @@ def mock_timeit(*args, **kwargs):
     return mock.patch("time.time", side_effect=lambda: next(counter))
 
 
-def assert_profiles_equal(profile1, profile2):
+def assert_profiles_equal(actual, expected):
     """
     Checks if two profile objects are equal.
 
     profiles are instances of BaseProfiler or BaseColumnProfiler. Throws
         exception if not equal
 
-    :param profile_1: profile to compare to profile2
-    :type profile_1: instance of BaseProfiler or BaseColumnProfiler
-    :param profile_2: profile to compare to profile1
-    :type profile_2: instance of BaseProfiler or BaseColumnProfiler
+    :param actual: profile to compare to expected
+    :type actual: instance of BaseProfiler or BaseColumnProfiler
+    :param expected: profile to compare to actual
+    :type expected: instance of BaseProfiler or BaseColumnProfiler
     """
-    profile1_dict = profile1.__dict__
-    profile2_dict = profile2.__dict__
+    actual_dict = actual.__dict__
+    expected_dict = expected.__dict__
 
-    if len(profile1_dict) != len(profile2_dict):
-        raise ValueError(
-            f"number of attributes on profile1 ({len(profile1_dict)}) != profile2 ({len(profile2_dict)})"
+    if len(actual_dict) != len(expected_dict):
+        raise AssertionError(
+            f"Number of attributes in actual profile ({len(actual_dict)}) != number of attributes in expected profile ({len(expected_dict)})"
         )
 
-    for attr1, value1 in profile1_dict.items():
-        if attr1 not in profile2_dict:
-            raise ValueError(f"Profile attributes unmatched {attr1}")
+    for actual_attr, actual_value in actual_dict.items():
+        if actual_attr not in expected_dict:
+            raise AssertionError(
+                f"Attribute: {actual_attr}, found in actual profile but not in expected profile."
+            )
 
-        value2 = profile2_dict[attr1]
-        if not (isinstance(value2, type(value1)) or isinstance(value1, type(value2))):
-            raise ValueError(f"Profile value types unmatched: {value1} != {value2}")
+        expected_value = expected_dict[actual_attr]
+        if not (
+            isinstance(expected_value, type(actual_value))
+            or isinstance(actual_value, type(expected_value))
+        ):
+            raise AssertionError(
+                f"Profile value types unmatched for attribute: {actual_attr}; actual ({actual_value}) != expected ({expected_value})"
+            )
 
-        if isinstance(value1, (BaseProfiler, BaseColumnProfiler)):
-            assert_profiles_equal(value1, value2)
-        elif isinstance(value1, numbers.Number):
-            np.testing.assert_equal(value1, value2)
-        elif value1 != value2:
-            raise ValueError(f"Profile values unmatched: {value1} != {value2}")
+        if isinstance(actual_value, (BaseProfiler, BaseColumnProfiler)):
+            assert_profiles_equal(actual_value, expected_value)
+        elif isinstance(actual_value, numbers.Number):
+            np.testing.assert_equal(actual_value, expected_value)
+        elif actual_value != expected_value:
+            raise AssertionError(
+                f"Profile values unmatched for attribute: {actual_attr}; {actual_value} != {expected_value}"
+            )

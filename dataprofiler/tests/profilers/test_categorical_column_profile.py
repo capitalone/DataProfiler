@@ -759,7 +759,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "col_index": np.nan,
                     "sample_size": 12,
                     "metadata": {},
-                    "times": {"categories": 0.0},
+                    "times": {"categories": 1.0},
                     "thread_safe": True,
                     "_categories": {"c": 5, "b": 4, "a": 3},
                     "_CategoricalColumn__calculations": {},

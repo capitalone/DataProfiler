@@ -247,6 +247,34 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         """
         raise NotImplementedError()
 
+    @classmethod
+    def load_from_dict(cls, data) -> BaseColumnProfiler:
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: BaseColumnProfiler
+        """
+        profile = cls(data["name"])
+
+        time_vals = data.pop("times")
+        setattr(profile, "times", defaultdict(float, time_vals))
+
+        for attr, value in data.items():
+            if "__calculations" in attr:
+                for metric, function in value.items():
+                    if not hasattr(profile, function):
+                        raise AttributeError(
+                            f"Object {type(profile)} has no attribute {function}."
+                        )
+                    value[metric] = getattr(profile, function)
+            setattr(profile, attr, value)
+
+        return profile
+
 
 class BaseColumnPrimitiveTypeProfiler(
     BaseColumnProfiler,

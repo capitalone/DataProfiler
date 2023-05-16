@@ -113,6 +113,47 @@ class TestNumericStatsMixin(unittest.TestCase):
         for assert_val in false_asserts:
             self.assertFalse(NumericStatsMixin.is_int(assert_val))
 
+    def test_hist_loss_on_merge(self):
+        # Initial setup of profiles
+        profile3 = TestColumn()
+        profile1 = TestColumn()
+        profile2 = TestColumn()
+        mock_histogram1 = {
+            "bin_counts": np.array([1, 1, 1, 1]),
+            "bin_edges": np.array([2, 4, 6, 8, 10]),
+        }
+        mock_histogram2 = {
+            "bin_counts": np.array([1, 1, 1, 2, 1]),
+            "bin_edges": np.array([3, 5, 8, 12, 15, 18]),
+        }
+        profile1._stored_histogram["histogram"] = mock_histogram1
+        profile2._stored_histogram["histogram"] = mock_histogram2
+        profile3.user_set_histogram_bin = 5
+        expected_edges = [2, 5.2, 8.4, 11.6, 14.8, 18]
+        bin_count = [3, 2, 2, 2, 1]
+        expected_loss = sum(
+            [
+                (((2 + 5.2) - (2 + 4)) / 2) ** 2,
+                (((2 + 5.2) - (3 + 5)) / 2) ** 2,
+                (((2 + 5.2) - (4 + 6)) / 2) ** 2,
+                (((5.2 + 8.4) - (5 + 8)) / 2) ** 2,
+                (((5.2 + 8.4) - (6 + 8)) / 2) ** 2,
+                (((8.4 + 11.6) - (8 + 12)) / 2) ** 2,
+                (((8.4 + 11.6) - (8 + 10)) / 2) ** 2,
+                (((11.6 + 14.8) - (12 + 15)) / 2) ** 2,
+                (((11.6 + 14.8) - (12 + 15)) / 2) ** 2,
+                (((14.8 + 18) - (15 + 18)) / 2) ** 2,
+            ]
+        )
+
+        profile3._add_helper_merge_profile_histograms(profile1, profile2)
+
+        self.assertAlmostEqual(
+            expected_loss,
+            profile3._stored_histogram["histogram"]["current_loss"],
+            places=9,
+        )
+
     def test_update_variance(self):
         """
         Checks update variance

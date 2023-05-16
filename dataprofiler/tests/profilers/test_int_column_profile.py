@@ -691,6 +691,8 @@ class TestIntColumn(unittest.TestCase):
             self.assertCountEqual(expected, profiler.profile["times"])
 
     def test_profile_merge(self):
+        # Floats are not included intentionally for the test
+        # below as this is an int column
         data = [2.0, 12.5, "not an int", 6.0, "not an int"]
         df = pd.Series(data).apply(str)
         profiler1 = IntColumn("Int")

@@ -365,7 +365,6 @@ class ColumnStatsProfileCompiler(BaseCompiler):
         """
         # Call super for compiler instance check
         diff_profile = super().diff(other, options)
-        other = cast(ColumnStatsProfileCompiler, other)
 
         # Iterate through profiles
         all_profiles = set(self._profiles.keys()) | set(other._profiles.keys())
@@ -414,7 +413,6 @@ class ColumnDataLabelerCompiler(BaseCompiler):
         # Call super for compiler instance check
         diff_profile = super().diff(other, options)
         diff_profile["statistics"] = dict()
-        other = cast(ColumnDataLabelerCompiler, other)
 
         # Iterate through profile(s)
         all_profiles = set(self._profiles.keys()) & set(other._profiles.keys())
@@ -466,7 +464,6 @@ class UnstructuredCompiler(BaseCompiler):
         """
         # Call super for compiler instance check
         diff_profile = super().diff(other, options)
-        other = cast(BaseCompiler, other)
 
         if "data_labeler" in self._profiles and "data_labeler" in other._profiles:
             diff_profile["data_label"] = self._profiles["data_labeler"].diff(

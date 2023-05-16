@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import copy
 import re
-from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -132,7 +131,6 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: 
         """
         # Make sure other_profile's type matches this class
         differences = NumericStatsMixin.diff(self, other_profile, options=None)
-        other_profile = cast(FloatColumn, other_profile)
 
         other_precision = other_profile.profile["precision"]
         precision_diff = dict()

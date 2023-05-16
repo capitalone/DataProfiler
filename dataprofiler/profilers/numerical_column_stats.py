@@ -223,7 +223,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         new_entity_count_by_bin = np.zeros((ideal_count_of_bins,))
 
         # Generate new histograms
-        _, histogram_loss_1 = self._assimilate_histogram(
+        _, hist_loss1 = self._assimilate_histogram(
             from_hist_entity_count_per_bin=other1._stored_histogram["histogram"][
                 "bin_counts"
             ],
@@ -234,7 +234,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         )
 
         # Ensure loss is calculated on second run of regenerate
-        _, histogram_loss_2 = self._assimilate_histogram(
+        _, hist_loss2 = self._assimilate_histogram(
             from_hist_entity_count_per_bin=other2._stored_histogram["histogram"][
                 "bin_counts"
             ],
@@ -244,25 +244,13 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             dest_hist_num_bin=ideal_count_of_bins,
         )
 
-        try:
-            sample_size_1 = other1.match_count
-        except AttributeError:
-            sample_size_1 = sum(other1._stored_histogram["histogram"]["bin_counts"])
-
-        try:
-            sample_size_2 = other2.match_count
-        except AttributeError:
-            sample_size_2 = sum(other2._stored_histogram["histogram"]["bin_counts"])
-
-        calculated_loss = (
-            (histogram_loss_1 * sample_size_1) + (histogram_loss_2 * sample_size_2)
-        ) / (sample_size_1 + sample_size_2)
+        aggregate_histogram_loss = hist_loss1 + hist_loss2
 
         self._stored_histogram["histogram"]["bin_counts"] = new_entity_count_by_bin
         self._stored_histogram["histogram"]["bin_edges"] = ideal_bin_edges
 
-        self._stored_histogram["histogram"]["current_loss"] = calculated_loss
-        self._stored_histogram["histogram"]["total_loss"] = calculated_loss
+        self._stored_histogram["histogram"]["current_loss"] = aggregate_histogram_loss
+        self._stored_histogram["histogram"]["total_loss"] = aggregate_histogram_loss
 
         if self.user_set_histogram_bin is None:
             for method in self.histogram_bin_method_names:
@@ -1345,6 +1333,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         :param dest_hist_bin_edges: List of value ranges for histogram bins
             (assimilated to)
         :type dest_hist_bin_edges: List[Tuple[float]]
+        :type dest_hist_bin_edges: List[Tuple[float]
         :param dest_hist_num_bin: The number of bins desired for histogram
         :type dest_hist_num_bin: int
         :return: Tuple containing dictionary of histogram info and histogram loss
@@ -1399,7 +1388,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                     bin_count - count_in_left_bin
                 )
                 hist_loss += (
-                    ((new_bin_edge[2] - new_bin_edge[1]) - (bin_edge[1] - bin_edge[0]))
+                    ((new_bin_edge[2] + new_bin_edge[1]) - (bin_edge[1] + bin_edge[0]))
                     / 2
                 ) ** 2 * (bin_count - count_in_left_bin)
 

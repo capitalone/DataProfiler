@@ -37,4 +37,4 @@ jobs:
         pre-commit run --all-files
     - name: Test with pytest
       run: |
-        DATAPROFILER_SEED=0 pytest --forked
+        DATAPROFILER_SEED=0 pytest --forked --cov=dataprofiler --cov-fail-under=80

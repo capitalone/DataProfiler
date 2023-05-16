@@ -243,17 +243,20 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             dest_hist_bin_edges=ideal_bin_edges,
             dest_hist_num_bin=ideal_count_of_bins,
         )
+
         try:
-            calculated_loss = (
-                (histogram_loss_1 * other1.sample_size)
-                + (histogram_loss_2 * other2.sample_size)
-            ) / (other1.sample_size + other2.sample_size)
+            sample_size_1 = other1.match_count
         except AttributeError:
             sample_size_1 = sum(other1._stored_histogram["histogram"]["bin_counts"])
+
+        try:
+            sample_size_2 = other2.match_count
+        except AttributeError:
             sample_size_2 = sum(other2._stored_histogram["histogram"]["bin_counts"])
-            calculated_loss = (
-                (histogram_loss_1 * sample_size_1) + (histogram_loss_2 * sample_size_2)
-            ) / (sample_size_1 + sample_size_2)
+
+        calculated_loss = (
+            (histogram_loss_1 * sample_size_1) + (histogram_loss_2 * sample_size_2)
+        ) / (sample_size_1 + sample_size_2)
 
         self._stored_histogram["histogram"]["bin_counts"] = new_entity_count_by_bin
         self._stored_histogram["histogram"]["bin_edges"] = ideal_bin_edges

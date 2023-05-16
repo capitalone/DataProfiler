@@ -1133,6 +1133,7 @@ class StructuredOptions(BaseOption):
         self,
         null_values: dict[str, re.RegexFlag | int] = None,
         column_null_values: dict[int, dict[str, re.RegexFlag | int]] = None,
+        sampling_ratio: float = None,
     ) -> None:
         """
         Construct the StructuredOptions object with default values.
@@ -1164,6 +1165,9 @@ class StructuredOptions(BaseOption):
         :vartype null_replication_metrics: BooleanOptions
         :ivar null_values: option set for defined null values
         :vartype null_values: Union[None, dict]
+        :ivar sampling_ratio: What ratio of the input data to sample.
+            Float value > 0 and <= 1
+        :vartype sampling_ratio: Union[None, float]
         """
         # Option variables
         self.multiprocess = BooleanOption()
@@ -1180,6 +1184,7 @@ class StructuredOptions(BaseOption):
         # Non-Option variables
         self.null_values = null_values
         self.column_null_values = column_null_values
+        self.sampling_ratio = sampling_ratio
 
     @property
     def enabled_profiles(self) -> list[str]:
@@ -1189,6 +1194,7 @@ class StructuredOptions(BaseOption):
         properties = self.properties
         properties.pop("null_values")
         properties.pop("column_null_values")
+        properties.pop("sampling_ratio")
         for key, value in properties.items():
             if value.is_enabled:
                 enabled_profiles.append(key)
@@ -1226,6 +1232,7 @@ class StructuredOptions(BaseOption):
         properties = self.properties
         properties.pop("null_values")
         properties.pop("column_null_values")
+        properties.pop("sampling_ratio")
         for column in properties:
             if not isinstance(self.properties[column], prop_check[column]):
                 errors.append(
@@ -1272,6 +1279,25 @@ class StructuredOptions(BaseOption):
                 "that map to dictionaries that contains keys "
                 "of type str and values == 0 or are instances of "
                 "a re.RegexFlag".format(variable_path)
+            )
+
+        if self.sampling_ratio is not None and not isinstance(
+            self.sampling_ratio, float
+        ):
+            errors.append(
+                "{}.sampling_ratio must be either None or an float".format(
+                    variable_path
+                )
+            )
+
+        if (
+            self.sampling_ratio is not None
+            and isinstance(self.sampling_ratio, float)
+            and not (0.0 < self.sampling_ratio <= 1.0)
+        ):
+            errors.append(
+                "{}.sampling_ratio must be greater than 0.0 "
+                "and less than or equal to 1.0".format(variable_path)
             )
 
         if (

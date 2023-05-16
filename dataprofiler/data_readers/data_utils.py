@@ -446,7 +446,7 @@ def detect_file_encoding(
             # Try with small sample
             with FileOrBufferHandler(file_path, "rb") as input_file:
                 raw_data = input_file.read(10000)
-                result = from_bytes(
+                results = from_bytes(
                     raw_data,
                     steps=5,
                     chunk_size=512,
@@ -456,16 +456,15 @@ def detect_file_encoding(
                     preemptive_behaviour=True,
                     explain=False,
                 )
-                result = result.best()
-            if result:
-                if result.first():
-                    encoding = result.first().encoding
+                best_result = results.best()
+            if best_result:
+                encoding = best_result.encoding
 
             # Try again with full sample
             if not _decode_is_valid(encoding):
                 with FileOrBufferHandler(file_path, "rb") as input_file:
                     raw_data = input_file.read(max_lines * buffer_size)
-                    result = from_bytes(
+                    results = from_bytes(
                         raw_data,
                         steps=max_lines,
                         chunk_size=buffer_size,
@@ -475,10 +474,9 @@ def detect_file_encoding(
                         preemptive_behaviour=True,
                         explain=False,
                     )
-                    result = result.best()
-                if result:
-                    if result.first():
-                        encoding = result.first().encoding
+                    best_result = results.best()
+                if best_result:
+                    encoding = best_result.encoding
 
         except Exception:
             logger.info(

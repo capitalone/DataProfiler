@@ -85,3 +85,6 @@ People *love* thorough bug reports. I'm not even kidding.
 Please follow [PEP 8](https://www.python.org/dev/peps/pep-0008/) coding conventions to maintain consistency in the repo. For
 docstrings, please follow [reStructuredText](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html) format as Sphinx is used to autogenerate
 the documentation.
+
+## Updating Dependencies
+If you make changes to the `requirements` text files, please also update the `additional_dependencies` list under the `mypy` hook in `.pre-commit-config.yaml`. This is necessary for accurate type-checking.

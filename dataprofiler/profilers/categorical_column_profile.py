@@ -267,6 +267,22 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         """
         return self.profile
 
+    @classmethod
+    def load_from_dict(cls, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: CategoricalColumn
+        """
+        value = data.pop("_categories")
+        profile = super().load_from_dict(data)
+        setattr(profile, "_categories", defaultdict(int, value))
+        return profile
+
     @property
     def profile(self) -> dict:
         """

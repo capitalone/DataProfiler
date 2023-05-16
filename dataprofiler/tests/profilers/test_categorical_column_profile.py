@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import CategoricalColumn
-from dataprofiler.profilers.json_decoder import decode_column_profiler
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profile_builder import StructuredColProfiler
 from dataprofiler.profilers.profiler_options import CategoricalOptions
@@ -272,7 +272,6 @@ class TestCategoricalColumn(unittest.TestCase):
         self.assertCountEqual(categories, profile.categories)
 
     def test_categorical_mapping(self):
-
         df1 = pd.Series(
             [
                 "abcd",
@@ -872,7 +871,7 @@ class TestCategoricalColumn(unittest.TestCase):
         )
         profile = CategoricalColumn(df_categorical.name)
 
-        with patch("time.time", side_effect=lambda: 0.0):
+        with test_utils.mock_timeit():
             profile.update(df_categorical)
 
         serialized = json.dumps(profile, cls=ProfileEncoder)
@@ -884,7 +883,7 @@ class TestCategoricalColumn(unittest.TestCase):
                     "col_index": np.nan,
                     "sample_size": 12,
                     "metadata": {},
-                    "times": {"categories": 0.0},
+                    "times": {"categories": 1.0},
                     "thread_safe": True,
                     "_categories": {"c": 5, "b": 4, "a": 3},
                     "_CategoricalColumn__calculations": {},
@@ -909,7 +908,7 @@ class TestCategoricalColumn(unittest.TestCase):
         expected_profile = CategoricalColumn(fake_profile_name)
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
-        deserialized = decode_column_profiler(serialized)
+        deserialized = load_column_profile(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
 
@@ -936,13 +935,26 @@ class TestCategoricalColumn(unittest.TestCase):
         )
         expected_profile = CategoricalColumn(fake_profile_name)
 
-        with patch("time.time", side_effect=lambda: 0.0):
+        with test_utils.mock_timeit():
             expected_profile.update(df_categorical)
 
         serialized = json.dumps(expected_profile, cls=ProfileEncoder)
-        deserialized = decode_column_profiler(serialized)
+        deserialized = load_column_profile(json.loads(serialized))
 
         test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_categorical = pd.Series(
+            [
+                "a",  # add existing
+                "d",  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        deserialized.update(df_categorical)
+
+        assert deserialized.sample_size == 14
+        assert deserialized.categorical_counts == {"c": 5, "b": 4, "a": 4, "d": 1}
 
     def test_cms_max_num_heavy_hitters(self):
         df_categorical = pd.Series(["a"] * 5 + ["b"] * 5 + ["c"] * 10)

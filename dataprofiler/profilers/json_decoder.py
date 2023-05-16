@@ -1,12 +1,12 @@
 """Contains methods to decode components of a Profiler."""
-
-import json
+from typing import Dict, Optional, Type
 
 from .base_column_profilers import BaseColumnProfiler
 from .categorical_column_profile import CategoricalColumn
+from .float_column_profile import FloatColumn
 
 
-def get_column_profiler_class(class_name: str) -> BaseColumnProfiler:
+def get_column_profiler_class(class_name: str) -> Type[BaseColumnProfiler]:
     """
     Use name of class to return default-constructed version of that class.
 
@@ -18,15 +18,15 @@ def get_column_profiler_class(class_name: str) -> BaseColumnProfiler:
     :type class_name: str representing name of class
     :return: subclass of BaseColumnProfiler object
     """
-    profiles = {
+    profiles: Dict[str, Type[BaseColumnProfiler]] = {
         CategoricalColumn.__name__: CategoricalColumn,
+        FloatColumn.__name__: FloatColumn,
     }
 
-    profile_class = profiles.get(class_name)
+    profile_class: Optional[Type[BaseColumnProfiler]] = profiles.get(class_name)
     if profile_class is None:
         raise ValueError(f"Invalid profiler class {class_name} " f"failed to load.")
-    profiler: BaseColumnProfiler = profile_class(None)
-    return profiler
+    return profile_class
 
 
 def load_column_profile(serialized_json: dict) -> BaseColumnProfiler:
@@ -49,22 +49,9 @@ def load_column_profile(serialized_json: dict) -> BaseColumnProfiler:
         a JSON representation using the custom encoder
     :return: subclass of BaseColumnProfiler that has been deserialized from
         JSON
+
     """
-    column_profiler = get_column_profiler_class(serialized_json["class"])
-    for attr, value in serialized_json["data"].items():
-        column_profiler.__setattr__(attr, value)
-
-    return column_profiler
-
-
-def decode_column_profiler(serialized: str) -> BaseColumnProfiler:
-    """
-    Construct subclass of BaseColumnProfiler given a serialized JSON.
-
-    :param serialized: JSON representation of column profiler that was
-        serialized using the custom encoder in profilers.json_encoder
-    :type serialized: a JSON str serialized using the custom decoder
-    :return: subclass of BaseColumnProfiler that has been deserialized from
-        JSON
-    """
-    return load_column_profile(json.loads(serialized))
+    column_profiler_cls: Type[BaseColumnProfiler] = get_column_profiler_class(
+        serialized_json["class"]
+    )
+    return column_profiler_cls.load_from_dict(serialized_json["data"])

@@ -1133,7 +1133,7 @@ class StructuredOptions(BaseOption):
         self,
         null_values: dict[str, re.RegexFlag | int] = None,
         column_null_values: dict[int, dict[str, re.RegexFlag | int]] = None,
-        sampling_ratio: float = None,
+        sampling_ratio: float = 0.2,
     ) -> None:
         """
         Construct the StructuredOptions object with default values.

@@ -690,6 +690,13 @@ class TestCSVDataClass(unittest.TestCase):
             invalid=[[-1, int, "", None, dict()]],
             expected_error="'record_samples_per_line' must be an int more than " "0",
         )
+        
+        _test_options(
+            "sample_nrows",
+            valid=[10,15,100],
+            invalid=[[-1, 0, dict()]],
+            expected_error="'sample_nrows' must be an int more than " "0"
+        )
 
         # test edge case for header being set
         file = self.input_file_names[0]
@@ -715,6 +722,17 @@ class TestCSVDataClass(unittest.TestCase):
             data = Data(input_file["path"])
             self.assertEqual(input_file["count"], len(data), msg=input_file["path"])
             self.assertEqual(input_file["count"], data.length, msg=input_file["path"])
+
+    def test_len_sampled_data(self, sample_nrows=100):
+        """
+        Validate that length called on CSVData is appropriately determining the
+        length value.
+        """
+
+        for input_file in self.file_or_buf_list:
+            data = Data(input_file["path"], sample_nrows=100)
+            self.assertEqual(100, len(data), msg=input_file["path"])
+            self.assertEqual(100, data.length, msg=input_file["path"])
 
     def test_is_structured(self):
         # Default construction

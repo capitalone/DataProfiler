@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import itertools
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -96,7 +97,7 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: i
         profile.update(dict(vocab=self.vocab))
         return profile
 
-    def diff(self, other_profile: TextColumn, options: dict = None) -> dict:
+    def diff(self, other_profile: BaseColumnProfiler, options: dict = None) -> dict:
         """
         Find the differences for text columns.
 
@@ -105,7 +106,10 @@ class TextColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: i
         :return: the text columns differences
         :rtype: dict
         """
+        # Make sure other_profile's type matches this class
         differences = NumericStatsMixin.diff(self, other_profile, options)
+        other_profile = cast(TextColumn, other_profile)
+
         del differences["psi"]
         vocab_diff = utils.find_diff_of_lists_and_sets(self.vocab, other_profile.vocab)
         differences["vocab"] = vocab_diff

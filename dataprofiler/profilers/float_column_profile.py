@@ -120,7 +120,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: 
 
         return merged_profile
 
-    def diff(self, other_profile: FloatColumn, options: dict = None) -> dict:
+    def diff(self, other_profile: BaseColumnProfiler, options: dict = None) -> dict:
         """
         Find the differences for FloatColumns.
 
@@ -129,7 +129,9 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: 
         :return: the FloatColumn differences
         :rtype: dict
         """
+        # Make sure other_profile's type matches this class
         differences = NumericStatsMixin.diff(self, other_profile, options=None)
+
         other_precision = other_profile.profile["precision"]
         precision_diff = dict()
         for key in self.profile["precision"].keys():

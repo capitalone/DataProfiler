@@ -4,6 +4,7 @@ from __future__ import annotations
 import abc
 from collections import OrderedDict
 from multiprocessing.pool import Pool
+from typing import cast
 
 from pandas import Series
 
@@ -279,9 +280,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
                     return matched_profile
         return matched_profile
 
-    def diff(
-        self, other: ColumnPrimitiveTypeProfileCompiler, options: dict = None
-    ) -> dict:
+    def diff(self, other: BaseCompiler, options: dict = None) -> dict:
         """
         Find the difference between 2 compilers and returns the report.
 
@@ -292,6 +291,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
         """
         # Call super for compiler instance check
         diff_profile = super().diff(other, options)
+        other = cast(ColumnPrimitiveTypeProfileCompiler, other)
 
         # Initialize profile diff dict with data type representation
         diff_profile["data_type_representation"] = dict()
@@ -354,7 +354,7 @@ class ColumnStatsProfileCompiler(BaseCompiler):
             report.update(profiler.report(remove_disabled_flag))
         return report
 
-    def diff(self, other: ColumnStatsProfileCompiler, options: dict = None) -> dict:
+    def diff(self, other: BaseCompiler, options: dict = None) -> dict:
         """
         Find the difference between 2 compilers and returns the report.
 
@@ -399,7 +399,7 @@ class ColumnDataLabelerCompiler(BaseCompiler):
             report["statistics"].update(col_profile)
         return report
 
-    def diff(self, other: ColumnDataLabelerCompiler, options: dict = None) -> dict:
+    def diff(self, other: BaseCompiler, options: dict = None) -> dict:
         """
         Find the difference between 2 compilers and return the report.
 
@@ -451,7 +451,7 @@ class UnstructuredCompiler(BaseCompiler):
             )
         return profile
 
-    def diff(self, other: UnstructuredCompiler, options: dict = None) -> dict:
+    def diff(self, other: BaseCompiler, options: dict = None) -> dict:
         """
         Find the difference between 2 compilers and return the report.
 

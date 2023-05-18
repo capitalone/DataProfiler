@@ -31,7 +31,7 @@ class abstractstaticmethod(staticmethod):
     __isabstractmethod__ = True
 
 
-class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
+class NumericStatsMixin(BaseColumnProfiler, metaclass=abc.ABCMeta):
     """
     Abstract numerical column profile subclass of BaseColumnProfiler.
 
@@ -201,8 +201,8 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
     def _add_helper(
         self,
-        other1: NumericStatsMixin,
-        other2: NumericStatsMixin,
+        other1: BaseColumnProfiler,
+        other2: BaseColumnProfiler,
     ) -> None:
         """
         Help merge profiles.
@@ -211,6 +211,12 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         :param other2: profile2 being added to self
         :return: None
         """
+        if not (
+            isinstance(other1, NumericStatsMixin)
+            and isinstance(other2, NumericStatsMixin)
+        ):
+            raise ValueError("Parameters must be of type NumericStatsMixin.")
+
         BaseColumnProfiler._merge_calculations(
             self._NumericStatsMixin__calculations,
             other1._NumericStatsMixin__calculations,
@@ -362,7 +368,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
     def diff(
         self,
-        other_profile: NumericStatsMixin,
+        other_profile: BaseColumnProfiler,
         options: dict = None,
     ) -> dict:
         """

@@ -4,6 +4,7 @@ from __future__ import annotations
 import datetime
 import re
 import warnings
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -155,7 +156,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
             return float(self.match_count) / self.sample_size
         return None
 
-    def diff(self, other_profile: DateTimeColumn, options: dict = None) -> dict:
+    def diff(self, other_profile: BaseColumnProfiler, options: dict = None) -> dict:
         """
         Generate differences between max, min, and formats of two DateTime cols.
 
@@ -163,7 +164,9 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         appropriate output formats
         :rtype: dict
         """
+        # Make sure other_profile's type matches this class
         super().diff(other_profile, options)
+        other_profile = cast(DateTimeColumn, other_profile)
 
         differences = {
             "min": utils.find_diff_of_dates(

@@ -690,12 +690,12 @@ class TestCSVDataClass(unittest.TestCase):
             invalid=[[-1, int, "", None, dict()]],
             expected_error="'record_samples_per_line' must be an int more than " "0",
         )
-        
+
         _test_options(
             "sample_nrows",
-            valid=[10,15,100],
+            valid=[10, 15, 100],
             invalid=[[-1, 0, dict()]],
-            expected_error="'sample_nrows' must be an int more than " "0"
+            expected_error="'sample_nrows' must be an int more than " "0",
         )
 
         # test edge case for header being set

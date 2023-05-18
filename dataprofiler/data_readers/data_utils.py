@@ -3,10 +3,11 @@ import json
 import re
 import urllib
 from collections import OrderedDict
-from math import exp, log, log1p, floor
-from random import random, randrange, shuffle as _shuffle
-from itertools import islice
 from io import BytesIO, StringIO, TextIOWrapper
+from itertools import islice
+from math import exp, floor, log, log1p
+from random import random, randrange
+from random import shuffle as _shuffle
 from typing import (
     Any,
     Dict,
@@ -341,12 +342,12 @@ def rsample(
     """
     Implement Reservoir Sampling to sample n rows out of a total of M rows in the csv file.
     This allows sampling without loading the entire file in memory.
-    :param file_path: path of the csv file to be read in  
+    :param file_path: path of the csv file to be read in
     :type file: TextIOWrapper or string
     :param args: options to read the csv file
     :type args: dict
     """
-    
+
     headers = []
     header = args['header']
     if not header:
@@ -413,7 +414,7 @@ def read_csv_df(
         # in 3.6 this avoids read_csv wrapping the stream and closing too early
         file_path = TextIOWrapper(file_path, encoding=encoding)
         is_buf_wrapped = True
-    
+
     if sample_nrows is not None:
         data = rsample(file_path, args)
     else:

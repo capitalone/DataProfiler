@@ -115,12 +115,12 @@ class CSVData(SpreadSheetDataMixin, BaseData):
     def header(self) -> Optional[Union[str, int]]:
         """Return header."""
         return self._header
-    
+
     @property
     def sample_nrows(self) -> Optional[int]:
         """Return sample_nrows"""
         return self._sample_nrows
-    
+
     @property
     def is_structured(self) -> bool:
         """Determine compatibility with StructuredProfiler."""
@@ -177,9 +177,7 @@ class CSVData(SpreadSheetDataMixin, BaseData):
         if "sample_nrows" in options:
             value = options["sample_nrows"]
             if not isinstance(value, int) or value < 0:
-                raise ValueError(
-                    "'sample_nrows' must be an int more than 0"
-                )
+                raise ValueError("'sample_nrows' must be an int more than 0")
         return options
 
     @staticmethod

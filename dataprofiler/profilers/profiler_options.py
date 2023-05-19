@@ -1216,6 +1216,7 @@ class StructuredOptions(BaseOption):
         self.correlation = CorrelationOptions()
         self.chi2_homogeneity = BooleanOption(is_enabled=True)
         self.null_replication_metrics = BooleanOption(is_enabled=False)
+        self.row_statistics = BooleanOption(is_enabled=True)
         # Non-Option variables
         self.null_values = null_values
         self.column_null_values = column_null_values
@@ -1259,6 +1260,7 @@ class StructuredOptions(BaseOption):
                 ("data_labeler", DataLabelerOptions),
                 ("correlation", CorrelationOptions),
                 ("chi2_homogeneity", BooleanOption),
+                ("row_statistics", BooleanOption),
                 ("null_replication_metrics", BooleanOption),
             ]
         )

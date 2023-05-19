@@ -1571,14 +1571,19 @@ class StructuredProfiler(BaseProfiler):
         merged_profile = cast(StructuredProfiler, super().__add__(other))
 
         # struct specific property merging
-        merged_profile.row_has_null_count = (
-            self.row_has_null_count + other.row_has_null_count
-        )
-        merged_profile.row_is_null_count = (
-            self.row_is_null_count + other.row_is_null_count
-        )
-        merged_profile.hashed_row_dict.update(self.hashed_row_dict)
-        merged_profile.hashed_row_dict.update(other.hashed_row_dict)
+        if (
+            self.options.row_statistics.is_enabled
+            and other.options.row_statistics.is_enabled
+        ):
+
+            merged_profile.row_has_null_count = (
+                self.row_has_null_count + other.row_has_null_count
+            )
+            merged_profile.row_is_null_count = (
+                self.row_is_null_count + other.row_is_null_count
+            )
+            merged_profile.hashed_row_dict.update(self.hashed_row_dict)
+            merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
         self_to_other_idx = self._get_and_validate_schema_mapping(
             self._col_name_to_idx, other._col_name_to_idx
@@ -2695,17 +2700,18 @@ class StructuredProfiler(BaseProfiler):
             pool.close()  # Close pool for new tasks
             pool.join()  # Wait for all workers to complete
 
-        # Only pass along sample ids if necessary
-        samples_for_row_stats = None
-        if min_true_samples not in [None, 0]:
-            samples_for_row_stats = np.concatenate(sample_ids)
-
         if self.options.correlation.is_enabled:
             self._update_correlation(clean_sampled_dict, corr_prev_dependent_properties)
 
         if self.options.chi2_homogeneity.is_enabled:
             self.chi2_matrix = self._update_chi2()
-        self._update_row_statistics(data, samples_for_row_stats)
+
+        if self.options.row_statistics.is_enabled:
+            # Only pass along sample ids if necessary
+            samples_for_row_stats = None
+            if min_true_samples not in [None, 0]:
+                samples_for_row_stats = np.concatenate(sample_ids)
+            self._update_row_statistics(data, samples_for_row_stats)
 
         # Calculate metrics specific to capitalone/synthetic-data
         if self.options.null_replication_metrics.is_enabled:

@@ -2705,7 +2705,9 @@ class StructuredProfiler(BaseProfiler):
 
         if self.options.chi2_homogeneity.is_enabled:
             self.chi2_matrix = self._update_chi2()
-        self._update_row_statistics(data, samples_for_row_stats)
+
+        if self.options.row_statistics.is_enabled:
+            self._update_row_statistics(data, samples_for_row_stats)
 
         # Calculate metrics specific to capitalone/synthetic-data
         if self.options.null_replication_metrics.is_enabled:

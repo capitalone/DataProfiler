@@ -880,6 +880,12 @@ class CategoricalOptions(BaseInspectorOptions):
         :vartype is_enabled: bool
         :ivar top_k_categories: number of categories to be displayed when called
         :vartype top_k_categories: [None, int]
+        :ivar max_sample_size_to_check_stop_condition: The maximum sample size
+            before categorical stop conditions are checked
+        :vartype max_sample_size_to_check_stop_condition: [None, int]
+        :ivar stop_condition_unique_value_ratio: The highest ratio of unique
+            values to dataset size that is to be considered a categorical type
+        :vartype stop_condition_unique_value_ratio: [None, float]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
@@ -1198,6 +1204,8 @@ class StructuredOptions(BaseOption):
         :vartype correlation: CorrelationOptions
         :ivar chi2_homogeneity: option set for chi2_homogeneity matrix
         :vartype chi2_homogeneity: BooleanOption()
+        :ivar row_statistics: option set for row statistics calculations
+        :vartype row_statistics: BooleanOption()
         :ivar null_replication_metrics: option set for metrics
             calculation for replicating nan vals
         :vartype null_replication_metrics: BooleanOptions

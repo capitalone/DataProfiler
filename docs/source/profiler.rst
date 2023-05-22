@@ -604,7 +604,7 @@ Below is an breakdown of all the options.
       * is_enabled - (Boolean) Enables or disables the integer operations
       * min - Finds minimum value in a column
 
-        * is_enabled - (Boolean) Enables or disables min
+      * is_enabled - (Boolean) Enables or disables min
       * max - Finds maximum value in a column
 
         * is_enabled - (Boolean) Enables or disables max
@@ -749,6 +749,9 @@ Below is an breakdown of all the options.
     * **category** - Options for the category columns
 
       * is_enabled  - (Boolean) Enables or disables the category operations
+      * top_k_categories - (int) Number of categories to be displayed when reporting
+      * max_sample_size_to_check_stop_condition - (int) The maximum sample size before categorical stop conditions are checked
+      * stop_condition_unique_value_ratio - (float) The highest ratio of unique values to dataset size that is to be considered a categorical type
     * **data_labeler** - Options for the data labeler columns
 
       * is_enabled - (Boolean) Enables or disables the data labeler operations
@@ -757,6 +760,7 @@ Below is an breakdown of all the options.
         the default labeler 
       * max_sample_size - (Int) The max number of samples for the data 
         labeler
+	* **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
     * **chi2_homogeneity** - Options for the chi-squared test matrix
 
       * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.

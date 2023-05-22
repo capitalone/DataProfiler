@@ -1406,6 +1406,9 @@ class ProfilerOptions(BaseOption):
         :vartype structured_options: StructuredOptions
         :ivar unstructured_options: option set for unstructured dataset profiling.
         :vartype unstructured_options: UnstructuredOptions
+        :ivar presets: Option to set a group of options based on a pre-configured
+            set of options (complete, data_types, and numeric_stats_disabled)
+        :vartype presets: None or str
         """
         self.structured_options = StructuredOptions()
         self.unstructured_options = UnstructuredOptions()

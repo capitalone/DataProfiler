@@ -593,7 +593,8 @@ must be specified as structured or unstructured when setting (ie. datalabeler op
 Below is an breakdown of all the options.
 
 * **ProfilerOptions** - The top-level options class that contains options for the Profiler class
-
+  * **presets** - A pre-configured mapping of a string name to group of options: "complete", "data_types", and "numeric_stats_disabled".
+    By default is None
   * **structured_options** - Options responsible for all structured data
 
     * **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.
@@ -760,7 +761,7 @@ Below is an breakdown of all the options.
         the default labeler 
       * max_sample_size - (Int) The max number of samples for the data 
         labeler
-	* **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
+    * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
     * **chi2_homogeneity** - Options for the chi-squared test matrix
 
       * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.

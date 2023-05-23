@@ -76,7 +76,7 @@ def convert_data_to_df(
     dataframe = pd.DataFrame.from_dict(dict(zip(column_names, np_data)))
     # save the dataframe as a csv file
     if path:
-        dataframe.to_csv(path, index=index)
+        dataframe.to_csv(path, index=index, encoding="utf-8")
         print(f"Created {path}!")
     return dataframe
 

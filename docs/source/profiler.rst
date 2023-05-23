@@ -733,7 +733,7 @@ Below is an breakdown of all the options.
       * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
 
         * is_enabled - (Boolean) Enables or disables bias correction
-      * is_numeric_stats_enabled - (Boolean) enable/disable all numeric stats
+      * is_numeric_stats_enabled - (Boolean) enable or disable all numeric stats
       * num_zeros - Finds the count of zeros in a column
 
         * is_enabled - (Boolean) Enables or disables num_zeros

@@ -680,6 +680,7 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * is_numeric_stats_enabled - (Boolean) enable or disable all numeric stats
       * num_zeros - Finds the count of zeros in a column
 
         * is_enabled - (Boolean) Enables or disables num_zeros
@@ -732,6 +733,13 @@ Below is an breakdown of all the options.
       * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
 
         * is_enabled - (Boolean) Enables or disables bias correction
+      * is_numeric_stats_enabled - (Boolean) enable or disable all numeric stats
+      * num_zeros - Finds the count of zeros in a column
+
+        * is_enabled - (Boolean) Enables or disables num_zeros
+      * num_negatives - Finds the count of negative numbers in a column
+
+        * is_enabled - (Boolean) Enables or disables num_negatives
       * histogram_and_quantiles - Generates a histogram and quantiles
         from the column values
 
@@ -761,6 +769,9 @@ Below is an breakdown of all the options.
         the default labeler 
       * max_sample_size - (Int) The max number of samples for the data 
         labeler
+    * **correlation** - option set for correlation profiling
+      * is_enabled - (Boolean) Enables or disables performing correlation profiling
+      * columns - Columns considered to calculate correlation
     * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
     * **chi2_homogeneity** - Options for the chi-squared test matrix
 

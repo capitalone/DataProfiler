@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from operator import itemgetter
+from typing import cast
 
 from pandas import DataFrame, Series
 

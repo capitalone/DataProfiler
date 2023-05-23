@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from collections import defaultdict
 from operator import itemgetter
-from typing import cast
 
 from pandas import DataFrame, Series
 
@@ -11,7 +10,7 @@ from . import BaseColumnProfiler, utils
 from .profiler_options import CategoricalOptions
 
 
-class CategoricalColumn(BaseColumnProfiler):
+class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
     """
     Categorical column profile subclass of BaseColumnProfiler.
 
@@ -73,7 +72,7 @@ class CategoricalColumn(BaseColumnProfiler):
         )
         return merged_profile
 
-    def diff(self, other_profile: BaseColumnProfiler, options: dict = None) -> dict:
+    def diff(self, other_profile: CategoricalColumn, options: dict = None) -> dict:
         """
         Find the differences for CategoricalColumns.
 
@@ -84,7 +83,6 @@ class CategoricalColumn(BaseColumnProfiler):
         """
         # Make sure other_profile's type matches this class
         differences: dict = super().diff(other_profile, options)
-        other_profile = cast(CategoricalColumn, other_profile)
 
         differences["categorical"] = utils.find_diff_of_strings_and_bools(
             self.is_match, other_profile.is_match

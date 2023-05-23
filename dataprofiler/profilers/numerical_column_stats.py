@@ -6,7 +6,7 @@ import abc
 import copy
 import itertools
 import warnings
-from typing import Any, Callable, Dict, List, cast
+from typing import Any, Callable, Dict, List, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -31,7 +31,10 @@ class abstractstaticmethod(staticmethod):
     __isabstractmethod__ = True
 
 
-class NumericStatsMixin(BaseColumnProfiler, metaclass=abc.ABCMeta):
+NumericStatsMixinT = TypeVar("NumericStatsMixinT", bound="NumericStatsMixin")
+
+
+class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.ABCMeta):
     """
     Abstract numerical column profile subclass of BaseColumnProfiler.
 
@@ -201,8 +204,8 @@ class NumericStatsMixin(BaseColumnProfiler, metaclass=abc.ABCMeta):
 
     def _add_helper(
         self,
-        other1: BaseColumnProfiler,
-        other2: BaseColumnProfiler,
+        other1: NumericStatsMixinT,
+        other2: NumericStatsMixinT,
     ) -> None:
         """
         Help merge profiles.
@@ -211,12 +214,6 @@ class NumericStatsMixin(BaseColumnProfiler, metaclass=abc.ABCMeta):
         :param other2: profile2 being added to self
         :return: None
         """
-        if not (
-            isinstance(other1, NumericStatsMixin)
-            and isinstance(other2, NumericStatsMixin)
-        ):
-            raise ValueError("Parameters must be of type NumericStatsMixin.")
-
         BaseColumnProfiler._merge_calculations(
             self._NumericStatsMixin__calculations,
             other1._NumericStatsMixin__calculations,
@@ -368,7 +365,7 @@ class NumericStatsMixin(BaseColumnProfiler, metaclass=abc.ABCMeta):
 
     def diff(
         self,
-        other_profile: BaseColumnProfiler,
+        other_profile: NumericStatsMixinT,
         options: dict = None,
     ) -> dict:
         """

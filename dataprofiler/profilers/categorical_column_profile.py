@@ -43,8 +43,22 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self.__calculations: dict = {}
         self._filter_properties_w_options(self.__calculations, options)
         self._top_k_categories: int | None = None
+
+        # Conditions to stop categorical profiling
+        self.max_sample_size_to_check_stop_condition = None
+        self.stop_condition_unique_value_ratio = None
+        self._stop_condition_is_met = False
+
+        self._stopped_at_unique_ratio: float | None = None
+        self._stopped_at_unique_count: int | None = None
         if options:
             self._top_k_categories = options.top_k_categories
+            self.stop_condition_unique_value_ratio = (
+                options.stop_condition_unique_value_ratio
+            )
+            self.max_sample_size_to_check_stop_condition = (
+                options.max_sample_size_to_check_stop_condition
+            )
 
     def __add__(self, other: CategoricalColumn) -> CategoricalColumn:
         """
@@ -63,13 +77,59 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             )
 
         merged_profile = CategoricalColumn(None)
-        merged_profile._categories = utils.add_nested_dictionaries(
-            self._categories, other._categories
-        )
         BaseColumnProfiler._add_helper(merged_profile, self, other)
+
         self._merge_calculations(
             merged_profile.__calculations, self.__calculations, other.__calculations
         )
+        # If both profiles have not met stop condition
+        if not (self._stop_condition_is_met or other._stop_condition_is_met):
+            merged_profile._categories = utils.add_nested_dictionaries(
+                self._categories, other._categories
+            )
+
+            # Transfer stop condition variables of 1st profile object to merged profile
+            # if they are not None else set to 2nd profile
+            profile1_product = self.sample_size * self.unique_ratio
+            profile2_product = other.sample_size * other.unique_ratio
+            if profile1_product < profile2_product:
+                merged_profile.max_sample_size_to_check_stop_condition = (
+                    self.max_sample_size_to_check_stop_condition
+                )
+                merged_profile.stop_condition_unique_value_ratio = (
+                    self.stop_condition_unique_value_ratio
+                )
+            else:
+                merged_profile.stop_condition_unique_value_ratio = (
+                    other.stop_condition_unique_value_ratio
+                )
+                merged_profile.max_sample_size_to_check_stop_condition = (
+                    other.max_sample_size_to_check_stop_condition
+                )
+
+            # Check merged profile w/ stop condition
+            if merged_profile._check_stop_condition_is_met(
+                merged_profile.sample_size, merged_profile.unique_ratio
+            ):
+                merged_profile._stopped_at_unique_ratio = merged_profile.unique_ratio
+                merged_profile._stopped_at_unique_count = merged_profile.unique_count
+                merged_profile._categories = {}
+                merged_profile._stop_condition_is_met = True
+
+        else:
+            if self.sample_size > other.sample_size:
+                merged_profile._stopped_at_unique_ratio = self.unique_ratio
+                merged_profile._stopped_at_unique_count = self.unique_count
+                merged_profile.sample_size = self.sample_size
+            else:
+                merged_profile._stopped_at_unique_ratio = other.unique_ratio
+                merged_profile._stopped_at_unique_count = other.unique_count
+                merged_profile.sample_size = other.sample_size
+
+            # If either profile has hit stop condition, remove categories dict
+            merged_profile._categories = {}
+            merged_profile._stop_condition_is_met = True
+
         return merged_profile
 
     def diff(self, other_profile: CategoricalColumn, options: dict = None) -> dict:
@@ -93,7 +153,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
                 (
                     "unique_count",
                     utils.find_diff_of_numbers(
-                        len(self.categories), len(other_profile.categories)
+                        self.unique_count, other_profile.unique_count
                     ),
                 ),
                 (
@@ -163,7 +223,7 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
             categorical=self.is_match,
             statistics=dict(
                 [
-                    ("unique_count", len(self.categories)),
+                    ("unique_count", self.unique_count),
                     ("unique_ratio", self.unique_ratio),
                 ]
             ),
@@ -193,14 +253,27 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
     @property
     def unique_ratio(self) -> float:
         """Return ratio of unique categories to sample_size."""
-        unique_ratio = 1.0
+        if self._stop_condition_is_met:
+            return cast(float, self._stopped_at_unique_ratio)
+
         if self.sample_size:
-            unique_ratio = len(self.categories) / self.sample_size
-        return unique_ratio
+            return len(self.categories) / self.sample_size
+        return 0
+
+    @property
+    def unique_count(self) -> int:
+        """Return ratio of unique categories to sample_size."""
+        if self._stop_condition_is_met:
+            return cast(int, self._stopped_at_unique_count)
+
+        return len(self.categories)
 
     @property
     def is_match(self) -> bool:
         """Return true if column is categorical."""
+        if self._stop_condition_is_met:
+            return False
+
         is_match = False
         unique = len(self._categories)
         if unique <= self._MAXIMUM_UNIQUE_VALUES_TO_CLASSIFY_AS_CATEGORICAL:
@@ -211,6 +284,43 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         ):
             is_match = True
         return is_match
+
+    def _check_stop_condition_is_met(self, sample_size: int, unqiue_ratio: float):
+        """Return boolean given stop conditions.
+
+        :param sample_size: Number of samples to check the stop condition
+        :type sample_size: int
+        :param unqiue_ratio: Ratio of unique values to full sample size to
+            check stop condition
+        :type unqiue_ratio: float
+        :return: boolean for stop conditions
+        """
+        if (
+            self.max_sample_size_to_check_stop_condition is not None
+            and self.stop_condition_unique_value_ratio is not None
+            and sample_size >= self.max_sample_size_to_check_stop_condition
+            and unqiue_ratio >= self.stop_condition_unique_value_ratio
+        ):
+            return True
+        return False
+
+    def _update_stop_condition(self, data: DataFrame):
+        """Return value stop_condition_is_met given stop conditions.
+
+        :param data: Dataframe currently being processed by categorical profiler
+        :type data: DataFrame
+        :return: boolean for stop conditions
+        """
+        merged_unique_count = len(self._categories)
+        merged_sample_size = self.sample_size + len(data)
+        merged_unique_ratio = merged_unique_count / merged_sample_size
+
+        self._stop_condition_is_met = self._check_stop_condition_is_met(
+            merged_sample_size, merged_unique_ratio
+        )
+        if self._stop_condition_is_met:
+            self._stopped_at_unique_ratio = merged_unique_ratio
+            self._stopped_at_unique_count = merged_unique_count
 
     @BaseColumnProfiler._timeit(name="categories")
     def _update_categories(
@@ -238,6 +348,9 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         self._categories = utils.add_nested_dictionaries(
             self._categories, category_count
         )
+        self._update_stop_condition(df_series)
+        if self._stop_condition_is_met:
+            self._categories = {}
 
     def _update_helper(self, df_series_clean: Series, profile: dict) -> None:
         """
@@ -260,7 +373,8 @@ class CategoricalColumn(BaseColumnProfiler["CategoricalColumn"]):
         :return: updated CategoricalColumn
         :rtype: CategoricalColumn
         """
-        if len(df_series) == 0:
+        # If condition for limiting profile calculations
+        if len(df_series) == 0 or self._stop_condition_is_met:
             return self
 
         profile = dict(sample_size=len(df_series))

@@ -58,8 +58,8 @@ class TextColumn(
                 "'TextColumn' and '{}'".format(other.__class__.__name__)
             )
         merged_profile = TextColumn(None)
-        NumericStatsMixin._add_helper(merged_profile, self, other)
         BaseColumnPrimitiveTypeProfiler._add_helper(merged_profile, self, other)
+        NumericStatsMixin._add_helper(merged_profile, self, other)
         self._merge_calculations(
             merged_profile.__calculations, self.__calculations, other.__calculations
         )

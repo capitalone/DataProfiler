@@ -346,7 +346,7 @@ class NumericalOptions(BaseInspectorOptions):
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -563,7 +563,7 @@ class IntOptions(NumericalOptions):
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -660,7 +660,7 @@ class FloatOptions(NumericalOptions):
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -716,7 +716,7 @@ class TextOptions(NumericalOptions):
         :ivar kurtosis: boolean option to enable/disable kurtosis
         :vartype kurtosis: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption

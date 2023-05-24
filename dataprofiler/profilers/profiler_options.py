@@ -1294,7 +1294,10 @@ class StructuredOptions(BaseOption):
 
         if (
             self.sampling_ratio is not None
-            and isinstance(self.sampling_ratio, float)
+            and (
+                isinstance(self.sampling_ratio, float)
+                or isinstance(self.sampling_ratio, int)
+            )
             and not (0.0 < self.sampling_ratio <= 1.0)
         ):
             errors.append(

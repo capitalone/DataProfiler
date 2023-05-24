@@ -281,7 +281,7 @@ class TestStructuredOptions(TestBaseOption):
         self.assertEqual([], option._validate_helper())
 
         expected_error_type = [
-            f"{optpth}.sampling_ratio must be either None or an float"
+            f"{optpth}.sampling_ratio must be a float, an integer, or None"
         ]
 
         expected_error_value = [
@@ -295,8 +295,14 @@ class TestStructuredOptions(TestBaseOption):
         # Test ratio is greater than upper bound
         option.set({"sampling_ratio": 2.5})
         self.assertEqual(expected_error_value, option._validate_helper())
+        # Test ratio is greater than upper bound, int
+        option.set({"sampling_ratio": 3})
+        self.assertEqual(expected_error_value, option._validate_helper())
         # Test ratio is lesser than lower bound
         option.set({"sampling_ratio": -2.5})
+        self.assertEqual(expected_error_value, option._validate_helper())
+        # Test ratio is lesser than lower bound, int
+        option.set({"sampling_ratio": -5})
         self.assertEqual(expected_error_value, option._validate_helper())
 
     def test_enabled_profilers(self):

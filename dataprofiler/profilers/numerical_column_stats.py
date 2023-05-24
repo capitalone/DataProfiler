@@ -6,7 +6,7 @@ import abc
 import copy
 import itertools
 import warnings
-from typing import Any, Callable, Dict, List, cast
+from typing import Any, Callable, Dict, List, TypeVar, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -31,7 +31,10 @@ class abstractstaticmethod(staticmethod):
     __isabstractmethod__ = True
 
 
-class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
+NumericStatsMixinT = TypeVar("NumericStatsMixinT", bound="NumericStatsMixin")
+
+
+class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.ABCMeta):
     """
     Abstract numerical column profile subclass of BaseColumnProfiler.
 
@@ -200,8 +203,8 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
     def _add_helper(
         self,
-        other1: NumericStatsMixin,
-        other2: NumericStatsMixin,
+        other1: NumericStatsMixinT,
+        other2: NumericStatsMixinT,
     ) -> None:
         """
         Help merge profiles.
@@ -413,7 +416,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
     def diff(
         self,
-        other_profile: NumericStatsMixin,
+        other_profile: NumericStatsMixinT,
         options: dict = None,
     ) -> dict:
         """

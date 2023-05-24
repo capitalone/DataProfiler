@@ -14,7 +14,7 @@ from .base_column_profilers import BaseColumnProfiler
 from .profiler_options import DataLabelerOptions
 
 
-class DataLabelerColumn(BaseColumnProfiler):
+class DataLabelerColumn(BaseColumnProfiler["DataLabelerColumn"]):
     """Sublass of BaseColumnProfiler for profiling data labeler col."""
 
     type = "data_labeler"
@@ -308,7 +308,7 @@ class DataLabelerColumn(BaseColumnProfiler):
         return profile
 
     @classmethod
-    def load_from_dict(cls, data, options: dict | None = None) -> BaseColumnProfiler:
+    def load_from_dict(cls, data, options: dict | None = None) -> DataLabelerColumn:
         """
         Parse attribute from json dictionary into self.
 
@@ -338,7 +338,7 @@ class DataLabelerColumn(BaseColumnProfiler):
 
         # This is an ambiguous call to super classes.
         # If load_from_dict is part of both super classes there may be issues
-        profile = super().load_from_dict(data, options=opt)
+        profile = super().load_from_dict(data, options={cls.__name__: opt})
 
         if profile._reverse_label_mapping is not None:
             profile._reverse_label_mapping = {

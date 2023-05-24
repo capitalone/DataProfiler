@@ -24,7 +24,7 @@ class Comparable(Protocol):
 CT = TypeVar("CT", bound=Comparable)
 
 
-class OrderColumn(BaseColumnProfiler):
+class OrderColumn(BaseColumnProfiler["OrderColumn"]):
     """
     Index column profile subclass of BaseColumnProfiler.
 

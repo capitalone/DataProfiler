@@ -346,7 +346,7 @@ class NumericalOptions(BaseInspectorOptions):
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -563,7 +563,7 @@ class IntOptions(NumericalOptions):
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -660,7 +660,7 @@ class FloatOptions(NumericalOptions):
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar num_zeros: boolean option to enable/disable num_zeros
         :vartype num_zeros: BooleanOption
         :ivar num_negatives: boolean option to enable/disable num_negatives
@@ -716,7 +716,7 @@ class TextOptions(NumericalOptions):
         :ivar kurtosis: boolean option to enable/disable kurtosis
         :vartype kurtosis: BooleanOption
         :ivar bias_correction : boolean option to enable/disable existence of bias
-        :vartype bias: BooleanOption
+        :vartype bias_correction: BooleanOption
         :ivar histogram_and_quantiles: boolean option to enable/disable
             histogram_and_quantiles
         :vartype histogram_and_quantiles: BooleanOption
@@ -866,7 +866,13 @@ class OrderOptions(BaseInspectorOptions):
 class CategoricalOptions(BaseInspectorOptions):
     """For configuring options Categorical Column."""
 
-    def __init__(self, is_enabled: bool = True, top_k_categories: int = None) -> None:
+    def __init__(
+        self,
+        is_enabled: bool = True,
+        top_k_categories: int = None,
+        max_sample_size_to_check_stop_condition: int | None = None,
+        stop_condition_unique_value_ratio: float | None = None,
+    ) -> None:
         """
         Initialize options for the Categorical Column.
 
@@ -874,9 +880,19 @@ class CategoricalOptions(BaseInspectorOptions):
         :vartype is_enabled: bool
         :ivar top_k_categories: number of categories to be displayed when called
         :vartype top_k_categories: [None, int]
+        :ivar max_sample_size_to_check_stop_condition: The maximum sample size
+            before categorical stop conditions are checked
+        :vartype max_sample_size_to_check_stop_condition: [None, int]
+        :ivar stop_condition_unique_value_ratio: The highest ratio of unique
+            values to dataset size that is to be considered a categorical type
+        :vartype stop_condition_unique_value_ratio: [None, float]
         """
         BaseInspectorOptions.__init__(self, is_enabled=is_enabled)
         self.top_k_categories = top_k_categories
+        self.max_sample_size_to_check_stop_condition = (
+            max_sample_size_to_check_stop_condition
+        )
+        self.stop_condition_unique_value_ratio = stop_condition_unique_value_ratio
 
     def _validate_helper(self, variable_path: str = "CategoricalOptions") -> list[str]:
         """
@@ -895,6 +911,35 @@ class CategoricalOptions(BaseInspectorOptions):
                 "{}.top_k_categories must be either None"
                 " or a positive integer".format(variable_path)
             )
+
+        if self.max_sample_size_to_check_stop_condition is not None and (
+            not isinstance(self.max_sample_size_to_check_stop_condition, int)
+            or self.max_sample_size_to_check_stop_condition < 0
+        ):
+            errors.append(
+                "{}.max_sample_size_to_check_stop_condition must be either None"
+                " or a non-negative integer".format(variable_path)
+            )
+
+        if self.stop_condition_unique_value_ratio is not None and (
+            not isinstance(self.stop_condition_unique_value_ratio, float)
+            or self.stop_condition_unique_value_ratio < 0
+            or self.stop_condition_unique_value_ratio > 1.0
+        ):
+            errors.append(
+                "{}.stop_condition_unique_value_ratio must be either None"
+                " or a float between 0 and 1".format(variable_path)
+            )
+
+        if (self.max_sample_size_to_check_stop_condition is None) ^ (
+            self.stop_condition_unique_value_ratio is None
+        ):
+            errors.append(
+                "Both, {}.max_sample_size_to_check_stop_condition and "
+                "{}.stop_condition_unique_value_ratio, options either need to be "
+                "set or not set.".format(variable_path, variable_path)
+            )
+
         return errors
 
 
@@ -1160,6 +1205,8 @@ class StructuredOptions(BaseOption):
         :vartype correlation: CorrelationOptions
         :ivar chi2_homogeneity: option set for chi2_homogeneity matrix
         :vartype chi2_homogeneity: BooleanOption()
+        :ivar row_statistics: option set for row statistics calculations
+        :vartype row_statistics: BooleanOption()
         :ivar null_replication_metrics: option set for metrics
             calculation for replicating nan vals
         :vartype null_replication_metrics: BooleanOptions
@@ -1181,6 +1228,7 @@ class StructuredOptions(BaseOption):
         self.correlation = CorrelationOptions()
         self.chi2_homogeneity = BooleanOption(is_enabled=True)
         self.null_replication_metrics = BooleanOption(is_enabled=False)
+        self.row_statistics = BooleanOption(is_enabled=True)
         # Non-Option variables
         self.null_values = null_values
         self.column_null_values = column_null_values
@@ -1226,6 +1274,7 @@ class StructuredOptions(BaseOption):
                 ("data_labeler", DataLabelerOptions),
                 ("correlation", CorrelationOptions),
                 ("chi2_homogeneity", BooleanOption),
+                ("row_statistics", BooleanOption),
                 ("null_replication_metrics", BooleanOption),
             ]
         )
@@ -1388,6 +1437,9 @@ class ProfilerOptions(BaseOption):
         :vartype structured_options: StructuredOptions
         :ivar unstructured_options: option set for unstructured dataset profiling.
         :vartype unstructured_options: UnstructuredOptions
+        :ivar presets: A pre-configured mapping of a string name to group of options:
+            "complete", "data_types", and "numeric_stats_disabled". Default: None
+        :vartype presets: Optional[str]
         """
         self.structured_options = StructuredOptions()
         self.unstructured_options = UnstructuredOptions()

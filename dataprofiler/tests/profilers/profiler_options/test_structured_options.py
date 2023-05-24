@@ -21,6 +21,7 @@ class TestStructuredOptions(TestBaseOption):
         "multiprocess",
         "correlation",
         "chi2_homogeneity",
+        "row_statistics",
     ]
     keys = boolean_keys + other_keys
 
@@ -141,6 +142,7 @@ class TestStructuredOptions(TestBaseOption):
         option.multiprocess = StructuredOptions()
         option.correlation = StructuredOptions()
         option.chi2_homogeneity = StructuredOptions()
+        option.row_statistics = StructuredOptions()
 
         expected_error = set()
         for key in self.boolean_keys:
@@ -151,7 +153,11 @@ class TestStructuredOptions(TestBaseOption):
                 ckey = "Categorical"
             elif key == "datetime":
                 ckey = "DateTime"
-            if key == "multiprocess" or key == "chi2_homogeneity":
+            if (
+                key == "multiprocess"
+                or key == "chi2_homogeneity"
+                or key == "row_statistics"
+            ):
                 expected_error.add(f"{optpth}.{key} must be a(n) BooleanOption.")
             else:
                 expected_error.add(f"{optpth}.{key} must be a(n) {ckey}Options.")
@@ -205,6 +211,7 @@ class TestStructuredOptions(TestBaseOption):
         option.multiprocess = StructuredOptions()
         option.correlation = StructuredOptions()
         option.chi2_homogeneity = StructuredOptions()
+        option.row_statistics = StructuredOptions()
 
         expected_error = set()
         for key in self.boolean_keys:
@@ -215,7 +222,11 @@ class TestStructuredOptions(TestBaseOption):
                 ckey = "Categorical"
             elif key == "datetime":
                 ckey = "DateTime"
-            if key == "multiprocess" or key == "chi2_homogeneity":
+            if (
+                key == "multiprocess"
+                or key == "chi2_homogeneity"
+                or key == "row_statistics"
+            ):
                 expected_error.add(f"{optpth}.{key} must be a(n) BooleanOption.")
             else:
                 expected_error.add(f"{optpth}.{key} must be a(n) {ckey}Options.")

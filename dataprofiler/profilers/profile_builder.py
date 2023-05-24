@@ -16,6 +16,7 @@ from typing import Any, Generator, List, Optional, cast
 import networkx as nx
 import numpy as np
 import pandas as pd
+from HLL import HyperLogLog
 
 from .. import data_readers, dp_logging
 from ..data_readers.data import Data
@@ -1928,16 +1929,20 @@ class StructuredProfiler(BaseProfiler):
             )
 
         self.total_samples += len(data)
-        try:
-            self.hashed_row_dict.update(
-                dict.fromkeys(pd.util.hash_pandas_object(data, index=False), True)
-            )
-        except TypeError:
-            self.hashed_row_dict.update(
-                dict.fromkeys(
-                    pd.util.hash_pandas_object(data.astype(str), index=False), True
+        if not self.options.hll_row_hashing:
+            try:
+                self.hashed_row_dict.update(
+                    dict.fromkeys(pd.util.hash_pandas_object(data, index=False), True)
                 )
-            )
+            except TypeError:
+                self.hashed_row_dict.update(
+                    dict.fromkeys(
+                        pd.util.hash_pandas_object(data.astype(str), index=False), True
+                    )
+                )
+        else:
+            for record in data.to_records(index=False):
+                self.hashed_row_dict.add(record.tobytes())
 
         # Calculate Null Column Count
         null_rows = set()

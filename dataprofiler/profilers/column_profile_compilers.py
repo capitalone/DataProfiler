@@ -4,7 +4,7 @@ from __future__ import annotations
 import abc
 from collections import OrderedDict
 from multiprocessing.pool import Pool
-from typing import cast
+from typing import Generic, TypeVar
 
 from pandas import Series
 
@@ -20,8 +20,10 @@ from .text_column_profile import TextColumn
 from .unstructured_labeler_profile import UnstructuredLabelerProfile
 from .unstructured_text_profile import TextProfiler
 
+BaseCompilerT = TypeVar("BaseCompilerT", bound="BaseCompiler")
 
-class BaseCompiler(metaclass=abc.ABCMeta):  # type: ignore
+
+class BaseCompiler(Generic[BaseCompilerT], metaclass=abc.ABCMeta):
     """Abstract class for generating a report."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
@@ -140,7 +142,7 @@ class BaseCompiler(metaclass=abc.ABCMeta):  # type: ignore
             )
         return merged_profile_compiler
 
-    def diff(self, other: BaseCompiler, options: dict = None) -> dict:
+    def diff(self, other: BaseCompilerT, options: dict = None) -> dict:
         """
         Find the difference between 2 compilers and returns the report.
 
@@ -218,7 +220,9 @@ class BaseCompiler(metaclass=abc.ABCMeta):  # type: ignore
         return self
 
 
-class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
+class ColumnPrimitiveTypeProfileCompiler(
+    BaseCompiler["ColumnPrimitiveTypeProfileCompiler"]
+):
     """For generating ordered column profile reports."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
@@ -280,7 +284,9 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
                     return matched_profile
         return matched_profile
 
-    def diff(self, other: BaseCompiler, options: dict = None) -> dict:
+    def diff(
+        self, other: ColumnPrimitiveTypeProfileCompiler, options: dict = None
+    ) -> dict:
         """
         Find the difference between 2 compilers and returns the report.
 
@@ -291,7 +297,6 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
         """
         # Call super for compiler instance check
         diff_profile = super().diff(other, options)
-        other = cast(ColumnPrimitiveTypeProfileCompiler, other)
 
         # Initialize profile diff dict with data type representation
         diff_profile["data_type_representation"] = dict()
@@ -331,7 +336,7 @@ class ColumnPrimitiveTypeProfileCompiler(BaseCompiler):
         return diff_profile
 
 
-class ColumnStatsProfileCompiler(BaseCompiler):
+class ColumnStatsProfileCompiler(BaseCompiler["ColumnStatsProfileCompiler"]):
     """For generating OrderColumn and CategoricalColumn reports."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
@@ -354,7 +359,7 @@ class ColumnStatsProfileCompiler(BaseCompiler):
             report.update(profiler.report(remove_disabled_flag))
         return report
 
-    def diff(self, other: BaseCompiler, options: dict = None) -> dict:
+    def diff(self, other: ColumnStatsProfileCompiler, options: dict = None) -> dict:
         """
         Find the difference between 2 compilers and returns the report.
 
@@ -376,7 +381,7 @@ class ColumnStatsProfileCompiler(BaseCompiler):
         return diff_profile
 
 
-class ColumnDataLabelerCompiler(BaseCompiler):
+class ColumnDataLabelerCompiler(BaseCompiler["ColumnDataLabelerCompiler"]):
     """For generating DataLabelerColumn report."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
@@ -399,7 +404,7 @@ class ColumnDataLabelerCompiler(BaseCompiler):
             report["statistics"].update(col_profile)
         return report
 
-    def diff(self, other: BaseCompiler, options: dict = None) -> dict:
+    def diff(self, other: ColumnDataLabelerCompiler, options: dict = None) -> dict:
         """
         Find the difference between 2 compilers and return the report.
 
@@ -427,7 +432,7 @@ class ColumnDataLabelerCompiler(BaseCompiler):
         return diff_profile
 
 
-class UnstructuredCompiler(BaseCompiler):
+class UnstructuredCompiler(BaseCompiler["UnstructuredCompiler"]):
     """For generating TextProfiler and UnstructuredLabelerProfile reports."""
 
     # NOTE: these profilers are ordered. Test functionality if changed.
@@ -451,7 +456,7 @@ class UnstructuredCompiler(BaseCompiler):
             )
         return profile
 
-    def diff(self, other: BaseCompiler, options: dict = None) -> dict:
+    def diff(self, other: UnstructuredCompiler, options: dict = None) -> dict:
         """
         Find the difference between 2 compilers and return the report.
 

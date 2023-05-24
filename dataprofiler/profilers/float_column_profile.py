@@ -13,7 +13,9 @@ from .numerical_column_stats import NumericStatsMixin
 from .profiler_options import FloatOptions
 
 
-class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: ignore
+class FloatColumn(
+    NumericStatsMixin["FloatColumn"], BaseColumnPrimitiveTypeProfiler["FloatColumn"]
+):
     """
     Float column profile mixin with numerical stats.
 
@@ -120,7 +122,7 @@ class FloatColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: 
 
         return merged_profile
 
-    def diff(self, other_profile: BaseColumnProfiler, options: dict = None) -> dict:
+    def diff(self, other_profile: FloatColumn, options: dict = None) -> dict:
         """
         Find the differences for FloatColumns.
 

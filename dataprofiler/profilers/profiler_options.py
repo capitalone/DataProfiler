@@ -1178,6 +1178,7 @@ class StructuredOptions(BaseOption):
         self,
         null_values: dict[str, re.RegexFlag | int] = None,
         column_null_values: dict[int, dict[str, re.RegexFlag | int]] = None,
+        hll_row_hashing: bool = False,
     ) -> None:
         """
         Construct the StructuredOptions object with default values.
@@ -1228,15 +1229,17 @@ class StructuredOptions(BaseOption):
         # Non-Option variables
         self.null_values = null_values
         self.column_null_values = column_null_values
+        self.hll_row_hashing = hll_row_hashing
 
     @property
     def enabled_profiles(self) -> list[str]:
         """Return a list of the enabled profilers for columns."""
         enabled_profiles = list()
-        # null_values and column_null_values do not have is_enabled
+        # null_values, column_null_values, and hll_row_hashing do not have is_enabled
         properties = self.properties
         properties.pop("null_values")
         properties.pop("column_null_values")
+        properties.pop("hll_row_hashing")
         for key, value in properties.items():
             if value.is_enabled:
                 enabled_profiles.append(key)
@@ -1275,6 +1278,7 @@ class StructuredOptions(BaseOption):
         properties = self.properties
         properties.pop("null_values")
         properties.pop("column_null_values")
+        properties.pop("hll_row_hashing")
         for column in properties:
             if not isinstance(self.properties[column], prop_check[column]):
                 errors.append(
@@ -1322,6 +1326,11 @@ class StructuredOptions(BaseOption):
                 "of type str and values == 0 or are instances of "
                 "a re.RegexFlag".format(variable_path)
             )
+
+        if self.hll_row_hashing is not None and not isinstance(
+            self.hll_row_hashing, bool
+        ):
+            errors.append("{}.hll_row_hashing must be either None or a bool ")
 
         if (
             isinstance(self.category, CategoricalOptions)

@@ -9,7 +9,7 @@ from dataprofiler.tests.profilers.profiler_options.test_base_option import (
 class TestStructuredOptions(TestBaseOption):
 
     option_class = StructuredOptions
-    other_keys = ["null_values", "column_null_values"]
+    other_keys = ["null_values", "column_null_values", "hll_row_hashing"]
     boolean_keys = [
         "int",
         "float",
@@ -91,6 +91,10 @@ class TestStructuredOptions(TestBaseOption):
         for test_dict in ({0: {"a": 0}}, {0: {"a": re.IGNORECASE}}, None):
             option.set({"column_null_values": test_dict})
             self.assertEqual(test_dict, option.column_null_values)
+
+        for test_dict in (True, False, None):
+            option.set({"hll_row_hashing": test_dict})
+            self.assertEqual(test_dict, option.hll_row_hashing)
 
     def test_validate_helper(self):
         # Valid cases should return [] while invalid cases
@@ -287,10 +291,22 @@ class TestStructuredOptions(TestBaseOption):
         option.set({"column_null_values": None})
         self.assertEqual([], option._validate_helper())
 
+        expected_error = ["{}.hll_row_hashing must be either None or a bool "]
+        # Test int
+        option.set({"hll_row_hashing": 1})
+        self.assertEqual(expected_error, option._validate_helper())
+        # Test str
+        option.set({"hll_row_hashing": "str"})
+        self.assertEqual(expected_error, option._validate_helper())
+        # Test None works
+        option.set({"hll_row_hashing": None})
+        self.assertEqual([], option._validate_helper())
+
     def test_enabled_profilers(self):
         options = self.get_options()
         self.assertNotIn("null_values", options.enabled_profiles)
         self.assertNotIn("column_null_values", options.enabled_profiles)
+        self.assertNotIn("hll_row_hashing", options.enabled_profiles)
 
         # All Columns Enabled
         for key in self.boolean_keys:

@@ -9,7 +9,7 @@ from . import BaseColumnProfiler, utils
 from .profiler_options import OrderOptions
 
 
-class OrderColumn(BaseColumnProfiler):
+class OrderColumn(BaseColumnProfiler["OrderColumn"]):
     """
     Index column profile subclass of BaseColumnProfiler.
 
@@ -279,7 +279,7 @@ class OrderColumn(BaseColumnProfiler):
         """
         return dict(order=self.order, times=self.times)
 
-    def diff(self, other_profile: BaseColumnProfiler, options: dict = None) -> dict:
+    def diff(self, other_profile: OrderColumn, options: dict = None) -> dict:
         """
         Generate the differences between the orders of two OrderColumns.
 
@@ -289,7 +289,6 @@ class OrderColumn(BaseColumnProfiler):
         """
         # Make sure other_profile's type matches this class
         super().diff(other_profile, options)
-        other_profile = cast(OrderColumn, other_profile)
 
         differences = {
             "order": utils.find_diff_of_strings_and_bools(

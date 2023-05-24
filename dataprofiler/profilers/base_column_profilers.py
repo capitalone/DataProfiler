@@ -6,7 +6,7 @@ from __future__ import annotations
 import abc
 import warnings
 from collections import defaultdict
-from typing import Any, Callable
+from typing import Any, Callable, Generic, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -15,8 +15,10 @@ from dataprofiler.profilers.profiler_options import BaseInspectorOptions
 
 from . import utils
 
+BaseColumnProfilerT = TypeVar("BaseColumnProfilerT", bound="BaseColumnProfiler")
 
-class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
+
+class BaseColumnProfiler(Generic[BaseColumnProfilerT], metaclass=abc.ABCMeta):
     """Abstract class for profiling a column of data."""
 
     col_type = None
@@ -147,7 +149,7 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
                     )
 
     def _add_helper(
-        self, other1: BaseColumnProfiler, other2: BaseColumnProfiler
+        self, other1: BaseColumnProfilerT, other2: BaseColumnProfilerT
     ) -> None:
         """
         Merge the properties of two BaseColumnProfile objects.
@@ -176,7 +178,7 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
 
         self.sample_size = other1.sample_size + other2.sample_size
 
-    def diff(self, other_profile: BaseColumnProfiler, options: dict = None) -> dict:
+    def diff(self, other_profile: BaseColumnProfilerT, options: dict = None) -> dict:
         """
         Find the differences for columns.
 
@@ -248,9 +250,14 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
         raise NotImplementedError()
 
 
+BaseColumnPrimitiveTypeProfilerT = TypeVar(
+    "BaseColumnPrimitiveTypeProfilerT", bound="BaseColumnPrimitiveTypeProfiler"
+)
+
+
 class BaseColumnPrimitiveTypeProfiler(
-    BaseColumnProfiler,
-    metaclass=abc.ABCMeta,  # type: ignore
+    BaseColumnProfiler[BaseColumnPrimitiveTypeProfilerT],
+    metaclass=abc.ABCMeta,
 ):
     """Abstract class for profiling primative data type for col of data."""
 
@@ -278,10 +285,10 @@ class BaseColumnPrimitiveTypeProfiler(
         self.match_count += profile.pop("match_count")
         BaseColumnProfiler._update_column_base_properties(self, profile)
 
-    def _add_helper(  # type: ignore[override]
+    def _add_helper(
         self,
-        other1: BaseColumnPrimitiveTypeProfiler,
-        other2: BaseColumnPrimitiveTypeProfiler,
+        other1: BaseColumnPrimitiveTypeProfilerT,
+        other2: BaseColumnPrimitiveTypeProfilerT,
     ) -> None:
         """
         Merge the properties of two objects inputted.
@@ -291,5 +298,5 @@ class BaseColumnPrimitiveTypeProfiler(
         :type other1: BaseColumnPrimitiveTypeProfiler
         :type other2: BaseColumnPrimitiveTypeProfiler
         """
-        BaseColumnProfiler._add_helper(self, other1, other2)
+        super()._add_helper(other1, other2)
         self.match_count = other1.match_count + other2.match_count

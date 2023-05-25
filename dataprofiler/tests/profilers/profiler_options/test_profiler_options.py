@@ -30,6 +30,8 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertFalse(profile.options.properties[column].is_enabled)
             elif column == "null_values" or column == "column_null_values":
                 self.assertIsNone(profile.options.properties[column])
+            elif column == "sampling_ratio":
+                self.assertEqual(profile.options.properties[column], 0.2)
             else:
                 self.assertTrue(profile.options.properties[column].is_enabled)
 

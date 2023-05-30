@@ -1352,9 +1352,7 @@ class StructuredOptions(BaseOption):
             and not isinstance(self.sampling_ratio, int)
         ):
             errors.append(
-                "{}.sampling_ratio must be a float, an integer, or None".format(
-                    variable_path
-                )
+                f"{variable_path}.sampling_ratio must be a float or an integer"
             )
 
         if (

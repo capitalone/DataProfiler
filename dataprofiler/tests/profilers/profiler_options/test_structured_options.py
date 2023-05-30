@@ -92,6 +92,10 @@ class TestStructuredOptions(TestBaseOption):
             option.set({"column_null_values": test_dict})
             self.assertEqual(test_dict, option.column_null_values)
 
+        for test_val in [0.2, 1, None]:
+            option.set({"sampling_ratio": test_val})
+            self.assertEqual(test_val, option.sampling_ratio)
+
     def test_validate_helper(self):
         # Valid cases should return [] while invalid cases
         # should return a list of errors
@@ -282,6 +286,31 @@ class TestStructuredOptions(TestBaseOption):
         # Test None works for option set
         option.set({"column_null_values": None})
         self.assertEqual([], option._validate_helper())
+
+        expected_error_type = [
+            f"{optpth}.sampling_ratio must be a float, an integer, or None"
+        ]
+
+        expected_error_value = [
+            "{}.sampling_ratio must be greater than 0.0 and less than or equal to 1.0".format(
+                optpth
+            )
+        ]
+        # Test ratio is not a float
+        option.set({"sampling_ratio": "1"})
+        self.assertEqual(expected_error_type, option._validate_helper())
+        # Test ratio is greater than upper bound
+        option.set({"sampling_ratio": 2.5})
+        self.assertEqual(expected_error_value, option._validate_helper())
+        # Test ratio is greater than upper bound, int
+        option.set({"sampling_ratio": 3})
+        self.assertEqual(expected_error_value, option._validate_helper())
+        # Test ratio is lesser than lower bound
+        option.set({"sampling_ratio": -2.5})
+        self.assertEqual(expected_error_value, option._validate_helper())
+        # Test ratio is lesser than lower bound, int
+        option.set({"sampling_ratio": -5})
+        self.assertEqual(expected_error_value, option._validate_helper())
 
     def test_enabled_profilers(self):
         options = self.get_options()

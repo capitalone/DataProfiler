@@ -70,6 +70,24 @@ class IntColumn(NumericStatsMixin, BaseColumnPrimitiveTypeProfiler):  # type: ig
         """
         return self.profile
 
+    @classmethod
+    def load_from_dict(cls, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: CategoricalColumn
+        """
+        profile = super().load_from_dict(data)
+        profile._load_hist_helper(data)
+        quantiles = data.pop("quantiles")
+        quantiles_dict = {int(key): quantiles[key] for key in quantiles.keys()}
+        profile.quantiles = quantiles_dict
+        return profile
+
     @property
     def profile(self) -> dict:
         """

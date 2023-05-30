@@ -270,7 +270,7 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
                         raise AttributeError(
                             f"Object {type(profile)} has no attribute {function}."
                         )
-                    value[metric] = getattr(profile, function)
+                    value[metric] = getattr(profile, function).__func__
             setattr(profile, attr, value)
 
         return profile

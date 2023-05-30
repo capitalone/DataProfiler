@@ -360,6 +360,19 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
         return profile
 
+    def _load_hist_helper(self, data):
+        # Pop off stuff specific to numerical stats
+        hist = data.pop("_stored_histogram")
+
+        for key in hist.keys():
+            value = hist[key]
+            if key == "histogram":
+                value = {
+                    x: np.array(hist[key][x]) if hist[key][x] is not None else None
+                    for x in hist[key].keys()
+                }
+            self._stored_histogram[key] = value
+
     def diff(
         self,
         other_profile: NumericStatsMixin,

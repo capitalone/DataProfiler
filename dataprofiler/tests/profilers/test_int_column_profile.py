@@ -9,8 +9,11 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import IntColumn
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import IntOptions
+
+from . import utils as test_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -1292,3 +1295,12 @@ class TestIntColumn(unittest.TestCase):
         )
 
         self.assertEqual(serialized, expected)
+
+    def test_json_decode(self):
+        fake_profile_name = None
+        expected_profile = IntColumn(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)

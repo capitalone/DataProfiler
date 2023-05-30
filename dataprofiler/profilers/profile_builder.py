@@ -681,9 +681,9 @@ class BaseProfiler:
         self._min_true_samples: int = min_true_samples
         self.total_samples: int = 0
         self.times: dict[str, float] = defaultdict(float)
+        self._sampling_ratio: float = getattr(options, "sampling_ratio", 0.2)
 
         # TODO: allow set via options
-        self._sampling_ratio: float = 0.2
         self._min_sample_size: int = 5000
 
         # assign data labeler
@@ -1884,6 +1884,20 @@ class StructuredProfiler(BaseProfiler):
         if self.total_samples:
             return len(self.hashed_row_dict) / self.total_samples
         return 0
+
+    def _get_sample_size(self, df_series: pd.Series) -> int:
+        """
+        Determine the minimum sampling size for detecting column type.
+
+        :param df_series: a column of data
+        :type df_series: pandas.core.series.Series
+        :return: integer sampling size
+        :rtype: int
+        """
+        len_df = len(df_series)
+        if len_df <= self._min_sample_size:
+            return int(len_df)
+        return max(int(self._sampling_ratio * len_df), self._min_sample_size)
 
     def _get_row_is_null_ratio(self) -> float:
         """Return whether row is null ratio."""

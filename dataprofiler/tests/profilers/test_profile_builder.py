@@ -2462,7 +2462,7 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         # test data size < min_sample_size = 5000 by default
         profiler = dp.StructuredProfiler(data[:1000], options=profiler_options)
         profiler._min_sample_size = 5000
-        profiler._sampling_ratio = 0.2
+        # profiler._sampling_ratio = 0.2
         self.assertEqual(1000, update_mock.call_args[0][1])
 
         # test data size * 0.20 < min_sample_size < data size
@@ -2474,8 +2474,23 @@ class TestStructuredColProfilerClass(unittest.TestCase):
         # test min_sample_size > data size * 0.20
         profiler = dp.StructuredProfiler(data, options=profiler_options)
         profiler._min_sample_size = 5000
-        profiler._sampling_ratio = 0.2
+        # profiler._sampling_ratio = 0.2
         self.assertEqual(10000, update_mock.call_args[0][1])
+
+    def test_sampling_ratio_passed_to_profile(self):
+
+        # data setup
+        data = pd.DataFrame([0] * int(50e3))
+
+        # option setup
+        profiler_options = ProfilerOptions()
+        profiler_options.structured_options.multiprocess.is_enabled = False
+        profiler_options.set({"data_labeler.is_enabled": False})
+        profiler_options.structured_options.sampling_ratio = 0.6
+
+        # test data size * 0.40 > min_sample_size
+        profiler = dp.StructuredProfiler(data[:10000], options=profiler_options)
+        self.assertEqual(6000, profiler.report()["global_stats"]["samples_used"])
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"

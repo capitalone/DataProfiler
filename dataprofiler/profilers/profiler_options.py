@@ -1281,25 +1281,17 @@ class StructuredOptions(BaseOption):
                 "a re.RegexFlag".format(variable_path)
             )
 
-        if (
-            self.sampling_ratio is not None
-            and not isinstance(self.sampling_ratio, float)
-            and not isinstance(self.sampling_ratio, int)
+        if not isinstance(self.sampling_ratio, float) and not isinstance(
+            self.sampling_ratio, int
         ):
             errors.append(
-                "{}.sampling_ratio must be a float, an integer, or None".format(
-                    variable_path
-                )
+                f"{variable_path}.sampling_ratio must be a float or an integer"
             )
 
         if (
-            self.sampling_ratio is not None
-            and (
-                isinstance(self.sampling_ratio, float)
-                or isinstance(self.sampling_ratio, int)
-            )
-            and not (0.0 < self.sampling_ratio <= 1.0)
-        ):
+            isinstance(self.sampling_ratio, float)
+            or isinstance(self.sampling_ratio, int)
+        ) and not (0.0 < self.sampling_ratio <= 1.0):
             errors.append(
                 "{}.sampling_ratio must be greater than 0.0 "
                 "and less than or equal to 1.0".format(variable_path)

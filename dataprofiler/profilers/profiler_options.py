@@ -982,6 +982,64 @@ class CorrelationOptions(BaseInspectorOptions):
         return errors
 
 
+class HyperLogLogOptions(BooleanOption):
+    """Options for alternative method of gathering unique row count."""
+
+    def __init__(self, is_enabled: bool = False, seed: int = 0) -> None:
+        """
+        Initialize options for the hyperloglog method of gathering unique row count.
+
+        :ivar is_enabled: boolean option to enable/disable.
+        :vartype is_enabled: bool
+        :ivar seed: seed used to set HLL hashing function
+        :vartype seed: int
+        """
+        BooleanOption.__init__(self, is_enabled=is_enabled)
+        self.seed = seed
+
+    def _validate_helper(self, variable_path: str = "HyperLogLogOptions") -> list[str]:
+        """
+        Validate the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        errors = super()._validate_helper(variable_path=variable_path)
+
+        if not isinstance(self.seed, int):
+            errors = [f"{variable_path}.seed must be an int."]
+        return errors
+
+
+class RowStatisticsOptions(BooleanOption):
+    """For configuring options for row statistics."""
+
+    def __init__(self, is_enabled: bool = False) -> None:
+        """
+        Initialize options for row statistics.
+
+        :ivar is_enabled: boolean option to enable/disable.
+        :vartype is_enabled: bool
+        """
+        BooleanOption.__init__(self, is_enabled=is_enabled)
+        self.hll_row_hashing = HyperLogLogOptions(is_enabled=False)
+
+    def _validate_helper(
+        self, variable_path: str = "RowStatisticsOptions"
+    ) -> list[str]:
+        """
+        Validate the options do not conflict and cause errors.
+
+        :param variable_path: current path to variable set.
+        :type variable_path: str
+        :return: list of errors (if raise_error is false)
+        :rtype: list(str)
+        """
+        return super()._validate_helper(variable_path)
+
+
 class DataLabelerOptions(BaseInspectorOptions):
     """For configuring options for Data Labeler Column."""
 
@@ -1178,7 +1236,6 @@ class StructuredOptions(BaseOption):
         self,
         null_values: dict[str, re.RegexFlag | int] = None,
         column_null_values: dict[int, dict[str, re.RegexFlag | int]] = None,
-        hll_row_hashing: bool = False,
     ) -> None:
         """
         Construct the StructuredOptions object with default values.
@@ -1225,21 +1282,19 @@ class StructuredOptions(BaseOption):
         self.correlation = CorrelationOptions()
         self.chi2_homogeneity = BooleanOption(is_enabled=True)
         self.null_replication_metrics = BooleanOption(is_enabled=False)
-        self.row_statistics = BooleanOption(is_enabled=True)
+        self.row_statistics = RowStatisticsOptions(is_enabled=True)
         # Non-Option variables
         self.null_values = null_values
         self.column_null_values = column_null_values
-        self.hll_row_hashing = hll_row_hashing
 
     @property
     def enabled_profiles(self) -> list[str]:
         """Return a list of the enabled profilers for columns."""
         enabled_profiles = list()
-        # null_values, column_null_values, and hll_row_hashing do not have is_enabled
+        # null_values and column_null_values do not have is_enabled
         properties = self.properties
         properties.pop("null_values")
         properties.pop("column_null_values")
-        properties.pop("hll_row_hashing")
         for key, value in properties.items():
             if value.is_enabled:
                 enabled_profiles.append(key)
@@ -1273,12 +1328,12 @@ class StructuredOptions(BaseOption):
                 ("chi2_homogeneity", BooleanOption),
                 ("row_statistics", BooleanOption),
                 ("null_replication_metrics", BooleanOption),
+                ("hll_row_hashing", RowStatisticsOptions),
             ]
         )
         properties = self.properties
         properties.pop("null_values")
         properties.pop("column_null_values")
-        properties.pop("hll_row_hashing")
         for column in properties:
             if not isinstance(self.properties[column], prop_check[column]):
                 errors.append(
@@ -1326,11 +1381,6 @@ class StructuredOptions(BaseOption):
                 "of type str and values == 0 or are instances of "
                 "a re.RegexFlag".format(variable_path)
             )
-
-        if self.hll_row_hashing is not None and not isinstance(
-            self.hll_row_hashing, bool
-        ):
-            errors.append("{}.hll_row_hashing must be either None or a bool ")
 
         if (
             isinstance(self.category, CategoricalOptions)

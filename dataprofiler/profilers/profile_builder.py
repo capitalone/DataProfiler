@@ -1928,17 +1928,16 @@ class StructuredProfiler(BaseProfiler):
             )
 
         self.total_samples += len(data)
-        if not self.options.hll_row_hashing:
-            try:
-                self.hashed_row_dict.update(
-                    dict.fromkeys(pd.util.hash_pandas_object(data, index=False), True)
+        try:
+            self.hashed_row_dict.update(
+                dict.fromkeys(pd.util.hash_pandas_object(data, index=False), True)
+            )
+        except TypeError:
+            self.hashed_row_dict.update(
+                dict.fromkeys(
+                    pd.util.hash_pandas_object(data.astype(str), index=False), True
                 )
-            except TypeError:
-                self.hashed_row_dict.update(
-                    dict.fromkeys(
-                        pd.util.hash_pandas_object(data.astype(str), index=False), True
-                    )
-                )
+            )
 
         # Calculate Null Column Count
         null_rows = set()

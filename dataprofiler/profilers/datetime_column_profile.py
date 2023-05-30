@@ -13,7 +13,7 @@ from .base_column_profilers import BaseColumnPrimitiveTypeProfiler, BaseColumnPr
 from .profiler_options import DateTimeOptions
 
 
-class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
+class DateTimeColumn(BaseColumnPrimitiveTypeProfiler["DateTimeColumn"]):
     """
     Datetime column profile subclass of BaseColumnProfiler.
 
@@ -163,6 +163,7 @@ class DateTimeColumn(BaseColumnPrimitiveTypeProfiler):
         appropriate output formats
         :rtype: dict
         """
+        # Make sure other_profile's type matches this class
         super().diff(other_profile, options)
 
         differences = {

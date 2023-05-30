@@ -23,6 +23,7 @@ except ImportError:
 from dataset_generation import NumpyEncoder, generate_dataset_by_class, nan_injection
 
 from dataprofiler import StructuredProfiler
+from dataprofiler.data_readers.csv_data import CSVData
 
 # suppress TF warnings
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
@@ -254,15 +255,24 @@ if __name__ == "__main__":
     ALLOW_SUBSAMPLING = False  # profiler to subsample the dataset if large
     PERCENT_TO_NAN = 0.0  # Value must be between 0 and 100
 
-    # If set to None new dataset is generated.
-    DATASET_PATH = None
-
     TIME_ANALYSIS = True
     SPACE_ANALYSIS = True
     SAMPLE_SIZES = [100, 1000, 5000, 7500, int(1e5)]
 
+    # Dataset generation variables
+    COLUMNS_TO_GENERATE = [
+        dict(generator="datetime"),
+        dict(generator="integer"),
+        dict(generator="float"),
+        dict(generator="categorical"),
+        dict(generator="ordered"),
+        dict(generator="text"),
+        dict(generator="string"),
+    ]
+
     # set seed
     RANDOM_SEED = 0
+
     ################################################################################
 
     random.seed(RANDOM_SEED)
@@ -270,16 +280,21 @@ if __name__ == "__main__":
     dp.set_seed(RANDOM_SEED)
     _rng = np.random.default_rng(seed=RANDOM_SEED)
 
+    # Generation of dataset name and path
+    dataset_string_name = "".join([f"{x['generator']}_" for x in COLUMNS_TO_GENERATE])
+    _dataset_path = f"./data/dataset_{dataset_string_name}{max(SAMPLE_SIZES)}.csv"
+
     # Generate and load data
-    if not DATASET_PATH:
+    if not os.path.exists(_dataset_path):
         _full_dataset = generate_dataset_by_class(
             _rng,
             dataset_length=max(SAMPLE_SIZES),
-            path="./data/all_data_class_100000.csv",
+            path=_dataset_path,
+            columns_to_generate=COLUMNS_TO_GENERATE,
         )
         print(f"Dataset of size {max(SAMPLE_SIZES)} created.")
     else:
-        _full_dataset = dp.Data(DATASET_PATH)
+        _full_dataset = CSVData(_dataset_path, options=dict(encoding="utf-8"))
 
     dp_space_time_analysis(
         _rng,

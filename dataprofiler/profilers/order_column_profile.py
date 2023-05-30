@@ -9,7 +9,7 @@ from . import BaseColumnProfiler, utils
 from .profiler_options import OrderOptions
 
 
-class OrderColumn(BaseColumnProfiler):
+class OrderColumn(BaseColumnProfiler["OrderColumn"]):
     """
     Index column profile subclass of BaseColumnProfiler.
 
@@ -287,6 +287,7 @@ class OrderColumn(BaseColumnProfiler):
         appropriate output formats
         :rtype: dict
         """
+        # Make sure other_profile's type matches this class
         super().diff(other_profile, options)
 
         differences = {

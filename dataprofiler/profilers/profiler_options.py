@@ -1326,9 +1326,8 @@ class StructuredOptions(BaseOption):
                 ("data_labeler", DataLabelerOptions),
                 ("correlation", CorrelationOptions),
                 ("chi2_homogeneity", BooleanOption),
-                ("row_statistics", BooleanOption),
+                ("row_statistics", RowStatisticsOptions),
                 ("null_replication_metrics", BooleanOption),
-                ("hll_row_hashing", RowStatisticsOptions),
             ]
         )
         properties = self.properties

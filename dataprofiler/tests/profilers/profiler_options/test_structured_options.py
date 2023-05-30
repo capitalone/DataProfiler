@@ -149,11 +149,9 @@ class TestStructuredOptions(TestBaseOption):
                 ckey = "Categorical"
             elif key == "datetime":
                 ckey = "DateTime"
-            if (
-                key == "multiprocess"
-                or key == "chi2_homogeneity"
-                or key == "row_statistics"
-            ):
+            elif key == "row_statistics":
+                ckey = "RowStatistics"
+            if key == "multiprocess" or key == "chi2_homogeneity":
                 expected_error.add(f"{optpth}.{key} must be a(n) BooleanOption.")
             else:
                 expected_error.add(f"{optpth}.{key} must be a(n) {ckey}Options.")
@@ -218,11 +216,9 @@ class TestStructuredOptions(TestBaseOption):
                 ckey = "Categorical"
             elif key == "datetime":
                 ckey = "DateTime"
-            if (
-                key == "multiprocess"
-                or key == "chi2_homogeneity"
-                or key == "row_statistics"
-            ):
+            elif key == "row_statistics":
+                ckey = "RowStatistics"
+            if key == "multiprocess" or key == "chi2_homogeneity":
                 expected_error.add(f"{optpth}.{key} must be a(n) BooleanOption.")
             else:
                 expected_error.add(f"{optpth}.{key} must be a(n) {ckey}Options.")

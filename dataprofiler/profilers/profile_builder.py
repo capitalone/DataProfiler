@@ -1520,7 +1520,12 @@ class StructuredProfiler(BaseProfiler):
         # Structured specific properties
         self.row_has_null_count = 0
         self.row_is_null_count = 0
-        self.hashed_row_dict: dict = dict()
+        if options.row_statistics.hll_row_hashing.is_enabled:
+            self.hyper_log_log_table: HyperLogLog = HyperLogLog(
+                p=10, seed=options.row_statistics.hll_row_hashing.seed, sparse=False
+            )
+        else:
+            self.hashed_row_dict: dict = dict()
         self._profile: list[StructuredColProfiler] = []  # type: ignore[assignment]
         self._col_name_to_idx: dict[str | int, list[int]] = defaultdict(list)
         self.correlation_matrix: np.ndarray = None  # type: ignore[assignment]
@@ -1583,8 +1588,14 @@ class StructuredProfiler(BaseProfiler):
             merged_profile.row_is_null_count = (
                 self.row_is_null_count + other.row_is_null_count
             )
-            merged_profile.hashed_row_dict.update(self.hashed_row_dict)
-            merged_profile.hashed_row_dict.update(other.hashed_row_dict)
+
+            if self.options.row_statistics.hll_row_hashing.is_enabled:
+                merged_profile.hyper_log_log_table = self.hyper_log_log_table.merge(
+                    other.hyper_log_log_table
+                )
+            else:
+                merged_profile.hashed_row_dict.update(self.hashed_row_dict)
+                merged_profile.hashed_row_dict.update(other.hashed_row_dict)
 
         self_to_other_idx = self._get_and_validate_schema_mapping(
             self._col_name_to_idx, other._col_name_to_idx
@@ -1888,6 +1899,8 @@ class StructuredProfiler(BaseProfiler):
     def _get_unique_row_ratio(self) -> float:
         """Return unique row ratio."""
         if self.total_samples:
+            if self.options.row_statistics.hll_row_hashing.is_enabled:
+                return int(self.hyper_log_log_table.size()) / self.total_samples
             return len(self.hashed_row_dict) / self.total_samples
         return 0
 
@@ -1905,6 +1918,8 @@ class StructuredProfiler(BaseProfiler):
 
     def _get_duplicate_row_count(self) -> int:
         """Retun dup row count."""
+        if self.options.row_statistics.hll_row_hashing.is_enabled:
+            return self.total_samples - int(self.hyper_log_log_table.size())
         return self.total_samples - len(self.hashed_row_dict)
 
     @utils.method_timeit(name="row_stats")
@@ -1929,7 +1944,10 @@ class StructuredProfiler(BaseProfiler):
             )
 
         self.total_samples += len(data)
-        if not self.options.hll_row_hashing:
+        if self.options.row_statistics.hll_row_hashing:
+            for record in data.to_records(index=False):
+                self.hyper_log_log_table.add(record.tobytes())
+        else:
             try:
                 self.hashed_row_dict.update(
                     dict.fromkeys(pd.util.hash_pandas_object(data, index=False), True)
@@ -1940,9 +1958,6 @@ class StructuredProfiler(BaseProfiler):
                         pd.util.hash_pandas_object(data.astype(str), index=False), True
                     )
                 )
-        else:
-            for record in data.to_records(index=False):
-                self.hashed_row_dict.add(record.tobytes())
 
         # Calculate Null Column Count
         null_rows = set()
@@ -2730,6 +2745,13 @@ class StructuredProfiler(BaseProfiler):
         :type filepath: String
         :return: None
         """
+        if self.options.row_statistics.hll_row_hashing.is_enabled:
+            hashing_object_name = "hyper_log_log_table"
+            hashing_object_dict = self.hyper_log_log_table.__dict__
+        else:
+            hashing_object_name = "hashed_row_dict"
+            hashing_object_dict = self.hashed_row_dict
+
         # Create dictionary for all metadata, options, and profile
         data_dict = {
             "total_samples": self.total_samples,
@@ -2737,7 +2759,7 @@ class StructuredProfiler(BaseProfiler):
             "file_type": self.file_type,
             "row_has_null_count": self.row_has_null_count,
             "row_is_null_count": self.row_is_null_count,
-            "hashed_row_dict": self.hashed_row_dict,
+            hashing_object_name: hashing_object_dict,
             "_samples_per_update": self._samples_per_update,
             "_min_true_samples": self._min_true_samples,
             "options": self.options,

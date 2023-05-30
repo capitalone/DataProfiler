@@ -297,6 +297,10 @@ class TestStructuredOptions(TestBaseOption):
                 optpth
             )
         ]
+        expected_error_none_value = [f"{optpth}.sampling_ratio may not be None"]
+        # Test ratio is None
+        option.set({"sampling_ratio": None})
+        self.assertEqual(expected_error_none_value, option._validate_helper())
         # Test ratio is not a float
         option.set({"sampling_ratio": "1"})
         self.assertEqual(expected_error_type, option._validate_helper())

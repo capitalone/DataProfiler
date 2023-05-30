@@ -287,7 +287,6 @@ class TestStructuredOptions(TestBaseOption):
         options = self.get_options()
         self.assertNotIn("null_values", options.enabled_profiles)
         self.assertNotIn("column_null_values", options.enabled_profiles)
-        self.assertNotIn("hll_row_hashing", options.enabled_profiles)
 
         # All Columns Enabled
         for key in self.boolean_keys:

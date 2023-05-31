@@ -149,7 +149,7 @@ between them. Create the difference report like this:
 The `.diff()` operation is available between two profiles, although there are different
 outputs depending on the type of profile being differenced. For example, for numerical
 column profiles (e.g. integers and floats), two valuable calculations that 
-`.diff()` returns are `t-test` and `psi` (Popoulation Stability Index) 
+`.diff()` returns are `t-test`, `chi2-test`, and `psi` (Popoulation Stability Index)
 for understanding distributional changes.
 
 The difference report contains a dictionary that mirrors the profile report. 
@@ -593,7 +593,8 @@ must be specified as structured or unstructured when setting (ie. datalabeler op
 Below is an breakdown of all the options.
 
 * **ProfilerOptions** - The top-level options class that contains options for the Profiler class
-
+  * **presets** - A pre-configured mapping of a string name to group of options: "complete", "data_types", and "numeric_stats_disabled".
+    By default is None
   * **structured_options** - Options responsible for all structured data
 
     * **multiprocess** - Option to enable multiprocessing. Automatically selects the optimal number of processes to utilize based on system constraints.
@@ -604,7 +605,7 @@ Below is an breakdown of all the options.
       * is_enabled - (Boolean) Enables or disables the integer operations
       * min - Finds minimum value in a column
 
-        * is_enabled - (Boolean) Enables or disables min
+      * is_enabled - (Boolean) Enables or disables min
       * max - Finds maximum value in a column
 
         * is_enabled - (Boolean) Enables or disables max
@@ -679,6 +680,7 @@ Below is an breakdown of all the options.
       * kurtosis - Finds kurtosis of all values in a column
 
         * is_enabled - (Boolean) Enables or disables kurtosis
+      * is_numeric_stats_enabled - (Boolean) enable or disable all numeric stats
       * num_zeros - Finds the count of zeros in a column
 
         * is_enabled - (Boolean) Enables or disables num_zeros
@@ -731,6 +733,13 @@ Below is an breakdown of all the options.
       * bias_correction - Applies bias correction to variance, skewness, and kurtosis calculations
 
         * is_enabled - (Boolean) Enables or disables bias correction
+      * is_numeric_stats_enabled - (Boolean) enable or disable all numeric stats
+      * num_zeros - Finds the count of zeros in a column
+
+        * is_enabled - (Boolean) Enables or disables num_zeros
+      * num_negatives - Finds the count of negative numbers in a column
+
+        * is_enabled - (Boolean) Enables or disables num_negatives
       * histogram_and_quantiles - Generates a histogram and quantiles
         from the column values
 
@@ -749,6 +758,9 @@ Below is an breakdown of all the options.
     * **category** - Options for the category columns
 
       * is_enabled  - (Boolean) Enables or disables the category operations
+      * top_k_categories - (int) Number of categories to be displayed when reporting
+      * max_sample_size_to_check_stop_condition - (int) The maximum sample size before categorical stop conditions are checked
+      * stop_condition_unique_value_ratio - (float) The highest ratio of unique values to dataset size that is to be considered a categorical type
     * **data_labeler** - Options for the data labeler columns
 
       * is_enabled - (Boolean) Enables or disables the data labeler operations
@@ -757,6 +769,10 @@ Below is an breakdown of all the options.
         the default labeler 
       * max_sample_size - (Int) The max number of samples for the data 
         labeler
+    * **correlation** - option set for correlation profiling
+      * is_enabled - (Boolean) Enables or disables performing correlation profiling
+      * columns - Columns considered to calculate correlation
+    * **row_statistics** - (Boolean) Option to enable/disable row statistics calculations
     * **chi2_homogeneity** - Options for the chi-squared test matrix
 
       * is_enabled - (Boolean) Enables or disables performing chi-squared tests for homogeneity between the categorical columns of the dataset.

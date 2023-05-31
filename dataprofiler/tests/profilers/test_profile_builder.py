@@ -60,9 +60,18 @@ class TestStructuredProfiler(unittest.TestCase):
         cls.aws_dataset = pd.read_csv(cls.input_file_path)
         profiler_options = ProfilerOptions()
         profiler_options.set({"data_labeler.is_enabled": False})
+
+        profiler_options_hll = ProfilerOptions()
+        profiler_options_hll.set({
+            "data_labeler.is_enabled": False,
+            "row_statistics.hll_row_hashing.is_enabled": True
+        })
         with test_utils.mock_timeit():
             cls.trained_schema = dp.StructuredProfiler(
                 cls.aws_dataset, len(cls.aws_dataset), options=profiler_options
+            )
+            cls.trained_schema_hll = dp.StructuredProfiler(
+                cls.aws_dataset, len(cls.aws_dataset), options=profiler_options_hll
             )
 
     @mock.patch(
@@ -121,6 +130,17 @@ class TestStructuredProfiler(unittest.TestCase):
         # input.
         self.assertListEqual(["5", "1", "1", "3", "4"], profiler.profile[0].sample)
 
+        # test hll_row_hashing
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"row_statistics.hll_row_hashing.is_enabled": True})
+
+        with test_utils.mock_timeit():
+            profiler = dp.StructuredProfiler(data, options=profiler_options)
+
+        self.assertEqual(5, profiler.hyper_log_log_table.cardinality())
+
+
+
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
     )
@@ -149,6 +169,16 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertIsNone(profiler.correlation_matrix)
         self.assertDictEqual({"row_stats": 1}, profiler.times)
 
+        # test hll_row_hashing
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"row_statistics.hll_row_hashing.is_enabled": True})
+
+        with test_utils.mock_timeit():
+            profiler = dp.StructuredProfiler(data, options=profiler_options)
+
+        self.assertEqual(5, profiler.hyper_log_log_table.cardinality())
+
+
         # test properties when series has name
         data.name = "test"
         profiler = dp.StructuredProfiler(data)
@@ -160,6 +190,15 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(5, len(profiler.hashed_row_dict))
         self.assertListEqual(["test"], list(profiler._col_name_to_idx.keys()))
         self.assertIsNone(profiler.correlation_matrix)
+
+        # test hll_row_hashing
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"row_statistics.hll_row_hashing.is_enabled": True})
+
+        with test_utils.mock_timeit():
+            profiler = dp.StructuredProfiler(data, options=profiler_options)
+
+        self.assertEqual(5, profiler.hyper_log_log_table.cardinality())
 
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
@@ -237,6 +276,17 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual("multiple files", merged_profile.encoding)
         self.assertEqual("multiple files", merged_profile.file_type)
 
+        # test hll_row_hashing
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"row_statistics.hll_row_hashing.is_enabled": True})
+
+        with test_utils.mock_timeit():
+            profile1 = dp.StructuredProfiler(data[:2], options=profiler_options)
+            profile2 = dp.StructuredProfiler(data[2:], options=profiler_options)
+        merged_profile = profile1 + profile2
+
+        self.assertEqual(5, merged_profile.hyper_log_log_table.cardinality())
+
     @mock.patch(
         "dataprofiler.profilers.profile_builder." "ColumnPrimitiveTypeProfileCompiler"
     )
@@ -284,10 +334,29 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertIsNone(profiler.correlation_matrix)
         self.assertDictEqual({"row_stats": 2}, profiler.times)
 
+        # test hll_row_hashing
+        profiler_options = ProfilerOptions()
+        profiler_options.set({"row_statistics.hll_row_hashing.is_enabled": True})
+
+        with test_utils.mock_timeit():
+            profiler = dp.StructuredProfiler(data[:3], options=profiler_options)
+
+        self.assertEqual(5, len(profiler.hyper_log_log_table.cardinality()))
+
+        # check after update
+        with test_utils.mock_timeit():
+            profiler.update_profile(data[3:])
+
+        self.assertEqual(5, len(profiler.hyper_log_log_table.cardinality()))
+
+
     def test_correct_unique_row_ratio_test(self):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))
         self.assertEqual(2999, self.trained_schema.total_samples)
         self.assertEqual(1.0, self.trained_schema._get_unique_row_ratio())
+
+        # not completely accurate since register count is 1024
+        self.assertEqual(2931, self.trained_schema_hll.hyper_log_log_table.cardinality())
 
     def test_correct_rows_ingested(self):
         self.assertEqual(2999, self.trained_schema.total_samples)
@@ -303,6 +372,9 @@ class TestStructuredProfiler(unittest.TestCase):
         self.assertEqual(2999, len(self.trained_schema.hashed_row_dict))
         self.assertEqual(2999, self.trained_schema.total_samples)
         self.assertEqual(0.0, self.trained_schema._get_duplicate_row_count())
+
+        # not completely accurate since register count is 1024
+        self.assertEqual(2938, self.trained_schema_hll.hyper_log_log_table.cardinality())
 
     @mock.patch("dataprofiler.profilers.profile_builder." "ColumnDataLabelerCompiler")
     @mock.patch(

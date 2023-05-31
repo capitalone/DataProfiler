@@ -1522,7 +1522,9 @@ class StructuredProfiler(BaseProfiler):
         self.row_is_null_count = 0
         if options.row_statistics.hll_row_hashing.is_enabled:
             self.hyper_log_log_table: HyperLogLog = HyperLogLog(
-                p=10, seed=options.row_statistics.hll_row_hashing.seed, sparse=False
+                p=options.row_statistics.hll_row_hashing.register_count,
+                seed=options.row_statistics.hll_row_hashing.seed,
+                sparse=False
             )
         else:
             self.hashed_row_dict: dict = dict()
@@ -1590,9 +1592,8 @@ class StructuredProfiler(BaseProfiler):
             )
 
             if self.options.row_statistics.hll_row_hashing.is_enabled:
-                merged_profile.hyper_log_log_table = self.hyper_log_log_table.merge(
-                    other.hyper_log_log_table
-                )
+                self.hyper_log_log_table.merge(other.hyper_log_log_table)
+                merged_profile.hyper_log_log_table = self.hyper_log_log_table
             else:
                 merged_profile.hashed_row_dict.update(self.hashed_row_dict)
                 merged_profile.hashed_row_dict.update(other.hashed_row_dict)
@@ -1900,7 +1901,7 @@ class StructuredProfiler(BaseProfiler):
         """Return unique row ratio."""
         if self.total_samples:
             if self.options.row_statistics.hll_row_hashing.is_enabled:
-                return int(self.hyper_log_log_table.size()) / self.total_samples
+                return int(self.hyper_log_log_table.cardinality()) / self.total_samples
             return len(self.hashed_row_dict) / self.total_samples
         return 0
 
@@ -1919,7 +1920,7 @@ class StructuredProfiler(BaseProfiler):
     def _get_duplicate_row_count(self) -> int:
         """Retun dup row count."""
         if self.options.row_statistics.hll_row_hashing.is_enabled:
-            return self.total_samples - int(self.hyper_log_log_table.size())
+            return self.total_samples - int(self.hyper_log_log_table.cardinality())
         return self.total_samples - len(self.hashed_row_dict)
 
     @utils.method_timeit(name="row_stats")
@@ -1944,7 +1945,7 @@ class StructuredProfiler(BaseProfiler):
             )
 
         self.total_samples += len(data)
-        if self.options.row_statistics.hll_row_hashing:
+        if self.options.row_statistics.hll_row_hashing.is_enabled:
             for record in data.to_records(index=False):
                 self.hyper_log_log_table.add(record.tobytes())
         else:

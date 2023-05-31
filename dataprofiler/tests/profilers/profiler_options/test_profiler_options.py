@@ -93,7 +93,7 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertIsNone(profile_column["statistics"]["min"])
                 self.assertIsNone(profile_column["statistics"]["max"])
                 self.assertTrue(np.isnan(profile_column["statistics"]["variance"]))
-                self.assertEqual(profile_column["statistics"]["quantiles"][0], 0)
+                self.assertIsNone(profile_column["statistics"]["quantiles"][0])
                 self.assertTrue(np.isnan(profile_column["statistics"]["skewness"]))
                 self.assertTrue(np.isnan(profile_column["statistics"]["kurtosis"]))
 
@@ -239,7 +239,7 @@ class TestProfilerOptions(unittest.TestCase):
                 self.assertIsNone(profile_column["statistics"]["min"])
                 self.assertIsNone(profile_column["statistics"]["max"])
                 self.assertTrue(np.isnan(profile_column["statistics"]["variance"]))
-                self.assertEqual(profile_column["statistics"]["quantiles"][0], 0)
+                self.assertIsNone(profile_column["statistics"]["quantiles"][0])
                 self.assertTrue(profile_column["statistics"]["skewness"] is np.nan)
                 self.assertTrue(profile_column["statistics"]["kurtosis"] is np.nan)
                 self.assertTrue(

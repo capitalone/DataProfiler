@@ -384,7 +384,7 @@ class TestNumericStatsMixin(unittest.TestCase):
             "bin_counts": np.array([1, 1, 1]),
             "bin_edges": np.array([1.0, 2.0, 3.0, 4.0]),
         }
-        actual_profile._load_hist_helper(mock_saved_profile)
+        actual_profile._load_stats_helper(mock_saved_profile)
 
         test_utils.assert_profiles_equal(expected_profile, actual_profile)
 
@@ -1195,7 +1195,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": [bin_num for bin_num in range(999)],
+                    "quantiles": None,
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",

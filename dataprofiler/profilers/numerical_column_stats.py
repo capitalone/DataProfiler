@@ -79,6 +79,8 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         self._mode_is_enabled: bool = True
         self.num_zeros: int = 0
         self.num_negatives: int = 0
+        self._num_quantiles: int = 1000  # TODO: add to options
+
         if options:
             self.bias_correction = options.bias_correction.is_enabled
             self._top_k_modes = options.mode.top_k_modes
@@ -108,8 +110,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                 "suggested_bin_count": self.min_histogram_bin,
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
-        num_quantiles: int = 1000  # TODO: add to options
-        self.quantiles: list[float] = [bin_num for bin_num in range(num_quantiles - 1)]
+        self.quantiles: list[float] | None = None
         self.__calculations = {
             "min": NumericStatsMixin._get_min,
             "max": NumericStatsMixin._get_max,
@@ -358,7 +359,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
         return profile
 
-    def _load_hist_helper(self, data):
+    def _load_stats_helper(self, data):
         # Pop off stuff specific to numerical stats
         hist = data.pop("_stored_histogram")
         # Convert hist lists to numpy arrays
@@ -370,6 +371,23 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                     for x in hist[key].keys()
                 }
             self._stored_histogram[key] = value
+        # Convert values to correct types
+        if self.min is not None:
+            self.min = (
+                np.float64(self.min) if type(self.min) == float else np.int64(self.min)
+            )
+        if self.max is not None:
+            self.max = (
+                np.float64(self.max) if type(self.max) == float else np.int64(self.max)
+            )
+        if self.sum is not None:
+            self.sum = (
+                np.float64(self.sum) if type(self.sum) == float else np.int64(self.sum)
+            )
+        if self.num_zeros is not None:
+            self.num_zeros = np.int64(self.num_zeros)
+        if self.num_negatives is not None:
+            self.num_negatives = np.int64(self.num_zeros)
 
     def diff(
         self,
@@ -428,7 +446,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         """Return mean value."""
         if self.match_count == 0:
             return 0.0
-        return float(self.sum) / self.match_count
+        return self.sum / self.match_count
 
     @property
     def mode(self) -> list[float]:
@@ -1551,7 +1569,9 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
         :return: list of quantiles
         """
-        percentiles: np.ndarray = np.linspace(0, 100, len(self.quantiles) + 2)[1:-1]
+        percentiles: np.ndarray = np.linspace(0, 100, (self._num_quantiles - 1) + 2)[
+            1:-1
+        ]
         self.quantiles = self._get_percentile(percentiles=percentiles)
 
     def _update_helper(self, df_series_clean: pd.Series, profile: dict) -> None:
@@ -1593,7 +1613,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         subset_properties: dict,
     ) -> None:
         min_value = df_series.min()
-        self.min = float(min_value) if not self.min else float(min(self.min, min_value))
+        self.min = min_value if not self.min else min(self.min, min_value)
         subset_properties["min"] = min_value
 
     @BaseColumnProfiler._timeit(name="max")
@@ -1604,7 +1624,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         subset_properties: dict,
     ) -> None:
         max_value = df_series.max()
-        self.max = float(max_value) if not self.max else float(max(self.max, max_value))
+        self.max = max_value if not self.max else max(self.max, max_value)
         subset_properties["max"] = max_value
 
     @BaseColumnProfiler._timeit(name="sum")
@@ -1627,7 +1647,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             )
 
         subset_properties["sum"] = sum_value
-        self.sum = float(self.sum + sum_value)
+        self.sum = self.sum + sum_value
 
     @BaseColumnProfiler._timeit(name="variance")
     def _get_variance(
@@ -1650,15 +1670,13 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         batch_count = subset_properties["match_count"]
         batch_mean = 0.0 if not batch_count else float(sum_value) / batch_count
         subset_properties["mean"] = batch_mean
-        self._biased_variance = float(
-            self._merge_biased_variance(
-                self.match_count,
-                self._biased_variance,
-                prev_dependent_properties["mean"],
-                batch_count,
-                batch_biased_variance,
-                batch_mean,
-            )
+        self._biased_variance = self._merge_biased_variance(
+            self.match_count,
+            self._biased_variance,
+            prev_dependent_properties["mean"],
+            batch_count,
+            batch_biased_variance,
+            batch_mean,
         )
 
     @BaseColumnProfiler._timeit(name="skewness")
@@ -1790,7 +1808,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         """
         num_zeros_value = (df_series == 0).sum()
         subset_properties["num_zeros"] = num_zeros_value
-        self.num_zeros = int(self.num_zeros + num_zeros_value)
+        self.num_zeros = self.num_zeros + num_zeros_value
 
     @BaseColumnProfiler._timeit(name="num_negatives")
     def _get_num_negatives(
@@ -1812,7 +1830,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         """
         num_negatives_value = (df_series < 0).sum()
         subset_properties["num_negatives"] = num_negatives_value
-        self.num_negatives = int(self.num_negatives + num_negatives_value)
+        self.num_negatives = self.num_negatives + num_negatives_value
 
     @abc.abstractmethod
     def update(self, df_series: pd.Series) -> NumericStatsMixin:

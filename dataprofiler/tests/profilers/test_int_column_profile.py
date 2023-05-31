@@ -36,10 +36,7 @@ class TestIntColumn(unittest.TestCase):
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
-        self.assertListEqual(
-            [profiler.quantiles[k] for k in (0, 1, 2)],
-            [0, 1, 2],
-        )
+        self.assertIsNone(profiler.quantiles)
         self.assertIsNone(profiler.data_type_ratio)
 
     def test_single_data_variance_case(self):
@@ -1147,6 +1144,7 @@ class TestIntColumn(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 0,
                     "num_negatives": 0,
+                    "_num_quantiles": 1000,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
                         "total_loss": 0,
@@ -1155,7 +1153,7 @@ class TestIntColumn(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": [bin_num for bin_num in range(999)],
+                    "quantiles": None,
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",
@@ -1228,6 +1226,7 @@ class TestIntColumn(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 1,
                     "num_negatives": 0,
+                    "_num_quantiles": 1000,
                     "histogram_methods": {
                         "custom": {
                             "total_loss": 0,

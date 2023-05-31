@@ -191,6 +191,8 @@ def assert_profiles_equal(actual, expected):
         # Condition to test whether the types are equal when a value can be float or float64
         if type(actual_value) is np.float64 or type(expected_value) is np.float64:
             assert type(float(actual_value)) == type(float(expected_value))
+        elif type(actual_value) is np.int64 or type(expected_value) is np.int64:
+            assert type(int(actual_value)) == type(int(expected_value))
         else:
             assert type(actual_value) == type(expected_value)
 

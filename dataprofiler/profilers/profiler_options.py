@@ -985,7 +985,9 @@ class CorrelationOptions(BaseInspectorOptions):
 class HyperLogLogOptions(BooleanOption):
     """Options for alternative method of gathering unique row count."""
 
-    def __init__(self, is_enabled: bool = False, seed: int = 0) -> None:
+    def __init__(
+        self, is_enabled: bool = False, seed: int = 0, register_count: int = 10
+    ) -> None:
         """
         Initialize options for the hyperloglog method of gathering unique row count.
 
@@ -993,9 +995,12 @@ class HyperLogLogOptions(BooleanOption):
         :vartype is_enabled: bool
         :ivar seed: seed used to set HLL hashing function
         :vartype seed: int
+        :ivar register_count: number of registers is equal to 2^register_count
+        :vartype register_count: int
         """
         BooleanOption.__init__(self, is_enabled=is_enabled)
         self.seed = seed
+        self.register_count = register_count
 
     def _validate_helper(self, variable_path: str = "HyperLogLogOptions") -> list[str]:
         """
@@ -1008,8 +1013,13 @@ class HyperLogLogOptions(BooleanOption):
         """
         errors = super()._validate_helper(variable_path=variable_path)
 
+        if not isinstance(self.register_count, int):
+            errors.append(f"{variable_path}.register_count must be an integer.")
+        elif self.register_count <= 0:
+            errors.append(f"{variable_path}.register_count must be greater than 0.")
+
         if not isinstance(self.seed, int):
-            errors = [f"{variable_path}.seed must be an int."]
+            errors.append(f"{variable_path}.seed must be an integer.")
         return errors
 
 

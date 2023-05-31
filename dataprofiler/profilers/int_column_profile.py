@@ -72,6 +72,23 @@ class IntColumn(
         """
         return self.profile
 
+    @classmethod
+    def load_from_dict(cls, data):
+        """
+        Parse attribute from json dictionary into self.
+
+        :param data: dictionary with attributes and values.
+        :type data: dict[string, Any]
+
+        :return: Profiler with attributes populated.
+        :rtype: CategoricalColumn
+        """
+        # This is an ambiguous call to super classes.
+        # If load_from_dict is part of both super classes there may be issues
+        profile = super().load_from_dict(data)
+        profile._load_hist_helper(data)
+        return profile
+
     @property
     def profile(self) -> dict:
         """

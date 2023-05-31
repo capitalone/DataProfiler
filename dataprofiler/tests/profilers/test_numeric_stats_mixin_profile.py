@@ -13,6 +13,8 @@ from dataprofiler.profilers.base_column_profilers import BaseColumnProfiler
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import NumericalOptions
 
+from . import utils as test_utils
+
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 
@@ -395,6 +397,37 @@ class TestNumericStatsMixin(unittest.TestCase):
                 df_series, prev_dependent_properties, subset_properties
             )
             self.assertEqual(expected, num_profiler.times)
+
+    def test_from_dict_helper(self):
+        fake_profile_name = "Fake profile name"
+
+        # Build expected CategoricalColumn
+        actual_profile = TestColumn()
+        expected_profile = TestColumn()
+        mock_saved_profile = dict(
+            {
+                "quantiles": [30, 6],
+                "_stored_histogram": {
+                    "total_loss": 0,
+                    "current_loss": 0,
+                    "suggested_bin_count": 1000,
+                    "histogram": {
+                        "bin_counts": [1, 1, 1],
+                        "bin_edges": [1.0, 2.0, 3.0, 4.0],
+                    },
+                },
+            }
+        )
+        expected_profile._stored_histogram = mock_saved_profile["_stored_histogram"]
+        expected_profile._stored_histogram["quantiles"] = [30.0, 6.0]
+
+        expected_profile._stored_histogram["histogram"] = {
+            "bin_counts": np.array([1, 1, 1]),
+            "bin_edges": np.array([1.0, 2.0, 3.0, 4.0]),
+        }
+        actual_profile._load_hist_helper(mock_saved_profile)
+
+        test_utils.assert_profiles_equal(expected_profile, actual_profile)
 
     def test_histogram_bin_error(self):
         num_profiler = TestColumn()
@@ -1203,7 +1236,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": {bin_num: None for bin_num in range(999)},
+                    "quantiles": [bin_num for bin_num in range(999)],
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",

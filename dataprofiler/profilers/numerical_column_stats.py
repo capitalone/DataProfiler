@@ -112,9 +112,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 "histogram": {"bin_counts": None, "bin_edges": None},
             }
         num_quantiles: int = 1000  # TODO: add to options
-        self.quantiles: list[float] | dict = {
-            bin_num: None for bin_num in range(num_quantiles - 1)
-        }
+        self.quantiles: list[float] = [bin_num for bin_num in range(num_quantiles - 1)]
         self.__calculations = {
             "min": NumericStatsMixin._get_min,
             "max": NumericStatsMixin._get_max,
@@ -424,6 +422,19 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
                 profile.pop(profile_key)
 
         return profile
+
+    def _load_hist_helper(self, data):
+        # Pop off stuff specific to numerical stats
+        hist = data.pop("_stored_histogram")
+        # Convert hist lists to numpy arrays
+        for key in hist.keys():
+            value = hist[key]
+            if key == "histogram":
+                value = {
+                    x: np.array(hist[key][x]) if hist[key][x] is not None else None
+                    for x in hist[key].keys()
+                }
+            self._stored_histogram[key] = value
 
     def diff(
         self,
@@ -1689,7 +1700,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         subset_properties: dict,
     ) -> None:
         min_value = df_series.min()
-        self.min = min_value if not self.min else min(self.min, min_value)
+        self.min = float(min_value) if not self.min else float(min(self.min, min_value))
         subset_properties["min"] = min_value
 
     @BaseColumnProfiler._timeit(name="max")
@@ -1700,7 +1711,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         subset_properties: dict,
     ) -> None:
         max_value = df_series.max()
-        self.max = max_value if not self.max else max(self.max, max_value)
+        self.max = float(max_value) if not self.max else float(max(self.max, max_value))
         subset_properties["max"] = max_value
 
     @BaseColumnProfiler._timeit(name="sum")
@@ -1723,7 +1734,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
             )
 
         subset_properties["sum"] = sum_value
-        self.sum = self.sum + sum_value
+        self.sum = float(self.sum + sum_value)
 
     @BaseColumnProfiler._timeit(name="variance")
     def _get_variance(
@@ -1746,13 +1757,15 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         batch_count = subset_properties["match_count"]
         batch_mean = 0.0 if not batch_count else float(sum_value) / batch_count
         subset_properties["mean"] = batch_mean
-        self._biased_variance = self._merge_biased_variance(
-            self.match_count,
-            self._biased_variance,
-            prev_dependent_properties["mean"],
-            batch_count,
-            batch_biased_variance,
-            batch_mean,
+        self._biased_variance = float(
+            self._merge_biased_variance(
+                self.match_count,
+                self._biased_variance,
+                prev_dependent_properties["mean"],
+                batch_count,
+                batch_biased_variance,
+                batch_mean,
+            )
         )
 
     @BaseColumnProfiler._timeit(name="skewness")
@@ -1884,7 +1897,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         """
         num_zeros_value = (df_series == 0).sum()
         subset_properties["num_zeros"] = num_zeros_value
-        self.num_zeros = self.num_zeros + num_zeros_value
+        self.num_zeros = int(self.num_zeros + num_zeros_value)
 
     @BaseColumnProfiler._timeit(name="num_negatives")
     def _get_num_negatives(
@@ -1906,7 +1919,7 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         """
         num_negatives_value = (df_series < 0).sum()
         subset_properties["num_negatives"] = num_negatives_value
-        self.num_negatives = self.num_negatives + num_negatives_value
+        self.num_negatives = int(self.num_negatives + num_negatives_value)
 
     @abc.abstractmethod
     def update(self, df_series: pd.Series) -> NumericStatsMixin:

@@ -152,9 +152,9 @@ class NumericStatsMixin(BaseColumnProfiler[NumericStatsMixinT], metaclass=abc.AB
         Add histogram of two profiles together.
 
         :param other1: profile1 being added to self
-        :type other1: BaseColumnProfiler
+        :type other1: NumericStatsMixin
         :param other2: profile2 being added to self
-        :type other2: BaseColumnProfiler
+        :type other2: NumericStatsMixin
         :return: None
         """
         # get available bin methods and set to current

@@ -17,7 +17,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .highlight .p { color: #d0d0d0 } /* Punctuation */
 .highlight .ch { color: #ababab; font-style: italic } /* Comment.Hashbang */
 .highlight .cm { color: #ababab; font-style: italic } /* Comment.Multiline */
-.highlight .cp { color: #cd2828; font-weight: bold } /* Comment.Preproc */
+.highlight .cp { color: #ff3a3a; font-weight: bold } /* Comment.Preproc */
 .highlight .cpf { color: #ababab; font-style: italic } /* Comment.PreprocFile */
 .highlight .c1 { color: #ababab; font-style: italic } /* Comment.Single */
 .highlight .cs { color: #e50808; font-weight: bold; background-color: #520000 } /* Comment.Special */

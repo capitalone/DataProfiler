@@ -479,17 +479,17 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">pprint</span>
+<span></span>import os
+import sys
+import pprint
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+try:
+    sys.path.insert(0, '..')
+    import dataprofiler as dp
+except ImportError:
+    import dataprofiler as dp
 
-<span class="n">data_path</span> <span class="o">=</span> <span class="s2">"../dataprofiler/tests/data"</span>
+data_path = "../dataprofiler/tests/data"
 </pre></div>
 </div>
 </div>
@@ -499,13 +499,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/graph_data_csv_identify.csv"</span><span class="p">))</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span></span>data = dp.Data(os.path.join(data_path, "csv/graph_data_csv_identify.csv"))
+profile = dp.Profiler(data)
 
-<span class="n">report</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+report = profile.report()
 
-<span class="n">pp</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+pp = pprint.PrettyPrinter(sort_dicts=False, compact=True)
+pp.pprint(report)
 </pre></div>
 </div>
 </div>
@@ -555,11 +555,11 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># The default save filepath is profile-&lt;datetime&gt;.pkl</span>
-<span class="n">profile</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">"profile.pkl"</span><span class="p">)</span>
+<span></span># The default save filepath is profile-&lt;datetime&gt;.pkl
+profile.save(filepath="profile.pkl")
 
-<span class="n">new_profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">GraphProfiler</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"profile.pkl"</span><span class="p">)</span>
-<span class="n">new_report</span> <span class="o">=</span> <span class="n">new_profile</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+new_profile = dp.GraphProfiler.load("profile.pkl")
+new_report = new_profile.report()
 </pre></div>
 </div>
 </div>
@@ -568,7 +568,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+<span></span>pp.pprint(report)
 </pre></div>
 </div>
 </div>
@@ -581,7 +581,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">diff</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">new_profile</span><span class="p">)</span>
+<span></span>diff = profile.diff(new_profile)
 </pre></div>
 </div>
 </div>
@@ -590,7 +590,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+<span></span>pp.pprint(diff)
 </pre></div>
 </div>
 </div>
@@ -600,12 +600,12 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">training_profile</span> <span class="o">=</span> <span class="n">profile</span>
+<span></span>training_profile = profile
 
-<span class="n">testing_data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="s2">"csv/graph-differentiator-input-positive.csv"</span><span class="p">))</span>
-<span class="n">testing_profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">testing_data</span><span class="p">)</span>
+testing_data = dp.Data(os.path.join(data_path, "csv/graph-differentiator-input-positive.csv"))
+testing_profile = dp.Profiler(testing_data)
 
-<span class="n">test_train_diff</span> <span class="o">=</span> <span class="n">training_profile</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">testing_profile</span><span class="p">)</span>
+test_train_diff = training_profile.diff(testing_profile)
 </pre></div>
 </div>
 </div>
@@ -615,7 +615,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="n">test_train_diff</span><span class="p">)</span>
+<span></span>pp.pprint(test_train_diff)
 </pre></div>
 </div>
 </div>

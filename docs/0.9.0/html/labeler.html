@@ -484,20 +484,20 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span></span>import os
+import sys
+import json
+import pandas as pd
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'..'</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+try:
+    sys.path.insert(0, '..')
+    import dataprofiler as dp
+except ImportError:
+    import dataprofiler as dp
 
-<span class="c1"># remove extra tf loggin</span>
-<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
-<span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">tf</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+# remove extra tf loggin
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 </pre></div>
 </div>
 </div>
@@ -510,9 +510,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s2">"../dataprofiler/tests/data/csv/SchoolDataSmall.csv"</span><span class="p">)</span>
-<span class="n">df_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span>
-<span class="n">df_data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span></span>data = dp.Data("../dataprofiler/tests/data/csv/SchoolDataSmall.csv")
+df_data = data.data
+df_data.head()
 </pre></div>
 </div>
 </div>
@@ -522,24 +522,24 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">)</span>
+<span></span>labeler = dp.DataLabeler(labeler_type='structured')
 
-<span class="c1"># print out the labels and label mapping</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Labels: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labeler</span><span class="o">.</span><span class="n">labels</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Label Mapping: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">labeler</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+# print out the labels and label mapping
+print("Labels: {}".format(labeler.labels))
+print("\n")
+print("Label Mapping: {}".format(labeler.label_mapping))
+print("\n")
 
-<span class="c1"># make predictions and get labels for each cell going row by row</span>
-<span class="c1"># predict options are model dependent and the default model can show prediction confidences</span>
-<span class="n">predictions</span> <span class="o">=</span> <span class="n">labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">predict_options</span><span class="o">=</span><span class="p">{</span><span class="s2">"show_confidences"</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+# make predictions and get labels for each cell going row by row
+# predict options are model dependent and the default model can show prediction confidences
+predictions = labeler.predict(data, predict_options={"show_confidences": True})
 
-<span class="c1"># display prediction results</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Predictions: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="s1">'pred'</span><span class="p">]))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+# display prediction results
+print("Predictions: {}".format(predictions['pred']))
+print("\n")
 
-<span class="c1"># display confidence results</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Confidences: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="s1">'conf'</span><span class="p">]))</span>
+# display confidence results
+print("Confidences: {}".format(predictions['conf']))
 </pre></div>
 </div>
 </div>
@@ -549,31 +549,31 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># helper functions for printing results</span>
+<span></span># helper functions for printing results
 
-<span class="k">def</span> <span class="nf">get_structured_results</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Helper function to get data labels for each column."""</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">predictions</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">'data_stats'</span><span class="p">]:</span>
-        <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="s1">'column_name'</span><span class="p">])</span>
-        <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="s1">'data_label'</span><span class="p">])</span>
-        <span class="n">samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="s1">'samples'</span><span class="p">])</span>
+def get_structured_results(results):
+    """Helper function to get data labels for each column."""
+    columns = []
+    predictions = []
+    samples = []
+    for col in results['data_stats']:
+        columns.append(col['column_name'])
+        predictions.append(col['data_label'])
+        samples.append(col['samples'])
 
-    <span class="n">df_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'Column'</span><span class="p">:</span> <span class="n">columns</span><span class="p">,</span> <span class="s1">'Prediction'</span><span class="p">:</span> <span class="n">predictions</span><span class="p">,</span> <span class="s1">'Sample'</span><span class="p">:</span> <span class="n">samples</span><span class="p">})</span>
-    <span class="k">return</span> <span class="n">df_results</span>
+    df_results = pd.DataFrame({'Column': columns, 'Prediction': predictions, 'Sample': samples})
+    return df_results
 
-<span class="k">def</span> <span class="nf">get_unstructured_results</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Helper function to get data labels for each labeled piece of text."""</span>
-    <span class="n">labeled_data</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">results</span><span class="p">[</span><span class="s1">'pred'</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
-        <span class="n">labeled_data</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">pred</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">pred</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">pred</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
-    <span class="n">label_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">labeled_data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">'Text'</span><span class="p">,</span> <span class="s1">'Labels'</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">label_df</span>
+def get_unstructured_results(data, results):
+    """Helper function to get data labels for each labeled piece of text."""
+    labeled_data = []
+    for pred in results['pred'][0]:
+        labeled_data.append([data[0][pred[0]:pred[1]], pred[2]])
+    label_df = pd.DataFrame(labeled_data, columns=['Text', 'Labels'])
+    return label_df
 
 
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">'display.width'</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+pd.set_option('display.width', 100)
 </pre></div>
 </div>
 </div>
@@ -582,20 +582,20 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># set options to only run the labeler</span>
-<span class="n">profile_options</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">ProfilerOptions</span><span class="p">()</span>
-<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s2">"structured_options.text.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"int.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"float.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"order.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"category.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"chi2_homogeneity.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-                     <span class="s2">"datetime.is_enabled"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,})</span>
+<span></span># set options to only run the labeler
+profile_options = dp.ProfilerOptions()
+profile_options.set({"structured_options.text.is_enabled": False,
+                     "int.is_enabled": False,
+                     "float.is_enabled": False,
+                     "order.is_enabled": False,
+                     "category.is_enabled": False,
+                     "chi2_homogeneity.is_enabled": False,
+                     "datetime.is_enabled": False,})
 
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profile_options</span><span class="p">)</span>
+profile = dp.Profiler(data, options=profile_options)
 
-<span class="n">results</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">get_structured_results</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+results = profile.report()
+print(get_structured_results(results))
 </pre></div>
 </div>
 </div>
@@ -609,36 +609,36 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># load data</span>
-<span class="n">data</span> <span class="o">=</span> <span class="s2">"Message-ID: &lt;11111111.1111111111111.JavaMail.evans@thyme&gt;</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"Date: Fri, 10 Aug 2005 11:31:37 -0700 (PDT)</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"From: w..smith@company.com</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"To: john.smith@company.com</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"Subject: RE: ABC</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"Mime-Version: 1.0</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"Content-Type: text/plain; charset=us-ascii</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"Content-Transfer-Encoding: 7bit</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"X-From: Smith, Mary W. &lt;/O=ENRON/OU=NA/CN=RECIPIENTS/CN=SSMITH&gt;</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"X-To: Smith, John &lt;/O=ENRON/OU=NA/CN=RECIPIENTS/CN=JSMITH&gt;</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"X-cc: </span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"X-bcc: </span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"X-Folder: \SSMITH (Non-Privileged)\Sent Items</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"X-Origin: Smith-S</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"X-FileName: SSMITH (Non-Privileged).pst</span><span class="se">\n\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"All I ever saw was the e-mail from the office.</span><span class="se">\n\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"Mary</span><span class="se">\n\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"-----Original Message-----</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"From:   Smith, John  </span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"Sent:   Friday, August 10, 2005 13:07 PM</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"To:     Smith, Mary W.</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"Subject:        ABC</span><span class="se">\n\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"Have you heard any more regarding the ABC sale? I guess that means that "</span> <span class="o">+</span> \
-        <span class="s2">"it's no big deal here, but you think they would have send something.</span><span class="se">\n\n\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"John Smith</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> \
-        <span class="s2">"123-456-7890</span><span class="se">\n</span><span class="s2">"</span>
+<span></span># load data
+data = "Message-ID: &lt;11111111.1111111111111.JavaMail.evans@thyme&gt;\n" + \
+        "Date: Fri, 10 Aug 2005 11:31:37 -0700 (PDT)\n" + \
+        "From: w..smith@company.com\n" + \
+        "To: john.smith@company.com\n" + \
+        "Subject: RE: ABC\n" + \
+        "Mime-Version: 1.0\n" + \
+        "Content-Type: text/plain; charset=us-ascii\n" + \
+        "Content-Transfer-Encoding: 7bit\n" + \
+        "X-From: Smith, Mary W. &lt;/O=ENRON/OU=NA/CN=RECIPIENTS/CN=SSMITH&gt;\n" + \
+        "X-To: Smith, John &lt;/O=ENRON/OU=NA/CN=RECIPIENTS/CN=JSMITH&gt;\n" + \
+        "X-cc: \n" + \
+        "X-bcc: \n" + \
+        "X-Folder: \SSMITH (Non-Privileged)\Sent Items\n" + \
+        "X-Origin: Smith-S\n" + \
+        "X-FileName: SSMITH (Non-Privileged).pst\n\n" + \
+        "All I ever saw was the e-mail from the office.\n\n" + \
+        "Mary\n\n" + \
+        "-----Original Message-----\n" + \
+        "From:   Smith, John  \n" + \
+        "Sent:   Friday, August 10, 2005 13:07 PM\n" + \
+        "To:     Smith, Mary W.\n" + \
+        "Subject:        ABC\n\n" + \
+        "Have you heard any more regarding the ABC sale? I guess that means that " + \
+        "it's no big deal here, but you think they would have send something.\n\n\n" + \
+        "John Smith\n" + \
+        "123-456-7890\n"
 
-<span class="c1"># convert string data to list to feed into the labeler</span>
-<span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span>
+# convert string data to list to feed into the labeler
+data = [data]
 </pre></div>
 </div>
 </div>
@@ -648,13 +648,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'unstructured'</span><span class="p">)</span>
+<span></span>labeler = dp.DataLabeler(labeler_type='unstructured')
 
-<span class="c1"># make predictions and get labels per character</span>
-<span class="n">predictions</span> <span class="o">=</span> <span class="n">labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+# make predictions and get labels per character
+predictions = labeler.predict(data)
 
-<span class="c1"># display results</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="s1">'pred'</span><span class="p">])</span>
+# display results
+print(predictions['pred'])
 </pre></div>
 </div>
 </div>
@@ -664,21 +664,21 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># convert prediction to word format and ner format</span>
-<span class="c1"># Set the output to the NER format (start position, end position, label)</span>
-<span class="n">labeler</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span>
-    <span class="p">{</span> <span class="s1">'postprocessor'</span><span class="p">:</span> <span class="p">{</span> <span class="s1">'output_format'</span><span class="p">:</span><span class="s1">'ner'</span><span class="p">,</span> <span class="s1">'use_word_level_argmax'</span><span class="p">:</span><span class="kc">True</span> <span class="p">}</span> <span class="p">}</span>
-<span class="p">)</span>
+<span></span># convert prediction to word format and ner format
+# Set the output to the NER format (start position, end position, label)
+labeler.set_params(
+    { 'postprocessor': { 'output_format':'ner', 'use_word_level_argmax':True } }
+)
 
-<span class="c1"># make predictions and get labels per character</span>
-<span class="n">predictions</span> <span class="o">=</span> <span class="n">labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+# make predictions and get labels per character
+predictions = labeler.predict(data)
 
-<span class="c1"># display results</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">'=======================Prediction======================</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">[</span><span class="s1">'pred'</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">pred</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">pred</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">pred</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">'--------------------------------------------------------'</span><span class="p">)</span>
+# display results
+print('\n')
+print('=======================Prediction======================\n')
+for pred in predictions['pred'][0]:
+    print('{}: {}'.format(data[0][pred[0]: pred[1]], pred[2]))
+    print('--------------------------------------------------------')
 </pre></div>
 </div>
 </div>
@@ -692,26 +692,26 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s2">"../dataprofiler/tests/data/csv/SchoolDataSmall.csv"</span><span class="p">)</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="s2">"OPEID6"</span><span class="p">,</span> <span class="s2">"INSTURL"</span><span class="p">,</span> <span class="s2">"SEARCH_STRING"</span><span class="p">]]</span>
-<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span></span>data = dp.Data("../dataprofiler/tests/data/csv/SchoolDataSmall.csv")
+df = data.data[["OPEID6", "INSTURL", "SEARCH_STRING"]]
+df.head()
 
-<span class="c1"># split data to training and test set</span>
-<span class="n">split_ratio</span> <span class="o">=</span> <span class="mf">0.2</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">data_train</span> <span class="o">=</span> <span class="n">df</span><span class="p">[:</span><span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">split_ratio</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))]</span>
-<span class="n">data_test</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">split_ratio</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)):]</span>
+# split data to training and test set
+split_ratio = 0.2
+df = df.sample(frac=1).reset_index(drop=True)
+data_train = df[:int((1 - split_ratio) * len(df))]
+data_test = df[int((1 - split_ratio) * len(df)):]
 
-<span class="c1"># train a new labeler with column names as labels</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'data_labeler_saved'</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">'data_labeler_saved'</span><span class="p">)</span>
+# train a new labeler with column names as labels
+if not os.path.exists('data_labeler_saved'):
+    os.makedirs('data_labeler_saved')
 
-<span class="n">labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">train_structured_labeler</span><span class="p">(</span>
-    <span class="n">data</span><span class="o">=</span><span class="n">data_train</span><span class="p">,</span>
-    <span class="n">save_dirpath</span><span class="o">=</span><span class="s2">"data_labeler_saved"</span><span class="p">,</span>
-    <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">default_label</span><span class="o">=</span><span class="s2">"OPEID6"</span>
-<span class="p">)</span>
+labeler = dp.train_structured_labeler(
+    data=data_train,
+    save_dirpath="data_labeler_saved",
+    epochs=10,
+    default_label="OPEID6"
+)
 
 </pre></div>
 </div>
@@ -722,13 +722,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># predict with the labeler object</span>
-<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s1">'structured_options.data_labeler.data_labeler_object'</span><span class="p">:</span> <span class="n">labeler</span><span class="p">})</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data_test</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profile_options</span><span class="p">)</span>
+<span></span># predict with the labeler object
+profile_options.set({'structured_options.data_labeler.data_labeler_object': labeler})
+profile = dp.Profiler(data_test, options=profile_options)
 
-<span class="c1"># get the prediction from the data profiler</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">get_structured_results</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+# get the prediction from the data profiler
+results = profile.report()
+print(get_structured_results(results))
 </pre></div>
 </div>
 </div>
@@ -738,13 +738,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># predict with the labeler loaded from path</span>
-<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s1">'structured_options.data_labeler.data_labeler_dirpath'</span><span class="p">:</span> <span class="s1">'data_labeler_saved'</span><span class="p">})</span>
-<span class="n">profile</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data_test</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profile_options</span><span class="p">)</span>
+<span></span># predict with the labeler loaded from path
+profile_options.set({'structured_options.data_labeler.data_labeler_dirpath': 'data_labeler_saved'})
+profile = dp.Profiler(data_test, options=profile_options)
 
-<span class="c1"># get the prediction from the data profiler</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">get_structured_results</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+# get the prediction from the data profiler
+results = profile.report()
+print(get_structured_results(results))
 </pre></div>
 </div>
 </div>
@@ -757,29 +757,29 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="s2">"../dataprofiler/tests/data/csv/SchoolDataSmall.csv"</span><span class="p">)</span>
-<span class="n">df_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="s2">"OPEID6"</span><span class="p">,</span> <span class="s2">"INSTURL"</span><span class="p">,</span> <span class="s2">"SEARCH_STRING"</span><span class="p">]]</span>
+<span></span>data = dp.Data("../dataprofiler/tests/data/csv/SchoolDataSmall.csv")
+df_data = data.data[["OPEID6", "INSTURL", "SEARCH_STRING"]]
 
 
-<span class="c1"># prep data</span>
-<span class="n">df_data</span> <span class="o">=</span> <span class="n">df_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">melt</span><span class="p">()</span>
-<span class="n">df_data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># labels=1, values=0 in that order</span>
-<span class="n">df_data</span> <span class="o">=</span> <span class="n">df_data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-<span class="n">new_labels</span> <span class="o">=</span> <span class="n">df_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+# prep data
+df_data = df_data.reset_index(drop=True).melt()
+df_data.columns = [1, 0]  # labels=1, values=0 in that order
+df_data = df_data.astype(str)
+new_labels = df_data[1].unique().tolist()
 
-<span class="c1"># load structured Labeler w/ trainable set to True</span>
-<span class="n">labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">,</span> <span class="n">trainable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+# load structured Labeler w/ trainable set to True
+labeler = dp.DataLabeler(labeler_type='structured', trainable=True)
 
-<span class="c1"># Reconstruct the model to add each new label</span>
-<span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">new_labels</span><span class="p">:</span>
-    <span class="n">labeler</span><span class="o">.</span><span class="n">add_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+# Reconstruct the model to add each new label
+for label in new_labels:
+    labeler.add_label(label)
 
-<span class="c1"># this will use transfer learning to retrain the labeler on your new</span>
-<span class="c1"># dataset and labels.</span>
-<span class="c1"># Setting labels with a list of labels or label mapping will overwrite the existing labels with new ones</span>
-<span class="c1"># Setting the reset_weights parameter to false allows transfer learning to occur</span>
-<span class="n">model_results</span> <span class="o">=</span> <span class="n">labeler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">df_data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
-                                 <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reset_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+# this will use transfer learning to retrain the labeler on your new
+# dataset and labels.
+# Setting labels with a list of labels or label mapping will overwrite the existing labels with new ones
+# Setting the reset_weights parameter to false allows transfer learning to occur
+model_results = labeler.fit(x=df_data[0], y=df_data[1], validation_split=0.2,
+                                 epochs=10, labels=None, reset_weights=False)
 </pre></div>
 </div>
 </div>
@@ -789,13 +789,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">{:16s}</span><span class="s2">  Precision  Recall  F1-score  Support"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">""</span><span class="p">))</span>
-<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">model_results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">{:16s}</span><span class="s2">  </span><span class="si">{:4.3f}</span><span class="s2">      </span><span class="si">{:4.3f}</span><span class="s2">   </span><span class="si">{:4.3f}</span><span class="s2">     </span><span class="si">{:7.0f}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">,</span>
-                                                                      <span class="n">model_results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">item</span><span class="p">][</span><span class="s2">"precision"</span><span class="p">],</span>
-                                                                      <span class="n">model_results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">item</span><span class="p">][</span><span class="s2">"recall"</span><span class="p">],</span>
-                                                                      <span class="n">model_results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">item</span><span class="p">][</span><span class="s2">"f1-score"</span><span class="p">],</span>
-                                                                      <span class="n">model_results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="n">item</span><span class="p">][</span><span class="s2">"support"</span><span class="p">]))</span>
+<span></span>print("{:16s}  Precision  Recall  F1-score  Support".format(""))
+for item in model_results[-1][2]:
+    print("{:16s}  {:4.3f}      {:4.3f}   {:4.3f}     {:7.0f}".format(item,
+                                                                      model_results[-1][2][item]["precision"],
+                                                                      model_results[-1][2][item]["recall"],
+                                                                      model_results[-1][2][item]["f1-score"],
+                                                                      model_results[-1][2][item]["support"]))
 </pre></div>
 </div>
 </div>
@@ -809,15 +809,15 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Ensure save directory exists</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">'my_labeler'</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">'my_labeler'</span><span class="p">)</span>
+<span></span># Ensure save directory exists
+if not os.path.exists('my_labeler'):
+    os.makedirs('my_labeler')
 
-<span class="c1"># Saving the labeler</span>
-<span class="n">labeler</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span><span class="s2">"my_labeler"</span><span class="p">)</span>
+# Saving the labeler
+labeler.save_to_disk("my_labeler")
 
-<span class="c1"># Loading the labeler</span>
-<span class="n">labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">,</span> <span class="n">dirpath</span><span class="o">=</span><span class="s2">"my_labeler"</span><span class="p">)</span>
+# Loading the labeler
+labeler = dp.DataLabeler(labeler_type='structured', dirpath="my_labeler")
 </pre></div>
 </div>
 </div>
@@ -830,39 +830,39 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">random</span>
-<span class="kn">from</span> <span class="nn">dataprofiler.labelers.character_level_cnn_model</span> <span class="kn">import</span> \
-    <span class="n">CharacterLevelCnnModel</span>
-<span class="kn">from</span> <span class="nn">dataprofiler.labelers.data_processing</span> <span class="kn">import</span> \
-    <span class="n">StructCharPreprocessor</span><span class="p">,</span> <span class="n">StructCharPostprocessor</span>
+<span></span>import random
+from dataprofiler.labelers.character_level_cnn_model import \
+    CharacterLevelCnnModel
+from dataprofiler.labelers.data_processing import \
+    StructCharPreprocessor, StructCharPostprocessor
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">CharacterLevelCnnModel</span><span class="p">({</span><span class="s2">"PAD"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"UNKNOWN"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"Test_Label"</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
-<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">StructCharPreprocessor</span><span class="p">()</span>
-<span class="n">postprocessor</span> <span class="o">=</span> <span class="n">StructCharPostprocessor</span><span class="p">()</span>
+model = CharacterLevelCnnModel({"PAD":0, "UNKNOWN":1, "Test_Label":2})
+preprocessor = StructCharPreprocessor()
+postprocessor = StructCharPostprocessor()
 
-<span class="n">labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="p">(</span><span class="n">labeler_type</span><span class="o">=</span><span class="s1">'structured'</span><span class="p">)</span>
-<span class="n">labeler</span><span class="o">.</span><span class="n">set_preprocessor</span><span class="p">(</span><span class="n">preprocessor</span><span class="p">)</span>
-<span class="n">labeler</span><span class="o">.</span><span class="n">set_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-<span class="n">labeler</span><span class="o">.</span><span class="n">set_postprocessor</span><span class="p">(</span><span class="n">postprocessor</span><span class="p">)</span>
+labeler = dp.DataLabeler(labeler_type='structured')
+labeler.set_preprocessor(preprocessor)
+labeler.set_model(model)
+labeler.set_postprocessor(postprocessor)
 
-<span class="c1"># check for basic compatibility between the processors and the model</span>
-<span class="n">labeler</span><span class="o">.</span><span class="n">check_pipeline</span><span class="p">()</span>
+# check for basic compatibility between the processors and the model
+labeler.check_pipeline()
 
-<span class="c1"># Optionally set the parameters</span>
-<span class="n">parameters</span><span class="o">=</span><span class="p">{</span>
-    <span class="s1">'preprocessor'</span><span class="p">:{</span>
-        <span class="s1">'max_length'</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s1">'model'</span><span class="p">:{</span>
-        <span class="s1">'max_length'</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s1">'postprocessor'</span><span class="p">:{</span>
-        <span class="s1">'random_state'</span><span class="p">:</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-<span class="n">labeler</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">parameters</span><span class="p">)</span>
+# Optionally set the parameters
+parameters={
+    'preprocessor':{
+        'max_length': 100,
+    },
+    'model':{
+        'max_length': 100,
+    },
+    'postprocessor':{
+        'random_state': random.Random(1)
+    }
+}
+labeler.set_params(parameters)
 
-<span class="n">labeler</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
+labeler.help()
 </pre></div>
 </div>
 </div>

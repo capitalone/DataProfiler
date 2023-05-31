@@ -482,18 +482,18 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span></span>import os
+import sys
+import json
+from pprint import pprint
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+import pandas as pd
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'../..'</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+try:
+    import dataprofiler as dp
+except ImportError:
+    sys.path.insert(0, '../..')
+    import dataprofiler as dp
 </pre></div>
 </div>
 </div>
@@ -505,7 +505,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">labeler_from_library</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="o">.</span><span class="n">load_from_library</span><span class="p">(</span><span class="s1">'column_name_labeler'</span><span class="p">)</span>
+<span></span>labeler_from_library = dp.DataLabeler.load_from_library('column_name_labeler')
 </pre></div>
 </div>
 </div>
@@ -514,7 +514,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">labeler_from_library</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="s2">"ssn"</span><span class="p">])</span>
+<span></span>labeler_from_library.predict(data=["ssn"])
 </pre></div>
 </div>
 </div>
@@ -527,32 +527,32 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"true_positive_dict"</span><span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span><span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"ssn"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"ssn"</span><span class="p">},</span>
-                <span class="p">{</span><span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"suffix"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"name"</span><span class="p">},</span>
-                <span class="p">{</span><span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"my_home_address"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"address"</span><span class="p">},</span>
-            <span class="p">],</span>
-            <span class="s2">"false_positive_dict"</span><span class="p">:</span> <span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"contract_number"</span><span class="p">,</span>
-                    <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"ssn"</span><span class="p">,</span>
-                <span class="p">},</span>
-                <span class="p">{</span>
-                    <span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"role"</span><span class="p">,</span>
-                    <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"name"</span><span class="p">,</span>
-                <span class="p">},</span>
-                <span class="p">{</span>
-                    <span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"send_address"</span><span class="p">,</span>
-                    <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"address"</span><span class="p">,</span>
-                <span class="p">},</span>
-            <span class="p">],</span>
-            <span class="s2">"negative_threshold_config"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
-            <span class="s2">"positive_threshold_config"</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span>
-            <span class="s2">"include_label"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="p">}</span>
+<span></span>parameters = {
+            "true_positive_dict": [
+                {"attribute": "ssn", "label": "ssn"},
+                {"attribute": "suffix", "label": "name"},
+                {"attribute": "my_home_address", "label": "address"},
+            ],
+            "false_positive_dict": [
+                {
+                    "attribute": "contract_number",
+                    "label": "ssn",
+                },
+                {
+                    "attribute": "role",
+                    "label": "name",
+                },
+                {
+                    "attribute": "send_address",
+                    "label": "address",
+                },
+            ],
+            "negative_threshold_config": 50,
+            "positive_threshold_config": 85,
+            "include_label": True,
+        }
 
-<span class="n">label_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"ssn"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"address"</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+label_mapping = {"ssn": 1, "name": 2, "address": 3}
 </pre></div>
 </div>
 </div>
@@ -561,19 +561,19 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># pre processor</span>
-<span class="n">preprocessor</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">labelers</span><span class="o">.</span><span class="n">data_processing</span><span class="o">.</span><span class="n">DirectPassPreprocessor</span><span class="p">()</span>
+<span></span># pre processor
+preprocessor = dp.labelers.data_processing.DirectPassPreprocessor()
 
-<span class="c1"># model</span>
-<span class="kn">from</span> <span class="nn">dataprofiler.labelers.column_name_model</span> <span class="kn">import</span> <span class="n">ColumnNameModel</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">ColumnNameModel</span><span class="p">(</span>
-    <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
-    <span class="n">label_mapping</span><span class="o">=</span><span class="n">label_mapping</span><span class="p">,</span>
-<span class="p">)</span>
+# model
+from dataprofiler.labelers.column_name_model import ColumnNameModel
+model = ColumnNameModel(
+    parameters=parameters,
+    label_mapping=label_mapping,
+)
 
 
-<span class="c1"># post processor</span>
-<span class="n">postprocessor</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">labelers</span><span class="o">.</span><span class="n">data_processing</span><span class="o">.</span><span class="n">ColumnNameModelPostprocessor</span><span class="p">()</span>
+# post processor
+postprocessor = dp.labelers.data_processing.ColumnNameModelPostprocessor()
 </pre></div>
 </div>
 </div>
@@ -582,12 +582,12 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="o">.</span><span class="n">load_with_components</span><span class="p">(</span>
-    <span class="n">preprocessor</span><span class="o">=</span><span class="n">preprocessor</span><span class="p">,</span>
-    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
-    <span class="n">postprocessor</span><span class="o">=</span><span class="n">postprocessor</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
+<span></span>data_labeler = dp.DataLabeler.load_with_components(
+    preprocessor=preprocessor,
+    model=model,
+    postprocessor=postprocessor,
+)
+data_labeler.model.help()
 </pre></div>
 </div>
 </div>
@@ -596,7 +596,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pprint</span><span class="p">(</span><span class="n">data_labeler</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">)</span>
+<span></span>pprint(data_labeler.label_mapping)
 </pre></div>
 </div>
 </div>
@@ -605,7 +605,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pprint</span><span class="p">(</span><span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_parameters</span><span class="p">)</span>
+<span></span>pprint(data_labeler.model._parameters)
 </pre></div>
 </div>
 </div>
@@ -618,8 +618,8 @@ passed to the <code class="docutils literal notranslate"><span class="pre">compa
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># evaluate a prediction using the default parameters</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="s2">"ssn"</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">"address"</span><span class="p">])</span>
+<span></span># evaluate a prediction using the default parameters
+data_labeler.predict(data=["ssn", "name", "address"])
 </pre></div>
 </div>
 </div>
@@ -635,32 +635,32 @@ passed to the <code class="docutils literal notranslate"><span class="pre">compa
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">set_labels</span><span class="p">({</span><span class="s1">'other'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"funky_one"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"funky_two"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">"funky_three"</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span>
-    <span class="n">true_positive_dict</span><span class="o">=</span> <span class="p">[</span>
-                <span class="p">{</span><span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"ssn"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"funky_one"</span><span class="p">},</span>
-                <span class="p">{</span><span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"suffix"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"funky_two"</span><span class="p">},</span>
-                <span class="p">{</span><span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"my_home_address"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"funky_three"</span><span class="p">},</span>
-            <span class="p">],</span>
-    <span class="n">false_positive_dict</span><span class="o">=</span><span class="p">[</span>
-                <span class="p">{</span>
-                    <span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"contract_number"</span><span class="p">,</span>
-                    <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"ssn"</span><span class="p">,</span>
-                <span class="p">},</span>
-                <span class="p">{</span>
-                    <span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"role"</span><span class="p">,</span>
-                    <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"name"</span><span class="p">,</span>
-                <span class="p">},</span>
-                <span class="p">{</span>
-                    <span class="s2">"attribute"</span><span class="p">:</span> <span class="s2">"not_my_address"</span><span class="p">,</span>
-                    <span class="s2">"label"</span><span class="p">:</span> <span class="s2">"address"</span><span class="p">,</span>
-                <span class="p">},</span>
-            <span class="p">],</span>
-    <span class="n">negative_threshold_config</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-    <span class="n">positive_threshold_config</span><span class="o">=</span><span class="mi">85</span><span class="p">,</span>
-    <span class="n">include_label</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">label_mapping</span>
+<span></span>data_labeler.set_labels({'other': 0, "funky_one": 1, "funky_two": 2, "funky_three": 3})
+data_labeler.model.set_params(
+    true_positive_dict= [
+                {"attribute": "ssn", "label": "funky_one"},
+                {"attribute": "suffix", "label": "funky_two"},
+                {"attribute": "my_home_address", "label": "funky_three"},
+            ],
+    false_positive_dict=[
+                {
+                    "attribute": "contract_number",
+                    "label": "ssn",
+                },
+                {
+                    "attribute": "role",
+                    "label": "name",
+                },
+                {
+                    "attribute": "not_my_address",
+                    "label": "address",
+                },
+            ],
+    negative_threshold_config=50,
+    positive_threshold_config=85,
+    include_label=True,
+)
+data_labeler.label_mapping
 </pre></div>
 </div>
 </div>
@@ -672,7 +672,7 @@ passed to the <code class="docutils literal notranslate"><span class="pre">compa
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="s2">"ssn"</span><span class="p">,</span> <span class="s2">"suffix"</span><span class="p">],</span> <span class="n">predict_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">show_confidences</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span></span>data_labeler.predict(data=["ssn", "suffix"], predict_options=dict(show_confidences=True))
 </pre></div>
 </div>
 </div>
@@ -685,9 +685,9 @@ passed to the <code class="docutils literal notranslate"><span class="pre">compa
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">'new_column_name_labeler'</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">'new_column_name_labeler'</span><span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span><span class="s1">'new_column_name_labeler'</span><span class="p">)</span>
+<span></span>if not os.path.isdir('new_column_name_labeler'):
+    os.mkdir('new_column_name_labeler')
+data_labeler.save_to_disk('new_column_name_labeler')
 </pre></div>
 </div>
 </div>
@@ -699,7 +699,7 @@ passed to the <code class="docutils literal notranslate"><span class="pre">compa
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">saved_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="o">.</span><span class="n">load_from_disk</span><span class="p">(</span><span class="s1">'new_column_name_labeler'</span><span class="p">)</span>
+<span></span>saved_labeler = dp.DataLabeler.load_from_disk('new_column_name_labeler')
 </pre></div>
 </div>
 </div>
@@ -708,13 +708,13 @@ passed to the <code class="docutils literal notranslate"><span class="pre">compa
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># ensuring the parametesr are what we saved.</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"label_mapping:"</span><span class="p">)</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">saved_labeler</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">model parameters:"</span><span class="p">)</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">saved_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_parameters</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"postprocessor: "</span> <span class="o">+</span> <span class="n">saved_labeler</span><span class="o">.</span><span class="n">postprocessor</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+<span></span># ensuring the parametesr are what we saved.
+print("label_mapping:")
+pprint(saved_labeler.label_mapping)
+print("\nmodel parameters:")
+pprint(saved_labeler.model._parameters)
+print()
+print("postprocessor: " + saved_labeler.postprocessor.__class__.__name__)
 </pre></div>
 </div>
 </div>
@@ -723,8 +723,8 @@ passed to the <code class="docutils literal notranslate"><span class="pre">compa
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># predicting with the loaded labeler.</span>
-<span class="n">saved_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s2">"ssn"</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">"address"</span><span class="p">])</span>
+<span></span># predicting with the loaded labeler.
+saved_labeler.predict(["ssn", "name", "address"])
 </pre></div>
 </div>
 </div>

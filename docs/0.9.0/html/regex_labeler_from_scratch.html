@@ -483,18 +483,18 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span></span>import os
+import sys
+import json
+from pprint import pprint
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+import pandas as pd
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'../..'</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">dataprofiler</span> <span class="k">as</span> <span class="nn">dp</span>
+try:
+    import dataprofiler as dp
+except ImportError:
+    sys.path.insert(0, '../..')
+    import dataprofiler as dp
 </pre></div>
 </div>
 </div>
@@ -506,8 +506,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="o">.</span><span class="n">load_from_library</span><span class="p">(</span><span class="s1">'regex_model'</span><span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
+<span></span>data_labeler = dp.DataLabeler.load_from_library('regex_model')
+data_labeler.model.help()
 </pre></div>
 </div>
 </div>
@@ -516,7 +516,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pprint</span><span class="p">(</span><span class="n">data_labeler</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">)</span>
+<span></span>pprint(data_labeler.label_mapping)
 </pre></div>
 </div>
 </div>
@@ -525,7 +525,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pprint</span><span class="p">(</span><span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_parameters</span><span class="p">[</span><span class="s1">'regex_patterns'</span><span class="p">])</span>
+<span></span>pprint(data_labeler.model._parameters['regex_patterns'])
 </pre></div>
 </div>
 </div>
@@ -537,8 +537,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># evaluate a prediction using the default parameters</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 Fake St.'</span><span class="p">])</span>
+<span></span># evaluate a prediction using the default parameters
+data_labeler.predict(['123 Fake St.'])
 </pre></div>
 </div>
 </div>
@@ -554,17 +554,17 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">set_labels</span><span class="p">({</span><span class="s1">'other'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'digits'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'lowercase_char'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'uppercase_chars'</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span>
-    <span class="n">regex_patterns</span><span class="o">=</span><span class="p">{</span>
-        <span class="s1">'digits'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[+-]?[0-9]+'</span><span class="p">],</span>
-        <span class="s1">'lowercase_char'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[a-z]+'</span><span class="p">],</span>
-        <span class="s1">'uppercase_chars'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[A-Z]+'</span><span class="p">],</span>
-    <span class="p">},</span>
-    <span class="n">default_label</span><span class="o">=</span><span class="s1">'other'</span><span class="p">,</span>
-    <span class="n">ignore_case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">label_mapping</span>
+<span></span>data_labeler.set_labels({'other': 0, 'digits':1, 'lowercase_char': 2, 'uppercase_chars': 3})
+data_labeler.model.set_params(
+    regex_patterns={
+        'digits': [r'[+-]?[0-9]+'],
+        'lowercase_char': [r'[a-z]+'],
+        'uppercase_chars': [r'[A-Z]+'],
+    },
+    default_label='other',
+    ignore_case=False,
+)
+data_labeler.label_mapping
 </pre></div>
 </div>
 </div>
@@ -576,7 +576,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">])</span>
+<span></span>data_labeler.predict(['123 FAKE St.'])
 </pre></div>
 </div>
 </div>
@@ -586,8 +586,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">ignore_case</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">])</span>
+<span></span>data_labeler.model.set_params(ignore_case=True)
+data_labeler.predict(['123 FAKE St.'])
 </pre></div>
 </div>
 </div>
@@ -597,16 +597,16 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">set_labels</span><span class="p">({</span><span class="s1">'other'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'digits'</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'chars'</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span>
-    <span class="n">regex_patterns</span><span class="o">=</span><span class="p">{</span>
-        <span class="s1">'digits'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[=-]?[0-9]+'</span><span class="p">],</span>
-        <span class="s1">'chars'</span><span class="p">:</span> <span class="p">[</span><span class="sa">r</span><span class="s1">'[a-zA-Z]+'</span><span class="p">],</span>
-    <span class="p">},</span>
-    <span class="n">default_label</span><span class="o">=</span><span class="s1">'other'</span><span class="p">,</span>
-    <span class="n">ignore_case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">label_mapping</span>
+<span></span>data_labeler.set_labels({'other': 0, 'digits':1, 'chars': 2})
+data_labeler.model.set_params(
+    regex_patterns={
+        'digits': [r'[=-]?[0-9]+'],
+        'chars': [r'[a-zA-Z]+'],
+    },
+    default_label='other',
+    ignore_case=False,
+)
+data_labeler.label_mapping
 </pre></div>
 </div>
 </div>
@@ -615,7 +615,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">])</span>
+<span></span>data_labeler.predict(['123 FAKE St.'])
 </pre></div>
 </div>
 </div>
@@ -629,8 +629,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">postprocessor</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">aggregation_func</span><span class="o">=</span><span class="s1">'random'</span><span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">],</span> <span class="n">predict_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">show_confidences</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span></span>data_labeler.postprocessor.set_params(aggregation_func='random')
+data_labeler.predict(['123 FAKE St.'], predict_options=dict(show_confidences=True))
 </pre></div>
 </div>
 </div>
@@ -644,10 +644,10 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">dataprofiler.labelers.data_processing</span> <span class="kn">import</span> <span class="n">StructRegexPostProcessor</span>
+<span></span>from dataprofiler.labelers.data_processing import StructRegexPostProcessor
 
-<span class="n">postprocesor</span> <span class="o">=</span> <span class="n">StructRegexPostProcessor</span><span class="p">()</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">set_postprocessor</span><span class="p">(</span><span class="n">postprocesor</span><span class="p">)</span>
+postprocesor = StructRegexPostProcessor()
+data_labeler.set_postprocessor(postprocesor)
 </pre></div>
 </div>
 </div>
@@ -657,7 +657,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'123 FAKE St.'</span><span class="p">,</span> <span class="s1">'123'</span><span class="p">,</span> <span class="s1">'FAKE'</span><span class="p">],</span> <span class="n">predict_options</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">show_confidences</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span></span>data_labeler.predict(['123 FAKE St.', '123', 'FAKE'], predict_options=dict(show_confidences=True))
 </pre></div>
 </div>
 </div>
@@ -669,19 +669,19 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># create and set the option for the regex data labeler to be used at profile time</span>
-<span class="n">profile_options</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">ProfilerOptions</span><span class="p">()</span>
-<span class="n">profile_options</span><span class="o">.</span><span class="n">set</span><span class="p">({</span><span class="s1">'structured_options.data_labeler.data_labeler_object'</span><span class="p">:</span> <span class="n">data_labeler</span><span class="p">})</span>
+<span></span># create and set the option for the regex data labeler to be used at profile time
+profile_options = dp.ProfilerOptions()
+profile_options.set({'structured_options.data_labeler.data_labeler_object': data_labeler})
 
-<span class="c1"># profile the dataset using the suggested regex data labeler</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="p">[[</span><span class="s1">'123 FAKE St.'</span><span class="p">,</span> <span class="mi">123</span><span class="p">,</span> <span class="s1">'this'</span><span class="p">],</span>
-     <span class="p">[</span><span class="mi">123</span>           <span class="p">,</span>  <span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="s1">'IS'</span><span class="p">],</span>
-     <span class="p">[</span><span class="s1">'...'</span>         <span class="p">,</span> <span class="o">+</span><span class="mi">80</span><span class="p">,</span> <span class="s1">'A'</span><span class="p">],</span>
-     <span class="p">[</span><span class="s1">'123'</span>         <span class="p">,</span> <span class="mi">202</span><span class="p">,</span> <span class="s1">'raNDom'</span><span class="p">],</span>
-     <span class="p">[</span><span class="s1">'test'</span>        <span class="p">,</span>  <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'TEST'</span><span class="p">]],</span>
-    <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
-<span class="n">profiler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Profiler</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">profile_options</span><span class="p">)</span>
+# profile the dataset using the suggested regex data labeler
+data = pd.DataFrame(
+    [['123 FAKE St.', 123, 'this'],
+     [123           ,  -9, 'IS'],
+     ['...'         , +80, 'A'],
+     ['123'         , 202, 'raNDom'],
+     ['test'        ,  -1, 'TEST']],
+    dtype=object)
+profiler = dp.Profiler(data, options=profile_options)
 </pre></div>
 </div>
 </div>
@@ -691,12 +691,12 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pprint</span><span class="p">(</span><span class="n">profiler</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
-    <span class="nb">dict</span><span class="p">(</span><span class="n">output_format</span><span class="o">=</span><span class="s1">'compact'</span><span class="p">,</span>
-         <span class="n">omit_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">'data_stats.*.statistics'</span><span class="p">,</span>
-                    <span class="s1">'data_stats.*.categorical'</span><span class="p">,</span>
-                    <span class="s1">'data_stats.*.order'</span><span class="p">,</span>
-                    <span class="s1">'global_stats'</span><span class="p">])))</span>
+<span></span>pprint(profiler.report(
+    dict(output_format='compact',
+         omit_keys=['data_stats.*.statistics',
+                    'data_stats.*.categorical',
+                    'data_stats.*.order',
+                    'global_stats'])))
 </pre></div>
 </div>
 </div>
@@ -709,9 +709,9 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="s1">'my_new_regex_labeler'</span><span class="p">):</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="s1">'my_new_regex_labeler'</span><span class="p">)</span>
-<span class="n">data_labeler</span><span class="o">.</span><span class="n">save_to_disk</span><span class="p">(</span><span class="s1">'my_new_regex_labeler'</span><span class="p">)</span>
+<span></span>if not os.path.isdir('my_new_regex_labeler'):
+    os.mkdir('my_new_regex_labeler')
+data_labeler.save_to_disk('my_new_regex_labeler')
 </pre></div>
 </div>
 </div>
@@ -723,7 +723,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">saved_labeler</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">DataLabeler</span><span class="o">.</span><span class="n">load_from_disk</span><span class="p">(</span><span class="s1">'my_new_regex_labeler'</span><span class="p">)</span>
+<span></span>saved_labeler = dp.DataLabeler.load_from_disk('my_new_regex_labeler')
 </pre></div>
 </div>
 </div>
@@ -732,13 +732,13 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># ensuring the parametesr are what we saved.</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"label_mapping:"</span><span class="p">)</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">saved_labeler</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">model parameters:"</span><span class="p">)</span>
-<span class="n">pprint</span><span class="p">(</span><span class="n">saved_labeler</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_parameters</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"postprocessor: "</span> <span class="o">+</span> <span class="n">saved_labeler</span><span class="o">.</span><span class="n">postprocessor</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+<span></span># ensuring the parametesr are what we saved.
+print("label_mapping:")
+pprint(saved_labeler.label_mapping)
+print("\nmodel parameters:")
+pprint(saved_labeler.model._parameters)
+print()
+print("postprocessor: " + saved_labeler.postprocessor.__class__.__name__)
 </pre></div>
 </div>
 </div>
@@ -747,8 +747,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># predicting with the loaded labeler.</span>
-<span class="n">saved_labeler</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="s1">'test'</span><span class="p">,</span> <span class="s1">'123'</span><span class="p">])</span>
+<span></span># predicting with the loaded labeler.
+saved_labeler.predict(['test', '123'])
 </pre></div>
 </div>
 </div>

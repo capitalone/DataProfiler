@@ -270,7 +270,7 @@ class BaseColumnProfiler(metaclass=abc.ABCMeta):  # type: ignore
                         raise AttributeError(
                             f"Object {type(profile)} has no attribute {function}."
                         )
-                    value[metric] = getattr(profile, function)
+                    value[metric] = getattr(profile, function).__func__
             setattr(profile, attr, value)
 
         return profile
@@ -303,7 +303,7 @@ class BaseColumnPrimitiveTypeProfiler(
         :type profile: base data profile dict
         :return: None
         """
-        self.match_count += profile.pop("match_count")
+        self.match_count += int(profile.pop("match_count"))
         BaseColumnProfiler._update_column_base_properties(self, profile)
 
     def _add_helper(  # type: ignore[override]
@@ -320,4 +320,4 @@ class BaseColumnPrimitiveTypeProfiler(
         :type other2: BaseColumnPrimitiveTypeProfiler
         """
         BaseColumnProfiler._add_helper(self, other1, other2)
-        self.match_count = other1.match_count + other2.match_count
+        self.match_count = int(other1.match_count + other2.match_count)

@@ -9,8 +9,11 @@ import numpy as np
 import pandas as pd
 
 from dataprofiler.profilers import IntColumn
+from dataprofiler.profilers.json_decoder import load_column_profile
 from dataprofiler.profilers.json_encoder import ProfileEncoder
 from dataprofiler.profilers.profiler_options import IntOptions
+
+from . import utils as test_utils
 
 test_root_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -33,9 +36,9 @@ class TestIntColumn(unittest.TestCase):
         self.assertTrue(profiler.kurtosis is np.nan)
         self.assertTrue(profiler.stddev is np.nan)
         self.assertIsNone(profiler.histogram_selection)
-        self.assertDictEqual(
-            {k: profiler.quantiles.get(k, "fail") for k in (0, 1, 2)},
-            {0: None, 1: None, 2: None},
+        self.assertListEqual(
+            [profiler.quantiles[k] for k in (0, 1, 2)],
+            [0, 1, 2],
         )
         self.assertIsNone(profiler.data_type_ratio)
 
@@ -1152,7 +1155,7 @@ class TestIntColumn(unittest.TestCase):
                         "histogram": {"bin_counts": None, "bin_edges": None},
                     },
                     "_batch_history": [],
-                    "quantiles": {bin_num: None for bin_num in range(999)},
+                    "quantiles": [bin_num for bin_num in range(999)],
                     "_NumericStatsMixin__calculations": {
                         "min": "_get_min",
                         "max": "_get_max",
@@ -1292,3 +1295,42 @@ class TestIntColumn(unittest.TestCase):
         )
 
         self.assertEqual(serialized, expected)
+
+    def test_json_decode(self):
+        fake_profile_name = None
+        expected_profile = IntColumn(fake_profile_name)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+    def test_json_decode_after_update(self):
+        fake_profile_name = "Fake profile name"
+        # Actual deserialization
+
+        # Build expected CategoricalColumn
+        df_int = pd.Series([1, 2, 5, 7, 4, 3, 2, 7, 8, 9])
+        expected_profile = IntColumn(fake_profile_name)
+
+        with test_utils.mock_timeit():
+            expected_profile.update(df_int)
+
+        serialized = json.dumps(expected_profile, cls=ProfileEncoder)
+        deserialized = load_column_profile(json.loads(serialized))
+
+        test_utils.assert_profiles_equal(deserialized, expected_profile)
+
+        df_int = pd.Series(
+            [
+                4,  # add existing
+                15,  # add new
+            ]
+        )
+
+        # validating update after deserialization
+        deserialized.update(df_int)
+
+        assert deserialized.sample_size == 12
+        assert deserialized.mean == sum([1, 2, 5, 7, 4, 3, 2, 7, 8, 9, 4, 15]) / 12
+        assert deserialized.max == 15

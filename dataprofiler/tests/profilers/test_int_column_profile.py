@@ -1129,7 +1129,7 @@ class TestIntColumn(unittest.TestCase):
                     "min": None,
                     "max": None,
                     "_top_k_modes": 5,
-                    "sum": 0,
+                    "sum": 0.0,
                     "_biased_variance": np.nan,
                     "_biased_skewness": np.nan,
                     "_biased_kurtosis": np.nan,

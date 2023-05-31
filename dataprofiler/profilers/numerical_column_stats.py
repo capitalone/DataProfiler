@@ -56,10 +56,10 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         self.min: int | float | None = None
         self.max: int | float | None = None
         self._top_k_modes: int = 5  # By default, return at max 5 modes
-        self.sum: int | float = 0
-        self._biased_variance: float = np.nan
-        self._biased_skewness: float | np.float64 = np.nan
-        self._biased_kurtosis: float | np.float64 = np.nan
+        self.sum: int | float | np.float64 = np.float64(0)
+        self._biased_variance: float | np.float64 = np.float64(np.nan)
+        self._biased_skewness: float | np.float64 = np.float64(np.nan)
+        self._biased_kurtosis: float | np.float64 = np.float64(np.nan)
         self._median_is_enabled: bool = True
         self._median_abs_dev_is_enabled: bool = True
         self.max_histogram_bin: int = 100000
@@ -77,8 +77,8 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         self.user_set_histogram_bin: int | None = None
         self.bias_correction: bool = True  # By default, we correct for bias
         self._mode_is_enabled: bool = True
-        self.num_zeros: int = 0
-        self.num_negatives: int = 0
+        self.num_zeros: int | np.int64 = np.int64(0)
+        self.num_negatives: int | np.int64 = np.int64(0)
         self._num_quantiles: int = 1000  # TODO: add to options
 
         if options:
@@ -372,15 +372,15 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                 }
             self._stored_histogram[key] = value
         # Convert values to correct types
-        if self.min is not None:
+        if self.min is not None and type(self.min) not in [np.float64, np.int64]:
             self.min = (
                 np.float64(self.min) if type(self.min) == float else np.int64(self.min)
             )
-        if self.max is not None:
+        if self.max is not None and type(self.max) not in [np.float64, np.int64]:
             self.max = (
                 np.float64(self.max) if type(self.max) == float else np.int64(self.max)
             )
-        if self.sum is not None:
+        if self.sum is not None and type(self.sum) not in [np.float64, np.int64]:
             self.sum = (
                 np.float64(self.sum) if type(self.sum) == float else np.int64(self.sum)
             )
@@ -388,6 +388,12 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
             self.num_zeros = np.int64(self.num_zeros)
         if self.num_negatives is not None:
             self.num_negatives = np.int64(self.num_zeros)
+        if self._biased_variance is not None:
+            self._biased_variance = np.float64(self._biased_variance)
+        if self._biased_skewness is not None:
+            self._biased_skewness = np.float64(self._biased_skewness)
+        if self._biased_kurtosis is not None:
+            self._biased_kurtosis = np.float64(self._biased_kurtosis)
 
     def diff(
         self,
@@ -442,7 +448,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         return differences
 
     @property
-    def mean(self) -> float:
+    def mean(self) -> float | np.float64:
         """Return mean value."""
         if self.match_count == 0:
             return 0.0
@@ -473,7 +479,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         return self._get_percentile([50])[0]
 
     @property
-    def variance(self) -> float:
+    def variance(self) -> float | np.float64:
         """Return variance."""
         return (
             self._biased_variance
@@ -508,7 +514,12 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
 
     @staticmethod
     def _perform_t_test(
-        mean1: float, var1: float, n1: int, mean2: float, var2: float, n2: int
+        mean1: float | np.float64,
+        var1: float | np.float64,
+        n1: int,
+        mean2: float | np.float64,
+        var2: float | np.float64,
+        n2: int,
     ) -> dict:
         results: dict = {
             "t-statistic": None,
@@ -523,7 +534,9 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
                 RuntimeWarning,
             )
             invalid_stats = True
-        if np.isnan([mean1, mean2, var1, var2]).any() or None in [
+        if np.isnan(
+            [float(mean1), float(mean2), float(var1), float(var2)]
+        ).any() or None in [
             mean1,
             mean2,
             var1,
@@ -713,7 +726,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         batch_mean: float,
         batch_var: float,
         batch_count: int,
-    ) -> float:
+    ) -> float | np.float64:
         """
         Calculate combined biased variance of the current values and new dataset.
 
@@ -721,7 +734,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         :param batch_var: biased variance of new chunk
         :param batch_count: number of samples in new chunk
         :return: combined biased variance
-        :rtype: float
+        :rtype: float | np.float64
         """
         return self._merge_biased_variance(
             self.match_count,
@@ -735,12 +748,12 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
     @staticmethod
     def _merge_biased_variance(
         match_count1: int,
-        biased_variance1: float,
-        mean1: float,
+        biased_variance1: float | np.float64,
+        mean1: float | np.float64,
         match_count2: int,
-        biased_variance2: float,
-        mean2: float,
-    ) -> float:
+        biased_variance2: float | np.float64,
+        mean2: float | np.float64,
+    ) -> float | np.float64:
         """
         Calculate combined biased variance of the current values and new dataset.
 
@@ -751,7 +764,7 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         :param mean2: mean of chunk 2
         :param biased_variance2: variance of chunk 2 without bias correction
         :return: combined variance
-        :rtype: float
+        :rtype: float | np.float64
         """
         if match_count1 < 1:
             return biased_variance2
@@ -773,7 +786,9 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         return new_variance
 
     @staticmethod
-    def _correct_bias_variance(match_count: int, biased_variance: float) -> float:
+    def _correct_bias_variance(
+        match_count: int, biased_variance: float | np.float64
+    ) -> float | np.float64:
         if match_count is None or biased_variance is None or match_count < 2:
             warnings.warn(
                 "Insufficient match count to correct bias in variance. Bias correction "
@@ -790,12 +805,12 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
     def _merge_biased_skewness(
         match_count1: int,
         biased_skewness1: float | np.float64,
-        biased_variance1: float,
-        mean1: float,
+        biased_variance1: float | np.float64,
+        mean1: float | np.float64,
         match_count2: int,
         biased_skewness2: float | np.float64,
-        biased_variance2: float,
-        mean2: float,
+        biased_variance2: float | np.float64,
+        mean2: float | np.float64,
     ) -> float | np.float64:
         """
         Calculate the combined skewness of two data chunks.
@@ -876,13 +891,13 @@ class NumericStatsMixin(metaclass=abc.ABCMeta):  # type: ignore
         match_count1: int,
         biased_kurtosis1: float | np.float64,
         biased_skewness1: float | np.float64,
-        biased_variance1: float,
-        mean1: float,
+        biased_variance1: float | np.float64,
+        mean1: float | np.float64,
         match_count2: int,
         biased_kurtosis2: float | np.float64,
         biased_skewness2: float | np.float64,
-        biased_variance2: float,
-        mean2: float,
+        biased_variance2: float | np.float64,
+        mean2: float | np.float64,
     ) -> float | np.float64:
         """
         Calculate the combined kurtosis of two sets of data.

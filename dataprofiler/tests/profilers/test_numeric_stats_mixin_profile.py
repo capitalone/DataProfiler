@@ -1172,7 +1172,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                     "min": None,
                     "max": None,
                     "_top_k_modes": 5,
-                    "sum": 0,
+                    "sum": 0.0,
                     "_biased_variance": np.nan,
                     "_biased_skewness": np.nan,
                     "_biased_kurtosis": np.nan,
@@ -1187,6 +1187,7 @@ class TestNumericStatsMixin(unittest.TestCase):
                     "_mode_is_enabled": True,
                     "num_zeros": 0,
                     "num_negatives": 0,
+                    "_num_quantiles": 1000,
                     "histogram_methods": expected_historam_methods,
                     "_stored_histogram": {
                         "total_loss": 0,
